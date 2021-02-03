@@ -107,13 +107,14 @@ const getTableContents = async (filterObject) => {
             <td>
                 <img src="${item.img || myData[item.bsgId].img}" loading="lazy" />
             </td>
-            <td>
-                hor? ${Number(myData[item.bsgId].horizontal)}
-            </td>
+
             <td>
                 ${item.bsgType}
             </td>
             ${getItemTypesMarkup(item)}
+            <td>
+                <img src="https://tarkov-data.s3.eu-north-1.amazonaws.com/${item.bsgId}/latest.jpg" class="scan-image">
+            </td>
             </tr>`;
 
             // <td>
@@ -174,13 +175,13 @@ app.get('/', async (req, res) => {
                         Image
                     </th>
                     <th>
-                        Hor
-                    </th>
-                    <th>
                         Type
                     </th>
                     <th>
                         Tags
+                    </th>
+                    <th>
+                        Scan image
                     </th>
                 </tr>
             </thead>
@@ -227,13 +228,13 @@ app.get('/untagged', async (req, res) => {
                         Image
                     </th>
                     <th>
-                        Hor
-                    </th>
-                    <th>
                         Type
                     </th>
                     <th>
                         Tags
+                    </th>
+                    <th>
+                        Scan image
                     </th>
                 </tr>
             </thead>
