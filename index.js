@@ -167,7 +167,7 @@ app.get('/', async (req, res) => {
             <link rel="stylesheet" href="index.css" />
         </head>
         <body>
-        <table class="striped highlight">
+        <table class="highlight">
             <thead>
                 <tr>
                     <th>
