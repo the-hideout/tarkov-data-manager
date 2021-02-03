@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const getData = require('./modules/get-data');
 
 const app = express();
-const port = 4000;
+const port = process.env.PORT || 4000;
 
 const myData = require('./data.json');
 
