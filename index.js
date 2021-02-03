@@ -40,7 +40,9 @@ const AVAILABLE_TYPES = [
 ];
 
 const updateData = async (updateObject) => {
-    const updateData = await remoteData.get();
+    const updateData = await remoteData.get({
+        force: true,
+    });
     if(!updateData[updateObject.id].types){
         updateData[updateObject.id].types = [];
     }
