@@ -113,7 +113,7 @@ const getTableContents = async (filterObject) => {
             </td>
             ${getItemTypesMarkup(item)}
             <td>
-                <img src="https://tarkov-data.s3.eu-north-1.amazonaws.com/${item.bsgId}/latest.jpg" class="scan-image">
+                <img src="https://tarkov-data.s3.eu-north-1.amazonaws.com/${item.bsgId}/latest.jpg" class="scan-image" loading="lazy">
             </td>
             </tr>`;
 
@@ -167,7 +167,7 @@ app.get('/', async (req, res) => {
             <link rel="stylesheet" href="index.css" />
         </head>
         <body>
-        <table>
+        <table class="striped highlight">
             <thead>
                 <tr>
                     <th>
