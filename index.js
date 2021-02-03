@@ -87,7 +87,7 @@ const getTableContents = async (filterObject) => {
     let items = 0;
 
     for(const item of allData){
-        if(filterObject?.untagged && myData[item.bsgId].types.length > 0){
+        if(filterObject.type === 'untagged' && myData[item.bsgId].types.length > 0){
             continue;
         }
 
@@ -124,8 +124,6 @@ const getTableContents = async (filterObject) => {
             break;
         }
     }
-
-
 
     return tableContentsString;
 };
@@ -167,6 +165,8 @@ app.get('/', async (req, res) => {
             <link rel="stylesheet" href="index.css" />
         </head>
         <body>
+        ${AVAILABLE_TYPES.map(type => `<a href="/?type=${type}">${type}</a>`).join(' ')}
+        <a href="/?type=untagged">untagged</a>
         <table class="highlight">
             <thead>
                 <tr>
@@ -193,60 +193,6 @@ app.get('/', async (req, res) => {
             <tbody>
                 ${ await getTableContents({
                     type: req.query.type,
-                })}
-            </tbody>
-        </table>
-        <script src="index.js"></script>
-    `);
-});
-
-app.get('/untagged', async (req, res) => {
-    myData = await remoteData.get();
-    res.send(`<!DOCTYPE html>
-        <head>
-            <title>Tarkov Data Studio</title>
-            <link rel="stylesheet" href="index.css" />
-
-            <!-- Compiled and minified CSS -->
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-
-            <!-- Compiled and minified JavaScript -->
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-            <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-            <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-            <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-            <link rel="manifest" href="/site.webmanifest">
-            <meta name="msapplication-TileColor" content="#da532c">
-            <meta name="theme-color" content="#ffffff">
-            <link rel="stylesheet" href="index.css" />
-        </head>
-        <body>
-        <table>
-            <thead>
-                <tr>
-                    <th>
-                        ID
-                    </th>
-                    <th>
-                        Name
-                    </th>
-                    <th>
-                        Image
-                    </th>
-                    <th>
-                        Type
-                    </th>
-                    <th>
-                        Tags
-                    </th>
-                    <th>
-                        Scan image
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                ${ await getTableContents({
-                    untagged: true,
                 })}
             </tbody>
         </table>
