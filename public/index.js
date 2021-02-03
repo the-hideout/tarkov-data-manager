@@ -32,3 +32,7 @@ document.addEventListener('change', (event) => {
             console.log(data); // JSON data parsed by `data.json()` call
         });
 });
+
+$(document).ready( function () {
+    $('table').DataTable();
+} );

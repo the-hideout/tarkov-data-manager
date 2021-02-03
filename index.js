@@ -148,6 +148,10 @@ app.get('/', async (req, res) => {
         <head>
             <title>Tarkov Data Studio</title>
 
+            <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+            <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css">
+            <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+
             <!-- Compiled and minified CSS -->
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
