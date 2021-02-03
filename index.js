@@ -39,24 +39,26 @@ const AVAILABLE_TYPES = [
     'no-flea',
 ];
 
-const updateData = (updateObject) => {
-    if(!myData[updateObject.id].types){
-        myData[updateObject.id].types = [];
+const updateData = async (updateObject) => {
+    const updateData = await remoteData.get();
+    if(!updateData[updateObject.id].types){
+        updateData[updateObject.id].types = [];
     }
 
-    if(updateObject.active === false && !myData[updateObject.id].types.includes(updateObject.type)){
+    if(updateObject.active === false && !updateData[updateObject.id].types.includes(updateObject.type)){
         return true;
     }
 
     if(updateObject.active === false){
-        myData[updateObject.id].types.splice(myData[updateObject.id].types.indexOf(updateObject.type), 1);
+        updateData[updateObject.id].types.splice(updateData[updateObject.id].types.indexOf(updateObject.type), 1);
     }
 
     if(updateObject.active === true){
-        myData[updateObject.id].types.push(updateObject.type);
+        updateData[updateObject.id].types.push(updateObject.type);
     }
 
-    remoteData.update(myData);
+    remoteData.update(updateData);
+    myData = updateData;
 };
 
 const getItemTypesMarkup = (item) => {
