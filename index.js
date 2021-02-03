@@ -3,13 +3,15 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const got = require('got');
 
 const getData = require('./modules/get-data');
+const remoteData = require('./modules/remote-data');
 
 const app = express();
 const port = process.env.PORT || 4000;
 
-const myData = require('./data.json');
+let myData = false;
 
 app.use(bodyParser.json());
 app.use(express.static('public'));
@@ -17,8 +19,14 @@ app.use(express.static('public'));
 try {
     fs.mkdirSync(path.join(__dirname, 'cache'));
 } catch (createError){
-    console.error(createError);
+    if(createError.code !== 'EEXIST'){
+        console.error(createError);
+    }
 }
+
+(async () => {
+    myData = await remoteData.get();
+})();
 
 const AVAILABLE_TYPES = [
     'glasses',
@@ -32,6 +40,7 @@ const AVAILABLE_TYPES = [
     'marked-only',
     'ammo',
     'armor',
+    'no-flea',
 ];
 
 const updateData = (updateObject) => {
@@ -51,8 +60,8 @@ const updateData = (updateObject) => {
         myData[updateObject.id].types.push(updateObject.type);
     }
 
-    fs.writeFileSync(path.join(__dirname, 'data.json'), JSON.stringify(myData, null, 4));
-}
+    remoteData.update(myData);
+};
 
 const getItemTypesMarkup = (item) => {
     let markupString = '<td class="types-column">';
