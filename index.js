@@ -14,6 +14,12 @@ const myData = require('./data.json');
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
+try {
+    fs.mkdirSync(path.join(__dirname, 'cache'));
+} catch (createError){
+    console.error(createError);
+}
+
 const AVAILABLE_TYPES = [
     'glasses',
     'helmet',
@@ -221,5 +227,5 @@ app.get('/untagged', async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`)
+    console.log(`Tarkov Data Manager listening at http://localhost:${port}`)
 });
