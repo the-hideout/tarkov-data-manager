@@ -1,0 +1,28 @@
+img {
+    max-width: 128px;
+}
+
+pre {
+    resize: both;
+    overflow: auto;
+    height: 100px;
+    width: 100px;
+}
+
+tr:hover {
+    background-color: #ccc;
+}
+
+.name-column {
+    max-width: 200px;
+    text-overflow: ellipsis;
+}
+
+.types-column {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.type-wrapper {
+    width: 33%;
+}
