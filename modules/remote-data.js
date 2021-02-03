@@ -11,8 +11,8 @@ const client = new S3Client({
 let cachedData = false;
 
 module.exports = {
-    get: async () => {
-        if(cachedData){
+    get: async ({force}) => {
+        if(cachedData && !force){
             return cachedData;
         }
 
@@ -39,7 +39,7 @@ module.exports = {
 
         try {
             const data = await client.send(new PutObjectCommand(uploadParams));
-            console.log('Success', data);
+            console.log('Remote data updted');
         } catch (err) {
             console.log('Error', err);
         }
