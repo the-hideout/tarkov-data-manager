@@ -34,5 +34,7 @@ document.addEventListener('change', (event) => {
 });
 
 $(document).ready( function () {
-    $('table').DataTable();
+    $('table').DataTable({
+        pageLength: 100,
+    });
 } );
