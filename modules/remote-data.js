@@ -11,8 +11,10 @@ const client = new S3Client({
 let cachedData = false;
 
 module.exports = {
-    get: async ({force}) => {
+    get: async (getOpts) => {
+        const {force} = getOpts || {};
         if(cachedData && !force){
+            console.log('Remote data loaded from cache');
             return cachedData;
         }
 
@@ -20,6 +22,7 @@ module.exports = {
             const remoteDataResponse = await got('https://tarkov-data.s3.eu-north-1.amazonaws.com/data.json', {
                 responseType: 'json',
             });
+            console.log('Loaded remote data');
             cachedData = remoteDataResponse.body;
         } catch (gotError){
             console.error(gotError);
@@ -39,7 +42,7 @@ module.exports = {
 
         try {
             const data = await client.send(new PutObjectCommand(uploadParams));
-            console.log('Remote data updted');
+            console.log('Remote data updated');
         } catch (err) {
             console.log('Error', err);
         }
