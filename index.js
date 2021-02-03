@@ -24,10 +24,6 @@ try {
     }
 }
 
-(async () => {
-    myData = await remoteData.get();
-})();
-
 const AVAILABLE_TYPES = [
     'glasses',
     'helmet',
@@ -144,6 +140,7 @@ app.post('/update', (request, response) => {
 });
 
 app.get('/', async (req, res) => {
+    myData = await remoteData.get();
     res.send(`<!DOCTYPE html>
         <head>
             <title>Tarkov Data Studio</title>
@@ -200,6 +197,7 @@ app.get('/', async (req, res) => {
 });
 
 app.get('/untagged', async (req, res) => {
+    myData = await remoteData.get();
     res.send(`<!DOCTYPE html>
         <head>
             <title>Tarkov Data Studio</title>
