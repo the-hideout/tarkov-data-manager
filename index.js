@@ -4,14 +4,25 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const got = require('got');
+const Jimp = require('jimp');
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const {fromEnv} = require('@aws-sdk/credential-provider-env');
 
-const getData = require('./modules/get-data');
+// const getData = require('./modules/get-data');
 const remoteData = require('./modules/remote-data');
+const idIcon = require('./modules/id-icon');
+const { connect } = require('http2');
+const Connection = require('mysql/lib/Connection');
 
 const app = express();
 const port = process.env.PORT || 4000;
 
 let myData = false;
+
+s3 = new S3Client({
+    region: 'eu-west-1',
+    credentials: fromEnv(),
+});
 
 app.use(bodyParser.json());
 app.use(express.static('public'));
@@ -40,26 +51,32 @@ const AVAILABLE_TYPES = [
 ];
 
 const updateData = async (updateObject) => {
-    const updateData = await remoteData.get({
-        force: true,
-    });
-    if(!updateData[updateObject.id].types){
-        updateData[updateObject.id].types = [];
-    }
+    const updateData = await remoteData.get();
+    const currentItemData = updateData.get(updateObject.id);
 
-    if(updateObject.active === false && !updateData[updateObject.id].types.includes(updateObject.type)){
+    if(updateObject.active === false && !currentItemData.types.includes(updateObject.type)){
         return true;
     }
 
     if(updateObject.active === false){
-        updateData[updateObject.id].types.splice(updateData[updateObject.id].types.indexOf(updateObject.type), 1);
+        currentItemData.types.splice(currentItemData.types.indexOf(updateObject.type), 1);
+        remoteData.removeType(updateObject.id, updateObject.type);
     }
 
     if(updateObject.active === true){
-        updateData[updateObject.id].types.push(updateObject.type);
+        currentItemData.types.push(updateObject.type);
+        remoteData.addType(updateObject.id, updateObject.type);
     }
 
-    remoteData.update(updateData);
+    updateData.set(updateObject.id, currentItemData);
+
+    const JSONdata = {};
+
+    for(const [key, value] of updateData){
+        JSONdata[key] = value;
+    }
+
+    remoteData.update(JSONdata);
     myData = updateData;
 };
 
@@ -68,8 +85,8 @@ const getItemTypesMarkup = (item) => {
     for(const type of AVAILABLE_TYPES){
         markupString = `${markupString}
         <div class="type-wrapper">
-            <label for="${item.bsgId}-${type}">
-                <input type="checkbox" id="${item.bsgId}-${type}" value="${type}" data-item-id="${item.bsgId}" ${myData[item.bsgId].types?.includes(type) ? 'checked' : ''} />
+            <label for="${item.id}-${type}">
+                <input type="checkbox" id="${item.id}-${type}" value="${type}" data-item-id="${item.id}" ${myData.get(item.id).types?.includes(type) ? 'checked' : ''} />
                 <span>${type}</span>
             </label>
         </div>`;
@@ -81,39 +98,68 @@ const getItemTypesMarkup = (item) => {
 };
 
 const getTableContents = async (filterObject) => {
-    const allData = await getData();
+    const myData = await remoteData.get();
     let tableContentsString = '';
     let maxItems = 3000;
     let items = 0;
 
-    for(const item of allData){
-        if(filterObject.type === 'untagged' && myData[item.bsgId].types.length > 0){
-            continue;
-        }
+    for(const [key, item] of myData){
+        if(filterObject?.type){
+            switch (filterObject.type){
+                case 'untagged':
+                    if(item.types.length > 0){
+                        continue;
+                    }
+                    break;
+                case 'no-image':
+                    if(item.image_link !== ''){
+                        continue;
+                    }
 
-        if(filterObject?.type && !myData[item.bsgId].types.includes(filterObject.type)){
-            continue;
+                    break;
+                case 'no-icon':
+                    if(item.icon_link !== ''){
+                        continue;
+                    }
+
+                    const alternateIcon = await idIcon(item.id);
+                    if(alternateIcon){
+                        item.icon_link = await alternateIcon.getBase64Async(Jimp.MIME_JPEG);
+                    }
+                    item.fix_link = `/set-icon-image?item-id=${item.id}`;
+
+                    break;
+                default:
+                    if(!item.types.includes(filterObject.type)){
+                        continue;
+                    }
+            }
         }
 
         items = items + 1;
+        let iconString = `<img src="${item.icon_link}" loading="lazy" />`;
+
+        if(item.fix_link){
+            iconString = `
+                <a href="${item.fix_link}"><img src="${item.icon_link}" loading="lazy" /></a>
+                <a href="/set-icon-image?item-id=${item.id}&image-url=${item.image_link}"><img src="${item.image_link}" loading="lazy" /></a>
+            `;
+        }
         tableContentsString = `${tableContentsString}
         <tr>
-            <td>
-                ${item.bsgId}
-            </td>
             <td class="name-column">
-                <a href="${item.wikiLink}" >${item.name}</a>
+                <a href="${item.wiki_link}" >${item.name}</a>
+                ${item.id}
             </td>
             <td>
-                <img src="${item.img || myData[item.bsgId].img}" loading="lazy" />
+                <img src="${item.image_link}" loading="lazy" />
             </td>
-
             <td>
-                ${item.bsgType}
+                ${iconString}
             </td>
             ${getItemTypesMarkup(item)}
             <td>
-                <img src="https://tarkov-data.s3.eu-north-1.amazonaws.com/${item.bsgId}/latest.jpg" class="scan-image" loading="lazy">
+                <img src="https://tarkov-data.s3.eu-north-1.amazonaws.com/${item.id}/latest.jpg" class="scan-image" loading="lazy">
             </td>
             </tr>`;
 
@@ -129,7 +175,7 @@ const getTableContents = async (filterObject) => {
 };
 
 app.get('/data', async (req, res) => {
-    const allData = await getData();
+    const allData = await remoteData.get();
 
     res.send(allData);
 });
@@ -137,6 +183,38 @@ app.get('/data', async (req, res) => {
 app.post('/update', (request, response) => {
     console.log(request.body);
     updateData(request.body);
+
+    response.send('ok');
+});
+
+app.get('/set-icon-image', async (request, response) => {
+    let image;
+    if(request.query['image-url']){
+        image = await Jimp.read(request.query['image-url']);
+    } else {
+        image = await idIcon(request.query['item-id']);
+    }
+
+    if(!image){
+        return response.send('Failed to add image');
+    }
+
+    const uploadParams = {
+        Bucket: 'assets.tarkov-tools.com',
+        Key: `${request.query['item-id']}-icon.jpg`,
+        ContentType: 'image/jpeg',
+    };
+
+    uploadParams.Body = await image.getBufferAsync(Jimp.MIME_JPEG);
+
+    try {
+        await s3.send(new PutObjectCommand(uploadParams));
+        console.log("Image saved to s3");
+    } catch (err) {
+        console.log("Error", err);
+    }
+
+    await remoteData.setProperty(request.query['item-id'], 'icon_link', `https://assets.tarkov-tools.com/${request.query['item-id']}-icon.jpg`);
 
     response.send('ok');
 });
@@ -167,12 +245,11 @@ app.get('/', async (req, res) => {
         <body>
         ${AVAILABLE_TYPES.map(type => `<a href="/?type=${type}">${type}</a>`).join(' ')}
         <a href="/?type=untagged">untagged</a>
+        <a href="/?type=no-image">no-image</a>
+        <a href="/?type=no-icon">no-icon</a>
         <table class="highlight">
             <thead>
                 <tr>
-                    <th>
-                        ID
-                    </th>
                     <th>
                         Name
                     </th>
@@ -180,7 +257,7 @@ app.get('/', async (req, res) => {
                         Image
                     </th>
                     <th>
-                        Type
+                        Icon
                     </th>
                     <th>
                         Tags
