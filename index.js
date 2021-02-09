@@ -13,6 +13,9 @@ const remoteData = require('./modules/remote-data');
 const idIcon = require('./modules/id-icon');
 const { connect } = require('http2');
 const Connection = require('mysql/lib/Connection');
+const { response } = require('express');
+
+const workerData = require('./modules/worker-data');
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -177,6 +180,37 @@ app.get('/data', async (req, res) => {
 app.post('/update', (request, response) => {
     console.log(request.body);
     updateData(request.body);
+
+    response.send('ok');
+});
+
+app.get('/update-workers', async (request, response) => {
+    const itemData = await remoteData.get();
+    console.log('Updating all worker items');
+    const retryList = [];
+    for(const [key, item] of itemData){
+        // console.log(item);
+        try {
+            await workerData(item.id, item);
+        } catch (workerUpdateError){
+            retryList.push(item);
+            console.error(workerUpdateError);
+            console.log(item);
+        }
+    }
+
+    console.log('Done updating all worker items');
+    console.log('Retrying failed items');
+
+    for(const item of retryList){
+        try {
+            await workerData(item.id, item);
+        } catch (workerUpdateError){
+            console.error(workerUpdateError);
+        }
+    }
+
+    console.log('Done with all retries');
 
     response.send('ok');
 });
