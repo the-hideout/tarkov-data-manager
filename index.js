@@ -70,13 +70,7 @@ const updateData = async (updateObject) => {
 
     updateData.set(updateObject.id, currentItemData);
 
-    const JSONdata = {};
-
-    for(const [key, value] of updateData){
-        JSONdata[key] = value;
-    }
-
-    remoteData.update(JSONdata);
+    remoteData.update();
     myData = updateData;
 };
 

@@ -18,7 +18,7 @@ const connection = mysql.createConnection({
 
 connection.connect();
 
-module.exports = {
+const methods = {
     get: async () => {
         return new Promise((resolve, reject) => {
             connection.query(`
@@ -72,25 +72,6 @@ module.exports = {
 
                 });
         });
-        // const {force} = getOpts || {};
-        // if(cachedData && !force){
-        //     console.log('Remote data loaded from cache');
-        //     return cachedData;
-        // }
-
-        // try {
-        //     const remoteDataResponse = await got('https://tarkov-data.s3.eu-north-1.amazonaws.com/data.json', {
-        //         responseType: 'json',
-        //     });
-        //     console.log('Loaded remote data');
-        //     cachedData = remoteDataResponse.body;
-        // } catch (gotError){
-        //     console.error(gotError);
-
-        //     return false;
-        // }
-
-        // return cachedData;
     },
     addType: async (id, type) => {
         console.log(`Adding ${type} for ${id}`);
@@ -128,19 +109,22 @@ module.exports = {
             });
         });
     },
-    update: async (newData) => {
+    update: async () => {
+        const newData = await methods.get();
         const uploadParams = {
             Bucket: 'tarkov-data',
             Key: 'data.json',
-            Body: JSON.stringify(newData, null, 4),
+            Body: JSON.stringify(Object.fromEntries(newData), null, 4),
             ContentType: 'application/json',
         };
 
         try {
             const data = await client.send(new PutObjectCommand(uploadParams));
-            console.log('Remote data updated');
+            console.log('Remote JSON data updated');
         } catch (err) {
             console.log('Error', err);
         }
     },
 };
+
+module.exports = methods;
