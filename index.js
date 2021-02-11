@@ -92,7 +92,6 @@ const getItemTypesMarkup = (item) => {
 };
 
 const getTableContents = async (filterObject) => {
-    const myData = await remoteData.get();
     let tableContentsString = '';
     let maxItems = 3000;
     let items = 0;
@@ -179,6 +178,44 @@ const getTableContents = async (filterObject) => {
 
     return tableContentsString;
 };
+
+const getHeader = () => {
+    return `
+    <!DOCTYPE html>
+        <head>
+            <title>Tarkov Data Studio</title>
+
+            <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+            <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css">
+            <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+
+            <!-- Compiled and minified CSS -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+            <!-- Compiled and minified JavaScript -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+            <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+            <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+            <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+            <link rel="manifest" href="/site.webmanifest">
+            <meta name="msapplication-TileColor" content="#da532c">
+            <meta name="theme-color" content="#ffffff">
+            <link rel="stylesheet" href="index.css" />
+        </head>
+        <body>
+            <script src="index.js"></script>
+            <nav>
+                <div class="nav-wrapper">
+                    <ul id="nav-mobile" class="left hide-on-med-and-down">
+                        ${AVAILABLE_TYPES.map(type => `<li><a href="/?type=${type}">${type}</a></li>`).join(' ')}
+                        <li><a href="/?type=untagged">untagged</a></li>
+                        <li><a href="/?type=no-image">no-image</a></li>
+                        <li><a href="/?type=no-icon">no-icon</a></li>
+                    </ul>
+                </div>
+            </nav>
+        `;
+}
 
 app.get('/data', async (req, res) => {
     const allData = await remoteData.get();
@@ -316,32 +353,7 @@ app.post('/edit/:id', urlencodedParser, async (req, res) => {
 app.get('/edit/:id', async (req, res) => {
     const allItemData = await remoteData.get();
     const currentItemData = allItemData.get(req.params.id);
-    res.send(`<!DOCTYPE html>
-        <head>
-            <title>Tarkov Data Studio</title>
-
-            <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-            <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css">
-            <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
-
-            <!-- Compiled and minified CSS -->
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-
-            <!-- Compiled and minified JavaScript -->
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-            <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-            <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-            <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-            <link rel="manifest" href="/site.webmanifest">
-            <meta name="msapplication-TileColor" content="#da532c">
-            <meta name="theme-color" content="#ffffff">
-            <link rel="stylesheet" href="index.css" />
-        </head>
-        <body>
-        ${AVAILABLE_TYPES.map(type => `<a href="/?type=${type}">${type}</a>`).join(' ')}
-        <a href="/?type=untagged">untagged</a>
-        <a href="/?type=no-image">no-image</a>
-        <a href="/?type=no-icon">no-icon</a>
+    res.send(`${getHeader()}
         <div class="row">
             <form class="col s12" method = "post" action = "/edit/${currentItemData.id}">
                 <div class="row">
@@ -362,38 +374,13 @@ app.get('/edit/:id', async (req, res) => {
                 </div>
             </form>
         </div>
-        <script src="index.js"></script>
+
     `);
 });
 
 app.get('/', async (req, res) => {
     myData = await remoteData.get();
-    res.send(`<!DOCTYPE html>
-        <head>
-            <title>Tarkov Data Studio</title>
-
-            <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-            <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css">
-            <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
-
-            <!-- Compiled and minified CSS -->
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-
-            <!-- Compiled and minified JavaScript -->
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-            <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-            <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-            <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-            <link rel="manifest" href="/site.webmanifest">
-            <meta name="msapplication-TileColor" content="#da532c">
-            <meta name="theme-color" content="#ffffff">
-            <link rel="stylesheet" href="index.css" />
-        </head>
-        <body>
-        ${AVAILABLE_TYPES.map(type => `<a href="/?type=${type}">${type}</a>`).join(' ')}
-        <a href="/?type=untagged">untagged</a>
-        <a href="/?type=no-image">no-image</a>
-        <a href="/?type=no-icon">no-icon</a>
+    res.send(`${getHeader()}
         <table class="highlight">
             <thead>
                 <tr>
@@ -423,7 +410,6 @@ app.get('/', async (req, res) => {
                 })}
             </tbody>
         </table>
-        <script src="index.js"></script>
     `);
 });
 
