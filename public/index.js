@@ -35,6 +35,6 @@ document.addEventListener('change', (event) => {
 
 $(document).ready( function () {
     $('table').DataTable({
-        pageLength: 50,
+        pageLength: 25,
     });
 } );

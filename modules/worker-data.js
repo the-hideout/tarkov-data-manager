@@ -1,10 +1,10 @@
 const got = require('got');
 
-module.exports = async (itemId, itemData) => {
-    console.log(`Updating ${itemId}`);
+module.exports = async (id, itemData) => {
+    // console.log(`Updating ${id}`);
     return got.post(`https://tarkov-tools.com/ingest`, {
         json: {
-            itemId: itemId,
+            id: id,
             ...itemData,
         },
     });

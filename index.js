@@ -3,17 +3,12 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const got = require('got');
 const Jimp = require('jimp');
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
 
-// const getData = require('./modules/get-data');
 const remoteData = require('./modules/remote-data');
 const idIcon = require('./modules/id-icon');
-const { connect } = require('http2');
-const Connection = require('mysql/lib/Connection');
-const { response } = require('express');
 
 const workerData = require('./modules/worker-data');
 
@@ -22,13 +17,15 @@ const port = process.env.PORT || 4000;
 
 let myData = false;
 
-s3 = new S3Client({
+const s3 = new S3Client({
     region: 'eu-west-1',
     credentials: fromEnv(),
 });
 
 app.use(bodyParser.json());
 app.use(express.static('public'));
+
+const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 try {
     fs.mkdirSync(path.join(__dirname, 'cache'));
@@ -53,7 +50,7 @@ const AVAILABLE_TYPES = [
     'no-flea',
 ];
 
-const updateData = async (updateObject) => {
+const updateTypes = async (updateObject) => {
     const updateData = await remoteData.get();
     const currentItemData = updateData.get(updateObject.id);
 
@@ -142,11 +139,18 @@ const getTableContents = async (filterObject) => {
                 <a href="/set-icon-image?item-id=${item.id}&image-url=${item.image_link}"><img src="${item.image_link}" loading="lazy" /></a>
             `;
         }
+        const scanImageUrl = `https://tarkov-data.s3.eu-north-1.amazonaws.com/${item.id}/latest.jpg`;
         tableContentsString = `${tableContentsString}
         <tr>
             <td class="name-column">
                 <a href="${item.wiki_link}" >${item.name}</a>
                 ${item.id}
+                <div>
+                    <a href="/update-worker-data/${item.id}">Update worker data</a>
+                </div>
+                <div>
+                    <a href="/edit/${item.id}">Edit</a>
+                </div>
             </td>
             <td>
                 <img src="${item.image_link}" loading="lazy" />
@@ -154,9 +158,14 @@ const getTableContents = async (filterObject) => {
             <td>
                 ${iconString}
             </td>
+            <td>
+                <img src="${item.grid_image_link}" loading="lazy" />
+            </td>
             ${getItemTypesMarkup(item)}
             <td>
-                <img src="https://tarkov-data.s3.eu-north-1.amazonaws.com/${item.id}/latest.jpg" class="scan-image" loading="lazy">
+                <a href="${scanImageUrl}">
+                    <img src="https://images.weserv.nl/?url=${encodeURIComponent(scanImageUrl)}&w=128&h=72" class="scan-image" loading="lazy">
+                </a>
             </td>
             </tr>`;
 
@@ -179,9 +188,32 @@ app.get('/data', async (req, res) => {
 
 app.post('/update', (request, response) => {
     console.log(request.body);
-    updateData(request.body);
+    updateTypes(request.body);
 
     response.send('ok');
+});
+
+app.get('/update-worker-data/:id', async (request, response) => {
+    const itemData = await remoteData.get();
+    console.log(`Updating worker data for ${request.params.id}`);
+    let newWorkerData = false;
+    let responseData;
+    for(const [key, item] of itemData){
+        if(key !== request.params.id){
+            continue;
+        }
+        console.log(item);
+        newWorkerData = item;
+        try {
+            const response = await workerData(item.id, item);
+            responseData = response.body;
+        } catch (workerUpdateError){
+            console.error(workerUpdateError);
+            console.log(item);
+        }
+    }
+
+    response.send(`Worker data for ${request.params.id} updated <pre>${JSON.stringify(newWorkerData, null, 4)}</pre><pre>${responseData}</pre>`);
 });
 
 app.get('/update-workers', async (request, response) => {
@@ -247,6 +279,93 @@ app.get('/set-icon-image', async (request, response) => {
     response.send('ok');
 });
 
+app.post('/edit/:id', urlencodedParser, async (req, res) => {
+    console.log(req.body);
+    if(req.body['icon-link']){
+        let image = await Jimp.read(req.body['icon-link']);
+
+        if(!image){
+            return res.send('Failed to add image');
+        }
+
+        const uploadParams = {
+            Bucket: 'assets.tarkov-tools.com',
+            Key: `${req.params.id}-icon.jpg`,
+            ContentType: 'image/jpeg',
+        };
+
+        uploadParams.Body = await image.getBufferAsync(Jimp.MIME_JPEG);
+
+        try {
+            await s3.send(new PutObjectCommand(uploadParams));
+            console.log("Image saved to s3");
+        } catch (err) {
+            console.log("Error", err);
+
+            return res.send(err);
+        }
+
+        await remoteData.setProperty(req.params.id, 'icon_link', `https://assets.tarkov-tools.com/${req.params.id}-icon.jpg`);
+
+        return res.send('Updated. Will be live in < 4 hours');
+    }
+
+    res.send('No changes made');
+});
+
+app.get('/edit/:id', async (req, res) => {
+    const allItemData = await remoteData.get();
+    const currentItemData = allItemData.get(req.params.id);
+    res.send(`<!DOCTYPE html>
+        <head>
+            <title>Tarkov Data Studio</title>
+
+            <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+            <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css">
+            <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
+
+            <!-- Compiled and minified CSS -->
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+            <!-- Compiled and minified JavaScript -->
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+            <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+            <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+            <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+            <link rel="manifest" href="/site.webmanifest">
+            <meta name="msapplication-TileColor" content="#da532c">
+            <meta name="theme-color" content="#ffffff">
+            <link rel="stylesheet" href="index.css" />
+        </head>
+        <body>
+        ${AVAILABLE_TYPES.map(type => `<a href="/?type=${type}">${type}</a>`).join(' ')}
+        <a href="/?type=untagged">untagged</a>
+        <a href="/?type=no-image">no-image</a>
+        <a href="/?type=no-icon">no-icon</a>
+        <div class="row">
+            <form class="col s12" method = "post" action = "/edit/${currentItemData.id}">
+                <div class="row">
+                    <div class="input-field col s1">
+                        <img src="${currentItemData.icon_link}">
+                    </div>
+                    <div class="input-field col s11">
+                        <input value="${currentItemData.icon_link}" id="icon-link" type="text" class="validate" name="icon-link">
+                        <label for="icon-link">Icon Link</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12">
+                        <button class="btn waves-effect waves-light" type="submit" name="action">Save
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+        <script src="index.js"></script>
+    `);
+});
+
 app.get('/', async (req, res) => {
     myData = await remoteData.get();
     res.send(`<!DOCTYPE html>
@@ -286,6 +405,9 @@ app.get('/', async (req, res) => {
                     </th>
                     <th>
                         Icon
+                    </th>
+                    <th>
+                        Grid icon
                     </th>
                     <th>
                         Tags

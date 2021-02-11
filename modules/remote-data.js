@@ -20,12 +20,13 @@ connection.connect();
 
 const methods = {
     get: async () => {
+        console.log('Loading all data');
         return new Promise((resolve, reject) => {
             connection.query(`
             SELECT
                 item_data.*,
                 GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types,
-                AVG(price_data.price) AS avg24Price
+                AVG(price_data.price) AS avg24hPrice
             FROM
                 item_data
             LEFT JOIN price_data ON
@@ -51,7 +52,7 @@ const methods = {
 
                             const preparedData = {
                                 ...result,
-                                avg24Price: Math.floor(result.avg24Price),
+                                avg24hPrice: Math.floor(result.avg24hPrice),
                                 properties: JSON.parse(result.properties),
                                 types: result.types?.split(',') || [],
                             }
@@ -68,8 +69,7 @@ const methods = {
                         }
 
                         return resolve(returnData);
-                    })
-
+                    });
                 });
         });
     },
