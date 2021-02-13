@@ -19,6 +19,10 @@ async function postData(url = '', data = {}) {
 
 
 document.addEventListener('change', (event) => {
+    if(event.target.getAttribute('type') !== 'checkbox'){
+        return true;
+    }
+
     const dataUpdate = {
         id: event.target.dataset.itemId,
         type: event.target.value,
