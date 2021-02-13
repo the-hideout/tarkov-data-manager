@@ -50,6 +50,12 @@ const AVAILABLE_TYPES = [
     'no-flea',
 ];
 
+const CUSTOM_HANDLERS = [
+    'untagged',
+    'no-icon',
+    'no-image',
+];
+
 const updateTypes = async (updateObject) => {
     const updateData = await remoteData.get();
     const currentItemData = updateData.get(updateObject.id);
@@ -90,6 +96,10 @@ const getItemTypesMarkup = (item) => {
 
     return markupString;
 };
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 const getTableContents = async (filterObject) => {
     let tableContentsString = '';
@@ -207,10 +217,13 @@ const getHeader = () => {
             <nav>
                 <div class="nav-wrapper">
                     <ul id="nav-mobile" class="left hide-on-med-and-down">
-                        ${AVAILABLE_TYPES.map(type => `<li><a href="/?type=${type}">${type}</a></li>`).join(' ')}
-                        <li><a href="/?type=untagged">untagged</a></li>
-                        <li><a href="/?type=no-image">no-image</a></li>
-                        <li><a href="/?type=no-icon">no-icon</a></li>
+                        ${
+                            AVAILABLE_TYPES
+                                .concat(CUSTOM_HANDLERS)
+                                .sort()
+                                .map(type => `<li><a href="/?type=${type}">${capitalizeFirstLetter(type)}</a></li>`)
+                                .join(' ')
+                        }
                     </ul>
                 </div>
             </nav>
