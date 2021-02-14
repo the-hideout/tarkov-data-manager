@@ -9,6 +9,7 @@ const {fromEnv} = require('@aws-sdk/credential-provider-env');
 
 const remoteData = require('./modules/remote-data');
 const idIcon = require('./modules/id-icon');
+const iconFromScan = require('./modules/icon-from-scan');
 
 const workerData = require('./modules/worker-data');
 
@@ -210,10 +211,10 @@ const getHeader = () => {
             <link rel="manifest" href="/site.webmanifest">
             <meta name="msapplication-TileColor" content="#da532c">
             <meta name="theme-color" content="#ffffff">
-            <link rel="stylesheet" href="index.css" />
+            <link rel="stylesheet" href="/index.css" />
         </head>
         <body>
-            <script src="index.js"></script>
+            <script src="/index.js"></script>
             <nav>
                 <div class="nav-wrapper">
                     <ul id="nav-mobile" class="left hide-on-med-and-down">
@@ -270,8 +271,11 @@ app.get('/update-workers', async (request, response) => {
     const itemData = await remoteData.get();
     console.log('Updating all worker items');
     const retryList = [];
+    let index = 0;
     for(const [key, item] of itemData){
-        // console.log(item);
+        // console.log(item.id);
+        index = index + 1;
+        console.log(`${index}/${itemData.size}`)
         try {
             await workerData(item.id, item);
         } catch (workerUpdateError){
@@ -329,6 +333,7 @@ app.get('/set-icon-image', async (request, response) => {
     response.send('ok');
 });
 
+
 app.post('/edit/:id', urlencodedParser, async (req, res) => {
     console.log(req.body);
     if(req.body['icon-link']){
@@ -356,8 +361,37 @@ app.post('/edit/:id', urlencodedParser, async (req, res) => {
         }
 
         await remoteData.setProperty(req.params.id, 'icon_link', `https://assets.tarkov-tools.com/${req.params.id}-icon.jpg`);
-
+        return res.redirect(`/edit/${req.params.id}?updated=1`);
         return res.send('Updated. Will be live in < 4 hours');
+    }
+
+    if(req.body['icon-link-base64']){
+        const [dataHeader, imageData] = req.body['icon-link-base64'].split(',');
+        let image = await Jimp.read(Buffer.from(imageData, 'base64'));
+
+        if(!image){
+            return res.send('Failed to add image');
+        }
+
+        const uploadParams = {
+            Bucket: 'assets.tarkov-tools.com',
+            Key: `${req.params.id}-icon.jpg`,
+            ContentType: 'image/jpeg',
+        };
+
+        uploadParams.Body = await image.getBufferAsync(Jimp.MIME_JPEG);
+
+        try {
+            await s3.send(new PutObjectCommand(uploadParams));
+            console.log("Image saved to s3");
+        } catch (err) {
+            console.log("Error", err);
+
+            return res.send(err);
+        }
+
+        await remoteData.setProperty(req.params.id, 'icon_link', `https://assets.tarkov-tools.com/${req.params.id}-icon.jpg`);
+        return res.redirect(`/edit/${req.params.id}?updated=1`);
     }
 
     res.send('No changes made');
@@ -366,26 +400,55 @@ app.post('/edit/:id', urlencodedParser, async (req, res) => {
 app.get('/edit/:id', async (req, res) => {
     const allItemData = await remoteData.get();
     const currentItemData = allItemData.get(req.params.id);
+    const imageBase = await iconFromScan(req.params.id);
+
+    const base64 = await imageBase.getBase64Async(Jimp.MIME_JPEG);
+
     res.send(`${getHeader()}
+        ${req.query.updated ? '<div class="row">Updated. Will be live in < 4 hours</div>': ''}
         <div class="row">
-            <form class="col s12" method = "post" action = "/edit/${currentItemData.id}">
+            <form class="col s12" method="post" action="/edit/${currentItemData.id}">
                 <div class="row">
-                    <div class="input-field col s1">
+                    <div class="input-field col s2">
                         <img src="${currentItemData.icon_link}">
                     </div>
-                    <div class="input-field col s11">
+                    <div class="input-field col s10">
                         <input value="${currentItemData.icon_link}" id="icon-link" type="text" class="validate" name="icon-link">
                         <label for="icon-link">Icon Link</label>
                     </div>
                 </div>
                 <div class="row">
+                    <div class="input-field col s2">
+                        <img src="${currentItemData.grid_image_link}">
+                    </div>
+                    <div class="input-field col s10">
+                        <input value="${currentItemData.grid_image_link}" id="icon-link" type="text" class="validate" name="grid-image-link">
+                        <label for="icon-link">Grid image Link</label>
+                    </div>
+                </div>
+                <div class="row">
                     <div class="input-field col s12">
-                        <button class="btn waves-effect waves-light" type="submit" name="action">Save
+                        <button class="btn waves-effect waves-light" type="submit" name="action">
+                            Save
                         </button>
                     </div>
-
                 </div>
             </form>
+            <form class="col s12" method="post" action="/edit/${currentItemData.id}">
+                <div class="row">
+                    <div class="input-field col s1">
+                        <img src="${base64}">
+                        <input type="hidden" value="${base64}" name="icon-link-base64">
+                    </div>
+                    <div class="input-field col s3">
+                        <button
+                            class="btn waves-effect waves-light"
+                            type="submit"
+                        >
+                            Use this image as icon
+                        </button<
+                    </div>
+                </div>
         </div>
 
     `);
