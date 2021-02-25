@@ -2,6 +2,7 @@ const got = require('got');
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const mysql = require('mysql');
+const midmean = require('compute-midmean');
 
 // a client can be shared by difference commands.
 const client = new S3Client({
@@ -23,23 +24,38 @@ const getPercentile = (validValues) => {
         return 0;
     }
 
-    const sortedValues = validValues.map(validValue => validValue.price).sort((a, b) => a - b);
-
-    let sum = 0;
-    let lastPrice = 0;
-    let includedCount = 0;
-    for(const currentPrice of sortedValues){
-        // Skip anything 10x the last value. Should skip packs
-        if(currentPrice > lastPrice * 10 && lastPrice > 0){
-            break;
-        }
-
-        includedCount = includedCount + 1;
-        lastPrice = currentPrice;
-        sum = sum + currentPrice;
+    if(validValues.length === 1){
+        return validValues[0].price;
     }
 
-    return Math.floor(sum / includedCount);
+    if(validValues.length === 2){
+        return Math.floor((validValues[0].price + validValues[1].price) / 2)
+    }
+
+    const sortedValues = validValues.map(validValue => validValue.price).sort((a, b) => a - b);
+
+    console.log(sortedValues);
+    return Math.floor(midmean(sortedValues, true));
+
+    // if(validValues[0].item_id === '59fb023c86f7746d0d4b423c'){
+    //     console.log(sortedValues);
+    // }
+
+    // let sum = 0;
+    // let lastPrice = 0;
+    // let includedCount = 0;
+    // for(const currentPrice of sortedValues){
+    //     // Skip anything 10x the last value. Should skip packs
+    //     if(currentPrice > lastPrice * 10 && lastPrice > 0){
+    //         break;
+    //     }
+
+    //     includedCount = includedCount + 1;
+    //     lastPrice = currentPrice;
+    //     sum = sum + currentPrice;
+    // }
+
+    // return Math.floor(sum / includedCount);
 };
 
 const methods = {
