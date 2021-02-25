@@ -18,6 +18,30 @@ const connection = mysql.createConnection({
 
 connection.connect();
 
+const getPercentile = (validValues) => {
+    if(validValues.length === 0){
+        return 0;
+    }
+
+    const sortedValues = validValues.map(validValue => validValue.price).sort((a, b) => a - b);
+
+    let sum = 0;
+    let lastPrice = 0;
+    let includedCount = 0;
+    for(const currentPrice of sortedValues){
+        // Skip anything 10x the last value. Should skip packs
+        if(currentPrice > lastPrice * 10 && lastPrice > 0){
+            break;
+        }
+
+        includedCount = includedCount + 1;
+        lastPrice = currentPrice;
+        sum = sum + currentPrice;
+    }
+
+    return Math.floor(sum / includedCount);
+};
+
 const methods = {
     get: async () => {
         console.log('Loading all data');
@@ -25,14 +49,9 @@ const methods = {
             connection.query(`
             SELECT
                 item_data.*,
-                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types,
-                AVG(price_data.price) AS avg24hPrice
+                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
             FROM
                 item_data
-            LEFT JOIN price_data ON
-                price_data.item_id = item_data.id
-            AND
-                price_data.timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)
             LEFT JOIN types ON
                 types.item_id = item_data.id
             GROUP BY
@@ -45,30 +64,45 @@ const methods = {
                         if(translationQueryError){
                             return reject(translationQueryError);
                         }
-                        const returnData = new Map();
 
-                        for(const result of results){
-                            Reflect.deleteProperty(result, 'item_id');
-
-                            const preparedData = {
-                                ...result,
-                                avg24hPrice: Math.floor(result.avg24hPrice),
-                                properties: JSON.parse(result.properties),
-                                types: result.types?.split(',') || [],
+                        connection.query(`
+                            SELECT
+                                price,
+                                item_id,
+                                timestamp
+                            FROM
+                                price_data
+                            WHERE
+                                timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)`, [results.id], (priceQueryResult, priceResults) => {
+                            if(priceQueryResult){
+                                return reject(priceQueryResult);
                             }
 
-                            for(const translationResult of translationResults){
-                                if(translationResult.item_id !== result.id){
-                                    continue;
+                            const returnData = new Map();
+
+                            for(const result of results){
+                                Reflect.deleteProperty(result, 'item_id');
+
+                                const preparedData = {
+                                    ...result,
+                                    avg24hPrice: getPercentile(priceResults.filter(resultRow => resultRow.item_id === result.id)),
+                                    properties: JSON.parse(result.properties),
+                                    types: result.types?.split(',') || [],
                                 }
 
-                                preparedData[translationResult.type] = translationResult.value;
+                                for(const translationResult of translationResults){
+                                    if(translationResult.item_id !== result.id){
+                                        continue;
+                                    }
+
+                                    preparedData[translationResult.type] = translationResult.value;
+                                }
+
+                                returnData.set(result.id, preparedData);
                             }
 
-                            returnData.set(result.id, preparedData);
-                        }
-
-                        return resolve(returnData);
+                            return resolve(returnData);
+                        });
                     });
                 });
         });
