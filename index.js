@@ -57,6 +57,14 @@ const CUSTOM_HANDLERS = [
     'no-image',
 ];
 
+const formatPrice = (price) => {
+    return new Intl.NumberFormat('ru-RU', {
+        style: 'currency',
+        currency: 'RUB',
+        maximumSignificantDigits: 6,
+    }).format(price);
+};
+
 const updateTypes = async (updateObject) => {
     const updateData = await remoteData.get();
     const currentItemData = updateData.get(updateObject.id);
@@ -172,6 +180,9 @@ const getTableContents = async (filterObject) => {
                 <img src="${item.grid_image_link}" loading="lazy" />
             </td>
             ${getItemTypesMarkup(item)}
+            <td>
+                ${formatPrice(item.avg24hPrice)}
+            </td>
             <td>
                 <a href="${scanImageUrl}">
                     <img src="https://images.weserv.nl/?url=${encodeURIComponent(scanImageUrl)}&w=128&h=72" class="scan-image" loading="lazy">
@@ -546,6 +557,9 @@ app.get('/', async (req, res) => {
                     </th>
                     <th>
                         Tags
+                    </th>
+                    <th>
+                        Price
                     </th>
                     <th>
                         Scan image
