@@ -344,7 +344,6 @@ app.get('/set-icon-image', async (request, response) => {
     response.send('ok');
 });
 
-
 app.post('/edit/:id', urlencodedParser, async (req, res) => {
     console.log(req.body);
     const allItemData = await remoteData.get();
@@ -553,7 +552,7 @@ app.get('/', async (req, res) => {
                         Icon
                     </th>
                     <th>
-                        Grid icon
+                        Grid image
                     </th>
                     <th>
                         Tags
