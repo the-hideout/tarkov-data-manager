@@ -10,6 +10,7 @@ const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const remoteData = require('./modules/remote-data');
 const idIcon = require('./modules/id-icon');
 const iconFromScan = require('./modules/icon-from-scan');
+const getLatestScanResults = require('./modules/get-latest-scan-results');
 
 const workerData = require('./modules/worker-data');
 
@@ -55,6 +56,7 @@ const CUSTOM_HANDLERS = [
     'untagged',
     'no-icon',
     'no-image',
+    'all',
 ];
 
 const formatPrice = (price) => {
@@ -118,6 +120,9 @@ const getTableContents = async (filterObject) => {
     for(const [key, item] of myData){
         if(filterObject?.type){
             switch (filterObject.type){
+                case 'all':
+                    // Allow all items
+                    continue;
                 case 'untagged':
                     if(item.types.length > 0){
                         continue;
@@ -229,11 +234,12 @@ const getHeader = () => {
             <nav>
                 <div class="nav-wrapper">
                     <ul id="nav-mobile" class="left hide-on-med-and-down">
+                        <li><a href="/">Home</a></li>
                         ${
                             AVAILABLE_TYPES
                                 .concat(CUSTOM_HANDLERS)
                                 .sort()
-                                .map(type => `<li><a href="/?type=${type}">${capitalizeFirstLetter(type)}</a></li>`)
+                                .map(type => `<li><a href="/items/?type=${type}">${capitalizeFirstLetter(type)}</a></li>`)
                                 .join(' ')
                         }
                     </ul>
@@ -536,7 +542,7 @@ app.get('/edit/:id', async (req, res) => {
     `);
 });
 
-app.get('/', async (req, res) => {
+app.get('/items/', async (req, res) => {
     myData = await remoteData.get();
     res.send(`${getHeader()}
         <table class="highlight">
@@ -571,6 +577,24 @@ app.get('/', async (req, res) => {
                 })}
             </tbody>
         </table>
+    `);
+});
+
+app.get('/', async (req, res) => {
+    const latestScanResults = await getLatestScanResults();
+    res.send(`${getHeader()}
+        ${latestScanResults.map((latestScan) => {
+            return `<div>
+            <ul>
+                <li>
+                    Name: ${latestScan.source}
+                </li>
+                <li>
+                    Latest update: ${latestScan.timestamp}
+                </li>
+            </ul>
+            </div>`;
+        }).join('')}
     `);
 });
 
