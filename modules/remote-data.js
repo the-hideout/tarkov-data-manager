@@ -34,7 +34,6 @@ const getPercentile = (validValues) => {
 
     const sortedValues = validValues.map(validValue => validValue.price).sort((a, b) => a - b);
 
-    console.log(sortedValues);
     return Math.floor(midmean(sortedValues, true));
 
     // if(validValues[0].item_id === '59fb023c86f7746d0d4b423c'){
