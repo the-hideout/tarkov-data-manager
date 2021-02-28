@@ -284,40 +284,6 @@ app.get('/update-worker-data/:id', async (request, response) => {
     response.send(`Worker data for ${request.params.id} updated <pre>${JSON.stringify(newWorkerData, null, 4)}</pre><pre>${responseData}</pre>`);
 });
 
-app.get('/update-workers', async (request, response) => {
-    const itemData = await remoteData.get();
-    console.log('Updating all worker items');
-    const retryList = [];
-    let index = 0;
-    for(const [key, item] of itemData){
-        // console.log(item.id);
-        index = index + 1;
-        console.log(`${index}/${itemData.size}`)
-        try {
-            await workerData(item.id, item);
-        } catch (workerUpdateError){
-            retryList.push(item);
-            console.error(workerUpdateError);
-            console.log(item);
-        }
-    }
-
-    console.log('Done updating all worker items');
-    console.log('Retrying failed items');
-
-    for(const item of retryList){
-        try {
-            await workerData(item.id, item);
-        } catch (workerUpdateError){
-            console.error(workerUpdateError);
-        }
-    }
-
-    console.log('Done with all retries');
-
-    response.send('ok');
-});
-
 app.get('/set-icon-image', async (request, response) => {
     let image;
     if(request.query['image-url']){
