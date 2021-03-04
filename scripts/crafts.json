@@ -1,5 +1,5 @@
 {
-    "updated": "2021-03-02T10:26:08.308Z",
+    "updated": "2021-03-04T09:03:43.736Z",
     "data": [
         {
             "id": "0-1",
@@ -536,7 +536,7 @@
                 {
                     "name": "Tac-Kek Fast MT Helmet (non-ballistic replica)",
                     "id": "5ea05cf85ad9772e6624305d",
-                    "count": 2
+                    "count": 1
                 },
                 {
                     "name": "Duct tape",
@@ -813,35 +813,6 @@
             "id": "2-23",
             "requiredItems": [
                 {
-                    "name": "Triton M43-A Chest Harness",
-                    "id": "5ca20abf86f77418567a43f2",
-                    "count": 2
-                },
-                {
-                    "name": "KEKTAPE duct tape",
-                    "id": "5e2af29386f7746d4159f077",
-                    "count": 1
-                },
-                {
-                    "name": "Ox bleach",
-                    "id": "59e3556c86f7741776641ac2",
-                    "count": 1
-                }
-            ],
-            "rewardItems": [
-                {
-                    "name": "Velocity Systems Multi-Purpose Patrol Vest",
-                    "id": "5df8a42886f77412640e2e75",
-                    "count": 2
-                }
-            ],
-            "station": "Lavatory level 2",
-            "time": "2 h 10 min"
-        },
-        {
-            "id": "2-24",
-            "requiredItems": [
-                {
                     "name": "WD-40 400ml",
                     "id": "590c5c9f86f77477c91c36e7",
                     "count": 1
@@ -863,7 +834,7 @@
             "time": "2 h 30 min"
         },
         {
-            "id": "2-25",
+            "id": "2-24",
             "requiredItems": [
                 {
                     "name": "Polyamide fabric Cordura",
@@ -892,7 +863,7 @@
             "time": "2 h 43 min"
         },
         {
-            "id": "2-26",
+            "id": "2-25",
             "requiredItems": [
                 {
                     "name": "Silicone tube",
@@ -921,7 +892,7 @@
             "time": "3 h 22 min"
         },
         {
-            "id": "2-27",
+            "id": "2-26",
             "requiredItems": [
                 {
                     "name": "Duffle bag",
@@ -955,7 +926,7 @@
             "time": "4 h 18 min"
         },
         {
-            "id": "2-28",
+            "id": "2-27",
             "requiredItems": [
                 {
                     "name": "Expeditionary fuel tank",
@@ -989,7 +960,7 @@
             "time": "4 h 53 min"
         },
         {
-            "id": "2-29",
+            "id": "2-28",
             "requiredItems": [
                 {
                     "name": "Air filter for gas mask",
@@ -1018,7 +989,7 @@
             "time": "9 h 53 min"
         },
         {
-            "id": "2-30",
+            "id": "2-29",
             "requiredItems": [
                 {
                     "name": "Magazine case",
@@ -1052,7 +1023,7 @@
             "time": "11 h 23 min"
         },
         {
-            "id": "2-31",
+            "id": "2-30",
             "requiredItems": [
                 {
                     "name": "Metal fuel tank",
@@ -1089,6 +1060,35 @@
             ],
             "station": "Lavatory level 2",
             "time": "16 h 40 min"
+        },
+        {
+            "id": "2-31",
+            "requiredItems": [
+                {
+                    "name": "Triton M43-A Chest Harness",
+                    "id": "5ca20abf86f77418567a43f2",
+                    "count": 2
+                },
+                {
+                    "name": "KEKTAPE duct tape",
+                    "id": "5e2af29386f7746d4159f077",
+                    "count": 1
+                },
+                {
+                    "name": "Ox bleach",
+                    "id": "59e3556c86f7741776641ac2",
+                    "count": 1
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "Velocity Systems Multi-Purpose Patrol Vest",
+                    "id": "5df8a42886f77412640e2e75",
+                    "count": 2
+                }
+            ],
+            "station": "Lavatory level 3",
+            "time": "2 h 10 min"
         },
         {
             "id": "2-32",
@@ -2600,7 +2600,7 @@
                 {
                     "name": "Bolts",
                     "id": "57347c5b245977448d35f6e1",
-                    "count": 1
+                    "count": 2
                 },
                 {
                     "name": "SurvL Survivor Lighter",
