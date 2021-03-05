@@ -1,5 +1,5 @@
 {
-    "updated": "2021-03-04T09:03:43.736Z",
+    "updated": "2021-03-05T19:44:37.553Z",
     "data": [
         {
             "id": "0-1",
@@ -1975,7 +1975,7 @@
                 {
                     "name": "Water filter",
                     "id": "5d1b385e86f774252167b98a",
-                    "count": 1
+                    "count": 0.65
                 }
             ],
             "rewardItems": [
