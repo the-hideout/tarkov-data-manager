@@ -26,6 +26,7 @@
     "image-size": "^0.9.3",
     "jimp": "^0.16.1",
     "mysql": "^2.18.1",
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.7",
+    "parse-duration": "^0.4.4"
   }
 }
