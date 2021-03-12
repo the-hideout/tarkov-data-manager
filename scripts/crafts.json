@@ -1,5 +1,5 @@
 {
-    "updated": "2021-03-05T19:44:37.553Z",
+    "updated": "2021-03-12T18:06:26.317Z",
     "data": [
         {
             "id": "0-1",
@@ -23,7 +23,8 @@
                 }
             ],
             "station": "Booze generator level 1",
-            "time": "3 h 3 min"
+            "time": "3 h 3 min",
+            "duration": 10980
         },
         {
             "id": "1-1",
@@ -52,7 +53,8 @@
                 }
             ],
             "station": "Intelligence Center level 2",
-            "time": "34 h 13 min"
+            "time": "34 h 13 min",
+            "duration": 123180
         },
         {
             "id": "1-2",
@@ -81,7 +83,8 @@
                 }
             ],
             "station": "Intelligence Center level 2",
-            "time": "37 h 37 min"
+            "time": "37 h 37 min",
+            "duration": 135420
         },
         {
             "id": "1-3",
@@ -110,7 +113,8 @@
                 }
             ],
             "station": "Intelligence Center level 2",
-            "time": "38 h 53 min"
+            "time": "38 h 53 min",
+            "duration": 139980
         },
         {
             "id": "1-4",
@@ -139,7 +143,8 @@
                 }
             ],
             "station": "Intelligence Center level 2",
-            "time": "45 h 50 min"
+            "time": "45 h 50 min",
+            "duration": 165000
         },
         {
             "id": "1-5",
@@ -163,7 +168,8 @@
                 }
             ],
             "station": "Intelligence Center level 2",
-            "time": "53 h 20 min"
+            "time": "53 h 20 min",
+            "duration": 192000
         },
         {
             "id": "1-6",
@@ -197,7 +203,8 @@
                 }
             ],
             "station": "Intelligence Center level 2",
-            "time": "65 h 33 min"
+            "time": "65 h 33 min",
+            "duration": 235980
         },
         {
             "id": "1-7",
@@ -231,7 +238,8 @@
                 }
             ],
             "station": "Intelligence Center level 2",
-            "time": "69 h 10 min"
+            "time": "80 h 17 min",
+            "duration": 289020
         },
         {
             "id": "1-8",
@@ -255,7 +263,8 @@
                 }
             ],
             "station": "Intelligence Center level 3",
-            "time": "31 h 40 min"
+            "time": "31 h 40 min",
+            "duration": 114000
         },
         {
             "id": "1-9",
@@ -294,7 +303,8 @@
                 }
             ],
             "station": "Intelligence Center level 3",
-            "time": "104 h 27 min"
+            "time": "104 h 27 min",
+            "duration": 376020
         },
         {
             "id": "2-1",
@@ -313,7 +323,8 @@
                 }
             ],
             "station": "Lavatory level 1",
-            "time": "2 minutes"
+            "time": "2 minutes",
+            "duration": 120
         },
         {
             "id": "2-2",
@@ -337,7 +348,8 @@
                 }
             ],
             "station": "Lavatory level 1",
-            "time": "17 minutes"
+            "time": "17 minutes",
+            "duration": 1020
         },
         {
             "id": "2-3",
@@ -356,7 +368,8 @@
                 }
             ],
             "station": "Lavatory level 1",
-            "time": "26 minutes"
+            "time": "26 minutes",
+            "duration": 1560
         },
         {
             "id": "2-4",
@@ -375,7 +388,8 @@
                 }
             ],
             "station": "Lavatory level 1",
-            "time": "32 minutes"
+            "time": "32 minutes",
+            "duration": 1920
         },
         {
             "id": "2-5",
@@ -394,7 +408,8 @@
                 }
             ],
             "station": "Lavatory level 1",
-            "time": "33 minutes"
+            "time": "33 minutes",
+            "duration": 1980
         },
         {
             "id": "2-6",
@@ -413,7 +428,8 @@
                 }
             ],
             "station": "Lavatory level 1",
-            "time": "36 minutes"
+            "time": "36 minutes",
+            "duration": 2160
         },
         {
             "id": "2-7",
@@ -432,7 +448,8 @@
                 }
             ],
             "station": "Lavatory level 1",
-            "time": "37 minutes"
+            "time": "37 minutes",
+            "duration": 2220
         },
         {
             "id": "2-8",
@@ -451,7 +468,8 @@
                 }
             ],
             "station": "Lavatory level 1",
-            "time": "48 minutes"
+            "time": "48 minutes",
+            "duration": 2880
         },
         {
             "id": "2-9",
@@ -475,7 +493,8 @@
                 }
             ],
             "station": "Lavatory level 1",
-            "time": "53 minutes"
+            "time": "53 minutes",
+            "duration": 3180
         },
         {
             "id": "2-10",
@@ -504,7 +523,8 @@
                 }
             ],
             "station": "Lavatory level 1",
-            "time": "55 minutes"
+            "time": "55 minutes",
+            "duration": 3300
         },
         {
             "id": "2-11",
@@ -528,7 +548,8 @@
                 }
             ],
             "station": "Lavatory level 1",
-            "time": "1h 14 min"
+            "time": "1h 14 min",
+            "duration": 4440
         },
         {
             "id": "2-12",
@@ -557,7 +578,8 @@
                 }
             ],
             "station": "Lavatory level 1",
-            "time": "1 h 23 min"
+            "time": "1 h 23 min",
+            "duration": 4980
         },
         {
             "id": "2-13",
@@ -581,7 +603,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "35 minutes"
+            "time": "35 minutes",
+            "duration": 2100
         },
         {
             "id": "2-14",
@@ -610,7 +633,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "39 minutes"
+            "time": "39 minutes",
+            "duration": 2340
         },
         {
             "id": "2-15",
@@ -634,7 +658,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "41 minutes"
+            "time": "41 minutes",
+            "duration": 2460
         },
         {
             "id": "2-16",
@@ -653,7 +678,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "43 minutes"
+            "time": "43 minutes",
+            "duration": 2580
         },
         {
             "id": "2-17",
@@ -677,7 +703,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "47 minutes"
+            "time": "47 minutes",
+            "duration": 2820
         },
         {
             "id": "2-18",
@@ -701,7 +728,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "54 minutes"
+            "time": "54 minutes",
+            "duration": 3240
         },
         {
             "id": "2-19",
@@ -730,7 +758,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "1 hour"
+            "time": "1 hour",
+            "duration": 3600
         },
         {
             "id": "2-20",
@@ -754,7 +783,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "1 h 2 min"
+            "time": "1 h 2 min",
+            "duration": 3720
         },
         {
             "id": "2-21",
@@ -783,7 +813,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "1 h 20 min"
+            "time": "1 h 20 min",
+            "duration": 4800
         },
         {
             "id": "2-22",
@@ -807,7 +838,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "1 h 23 min"
+            "time": "1 h 23 min",
+            "duration": 4980
         },
         {
             "id": "2-23",
@@ -831,7 +863,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "2 h 30 min"
+            "time": "2 h 30 min",
+            "duration": 9000
         },
         {
             "id": "2-24",
@@ -860,7 +893,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "2 h 43 min"
+            "time": "2 h 43 min",
+            "duration": 9780
         },
         {
             "id": "2-25",
@@ -889,7 +923,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "3 h 22 min"
+            "time": "3 h 22 min",
+            "duration": 12120
         },
         {
             "id": "2-26",
@@ -923,7 +958,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "4 h 18 min"
+            "time": "4 h 18 min",
+            "duration": 15480
         },
         {
             "id": "2-27",
@@ -957,7 +993,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "4 h 53 min"
+            "time": "4 h 53 min",
+            "duration": 17580
         },
         {
             "id": "2-28",
@@ -986,7 +1023,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "9 h 53 min"
+            "time": "9 h 53 min",
+            "duration": 35580
         },
         {
             "id": "2-29",
@@ -1020,7 +1058,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "11 h 23 min"
+            "time": "11 h 23 min",
+            "duration": 40980
         },
         {
             "id": "2-30",
@@ -1059,7 +1098,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "16 h 40 min"
+            "time": "16 h 40 min",
+            "duration": 60000
         },
         {
             "id": "2-31",
@@ -1084,11 +1124,12 @@
                 {
                     "name": "Velocity Systems Multi-Purpose Patrol Vest",
                     "id": "5df8a42886f77412640e2e75",
-                    "count": 2
+                    "count": 1
                 }
             ],
             "station": "Lavatory level 3",
-            "time": "2 h 10 min"
+            "time": "2 h 10 min",
+            "duration": 7800
         },
         {
             "id": "2-32",
@@ -1122,7 +1163,8 @@
                 }
             ],
             "station": "Lavatory level 3",
-            "time": "2 h 13 min"
+            "time": "2 h 13 min",
+            "duration": 7980
         },
         {
             "id": "2-33",
@@ -1151,7 +1193,8 @@
                 }
             ],
             "station": "Lavatory level 3",
-            "time": "2 h 37 min"
+            "time": "2 h 37 min",
+            "duration": 9420
         },
         {
             "id": "3-1",
@@ -1170,7 +1213,8 @@
                 }
             ],
             "station": "Medstation level 1",
-            "time": "22 minutes"
+            "time": "22 minutes",
+            "duration": 1320
         },
         {
             "id": "3-2",
@@ -1194,7 +1238,8 @@
                 }
             ],
             "station": "Medstation level 1",
-            "time": "30 minutes"
+            "time": "30 minutes",
+            "duration": 1800
         },
         {
             "id": "3-3",
@@ -1228,7 +1273,8 @@
                 }
             ],
             "station": "Medstation level 1",
-            "time": "33 minutes"
+            "time": "33 minutes",
+            "duration": 1980
         },
         {
             "id": "3-4",
@@ -1252,7 +1298,8 @@
                 }
             ],
             "station": "Medstation level 2",
-            "time": "28 minutes"
+            "time": "28 minutes",
+            "duration": 1680
         },
         {
             "id": "3-5",
@@ -1281,7 +1328,8 @@
                 }
             ],
             "station": "Medstation level 2",
-            "time": "48 minutes"
+            "time": "48 minutes",
+            "duration": 2880
         },
         {
             "id": "3-6",
@@ -1310,7 +1358,8 @@
                 }
             ],
             "station": "Medstation level 2",
-            "time": "50 minutes"
+            "time": "50 minutes",
+            "duration": 3000
         },
         {
             "id": "3-7",
@@ -1339,7 +1388,8 @@
                 }
             ],
             "station": "Medstation level 2",
-            "time": "1 h 10 min"
+            "time": "1 h 10 min",
+            "duration": 4200
         },
         {
             "id": "3-8",
@@ -1368,7 +1418,8 @@
                 }
             ],
             "station": "Medstation level 2",
-            "time": "1 h 13 min"
+            "time": "1 h 13 min",
+            "duration": 4380
         },
         {
             "id": "3-9",
@@ -1402,7 +1453,8 @@
                 }
             ],
             "station": "Medstation level 2",
-            "time": "1h 23 min"
+            "time": "1h 23 min",
+            "duration": 4980
         },
         {
             "id": "3-10",
@@ -1436,7 +1488,8 @@
                 }
             ],
             "station": "Medstation level 2",
-            "time": "1 h 32 min"
+            "time": "1 h 32 min",
+            "duration": 5520
         },
         {
             "id": "3-11",
@@ -1470,7 +1523,8 @@
                 }
             ],
             "station": "Medstation level 2",
-            "time": "5 h 15 min"
+            "time": "5 h 15 min",
+            "duration": 18900
         },
         {
             "id": "3-12",
@@ -1499,7 +1553,8 @@
                 }
             ],
             "station": "Medstation level 3",
-            "time": "55 minutes"
+            "time": "55 minutes",
+            "duration": 3300
         },
         {
             "id": "3-13",
@@ -1518,7 +1573,8 @@
                 }
             ],
             "station": "Medstation level 3",
-            "time": "1 h 14 min"
+            "time": "1 h 14 min",
+            "duration": 4440
         },
         {
             "id": "3-14",
@@ -1547,7 +1603,8 @@
                 }
             ],
             "station": "Medstation level 3",
-            "time": "1 h 17 min"
+            "time": "1 h 17 min",
+            "duration": 4620
         },
         {
             "id": "3-15",
@@ -1576,7 +1633,8 @@
                 }
             ],
             "station": "Medstation level 3",
-            "time": "1 h 25 min"
+            "time": "1 h 25 min",
+            "duration": 5100
         },
         {
             "id": "3-16",
@@ -1605,7 +1663,8 @@
                 }
             ],
             "station": "Medstation level 3",
-            "time": "1 h 55 min"
+            "time": "1 h 55 min",
+            "duration": 6900
         },
         {
             "id": "3-17",
@@ -1644,7 +1703,8 @@
                 }
             ],
             "station": "Medstation level 3",
-            "time": "38 h 53 min"
+            "time": "38 h 53 min",
+            "duration": 139980
         },
         {
             "id": "4-1",
@@ -1673,7 +1733,8 @@
                 }
             ],
             "station": "Nutrition unit level 1",
-            "time": "48 minutes"
+            "time": "48 minutes",
+            "duration": 2880
         },
         {
             "id": "4-2",
@@ -1697,7 +1758,8 @@
                 }
             ],
             "station": "Nutrition unit level 1",
-            "time": "1h 3 min"
+            "time": "1h 3 min",
+            "duration": 3780
         },
         {
             "id": "4-3",
@@ -1726,7 +1788,8 @@
                 }
             ],
             "station": "Nutrition unit level 1",
-            "time": "1 h 19 min"
+            "time": "1 h 19 min",
+            "duration": 4740
         },
         {
             "id": "4-4",
@@ -1755,7 +1818,8 @@
                 }
             ],
             "station": "Nutrition unit level 1",
-            "time": "1 h 48 min"
+            "time": "1 h 48 min",
+            "duration": 6480
         },
         {
             "id": "4-5",
@@ -1784,7 +1848,8 @@
                 }
             ],
             "station": "Nutrition unit level 2",
-            "time": "1 h 12 min"
+            "time": "1 h 12 min",
+            "duration": 4320
         },
         {
             "id": "4-6",
@@ -1808,7 +1873,8 @@
                 }
             ],
             "station": "Nutrition unit level 2",
-            "time": "1 h 22 min"
+            "time": "1 h 22 min",
+            "duration": 4920
         },
         {
             "id": "4-7",
@@ -1827,7 +1893,8 @@
                 }
             ],
             "station": "Nutrition unit level 2",
-            "time": "1 h 23 min"
+            "time": "1 h 23 min",
+            "duration": 4980
         },
         {
             "id": "4-8",
@@ -1851,7 +1918,8 @@
                 }
             ],
             "station": "Nutrition unit level 2",
-            "time": "1 h 42 min"
+            "time": "1 h 42 min",
+            "duration": 6120
         },
         {
             "id": "4-9",
@@ -1875,7 +1943,8 @@
                 }
             ],
             "station": "Nutrition unit level 3",
-            "time": "1 h 36 min"
+            "time": "1 h 36 min",
+            "duration": 5760
         },
         {
             "id": "4-10",
@@ -1909,7 +1978,8 @@
                 }
             ],
             "station": "Nutrition unit level 3",
-            "time": "1 h 47 min"
+            "time": "1 h 47 min",
+            "duration": 6420
         },
         {
             "id": "4-11",
@@ -1933,7 +2003,8 @@
                 }
             ],
             "station": "Nutrition unit level 3",
-            "time": "1 h 51 min"
+            "time": "1 h 51 min",
+            "duration": 6660
         },
         {
             "id": "4-12",
@@ -1967,7 +2038,8 @@
                 }
             ],
             "station": "Nutrition unit level 3",
-            "time": "5 h 15 min"
+            "time": "5 h 15 min",
+            "duration": 18900
         },
         {
             "id": "5-1",
@@ -1986,7 +2058,8 @@
                 }
             ],
             "station": "Water collector level 3",
-            "time": "5 h 25 min"
+            "time": "5 h 25 min",
+            "duration": 19500
         },
         {
             "id": "6-1",
@@ -2010,7 +2083,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "22 minutes"
+            "time": "22 minutes",
+            "duration": 1320
         },
         {
             "id": "6-2",
@@ -2034,7 +2108,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "33 minutes"
+            "time": "33 minutes",
+            "duration": 1980
         },
         {
             "id": "6-3",
@@ -2063,7 +2138,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "35 minutes"
+            "time": "35 minutes",
+            "duration": 2100
         },
         {
             "id": "6-4",
@@ -2092,7 +2168,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "36 minutes"
+            "time": "36 minutes",
+            "duration": 2160
         },
         {
             "id": "6-5",
@@ -2111,7 +2188,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "43 minutes"
+            "time": "43 minutes",
+            "duration": 2580
         },
         {
             "id": "6-6",
@@ -2135,7 +2213,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "48 minutes"
+            "time": "48 minutes",
+            "duration": 2880
         },
         {
             "id": "6-7",
@@ -2159,7 +2238,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "57 minutes"
+            "time": "57 minutes",
+            "duration": 3420
         },
         {
             "id": "6-8",
@@ -2183,7 +2263,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "1 h 7 min"
+            "time": "1 h 7 min",
+            "duration": 4020
         },
         {
             "id": "6-9",
@@ -2202,7 +2283,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "1 h 18 min"
+            "time": "1 h 18 min",
+            "duration": 4680
         },
         {
             "id": "6-10",
@@ -2231,7 +2313,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "1 h 22 min"
+            "time": "1 h 22 min",
+            "duration": 4920
         },
         {
             "id": "6-11",
@@ -2260,7 +2343,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "1 h 25 min"
+            "time": "1 h 25 min",
+            "duration": 5100
         },
         {
             "id": "6-12",
@@ -2279,7 +2363,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "1 h 29 min"
+            "time": "1 h 29 min",
+            "duration": 5340
         },
         {
             "id": "6-13",
@@ -2303,7 +2388,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "1 h 32 min"
+            "time": "1 h 32 min",
+            "duration": 5520
         },
         {
             "id": "6-14",
@@ -2332,7 +2418,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "1 h 39 min"
+            "time": "1 h 39 min",
+            "duration": 5940
         },
         {
             "id": "6-15",
@@ -2351,7 +2438,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "1 h 43 min"
+            "time": "1 h 43 min",
+            "duration": 6180
         },
         {
             "id": "6-16",
@@ -2370,7 +2458,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "1 h 58 min"
+            "time": "1 h 58 min",
+            "duration": 7080
         },
         {
             "id": "6-17",
@@ -2394,7 +2483,8 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "2 h 4 min"
+            "time": "2 h 4 min",
+            "duration": 7440
         },
         {
             "id": "6-18",
@@ -2418,7 +2508,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "1 h 13 min"
+            "time": "1 h 13 min",
+            "duration": 4380
         },
         {
             "id": "6-19",
@@ -2447,7 +2538,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "1 h 18 min"
+            "time": "1 h 18 min",
+            "duration": 4680
         },
         {
             "id": "6-20",
@@ -2476,7 +2568,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "1 h 20 min"
+            "time": "1 h 20 min",
+            "duration": 4800
         },
         {
             "id": "6-21",
@@ -2505,7 +2598,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "1 h 23 min"
+            "time": "1 h 23 min",
+            "duration": 4980
         },
         {
             "id": "6-22",
@@ -2539,7 +2633,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "1 h 32 min"
+            "time": "1 h 32 min",
+            "duration": 5520
         },
         {
             "id": "6-23",
@@ -2563,7 +2658,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "1 h 38 min"
+            "time": "1 h 38 min",
+            "duration": 5880
         },
         {
             "id": "6-24",
@@ -2587,7 +2683,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "1 h 53 min"
+            "time": "1 h 53 min",
+            "duration": 6780
         },
         {
             "id": "6-25",
@@ -2621,7 +2718,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "1 h 55 min"
+            "time": "1 h 55 min",
+            "duration": 6900
         },
         {
             "id": "6-26",
@@ -2640,7 +2738,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "1 h 58 min"
+            "time": "1 h 58 min",
+            "duration": 7080
         },
         {
             "id": "6-27",
@@ -2664,7 +2763,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "2 h 5 min"
+            "time": "2 h 5 min",
+            "duration": 7500
         },
         {
             "id": "6-28",
@@ -2688,7 +2788,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "2 h 13 min"
+            "time": "2 h 13 min",
+            "duration": 7980
         },
         {
             "id": "6-29",
@@ -2717,7 +2818,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "2 h 13 min"
+            "time": "2 h 13 min",
+            "duration": 7980
         },
         {
             "id": "6-30",
@@ -2751,7 +2853,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "2 h 17 min"
+            "time": "2 h 17 min",
+            "duration": 8220
         },
         {
             "id": "6-31",
@@ -2775,7 +2878,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "2 h 32 min"
+            "time": "2 h 32 min",
+            "duration": 9120
         },
         {
             "id": "6-32",
@@ -2799,7 +2903,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "2 h 33 min"
+            "time": "2 h 33 min",
+            "duration": 9180
         },
         {
             "id": "6-33",
@@ -2823,7 +2928,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "2 h 47 min"
+            "time": "2 h 47 min",
+            "duration": 10020
         },
         {
             "id": "6-34",
@@ -2847,7 +2953,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "3 h 35 min"
+            "time": "3 h 35 min",
+            "duration": 12900
         },
         {
             "id": "6-35",
@@ -2871,7 +2978,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "3 h 45 min"
+            "time": "3 h 45 min",
+            "duration": 13500
         },
         {
             "id": "6-36",
@@ -2900,7 +3008,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "4 h 30 min"
+            "time": "4 h 30 min",
+            "duration": 16200
         },
         {
             "id": "6-37",
@@ -2924,7 +3033,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "4 h 58 min"
+            "time": "4 h 58 min",
+            "duration": 17880
         },
         {
             "id": "6-38",
@@ -2963,7 +3073,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "6 h 10 min"
+            "time": "6 h 10 min",
+            "duration": 22200
         },
         {
             "id": "6-39",
@@ -2982,7 +3093,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "1 h 28 min"
+            "time": "1 h 28 min",
+            "duration": 5280
         },
         {
             "id": "6-40",
@@ -3006,7 +3118,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "2 h 5 min"
+            "time": "2 h 5 min",
+            "duration": 7500
         },
         {
             "id": "6-41",
@@ -3030,7 +3143,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "2 h 28 min"
+            "time": "2 h 28 min",
+            "duration": 8880
         },
         {
             "id": "6-42",
@@ -3064,7 +3178,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "3 h 28 min"
+            "time": "3 h 28 min",
+            "duration": 12480
         },
         {
             "id": "6-43",
@@ -3088,7 +3203,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "4 h 43 min"
+            "time": "4 h 43 min",
+            "duration": 16980
         },
         {
             "id": "6-44",
@@ -3117,7 +3233,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "4 h 57 min"
+            "time": "4 h 57 min",
+            "duration": 17820
         },
         {
             "id": "6-45",
@@ -3141,7 +3258,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "5 hours"
+            "time": "5 hours",
+            "duration": 18000
         },
         {
             "id": "6-46",
@@ -3165,7 +3283,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "5 h 20 min"
+            "time": "5 h 20 min",
+            "duration": 19200
         },
         {
             "id": "6-47",
@@ -3189,7 +3308,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "5 h 49 min"
+            "time": "5 h 49 min",
+            "duration": 20940
         },
         {
             "id": "6-48",
@@ -3213,7 +3333,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "5 h 43 min"
+            "time": "5 h 43 min",
+            "duration": 20580
         },
         {
             "id": "6-49",
@@ -3242,7 +3363,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "6 h 11 min"
+            "time": "6 h 11 min",
+            "duration": 22260
         },
         {
             "id": "6-50",
@@ -3276,7 +3398,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "6 h 40 min"
+            "time": "6 h 40 min",
+            "duration": 24000
         },
         {
             "id": "6-51",
@@ -3310,7 +3433,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "7 h 32 min"
+            "time": "7 h 32 min",
+            "duration": 27120
         }
     ]
 }
