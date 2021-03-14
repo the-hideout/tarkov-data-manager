@@ -50,6 +50,7 @@ const AVAILABLE_TYPES = [
     'ammo',
     'armor',
     'no-flea',
+    'backpack',
 ];
 
 const CUSTOM_HANDLERS = [
