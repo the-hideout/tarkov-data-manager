@@ -17,7 +17,8 @@ const connection = mysql.createConnection({
 
 connection.connect();
 
-(async () => {
+module.exports = async () => {
+    console.log('Running last scan check');
     connection.query('select max(timestamp) as timestamp, source from price_data group by source order by `timestamp` desc', (queryError, results) => {
         for(const result of results){
             if(ignoreSources.includes(result.source)){
@@ -51,6 +52,7 @@ connection.connect();
                 json: messageData,
             });
         }
+
         connection.end();
     });
-})();
+};

@@ -6,11 +6,17 @@ const bodyParser = require('body-parser');
 const Jimp = require('jimp');
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
+const schedule = require('node-schedule');
 
 const remoteData = require('./modules/remote-data');
 const idIcon = require('./modules/id-icon');
 const iconFromScan = require('./modules/icon-from-scan');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
+
+const checkScansJob = require('./jobs/check-scans');
+const updateCacheJob = require('./jobs/update-cache');
+const updateGameDataJob = require('./jobs/update-game-data');
+const updateWorkerDataJob = require('./jobs/update-worker-data');
 
 const workerData = require('./modules/worker-data');
 
@@ -482,6 +488,15 @@ app.get('/edit/:id', async (req, res) => {
                     </div>
                 </div>
                 <div class="row">
+                    <div class="input-field col s2">
+                        <img src="${currentItemData.scan_position}">
+                    </div>
+                    <div class="input-field col s10">
+                        <input value="${currentItemData.scan_position}" id="scan-position" type="number" class="validate" name="scan_position">
+                        <label for="scan-position">Scan position</label>
+                    </div>
+                </div>
+                <div class="row">
                     <div class="input-field col s12">
                         <button class="btn waves-effect waves-light" type="submit" name="action">
                             Save
@@ -568,3 +583,9 @@ app.get('/', async (req, res) => {
 app.listen(port, () => {
     console.log(`Tarkov Data Manager listening at http://localhost:${port}`)
 });
+
+
+const checkScansJobSchedule = schedule.scheduleJob('20 * * * *', checkScansJob);
+const updateCacheJobSchedule = schedule.scheduleJob('*/10 * * * *', updateCacheJob);
+const updateGameDataJobSchedule = schedule.scheduleJob('5 4 * * *', updateGameDataJob);
+const updateWorkerDataJobSchedule = schedule.scheduleJob('10 * * * *', updateWorkerDataJob);

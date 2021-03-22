@@ -3,7 +3,8 @@ require('dotenv').config();
 const cloudflare = require('../modules/cloudflare');
 const remoteData = require('../modules/remote-data');
 
-(async () => {
+module.exports = async () => {
+    console.log('Running cache update');
     const itemData = await remoteData.get();
 
     try {
@@ -12,4 +13,4 @@ const remoteData = require('../modules/remote-data');
     } catch (requestError){
         console.error(requestError);
     }
-})();
+};

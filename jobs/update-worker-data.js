@@ -3,7 +3,8 @@ require('dotenv').config();
 const workerData = require('../modules/worker-data.js');
 const remoteData = require('../modules/remote-data.js');
 
-(async () => {
+module.exports = async () => {
+    console.log('Running worker data update');
     const itemData = await remoteData.get();
     console.log('Updating all worker items');
     const retryList = [];
@@ -33,4 +34,4 @@ const remoteData = require('../modules/remote-data.js');
     }
 
     console.log('Done with all retries');
-})();
+};

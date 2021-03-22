@@ -54,7 +54,8 @@ const getGrid = (item) => {
     return gridData;
 };
 
-(async () => {
+module.exports = async () => {
+    console.log('Running game data update');
     const items = await getData();
 
     for(let i = 0; i < items.length; i = i + 1){
@@ -111,4 +112,4 @@ const getGrid = (item) => {
     }
 
     connection.end();
-})();
+};
