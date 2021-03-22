@@ -29,6 +29,7 @@
     "node-schedule": "^2.0.0",
     "nodemon": "^2.0.7",
     "parse-duration": "^1.0.0",
-    "unidecode": "^0.1.8"
+    "unidecode": "^0.1.8",
+    "ws": "^6.2.1"
   }
 }

@@ -7,6 +7,7 @@ const Jimp = require('jimp');
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const schedule = require('node-schedule');
+const WebSocket = require('ws');
 
 const remoteData = require('./modules/remote-data');
 const idIcon = require('./modules/id-icon');
@@ -580,12 +581,73 @@ app.get('/', async (req, res) => {
     `);
 });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`Tarkov Data Manager listening at http://localhost:${port}`)
 });
-
 
 const checkScansJobSchedule = schedule.scheduleJob('20 * * * *', checkScansJob);
 const updateCacheJobSchedule = schedule.scheduleJob('*/10 * * * *', updateCacheJob);
 const updateGameDataJobSchedule = schedule.scheduleJob('5 4 * * *', updateGameDataJob);
 const updateWorkerDataJobSchedule = schedule.scheduleJob('10 * * * *', updateWorkerDataJob);
+
+const wss = new WebSocket.Server({
+    server: server,
+});
+
+const pingMessage = JSON.stringify({type: 'ping'})
+
+const sendCommand = (sessionID, command) => {
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN && client.sessionID === sessionID ) {
+            client.send(JSON.stringify({
+                type: 'command',
+                data: command,
+            }));
+        }
+    });
+};
+
+const pingInterval = setInterval(() => {
+    console.log(`active clients: ${wss.clients.size}`);
+
+    wss.clients.forEach((client) => {
+        if (client.isAlive === false) {
+            return client.terminate();
+        }
+
+        client.isAlive = false;
+        client.send(pingMessage);
+    });
+}, 5000);
+
+wss.on('connection', (ws) => {
+    ws.isAlive = true;
+
+    ws.on('message', (rawMessage) => {
+        const message = JSON.parse(rawMessage);
+
+        if(message.type === 'pong'){
+            ws.isAlive = true;
+
+            return true;
+        }
+
+        console.log(message);
+
+        if(message.type === 'connect'){
+            ws.sessionID = message.sessionID;
+
+            return true;
+        }
+
+        if(message.type === 'command'){
+            sendCommand(message.sessionID, message.data);
+
+            return true;
+        }
+    });
+});
+
+wss.on('close', () => {
+    clearInterval(pingInterval);
+});
