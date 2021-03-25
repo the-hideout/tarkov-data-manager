@@ -22,6 +22,7 @@
     "compute-midmean": "^1.0.3",
     "dotenv": "^8.2.0",
     "express": "^5.0.0-alpha.8",
+    "express-basic-auth": "^1.2.0",
     "got": "^11.8.1",
     "image-size": "^0.9.3",
     "jimp": "^0.16.1",

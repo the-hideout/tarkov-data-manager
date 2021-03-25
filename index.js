@@ -8,6 +8,7 @@ const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const schedule = require('node-schedule');
 const WebSocket = require('ws');
+const basicAuth = require('express-basic-auth');
 
 const remoteData = require('./modules/remote-data');
 const idIcon = require('./modules/id-icon');
@@ -33,6 +34,13 @@ const s3 = new S3Client({
 
 app.use(bodyParser.json());
 app.use(express.static('public'));
+app.use(basicAuth({
+    challenge: true,
+    realm: 'tarkov-data-manager',
+    users: {
+        'kokarn': process.env.AUTH_PASSWORD,
+    },
+}));
 
 const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
