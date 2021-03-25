@@ -534,7 +534,9 @@ app.get('/edit/:id', async (req, res) => {
 });
 
 app.get('/items/', async (req, res) => {
+    console.time('getting-items');
     myData = await remoteData.get();
+    console.timeEnd('getting-items');
     res.send(`${getHeader()}
         <table class="highlight">
             <thead>
