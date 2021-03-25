@@ -66,6 +66,8 @@ const AVAILABLE_TYPES = [
     'armor',
     'no-flea',
     'backpack',
+    'grenade',
+    'gun',
 ];
 
 const CUSTOM_HANDLERS = [
