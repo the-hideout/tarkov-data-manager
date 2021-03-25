@@ -138,7 +138,7 @@ const getTableContents = async (filterObject) => {
             switch (filterObject.type){
                 case 'all':
                     // Allow all items
-                    continue;
+                    break;
                 case 'untagged':
                     if(item.types.length > 0){
                         continue;
@@ -596,7 +596,7 @@ const server = app.listen(port, () => {
 });
 
 const checkScansJobSchedule = schedule.scheduleJob('20 * * * *', checkScansJob);
-const updateCacheJobSchedule = schedule.scheduleJob('*/10 * * * *', updateCacheJob);
+const updateCacheJobSchedule = schedule.scheduleJob('* * * * *', updateCacheJob);
 const updateGameDataJobSchedule = schedule.scheduleJob('5 4 * * *', updateGameDataJob);
 const updateWorkerDataJobSchedule = schedule.scheduleJob('10 * * * *', updateWorkerDataJob);
 
