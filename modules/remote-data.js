@@ -60,6 +60,7 @@ const getPercentile = (validValues) => {
 const methods = {
     get: async () => {
         console.log('Loading all data');
+        console.time('item-data-query');
         return new Promise((resolve, reject) => {
             connection.query(`
             SELECT
@@ -75,10 +76,15 @@ const methods = {
                         return reject(queryError);
                     }
 
+                    console.timeEnd('item-data-query');
+                    console.time('translations-query');
                     connection.query(`SELECT item_id, type, value FROM translations WHERE language_code = ?`, ['en'], (translationQueryError, translationResults) => {
                         if(translationQueryError){
                             return reject(translationQueryError);
                         }
+
+                        console.timeEnd('translations-query');
+                        console.time('price-query');
 
                         connection.query(`
                             SELECT
@@ -93,14 +99,25 @@ const methods = {
                                 return reject(priceQueryResult);
                             }
 
+                            console.timeEnd('price-query');
+
                             const returnData = new Map();
+                            const itemPrices = {};
+
+                            priceResults.map((resultRow) => {
+                                if(!itemPrices[resultRow.item_id]){
+                                    itemPrices[resultRow.item_id] = [];
+                                }
+
+                                itemPrices[resultRow.item_id].push(resultRow);
+                            });
 
                             for(const result of results){
                                 Reflect.deleteProperty(result, 'item_id');
 
                                 const preparedData = {
                                     ...result,
-                                    avg24hPrice: getPercentile(priceResults.filter(resultRow => resultRow.item_id === result.id)),
+                                    avg24hPrice: getPercentile(itemPrices[result.id] || []),
                                     properties: JSON.parse(result.properties),
                                     types: result.types?.split(',') || [],
                                 }
