@@ -4,6 +4,9 @@ const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const mysql = require('mysql');
 const midmean = require('compute-midmean');
 
+const bitcoinPrice = require('./bitcoin-price');
+const {categories} = require('../modules/category-map');
+
 // a client can be shared by difference commands.
 const client = new S3Client({
     region: 'eu-north-1',
@@ -94,7 +97,7 @@ const methods = {
                             FROM
                                 price_data
                             WHERE
-                                timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)`, [results.id], (priceQueryResult, priceResults) => {
+                                timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)`, [results.id], async (priceQueryResult, priceResults) => {
                             if(priceQueryResult){
                                 return reject(priceQueryResult);
                             }
@@ -114,20 +117,43 @@ const methods = {
 
                             for(const result of results){
                                 Reflect.deleteProperty(result, 'item_id');
+                                const itemProperties = JSON.parse(result.properties)
 
                                 const preparedData = {
                                     ...result,
                                     avg24hPrice: getPercentile(itemPrices[result.id] || []),
-                                    properties: JSON.parse(result.properties),
+                                    properties: itemProperties,
                                     types: result.types?.split(',') || [],
+                                    traderPrices: [],
                                 }
 
+                                // Add all translations
                                 for(const translationResult of translationResults){
                                     if(translationResult.item_id !== result.id){
                                         continue;
                                     }
 
                                     preparedData[translationResult.type] = translationResult.value;
+                                }
+
+                                // Add trader prices
+                                if(categories[itemProperties.bsgCategoryId]){
+                                    for(const trader of categories[itemProperties.bsgCategoryId].traders){
+                                        console.log(`Suggested price for ${preparedData.name} at ${trader.name}: ${Math.floor(trader.multiplier * preparedData.base_price)}`);
+                                        preparedData.traderPrices.push({
+                                            name: trader.name,
+                                            price: Math.floor(trader.multiplier * preparedData.base_price),
+                                        });
+                                    }
+                                } else {
+                                    console.log(`Failed to find category for ${preparedData.name} with id ${itemProperties.bsgCategoryId}`);
+                                }
+
+                                if(result.id === '59faff1d86f7746c51718c9c'){
+                                    preparedData.traderPrices.push({
+                                        price: await bitcoinPrice(),
+                                        name: 'Therapist',
+                                    });
                                 }
 
                                 returnData.set(result.id, preparedData);
