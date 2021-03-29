@@ -2,42 +2,42 @@ const TRADERS = {
     prapor: {
         id: '54cb50c76803fa8b248b4571',
         name: 'Prapor',
-        multiplier: 0.55,
+        multiplier: 0.50, // Perfect
     },
     therapist: {
         id: '54cb57776803fa99248b456e',
         name: 'Therapist',
-        multiplier: 0.63,
+        multiplier: 0.63, // Perfect
     },
     fence: {
         id: '579dc571d53a0658a154fbec',
         name: 'Fence',
-        multiplier: 0.40,
+        multiplier: 0.40, // Perfect
     },
     skier: {
         id: '58330581ace78e27b8b10cee',
         name: 'Skier',
-        multiplier: 0.67,
+        multiplier: 0.49, // Perfect
     },
     peacekeeper: {
         id: '5935c25fb3acc3127c3d8cd9',
         name: 'Peacekeeper',
-        multiplier: 0.55,
+        multiplier: 0.50, // A little off
     },
     mechanic: {
         id: '5a7c2eca46aef81a7ca2145d',
         name: 'Mechanic',
-        multiplier: 0.57,
+        multiplier: 0.56, // Perfect
     },
     ragman: {
         id: '5ac3b934156ae10c4430e83c',
         name: 'Ragman',
-        multiplier: 0.60,
+        multiplier: 0.62, // Perfect
     },
     jaeger: {
         id: '5c0647fdd443bc2504c2d371',
         name: 'Jaeger',
-        multiplier: 0.60,
+        multiplier: 0.60, // Perfect
     },
 };
 
