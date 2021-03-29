@@ -3,7 +3,9 @@ require('dotenv').config();
 const mysql = require('mysql');
 
 const getTarkovMarketData = require('../modules/tarkov-market-data');
+const getTarkovMarketBSGData = require('../modules/tarkov-market-bsg-data');
 const normalizeName = require('../modules/normalize-name');
+const {categories} = require('../modules/category-map');
 
 const connection = mysql.createConnection({
     host     : 'tarkov-tools-master-1.cluster-c1vhfeufwkpn.eu-west-1.rds.amazonaws.com',
@@ -33,6 +35,8 @@ const mappingProperties = [
     'Weight',
 ];
 
+let bsgData;
+
 const getGrid = (item) => {
     if(!item._props.Grids){
         return false;
@@ -54,9 +58,28 @@ const getGrid = (item) => {
     return gridData;
 };
 
+const getItemCategory = (item) => {
+    if(!item){
+        return false;
+    }
+
+    if(!item._parent){
+        return false;
+    }
+
+    // Check if parent is category
+    if(categories[item._parent]){
+        return categories[item._parent];
+    }
+
+    // Let's traverse
+    return getItemCategory(bsgData[item._parent]);
+};
+
 module.exports = async () => {
     console.log('Running game data update');
     const items = await getTarkovMarketData();
+    bsgData = await getTarkovMarketBSGData();
 
     for(let i = 0; i < items.length; i = i + 1){
         const item = items[i];
@@ -73,6 +96,10 @@ module.exports = async () => {
         }
 
         extraProperties.grid = getGrid(item);
+
+        const itemCategory = getItemCategory(item);
+
+        extraProperties.bsgCategoryId = itemCategory?.id || item._parent;
 
         const promise = new Promise((resolve, reject) => {
             connection.query(`INSERT INTO item_data (id, normalized_name, base_price, width, height, wiki_link, properties)
