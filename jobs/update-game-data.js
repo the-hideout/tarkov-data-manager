@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const mysql = require('mysql');
 
-const getData = require('../modules/tarkov-market-data');
+const getTarkovMarketData = require('../modules/tarkov-market-data');
 const normalizeName = require('../modules/normalize-name');
 
 const connection = mysql.createConnection({
@@ -56,7 +56,7 @@ const getGrid = (item) => {
 
 module.exports = async () => {
     console.log('Running game data update');
-    const items = await getData();
+    const items = await getTarkovMarketData();
 
     for(let i = 0; i < items.length; i = i + 1){
         const item = items[i];
