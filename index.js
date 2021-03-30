@@ -340,7 +340,12 @@ app.post('/edit/:id', urlencodedParser, async (req, res) => {
     const currentItemData = allItemData.get(req.params.id);
 
     if(req.body['icon-link'] && currentItemData.icon_link !== req.body['icon-link']){
-        let image = await Jimp.read(req.body['icon-link']);
+        let image = false;
+        try {
+            image = await Jimp.read(req.body['icon-link']);
+        } catch (someError){
+            console.error(someError);
+        }
 
         if(!image){
             return res.send('Failed to add image');
@@ -458,9 +463,13 @@ app.post('/edit/:id', urlencodedParser, async (req, res) => {
 app.get('/edit/:id', async (req, res) => {
     const allItemData = await remoteData.get();
     const currentItemData = allItemData.get(req.params.id);
-    const imageBase = await iconFromScan(req.params.id);
-
-    const base64 = await imageBase.getBase64Async(Jimp.MIME_JPEG);
+    let base64 = false;
+    try {
+        const imageBase = await iconFromScan(req.params.id);
+        base64 = await imageBase.getBase64Async(Jimp.MIME_JPEG);
+    } catch (jimpError){
+        console.error(jimpError);
+    }
 
     res.send(`${getHeader()}
         ${req.query.updated ? '<div class="row">Updated. Will be live in < 4 hours</div>': ''}
