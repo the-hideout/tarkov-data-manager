@@ -139,7 +139,7 @@ const methods = {
                                 // Add trader prices
                                 if(categories[itemProperties.bsgCategoryId]){
                                     for(const trader of categories[itemProperties.bsgCategoryId].traders){
-                                        console.log(`Suggested price for ${preparedData.name} at ${trader.name}: ${Math.floor(trader.multiplier * preparedData.base_price)}`);
+                                        // console.log(`Suggested price for ${preparedData.name} at ${trader.name}: ${Math.floor(trader.multiplier * preparedData.base_price)}`);
                                         preparedData.traderPrices.push({
                                             name: trader.name,
                                             price: Math.floor(trader.multiplier * preparedData.base_price),
