@@ -613,10 +613,10 @@ const server = app.listen(port, () => {
     console.log(`Tarkov Data Manager listening at http://localhost:${port}`)
 });
 
-// const checkScansJobSchedule = schedule.scheduleJob('20 * * * *', checkScansJob);
-// const updateCacheJobSchedule = schedule.scheduleJob('* * * * *', updateCacheJob);
-// const updateGameDataJobSchedule = schedule.scheduleJob('5 4 * * *', updateGameDataJob);
-// const updateWorkerDataJobSchedule = schedule.scheduleJob('10 * * * *', updateWorkerDataJob);
+const checkScansJobSchedule = schedule.scheduleJob('20 * * * *', checkScansJob);
+const updateCacheJobSchedule = schedule.scheduleJob('* * * * *', updateCacheJob);
+const updateGameDataJobSchedule = schedule.scheduleJob('5 4 * * *', updateGameDataJob);
+const updateWorkerDataJobSchedule = schedule.scheduleJob('10 * * * *', updateWorkerDataJob);
 
 const wss = new WebSocket.Server({
     server: server,
