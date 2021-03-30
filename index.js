@@ -339,7 +339,8 @@ app.post('/edit/:id', urlencodedParser, async (req, res) => {
     const allItemData = await remoteData.get();
     const currentItemData = allItemData.get(req.params.id);
 
-    if(req.body['icon-link'] && currentItemData.icon_link !== req.body['icon-link']){
+    if(req.body['icon-link'] && req.body['icon-link'] !== 'null' && currentItemData.icon_link !== req.body['icon-link']){
+        console.log('Updating icon link');
         let image = false;
         try {
             image = await Jimp.read(req.body['icon-link']);
@@ -372,7 +373,8 @@ app.post('/edit/:id', urlencodedParser, async (req, res) => {
         return res.redirect(`/edit/${req.params.id}?updated=1`);
     }
 
-    if(req.body['image-link'] && currentItemData.image_link !== req.body['image-link']){
+    if(req.body['image-link'] && req.body['image-link'] !== 'null' && currentItemData.image_link !== req.body['image-link']){
+        console.log('Updating image link');
         let image = await Jimp.read(req.body['image-link']);
 
         if(!image){
@@ -400,7 +402,7 @@ app.post('/edit/:id', urlencodedParser, async (req, res) => {
         return res.redirect(`/edit/${req.params.id}?updated=1`);
     }
 
-    if(req.body['grid-image-link'] && currentItemData.grid_image_link !== req.body['grid-image-link']){
+    if(req.body['grid-image-link'] && req.body['grid-image-link'] !== 'null' && currentItemData.grid_image_link !== req.body['grid-image-link']){
         let image = await Jimp.read(req.body['grid-image-link']);
 
         if(!image){
@@ -471,7 +473,11 @@ app.get('/edit/:id', async (req, res) => {
         console.error(jimpError);
     }
 
-    res.send(`${getHeader()}
+    // return res.send(currentItemData);
+
+    // console.log(currentItemData);
+
+    return res.send(`${getHeader()}
         ${req.query.updated ? '<div class="row">Updated. Will be live in < 4 hours</div>': ''}
         <div class="row">
             <div class"col s12">
@@ -482,7 +488,7 @@ app.get('/edit/:id', async (req, res) => {
             <form class="col s12" method="post" action="/edit/${currentItemData.id}">
             <div class="row">
                     <div class="input-field col s2">
-                        <img src="${currentItemData.image_link}">
+                        ${currentItemData.image_link ? `<img src="${currentItemData.image_link}">`: ''}
                     </div>
                     <div class="input-field col s10">
                         <input value="${currentItemData.image_link}" id="image-link" type="text" class="validate" name="image-link">
@@ -491,7 +497,7 @@ app.get('/edit/:id', async (req, res) => {
                 </div>
                 <div class="row">
                     <div class="input-field col s2">
-                        <img src="${currentItemData.icon_link}">
+                        ${currentItemData.icon_link ? `<img src="${currentItemData.icon_link}">`: ''}
                     </div>
                     <div class="input-field col s10">
                         <input value="${currentItemData.icon_link}" id="icon-link" type="text" class="validate" name="icon-link">
@@ -500,7 +506,7 @@ app.get('/edit/:id', async (req, res) => {
                 </div>
                 <div class="row">
                     <div class="input-field col s2">
-                        <img src="${currentItemData.grid_image_link}">
+                        ${currentItemData.grid_image_link ? `<img src="${currentItemData.grid_image_link}">`: ''}
                     </div>
                     <div class="input-field col s10">
                         <input value="${currentItemData.grid_image_link}" id="grid-image-link" type="text" class="validate" name="grid-image-link">
@@ -509,7 +515,7 @@ app.get('/edit/:id', async (req, res) => {
                 </div>
                 <div class="row">
                     <div class="input-field col s2">
-                        <img src="${currentItemData.scan_position}">
+                        ${currentItemData.scan_position}
                     </div>
                     <div class="input-field col s10">
                         <input value="${currentItemData.scan_position}" id="scan-position" type="number" class="validate" name="scan_position">
@@ -527,7 +533,7 @@ app.get('/edit/:id', async (req, res) => {
             <form class="col s12" method="post" action="/edit/${currentItemData.id}">
                 <div class="row">
                     <div class="input-field col s1">
-                        <img src="${base64}">
+                        ${base64 ? `<img src="${base64}">`: ''}
                         <input type="hidden" value="${base64}" name="icon-link-base64">
                     </div>
                     <div class="input-field col s3">
@@ -539,6 +545,7 @@ app.get('/edit/:id', async (req, res) => {
                         </button<
                     </div>
                 </div>
+            </form>
         </div>
 
     `);
@@ -606,10 +613,10 @@ const server = app.listen(port, () => {
     console.log(`Tarkov Data Manager listening at http://localhost:${port}`)
 });
 
-const checkScansJobSchedule = schedule.scheduleJob('20 * * * *', checkScansJob);
-const updateCacheJobSchedule = schedule.scheduleJob('* * * * *', updateCacheJob);
-const updateGameDataJobSchedule = schedule.scheduleJob('5 4 * * *', updateGameDataJob);
-const updateWorkerDataJobSchedule = schedule.scheduleJob('10 * * * *', updateWorkerDataJob);
+// const checkScansJobSchedule = schedule.scheduleJob('20 * * * *', checkScansJob);
+// const updateCacheJobSchedule = schedule.scheduleJob('* * * * *', updateCacheJob);
+// const updateGameDataJobSchedule = schedule.scheduleJob('5 4 * * *', updateGameDataJob);
+// const updateWorkerDataJobSchedule = schedule.scheduleJob('10 * * * *', updateWorkerDataJob);
 
 const wss = new WebSocket.Server({
     server: server,
