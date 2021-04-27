@@ -100,7 +100,12 @@ module.exports = {
         '57864a3d24597754843f8721': {
             name: 'Jewelry',
             id: '57864a3d24597754843f8721',
-            traders: [],
+            traders: [
+                TRADERS.therapist,
+                TRADERS.fence,
+                TRADERS.skier,
+                TRADERS.peacekeeper,
+            ],
         },
         '5c99f98d86f7745c314214b3': {
             name: 'KeyMechanical',
