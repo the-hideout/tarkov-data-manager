@@ -83,10 +83,9 @@ module.exports = {
             name: 'Keycard',
             id: '5c164d2286f774194c5e69fa',
             traders: [
-                TRADERS.prapor,
                 TRADERS.therapist,
-                TRADERS.fence,
-                TRADERS.jaeger,
+                TRADERS.peacekeeper,
+                TRADERS.mechanic,
             ],
         },
         '5447e1d04bdc2dff2f8b4567': {
@@ -100,7 +99,12 @@ module.exports = {
         '57864a3d24597754843f8721': {
             name: 'Jewelry',
             id: '57864a3d24597754843f8721',
-            traders: [],
+            traders: [
+                TRADERS.therapist,
+                TRADERS.fence,
+                TRADERS.skier,
+                TRADERS.peacekeeper,
+            ],
         },
         '5c99f98d86f7745c314214b3': {
             name: 'KeyMechanical',
@@ -116,12 +120,11 @@ module.exports = {
             name: 'Electronics',
             id: '57864a66245977548f04a81f',
             traders: [
-                TRADERS.prapor,
                 TRADERS.therapist,
                 TRADERS.fence,
+                TRADERS.skier,
                 TRADERS.peacekeeper,
                 TRADERS.mechanic,
-                TRADERS.ragman,
             ],
         },
         '57864ada245977548638de91': {
@@ -131,8 +134,7 @@ module.exports = {
                 TRADERS.prapor,
                 TRADERS.therapist,
                 TRADERS.fence,
-                TRADERS.peacekeeper,
-                TRADERS.ragman,
+                TRADERS.jaeger,
             ],
         },
         '5448eb774bdc2d0a728b4567': {
@@ -142,20 +144,17 @@ module.exports = {
                 TRADERS.prapor,
                 TRADERS.therapist,
                 TRADERS.fence,
-                TRADERS.peacekeeper,
-                TRADERS.ragman,
+                TRADERS.skier,
             ],
         },
         '57bef4c42459772e8d35a53b': {
             name: 'ArmoredEquipment',
             id: '57bef4c42459772e8d35a53b',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.skier,
                 TRADERS.peacekeeper,
                 TRADERS.ragman,
-                TRADERS.jaeger,
             ],
         },
         '5448f3a64bdc2d60728b456a': {
@@ -597,10 +596,12 @@ module.exports = {
             id: '567849dd4bdc2d150f8b456e',
             traders: [],
         },
-        '5b3f15d486f77432d0509248': {
+        '5b3f15d486f77432d0509248': { // checked
             name: 'ArmBand',
             id: '5b3f15d486f77432d0509248',
-            traders: [],
+            traders: [
+                TRADERS.ragman,
+            ],
         },
         '5447e0e74bdc2d3c308b4567': {
             name: 'SpecItem',
