@@ -635,6 +635,17 @@ const sendCommand = (sessionID, command) => {
     });
 };
 
+const sendMessage = (sessionID, type, data) => {
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN && client.sessionID === sessionID ) {
+            client.send(JSON.stringify({
+                type: type,
+                data: data,
+            }));
+        }
+    });
+};
+
 const pingInterval = setInterval(() => {
     console.log(`active clients: ${wss.clients.size}`);
 
@@ -660,7 +671,9 @@ wss.on('connection', (ws) => {
             return true;
         }
 
-        console.log(message);
+        if(message?.type !== 'debug'){
+            console.log(message);
+        }
 
         if(message.type === 'connect'){
             ws.sessionID = message.sessionID;
@@ -670,6 +683,12 @@ wss.on('connection', (ws) => {
 
         if(message.type === 'command'){
             sendCommand(message.sessionID, message.data);
+
+            return true;
+        }
+
+        if(message.type === 'debug'){
+            sendMessage(message.sessionID, 'debug', message.data);
 
             return true;
         }
