@@ -6,6 +6,8 @@ const got = require('got');
 const ignoreSources = [
     'DESKTOP-BKCSP2S',
     'DESKTOP-DA1IT79',
+    'DanBox2018',
+    'DESKTOP-RAZZ',
 ];
 
 const connection = mysql.createConnection({
