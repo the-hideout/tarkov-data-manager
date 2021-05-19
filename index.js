@@ -248,6 +248,7 @@ const getHeader = () => {
             <link rel="stylesheet" href="/index.css" />
         </head>
         <body>
+            <script src="/ansi_up.js"></script>
             <script src="/index.js"></script>
             <nav>
                 <div class="nav-wrapper">
@@ -594,18 +595,28 @@ app.get('/items/', async (req, res) => {
 app.get('/', async (req, res) => {
     const latestScanResults = await getLatestScanResults();
     res.send(`${getHeader()}
-        ${latestScanResults.map((latestScan) => {
-            return `<div>
-            <ul>
-                <li>
-                    Name: ${latestScan.source}
-                </li>
-                <li>
-                    Latest update: ${latestScan.timestamp}
-                </li>
-            </ul>
-            </div>`;
-        }).join('')}
+        <div class="scanners-wrapper">
+            ${latestScanResults.map((latestScan) => {
+                return `
+                <div class="scanner">
+                    <ul>
+                        <li>
+                            Name: ${latestScan.source}
+                        </li>
+                        <li>
+                            Latest update: ${latestScan.timestamp}
+                        </li>
+                    </ul>
+                    <div
+                        class = "log-messages log-messages-${latestScan.source}"
+                    >
+                    </div>
+                    <script>
+                        startListener('${latestScan.source}');
+                    </script>
+                </div>`;
+            }).join('')}
+        </div>
     `);
 });
 

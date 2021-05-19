@@ -26,3 +26,26 @@ tr:hover {
 .type-wrapper {
     width: 33%;
 }
+
+.scanners-wrapper {
+    display: flex;
+    flex-flow: wrap;
+    width: 100%;
+}
+
+.scanner {
+    width: 50%;
+}
+
+.scanner pre {
+    width: 100%;
+}
+
+.log-messages {
+    color: #fff;
+    background-color: #000;
+    font-family: monospace;
+    height: 200px;
+    overflow: hidden scroll;
+    padding-left: 15px;
+}

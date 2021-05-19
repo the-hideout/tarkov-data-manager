@@ -15,8 +15,66 @@ async function postData(url = '', data = {}) {
     });
 
     return response.json(); // parses JSON response into native JavaScript objects
-  }
+}
 
+function startListener(channel) {
+    const WEBSOCKET_SERVER = 'wss://tarkov-tools-live.herokuapp.com';
+    let logMessages = [];
+
+    const ws = new WebSocket(WEBSOCKET_SERVER);
+
+    const heartbeat = function heartbeat() {
+        clearTimeout(ws.pingTimeout);
+
+        // Use `WebSocket#terminate()`, which immediately destroys the connection,
+        // instead of `WebSocket#close()`, which waits for the close timer.
+        // Delay should be equal to the interval at which your server
+        // sends out pings plus a conservative assumption of the latency.
+        ws.pingTimeout = setTimeout(() => {
+            if(ws?.terminate){
+                ws.terminate();
+            }
+        }, 10000 + 1000);
+    };
+
+    ws.onopen = () => {
+        heartbeat();
+
+        console.log(`Listening for messages from ${channel}`);
+
+        ws.send(JSON.stringify({
+            sessionID: channel,
+            type: 'connect',
+        }));
+    };
+
+    ws.onmessage = (rawMessage) => {
+        const message = JSON.parse(rawMessage.data);
+
+        if(message.type === 'ping'){
+            heartbeat();
+
+            ws.send(JSON.stringify({type: 'pong'}));
+
+            return true;
+        }
+
+        const ansi_up = new AnsiUp;
+
+        const html = ansi_up.ansi_to_html(message.data);
+
+        logMessages.push(html);
+
+        logMessages = logMessages.slice(-100);
+
+        const wrapper = document.querySelector(`.log-messages-${channel}`)
+
+        wrapper.innerHTML = logMessages.join('<br>');
+
+        wrapper.scrollTop = wrapper.scrollHeight;
+        // console.log(message.data);
+    };
+}
 
 document.addEventListener('change', (event) => {
     if(event.target.getAttribute('type') !== 'checkbox'){
