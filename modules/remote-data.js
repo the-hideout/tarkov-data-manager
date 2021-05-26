@@ -136,8 +136,13 @@ const methods = {
                                     preparedData[translationResult.type] = translationResult.value;
                                 }
 
+                                if(!itemProperties.bsgCategoryId){
+                                    console.log('Missing bsgCategoryId for');
+                                    console.log(result);
+                                }
+
                                 // Add trader prices
-                                if(categories[itemProperties.bsgCategoryId]){
+                                if(itemProperties.bsgCategoryId && categories[itemProperties.bsgCategoryId]){
                                     for(const trader of categories[itemProperties.bsgCategoryId].traders){
                                         // console.log(`Suggested price for ${preparedData.name} at ${trader.name}: ${Math.floor(trader.multiplier * preparedData.base_price)}`);
                                         preparedData.traderPrices.push({
