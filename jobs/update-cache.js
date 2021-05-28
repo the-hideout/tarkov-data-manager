@@ -21,6 +21,12 @@ module.exports = async () => {
 
     for (const [key, value] of itemMap.entries()) {
         itemData[key] = value;
+
+        Reflect.deleteProperty(itemData[key], 'last_update');
+        Reflect.deleteProperty(itemData[key], 'last_scan');
+        Reflect.deleteProperty(itemData[key], 'checked_out_by');
+        Reflect.deleteProperty(itemData[key], 'trader_last_scan');
+        Reflect.deleteProperty(itemData[key], 'trader_checked_out_by');
     }
 
     try {

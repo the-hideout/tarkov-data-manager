@@ -109,10 +109,20 @@ const methods = {
 
                             priceResults.map((resultRow) => {
                                 if(!itemPrices[resultRow.item_id]){
-                                    itemPrices[resultRow.item_id] = [];
+                                    itemPrices[resultRow.item_id] = {
+                                        lastUpdated: resultRow.timestamp,
+                                        prices: [],
+                                    };
                                 }
 
-                                itemPrices[resultRow.item_id].push(resultRow);
+                                itemPrices[resultRow.item_id].prices.push(resultRow);
+                                if(itemPrices[resultRow.item_id].lastUpdated <= resultRow.timestamp){
+                                    itemPrices[resultRow.item_id].lastUpdated = resultRow.timestamp;
+
+                                    if(itemPrices[resultRow.item_id].lastLowPrice > resultRow.price || !itemPrices[resultRow.item_id].lastLowPrice){
+                                        itemPrices[resultRow.item_id].lastLowPrice = resultRow.price;
+                                    }
+                                }
                             });
 
                             for(const result of results){
@@ -121,11 +131,13 @@ const methods = {
 
                                 const preparedData = {
                                     ...result,
-                                    avg24hPrice: getPercentile(itemPrices[result.id] || []),
+                                    avg24hPrice: getPercentile(itemPrices[result.id]?.prices || []),
+                                    updated: itemPrices[result.id]?.lastUpdated,
                                     properties: itemProperties,
                                     types: result.types?.split(',') || [],
                                     traderPrices: [],
-                                }
+                                    lastLowPrice: itemPrices[result.id]?.lastLowPrice,
+                                };
 
                                 // Add all translations
                                 for(const translationResult of translationResults){
