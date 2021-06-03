@@ -12,7 +12,6 @@ const basicAuth = require('express-basic-auth');
 
 const remoteData = require('./modules/remote-data');
 const idIcon = require('./modules/id-icon');
-const iconFromScan = require('./modules/icon-from-scan');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
 
 const checkScansJob = require('./jobs/check-scans');
@@ -465,13 +464,6 @@ app.post('/edit/:id', urlencodedParser, async (req, res) => {
 app.get('/edit/:id', async (req, res) => {
     const allItemData = await remoteData.get();
     const currentItemData = allItemData.get(req.params.id);
-    let base64 = false;
-    try {
-        const imageBase = await iconFromScan(req.params.id);
-        base64 = await imageBase.getBase64Async(Jimp.MIME_JPEG);
-    } catch (jimpError){
-        console.error(jimpError);
-    }
 
     // return res.send(currentItemData);
 
@@ -527,22 +519,6 @@ app.get('/edit/:id', async (req, res) => {
                         <button class="btn waves-effect waves-light" type="submit" name="action">
                             Save
                         </button>
-                    </div>
-                </div>
-            </form>
-            <form class="col s12" method="post" action="/edit/${currentItemData.id}">
-                <div class="row">
-                    <div class="input-field col s1">
-                        ${base64 ? `<img src="${base64}">`: ''}
-                        <input type="hidden" value="${base64}" name="icon-link-base64">
-                    </div>
-                    <div class="input-field col s3">
-                        <button
-                            class="btn waves-effect waves-light"
-                            type="submit"
-                        >
-                            Use this image as icon
-                        </button<
                     </div>
                 </div>
             </form>
