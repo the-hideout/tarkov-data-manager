@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon -r dotenv/config --ignore cache/ --ignore data.json index.js",
+    "dev": "nodemon -r dotenv/config --trace-warnings --ignore cache/ --ignore data.json index.js",
     "start": "node index.js"
   },
   "keywords": [],
@@ -26,10 +26,12 @@
     "got": "^11.8.1",
     "image-size": "^0.9.3",
     "jimp": "^0.16.1",
+    "json-diff": "^0.5.4",
     "mysql": "^2.18.1",
     "node-schedule": "^2.0.0",
     "nodemon": "^2.0.7",
     "parse-duration": "^1.0.0",
+    "round-to": "^5.0.0",
     "unidecode": "^0.1.8",
     "ws": "^7.4.4"
   }
