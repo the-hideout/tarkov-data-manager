@@ -90,7 +90,7 @@ module.exports = async () => {
         const percentOfDayBefore = itemData[key].avg24hPrice / itemPriceYesterday.priceYesterday
         itemData[key].changeLast48h = roundTo((percentOfDayBefore - 1) * 100, 2);
 
-        itemData[key].changeLast48h = itemPriceYesterday.priceYesterday || 0;
+        // itemData[key].changeLast48h = itemPriceYesterday.priceYesterday || 0;
     }
 
     try {
