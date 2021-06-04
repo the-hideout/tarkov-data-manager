@@ -6,15 +6,6 @@ const roundTo = require('round-to');
 const cloudflare = require('../modules/cloudflare');
 const remoteData = require('../modules/remote-data');
 
-const connection = mysql.createConnection({
-    host     : 'tarkov-tools-master-1.cluster-c1vhfeufwkpn.eu-west-1.rds.amazonaws.com',
-    user     : 'desktop1',
-    password : process.env.MYSQL_PASSWORD,
-    database : 'tarkov_tools',
-});
-
-connection.connect();
-
 function replacer(key, value) {
     if(value instanceof Map) {
         return {
@@ -27,6 +18,15 @@ function replacer(key, value) {
 }
 
 async function doQuery(query) {
+    const connection = mysql.createConnection({
+        host     : 'tarkov-tools-master-1.cluster-c1vhfeufwkpn.eu-west-1.rds.amazonaws.com',
+        user     : 'desktop1',
+        password : process.env.MYSQL_PASSWORD,
+        database : 'tarkov_tools',
+    });
+
+    connection.connect();
+
     let responseData;
     const promise = new Promise((resolve, reject) => {
         connection.query(query
@@ -48,6 +48,8 @@ async function doQuery(query) {
         throw upsertError;
     }
 
+    connection.end();
+
     return responseData;
 }
 
@@ -68,8 +70,6 @@ module.exports = async () => {
         timestamp < DATE_SUB(NOW(), INTERVAL 1 DAY)
     GROUP BY
         item_id`);
-
-    connection.end();
 
     for (const [key, value] of itemMap.entries()) {
         itemData[key] = value;
