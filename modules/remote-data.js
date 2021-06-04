@@ -28,14 +28,14 @@ const getPercentile = (validValues) => {
     }
 
     if(validValues.length === 1){
-        return validValues[0].price;
+        return validValues[0];
     }
 
     if(validValues.length === 2){
-        return Math.floor((validValues[0].price + validValues[1].price) / 2)
+        return Math.floor((validValues[0] + validValues[1]) / 2)
     }
 
-    const sortedValues = validValues.map(validValue => validValue.price).sort((a, b) => a - b);
+    const sortedValues = validValues.sort((a, b) => a - b);
 
     return Math.floor(midmean(sortedValues, true));
 
@@ -115,7 +115,7 @@ const methods = {
                                     };
                                 }
 
-                                itemPrices[resultRow.item_id].prices.push(resultRow);
+                                itemPrices[resultRow.item_id].prices.push(resultRow.price);
                                 if(itemPrices[resultRow.item_id].lastUpdated <= resultRow.timestamp){
                                     itemPrices[resultRow.item_id].lastUpdated = resultRow.timestamp;
 
@@ -127,11 +127,14 @@ const methods = {
 
                             for(const result of results){
                                 Reflect.deleteProperty(result, 'item_id');
-                                const itemProperties = JSON.parse(result.properties)
+                                const itemProperties = JSON.parse(result.properties);
+                                itemPrices[result.id]?.prices.sort();
 
                                 const preparedData = {
                                     ...result,
                                     avg24hPrice: getPercentile(itemPrices[result.id]?.prices || []),
+                                    low24hPrice: itemPrices[result.id]?.prices[0],
+                                    high24hPrice: itemPrices[result.id]?.prices[itemPrices[result.id]?.prices.length - 1],
                                     updated: itemPrices[result.id]?.lastUpdated,
                                     properties: itemProperties,
                                     types: result.types?.split(',') || [],
