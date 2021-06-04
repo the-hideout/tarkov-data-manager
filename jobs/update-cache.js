@@ -57,17 +57,17 @@ module.exports = async () => {
     const itemData = {};
 
     const avgPriceYesterday = await doQuery(`SELECT
-    avg(price) AS priceYesterday,
-    item_id,
-    timestamp
-FROM
-    price_data
-WHERE
-    timestamp > DATE_SUB(NOW(), INTERVAL 2 DAY)
-AND
-    timestamp < DATE_SUB(NOW(), INTERVAL 1 DAY)
-GROUP BY
-    item_id`);
+        avg(price) AS priceYesterday,
+        item_id,
+        timestamp
+    FROM
+        price_data
+    WHERE
+        timestamp > DATE_SUB(NOW(), INTERVAL 2 DAY)
+    AND
+        timestamp < DATE_SUB(NOW(), INTERVAL 1 DAY)
+    GROUP BY
+        item_id`);
 
     connection.end();
 
@@ -82,12 +82,15 @@ GROUP BY
 
         let itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === key);
         if(!itemPriceYesterday || itemData[key].avg24hPrice === 0){
-            itemData[key].changeLast24h = 0;
+            itemData[key].changeLast48h = 0;
 
             continue;
         }
 
-        itemData[key].changeLast24h = roundTo((1 - itemPriceYesterday.priceYesterday / itemData[key].avg24hPrice) * 100, 2);
+        const percentOfDayBefore = itemData[key].avg24hPrice / itemPriceYesterday.priceYesterday
+        itemData[key].changeLast48h = roundTo((percentOfDayBefore - 1) * 100, 2);
+
+        itemData[key].changeLast48h = itemPriceYesterday.priceYesterday || 0;
     }
 
     try {
