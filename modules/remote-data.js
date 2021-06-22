@@ -116,10 +116,15 @@ const methods = {
                                 }
 
                                 itemPrices[resultRow.item_id].prices.push(resultRow.price);
-                                if(itemPrices[resultRow.item_id].lastUpdated <= resultRow.timestamp){
+                                if(itemPrices[resultRow.item_id].lastUpdated.getTime() < resultRow.timestamp.getTime()){
                                     itemPrices[resultRow.item_id].lastUpdated = resultRow.timestamp;
+                                    itemPrices[resultRow.item_id].lastLowPrice = resultRow.price;
 
-                                    if(itemPrices[resultRow.item_id].lastLowPrice > resultRow.price || !itemPrices[resultRow.item_id].lastLowPrice){
+                                    return true;
+                                }
+
+                                if(itemPrices[resultRow.item_id].lastUpdated.getTime() === resultRow.timestamp.getTime()){
+                                    if(itemPrices[resultRow.item_id].lastLowPrice > resultRow.price){
                                         itemPrices[resultRow.item_id].lastLowPrice = resultRow.price;
                                     }
                                 }
