@@ -16,7 +16,7 @@ const getLatestScanResults = require('./modules/get-latest-scan-results');
 
 const checkScansJob = require('./jobs/check-scans');
 const updateCacheJob = require('./jobs/update-cache');
-const updateGameDataJob = require('./jobs/update-game-data');
+// const updateGameDataJob = require('./jobs/update-game-data');
 
 const workerData = require('./modules/worker-data');
 
@@ -601,7 +601,7 @@ const server = app.listen(port, () => {
 
 const checkScansJobSchedule = schedule.scheduleJob('20 * * * *', checkScansJob);
 const updateCacheJobSchedule = schedule.scheduleJob('* * * * *', updateCacheJob);
-const updateGameDataJobSchedule = schedule.scheduleJob('5 4 * * *', updateGameDataJob);
+// const updateGameDataJobSchedule = schedule.scheduleJob('5 4 * * *', updateGameDataJob);
 
 const wss = new WebSocket.Server({
     server: server,
