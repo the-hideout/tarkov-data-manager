@@ -18,8 +18,6 @@ const checkScansJob = require('./jobs/check-scans');
 const updateCacheJob = require('./jobs/update-cache');
 // const updateGameDataJob = require('./jobs/update-game-data');
 
-const workerData = require('./modules/worker-data');
-
 const app = express();
 const port = process.env.PORT || 4000;
 
@@ -185,9 +183,6 @@ const getTableContents = async (filterObject) => {
                 <a href="${item.wiki_link}" >${item.name}</a>
                 ${item.id}
                 <div>
-                    <a href="/update-worker-data/${item.id}">Update worker data</a>
-                </div>
-                <div>
                     <a href="/edit/${item.id}">Edit</a>
                 </div>
             </td>
@@ -276,29 +271,6 @@ app.post('/update', (request, response) => {
     updateTypes(request.body);
 
     response.send('ok');
-});
-
-app.get('/update-worker-data/:id', async (request, response) => {
-    const itemData = await remoteData.get();
-    console.log(`Updating worker data for ${request.params.id}`);
-    let newWorkerData = false;
-    let responseData;
-    for(const [key, item] of itemData){
-        if(key !== request.params.id){
-            continue;
-        }
-        console.log(item);
-        newWorkerData = item;
-        try {
-            const response = await workerData(item.id, item);
-            responseData = response.body;
-        } catch (workerUpdateError){
-            console.error(workerUpdateError);
-            console.log(item);
-        }
-    }
-
-    response.send(`Worker data for ${request.params.id} updated <pre>${JSON.stringify(newWorkerData, null, 4)}</pre><pre>${responseData}</pre>`);
 });
 
 app.get('/set-icon-image', async (request, response) => {
@@ -649,6 +621,8 @@ wss.on('connection', (ws) => {
 
     ws.on('message', (rawMessage) => {
         const message = JSON.parse(rawMessage);
+
+        console.log(message);
 
         if(message.type === 'pong'){
             ws.isAlive = true;
