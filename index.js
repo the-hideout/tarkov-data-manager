@@ -11,7 +11,6 @@ const WebSocket = require('ws');
 const basicAuth = require('express-basic-auth');
 
 const remoteData = require('./modules/remote-data');
-const idIcon = require('./modules/id-icon');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
 
 const checkScansJob = require('./jobs/check-scans');
