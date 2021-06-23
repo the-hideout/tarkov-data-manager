@@ -175,6 +175,9 @@ const methods = {
                                 }
 
                                 if(result.id === '59faff1d86f7746c51718c9c'){
+                                    // Remove Therapist price
+                                    preparedData.traderPrices = preparedData.traderPrices.filter(traderPrice => traderPrice.name !== 'Therapist');
+
                                     preparedData.traderPrices.push({
                                         price: await bitcoinPrice(),
                                         name: 'Therapist',
