@@ -1,3 +1,5 @@
 cache/
 .env
 node_modules
+scripts
+*.sql
