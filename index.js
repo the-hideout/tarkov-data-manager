@@ -153,12 +153,6 @@ const getTableContents = async (filterObject) => {
                         continue;
                     }
 
-                    const alternateIcon = await idIcon(item.id);
-                    if(alternateIcon){
-                        item.icon_link = await alternateIcon.getBase64Async(Jimp.MIME_JPEG);
-                    }
-                    item.fix_link = `/set-icon-image?item-id=${item.id}`;
-
                     break;
                 default:
                     if(!item.types.includes(filterObject.type)){
@@ -168,14 +162,7 @@ const getTableContents = async (filterObject) => {
         }
 
         items = items + 1;
-        let iconString = `<img src="${item.icon_link}" loading="lazy" />`;
 
-        if(item.fix_link){
-            iconString = `
-                <a href="${item.fix_link}"><img src="${item.icon_link}" loading="lazy" /></a>
-                <a href="/set-icon-image?item-id=${item.id}&image-url=${item.image_link}"><img src="${item.image_link}" loading="lazy" /></a>
-            `;
-        }
         const scanImageUrl = `https://tarkov-data.s3.eu-north-1.amazonaws.com/${item.id}/latest.jpg`;
         tableContentsString = `${tableContentsString}
         <tr>
@@ -190,7 +177,7 @@ const getTableContents = async (filterObject) => {
                 <img src="${item.image_link}" loading="lazy" />
             </td>
             <td>
-                ${iconString}
+                <img src="${item.icon_link}" loading="lazy" />
             </td>
             <td>
                 <img src="${item.grid_image_link}" loading="lazy" />
@@ -269,38 +256,6 @@ app.get('/data', async (req, res) => {
 app.post('/update', (request, response) => {
     console.log(request.body);
     updateTypes(request.body);
-
-    response.send('ok');
-});
-
-app.get('/set-icon-image', async (request, response) => {
-    let image;
-    if(request.query['image-url']){
-        image = await Jimp.read(request.query['image-url']);
-    } else {
-        image = await idIcon(request.query['item-id']);
-    }
-
-    if(!image){
-        return response.send('Failed to add image');
-    }
-
-    const uploadParams = {
-        Bucket: 'assets.tarkov-tools.com',
-        Key: `${request.query['item-id']}-icon.jpg`,
-        ContentType: 'image/jpeg',
-    };
-
-    uploadParams.Body = await image.getBufferAsync(Jimp.MIME_JPEG);
-
-    try {
-        await s3.send(new PutObjectCommand(uploadParams));
-        console.log("Image saved to s3");
-    } catch (err) {
-        console.log("Error", err);
-    }
-
-    await remoteData.setProperty(request.query['item-id'], 'icon_link', `https://assets.tarkov-tools.com/${request.query['item-id']}-icon.jpg`);
 
     response.send('ok');
 });
