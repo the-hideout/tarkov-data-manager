@@ -4,6 +4,7 @@ const mysql = require('mysql');
 
 const normalizeName = require('../modules/normalize-name');
 const {categories} = require('../modules/category-map');
+const presetSize = require('../modules/preset-size');
 
 const bsgData = require('../bsg-data.json');
 
@@ -188,6 +189,15 @@ module.exports = async () => {
         item.name = item._props.Name.toString();
         item.shortName = item._props.ShortName.toString();
         item.description = item._props.Description.toString();
+        item.width = item._props.Width;
+        item.height = item._props.Height;
+
+        const itemPresetSize = await presetSize(item.shortName, item._id);
+
+        if(itemPresetSize){
+            item.width = presetSize.width;
+            item.height = presetSize.height;
+        }
 
         const promise = new Promise((resolve, reject) => {
             connection.query(`INSERT INTO item_data (id, normalized_name, base_price, width, height, properties)
@@ -195,15 +205,15 @@ module.exports = async () => {
                     '${item._id}',
                     ${connection.escape(normalizeName(item._props.Name))},
                     ${item._props.CreditsPrice},
-                    ${item._props.Width},
-                    ${item._props.Height},
+                    ${item.width},
+                    ${item.height},
                     ${connection.escape(JSON.stringify(extraProperties))}
                 )
                 ON DUPLICATE KEY UPDATE
                     normalized_name=${connection.escape(normalizeName(item._props.Name))},
                     base_price=${item._props.CreditsPrice},
-                    width=${item._props.Width},
-                    height=${item._props.Height},
+                    width=${item.width},
+                    height=${item.height},
                     properties=${connection.escape(JSON.stringify(extraProperties))}`
                 , async (error, results) => {
                     if (error) {
