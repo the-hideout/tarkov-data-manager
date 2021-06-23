@@ -44,6 +44,8 @@ const ignoreMap = [
     '5d53f4b7a4b936793d58c780', // PAG-17 scope
     '5cde8864d7f00c0010373be1', // 12.7x108 mm B-32
     '5d2f2ab648f03550091993ca', // 12.7x108 mm BZT-44M
+    '5cffa483d7ad1a049e54ef1c', // 100 rounds belt
+    '56e294cdd2720b603a8b4575', // Mystery Ranch Terraplane Backpack
 ]
 
 const INSERT_KEYS = [
