@@ -478,15 +478,6 @@ app.get('/edit/:id', async (req, res) => {
                     </div>
                 </div>
                 <div class="row">
-                    <div class="input-field col s2">
-                        ${currentItemData.scan_position}
-                    </div>
-                    <div class="input-field col s10">
-                        <input value="${currentItemData.scan_position}" id="scan-position" type="number" class="validate" name="scan_position">
-                        <label for="scan-position">Scan position</label>
-                    </div>
-                </div>
-                <div class="row">
                     <div class="input-field col s12">
                         <button class="btn waves-effect waves-light" type="submit" name="action">
                             Save
