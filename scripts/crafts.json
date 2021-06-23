@@ -1,5 +1,5 @@
 {
-    "updated": "2021-03-12T18:06:26.317Z",
+    "updated": "2021-04-20T06:43:22.155Z",
     "data": [
         {
             "id": "0-1",
@@ -120,36 +120,6 @@
             "id": "1-4",
             "requiredItems": [
                 {
-                    "name": "RAM",
-                    "id": "57347baf24597738002c6178",
-                    "count": 3
-                },
-                {
-                    "name": "SSD drive",
-                    "id": "590c392f86f77444754deb29",
-                    "count": 1
-                },
-                {
-                    "name": "Broken GPhone",
-                    "id": "56742c324bdc2d150f8b456d",
-                    "count": 1
-                }
-            ],
-            "rewardItems": [
-                {
-                    "name": "VPX Flash Storage Module",
-                    "id": "5c05300686f7746dce784e5d",
-                    "count": 2
-                }
-            ],
-            "station": "Intelligence Center level 2",
-            "time": "45 h 50 min",
-            "duration": 165000
-        },
-        {
-            "id": "1-5",
-            "requiredItems": [
-                {
                     "name": "TerraGroup Labs access keycard",
                     "id": "5c94bbff86f7747ee735c08f",
                     "count": 1
@@ -170,6 +140,36 @@
             "station": "Intelligence Center level 2",
             "time": "53 h 20 min",
             "duration": 192000
+        },
+        {
+            "id": "1-5",
+            "requiredItems": [
+                {
+                    "name": "RAM",
+                    "id": "57347baf24597738002c6178",
+                    "count": 3
+                },
+                {
+                    "name": "SSD drive",
+                    "id": "590c392f86f77444754deb29",
+                    "count": 2
+                },
+                {
+                    "name": "Broken GPhone",
+                    "id": "56742c324bdc2d150f8b456d",
+                    "count": 3
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "VPX Flash Storage Module",
+                    "id": "5c05300686f7746dce784e5d",
+                    "count": 2
+                }
+            ],
+            "station": "Intelligence Center level 2",
+            "time": "65 h 30 min",
+            "duration": 235800
         },
         {
             "id": "1-6",
@@ -217,7 +217,7 @@
                 {
                     "name": "PC CPU",
                     "id": "573477e124597737dd42e191",
-                    "count": 4
+                    "count": 8
                 },
                 {
                     "name": "CPU Fan",
@@ -227,6 +227,11 @@
                 {
                     "name": "VPX Flash Storage Module",
                     "id": "5c05300686f7746dce784e5d",
+                    "count": 2
+                },
+                {
+                    "name": "Ratchet wrench",
+                    "id": "60391afc25aff57af81f7085",
                     "count": 1
                 }
             ],
@@ -238,8 +243,8 @@
                 }
             ],
             "station": "Intelligence Center level 2",
-            "time": "80 h 17 min",
-            "duration": 289020
+            "time": "96 h 57 min",
+            "duration": 349020
         },
         {
             "id": "1-8",
@@ -303,8 +308,8 @@
                 }
             ],
             "station": "Intelligence Center level 3",
-            "time": "104 h 27 min",
-            "duration": 376020
+            "time": "132 h 13 min",
+            "duration": 475980
         },
         {
             "id": "2-1",
@@ -548,7 +553,7 @@
                 }
             ],
             "station": "Lavatory level 1",
-            "time": "1h 14 min",
+            "time": "1 h 14 min",
             "duration": 4440
         },
         {
@@ -633,8 +638,8 @@
                 }
             ],
             "station": "Lavatory level 2",
-            "time": "39 minutes",
-            "duration": 2340
+            "time": "38 minutes",
+            "duration": 2280
         },
         {
             "id": "2-15",
@@ -1418,8 +1423,8 @@
                 }
             ],
             "station": "Medstation level 2",
-            "time": "1 h 13 min",
-            "duration": 4380
+            "time": "1 h 12 min",
+            "duration": 4320
         },
         {
             "id": "3-9",
@@ -1453,7 +1458,7 @@
                 }
             ],
             "station": "Medstation level 2",
-            "time": "1h 23 min",
+            "time": "1 h 23 min",
             "duration": 4980
         },
         {
@@ -1573,8 +1578,8 @@
                 }
             ],
             "station": "Medstation level 3",
-            "time": "1 h 14 min",
-            "duration": 4440
+            "time": "1 h 15 min",
+            "duration": 4500
         },
         {
             "id": "3-14",
@@ -1758,7 +1763,7 @@
                 }
             ],
             "station": "Nutrition unit level 1",
-            "time": "1h 3 min",
+            "time": "1 h 3 min",
             "duration": 3780
         },
         {
@@ -1788,8 +1793,8 @@
                 }
             ],
             "station": "Nutrition unit level 1",
-            "time": "1 h 19 min",
-            "duration": 4740
+            "time": "1 h 18 min",
+            "duration": 4680
         },
         {
             "id": "4-4",
@@ -2245,31 +2250,6 @@
             "id": "6-8",
             "requiredItems": [
                 {
-                    "name": "40 mm VOG-25",
-                    "id": "5656eb674bdc2d35148b457c",
-                    "count": 5
-                },
-                {
-                    "name": "UZRGM grenade fuze",
-                    "id": "5e2af51086f7746d3f3c3402",
-                    "count": 5
-                }
-            ],
-            "rewardItems": [
-                {
-                    "name": "VOG-25 Khattabka grenade",
-                    "id": "5e340dcdcb6d5863cc5e5efb",
-                    "count": 8
-                }
-            ],
-            "station": "Workbench level 1",
-            "time": "1 h 7 min",
-            "duration": 4020
-        },
-        {
-            "id": "6-9",
-            "requiredItems": [
-                {
                     "name": "Vepr AKM / VPO-209 366TKM carbine",
                     "id": "59e6687d86f77411d949b251",
                     "count": 1
@@ -2287,7 +2267,7 @@
             "duration": 4680
         },
         {
-            "id": "6-10",
+            "id": "6-9",
             "requiredItems": [
                 {
                     "name": "Weapon parts",
@@ -2317,7 +2297,7 @@
             "duration": 4920
         },
         {
-            "id": "6-11",
+            "id": "6-10",
             "requiredItems": [
                 {
                     "name": "Vepr KM / VPO-136 7.62x39 carbine",
@@ -2347,7 +2327,7 @@
             "duration": 5100
         },
         {
-            "id": "6-12",
+            "id": "6-11",
             "requiredItems": [
                 {
                     "name": "5.45x39 mm PS",
@@ -2367,7 +2347,7 @@
             "duration": 5340
         },
         {
-            "id": "6-13",
+            "id": "6-12",
             "requiredItems": [
                 {
                     "name": "Gunpowder \"Kite\"",
@@ -2392,7 +2372,7 @@
             "duration": 5520
         },
         {
-            "id": "6-14",
+            "id": "6-13",
             "requiredItems": [
                 {
                     "name": "Broken GPhone X",
@@ -2418,8 +2398,33 @@
                 }
             ],
             "station": "Workbench level 1",
-            "time": "1 h 39 min",
-            "duration": 5940
+            "time": "1 h 40 min",
+            "duration": 6000
+        },
+        {
+            "id": "6-14",
+            "requiredItems": [
+                {
+                    "name": "40 mm VOG-25",
+                    "id": "5656eb674bdc2d35148b457c",
+                    "count": 5
+                },
+                {
+                    "name": "UZRGM grenade fuze",
+                    "id": "5e2af51086f7746d3f3c3402",
+                    "count": 5
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "VOG-25 Khattabka grenade",
+                    "id": "5e340dcdcb6d5863cc5e5efb",
+                    "count": 8
+                }
+            ],
+            "station": "Workbench level 1",
+            "time": "1 h 40 min",
+            "duration": 6000
         },
         {
             "id": "6-15",
@@ -2679,7 +2684,7 @@
                 {
                     "name": "Gunpowder \"Hawk\"",
                     "id": "5d6fc87386f77449db3db94e",
-                    "count": 2
+                    "count": 3
                 }
             ],
             "station": "Workbench level 2",
@@ -2718,31 +2723,11 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "1 h 55 min",
-            "duration": 6900
+            "time": "1 h 57 min",
+            "duration": 7020
         },
         {
             "id": "6-26",
-            "requiredItems": [
-                {
-                    "name": "Gunpowder \"Hawk\"",
-                    "id": "5d6fc87386f77449db3db94e",
-                    "count": 1
-                }
-            ],
-            "rewardItems": [
-                {
-                    "name": "7.62x54R SNB",
-                    "id": "560d61e84bdc2da74d8b4571",
-                    "count": 80
-                }
-            ],
-            "station": "Workbench level 2",
-            "time": "1 h 58 min",
-            "duration": 7080
-        },
-        {
-            "id": "6-27",
             "requiredItems": [
                 {
                     "name": "Metal fuel tank",
@@ -2767,7 +2752,7 @@
             "duration": 7500
         },
         {
-            "id": "6-28",
+            "id": "6-27",
             "requiredItems": [
                 {
                     "name": "Gunpowder \"Kite\"",
@@ -2792,7 +2777,7 @@
             "duration": 7980
         },
         {
-            "id": "6-29",
+            "id": "6-28",
             "requiredItems": [
                 {
                     "name": "Technical documentation",
@@ -2822,7 +2807,7 @@
             "duration": 7980
         },
         {
-            "id": "6-30",
+            "id": "6-29",
             "requiredItems": [
                 {
                     "name": "Printed circuit board",
@@ -2857,7 +2842,7 @@
             "duration": 8220
         },
         {
-            "id": "6-31",
+            "id": "6-30",
             "requiredItems": [
                 {
                     "name": "WIFI Camera",
@@ -2882,32 +2867,27 @@
             "duration": 9120
         },
         {
-            "id": "6-32",
+            "id": "6-31",
             "requiredItems": [
                 {
-                    "name": "9x39 mm SP-6",
-                    "id": "57a0e5022459774d1673f889",
-                    "count": 50
-                },
-                {
-                    "name": "7.62x39 mm PS",
-                    "id": "5656d7c34bdc2d9d198b4587",
-                    "count": 100
+                    "name": "Gunpowder \"Hawk\"",
+                    "id": "5d6fc87386f77449db3db94e",
+                    "count": 1
                 }
             ],
             "rewardItems": [
                 {
-                    "name": ".366 AP",
-                    "id": "5f0596629e22f464da6bbdd9",
-                    "count": 100
+                    "name": "7.62x54R SNB",
+                    "id": "560d61e84bdc2da74d8b4571",
+                    "count": 80
                 }
             ],
             "station": "Workbench level 2",
-            "time": "2 h 33 min",
-            "duration": 9180
+            "time": "2 h 32 min",
+            "duration": 9120
         },
         {
-            "id": "6-33",
+            "id": "6-32",
             "requiredItems": [
                 {
                     "name": "6-STEN-140-M military battery",
@@ -2932,7 +2912,7 @@
             "duration": 10020
         },
         {
-            "id": "6-34",
+            "id": "6-33",
             "requiredItems": [
                 {
                     "name": "5.45x39 mm PS",
@@ -2957,6 +2937,36 @@
             "duration": 12900
         },
         {
+            "id": "6-34",
+            "requiredItems": [
+                {
+                    "name": "9x39 mm SP-6",
+                    "id": "57a0e5022459774d1673f889",
+                    "count": 50
+                },
+                {
+                    "name": "7.62x39 mm PS",
+                    "id": "5656d7c34bdc2d9d198b4587",
+                    "count": 100
+                },
+                {
+                    "name": "Gunpowder \"Kite\"",
+                    "id": "590c5a7286f7747884343aea",
+                    "count": 1
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": ".366 AP",
+                    "id": "5f0596629e22f464da6bbdd9",
+                    "count": 100
+                }
+            ],
+            "station": "Workbench level 2",
+            "time": "3 h 57 min",
+            "duration": 14220
+        },
+        {
             "id": "6-35",
             "requiredItems": [
                 {
@@ -2978,8 +2988,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "3 h 45 min",
-            "duration": 13500
+            "time": "5 h 8 min",
+            "duration": 18480
         },
         {
             "id": "6-36",
@@ -3008,8 +3018,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "4 h 30 min",
-            "duration": 16200
+            "time": "5 h 20 min",
+            "duration": 19200
         },
         {
             "id": "6-37",
@@ -3033,8 +3043,8 @@
                 }
             ],
             "station": "Workbench level 2",
-            "time": "4 h 58 min",
-            "duration": 17880
+            "time": "5 h 48 min",
+            "duration": 20880
         },
         {
             "id": "6-38",
@@ -3080,16 +3090,21 @@
             "id": "6-39",
             "requiredItems": [
                 {
-                    "name": "OFZ 30x160mm shell ",
-                    "id": "5d0379a886f77420407aa271",
-                    "count": 1
+                    "name": "TP-200 TNT brick",
+                    "id": "60391b0fb847c71012789415",
+                    "count": 2
+                },
+                {
+                    "name": "UZRGM grenade fuze",
+                    "id": "5e2af51086f7746d3f3c3402",
+                    "count": 3
                 }
             ],
             "rewardItems": [
                 {
                     "name": "RGD-5 hand grenade",
                     "id": "5448be9a4bdc2dfd2f8b456a",
-                    "count": 10
+                    "count": 6
                 }
             ],
             "station": "Workbench level 3",
@@ -3098,31 +3113,6 @@
         },
         {
             "id": "6-40",
-            "requiredItems": [
-                {
-                    "name": "Gunpowder \"Hawk\"",
-                    "id": "5d6fc87386f77449db3db94e",
-                    "count": 1
-                },
-                {
-                    "name": "Wires",
-                    "id": "5c06779c86f77426e00dd782",
-                    "count": 4
-                }
-            ],
-            "rewardItems": [
-                {
-                    "name": "9x19 mm RIP",
-                    "id": "5c0d56a986f774449d5de529",
-                    "count": 180
-                }
-            ],
-            "station": "Workbench level 3",
-            "time": "2 h 5 min",
-            "duration": 7500
-        },
-        {
-            "id": "6-41",
             "requiredItems": [
                 {
                     "name": "Gunpowder \"Hawk\"",
@@ -3145,6 +3135,31 @@
             "station": "Workbench level 3",
             "time": "2 h 28 min",
             "duration": 8880
+        },
+        {
+            "id": "6-41",
+            "requiredItems": [
+                {
+                    "name": "Gunpowder \"Hawk\"",
+                    "id": "5d6fc87386f77449db3db94e",
+                    "count": 1
+                },
+                {
+                    "name": "Wires",
+                    "id": "5c06779c86f77426e00dd782",
+                    "count": 4
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "9x19 mm RIP",
+                    "id": "5c0d56a986f774449d5de529",
+                    "count": 180
+                }
+            ],
+            "station": "Workbench level 3",
+            "time": "2 h 55 min",
+            "duration": 10500
         },
         {
             "id": "6-42",
@@ -3210,6 +3225,31 @@
             "id": "6-44",
             "requiredItems": [
                 {
+                    "name": "Gunpowder \"Eagle\"",
+                    "id": "5d6fc78386f77449d825f9dc",
+                    "count": 2
+                },
+                {
+                    "name": "Gunpowder \"Kite\"",
+                    "id": "590c5a7286f7747884343aea",
+                    "count": 1
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "7.62x39 mm BP",
+                    "id": "59e0d99486f7744a32234762",
+                    "count": 260
+                }
+            ],
+            "station": "Workbench level 3",
+            "time": "5 h 50 min",
+            "duration": 21000
+        },
+        {
+            "id": "6-45",
+            "requiredItems": [
+                {
                     "name": "9x21 mm SP13",
                     "id": "5a26ac0ec4a28200741e1e18",
                     "count": 150
@@ -3233,33 +3273,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "4 h 57 min",
-            "duration": 17820
-        },
-        {
-            "id": "6-45",
-            "requiredItems": [
-                {
-                    "name": "Gunpowder \"Eagle\"",
-                    "id": "5d6fc78386f77449d825f9dc",
-                    "count": 2
-                },
-                {
-                    "name": "Gunpowder \"Kite\"",
-                    "id": "590c5a7286f7747884343aea",
-                    "count": 1
-                }
-            ],
-            "rewardItems": [
-                {
-                    "name": "7.62x39 mm BP",
-                    "id": "59e0d99486f7744a32234762",
-                    "count": 260
-                }
-            ],
-            "station": "Workbench level 3",
-            "time": "5 hours",
-            "duration": 18000
+            "time": "6 h 3 min",
+            "duration": 21780
         },
         {
             "id": "6-46",
@@ -3283,8 +3298,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "5 h 20 min",
-            "duration": 19200
+            "time": "6 h 27 min",
+            "duration": 23220
         },
         {
             "id": "6-47",
@@ -3308,8 +3323,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "5 h 49 min",
-            "duration": 20940
+            "time": "6 h 39 min",
+            "duration": 23940
         },
         {
             "id": "6-48",
@@ -3317,12 +3332,17 @@
                 {
                     "name": "Gunpowder \"Eagle\"",
                     "id": "5d6fc78386f77449d825f9dc",
-                    "count": 2
+                    "count": 1
                 },
                 {
                     "name": "OFZ 30x160mm shell ",
                     "id": "5d0379a886f77420407aa271",
                     "count": 2
+                },
+                {
+                    "name": "Can of thermite",
+                    "id": "60391a8b3364dc22b04d0ce5",
+                    "count": 1
                 }
             ],
             "rewardItems": [
@@ -3333,11 +3353,46 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "5 h 43 min",
-            "duration": 20580
+            "time": "7 h 40 min",
+            "duration": 27600
         },
         {
             "id": "6-49",
+            "requiredItems": [
+                {
+                    "name": "Gunpowder \"Hawk\"",
+                    "id": "5d6fc87386f77449db3db94e",
+                    "count": 2
+                },
+                {
+                    "name": "Gunpowder \"Eagle\"",
+                    "id": "5d6fc78386f77449d825f9dc",
+                    "count": 1
+                },
+                {
+                    "name": "TP-200 TNT brick",
+                    "id": "60391b0fb847c71012789415",
+                    "count": 2
+                },
+                {
+                    "name": "RDG-2B Smoke grenade",
+                    "id": "5a2a57cfc4a2826c6e06d44a",
+                    "count": 5
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "OFZ 30x160mm shell ",
+                    "id": "5d0379a886f77420407aa271",
+                    "count": 2
+                }
+            ],
+            "station": "Workbench level 3",
+            "time": "8 h 3 min",
+            "duration": 28980
+        },
+        {
+            "id": "6-50",
             "requiredItems": [
                 {
                     "name": "Gunpowder \"Kite\"",
@@ -3363,43 +3418,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "6 h 11 min",
-            "duration": 22260
-        },
-        {
-            "id": "6-50",
-            "requiredItems": [
-                {
-                    "name": "Bronze lion",
-                    "id": "59e3639286f7741777737013",
-                    "count": 1
-                },
-                {
-                    "name": "RDG-2B Smoke grenade",
-                    "id": "5a2a57cfc4a2826c6e06d44a",
-                    "count": 5
-                },
-                {
-                    "name": "Gunpowder \"Hawk\"",
-                    "id": "5d6fc87386f77449db3db94e",
-                    "count": 2
-                },
-                {
-                    "name": "Gunpowder \"Eagle\"",
-                    "id": "5d6fc78386f77449d825f9dc",
-                    "count": 1
-                }
-            ],
-            "rewardItems": [
-                {
-                    "name": "OFZ 30x160mm shell ",
-                    "id": "5d0379a886f77420407aa271",
-                    "count": 2
-                }
-            ],
-            "station": "Workbench level 3",
-            "time": "6 h 40 min",
-            "duration": 24000
+            "time": "8 h 8 min",
+            "duration": 29280
         },
         {
             "id": "6-51",
@@ -3415,9 +3435,9 @@
                     "count": 4
                 },
                 {
-                    "name": "9x19 mm Pst gzh",
-                    "id": "56d59d3ad2720bdb418b4577",
-                    "count": 300
+                    "name": "Can of thermite",
+                    "id": "60391a8b3364dc22b04d0ce5",
+                    "count": 1
                 },
                 {
                     "name": "A pack of nails",
@@ -3433,8 +3453,8 @@
                 }
             ],
             "station": "Workbench level 3",
-            "time": "7 h 32 min",
-            "duration": 27120
+            "time": "8 h 38 min",
+            "duration": 31080
         }
     ]
 }
