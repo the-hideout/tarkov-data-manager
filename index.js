@@ -16,6 +16,7 @@ const getLatestScanResults = require('./modules/get-latest-scan-results');
 const checkScansJob = require('./jobs/check-scans');
 const updateCacheJob = require('./jobs/update-cache');
 const clearCheckouts = require('./jobs/clear-checkouts');
+const updateBarters = require('./jobs/update-barters');
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -519,6 +520,7 @@ const server = app.listen(port, () => {
 const checkScansJobSchedule = schedule.scheduleJob('20 * * * *', checkScansJob);
 const updateCacheJobSchedule = schedule.scheduleJob('* * * * *', updateCacheJob);
 const clearCheckoutJobSchedule = schedule.scheduleJob('5 4 */6 * *', clearCheckouts);
+const updateBartersJobSchedule = schedule.scheduleJob('5 14 * * *', updateBarters);
 
 const wss = new WebSocket.Server({
     server: server,
