@@ -195,8 +195,8 @@ module.exports = async () => {
         const itemPresetSize = await presetSize(item.shortName, item._id);
 
         if(itemPresetSize){
-            item.width = presetSize.width;
-            item.height = presetSize.height;
+            item.width = itemPresetSize.width;
+            item.height = itemPresetSize.height;
         }
 
         const promise = new Promise((resolve, reject) => {
