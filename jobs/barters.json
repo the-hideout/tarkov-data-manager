@@ -1,5 +1,5 @@
 {
-    "updated": "2021-06-18T11:08:00.435Z",
+    "updated": "2021-06-23T19:19:50.864Z",
     "data": [
         {
             "id": "0-1",
@@ -3302,6 +3302,204 @@
             "id": "4-20",
             "requiredItems": [
                 {
+                    "name": "Graphics card",
+                    "id": "57347ca924597744596b4e71",
+                    "count": 1
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "LEDX Skin Transilluminator",
+                    "id": "5c0530ee86f774697952d952",
+                    "count": 1
+                }
+            ],
+            "trader": "Mechanic LL1"
+        },
+        {
+            "id": "4-21",
+            "requiredItems": [
+                {
+                    "name": "Graphics card",
+                    "id": "57347ca924597744596b4e71",
+                    "count": 1
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "Keytool",
+                    "id": "59fafd4b86f7745ca07e1232",
+                    "count": 1
+                }
+            ],
+            "trader": "Mechanic LL1"
+        },
+        {
+            "id": "4-22",
+            "requiredItems": [
+                {
+                    "name": "Graphics card",
+                    "id": "57347ca924597744596b4e71",
+                    "count": 1
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "Trijicon REAP-IR thermal riflescope",
+                    "id": "5a1eaa87fcdbcb001865f75e",
+                    "count": 1
+                }
+            ],
+            "trader": "Mechanic LL1"
+        },
+        {
+            "id": "4-23",
+            "requiredItems": [
+                {
+                    "name": "Graphics card",
+                    "id": "57347ca924597744596b4e71",
+                    "count": 1
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "LBT 6094A Slick Plate Carrier",
+                    "id": "5e4abb5086f77406975c9342",
+                    "count": 1
+                }
+            ],
+            "trader": "Mechanic LL1"
+        },
+        {
+            "id": "4-24",
+            "requiredItems": [
+                {
+                    "name": "Graphics card",
+                    "id": "57347ca924597744596b4e71",
+                    "count": 2
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "6B43 Zabralo-Sh 6A Armor",
+                    "id": "545cdb794bdc2d3a198b456a",
+                    "count": 1
+                }
+            ],
+            "trader": "Mechanic LL1"
+        },
+        {
+            "id": "4-25",
+            "requiredItems": [
+                {
+                    "name": "Graphics card",
+                    "id": "57347ca924597744596b4e71",
+                    "count": 3
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "Lucky Scav junkbox",
+                    "id": "5b7c710788a4506dec015957",
+                    "count": 1
+                }
+            ],
+            "trader": "Mechanic LL1"
+        },
+        {
+            "id": "4-26",
+            "requiredItems": [
+                {
+                    "name": "Graphics card",
+                    "id": "57347ca924597744596b4e71",
+                    "count": 3
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "Items case",
+                    "id": "59fb042886f7746c5005a7b2",
+                    "count": 1
+                }
+            ],
+            "trader": "Mechanic LL1"
+        },
+        {
+            "id": "4-27",
+            "requiredItems": [
+                {
+                    "name": "Graphics card",
+                    "id": "57347ca924597744596b4e71",
+                    "count": 5
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "Lab. Black keycard",
+                    "id": "5c1d0f4986f7744bb01837fa",
+                    "count": 1
+                }
+            ],
+            "trader": "Mechanic LL1"
+        },
+        {
+            "id": "4-28",
+            "requiredItems": [
+                {
+                    "name": "Graphics card",
+                    "id": "57347ca924597744596b4e71",
+                    "count": 8
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "Weapon case",
+                    "id": "59fb023c86f7746d0d4b423c",
+                    "count": 1
+                }
+            ],
+            "trader": "Mechanic LL1"
+        },
+        {
+            "id": "4-29",
+            "requiredItems": [
+                {
+                    "name": "Graphics card",
+                    "id": "57347ca924597744596b4e71",
+                    "count": 25
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "T-7 Thermal Goggles with Night Vision Mounts",
+                    "id": "5c110624d174af029e69734c",
+                    "count": 1
+                }
+            ],
+            "trader": "Mechanic LL1"
+        },
+        {
+            "id": "4-30",
+            "requiredItems": [
+                {
+                    "name": "Graphics card",
+                    "id": "57347ca924597744596b4e71",
+                    "count": 25
+                }
+            ],
+            "rewardItems": [
+                {
+                    "name": "T H I C C Items case",
+                    "id": "5c0a840b86f7742ffa4f2482",
+                    "count": 1
+                }
+            ],
+            "trader": "Mechanic LL1"
+        },
+        {
+            "id": "4-31",
+            "requiredItems": [
+                {
                     "name": "Chainlet",
                     "id": "573474f924597738002c6174",
                     "count": 2
@@ -3317,7 +3515,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-21",
+            "id": "4-32",
             "requiredItems": [
                 {
                     "name": "Fuel conditioner",
@@ -3335,7 +3533,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-22",
+            "id": "4-33",
             "requiredItems": [
                 {
                     "name": "Tube of Poxeram Cold Welding",
@@ -3353,7 +3551,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-23",
+            "id": "4-34",
             "requiredItems": [
                 {
                     "name": "T-Shaped Plug",
@@ -3371,7 +3569,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-24",
+            "id": "4-35",
             "requiredItems": [
                 {
                     "name": "RAM",
@@ -3389,7 +3587,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-25",
+            "id": "4-36",
             "requiredItems": [
                 {
                     "name": "Electric drill",
@@ -3407,7 +3605,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-26",
+            "id": "4-37",
             "requiredItems": [
                 {
                     "name": "SSD drive",
@@ -3425,7 +3623,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-27",
+            "id": "4-38",
             "requiredItems": [
                 {
                     "name": "Wilston cigarettes",
@@ -3443,7 +3641,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-28",
+            "id": "4-39",
             "requiredItems": [
                 {
                     "name": "Technical documentation",
@@ -3466,7 +3664,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-29",
+            "id": "4-40",
             "requiredItems": [
                 {
                     "name": "Printed circuit board",
@@ -3484,7 +3682,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-30",
+            "id": "4-41",
             "requiredItems": [
                 {
                     "name": "DVD drive",
@@ -3502,7 +3700,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-31",
+            "id": "4-42",
             "requiredItems": [
                 {
                     "name": "AA Battery",
@@ -3525,7 +3723,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-32",
+            "id": "4-43",
             "requiredItems": [
                 {
                     "name": "WD-40 400ml",
@@ -3543,7 +3741,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-33",
+            "id": "4-44",
             "requiredItems": [
                 {
                     "name": "Malboro Cigarettes",
@@ -3566,7 +3764,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-34",
+            "id": "4-45",
             "requiredItems": [
                 {
                     "name": "Rechargeable battery",
@@ -3584,7 +3782,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-35",
+            "id": "4-46",
             "requiredItems": [
                 {
                     "name": "CPU Fan",
@@ -3602,7 +3800,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-36",
+            "id": "4-47",
             "requiredItems": [
                 {
                     "name": "Pack of milk",
@@ -3620,7 +3818,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-37",
+            "id": "4-48",
             "requiredItems": [
                 {
                     "name": "Broken GPhone",
@@ -3643,7 +3841,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-38",
+            "id": "4-49",
             "requiredItems": [
                 {
                     "name": "GP coin",
@@ -3666,7 +3864,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-39",
+            "id": "4-50",
             "requiredItems": [
                 {
                     "name": "Weapon parts",
@@ -3684,7 +3882,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-40",
+            "id": "4-51",
             "requiredItems": [
                 {
                     "name": "Chain with Prokill medallion",
@@ -3702,7 +3900,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-41",
+            "id": "4-52",
             "requiredItems": [
                 {
                     "name": "GP coin",
@@ -3720,7 +3918,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-42",
+            "id": "4-53",
             "requiredItems": [
                 {
                     "name": "CPU Fan",
@@ -3738,7 +3936,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-43",
+            "id": "4-54",
             "requiredItems": [
                 {
                     "name": "Insulating tape",
@@ -3756,7 +3954,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-44",
+            "id": "4-55",
             "requiredItems": [
                 {
                     "name": "Damaged hard drive",
@@ -3774,7 +3972,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-45",
+            "id": "4-56",
             "requiredItems": [
                 {
                     "name": "Magnet",
@@ -3792,7 +3990,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-46",
+            "id": "4-57",
             "requiredItems": [
                 {
                     "name": "Broken LCD",
@@ -3810,7 +4008,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-47",
+            "id": "4-58",
             "requiredItems": [
                 {
                     "name": "Light bulb",
@@ -3833,7 +4031,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-48",
+            "id": "4-59",
             "requiredItems": [
                 {
                     "name": "Light bulb",
@@ -3851,7 +4049,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-49",
+            "id": "4-60",
             "requiredItems": [
                 {
                     "name": "WD-40 400ml",
@@ -3869,7 +4067,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-50",
+            "id": "4-61",
             "requiredItems": [
                 {
                     "name": "Mosin rifle sniper carbine stock",
@@ -3897,7 +4095,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-51",
+            "id": "4-62",
             "requiredItems": [
                 {
                     "name": "Powerbank",
@@ -3920,7 +4118,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-52",
+            "id": "4-63",
             "requiredItems": [
                 {
                     "name": "Cyclon accumulator battery",
@@ -3948,7 +4146,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-53",
+            "id": "4-64",
             "requiredItems": [
                 {
                     "name": "GP coin",
@@ -3966,7 +4164,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-54",
+            "id": "4-65",
             "requiredItems": [
                 {
                     "name": "Military cable",
@@ -3989,7 +4187,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-55",
+            "id": "4-66",
             "requiredItems": [
                 {
                     "name": "Physical bitcoin",
@@ -4007,7 +4205,7 @@
             "trader": "Mechanic LL2"
         },
         {
-            "id": "4-56",
+            "id": "4-67",
             "requiredItems": [
                 {
                     "name": "Wires",
@@ -4025,7 +4223,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-57",
+            "id": "4-68",
             "requiredItems": [
                 {
                     "name": "TP-200 TNT brick",
@@ -4043,7 +4241,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-58",
+            "id": "4-69",
             "requiredItems": [
                 {
                     "name": "Magnet",
@@ -4061,7 +4259,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-59",
+            "id": "4-70",
             "requiredItems": [
                 {
                     "name": "GP coin",
@@ -4079,7 +4277,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-60",
+            "id": "4-71",
             "requiredItems": [
                 {
                     "name": "6-STEN-140-M military battery",
@@ -4107,7 +4305,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-61",
+            "id": "4-72",
             "requiredItems": [
                 {
                     "name": "GP coin",
@@ -4125,7 +4323,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-62",
+            "id": "4-73",
             "requiredItems": [
                 {
                     "name": "Tube of Poxeram Cold Welding",
@@ -4148,7 +4346,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-63",
+            "id": "4-74",
             "requiredItems": [
                 {
                     "name": "Malboro Cigarettes",
@@ -4171,7 +4369,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-64",
+            "id": "4-75",
             "requiredItems": [
                 {
                     "name": "UHF RFID Reader ",
@@ -4194,7 +4392,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-65",
+            "id": "4-76",
             "requiredItems": [
                 {
                     "name": "Weapon parts",
@@ -4212,7 +4410,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-66",
+            "id": "4-77",
             "requiredItems": [
                 {
                     "name": "GP coin",
@@ -4235,7 +4433,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-67",
+            "id": "4-78",
             "requiredItems": [
                 {
                     "name": "Weapon parts",
@@ -4253,7 +4451,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-68",
+            "id": "4-79",
             "requiredItems": [
                 {
                     "name": "Capacitors",
@@ -4276,7 +4474,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-69",
+            "id": "4-80",
             "requiredItems": [
                 {
                     "name": "Electric motor",
@@ -4309,7 +4507,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-70",
+            "id": "4-81",
             "requiredItems": [
                 {
                     "name": "Wilston cigarettes",
@@ -4327,7 +4525,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-71",
+            "id": "4-82",
             "requiredItems": [
                 {
                     "name": "Phased array element",
@@ -4345,7 +4543,7 @@
             "trader": "Mechanic LL3"
         },
         {
-            "id": "4-72",
+            "id": "4-83",
             "requiredItems": [
                 {
                     "name": "Geiger-Muller counter",
@@ -4363,7 +4561,7 @@
             "trader": "Mechanic LL4"
         },
         {
-            "id": "4-73",
+            "id": "4-84",
             "requiredItems": [
                 {
                     "name": "Broken GPhone",
@@ -4381,7 +4579,7 @@
             "trader": "Mechanic LL4"
         },
         {
-            "id": "4-74",
+            "id": "4-85",
             "requiredItems": [
                 {
                     "name": "Round pliers",
@@ -4399,7 +4597,7 @@
             "trader": "Mechanic LL4"
         },
         {
-            "id": "4-75",
+            "id": "4-86",
             "requiredItems": [
                 {
                     "name": "Military thermal vision module Iridium",
@@ -4427,7 +4625,7 @@
             "trader": "Mechanic LL4"
         },
         {
-            "id": "4-76",
+            "id": "4-87",
             "requiredItems": [
                 {
                     "name": "Military thermal vision module Iridium",
@@ -4455,7 +4653,7 @@
             "trader": "Mechanic LL4"
         },
         {
-            "id": "4-77",
+            "id": "4-88",
             "requiredItems": [
                 {
                     "name": "GP coin",
@@ -4473,7 +4671,7 @@
             "trader": "Mechanic LL4"
         },
         {
-            "id": "4-78",
+            "id": "4-89",
             "requiredItems": [
                 {
                     "name": "NIXXOR lens",
@@ -4491,7 +4689,7 @@
             "trader": "Mechanic LL4"
         },
         {
-            "id": "4-79",
+            "id": "4-90",
             "requiredItems": [
                 {
                     "name": "Physical bitcoin",
