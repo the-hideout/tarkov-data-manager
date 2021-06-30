@@ -70,6 +70,7 @@ const CUSTOM_HANDLERS = [
     'untagged',
     'no-icon',
     'no-image',
+    'no-wiki',
     'all',
 ];
 
@@ -150,6 +151,13 @@ const getTableContents = async (filterObject) => {
                     break;
                 case 'no-icon':
                     if(item.icon_link !== ''){
+                        continue;
+                    }
+
+                    break;
+
+                case 'no-wiki':
+                    if(item.wiki_link !== ''){
                         continue;
                     }
 
@@ -356,6 +364,11 @@ app.post('/edit/:id', urlencodedParser, async (req, res) => {
         return res.redirect(`/edit/${req.params.id}?updated=1`);
     }
 
+    if(req.body['wiki-link'] && req.body['wiki-link'] !== 'null' && currentItemData.wiki_link !== req.body['wiki-link']){
+        await remoteData.setProperty(req.params.id, 'wiki_link', req.body['wiki-link']);
+        return res.redirect(`/edit/${req.params.id}?updated=1`);
+    }
+
     if(req.body['icon-link-base64']){
         const [dataHeader, imageData] = req.body['icon-link-base64'].split(',');
         let image = await Jimp.read(Buffer.from(imageData, 'base64'));
@@ -432,6 +445,15 @@ app.get('/edit/:id', async (req, res) => {
                         <label for="grid-image-link">Grid image link</label>
                     </div>
                 </div>
+                <div class="row">
+                <div class="input-field col s2">
+                    ${currentItemData.wiki_link}
+                </div>
+                <div class="input-field col s10">
+                    <input value="${currentItemData.wiki_link}" id="wiki-link" type="text" class="validate" name="wiki-link">
+                    <label for="wiki-link">wiki link</label>
+                </div>
+            </div>
                 <div class="row">
                     <div class="input-field col s12">
                         <button class="btn waves-effect waves-light" type="submit" name="action">
