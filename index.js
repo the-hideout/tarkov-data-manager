@@ -369,35 +369,6 @@ app.post('/edit/:id', urlencodedParser, async (req, res) => {
         return res.redirect(`/edit/${req.params.id}?updated=1`);
     }
 
-    if(req.body['icon-link-base64']){
-        const [dataHeader, imageData] = req.body['icon-link-base64'].split(',');
-        let image = await Jimp.read(Buffer.from(imageData, 'base64'));
-
-        if(!image){
-            return res.send('Failed to add image');
-        }
-
-        const uploadParams = {
-            Bucket: 'assets.tarkov-tools.com',
-            Key: `${req.params.id}-icon.jpg`,
-            ContentType: 'image/jpeg',
-        };
-
-        uploadParams.Body = await image.getBufferAsync(Jimp.MIME_JPEG);
-
-        try {
-            await s3.send(new PutObjectCommand(uploadParams));
-            console.log("Image saved to s3");
-        } catch (err) {
-            console.log("Error", err);
-
-            return res.send(err);
-        }
-
-        await remoteData.setProperty(req.params.id, 'icon_link', `https://assets.tarkov-tools.com/${req.params.id}-icon.jpg`);
-        return res.redirect(`/edit/${req.params.id}?updated=1`);
-    }
-
     res.send('No changes made');
 });
 
@@ -412,8 +383,11 @@ app.get('/edit/:id', async (req, res) => {
     return res.send(`${getHeader()}
         ${req.query.updated ? '<div class="row">Updated. Will be live in < 4 hours</div>': ''}
         <div class="row">
-            <div class"col s12">
+            <div class"col s6">
                 ${currentItemData.name}
+            </div>
+            <div class"col s6">
+                ${currentItemData.id}
             </div>
         </div>
         <div class="row">
