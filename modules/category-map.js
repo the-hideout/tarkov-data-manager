@@ -58,6 +58,7 @@ module.exports = {
             traders: [
                 TRADERS.fence,
                 TRADERS.peacekeeper,
+                TRADERS.mechanic,
             ],
         },
         '5448e8d64bdc2dce718b4568': {
