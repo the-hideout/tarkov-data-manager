@@ -15,6 +15,8 @@ const REPLACEMENTS = {
     'Izhmash 7.62x39 AKM muzzle brake & compensator (6P1 0-14)': 'Izhmash 7.62x39 АКM muzzle brake & compensator (6P1 0-14)',
     '9x18 PM mm RG028 gzh': '9x18mm PM RG028 gzh',
     '5.56x45 mm Warmage': '5.56x45mm Warmage',
+    'Lab. Yellow keycard.': 'TerraGroup Labs keycard (Yellow)',
+    'Lucky Scav Junkbox': 'Lucky Scav Junk box',
 };
 
 module.exports = (name) => {
