@@ -421,7 +421,7 @@ app.get('/edit/:id', async (req, res) => {
                 </div>
                 <div class="row">
                 <div class="input-field col s2">
-                    ${currentItemData.wiki_link}
+                    ${currentItemData.wiki_link ? `<a href="${currentItemData.wiki_link}">WIKI</a>`: ''}
                 </div>
                 <div class="input-field col s10">
                     <input value="${currentItemData.wiki_link}" id="wiki-link" type="text" class="validate" name="wiki-link">
