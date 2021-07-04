@@ -1,5 +1,5 @@
 {
-    "updated": "2021-04-20T06:43:22.155Z",
+    "updated": "2021-07-04T11:35:42.079Z",
     "data": [
         {
             "id": "0-1",
@@ -132,7 +132,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "UHF RFID Reader ",
+                    "name": "UHF RFID Reader",
                     "id": "5c052fb986f7746b2101e909",
                     "count": 1
                 }
@@ -175,7 +175,7 @@
             "id": "1-6",
             "requiredItems": [
                 {
-                    "name": "UHF RFID Reader ",
+                    "name": "UHF RFID Reader",
                     "id": "5c052fb986f7746b2101e909",
                     "count": 1
                 },
@@ -272,57 +272,17 @@
             "duration": 114000
         },
         {
-            "id": "1-9",
-            "requiredItems": [
-                {
-                    "name": "UHF RFID Reader ",
-                    "id": "5c052fb986f7746b2101e909",
-                    "count": 1
-                },
-                {
-                    "name": "TerraGroup Labs access keycard",
-                    "id": "5c94bbff86f7747ee735c08f",
-                    "count": 12
-                },
-                {
-                    "name": "Lab. Yellow keycard. ",
-                    "id": "5c1d0d6d86f7744bb2683e1f",
-                    "count": 3
-                },
-                {
-                    "name": "Folder with intelligence",
-                    "id": "5c12613b86f7743bbe2c3f76",
-                    "count": 7
-                },
-                {
-                    "name": "Magnet",
-                    "id": "590a391c86f774385a33c404",
-                    "count": 3
-                }
-            ],
-            "rewardItems": [
-                {
-                    "name": "Lab. Violet keycard",
-                    "id": "5c1e495a86f7743109743dfb",
-                    "count": 1
-                }
-            ],
-            "station": "Intelligence Center level 3",
-            "time": "132 h 13 min",
-            "duration": 475980
-        },
-        {
             "id": "2-1",
             "requiredItems": [
                 {
-                    "name": "GP-5 gasmask",
+                    "name": "GP-5 gas mask",
                     "id": "5b432c305acfc40019478128",
                     "count": 1
                 }
             ],
             "rewardItems": [
                 {
-                    "name": "Air filter for gas mask",
+                    "name": "Gas mask air filter",
                     "id": "590c595c86f7747884343ad7",
                     "count": 1
                 }
@@ -340,7 +300,7 @@
                     "count": 5
                 },
                 {
-                    "name": "Bottle of vodka Tarkovskaya",
+                    "name": "Bottle of Tarkovskaya vodka",
                     "id": "5d40407c86f774318526545a",
                     "count": 1
                 }
@@ -380,7 +340,7 @@
             "id": "2-4",
             "requiredItems": [
                 {
-                    "name": "Fleece cloth",
+                    "name": "Fleece fabric",
                     "id": "5e2af47786f7746d404f3aaa",
                     "count": 1
                 }
@@ -400,14 +360,14 @@
             "id": "2-5",
             "requiredItems": [
                 {
-                    "name": "PACA Soft Armor",
+                    "name": "PACA soft armor",
                     "id": "5648a7494bdc2d9d488b4583",
                     "count": 1
                 }
             ],
             "rewardItems": [
                 {
-                    "name": "Aramid fiber cloth",
+                    "name": "Aramid fiber fabric",
                     "id": "5e2af4d286f7746d4159f07a",
                     "count": 2
                 }
@@ -427,7 +387,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Polyamide fabric Cordura",
+                    "name": "Cordura polyamide fabric",
                     "id": "5e2af41e86f774755a234b67",
                     "count": 1
                 }
@@ -447,7 +407,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Ripstop cloth",
+                    "name": "Ripstop fabric",
                     "id": "5e2af4a786f7746d3f3c3400",
                     "count": 2
                 }
@@ -467,7 +427,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Polyamide fabric Cordura",
+                    "name": "Cordura polyamide fabric",
                     "id": "5e2af41e86f774755a234b67",
                     "count": 1
                 }
@@ -480,7 +440,7 @@
             "id": "2-9",
             "requiredItems": [
                 {
-                    "name": "MF-UNTAR armor vest",
+                    "name": "MF-UNTAR body armor",
                     "id": "5ab8e4ed86f7742d8e50c7fa",
                     "count": 1
                 },
@@ -505,24 +465,24 @@
             "id": "2-10",
             "requiredItems": [
                 {
-                    "name": "Fleece cloth",
+                    "name": "Fleece fabric",
                     "id": "5e2af47786f7746d404f3aaa",
                     "count": 1
                 },
                 {
-                    "name": "0.6L water bottle",
+                    "name": "0.6 liter water bottle",
                     "id": "5448fee04bdc2dbc018b4567",
                     "count": 1
                 },
                 {
-                    "name": "Flyye MBSS Backpack",
+                    "name": "Flyye MBSS backpack",
                     "id": "544a5cde4bdc2d39388b456b",
                     "count": 1
                 }
             ],
             "rewardItems": [
                 {
-                    "name": "Scav Backpack",
+                    "name": "Scav backpack",
                     "id": "56e335e4d2720b6c058b456d",
                     "count": 2
                 }
@@ -535,19 +495,19 @@
             "id": "2-11",
             "requiredItems": [
                 {
-                    "name": "Aramid fiber cloth",
+                    "name": "Aramid fiber fabric",
                     "id": "5e2af4d286f7746d4159f07a",
                     "count": 3
                 },
                 {
-                    "name": "Ripstop cloth",
+                    "name": "Ripstop fabric",
                     "id": "5e2af4a786f7746d3f3c3400",
                     "count": 2
                 }
             ],
             "rewardItems": [
                 {
-                    "name": "PACA Soft Armor",
+                    "name": "PACA soft armor",
                     "id": "5648a7494bdc2d9d488b4583",
                     "count": 1
                 }
@@ -560,7 +520,7 @@
             "id": "2-12",
             "requiredItems": [
                 {
-                    "name": "Tac-Kek Fast MT Helmet (non-ballistic replica)",
+                    "name": "Tac-Kek FAST MT Helmet",
                     "id": "5ea05cf85ad9772e6624305d",
                     "count": 1
                 },
@@ -570,7 +530,7 @@
                     "count": 1
                 },
                 {
-                    "name": "Aramid fiber cloth",
+                    "name": "Aramid fiber fabric",
                     "id": "5e2af4d286f7746d4159f07a",
                     "count": 2
                 }
@@ -595,7 +555,7 @@
                     "count": 1
                 },
                 {
-                    "name": "0.6L water bottle",
+                    "name": "0.6 liter water bottle",
                     "id": "5448fee04bdc2dbc018b4567",
                     "count": 1
                 }
@@ -620,7 +580,7 @@
                     "count": 1
                 },
                 {
-                    "name": "Heat-exchange alkali surface washer",
+                    "name": "Alkaline cleaner for heat exchangers",
                     "id": "59faf98186f774067b6be103",
                     "count": 1
                 },
@@ -645,7 +605,7 @@
             "id": "2-15",
             "requiredItems": [
                 {
-                    "name": "Bottle of vodka Tarkovskaya",
+                    "name": "Bottle of Tarkovskaya vodka",
                     "id": "5d40407c86f774318526545a",
                     "count": 1
                 },
@@ -657,7 +617,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Clin wiper",
+                    "name": "Clin window cleaner",
                     "id": "59e358a886f7741776641ac3",
                     "count": 1
                 }
@@ -670,14 +630,14 @@
             "id": "2-16",
             "requiredItems": [
                 {
-                    "name": "UX PRO Beanie",
+                    "name": "UX PRO beanie hat",
                     "id": "5aa2ba46e5b5b000137b758d",
                     "count": 4
                 }
             ],
             "rewardItems": [
                 {
-                    "name": "Fleece cloth",
+                    "name": "Fleece fabric",
                     "id": "5e2af47786f7746d404f3aaa",
                     "count": 1
                 }
@@ -690,19 +650,19 @@
             "id": "2-17",
             "requiredItems": [
                 {
-                    "name": "Polyamide fabric Cordura",
+                    "name": "Cordura polyamide fabric",
                     "id": "5e2af41e86f774755a234b67",
                     "count": 1
                 },
                 {
-                    "name": "Ripstop cloth",
+                    "name": "Ripstop fabric",
                     "id": "5e2af4a786f7746d3f3c3400",
                     "count": 1
                 }
             ],
             "rewardItems": [
                 {
-                    "name": "Splav Tarzan M22 Rig",
+                    "name": "Splav Tarzan M22 chest rig",
                     "id": "5e4abfed86f77406a2713cf7",
                     "count": 1
                 }
@@ -715,19 +675,19 @@
             "id": "2-18",
             "requiredItems": [
                 {
-                    "name": "Aramid fiber cloth",
+                    "name": "Aramid fiber fabric",
                     "id": "5e2af4d286f7746d4159f07a",
                     "count": 2
                 },
                 {
-                    "name": "Ripstop cloth",
+                    "name": "Ripstop fabric",
                     "id": "5e2af4a786f7746d3f3c3400",
                     "count": 2
                 }
             ],
             "rewardItems": [
                 {
-                    "name": "Module-3M bodyarmor",
+                    "name": "BNTI Module-3M body armor",
                     "id": "59e7635f86f7742cbf2c1095",
                     "count": 1
                 }
@@ -740,17 +700,17 @@
             "id": "2-19",
             "requiredItems": [
                 {
-                    "name": "Splav Tarzan M22 Rig",
+                    "name": "Splav Tarzan M22 chest rig",
                     "id": "5e4abfed86f77406a2713cf7",
                     "count": 1
                 },
                 {
-                    "name": "Ripstop cloth",
+                    "name": "Ripstop fabric",
                     "id": "5e2af4a786f7746d3f3c3400",
                     "count": 1
                 },
                 {
-                    "name": "Polyamide fabric Cordura",
+                    "name": "Cordura polyamide fabric",
                     "id": "5e2af41e86f774755a234b67",
                     "count": 1
                 }
@@ -805,7 +765,7 @@
                     "count": 2
                 },
                 {
-                    "name": "Clin wiper",
+                    "name": "Clin window cleaner",
                     "id": "59e358a886f7741776641ac3",
                     "count": 1
                 }
@@ -825,7 +785,7 @@
             "id": "2-22",
             "requiredItems": [
                 {
-                    "name": "30-round 6L23 5.45x39 magazine for АК-74 and compatibles",
+                    "name": "AK-74 5.45x39 6L23 30-round magazine",
                     "id": "55d480c04bdc2d1d4e8b456a",
                     "count": 4
                 },
@@ -837,7 +797,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "60-round 6L31 5.45x39 magazine for АК-74 and compatibles",
+                    "name": "AK-74 5.45x39 6L31 60-round magazine",
                     "id": "55d482194bdc2d1d4e8b456b",
                     "count": 1
                 }
@@ -850,7 +810,7 @@
             "id": "2-23",
             "requiredItems": [
                 {
-                    "name": "WD-40 400ml",
+                    "name": "WD-40 (400ml)",
                     "id": "590c5c9f86f77477c91c36e7",
                     "count": 1
                 },
@@ -862,7 +822,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "WD-40 100ml.",
+                    "name": "WD-40 (100ml)",
                     "id": "590c5bbd86f774785762df04",
                     "count": 2
                 }
@@ -875,7 +835,7 @@
             "id": "2-24",
             "requiredItems": [
                 {
-                    "name": "Polyamide fabric Cordura",
+                    "name": "Cordura polyamide fabric",
                     "id": "5e2af41e86f774755a234b67",
                     "count": 1
                 },
@@ -945,7 +905,7 @@
                     "count": 1
                 },
                 {
-                    "name": "Bars A-2607- 95x18",
+                    "name": "Bars A-2607 - 95x18 knife",
                     "id": "57e26fc7245977162a14b800",
                     "count": 1
                 },
@@ -1005,7 +965,7 @@
             "id": "2-28",
             "requiredItems": [
                 {
-                    "name": "Air filter for gas mask",
+                    "name": "Gas mask air filter",
                     "id": "590c595c86f7747884343ad7",
                     "count": 4
                 },
@@ -1057,7 +1017,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Lucky Scav junkbox",
+                    "name": "Lucky Scav Junk box",
                     "id": "5b7c710788a4506dec015957",
                     "count": 1
                 }
@@ -1110,7 +1070,7 @@
             "id": "2-31",
             "requiredItems": [
                 {
-                    "name": "Triton M43-A Chest Harness",
+                    "name": "Dynaforce Triton M43-A chest harness",
                     "id": "5ca20abf86f77418567a43f2",
                     "count": 2
                 },
@@ -1150,7 +1110,7 @@
                     "count": 1
                 },
                 {
-                    "name": "Ripstop cloth",
+                    "name": "Ripstop fabric",
                     "id": "5e2af4a786f7746d3f3c3400",
                     "count": 2
                 },
@@ -1162,7 +1122,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "6SH118 raid backpack",
+                    "name": "6Sh118 raid backpack",
                     "id": "5df8a4d786f77412672a1e3b",
                     "count": 1
                 }
@@ -1175,7 +1135,7 @@
             "id": "2-33",
             "requiredItems": [
                 {
-                    "name": "Air filter for gas mask",
+                    "name": "Gas mask air filter",
                     "id": "590c595c86f7747884343ad7",
                     "count": 2
                 },
@@ -1185,7 +1145,7 @@
                     "count": 2
                 },
                 {
-                    "name": "A set of tools",
+                    "name": "Toolset",
                     "id": "590c2e1186f77425357b6124",
                     "count": 1
                 }
@@ -1212,7 +1172,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "AI-2 medikit",
+                    "name": "AI-2 medkit",
                     "id": "5755356824597772cb798962",
                     "count": 3
                 }
@@ -1237,7 +1197,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "CALOK-B Hemostatic",
+                    "name": "CALOK-B hemostatic applicator",
                     "id": "5e8488fa988a8701445df1e4",
                     "count": 2
                 }
@@ -1260,7 +1220,7 @@
                     "count": 2
                 },
                 {
-                    "name": "CALOK-B Hemostatic",
+                    "name": "CALOK-B hemostatic applicator",
                     "id": "5e8488fa988a8701445df1e4",
                     "count": 1
                 },
@@ -1272,7 +1232,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Salewa FIRST AID KIT",
+                    "name": "Salewa first aid kit",
                     "id": "544fb45d4bdc2dee738b4568",
                     "count": 1
                 }
@@ -1310,7 +1270,7 @@
             "id": "3-5",
             "requiredItems": [
                 {
-                    "name": "AI-2 medikit",
+                    "name": "AI-2 medkit",
                     "id": "5755356824597772cb798962",
                     "count": 1
                 },
@@ -1357,7 +1317,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "IFAK personal tactical first aid kit",
+                    "name": "IFAK individual first aid kit",
                     "id": "590c678286f77426c9660122",
                     "count": 2
                 }
@@ -1375,7 +1335,7 @@
                     "count": 1
                 },
                 {
-                    "name": "AI-2 medikit",
+                    "name": "AI-2 medkit",
                     "id": "5755356824597772cb798962",
                     "count": 2
                 },
@@ -1387,7 +1347,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Antidote xTG-12",
+                    "name": "xTG-12 antidote injector",
                     "id": "5fca138c2a7b221b2852a5c6",
                     "count": 1
                 }
@@ -1440,7 +1400,7 @@
                     "count": 2
                 },
                 {
-                    "name": "Propital",
+                    "name": "Propital regenerative stimulant injector",
                     "id": "5c0e530286f7747fa1419862",
                     "count": 3
                 },
@@ -1452,7 +1412,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Combat stimulant injector SJ1 TGLabs",
+                    "name": "SJ1 TGLabs combat stimulant injector",
                     "id": "5c0e531286f7747fa54205c2",
                     "count": 5
                 }
@@ -1465,7 +1425,7 @@
             "id": "3-10",
             "requiredItems": [
                 {
-                    "name": "Hemostatic drug Zagustin",
+                    "name": "Zagustin hemostatic drug injector",
                     "id": "5c0e533786f7747fa23f4d47",
                     "count": 1
                 },
@@ -1475,7 +1435,7 @@
                     "count": 1
                 },
                 {
-                    "name": "Max energy",
+                    "name": "Max Energy energy drink",
                     "id": "5751435d24597720a27126d1",
                     "count": 2
                 },
@@ -1487,7 +1447,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "M.U.L.E. stimulator",
+                    "name": "M.U.L.E. stimulant injector",
                     "id": "5ed51652f6c34d2cc26336a1",
                     "count": 1
                 }
@@ -1552,7 +1512,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Vaseline",
+                    "name": "Vaseline balm",
                     "id": "5755383e24597772cb798966",
                     "count": 2
                 }
@@ -1572,7 +1532,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Grizzly First Aid Kit",
+                    "name": "Grizzly medical kit",
                     "id": "590c657e86f77412b013051d",
                     "count": 2
                 }
@@ -1590,7 +1550,7 @@
                     "count": 6
                 },
                 {
-                    "name": "A set of tools",
+                    "name": "Toolset",
                     "id": "590c2e1186f77425357b6124",
                     "count": 1
                 },
@@ -1615,7 +1575,7 @@
             "id": "3-15",
             "requiredItems": [
                 {
-                    "name": "Combat stimulant injector SJ1 TGLabs",
+                    "name": "SJ1 TGLabs combat stimulant injector",
                     "id": "5c0e531286f7747fa54205c2",
                     "count": 1
                 },
@@ -1632,7 +1592,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Combat stimulant injector SJ6 TGLabs",
+                    "name": "SJ6 TGLabs combat stimulant injector",
                     "id": "5c0e531d86f7747fa23f4d42",
                     "count": 2
                 }
@@ -1650,7 +1610,7 @@
                     "count": 1
                 },
                 {
-                    "name": "Golden Star Balm",
+                    "name": "Golden Star balm",
                     "id": "5751a89d24597722aa0e8db0",
                     "count": 1
                 },
@@ -1662,7 +1622,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Propital",
+                    "name": "Propital regenerative stimulant injector",
                     "id": "5c0e530286f7747fa1419862",
                     "count": 7
                 }
@@ -1685,7 +1645,7 @@
                     "count": 3
                 },
                 {
-                    "name": "UHF RFID Reader ",
+                    "name": "UHF RFID Reader",
                     "id": "5c052fb986f7746b2101e909",
                     "count": 3
                 },
@@ -1715,24 +1675,24 @@
             "id": "4-1",
             "requiredItems": [
                 {
-                    "name": "Army Crackers",
+                    "name": "Army crackers",
                     "id": "5448ff904bdc2d6f028b456e",
                     "count": 2
                 },
                 {
-                    "name": "Can of beef stew",
+                    "name": "Small can of beef stew",
                     "id": "57347d7224597744596b4e72",
                     "count": 1
                 },
                 {
-                    "name": "Squash spread",
+                    "name": "Can of squash spread",
                     "id": "57347d8724597744596b4e76",
                     "count": 1
                 }
             ],
             "rewardItems": [
                 {
-                    "name": "Iskra lunch box",
+                    "name": "Iskra ration pack",
                     "id": "590c5d4b86f774784e1b9c45",
                     "count": 2
                 }
@@ -1745,7 +1705,7 @@
             "id": "4-2",
             "requiredItems": [
                 {
-                    "name": "0.6L water bottle",
+                    "name": "0.6 liter water bottle",
                     "id": "5448fee04bdc2dbc018b4567",
                     "count": 2
                 },
@@ -1770,12 +1730,12 @@
             "id": "4-3",
             "requiredItems": [
                 {
-                    "name": "Can of delicious beef stew",
+                    "name": "Large can of beef stew",
                     "id": "57347da92459774491567cf5",
                     "count": 1
                 },
                 {
-                    "name": "Squash spread",
+                    "name": "Can of squash spread",
                     "id": "57347d8724597744596b4e76",
                     "count": 1
                 },
@@ -1787,7 +1747,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Can of beef stew",
+                    "name": "Small can of beef stew",
                     "id": "57347d7224597744596b4e72",
                     "count": 2
                 }
@@ -1800,24 +1760,24 @@
             "id": "4-4",
             "requiredItems": [
                 {
-                    "name": "TarCola",
+                    "name": "TarCola can",
                     "id": "57514643245977207f2c2d09",
                     "count": 1
                 },
                 {
-                    "name": "Coffee Majaica",
+                    "name": "Majaica coffee",
                     "id": "5af0484c86f7740f02001f7f",
                     "count": 1
                 },
                 {
-                    "name": "0.6L water bottle",
+                    "name": "0.6 liter water bottle",
                     "id": "5448fee04bdc2dbc018b4567",
                     "count": 1
                 }
             ],
             "rewardItems": [
                 {
-                    "name": "Max energy",
+                    "name": "Max Energy energy drink",
                     "id": "5751435d24597720a27126d1",
                     "count": 4
                 }
@@ -1840,14 +1800,14 @@
                     "count": 1
                 },
                 {
-                    "name": "Army Crackers",
+                    "name": "Army crackers",
                     "id": "5448ff904bdc2d6f028b456e",
                     "count": 1
                 }
             ],
             "rewardItems": [
                 {
-                    "name": "Slickers bar",
+                    "name": "Slickers chocolate bar",
                     "id": "544fb6cc4bdc2d34748b456e",
                     "count": 7
                 }
@@ -1905,7 +1865,7 @@
             "id": "4-8",
             "requiredItems": [
                 {
-                    "name": "Apollon Soyuz cigarettes ",
+                    "name": "Apollon Soyuz cigarettes",
                     "id": "573475fb24597737fb1379e1",
                     "count": 1
                 },
@@ -1935,14 +1895,14 @@
                     "count": 1
                 },
                 {
-                    "name": "0.6L water bottle",
+                    "name": "0.6 liter water bottle",
                     "id": "5448fee04bdc2dbc018b4567",
                     "count": 5
                 }
             ],
             "rewardItems": [
                 {
-                    "name": "Bottle of vodka Tarkovskaya",
+                    "name": "Bottle of Tarkovskaya vodka",
                     "id": "5d40407c86f774318526545a",
                     "count": 10
                 }
@@ -1955,12 +1915,12 @@
             "id": "4-10",
             "requiredItems": [
                 {
-                    "name": "0.6L water bottle",
+                    "name": "0.6 liter water bottle",
                     "id": "5448fee04bdc2dbc018b4567",
                     "count": 2
                 },
                 {
-                    "name": "Bottle of vodka Tarkovskaya",
+                    "name": "Bottle of Tarkovskaya vodka",
                     "id": "5d40407c86f774318526545a",
                     "count": 2
                 },
@@ -1977,7 +1937,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Bottle of Dan Jackiel Whiskey",
+                    "name": "Bottle of Dan Jackiel whiskey",
                     "id": "5d403f9186f7743cac3f229b",
                     "count": 3
                 }
@@ -2002,7 +1962,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Water bottle with a filter Aquamari",
+                    "name": "Aquamari water bottle with filter",
                     "id": "5c0fa877d174af02a012e1cf",
                     "count": 8
                 }
@@ -2025,7 +1985,7 @@
                     "count": 1
                 },
                 {
-                    "name": "Coffee Majaica",
+                    "name": "Majaica coffee",
                     "id": "5af0484c86f7740f02001f7f",
                     "count": 1
                 },
@@ -2037,7 +1997,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Hot Rod",
+                    "name": "Hot Rod energy drink",
                     "id": "5751496424597720a27126da",
                     "count": 20
                 }
@@ -2120,7 +2080,7 @@
             "id": "6-3",
             "requiredItems": [
                 {
-                    "name": "T-Shaped Plug",
+                    "name": "T-Shaped plug",
                     "id": "57347cd0245977445a2d6ff1",
                     "count": 2
                 },
@@ -2137,7 +2097,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "Powercord",
+                    "name": "Power cord",
                     "id": "59e36c6f86f774176c10a2a7",
                     "count": 2
                 }
@@ -2225,19 +2185,19 @@
             "id": "6-7",
             "requiredItems": [
                 {
-                    "name": "A pack of nails",
+                    "name": "Pack of nails",
                     "id": "590c31c586f774245e3141b2",
                     "count": 1
                 },
                 {
-                    "name": "Powercord",
+                    "name": "Power cord",
                     "id": "59e36c6f86f774176c10a2a7",
                     "count": 1
                 }
             ],
             "rewardItems": [
                 {
-                    "name": "T-Shaped Plug",
+                    "name": "T-Shaped plug",
                     "id": "57347cd0245977445a2d6ff1",
                     "count": 1
                 }
@@ -2250,7 +2210,7 @@
             "id": "6-8",
             "requiredItems": [
                 {
-                    "name": "Vepr AKM / VPO-209 366TKM carbine",
+                    "name": "Molot VPO-209 .366 TKM carbine",
                     "id": "59e6687d86f77411d949b251",
                     "count": 1
                 }
@@ -2275,12 +2235,12 @@
                     "count": 1
                 },
                 {
-                    "name": "Wooden AK-74 handguard (6P20 Sb.6)",
+                    "name": "AK-74 wooden handguard (6P20 Sb.6)",
                     "id": "5648b0744bdc2d363b8b4578",
                     "count": 1
                 },
                 {
-                    "name": "Izhmash wooden АК-74 stock (6P20 Sb.5)",
+                    "name": "AK-74 wooden stock (6P20 Sb.5)",
                     "id": "5649b1c04bdc2d16268b457c",
                     "count": 1
                 }
@@ -2300,7 +2260,7 @@
             "id": "6-10",
             "requiredItems": [
                 {
-                    "name": "Vepr KM / VPO-136 7.62x39 carbine",
+                    "name": "Molot VPO-136 Vepr KM 7.62x39 carbine",
                     "id": "59e6152586f77473dc057aa1",
                     "count": 1
                 },
@@ -2310,7 +2270,7 @@
                     "count": 1
                 },
                 {
-                    "name": "Izhmash 7.62x39 АКM muzzle brake & compensator (6P1 0-14)",
+                    "name": "AKM 7.62x39 muzzle brake & compensator (6P1 0-14)",
                     "id": "59d64fc686f774171b243fe2",
                     "count": 1
                 }
@@ -2330,7 +2290,7 @@
             "id": "6-11",
             "requiredItems": [
                 {
-                    "name": "5.45x39 mm PS",
+                    "name": "5.45x39mm PS gs",
                     "id": "56dff3afd2720bba668b4567",
                     "count": 70
                 }
@@ -2362,7 +2322,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "12/70 8.5 mm \"Magnum\" Buckshot",
+                    "name": "12/70 8.5mm \"Magnum\" Buckshot",
                     "id": "5d6e6806a4b936088465b17e",
                     "count": 120
                 }
@@ -2385,7 +2345,7 @@
                     "count": 1
                 },
                 {
-                    "name": "Long flat screwdriver",
+                    "name": "Long flathead screwdriver",
                     "id": "5d4042a986f7743185265463",
                     "count": 1
                 }
@@ -2405,7 +2365,7 @@
             "id": "6-14",
             "requiredItems": [
                 {
-                    "name": "40 mm VOG-25",
+                    "name": "40mm VOG-25",
                     "id": "5656eb674bdc2d35148b457c",
                     "count": 5
                 },
@@ -2450,7 +2410,7 @@
             "id": "6-16",
             "requiredItems": [
                 {
-                    "name": "Powercord",
+                    "name": "Power cord",
                     "id": "59e36c6f86f774176c10a2a7",
                     "count": 2
                 }
@@ -2530,7 +2490,7 @@
                     "count": 1
                 },
                 {
-                    "name": "RDG-2B Smoke grenade",
+                    "name": "RDG-2B smoke grenade",
                     "id": "5a2a57cfc4a2826c6e06d44a",
                     "count": 1
                 }
@@ -2585,12 +2545,12 @@
                     "count": 1
                 },
                 {
-                    "name": "Polymer AK-74 foregrip (6P20 Sb.9)",
+                    "name": "AK-74 polymer handguard (6P20 Sb.9)",
                     "id": "5648b1504bdc2d9d488b4584",
                     "count": 1
                 },
                 {
-                    "name": "Polymer stock for AK-74M (6P34 Sb.15)",
+                    "name": "AK-74M polymer stock (6P34 Sb.15)",
                     "id": "5ac50c185acfc400163398d4",
                     "count": 1
                 }
@@ -2650,7 +2610,7 @@
                     "count": 2
                 },
                 {
-                    "name": "RDG-2B Smoke grenade",
+                    "name": "RDG-2B smoke grenade",
                     "id": "5a2a57cfc4a2826c6e06d44a",
                     "count": 1
                 }
@@ -2670,7 +2630,7 @@
             "id": "6-24",
             "requiredItems": [
                 {
-                    "name": "OFZ 30x160mm shell ",
+                    "name": "OFZ 30x160mm shell",
                     "id": "5d0379a886f77420407aa271",
                     "count": 1
                 },
@@ -2760,14 +2720,14 @@
                     "count": 2
                 },
                 {
-                    "name": "9x18 mm PM Pst gzh",
+                    "name": "9x18mm PM Pst gzh",
                     "id": "5737201124597760fc4431f1",
                     "count": 200
                 }
             ],
             "rewardItems": [
                 {
-                    "name": "9x18 mm PM PBM",
+                    "name": "9x18mm PM PBM gzh",
                     "id": "573719df2459775a626ccbc2",
                     "count": 200
                 }
@@ -2780,7 +2740,7 @@
             "id": "6-28",
             "requiredItems": [
                 {
-                    "name": "Technical documentation",
+                    "name": "Vehicle manual",
                     "id": "590c639286f774151567fa95",
                     "count": 1
                 },
@@ -2797,7 +2757,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "12/70 HP Slug \"SuperFormance\"",
+                    "name": "12/70 SuperFormance HP Slug",
                     "id": "5d6e68d1a4b93622fe60e845",
                     "count": 120
                 }
@@ -2845,12 +2805,12 @@
             "id": "6-30",
             "requiredItems": [
                 {
-                    "name": "WIFI Camera",
+                    "name": "WI-FI Camera",
                     "id": "5b4391a586f7745321235ab2",
                     "count": 1
                 },
                 {
-                    "name": "Piece of plexiglas",
+                    "name": "Plexiglass piece",
                     "id": "59e366c186f7741778269d85",
                     "count": 1
                 }
@@ -2915,7 +2875,7 @@
             "id": "6-33",
             "requiredItems": [
                 {
-                    "name": "5.45x39 mm PS",
+                    "name": "5.45x39mm PS gs",
                     "id": "56dff3afd2720bba668b4567",
                     "count": 200
                 },
@@ -2927,7 +2887,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "5.45x39 mm PP",
+                    "name": "5.45x39mm PP gs",
                     "id": "56dff2ced2720bb4668b4567",
                     "count": 480
                 }
@@ -2940,12 +2900,12 @@
             "id": "6-34",
             "requiredItems": [
                 {
-                    "name": "9x39 mm SP-6",
+                    "name": "9x39 mm SP6 gs",
                     "id": "57a0e5022459774d1673f889",
                     "count": 50
                 },
                 {
-                    "name": "7.62x39 mm PS",
+                    "name": "7.62x39mm PS gzh",
                     "id": "5656d7c34bdc2d9d198b4587",
                     "count": 100
                 },
@@ -2957,7 +2917,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": ".366 AP",
+                    "name": ".366 TKM AP-M",
                     "id": "5f0596629e22f464da6bbdd9",
                     "count": 100
                 }
@@ -2970,7 +2930,7 @@
             "id": "6-35",
             "requiredItems": [
                 {
-                    "name": "9x19 mm Pst gzh",
+                    "name": "9x19mm Pst gzh",
                     "id": "56d59d3ad2720bdb418b4577",
                     "count": 200
                 },
@@ -2982,7 +2942,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "9x19 mm AP 6.3",
+                    "name": "9x19mm AP 6.3",
                     "id": "5c925fa22e221601da359b7b",
                     "count": 200
                 }
@@ -2995,7 +2955,7 @@
             "id": "6-36",
             "requiredItems": [
                 {
-                    "name": "7.62x39 mm HP",
+                    "name": "7.62x39mm HP",
                     "id": "59e4d3d286f774176a36250a",
                     "count": 120
                 },
@@ -3012,7 +2972,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "9x39 mm SP-6",
+                    "name": "9x39 mm SP6 gs",
                     "id": "57a0e5022459774d1673f889",
                     "count": 400
                 }
@@ -3025,7 +2985,7 @@
             "id": "6-37",
             "requiredItems": [
                 {
-                    "name": "5.56x45 mm M855",
+                    "name": "5.56x45mm M855",
                     "id": "54527a984bdc2d4e668b4567",
                     "count": 180
                 },
@@ -3037,7 +2997,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "5.56x45 mm M856A1",
+                    "name": "5.56x45mm M856A1",
                     "id": "59e6906286f7746c9f75e847",
                     "count": 360
                 }
@@ -3055,7 +3015,7 @@
                     "count": 3
                 },
                 {
-                    "name": "Military thermal vision module Iridium",
+                    "name": "Iridium military thermal vision module",
                     "id": "5d0377ce86f774186372f689",
                     "count": 2
                 },
@@ -3152,7 +3112,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "9x19 mm RIP",
+                    "name": "9x19mm RIP",
                     "id": "5c0d56a986f774449d5de529",
                     "count": 180
                 }
@@ -3187,7 +3147,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "23x75mm \"Star\"",
+                    "name": "23x75mm \"Zvezda\" flashbang round",
                     "id": "5e85a9f4add9fe03027d9bf1",
                     "count": 7
                 }
@@ -3212,7 +3172,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "5.56x45mm Warmage",
+                    "name": "5.56x45mm Warmageddon",
                     "id": "5c0d5ae286f7741e46554302",
                     "count": 400
                 }
@@ -3237,7 +3197,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "7.62x39 mm BP",
+                    "name": "7.62x39mm BP gzh",
                     "id": "59e0d99486f7744a32234762",
                     "count": 260
                 }
@@ -3250,7 +3210,7 @@
             "id": "6-45",
             "requiredItems": [
                 {
-                    "name": "9x21 mm SP13",
+                    "name": "9x21mm BT gzh",
                     "id": "5a26ac0ec4a28200741e1e18",
                     "count": 150
                 },
@@ -3267,7 +3227,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "9x39 mm 7N9 SPP",
+                    "name": "9x39mm SPP gs",
                     "id": "5c0d668f86f7747ccb7f13b2",
                     "count": 200
                 }
@@ -3292,7 +3252,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "9x39 mm 7N12 BP",
+                    "name": "9x39mm BP gs",
                     "id": "5c0d688c86f77413ae3407b2",
                     "count": 160
                 }
@@ -3317,7 +3277,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "7.62x51 mm M61",
+                    "name": "7.62x51mm M61",
                     "id": "5a6086ea4f39f99cd479502f",
                     "count": 300
                 }
@@ -3335,7 +3295,7 @@
                     "count": 1
                 },
                 {
-                    "name": "OFZ 30x160mm shell ",
+                    "name": "OFZ 30x160mm shell",
                     "id": "5d0379a886f77420407aa271",
                     "count": 2
                 },
@@ -3347,7 +3307,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "5.56x45 mm M995",
+                    "name": "5.56x45mm M995",
                     "id": "59e690b686f7746c9f75e848",
                     "count": 300
                 }
@@ -3375,14 +3335,14 @@
                     "count": 2
                 },
                 {
-                    "name": "RDG-2B Smoke grenade",
+                    "name": "RDG-2B smoke grenade",
                     "id": "5a2a57cfc4a2826c6e06d44a",
                     "count": 5
                 }
             ],
             "rewardItems": [
                 {
-                    "name": "OFZ 30x160mm shell ",
+                    "name": "OFZ 30x160mm shell",
                     "id": "5d0379a886f77420407aa271",
                     "count": 2
                 }
@@ -3412,7 +3372,7 @@
             ],
             "rewardItems": [
                 {
-                    "name": "5.45x39 mm 7N39 \"Igolnik\"",
+                    "name": "5.45x39mm PPBS gs \"Igolnik\"",
                     "id": "5c0d5e4486f77478390952fe",
                     "count": 260
                 }
@@ -3440,14 +3400,14 @@
                     "count": 1
                 },
                 {
-                    "name": "A pack of nails",
+                    "name": "Pack of nails",
                     "id": "590c31c586f774245e3141b2",
                     "count": 4
                 }
             ],
             "rewardItems": [
                 {
-                    "name": "9x19 mm 7N31",
+                    "name": "9x19mm PBP gzh",
                     "id": "5efb0da7a29a85116f6ea05f",
                     "count": 300
                 }
