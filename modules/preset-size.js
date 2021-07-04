@@ -22,6 +22,10 @@ module.exports = async(shortName, itemId) => {
         'Down',
     ];
 
+    if(!presets[itemId]){
+        return false;
+    }
+
     for (const presetId in presets) {
         const softSizes = {Left: 0, Right: 0, Up: 0, Down: 0};
         const hardSizes = {Left: 0, Right: 0, Up: 0, Down: 0};
