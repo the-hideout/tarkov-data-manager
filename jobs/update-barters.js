@@ -6,6 +6,8 @@ const cheerio = require('cheerio');
 const mysql = require('mysql');
 
 const cloudflare = require('../modules/cloudflare');
+const oldNames = require('../old-names.json');
+const fixName = require('../modules/wiki-replacements');
 
 const connection = mysql.createConnection({
     host     : 'tarkov-tools-master-1.cluster-c1vhfeufwkpn.eu-west-1.rds.amazonaws.com',
@@ -19,23 +21,6 @@ connection.connect();
 let itemData = false;
 
 const TRADES_URL = 'https://escapefromtarkov.gamepedia.com/Barter_trades';
-
-// The strings that look the same probably has a russian A instead of a real one
-const REPLACEMENTS = {
-    'MRE': 'MRE lunch box',
-    'Frameless': 'Red Rebel Ice pick',
-    'Team Wendy EXFIL Ballistic Helmet': 'Team Wendy EXFIL Ballistic Helmet Black',
-    'Immobilizing splint (alu)': 'Immobilizing splint',
-    'AK-74 5.45x39 assault rifle': 'АK-74 5.45x39 assault rifle',
-    '60-round 6L31 5.45x39 magazine for AK-74 and compatibles': '60-round 6L31 5.45x39 magazine for АК-74 and compatibles',
-    '6L18 45-round 5.45x39 magazine for AK-74 and compatible weapons': '6L18 45-round 5.45x39 magazine for АК-74 and compatible weapons',
-    'Simonov Semi-Automatic Carbine SKS 7.62x39 Hunting Rifle Version': 'Simonov Semi-Automatic Carbine SKS 7.62x39 Hunting Rifle',
-    'Crye Precision AVS platecarrier': 'Crye Precision AVS plate carrier',
-};
-
-const fixNames = (name) => {
-    return REPLACEMENTS[name] || name;
-};
 
 const getItemByName = (searchName) => {
     const itemArray = Object.values(itemData);
@@ -60,6 +45,10 @@ const getItemByName = (searchName) => {
         return returnItem;
     }
 
+    if(oldNames[searchName]){
+        return itemData[oldNames[searchName]];
+    }
+
     return itemArray.find((item) => {
         if(!item.name.includes('(')){
             return false;
@@ -82,16 +71,16 @@ const getItemData = function getItemData(html){
 
     const $ = cheerio.load(html);
 
-    let name = fixNames($('a').eq(0).prop('title'));
+    let name = fixName($('a').eq(0).prop('title'));
 
     if(!name){
-        name = fixNames($('a').eq(-1).prop('title'));
+        name = fixName($('a').eq(-1).prop('title'));
     }
 
     const item = getItemByName(name);
 
     if(!item){
-        console.log(`Found no item called ${name}`);
+        console.log(`Found no item called "${name}"`);
 
         return false;
     }
@@ -178,8 +167,8 @@ module.exports = async function() {
                 }
 
                 const $trade = $(tradeElement);
-                const rewardItemName = fixNames($trade.find('th').eq(-1).find('a').eq(0).prop('title'));
-                const traderRequirement = fixNames($trade.find('th').eq(2).find('a').eq(1).text());
+                const rewardItemName = fixName($trade.find('th').eq(-1).find('a').eq(0).prop('title'));
+                const traderRequirement = fixName($trade.find('th').eq(2).find('a').eq(1).text());
                 const rewardItem = getItemByName(rewardItemName);
 
                 if(!rewardItem){
@@ -227,7 +216,7 @@ module.exports = async function() {
 
                 // Failed to map at least one item
                 if(tradeData.requiredItems.length !== items.length){
-                    console.log(tradeData);
+                    // console.log(tradeData);
                     return true;
                 }
 
