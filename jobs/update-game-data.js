@@ -207,7 +207,7 @@ module.exports = async () => {
             item.height = itemPresetSize.height;
         }
 
-        if(!allTTItems.includes(item._id)){
+        if(!allTTItems[item._id]){
             console.log(`New item: ${item.name}`);
         }
 
