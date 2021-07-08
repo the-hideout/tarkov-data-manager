@@ -32,7 +32,6 @@
     "nodemon": "^2.0.7",
     "parse-duration": "^1.0.0",
     "round-to": "^5.0.0",
-    "unidecode": "^0.1.8",
-    "ws": "^7.4.4"
+    "unidecode": "^0.1.8"
   }
 }

@@ -7,7 +7,6 @@ const Jimp = require('jimp');
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const schedule = require('node-schedule');
-const WebSocket = require('ws');
 const basicAuth = require('express-basic-auth');
 
 const remoteData = require('./modules/remote-data');
@@ -517,86 +516,3 @@ const checkScansJobSchedule = schedule.scheduleJob('20 * * * *', checkScansJob);
 const updateCacheJobSchedule = schedule.scheduleJob('* * * * *', updateCacheJob);
 const clearCheckoutJobSchedule = schedule.scheduleJob('5 4 */6 * *', clearCheckouts);
 const updateBartersJobSchedule = schedule.scheduleJob('5 14 * * *', updateBarters);
-
-const wss = new WebSocket.Server({
-    server: server,
-});
-
-const pingMessage = JSON.stringify({type: 'ping'})
-
-const sendCommand = (sessionID, command) => {
-    wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN && client.sessionID === sessionID ) {
-            client.send(JSON.stringify({
-                type: 'command',
-                data: command,
-            }));
-        }
-    });
-};
-
-const sendMessage = (sessionID, type, data) => {
-    wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN && client.sessionID === sessionID ) {
-            client.send(JSON.stringify({
-                type: type,
-                data: data,
-            }));
-        }
-    });
-};
-
-const pingInterval = setInterval(() => {
-    console.log(`active clients: ${wss.clients.size}`);
-
-    wss.clients.forEach((client) => {
-        if (client.isAlive === false) {
-            return client.terminate();
-        }
-
-        client.isAlive = false;
-        client.send(pingMessage);
-    });
-}, 5000);
-
-wss.on('connection', (ws) => {
-    ws.isAlive = true;
-
-    ws.on('message', (rawMessage) => {
-        const message = JSON.parse(rawMessage);
-
-        console.log(message);
-
-        if(message.type === 'pong'){
-            ws.isAlive = true;
-
-            return true;
-        }
-
-        if(message?.type !== 'debug'){
-            console.log(message);
-        }
-
-        if(message.type === 'connect'){
-            ws.sessionID = message.sessionID;
-
-            return true;
-        }
-
-        if(message.type === 'command'){
-            sendCommand(message.sessionID, message.data);
-
-            return true;
-        }
-
-        if(message.type === 'debug'){
-            sendMessage(message.sessionID, 'debug', message.data);
-
-            return true;
-        }
-    });
-});
-
-wss.on('close', () => {
-    clearInterval(pingInterval);
-});
