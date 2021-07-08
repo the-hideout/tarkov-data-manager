@@ -8,6 +8,7 @@ const parseDuration = require('parse-duration');
 const jsonDiff = require('json-diff');
 
 const fixName = require('../modules/wiki-replacements');
+const cloudflare = require('../modules/cloudflare');
 const oldNames = require('../old-names.json');
 
 const connection = mysql.createConnection({
