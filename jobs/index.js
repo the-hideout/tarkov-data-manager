@@ -1,33 +1,28 @@
 const schedule = require('node-schedule');
 
+const runJob = function(name, cronSchedule) {
+    const jobModule = require(`./${name}`);
+    console.log(`Setting up ${name} job to run ${cronSchedule}`);
+
+    schedule.scheduleJob(cronSchedule, () => {
+        console.log(`Running ${name} job`);
+        jobModule();
+    });
+}
+
 module.exports = () => {
     // Only run in production
     if(process.env.NODE_ENV !== 'production'){
         return true;
     }
 
-    const checkScansJob = require('./check-scans');
-    const checkScansJobSchedule = schedule.scheduleJob('20 * * * *', () => {
-        console.log('Running check scans job');
-        checkScansJob();
-    });
-
-    const updateCacheJob = require('./update-cache');
-    const updateCacheJobSchedule = schedule.scheduleJob('* * * * *', () => {
-        console.log('Running cache update job');
-        updateCacheJob();
-    });
-
-    const clearCheckouts = require('./clear-checkouts');
-    const clearCheckoutJobSchedule = schedule.scheduleJob('5 4 */6 * *', () => {
-        console.log('Running clear checkouts job');
-        clearCheckouts();
-    });
-
-    const updateBarters = require('./update-barters');
-    const updateBartersJobSchedule = schedule.scheduleJob('5 14 * * *', () => {
-        console.log('Running update barters job');
-        updateBarters();
-    });
-
+    runJob('check-scans', '20 * * * *');
+    runJob('clear-checkouts', '5 4 */6 * *');
+    runJob('update-barters', '5 14 * * *');
+    runJob('update-cache', '* * * * *');
+    runJob('update-crafts', '25 * * * *');
+    //runJob('update-game-data', '45 3 * * *');
+    runJob('update-quests', '45 * * * *');
+    // runJob('update-trader-prices', '45 * * * *');
+    // runJob('update-translations', '45 * * * *');
 };
