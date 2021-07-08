@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const mysql = require('mysql');
 
 const connection = mysql.createConnection({
@@ -12,8 +10,6 @@ const connection = mysql.createConnection({
 connection.connect();
 
 module.exports = async () => {
-    console.log('Running checkout clear');
-
     const promise = new Promise((resolve, reject) => {
         connection.query(`SELECT
             MAX(timestamp) AS last_scan,

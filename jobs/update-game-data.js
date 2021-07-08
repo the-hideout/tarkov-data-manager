@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const mysql = require('mysql');
 
 const normalizeName = require('../modules/normalize-name');
@@ -117,7 +115,6 @@ const getItemCategories = (item, previousCategories = []) => {
 };
 
 module.exports = async () => {
-    console.log('Running game data update');
     const allTTItems = await ttData();
 
     const items = Object.values(bsgData).filter((bsgObject) => {
@@ -167,6 +164,15 @@ module.exports = async () => {
         if(bsgObject._parent === '6050cac987d3f925bf016837'){
             return false;
         }
+
+        // 5675838d4bdc2d95058b456e Drawer
+
+        // 602543c13fee350cd564d032 Sorting table
+
+        // 5751961824597720a31c09ac (off)black keycard
+
+        // 5b9b9020e7ef6f5716480215 dogtagt
+
         // Removes shrapnel etc
         if(bsgObject._props.StackMinRandom === 0){
             return false
@@ -240,10 +246,6 @@ module.exports = async () => {
                         console.log(`${item._props.Name} added`);
                     }
 
-                    // console.log(results.changedRows);
-
-                    // console.log(results);
-
                     for(const insertKey of INSERT_KEYS){
                         const promise = new Promise((translationResolve, translationReject) => {
                             connection.query(`INSERT IGNORE INTO translations (item_id, type, language_code, value)
@@ -288,5 +290,3 @@ module.exports = async () => {
 
     connection.end();
 };
-
-module.exports();

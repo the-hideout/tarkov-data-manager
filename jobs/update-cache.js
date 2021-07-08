@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const roundTo = require('round-to');
 
 const cloudflare = require('../modules/cloudflare');
@@ -7,7 +5,6 @@ const remoteData = require('../modules/remote-data');
 const doQuery = require('../modules/do-query');
 
 module.exports = async () => {
-    console.log('Running cache update');
     const itemMap = await remoteData.get();
     const itemData = {};
 

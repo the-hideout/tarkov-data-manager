@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const fs = require('fs');
 const path = require('path');
 
@@ -7,8 +5,6 @@ const cloudflare = require('../modules/cloudflare');
 const doQuery = require('../modules/do-query');
 
 module.exports = async () => {
-    console.log('Running trader inventory update');
-
     const traderItems = await doQuery(`SELECT
         *
     FROM

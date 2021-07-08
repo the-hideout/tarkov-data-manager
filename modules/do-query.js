@@ -34,4 +34,4 @@ module.exports = async function doQuery(query) {
     connection.end();
 
     return responseData;
-}';'
+};

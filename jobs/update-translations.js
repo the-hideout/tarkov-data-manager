@@ -1,5 +1,3 @@
-require('dotenv').config();
-
 const mysql = require('mysql');
 const bsgData = require('../bsg-data.json');
 const ttData = require('../modules/tt-data');
@@ -20,7 +18,6 @@ const INSERT_KEYS = [
 ];
 
 module.exports = async () => {
-    console.log('Running translation data update');
     const allTTItems = await ttData();
     const allKeys = Object.keys(bsgData);
 
@@ -82,4 +79,3 @@ module.exports = async () => {
 
     connection.end();
 };
-
