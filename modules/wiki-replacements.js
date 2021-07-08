@@ -9,7 +9,7 @@ const REPLACEMENTS = {
     '6L18 45-round 5.45x39 magazine for AK-74 and compatible weapons': '6L18 45-round 5.45x39 magazine for АК-74 and compatible weapons',
     'Object 11SR keycard': 'Object #11SR keycard',
     'Object 21WS keycard': 'Object #21WS keycard',
-    'Lab. Yellow keycard': 'Lab. Yellow keycard.',
+    'Lab. Yellow keycard': 'TerraGroup Labs keycard (Yellow)',
     '30-round 6L23 5.45x39 magazine for AK-74 and compatibles': '30-round 6L23 5.45x39 magazine for АК-74 and compatibles',
     'Izhmash wooden AK-74 stock (6P20 Sb.5)': 'Izhmash wooden АК-74 stock (6P20 Sb.5)',
     'Izhmash 7.62x39 AKM muzzle brake & compensator (6P1 0-14)': 'Izhmash 7.62x39 АКM muzzle brake & compensator (6P1 0-14)',
@@ -19,6 +19,20 @@ const REPLACEMENTS = {
     'Lucky Scav Junkbox': 'Lucky Scav Junk box',
 };
 
+const PARTIAL_REPLACEMENTS = {
+    'Yellow keycard': 'TerraGroup Labs keycard (Yellow)',
+};
+
 module.exports = (name) => {
-    return REPLACEMENTS[name] || name;
+    if(REPLACEMENTS[name]){
+        return REPLACEMENTS[name];
+    }
+
+    for(const partialReplacement in PARTIAL_REPLACEMENTS){
+        if(name.includes(partialReplacement)){
+            return PARTIAL_REPLACEMENTS[partialReplacement];
+        }
+    }
+
+    return name;
 };
