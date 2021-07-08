@@ -5,6 +5,7 @@ const mysql = require('mysql');
 const normalizeName = require('../modules/normalize-name');
 const {categories} = require('../modules/category-map');
 const presetSize = require('../modules/preset-size');
+const ttData = require('../modules/tt-data');
 
 const bsgData = require('../bsg-data.json');
 
@@ -38,6 +39,7 @@ const mappingProperties = [
 
 const ignoreMap = [
     '5447bed64bdc2d97278b4568', // AGS 30x29 mm automatic grenade launcher
+    '5d52cc5ba4b9367408500062', // AGS 30x29 mm automatic grenade launcher
     '5d52d479a4b936793d58c76b', // AGS-30 30-Grenades box 30x29
     '58ac60eb86f77401897560ff', // Balaclava_dev
     '59e8936686f77467ce798647', // Balaclava_test
@@ -47,6 +49,7 @@ const ignoreMap = [
     '5d2f2ab648f03550091993ca', // 12.7x108 mm BZT-44M
     '5cffa483d7ad1a049e54ef1c', // 100 rounds belt
     '56e294cdd2720b603a8b4575', // Mystery Ranch Terraplane Backpack
+    '590de52486f774226a0c24c2', // Weird machinery key
 ]
 
 const INSERT_KEYS = [
@@ -115,6 +118,7 @@ const getItemCategories = (item, previousCategories = []) => {
 
 module.exports = async () => {
     console.log('Running game data update');
+    const allTTItems = await ttData();
 
     const items = Object.values(bsgData).filter((bsgObject) => {
         if(bsgObject._type !== 'Item'){
@@ -159,6 +163,10 @@ module.exports = async () => {
             return false;
         }
 
+        // Parent is Sorting table
+        if(bsgObject._parent === '6050cac987d3f925bf016837'){
+            return false;
+        }
         // Removes shrapnel etc
         if(bsgObject._props.StackMinRandom === 0){
             return false
@@ -197,6 +205,10 @@ module.exports = async () => {
         if(itemPresetSize){
             item.width = itemPresetSize.width;
             item.height = itemPresetSize.height;
+        }
+
+        if(!allTTItems.includes(item._id)){
+            console.log(`New item: ${item.name}`);
         }
 
         const promise = new Promise((resolve, reject) => {
