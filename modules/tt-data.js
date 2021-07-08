@@ -13,5 +13,11 @@ module.exports = async () => {
         responseType: 'json',
     });
 
-    return response.body.data.itemsByType.map(item => item.id);
+    return Object.fromEntries(response.body.data.itemsByType.map(item => {
+        return [item.id, {
+            id: item.id,
+            name: item.name,
+            shortName: item.shortName,
+        }];
+    }));
 };
