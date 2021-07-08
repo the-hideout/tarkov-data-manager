@@ -312,5 +312,3 @@ module.exports = async function() {
 
     connection.end();
 };
-
-module.exports();
