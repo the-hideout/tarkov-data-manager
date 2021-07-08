@@ -295,7 +295,7 @@ module.exports = async function() {
         console.error(requestError);
     }
 
-    fs.writeFileSync(path.join(__dirname, 'barters.json'), JSON.stringify(trades, null, 4));
+    fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'barters.json'), JSON.stringify(trades, null, 4));
 
     // console.log('Now you should run')
     // console.log('wrangler kv:key put --namespace-id f04e5b75ee894b3a90cec2b7cc351311 "BARTER_DATA" ../tarkov-data-manager/scripts/barters.json --path');
