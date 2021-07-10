@@ -7,6 +7,13 @@ module.exports = async () => {
               id
               name
               shortName
+              types
+              traderPrices {
+                  trader {
+                      name
+                  }
+                  price
+              }
             }
           }`
         }),
@@ -18,6 +25,8 @@ module.exports = async () => {
             id: item.id,
             name: item.name,
             shortName: item.shortName,
+            types: item.types,
+            traderPrices: item.traderPrices,
         }];
     }));
 };
