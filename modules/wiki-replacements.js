@@ -24,6 +24,10 @@ const PARTIAL_REPLACEMENTS = {
 };
 
 module.exports = (name) => {
+    if(!name){
+        return name;
+    }
+
     if(REPLACEMENTS[name]){
         return REPLACEMENTS[name];
     }
