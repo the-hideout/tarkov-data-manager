@@ -29,6 +29,7 @@
     "mysql": "^2.18.1",
     "node-schedule": "^2.0.0",
     "nodemon": "^2.0.7",
+    "ora": "^5.4.1",
     "parse-duration": "^1.0.0",
     "round-to": "^5.0.0",
     "unidecode": "^0.1.8"
