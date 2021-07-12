@@ -111,7 +111,13 @@ module.exports = async function() {
         updated: new Date(),
         data: [],
     };
-    const beforeData = fs.readFileSync(path.join(__dirname, '..', 'dumps', 'crafts.json'));
+
+    let beforeData = '{}';
+    try {
+        beforeData = fs.readFileSync(path.join(__dirname, '..', 'dumps', 'crafts.json'));
+    } catch (openError){
+        // Do nothing
+    }
 
     const promise = new Promise((resolve, reject) => {
         connection.query('SELECT * FROM item_data ORDER BY id', async (error, results) => {
