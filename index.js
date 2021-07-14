@@ -58,6 +58,8 @@ const AVAILABLE_TYPES = [
     'backpack',
     'grenade',
     'gun',
+    'headphones',
+    'rig',
 ];
 
 const CUSTOM_HANDLERS = [
