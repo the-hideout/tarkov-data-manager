@@ -4,6 +4,7 @@ const normalizeName = require('../modules/normalize-name');
 const {categories} = require('../modules/category-map');
 const presetSize = require('../modules/preset-size');
 const ttData = require('../modules/tt-data');
+const oldShortnames = require('../old-shortnames.json');
 
 const bsgData = require('../bsg-data.json');
 
@@ -207,6 +208,10 @@ module.exports = async () => {
         item.height = item._props.Height;
 
         const itemPresetSize = await presetSize(item.shortName, item._id);
+
+        if(!itemPresetSize && oldShortnames[item._id]){
+            itemPresetSize = await presetSize(oldShortnames[item._id], item._id);
+        }
 
         if(itemPresetSize){
             item.width = itemPresetSize.width;
