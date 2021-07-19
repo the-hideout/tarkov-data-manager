@@ -20,7 +20,7 @@ module.exports = () => {
     runJob('clear-checkouts', '5 4 */6 * *');
     runJob('update-barters', '5 14 * * *');
     runJob('update-cache', '* * * * *');
-    runJob('update-crafts', '25 * * * *');
+    runJob('update-crafts', '*/10 * * * *');
     //runJob('update-game-data', '45 3 * * *');
     runJob('update-quests', '45 * * * *');
     // runJob('update-trader-prices', '45 * * * *');
