@@ -293,5 +293,23 @@ module.exports = async () => {
         }
     }
 
+    for(const ttItemId in allTTItems){
+        if(items.find(bsgItem => bsgItem._id === ttItemId)){
+            continue;
+        }
+
+        console.error(`${allTTItems[ttItemId].name} is no longer available in the game`);
+        await new Promise((resolve, reject) => {
+            connection.query(`UPDATE item_data SET disabled = 1 WHERE id = ?`, [ttItemId], async (error, results) => {
+                    if (error) {
+                        reject(error)
+                    }
+
+                    resolve();
+                }
+            );
+        });
+    }
+
     connection.end();
 };
