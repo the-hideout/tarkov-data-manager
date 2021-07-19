@@ -30,6 +30,13 @@ module.exports = async(shortName, itemId) => {
 
         for (let i = 0; i < preset.parts.length; i++) {
             const part = itemData[preset.parts[i].id];
+
+            if(!part){
+                console.log(preset.parts[i]);
+                console.log(preset);
+                continue;
+            }
+
             for (const di in directions) {
                 const dir = directions[di];
                 if (part._props.ExtraSizeForceAdd) {
