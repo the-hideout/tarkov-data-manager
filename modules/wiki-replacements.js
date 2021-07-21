@@ -17,6 +17,10 @@ const REPLACEMENTS = {
     '5.56x45 mm Warmage': '5.56x45mm Warmage',
     'Lab. Yellow keycard.': 'TerraGroup Labs keycard (Yellow)',
     'Lucky Scav Junkbox': 'Lucky Scav Junk box',
+    'Special Sniper Rifle VSS Vintorez': 'VSS Vintorez 9x39 Special Sniper Rifle',
+    'Simonov Semi-Automatic Carbine SKS 7.62x39 Hunting Rifle Version': 'Simonov OP-SKS 7.62x39 semi-automatic carbine (Hunting Rifle Version)',
+    'Kiba Arms International SPRM mount for pump-action shotguns': 'Kiba Arms International SPRM rail mount for pump-action shotguns',
+    'Sig-Sauer SRD QD 7.62x51 Sound Suppressor': 'SIG Sauer SRD762-QD 7.62x51 sound suppressor',
 };
 
 const PARTIAL_REPLACEMENTS = {
