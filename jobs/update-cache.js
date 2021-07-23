@@ -37,6 +37,10 @@ module.exports = async () => {
             continue;
         }
 
+        if(itemData[key].disabled && !itemData[key].types.includes('no-flea')){
+            itemData[key].types.push('no-flea');
+        }
+
         const percentOfDayBefore = itemData[key].avg24hPrice / itemPriceYesterday.priceYesterday
         itemData[key].changeLast48h = roundTo((percentOfDayBefore - 1) * 100, 2);
 
