@@ -8,7 +8,6 @@ const ignoreSources = [
     'LAPTOP-RAZZ',
     'DESKTOP-BKCSP2S',
     'NUC-PC',
-    'Mats-HP',
 ];
 
 const connection = mysql.createConnection({
