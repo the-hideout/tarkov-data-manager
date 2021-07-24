@@ -234,7 +234,7 @@ module.exports = async function() {
 
                 // Special case for water collector
                 if(craftData.station.toLowerCase().includes('water collector')){
-                    craftData.requiredItems[0].count = 0.65;
+                    craftData.requiredItems[0].count = 0.66;
                 }
 
                 crafts.data.push(craftData);
