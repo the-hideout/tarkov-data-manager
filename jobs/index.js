@@ -17,13 +17,13 @@ module.exports = () => {
     }
 
     runJob('check-scans', '20 * * * *');
-    runJob('clear-checkouts', '5 4 */6 * *');
-    runJob('update-barters', '5 14 * * *');
+    runJob('clear-checkouts', '5 */6 * * *');
+    runJob('update-barters', '*/15 * * * *');
     runJob('update-cache', '* * * * *');
     runJob('update-crafts', '*/10 * * * *');
     //runJob('update-game-data', '45 3 * * *');
     runJob('update-quests', '45 * * * *');
-    runJob('verify-wiki', '5 5 9 * *');
+    runJob('verify-wiki', '5 9 * * *');
     // runJob('update-trader-prices', '45 * * * *');
     // runJob('update-translations', '45 * * * *');
 };
