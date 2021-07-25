@@ -7,6 +7,7 @@ const Jimp = require('jimp');
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const basicAuth = require('express-basic-auth');
+const formidable = require('formidable');
 
 const remoteData = require('./modules/remote-data');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
@@ -22,15 +23,25 @@ const s3 = new S3Client({
     credentials: fromEnv(),
 });
 
+function maybe(fn) {
+    return function(req, res, next) {
+        if (req.path === '/suggest-image' && req.method === 'POST') {
+            next();
+        } else {
+            fn(req, res, next);
+        }
+    }
+};
+
 app.use(bodyParser.json());
 app.use(express.static('public'));
-app.use(basicAuth({
+app.use(maybe(basicAuth({
     challenge: true,
     realm: 'tarkov-data-manager',
     users: {
         'kokarn': process.env.AUTH_PASSWORD,
     },
-}));
+})));
 
 const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
@@ -262,6 +273,98 @@ app.post('/update', (request, response) => {
     updateTypes(request.body);
 
     response.send('ok');
+});
+
+app.post('/suggest-image', (request, response) => {
+    const form = formidable({
+        multiples: true,
+        uploadDir: path.join(__dirname, 'cache'),
+    });
+
+    console.log('got request');
+
+    form.parse(request, async (err, fields, files) => {
+        if (err) {
+            console.log(err);
+
+            next(err);
+
+            return false;
+        }
+
+        console.log(fields);
+        // console.log(files);
+
+        const allItemData = await remoteData.get();
+        const currentItemData = allItemData.get(fields.id);
+
+        if(fields.type !== 'grid-image' && fields.type !== 'icon'){
+            return response
+                .status(400)
+                .send({
+                    error: 'Unknown type',
+            });
+        }
+
+        if(fields.type === 'grid-image' && currentItemData.grid_image_link){
+            return response
+                .status(400)
+                .send({
+                    error: 'That item ID already has a grid-image',
+                });
+        }
+
+        if(fields.type === 'icon' && currentItemData.icon_link){
+            return response
+                .status(400)
+                .send({
+                    error: 'That item ID already has a icon',
+                });
+        }
+
+        let image = false;
+        try {
+            image = await Jimp.read(files[fields.type].path);
+        } catch (someError){
+            console.error(someError);
+
+            return response.send(someError);
+        }
+
+        if(!image){
+            return response
+                .status(503)
+                .send('Failed to add image');
+        }
+
+        const uploadParams = {
+            Bucket: 'assets.tarkov-tools.com',
+            Key: `${fields.id}-${fields.type}.jpg`,
+            ContentType: 'image/jpeg',
+        };
+
+        uploadParams.Body = await image.getBufferAsync(Jimp.MIME_JPEG);
+
+        try {
+            await s3.send(new PutObjectCommand(uploadParams));
+            console.log("Image saved to s3");
+        } catch (err) {
+            console.log("Error", err);
+
+            return response.send(err);
+        }
+
+        try {
+            await remoteData.setProperty(fields.id, `${fields.type.replace(/\-/g, '_')}_link`, `https://assets.tarkov-tools.com/${fields.id}-${fields.type}.jpg`);
+        } catch (updateError){
+            console.error(updateError);
+            return response.send(updateError);
+        }
+
+        console.log(`${fields.id} ${fields.type} updated`);
+
+        response.send('ok');
+    });
 });
 
 app.post('/edit/:id', urlencodedParser, async (req, res) => {
