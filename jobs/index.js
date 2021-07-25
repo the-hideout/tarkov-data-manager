@@ -23,6 +23,7 @@ module.exports = () => {
     runJob('update-crafts', '*/10 * * * *');
     //runJob('update-game-data', '45 3 * * *');
     runJob('update-quests', '45 * * * *');
+    runJob('verify-wiki', '5 5 9 * *');
     // runJob('update-trader-prices', '45 * * * *');
     // runJob('update-translations', '45 * * * *');
 };
