@@ -43,7 +43,8 @@ module.exports = async () => {
                     // do nothing
                     const messageData = {
                         title: `Broken wiki link for ${result.name}`,
-                        message: `Wiki link for ${result.name} does no longer work ${result.wiki_link}`,
+                        message: `Wiki link for ${result.name} does no longer work`,
+                        url: encodeURIComponent(result.wiki_link),
                         users: 'QBfmptGTgQoOS2gGOobd5Olfp31hTKrG',
                     };
 
@@ -84,7 +85,8 @@ module.exports = async () => {
 
                 const messageData = {
                     title: `New wiki link for ${result.name}`,
-                    message: `Updated wiki link to ${newWikiLink} for ${result.name}`,
+                    message: `Updated wiki link for ${result.name}`,
+                    url: encodeURIComponent(newWikiLink),
                     users: 'QBfmptGTgQoOS2gGOobd5Olfp31hTKrG',
                 };
 
