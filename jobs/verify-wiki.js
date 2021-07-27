@@ -44,7 +44,7 @@ module.exports = async () => {
                     const messageData = {
                         title: `Broken wiki link for ${result.name}`,
                         message: `Wiki link for ${result.name} does no longer work`,
-                        url: encodeURIComponent(result.wiki_link),
+                        url: result.wiki_link.replace( /_/g, '\\_' ),
                         users: 'QBfmptGTgQoOS2gGOobd5Olfp31hTKrG',
                     };
 
@@ -86,7 +86,7 @@ module.exports = async () => {
                 const messageData = {
                     title: `New wiki link for ${result.name}`,
                     message: `Updated wiki link for ${result.name}`,
-                    url: encodeURIComponent(newWikiLink),
+                    url: newWikiLink.replace( /_/g, '\\_' ),
                     users: 'QBfmptGTgQoOS2gGOobd5Olfp31hTKrG',
                 };
 
