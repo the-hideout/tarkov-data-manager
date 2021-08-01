@@ -34,6 +34,7 @@ module.exports = async () => {
                 spinner.start(`${i + 1}/${results.length} ${result.name}`);
 
                 const newWikiLink = nameToWikiLink(result.name);
+                let shouldRemoveCurrentLink = false;
 
                 try {
                     await got.head(result.wiki_link);
@@ -41,6 +42,7 @@ module.exports = async () => {
                     continue;
                 } catch (requestError){
                     // do nothing
+                    shouldRemoveCurrentLink = true;
                     const messageData = {
                         title: `Broken wiki link for ${result.name}`,
                         message: `Wiki link for ${result.name} does no longer work`,
@@ -57,7 +59,7 @@ module.exports = async () => {
                     await got.head(newWikiLink);
                     // console.log(`${result.id} | ${newWikiLink} | ${result.name} | NEW`);
                     spinner.succeed(`${result.id} | ${newWikiLink} | ${result.name} | NEW`);
-
+                    shouldRemoveCurrentLink = false;
                     await new Promise((resolveUpdate, rejectUpdate) => {
                         connection.query(`UPDATE item_data SET wiki_link = ? WHERE id = ?`, [newWikiLink, result.id], (error) => {
                             if(error){
@@ -70,17 +72,23 @@ module.exports = async () => {
                 } catch (requestError){
                     // console.log(`${result.id} | ${newWikiLink} | ${result.name} | FAILED`);
                     spinner.fail(`${result.id} | ${newWikiLink} | ${result.name} | FAILED`);
+
+                    missing = missing + 1;
+                }
+
+                if(shouldRemoveCurrentLink){
                     await new Promise((resolveUpdate, rejectUpdate) => {
                         connection.query(`UPDATE item_data SET wiki_link = ? WHERE id = ?`, ['', result.id], (error) => {
                             if(error){
+                                console.log(error);
                                 return rejectUpdate(error);
                             }
+
+                            console.log('wiki link removed');
 
                             return resolveUpdate();
                         });
                     });
-
-                    missing = missing + 1;
                 }
 
                 const messageData = {
