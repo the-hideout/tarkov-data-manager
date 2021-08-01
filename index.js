@@ -8,10 +8,17 @@ const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const basicAuth = require('express-basic-auth');
 const formidable = require('formidable');
+const Rollbar = require('rollbar');
 
 const remoteData = require('./modules/remote-data');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
 const jobs = require('./jobs');
+
+const rollbar = new Rollbar({
+    accessToken: process.env.ROLLBAR_TOKEN,
+    captureUncaught: true,
+    captureUnhandledRejections: true
+});
 
 const app = express();
 const port = process.env.PORT || 4000;
