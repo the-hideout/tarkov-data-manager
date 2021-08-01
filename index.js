@@ -53,6 +53,14 @@ try {
     }
 }
 
+try {
+    fs.mkdirSync(path.join(__dirname, 'dumps'));
+} catch (createError){
+    if(createError.code !== 'EEXIST'){
+        console.error(createError);
+    }
+}
+
 const AVAILABLE_TYPES = [
     'glasses',
     'helmet',
