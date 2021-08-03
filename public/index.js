@@ -98,5 +98,11 @@ document.addEventListener('change', (event) => {
 $(document).ready( function () {
     $('table').DataTable({
         pageLength: 25,
+        columnDefs: [
+            {
+                searchable: false,
+                targets: 4,
+            },
+        ],
     });
 } );
