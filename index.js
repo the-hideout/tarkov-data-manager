@@ -86,6 +86,7 @@ const AVAILABLE_TYPES = [
     'gun',
     'headphones',
     'rig',
+    'suppressor',
 ];
 
 const CUSTOM_HANDLERS = [
