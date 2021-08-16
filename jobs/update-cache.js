@@ -30,19 +30,17 @@ module.exports = async () => {
         Reflect.deleteProperty(itemData[key], 'trader_last_scan');
         Reflect.deleteProperty(itemData[key], 'trader_checked_out_by');
 
-        let itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === key);
-        if(!itemPriceYesterday || itemData[key].avg24hPrice === 0){
-            itemData[key].changeLast48h = 0;
-
-            continue;
-        }
-
         if(itemData[key].disabled && !itemData[key].types.includes('no-flea')){
             itemData[key].types.push('no-flea');
         }
 
-        const percentOfDayBefore = itemData[key].avg24hPrice / itemPriceYesterday.priceYesterday
-        itemData[key].changeLast48h = roundTo((percentOfDayBefore - 1) * 100, 2);
+        let itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === key);
+        if(!itemPriceYesterday || itemData[key].avg24hPrice === 0){
+            itemData[key].changeLast48h = 0;
+        } else {
+            const percentOfDayBefore = itemData[key].avg24hPrice / itemPriceYesterday.priceYesterday
+            itemData[key].changeLast48h = roundTo((percentOfDayBefore - 1) * 100, 2);
+        }
 
         // itemData[key].changeLast48h = itemPriceYesterday.priceYesterday || 0;
     }
