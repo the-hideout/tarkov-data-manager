@@ -21,6 +21,18 @@ module.exports = async () => {
     GROUP BY
         item_id`);
 
+    const lastKnownPriceData = await doQuery(`SELECT
+        price,
+        max(timestamp) as timestamp,
+        item_id
+    FROM
+        price_data
+    GROUP BY
+        item_id
+    ORDER BY
+        timestamp
+    DESC`);
+
     for (const [key, value] of itemMap.entries()) {
         itemData[key] = value;
 
@@ -40,6 +52,14 @@ module.exports = async () => {
         } else {
             const percentOfDayBefore = itemData[key].avg24hPrice / itemPriceYesterday.priceYesterday
             itemData[key].changeLast48h = roundTo((percentOfDayBefore - 1) * 100, 2);
+        }
+
+        if(itemData[key].lastLowPrice === 0){
+            let lastKnownPrice = lastKnownPriceData.find(row => row.item_id === key);
+            if(lastKnownPrice){
+                itemData[key].updated = lastKnownPrice.timestamp;
+                itemData[key].lastLowPrice = lastKnownPrice.price;
+            }
         }
 
         // itemData[key].changeLast48h = itemPriceYesterday.priceYesterday || 0;
