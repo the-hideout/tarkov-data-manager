@@ -326,7 +326,6 @@ module.exports = {
                 TRADERS.fence,
                 TRADERS.peacekeeper,
                 TRADERS.mechanic,
-                TRADERS.jaeger,
             ],
         },
         '5447b6254bdc2dc3278b4568': {
@@ -370,7 +369,6 @@ module.exports = {
                 TRADERS.fence,
                 TRADERS.peacekeeper,
                 TRADERS.mechanic,
-                TRADERS.jaeger,
             ],
         },
         '5447b6094bdc2dc3278b4567': {
