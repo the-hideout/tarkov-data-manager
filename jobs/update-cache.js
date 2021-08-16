@@ -54,7 +54,7 @@ module.exports = async () => {
             itemData[key].changeLast48h = roundTo((percentOfDayBefore - 1) * 100, 2);
         }
 
-        if(itemData[key].lastLowPrice === 0){
+        if(!itemData[key].lastLowPrice){
             let lastKnownPrice = lastKnownPriceData.find(row => row.item_id === key);
             if(lastKnownPrice){
                 itemData[key].updated = lastKnownPrice.timestamp;
