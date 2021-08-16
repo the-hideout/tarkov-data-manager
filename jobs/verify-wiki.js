@@ -20,6 +20,30 @@ const nameToWikiLink = (name) => {
     return `https://escapefromtarkov.fandom.com/wiki/${formattedName}`;
 };
 
+const postMessage = (spinner, id, name, link, type) => {
+    const messageData = {
+        title: `Broken wiki link for ${name}`,
+        message: `Wiki link for ${name} does no longer work`,
+        url: link.replace( /_/g, '\\_' ),
+        users: 'QBfmptGTgQoOS2gGOobd5Olfp31hTKrG',
+    };
+
+    switch (type) {
+        case 'new':
+            spinner.succeed(`${id} | ${link} | ${name}`);
+            messageData.title = `New wiki link for ${name}`;
+            messageData.message = `Updated wiki link for ${name}`;
+            break;
+        case 'broken':
+            spinner.fail(`${id} | ${link} | ${name}`);
+            break;
+    }
+
+    got.post(`https://notifyy-mcnotifyface.herokuapp.com/out`, {
+        json: messageData,
+    });
+};
+
 module.exports = async () => {
     let missing = 0;
     const spinner = ora('Verifying wiki links').start();
@@ -33,50 +57,44 @@ module.exports = async () => {
                 const result = results[i];
                 spinner.start(`${i + 1}/${results.length} ${result.name}`);
 
-                const newWikiLink = nameToWikiLink(result.name);
                 let shouldRemoveCurrentLink = false;
+                let newWikiLink = false;
 
-                try {
-                    await got.head(result.wiki_link);
+                if(result.wiki_link){
+                    try {
+                        const currentPage = await got(result.wiki_link);
+                        const matches = currentPage.body.match(/rel="canonical" href="(?<canonical>.+)"/);
 
-                    continue;
-                } catch (requestError){
-                    // do nothing
-                    shouldRemoveCurrentLink = true;
-                    const messageData = {
-                        title: `Broken wiki link for ${result.name}`,
-                        message: `Wiki link for ${result.name} does no longer work`,
-                        url: result.wiki_link.replace( /_/g, '\\_' ),
-                        users: 'QBfmptGTgQoOS2gGOobd5Olfp31hTKrG',
-                    };
+                        // We have the right link. Move on
+                        if(matches.groups.canonical === result.wiki_link){
+                            continue;
+                        }
 
-                    got.post(`https://notifyy-mcnotifyface.herokuapp.com/out`, {
-                        json: messageData,
-                    });
+                        // We don't have the right link, but there's a redirect
+                        newWikiLink = matches.groups.canonical;
+                    } catch (requestError){
+                        // console.log(requestError);
+                        shouldRemoveCurrentLink = true;
+                    }
                 }
 
-                try {
-                    await got.head(newWikiLink);
-                    // console.log(`${result.id} | ${newWikiLink} | ${result.name} | NEW`);
-                    spinner.succeed(`${result.id} | ${newWikiLink} | ${result.name} | NEW`);
-                    shouldRemoveCurrentLink = false;
-                    await new Promise((resolveUpdate, rejectUpdate) => {
-                        connection.query(`UPDATE item_data SET wiki_link = ? WHERE id = ?`, [newWikiLink, result.id], (error) => {
-                            if(error){
-                                return rejectUpdate(error);
-                            }
+                // We don't have a wiki link, let's try to guess one
+                if(!newWikiLink){
+                    newWikiLink = nameToWikiLink(result.name);
 
-                            return resolveUpdate();
-                        });
-                    });
-                } catch (requestError){
-                    // console.log(`${result.id} | ${newWikiLink} | ${result.name} | FAILED`);
-                    spinner.fail(`${result.id} | ${newWikiLink} | ${result.name} | FAILED`);
+                    try {
+                        await got.head(newWikiLink);
+                    } catch (requestError){
+                        // console.log(requestError);
+                        // postMessage(spinner, result.id, result.name, newWikiLink, 'broken');
 
-                    missing = missing + 1;
+                        missing = missing + 1;
+                        newWikiLink = false;
+                    }
                 }
 
                 if(shouldRemoveCurrentLink){
+                    postMessage(spinner, result.id, result.name, newWikiLink, 'broken');
                     await new Promise((resolveUpdate, rejectUpdate) => {
                         connection.query(`UPDATE item_data SET wiki_link = ? WHERE id = ?`, ['', result.id], (error) => {
                             if(error){
@@ -84,23 +102,24 @@ module.exports = async () => {
                                 return rejectUpdate(error);
                             }
 
-                            console.log('wiki link removed');
-
                             return resolveUpdate();
                         });
                     });
                 }
 
-                const messageData = {
-                    title: `New wiki link for ${result.name}`,
-                    message: `Updated wiki link for ${result.name}`,
-                    url: newWikiLink.replace( /_/g, '\\_' ),
-                    users: 'QBfmptGTgQoOS2gGOobd5Olfp31hTKrG',
-                };
+                if(newWikiLink){
+                    postMessage(spinner, result.id, result.name, newWikiLink, 'new');
+                    await new Promise((resolveUpdate, rejectUpdate) => {
+                        connection.query(`UPDATE item_data SET wiki_link = ? WHERE id = ?`, [newWikiLink, result.id], (error) => {
+                            if(error){
+                                console.log(error);
+                                return rejectUpdate(error);
+                            }
 
-                got.post(`https://notifyy-mcnotifyface.herokuapp.com/out`, {
-                    json: messageData,
-                });
+                            return resolveUpdate();
+                        });
+                    });
+                }
             }
 
             spinner.stop();
