@@ -55,7 +55,7 @@ module.exports = async () => {
             price: latestTraderPrices[traderItem.id].price,
             updated: latestTraderPrices[traderItem.id].timestamp,
             quest_unlock: Boolean(traderItem.quest_unlock_id),
-            quest_unlock_id: Number(traderItem.quest_unlock_id),
+            quest_unlock_id: traderItem.quest_unlock_id,
             currency: traderItem.currency,
         });
     }
