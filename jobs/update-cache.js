@@ -8,6 +8,7 @@ module.exports = async () => {
     const itemMap = await remoteData.get();
     const itemData = {};
 
+    console.time('price-yesterday-query');
     const avgPriceYesterday = await doQuery(`SELECT
         avg(price) AS priceYesterday,
         item_id,
@@ -20,6 +21,7 @@ module.exports = async () => {
         timestamp < DATE_SUB(NOW(), INTERVAL 1 DAY)
     GROUP BY
         item_id`);
+    console.timeEnd('price-yesterday-query');
 
     console.time('last-low-price-query');
     const lastKnownPriceData = await doQuery(`SELECT
