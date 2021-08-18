@@ -21,17 +21,27 @@ module.exports = async () => {
     GROUP BY
         item_id`);
 
+    console.time('last-low-price-query');
     const lastKnownPriceData = await doQuery(`SELECT
         price,
-        max(timestamp) as timestamp,
-        item_id
+        a.timestamp,
+        a.item_id
     FROM
-        price_data
+        price_data a
+    INNER JOIN (
+        SELECT
+            max(timestamp) as timestamp,
+            item_id
+        FROM
+            price_data
+        GROUP BY
+            item_id
+    ) b
+    ON
+        a.timestamp = b.timestamp
     GROUP BY
-        item_id
-    ORDER BY
-        timestamp
-    DESC`);
+        item_id;`);
+    console.timeEnd('last-low-price-query');
 
     for (const [key, value] of itemMap.entries()) {
         itemData[key] = value;
