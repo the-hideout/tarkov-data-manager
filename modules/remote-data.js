@@ -97,9 +97,9 @@ const methods = {
                             FROM
                                 price_data
                             WHERE
-                                timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)`, [results.id], async (priceQueryResult, priceResults) => {
-                            if(priceQueryResult){
-                                return reject(priceQueryResult);
+                                timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)`, async (priceQueryError, priceResults) => {
+                            if(priceQueryError){
+                                return reject(priceQueryError);
                             }
 
                             console.timeEnd('price-query');
