@@ -1,6 +1,6 @@
 const mysql = require('mysql');
 
-module.exports = async function doQuery(query) {
+module.exports = async function doQuery(query, params) {
     const connection = mysql.createConnection({
         host     : 'tarkov-tools-master-1.cluster-c1vhfeufwkpn.eu-west-1.rds.amazonaws.com',
         user     : 'desktop1',
@@ -12,7 +12,8 @@ module.exports = async function doQuery(query) {
 
     let responseData;
     const promise = new Promise((resolve, reject) => {
-        connection.query(query
+        connection.query(query,
+            params
             , async (error, results) => {
                 if (error) {
                     reject(error)
