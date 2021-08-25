@@ -357,6 +357,7 @@ app.post('/suggest-image', (request, response) => {
             Bucket: 'assets.tarkov-tools.com',
             Key: `${fields.id}-${fields.type}.jpg`,
             ContentType: 'image/jpeg',
+            CacheControl: 'max-age=604800',
         };
 
         uploadParams.Body = await image.getBufferAsync(Jimp.MIME_JPEG);
