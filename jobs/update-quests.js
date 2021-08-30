@@ -1,5 +1,20 @@
+const fs = require('fs');
+const path = require('path');
+
 const got = require('got');
 const cloudflare = require('../modules/cloudflare');
+
+
+const traderMap = [
+    'prapor',
+    'therapist',
+    'fence',
+    'skier',
+    'peacekeeper',
+    'mechanic',
+    'ragman',
+    'jaeger',
+];
 
 module.exports = async () => {
     let data;
@@ -14,10 +29,21 @@ module.exports = async () => {
         return false;
     }
 
+    const quests = data.body.map((quest) => {
+        return {
+            ...quest,
+            reputation: quest.reputation.map((questReputation) => {
+                return {
+                    ...questReputation,
+                    trader: traderMap[questReputation.trader],
+                };
+            }),
+        };
+    });
+
     try {
-        const response = await cloudflare(`accounts/66766e138fce1ac1d2ef95953e037f4e/storage/kv/namespaces/f04e5b75ee894b3a90cec2b7cc351311/values/QUEST_DATA`, 'PUT', JSON.stringify(data.body));
-        console.log(response);
-    } catch (requestError){
-        console.error(requestError);
+        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'quests.json'), JSON.stringify(quests, null, 4));
+    } catch (writeError){
+        console.error(writeError);
     }
 }
