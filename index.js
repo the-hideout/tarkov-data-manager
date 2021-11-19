@@ -608,9 +608,6 @@ app.get('/', async (req, res) => {
                         <li>
                             Name: ${latestScan.source}
                         </li>
-                        <li>
-                            Latest update: ${latestScan.timestamp}
-                        </li>
                     </ul>
                     <div
                         class = "log-messages log-messages-${latestScan.source}"
