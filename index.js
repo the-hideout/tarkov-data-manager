@@ -40,14 +40,20 @@ function maybe(fn) {
     }
 };
 
+const users = {
+    'kokarn': process.env.AUTH_PASSWORD,
+};
+
+if(process.env.SECOND_AUTH_PASSWORD){
+    users.razzmatazz = process.env.SECOND_AUTH_PASSWORD;
+};
+
 app.use(bodyParser.json());
 app.use(express.static('public'));
 app.use(maybe(basicAuth({
     challenge: true,
     realm: 'tarkov-data-manager',
-    users: {
-        'kokarn': process.env.AUTH_PASSWORD,
-    },
+    users: users,
 })));
 
 const urlencodedParser = bodyParser.urlencoded({ extended: false })
