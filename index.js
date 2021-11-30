@@ -320,7 +320,7 @@ app.post('/suggest-image', (request, response) => {
         const allItemData = await remoteData.get();
         const currentItemData = allItemData.get(fields.id);
 
-        if(fields.type !== 'grid-image' && fields.type !== 'icon'){
+        if(fields.type !== 'grid-image' && fields.type !== 'icon' && fields.type !== 'image'){
             return response
                 .status(400)
                 .send({
@@ -337,6 +337,14 @@ app.post('/suggest-image', (request, response) => {
         }
 
         if(fields.type === 'icon' && currentItemData.icon_link){
+            return response
+                .status(400)
+                .send({
+                    error: 'That item ID already has a icon',
+                });
+        }
+
+        if(fields.type === 'image' && currentItemData.image_link){
             return response
                 .status(400)
                 .send({
