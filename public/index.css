@@ -49,3 +49,8 @@ tr:hover {
     overflow: hidden scroll;
     padding-left: 15px;
 }
+
+nav {
+    height: auto;
+    float: left;
+}
