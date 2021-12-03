@@ -649,7 +649,7 @@ app.get('/', async (req, res) => {
             <div>Inactive Scanners (last scan)</div>
         ${inactiveScanners.map(latestScan => {
             return `
-                <div>${latestScan.source} ${latestScan.timestamp})</div>
+                <div>${latestScan.source} (${latestScan.timestamp})</div>
             `;
         }).join('')}
         </div>
