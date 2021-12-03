@@ -1,5 +1,3 @@
-const mysql = require('mysql');
-
 const normalizeName = require('../modules/normalize-name');
 const {categories} = require('../modules/category-map');
 const presetSize = require('../modules/preset-size');
@@ -8,14 +6,7 @@ const oldShortnames = require('../old-shortnames.json');
 
 const bsgData = require('../bsg-data.json');
 
-const connection = mysql.createConnection({
-    host     : 'tarkov-tools-master-1.cluster-c1vhfeufwkpn.eu-west-1.rds.amazonaws.com',
-    user     : 'desktop1',
-    password : process.env.MYSQL_PASSWORD,
-    database : 'tarkov_tools',
-});
-
-connection.connect();
+const connection = require('../modules/db-connection');
 
 const mappingProperties = [
     'BlindnessProtection',

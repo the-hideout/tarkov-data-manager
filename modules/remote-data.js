@@ -1,7 +1,6 @@
 const got = require('got');
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
-const mysql = require('mysql');
 const midmean = require('compute-midmean');
 
 const bitcoinPrice = require('./bitcoin-price');
@@ -13,14 +12,7 @@ const client = new S3Client({
     credentials: fromEnv(),
 });
 
-const connection = mysql.createConnection({
-    host     : 'tarkov-tools-master-1.cluster-c1vhfeufwkpn.eu-west-1.rds.amazonaws.com',
-    user     : 'desktop1',
-    password : process.env.MYSQL_PASSWORD,
-    database : 'tarkov_tools',
-});
-
-connection.connect();
+const connection = require('./db-connection');
 
 const getPercentile = (validValues) => {
     if(validValues.length === 0){

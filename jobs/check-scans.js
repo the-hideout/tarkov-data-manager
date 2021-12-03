@@ -1,5 +1,6 @@
-const mysql = require('mysql');
 const got = require('got');
+
+const connection = require('../modules/db-connection');
 
 const ignoreSources = [
     'DESKTOP-DA1IT79',
@@ -11,15 +12,6 @@ const ignoreSources = [
     'XETA',
     'Mats-HP',
 ];
-
-const connection = mysql.createConnection({
-    host     : 'tarkov-tools-master-1.cluster-c1vhfeufwkpn.eu-west-1.rds.amazonaws.com',
-    user     : 'desktop1',
-    password : process.env.MYSQL_PASSWORD,
-    database : 'tarkov_tools',
-});
-
-connection.connect();
 
 module.exports = async () => {
     connection.query('select max(timestamp) as timestamp, source from price_data group by source order by `timestamp` desc', (queryError, results) => {

@@ -3,20 +3,12 @@ const path = require('path');
 
 const got = require('got');
 const cheerio = require('cheerio');
-const mysql = require('mysql');
 
 const cloudflare = require('../modules/cloudflare');
 const oldNames = require('../old-names.json');
 const fixName = require('../modules/wiki-replacements');
 
-const connection = mysql.createConnection({
-    host     : 'tarkov-tools-master-1.cluster-c1vhfeufwkpn.eu-west-1.rds.amazonaws.com',
-    user     : 'desktop1',
-    password : process.env.MYSQL_PASSWORD,
-    database : 'tarkov_tools',
-});
-
-connection.connect();
+const connection = require('../modules/db-connection');
 
 let itemData = false;
 

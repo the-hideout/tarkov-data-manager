@@ -1,15 +1,7 @@
-const mysql = require('mysql');
 const bsgData = require('../bsg-data.json');
 const ttData = require('../modules/tt-data');
 
-const connection = mysql.createConnection({
-    host     : 'tarkov-tools-master-1.cluster-c1vhfeufwkpn.eu-west-1.rds.amazonaws.com',
-    user     : 'desktop1',
-    password : process.env.MYSQL_PASSWORD,
-    database : 'tarkov_tools',
-});
-
-connection.connect();
+const connection = require('../modules/db-connection');
 
 const INSERT_KEYS = [
     'Name',
