@@ -620,9 +620,14 @@ app.get('/items/', async (req, res) => {
 
 app.get('/', async (req, res) => {
     const latestScanResults = await getLatestScanResults();
+    const inactiveScanners = [];
     res.send(`${getHeader()}
         <div class="scanners-wrapper">
             ${latestScanResults.map((latestScan) => {
+                if (new Date - latestScan.timestamp > 1000 * 60 * 60 *24 * 7) {
+                    inactiveScanners.push(latestScan);
+                    return '';
+                }
                 return `
                 <div class="scanner">
                     <ul>
@@ -639,6 +644,14 @@ app.get('/', async (req, res) => {
                     </script>
                 </div>`;
             }).join('')}
+        </div>
+        <div>
+            <div>Inactive Scanners (last scan)</div>
+        ${inactiveScanners.map(latestScan => {
+            return `
+                <div>${latestScan.source} ${latestScan.timestamp})</div>
+            `;
+        }).join('')}
         </div>
     `);
 });
