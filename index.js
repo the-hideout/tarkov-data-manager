@@ -669,3 +669,18 @@ const server = app.listen(port, () => {
 });
 
 jobs();
+
+(async () => {
+    const triggerShutdown = () => {
+        console.log('Closing HTTP server');
+        server.close(() => {
+            debug('HTTP server closed');
+        });
+    };
+    //gracefully shutdown on Ctrl+C
+    process.on( 'SIGINT', triggerShutdown);
+    //gracefully shutdown on Ctrl+Break
+    process.on( 'SIGBREAK', triggerShutdown);
+    //try to gracefully shutdown on terminal closed
+    process.on( 'SIGHUP', triggerShutdown);
+})();
