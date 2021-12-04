@@ -68,6 +68,4 @@ module.exports = async () => {
             });
         }
     }
-
-    connection.end();
 };

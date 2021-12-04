@@ -120,6 +120,5 @@ module.exports = async () => {
         });
     });
 
-    connection.end();
     console.log(`${missing} items still missing a valid wiki link`);
 };
