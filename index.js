@@ -99,6 +99,7 @@ const CUSTOM_HANDLERS = [
     'untagged',
     'no-icon',
     'no-image',
+    'missing-image',
     'no-wiki',
     'all',
 ];
@@ -173,20 +174,26 @@ const getTableContents = async (filterObject) => {
                     }
                     break;
                 case 'no-image':
-                    if(item.image_link !== ''){
+                    if(item.image_link){
                         continue;
                     }
 
                     break;
                 case 'no-icon':
-                    if(item.icon_link !== ''){
+                    if(item.icon_link){
                         continue;
                     }
 
                     break;
+                case 'missing-image':
+                    if(item.image_link && item.icon_link && item.grid_image_link){
+                        continue;
+                    }
 
+                    break;
+    
                 case 'no-wiki':
-                    if(item.wiki_link !== ''){
+                    if(item.wiki_link){
                         continue;
                     }
 
@@ -211,13 +218,13 @@ const getTableContents = async (filterObject) => {
                 </div>
             </td>
             <td>
-                <img src="${item.image_link}" loading="lazy" />
+                ${item.image_link ? `<img src="${item.image_link}" loading="lazy" />`: ''}
             </td>
             <td>
-                <img src="${item.icon_link}" loading="lazy" />
+                ${item.icon_link ? `<img src="${item.icon_link}" loading="lazy" />`: ''}
             </td>
             <td>
-                <img src="${item.grid_image_link}" loading="lazy" />
+                ${item.grid_image_link ? `<img src="${item.grid_image_link}" loading="lazy" />`: ''}
             </td>
             ${getItemTypesMarkup(item)}
             <td>
@@ -613,25 +620,46 @@ app.get('/items/', async (req, res) => {
 
 app.get('/', async (req, res) => {
     const latestScanResults = await getLatestScanResults();
-    res.send(`${getHeader()}
-        <div class="scanners-wrapper">
-            ${latestScanResults.map((latestScan) => {
-                return `
-                <div class="scanner">
-                    <ul>
-                        <li>
-                            Name: ${latestScan.source}
-                        </li>
-                    </ul>
-                    <div
-                        class = "log-messages log-messages-${latestScan.source}"
-                    >
-                    </div>
+    const activeScanners = [];
+    const inactiveScanners = [];
+    latestScanResults.map(latestScan => {
+        if (new Date - latestScan.timestamp > 1000 * 60 * 60 *24 * 7) {
+            inactiveScanners.push(latestScan);
+        } else {
+            activeScanners.push(latestScan);
+        }
+    });
+    const getScannerStuff = (scanner, active) => {
+        let activeClass = '';
+        if (active) {
+            activeClass = ' active';
+        }
+        return `
+        <div class="scanner">
+            <ul class="collapsible" data-collapsible="collapsible">
+                <li class="${activeClass}">
+                    <div class="collapsible-header"><span class="tooltipped" data-tooltip="${scanner.timestamp}" data-position="right">${scanner.source}</span></div>
+                    <div class="collapsible-body log-messages log-messages-${scanner.source}"></div>
                     <script>
-                        startListener('${latestScan.source}');
+                        startListener('${scanner.source}');
                     </script>
-                </div>`;
+                </li>
+            </ul>
+        </div>
+        `;
+    };
+    res.send(`${getHeader()}
+        <div>Active Scanners</div>
+        <div class="scanners-wrapper">
+            ${activeScanners.map((latestScan) => {
+                return getScannerStuff(latestScan, true);
             }).join('')}
+        </div>
+        <div>Inactive Scanners</div>
+        <div class="scanners-wrapper"">
+        ${inactiveScanners.map(latestScan => {
+            return getScannerStuff(latestScan, false);
+        }).join('')}
         </div>
     `);
 });

@@ -1,15 +1,7 @@
-const mysql = require('mysql');
 const got = require('got');
 const ora = require('ora');
 
-const connection = mysql.createConnection({
-    host     : 'tarkov-tools-master-1.cluster-c1vhfeufwkpn.eu-west-1.rds.amazonaws.com',
-    user     : 'desktop1',
-    password : process.env.MYSQL_PASSWORD,
-    database : 'tarkov_tools',
-});
-
-connection.connect();
+const connection = require('../modules/db-connection');
 
 const nameToWikiLink = (name) => {
     const formattedName = name
