@@ -620,37 +620,44 @@ app.get('/items/', async (req, res) => {
 
 app.get('/', async (req, res) => {
     const latestScanResults = await getLatestScanResults();
+    const activeScanners = [];
     const inactiveScanners = [];
+    latestScanResults.map(latestScan => {
+        if (new Date - latestScan.timestamp > 1000 * 60 * 60 *24 * 7) {
+            inactiveScanners.push(latestScan);
+        } else {
+            activeScanners.push(latestScan);
+        }
+    });
+    const getScannerStuff = (scanner, active) => {
+        let activeClass = '';
+        if (active) {
+            activeClass = ' active';
+        }
+        return `
+        <div class="scanner">
+            <ul class="collapsible" data-collapsible="collapsible">
+            <li class="${activeClass}">
+                <div class="collapsible-header"><span class="tooltipped" data-tooltip="${scanner.timestamp}" data-position="right">${scanner.source}</span></div>
+                <div class="collapsible-body log-messages log-messages-${scanner.source}"></div>
+                <script>
+                    startListener('${scanner.source}');
+                </script>
+            </li>
+        </div>
+        `;
+    };
     res.send(`${getHeader()}
+        <div>Active Scanners</div>
         <div class="scanners-wrapper">
-            ${latestScanResults.map((latestScan) => {
-                if (new Date - latestScan.timestamp > 1000 * 60 * 60 *24 * 7) {
-                    inactiveScanners.push(latestScan);
-                    return '';
-                }
-                return `
-                <div class="scanner">
-                    <ul>
-                        <li>
-                            Name: ${latestScan.source}
-                        </li>
-                    </ul>
-                    <div
-                        class = "log-messages log-messages-${latestScan.source}"
-                    >
-                    </div>
-                    <script>
-                        startListener('${latestScan.source}');
-                    </script>
-                </div>`;
+            ${activeScanners.map((latestScan) => {
+                return getScannerStuff(latestScan, true);
             }).join('')}
         </div>
-        <div>
-            <div>Inactive Scanners (last scan)</div>
+        <div>Inactive Scanners</div>
+        <div class="scanners-wrapper"">
         ${inactiveScanners.map(latestScan => {
-            return `
-                <div>${latestScan.source} (${latestScan.timestamp})</div>
-            `;
+            return getScannerStuff(latestScan, false);
         }).join('')}
         </div>
     `);
