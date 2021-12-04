@@ -218,13 +218,13 @@ const getTableContents = async (filterObject) => {
                 </div>
             </td>
             <td>
-                <img src="${item.image_link}" loading="lazy" />
+                ${item.image_link ? `<img src="${item.image_link}" loading="lazy" />`: ''}
             </td>
             <td>
-                <img src="${item.icon_link}" loading="lazy" />
+                ${item.icon_link ? `<img src="${item.icon_link}" loading="lazy" />`: ''}
             </td>
             <td>
-                <img src="${item.grid_image_link}" loading="lazy" />
+                ${item.grid_image_link ? `<img src="${item.grid_image_link}" loading="lazy" />`: ''}
             </td>
             ${getItemTypesMarkup(item)}
             <td>
