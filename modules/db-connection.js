@@ -22,7 +22,7 @@ const connection = mysql.createPool({
 (async () => {
     const triggerShutdown = () => {
         console.log('Closing database connection');
-        //connection.end();
+        connection.end();
     };
     //gracefully shutdown on Ctrl+C
     process.on( 'SIGINT', triggerShutdown);
