@@ -23,7 +23,5 @@ module.exports = async function doQuery(query, params) {
         throw upsertError;
     }
 
-    connection.end();
-
     return responseData;
 };

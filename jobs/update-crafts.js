@@ -308,6 +308,4 @@ module.exports = async function() {
     } catch (requestError){
         console.error(requestError);
     }
-
-    connection.end();
 };

@@ -47,7 +47,5 @@ module.exports = async () => {
                 json: messageData,
             });
         }
-
-        connection.end();
     });
 };

@@ -48,10 +48,7 @@ module.exports = async () => {
         await promise;
     } catch (upsertError){
         console.error(upsertError);
-        connection.end();
 
         throw upsertError;
     }
-
-    connection.end();
 };

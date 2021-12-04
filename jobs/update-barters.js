@@ -292,6 +292,4 @@ module.exports = async function() {
     // console.log('Now you should run')
     // console.log('wrangler kv:key put --namespace-id f04e5b75ee894b3a90cec2b7cc351311 "BARTER_DATA" ../tarkov-data-manager/scripts/barters.json --path');
     // console.log('from the data-handler repo');
-
-    connection.end();
 };
