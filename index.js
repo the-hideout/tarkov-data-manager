@@ -637,13 +637,14 @@ app.get('/', async (req, res) => {
         return `
         <div class="scanner">
             <ul class="collapsible" data-collapsible="collapsible">
-            <li class="${activeClass}">
-                <div class="collapsible-header"><span class="tooltipped" data-tooltip="${scanner.timestamp}" data-position="right">${scanner.source}</span></div>
-                <div class="collapsible-body log-messages log-messages-${scanner.source}"></div>
-                <script>
-                    startListener('${scanner.source}');
-                </script>
-            </li>
+                <li class="${activeClass}">
+                    <div class="collapsible-header"><span class="tooltipped" data-tooltip="${scanner.timestamp}" data-position="right">${scanner.source}</span></div>
+                    <div class="collapsible-body log-messages log-messages-${scanner.source}"></div>
+                    <script>
+                        startListener('${scanner.source}');
+                    </script>
+                </li>
+            </ul>
         </div>
         `;
     };
