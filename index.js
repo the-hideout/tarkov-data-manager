@@ -14,6 +14,7 @@ const remoteData = require('./modules/remote-data');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
 const jobs = require('./jobs');
 const connection = require('./modules/db-connection');
+const timer = require('./modules/timer');
 
 const rollbar = new Rollbar({
     accessToken: process.env.ROLLBAR_TOKEN,
@@ -611,9 +612,9 @@ app.get('/items/:type/edit/:id', async (req, res) => {
 });
 
 app.get('/items/:type', async (req, res) => {
-    console.time('getting-items');
+    const t = timer('getting-items');
     myData = await remoteData.get();
-    console.timeEnd('getting-items');
+    t.end();
     res.send(`${getHeader(req)}
         <table class="highlight">
             <thead>

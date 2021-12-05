@@ -5,6 +5,7 @@ const midmean = require('compute-midmean');
 
 const bitcoinPrice = require('./bitcoin-price');
 const {categories} = require('../modules/category-map');
+const timer = require('./timer');
 
 // a client can be shared by difference commands.
 const client = new S3Client({
@@ -55,7 +56,7 @@ const getPercentile = (validValues) => {
 const methods = {
     get: async () => {
         console.log('Loading all data');
-        console.time('item-data-query');
+        const allDataTimer = timer('item-data-query');
         return new Promise((resolve, reject) => {
             connection.query(`
             SELECT
@@ -71,15 +72,15 @@ const methods = {
                         return reject(queryError);
                     }
 
-                    console.timeEnd('item-data-query');
-                    console.time('translations-query');
+                    allDataTimer.end();
+                    const translationsTimer = timer('translations-query');
                     connection.query(`SELECT item_id, type, value FROM translations WHERE language_code = ?`, ['en'], (translationQueryError, translationResults) => {
                         if(translationQueryError){
                             return reject(translationQueryError);
                         }
 
-                        console.timeEnd('translations-query');
-                        console.time('price-query');
+                        translationsTimer.end();
+                        const priceTimer = timer('price-query');
 
                         connection.query(`
                             SELECT
@@ -94,7 +95,7 @@ const methods = {
                                 return reject(priceQueryError);
                             }
 
-                            console.timeEnd('price-query');
+                            priceTimer.end();
 
                             const returnData = new Map();
                             const itemPrices = {};
