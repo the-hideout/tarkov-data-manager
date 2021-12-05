@@ -5,7 +5,7 @@ const midmean = require('compute-midmean');
 
 const bitcoinPrice = require('./bitcoin-price');
 const {categories} = require('../modules/category-map');
-const timer = require('./timer');
+const timer = require('./console-timer');
 
 // a client can be shared by difference commands.
 const client = new S3Client({

@@ -14,7 +14,7 @@ const remoteData = require('./modules/remote-data');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
 const jobs = require('./jobs');
 const connection = require('./modules/db-connection');
-const timer = require('./modules/timer');
+const timer = require('./modules/console-timer');
 
 const rollbar = new Rollbar({
     accessToken: process.env.ROLLBAR_TOKEN,
