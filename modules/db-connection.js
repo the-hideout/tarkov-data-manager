@@ -19,17 +19,4 @@ const connection = mysql.createPool({
     queueLimit: 0
 });
 
-(async () => {
-    const triggerShutdown = () => {
-        console.log('Closing database connection');
-        connection.end();
-    };
-    //gracefully shutdown on Ctrl+C
-    process.on( 'SIGINT', triggerShutdown);
-    //gracefully shutdown on Ctrl+Break
-    process.on( 'SIGBREAK', triggerShutdown);
-    //try to gracefully shutdown on terminal closed
-    process.on( 'SIGHUP', triggerShutdown);
-})();
-
 module.exports = connection;

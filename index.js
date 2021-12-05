@@ -13,6 +13,7 @@ const Rollbar = require('rollbar');
 const remoteData = require('./modules/remote-data');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
 const jobs = require('./jobs');
+const connection = require('./modules/db-connection');
 
 const rollbar = new Rollbar({
     accessToken: process.env.ROLLBAR_TOKEN,
@@ -674,8 +675,9 @@ jobs();
     const triggerShutdown = () => {
         console.log('Closing HTTP server');
         server.close(() => {
-            debug('HTTP server closed');
+            console.log('HTTP server closed');
         });
+        connection.end();
     };
     //gracefully shutdown on Ctrl+C
     process.on( 'SIGINT', triggerShutdown);
