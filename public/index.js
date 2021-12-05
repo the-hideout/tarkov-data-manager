@@ -108,4 +108,9 @@ $(document).ready( function () {
 
     $('.collapsible').collapsible();
     $('.tooltipped').tooltip();
+
+    $('.guess-wiki-link').click(function(event){
+        let itemName = encodeURIComponent($(event.target).data('itemName').replace(/ /g, '_'));
+        $('#wiki-link').val(`https://escapefromtarkov.fandom.com/wiki/${itemName}`);
+    });
 } );
