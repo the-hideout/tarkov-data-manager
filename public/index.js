@@ -21,6 +21,7 @@ const wsClients = {};
 
 function startListener(channel) {
     const WEBSOCKET_SERVER = 'wss://tarkov-tools-live.herokuapp.com';
+    //const WEBSOCKET_SERVER = 'ws://localhost:8080';
     let logMessages = [];
 
     const ws = new WebSocket(WEBSOCKET_SERVER);
@@ -34,9 +35,10 @@ function startListener(channel) {
         // sends out pings plus a conservative assumption of the latency.
         ws.pingTimeout = setTimeout(() => {
             if(ws?.terminate){
+                console.log(`terminating ${ws.sessionID}`);
                 ws.terminate();
             }
-        }, 10000 + 1000);
+        }, 30000 + 35000);
     };
 
     ws.onopen = () => {
