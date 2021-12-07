@@ -687,7 +687,7 @@ app.get('/', async (req, res) => {
         `;
     };
     res.send(`${getHeader(req)}
-        <h4>Active Scanners</h4>
+        <h5>Active Scanners</h5>
         <div class="scanners-wrapper">
             ${activeScanners.map((latestScan) => {
                 return getScannerStuff(latestScan, true);
