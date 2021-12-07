@@ -289,6 +289,7 @@ const getHeader = (req) => {
             <link rel="manifest" href="/site.webmanifest">
             <meta name="msapplication-TileColor" content="#da532c">
             <meta name="theme-color" content="#ffffff">
+            <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
             <link rel="stylesheet" href="/index.css" />
             ${javascript}
         </head>
@@ -671,7 +672,11 @@ app.get('/', async (req, res) => {
         <div class="scanner">
             <ul class="collapsible" data-collapsible="collapsible">
                 <li class="${activeClass}">
-                    <div class="collapsible-header"><span class="tooltipped" data-tooltip="${scanner.timestamp}" data-position="right">${scanner.source}</span></div>
+                    <div class="collapsible-header">
+                        <span class="tooltipped" data-tooltip="${scanner.timestamp}" data-position="right" style="vertical-align: middle">
+                            ${active || true ? `<button class="waves-effect waves-light btn-small shutdown-scanner" type="button" data-scanner-name="${encodeURIComponent(scanner.source)}"><i class="material-icons left">power_settings_new</i>${scanner.source}</button>`: scanner.source}
+                        </span>
+                    </div>
                     <div class="collapsible-body log-messages log-messages-${scanner.source}"></div>
                     <script>
                         startListener('${scanner.source}');
@@ -682,13 +687,13 @@ app.get('/', async (req, res) => {
         `;
     };
     res.send(`${getHeader(req)}
-        <div>Active Scanners</div>
+        <h4>Active Scanners</h4>
         <div class="scanners-wrapper">
             ${activeScanners.map((latestScan) => {
                 return getScannerStuff(latestScan, true);
             }).join('')}
         </div>
-        <div>Inactive Scanners</div>
+        <h5>Inactive Scanners</h5>
         <div class="scanners-wrapper"">
         ${inactiveScanners.map(latestScan => {
             return getScannerStuff(latestScan, false);
@@ -708,8 +713,9 @@ jobs();
         console.log('Closing HTTP server');
         server.close(() => {
             console.log('HTTP server closed');
+            connection.end();
+            process.exit();
         });
-        connection.end();
     };
     //gracefully shutdown on Ctrl+C
     process.on( 'SIGINT', triggerShutdown);

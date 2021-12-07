@@ -17,6 +17,8 @@ async function postData(url = '', data = {}) {
     return response.json(); // parses JSON response into native JavaScript objects
 }
 
+const wsClients = {};
+
 function startListener(channel) {
     const WEBSOCKET_SERVER = 'wss://tarkov-tools-live.herokuapp.com';
     let logMessages = [];
@@ -57,6 +59,8 @@ function startListener(channel) {
             ws.send(JSON.stringify({type: 'pong'}));
 
             return true;
+        } else if (message.type === 'command') {
+            return;
         }
 
         const ansi_up = new AnsiUp;
@@ -74,6 +78,7 @@ function startListener(channel) {
         wrapper.scrollTop = wrapper.scrollHeight;
         // console.log(message.data);
     };
+    wsClients[channel] = ws;
 }
 
 document.addEventListener('change', (event) => {
@@ -112,5 +117,23 @@ $(document).ready( function () {
     $('.guess-wiki-link').click(function(event){
         let itemName = encodeURIComponent($(event.target).data('itemName').replace(/ /g, '_'));
         $('#wiki-link').val(`https://escapefromtarkov.fandom.com/wiki/${itemName}`);
+    });
+
+    $('.shutdown-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).data('scannerName'));
+        if (!wsClients[scannerName]) {
+            return;
+        }
+        console.log(`Sending shutdown command to ${scannerName}`);
+        wsClients[scannerName].send(JSON.stringify({
+            sessionID: scannerName,
+            type: 'command',
+            data: 'shutdown',
+        }), err => {
+            if (err) {
+                console.log(err);
+            }
+        });
     });
 } );
