@@ -17,8 +17,11 @@ async function postData(url = '', data = {}) {
     return response.json(); // parses JSON response into native JavaScript objects
 }
 
+const wsClients = {};
+
 function startListener(channel) {
     const WEBSOCKET_SERVER = 'wss://tarkov-tools-live.herokuapp.com';
+    //const WEBSOCKET_SERVER = 'ws://localhost:8080';
     let logMessages = [];
 
     const ws = new WebSocket(WEBSOCKET_SERVER);
@@ -32,9 +35,10 @@ function startListener(channel) {
         // sends out pings plus a conservative assumption of the latency.
         ws.pingTimeout = setTimeout(() => {
             if(ws?.terminate){
+                console.log(`terminating ${ws.sessionID}`);
                 ws.terminate();
             }
-        }, 10000 + 1000);
+        }, 30000 + 35000);
     };
 
     ws.onopen = () => {
@@ -57,6 +61,8 @@ function startListener(channel) {
             ws.send(JSON.stringify({type: 'pong'}));
 
             return true;
+        } else if (message.type === 'command') {
+            return;
         }
 
         const ansi_up = new AnsiUp;
@@ -74,6 +80,7 @@ function startListener(channel) {
         wrapper.scrollTop = wrapper.scrollHeight;
         // console.log(message.data);
     };
+    wsClients[channel] = ws;
 }
 
 document.addEventListener('change', (event) => {
@@ -108,4 +115,27 @@ $(document).ready( function () {
 
     $('.collapsible').collapsible();
     $('.tooltipped').tooltip();
+
+    $('.guess-wiki-link').click(function(event){
+        let itemName = encodeURIComponent($(event.target).data('itemName').replace(/ /g, '_'));
+        $('#wiki-link').val(`https://escapefromtarkov.fandom.com/wiki/${itemName}`);
+    });
+
+    $('.shutdown-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).data('scannerName'));
+        if (!wsClients[scannerName]) {
+            return;
+        }
+        console.log(`Sending shutdown command to ${scannerName}`);
+        wsClients[scannerName].send(JSON.stringify({
+            sessionID: scannerName,
+            type: 'command',
+            data: 'shutdown',
+        }), err => {
+            if (err) {
+                console.log(err);
+            }
+        });
+    });
 } );

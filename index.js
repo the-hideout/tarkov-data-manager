@@ -13,6 +13,8 @@ const Rollbar = require('rollbar');
 const remoteData = require('./modules/remote-data');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
 const jobs = require('./jobs');
+const connection = require('./modules/db-connection');
+const timer = require('./modules/console-timer');
 
 const rollbar = new Rollbar({
     accessToken: process.env.ROLLBAR_TOKEN,
@@ -55,6 +57,14 @@ app.use(maybe(basicAuth({
     realm: 'tarkov-data-manager',
     users: users,
 })));
+
+const encodeToast = (text) => {
+    return Buffer.from(text, 'utf8').toString('hex');
+};
+
+const decodeToast = (hex) => {
+    return Buffer.from(hex, 'hex').toString('utf8');
+}
 
 const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
@@ -214,7 +224,7 @@ const getTableContents = async (filterObject) => {
                 <a href="${item.wiki_link}" >${item.name}</a>
                 ${item.id}
                 <div>
-                    <a href="/edit/${item.id}">Edit</a>
+                    <a href="/items/${filterObject.type}/edit/${item.id}">Edit</a>
                 </div>
             </td>
             <td>
@@ -248,7 +258,17 @@ const getTableContents = async (filterObject) => {
     return tableContentsString;
 };
 
-const getHeader = () => {
+const getHeader = (req) => {
+    let javascript = '';
+    if (req.query.toast) {
+        javascript = `
+            <script>
+                $(document).ready(function() {
+                    M.toast({html: '${decodeToast(req.query.toast)}'});
+                });
+            </script>
+        `;
+    }
     return `
     <!DOCTYPE html>
         <head>
@@ -269,7 +289,9 @@ const getHeader = () => {
             <link rel="manifest" href="/site.webmanifest">
             <meta name="msapplication-TileColor" content="#da532c">
             <meta name="theme-color" content="#ffffff">
+            <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
             <link rel="stylesheet" href="/index.css" />
+            ${javascript}
         </head>
         <body>
             <script src="/ansi_up.js"></script>
@@ -282,7 +304,7 @@ const getHeader = () => {
                             AVAILABLE_TYPES
                                 .concat(CUSTOM_HANDLERS)
                                 .sort()
-                                .map(type => `<li><a href="/items/?type=${type}">${capitalizeFirstLetter(type)}</a></li>`)
+                                .map(type => `<li><a href="/items/${type}">${capitalizeFirstLetter(type)}</a></li>`)
                                 .join(' ')
                         }
                     </ul>
@@ -405,10 +427,12 @@ app.post('/suggest-image', (request, response) => {
     });
 });
 
-app.post('/edit/:id', urlencodedParser, async (req, res) => {
+app.post('/items/:type/edit/:id', urlencodedParser, async (req, res) => {
     console.log(req.body);
     const allItemData = await remoteData.get();
     const currentItemData = allItemData.get(req.params.id);
+    let updated = false;
+    let message = 'No changes made.';
 
     if(req.body['icon-link'] && req.body['icon-link'] !== 'null' && currentItemData.icon_link !== req.body['icon-link']){
         console.log('Updating icon link');
@@ -441,7 +465,7 @@ app.post('/edit/:id', urlencodedParser, async (req, res) => {
         }
 
         await remoteData.setProperty(req.params.id, 'icon_link', `https://assets.tarkov-tools.com/${req.params.id}-icon.jpg`);
-        return res.redirect(`/edit/${req.params.id}?updated=1`);
+        updated = true;
     }
 
     if(req.body['image-link'] && req.body['image-link'] !== 'null' && currentItemData.image_link !== req.body['image-link']){
@@ -470,7 +494,7 @@ app.post('/edit/:id', urlencodedParser, async (req, res) => {
         }
 
         await remoteData.setProperty(req.params.id, 'image_link', `https://assets.tarkov-tools.com/${req.params.id}-image.jpg`);
-        return res.redirect(`/edit/${req.params.id}?updated=1`);
+        updated = true;
     }
 
     if(req.body['grid-image-link'] && req.body['grid-image-link'] !== 'null' && currentItemData.grid_image_link !== req.body['grid-image-link']){
@@ -498,18 +522,21 @@ app.post('/edit/:id', urlencodedParser, async (req, res) => {
         }
 
         await remoteData.setProperty(req.params.id, 'grid_image_link', `https://assets.tarkov-tools.com/${req.params.id}-grid-image.jpg`);
-        return res.redirect(`/edit/${req.params.id}?updated=1`);
+        updated = true;
     }
 
     if(req.body['wiki-link'] && req.body['wiki-link'] !== 'null' && currentItemData.wiki_link !== req.body['wiki-link']){
         await remoteData.setProperty(req.params.id, 'wiki_link', req.body['wiki-link']);
-        return res.redirect(`/edit/${req.params.id}?updated=1`);
+        updated = true;
     }
 
-    res.send('No changes made');
+    if (updated) {
+        message = `${currentItemData.name} updated.<br>Will be live in < 4 hours.`;
+    }
+    return res.redirect(`/items/${req.params.type}?toast=${encodeToast(message)}`);
 });
 
-app.get('/edit/:id', async (req, res) => {
+app.get('/items/:type/edit/:id', async (req, res) => {
     const allItemData = await remoteData.get();
     const currentItemData = allItemData.get(req.params.id);
 
@@ -517,8 +544,15 @@ app.get('/edit/:id', async (req, res) => {
 
     // console.log(currentItemData);
 
-    return res.send(`${getHeader()}
-        ${req.query.updated ? '<div class="row">Updated. Will be live in < 4 hours</div>': ''}
+    let updatedText = '';
+    if (req.query.updated == 1) {
+        updatedText = '<div class="row">Updated. Will be live in < 4 hours</div>';
+    } else if (req.query.updated == 0) {
+        updatedText = '<div class="row">No changes made.</div>'
+    }
+
+    return res.send(`${getHeader(req)}
+        ${updatedText}
         <div class="row">
             <div class"col s6">
                 ${currentItemData.name}
@@ -528,7 +562,7 @@ app.get('/edit/:id', async (req, res) => {
             </div>
         </div>
         <div class="row">
-            <form class="col s12" method="post" action="/edit/${currentItemData.id}">
+            <form class="col s12" method="post" action="/items/${req.params.type}/edit/${currentItemData.id}">
             <div class="row">
                     <div class="input-field col s2">
                         ${currentItemData.image_link ? `<img src="${currentItemData.image_link}">`: ''}
@@ -558,7 +592,7 @@ app.get('/edit/:id', async (req, res) => {
                 </div>
                 <div class="row">
                 <div class="input-field col s2">
-                    ${currentItemData.wiki_link ? `<a href="${currentItemData.wiki_link}">WIKI</a>`: ''}
+                    ${currentItemData.wiki_link ? `<a href="${currentItemData.wiki_link}">WIKI</a>`: `<button class="btn guess-wiki-link" type="button" data-item-name="${currentItemData.name}">Guess</button>`}
                 </div>
                 <div class="input-field col s10">
                     <input value="${currentItemData.wiki_link}" id="wiki-link" type="text" class="validate" name="wiki-link">
@@ -578,11 +612,11 @@ app.get('/edit/:id', async (req, res) => {
     `);
 });
 
-app.get('/items/', async (req, res) => {
-    console.time('getting-items');
+app.get('/items/:type', async (req, res) => {
+    const t = timer('getting-items');
     myData = await remoteData.get();
-    console.timeEnd('getting-items');
-    res.send(`${getHeader()}
+    t.end();
+    res.send(`${getHeader(req)}
         <table class="highlight">
             <thead>
                 <tr>
@@ -611,7 +645,7 @@ app.get('/items/', async (req, res) => {
             </thead>
             <tbody>
                 ${ await getTableContents({
-                    type: req.query.type,
+                    type: req.params.type,
                 })}
             </tbody>
         </table>
@@ -638,7 +672,11 @@ app.get('/', async (req, res) => {
         <div class="scanner">
             <ul class="collapsible" data-collapsible="collapsible">
                 <li class="${activeClass}">
-                    <div class="collapsible-header"><span class="tooltipped" data-tooltip="${scanner.timestamp}" data-position="right">${scanner.source}</span></div>
+                    <div class="collapsible-header">
+                        <span class="tooltipped" data-tooltip="${scanner.timestamp}" data-position="right" style="vertical-align: middle">
+                            ${active || true ? `<button class="waves-effect waves-light btn-small shutdown-scanner" type="button" data-scanner-name="${encodeURIComponent(scanner.source)}"><i class="material-icons left">power_settings_new</i>${scanner.source}</button>`: scanner.source}
+                        </span>
+                    </div>
                     <div class="collapsible-body log-messages log-messages-${scanner.source}"></div>
                     <script>
                         startListener('${scanner.source}');
@@ -648,14 +686,14 @@ app.get('/', async (req, res) => {
         </div>
         `;
     };
-    res.send(`${getHeader()}
-        <div>Active Scanners</div>
+    res.send(`${getHeader(req)}
+        <h5>Active Scanners</h5>
         <div class="scanners-wrapper">
             ${activeScanners.map((latestScan) => {
                 return getScannerStuff(latestScan, true);
             }).join('')}
         </div>
-        <div>Inactive Scanners</div>
+        <h5>Inactive Scanners</h5>
         <div class="scanners-wrapper"">
         ${inactiveScanners.map(latestScan => {
             return getScannerStuff(latestScan, false);
@@ -669,3 +707,20 @@ const server = app.listen(port, () => {
 });
 
 jobs();
+
+(async () => {
+    const triggerShutdown = () => {
+        console.log('Closing HTTP server');
+        server.close(() => {
+            console.log('HTTP server closed');
+            connection.end();
+            process.exit();
+        });
+    };
+    //gracefully shutdown on Ctrl+C
+    process.on( 'SIGINT', triggerShutdown);
+    //gracefully shutdown on Ctrl+Break
+    process.on( 'SIGBREAK', triggerShutdown);
+    //try to gracefully shutdown on terminal closed
+    process.on( 'SIGHUP', triggerShutdown);
+})();
