@@ -36,9 +36,17 @@ function maybe(fn) {
     return function(req, res, next) {
         if (req.path === '/suggest-image' && req.method === 'POST') {
             next();
-        } else {
-            fn(req, res, next);
+
+            return true;
         }
+
+        if(req.path.substring(0, 6) === '/data/'){
+            next ();
+
+            return true;
+        }
+
+        fn(req, res, next);
     }
 };
 
@@ -201,7 +209,7 @@ const getTableContents = async (filterObject) => {
                     }
 
                     break;
-    
+
                 case 'no-wiki':
                     if(item.wiki_link){
                         continue;
