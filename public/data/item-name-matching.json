@@ -1,5 +1,5 @@
 {
-    "version": 1,
+    "version": 2,
     "keyAttributes": [
         "GEN M3 (?:W )?\\d+",
         "\\d+(?:-round|-shot)",
@@ -371,6 +371,11 @@
         [
             "TA[O0QG]{1,2}[1I]NSN",
             "TA01NSN",
+            ""
+        ],
+        [
+            "\\bUitima\\b",
+            "Ultima",
             ""
         ],
         [
