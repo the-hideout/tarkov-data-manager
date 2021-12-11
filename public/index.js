@@ -19,6 +19,19 @@ async function postData(url = '', data = {}) {
 
 const wsClients = {};
 
+const sendMessage = (sessionID, type, data) => {
+    wsClients[sessionID].send(JSON.stringify({
+        sessionID: sessionID,
+        type: type,
+        data: data,
+    }), err => {
+        if (err) {
+            console.log(`error sending message: ${err}`);
+            console.log(err);
+        }
+    });
+};
+
 function startListener(channel) {
     const WEBSOCKET_SERVER = 'wss://tarkov-tools-live.herokuapp.com';
     //const WEBSOCKET_SERVER = 'ws://localhost:8080';
@@ -81,7 +94,7 @@ function startListener(channel) {
         // console.log(message.data);
     };
     wsClients[channel] = ws;
-}
+};
 
 document.addEventListener('change', (event) => {
     if(event.target.getAttribute('type') !== 'checkbox'){
@@ -128,14 +141,6 @@ $(document).ready( function () {
             return;
         }
         console.log(`Sending shutdown command to ${scannerName}`);
-        wsClients[scannerName].send(JSON.stringify({
-            sessionID: scannerName,
-            type: 'command',
-            data: 'shutdown',
-        }), err => {
-            if (err) {
-                console.log(err);
-            }
-        });
+        sendMessage(scannerName, 'command', 'shutdown');
     });
 } );

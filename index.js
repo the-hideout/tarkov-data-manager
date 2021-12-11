@@ -321,6 +321,12 @@ const getHeader = (req) => {
         `;
 }
 
+const getFooter = (req) => {
+    return `
+        </body>
+    </html>`;
+};
+
 app.get('/data', async (req, res) => {
     const allData = await remoteData.get();
 
@@ -617,7 +623,7 @@ app.get('/items/:type/edit/:id', async (req, res) => {
             </form>
         </div>
 
-    `);
+    ${getFooter(req)}`);
 });
 
 app.get('/items/:type', async (req, res) => {
@@ -657,7 +663,7 @@ app.get('/items/:type', async (req, res) => {
                 })}
             </tbody>
         </table>
-    `);
+    ${getFooter(req)}`);
 });
 
 app.get('/', async (req, res) => {
@@ -702,12 +708,12 @@ app.get('/', async (req, res) => {
             }).join('')}
         </div>
         <h5>Inactive Scanners</h5>
-        <div class="scanners-wrapper"">
+        <div class="scanners-wrapper">
         ${inactiveScanners.map(latestScan => {
             return getScannerStuff(latestScan, false);
         }).join('')}
         </div>
-    `);
+    ${getFooter(req)}`);
 });
 
 const server = app.listen(port, () => {
