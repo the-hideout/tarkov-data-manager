@@ -277,6 +277,13 @@ const getHeader = (req) => {
             </script>
         `;
     }
+    if (req.url === '/') {
+        javascript += `
+            <script>
+                const WS_PASSWORD = '${process.env.WS_PASSWORD}';
+            </script>
+        `;
+    }
     return `
     <!DOCTYPE html>
         <head>

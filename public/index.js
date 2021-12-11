@@ -23,14 +23,18 @@ const sendMessage = (sessionID, type, data) => {
     wsClients[sessionID].send(JSON.stringify({
         sessionID: sessionID,
         type: type,
-        data: data,
-    }), err => {
-        if (err) {
-            console.log(`error sending message: ${err}`);
-            console.log(err);
-        }
-    });
+        data: data
+    }));
 };
+
+const sendCommand = (sessionID, command) => {
+    wsClients[sessionID].send(JSON.stringify({
+        sessionID: sessionID,
+        type: 'command',
+        data: command,
+        password: WS_PASSWORD
+    }));
+}
 
 function startListener(channel) {
     const WEBSOCKET_SERVER = 'wss://tarkov-tools-live.herokuapp.com';
@@ -62,6 +66,7 @@ function startListener(channel) {
         ws.send(JSON.stringify({
             sessionID: channel,
             type: 'connect',
+            role: 'listener'
         }));
     };
 
@@ -140,7 +145,6 @@ $(document).ready( function () {
         if (!wsClients[scannerName]) {
             return;
         }
-        console.log(`Sending shutdown command to ${scannerName}`);
-        sendMessage(scannerName, 'command', 'shutdown');
+        sendCommand(scannerName, 'shutdown');
     });
 } );
