@@ -13,6 +13,7 @@ const INSERT_KEYS = [
 ];
 
 const redirects = require('../../tarkov-tools/workers-site/redirects.json');
+const oldNames = require('../old-names.json');
 
 module.exports = async () => {
     const allTTItems = await ttData();
@@ -60,6 +61,8 @@ module.exports = async () => {
             console.log(`OLD: ${allTTItems[item._id][insertKey.toLowerCase()]}`);
             console.log(`NEW: ${item._props[insertKey].toString().trim()}`);
 
+            oldNames[allTTItems[item._id][insertKey.toLowerCase()]] = item._id;
+
             await new Promise((translationResolve, translationReject) => {
                 connection.query(`UPDATE
                     translations
@@ -84,4 +87,6 @@ module.exports = async () => {
     }
 
     fs.writeFileSync(path.join(__dirname, '..', 'redirects.json'), JSON.stringify(redirects, null, 4));
+
+    fs.writeFileSync(path.join(__dirname, '..', 'old-names.json'), JSON.stringify(oldNames, null, 4));
 };
