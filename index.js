@@ -100,7 +100,6 @@ const AVAILABLE_TYPES = [
     'wearable',
     'mods',
     'keys',
-    'un-lootable',
     'marked-only',
     'ammo',
     'armor',
@@ -111,6 +110,7 @@ const AVAILABLE_TYPES = [
     'headphones',
     'rig',
     'suppressor',
+    'disabled'
 ];
 
 const CUSTOM_HANDLERS = [
@@ -248,11 +248,6 @@ const getTableContents = async (filterObject) => {
             <td>
                 ${formatPrice(item.avg24hPrice)}
             </td>
-            <td>
-                <a href="${scanImageUrl}">
-                    <img src="https://images.weserv.nl/?url=${encodeURIComponent(scanImageUrl)}&w=128&h=72" class="scan-image" loading="lazy">
-                </a>
-            </td>
             </tr>`;
 
             // <td>
@@ -297,7 +292,6 @@ const getHeader = (req) => {
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 
             <!-- Compiled and minified JavaScript -->
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
             <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
             <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
             <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -658,9 +652,6 @@ app.get('/items/:type', async (req, res) => {
                     </th>
                     <th>
                         Price
-                    </th>
-                    <th>
-                        Scan image
                     </th>
                 </tr>
             </thead>

@@ -16,7 +16,7 @@ module.exports = () => {
         return true;
     }
 
-    runJob('check-scans', '20 * * * *');
+    // runJob('check-scans', '20 * * * *');
     runJob('clear-checkouts', '5 */6 * * *');
     runJob('update-barters', '*/15 * * * *');
     runJob('update-cache', '* * * * *');
