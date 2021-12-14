@@ -135,7 +135,7 @@ const methods = {
                                     high24hPrice: itemPrices[result.id]?.prices[itemPrices[result.id]?.prices.length - 1],
                                     updated: itemPrices[result.id]?.lastUpdated,
                                     properties: itemProperties,
-                                    types: result.types?.split(',') || [],
+                                    types: result.types?.split(',') || [],
                                     traderPrices: [],
                                     lastLowPrice: itemPrices[result.id]?.lastLowPrice,
                                 };
@@ -164,7 +164,7 @@ const methods = {
                                         });
                                     }
                                 } else {
-                                    console.log(`Failed to find category for ${preparedData.name} with id ${itemProperties.bsgCategoryId}`);
+                                    console.log(`No category for trader prices mapped for ${preparedData.name} with id ${itemProperties.bsgCategoryId}`);
                                 }
 
                                 if(result.id === '59faff1d86f7746c51718c9c'){

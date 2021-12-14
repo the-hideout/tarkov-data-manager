@@ -40,7 +40,12 @@ const ignoreMap = [
     '5cffa483d7ad1a049e54ef1c', // 100 rounds belt
     '56e294cdd2720b603a8b4575', // Mystery Ranch Terraplane Backpack
     '590de52486f774226a0c24c2', // Weird machinery key
-]
+    '5e85aac65505fa48730d8af2', // patron_12,7x55_ps12
+    '5f647fd3f6e4ab66c82faed6', // patron_23x75_shrapnel_10
+    '5675838d4bdc2d95058b456e', // Drawer
+    '602543c13fee350cd564d032', // Sorting table
+    '5751961824597720a31c09ac', // (off)black keycard
+];
 
 const INSERT_KEYS = [
     'name',
@@ -156,12 +161,6 @@ module.exports = async () => {
         if(bsgObject._parent === '6050cac987d3f925bf016837'){
             return false;
         }
-
-        // 5675838d4bdc2d95058b456e Drawer
-
-        // 602543c13fee350cd564d032 Sorting table
-
-        // 5751961824597720a31c09ac (off)black keycard
 
         // 5b9b9020e7ef6f5716480215 dogtagt
 
