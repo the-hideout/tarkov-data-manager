@@ -100,7 +100,6 @@ const AVAILABLE_TYPES = [
     'wearable',
     'mods',
     'keys',
-    'un-lootable',
     'marked-only',
     'ammo',
     'armor',
@@ -111,6 +110,7 @@ const AVAILABLE_TYPES = [
     'headphones',
     'rig',
     'suppressor',
+    'disabled'
 ];
 
 const CUSTOM_HANDLERS = [

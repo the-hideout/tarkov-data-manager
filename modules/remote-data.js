@@ -177,10 +177,6 @@ const methods = {
                                     });
                                 }
 
-                                if(result.disabled){
-                                    preparedData.types.push('disabled');
-                                }
-
                                 returnData.set(result.id, preparedData);
                             }
 
