@@ -633,7 +633,7 @@ app.get('/items/:type', async (req, res) => {
     myData = await remoteData.get();
     t.end();
     res.send(`${getHeader(req)}
-        <table class="highlight">
+        <table class="highlight main" style="display:none;">
             <thead>
                 <tr>
                     <th>

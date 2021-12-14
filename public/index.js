@@ -120,16 +120,26 @@ document.addEventListener('change', (event) => {
         });
 });
 
+const tableData = [];
+
 $(document).ready( function () {
-    $('table').DataTable({
-        pageLength: 25,
-        columnDefs: [
-            {
-                searchable: false,
-                targets: 4,
-            },
-        ],
-    });
+    let table = false;
+    const showTable = () => {
+        if (table) table.destroy();
+        table = $('table.main').DataTable({
+            pageLength: 25,
+            columnDefs: [
+                {
+                    searchable: false,
+                    targets: 4,
+                },
+            ],
+        });
+    };
+    showTable();
+    $('table.main').css('display', '');
+    showTable();
+    //table.draw();
 
     $('.collapsible').collapsible();
     $('.tooltipped').tooltip();
