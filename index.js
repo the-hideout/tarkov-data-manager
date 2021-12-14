@@ -248,11 +248,6 @@ const getTableContents = async (filterObject) => {
             <td>
                 ${formatPrice(item.avg24hPrice)}
             </td>
-            <td>
-                <a href="${scanImageUrl}">
-                    <img src="https://images.weserv.nl/?url=${encodeURIComponent(scanImageUrl)}&w=128&h=72" class="scan-image" loading="lazy">
-                </a>
-            </td>
             </tr>`;
 
             // <td>
@@ -645,9 +640,6 @@ app.get('/items/:type', async (req, res) => {
                     </th>
                     <th>
                         Price
-                    </th>
-                    <th>
-                        Scan image
                     </th>
                 </tr>
             </thead>
