@@ -632,5 +632,10 @@ module.exports = {
             id: '55818b014bdc2ddc698b456b',
             traders: [],
         },
+        "617f1ef5e8b54b0998387733": {
+            id: "617f1ef5e8b54b0998387733",
+            name: "Revolver",
+            traders: [],
+        },
     },
 }
