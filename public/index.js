@@ -19,6 +19,23 @@ async function postData(url = '', data = {}) {
 
 const wsClients = {};
 
+const sendMessage = (sessionID, type, data) => {
+    wsClients[sessionID].send(JSON.stringify({
+        sessionID: sessionID,
+        type: type,
+        data: data
+    }));
+};
+
+const sendCommand = (sessionID, command) => {
+    wsClients[sessionID].send(JSON.stringify({
+        sessionID: sessionID,
+        type: 'command',
+        data: command,
+        password: WS_PASSWORD
+    }));
+}
+
 function startListener(channel) {
     const WEBSOCKET_SERVER = 'wss://tarkov-tools-live.herokuapp.com';
     //const WEBSOCKET_SERVER = 'ws://localhost:8080';
@@ -49,6 +66,7 @@ function startListener(channel) {
         ws.send(JSON.stringify({
             sessionID: channel,
             type: 'connect',
+            role: 'listener'
         }));
     };
 
@@ -81,7 +99,7 @@ function startListener(channel) {
         // console.log(message.data);
     };
     wsClients[channel] = ws;
-}
+};
 
 document.addEventListener('change', (event) => {
     if(event.target.getAttribute('type') !== 'checkbox'){
@@ -102,16 +120,25 @@ document.addEventListener('change', (event) => {
         });
 });
 
+const tableData = [];
+
 $(document).ready( function () {
-    $('table').DataTable({
-        pageLength: 25,
-        columnDefs: [
-            {
-                searchable: false,
-                targets: 4,
-            },
-        ],
-    });
+    let table = false;
+    const showTable = () => {
+        if (table) table.destroy();
+        table = $('table.main').DataTable({
+            pageLength: 25,
+            columnDefs: [
+                {
+                    searchable: false,
+                    targets: 4,
+                },
+            ],
+        });
+    };
+    showTable();
+    $('table.main').css('display', '');
+    showTable();
 
     $('.collapsible').collapsible();
     $('.tooltipped').tooltip();
@@ -127,15 +154,6 @@ $(document).ready( function () {
         if (!wsClients[scannerName]) {
             return;
         }
-        console.log(`Sending shutdown command to ${scannerName}`);
-        wsClients[scannerName].send(JSON.stringify({
-            sessionID: scannerName,
-            type: 'command',
-            data: 'shutdown',
-        }), err => {
-            if (err) {
-                console.log(err);
-            }
-        });
+        sendCommand(scannerName, 'shutdown');
     });
 } );

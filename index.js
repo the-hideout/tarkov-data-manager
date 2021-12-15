@@ -272,6 +272,13 @@ const getHeader = (req) => {
             </script>
         `;
     }
+    if (req.url === '/') {
+        javascript += `
+            <script>
+                const WS_PASSWORD = '${process.env.WS_PASSWORD}';
+            </script>
+        `;
+    }
     return `
     <!DOCTYPE html>
         <head>
@@ -314,6 +321,13 @@ const getHeader = (req) => {
             </nav>
         `;
 }
+
+const getFooter = (req) => {
+    return `
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        </body>
+    </html>`;
+};
 
 app.get('/data', async (req, res) => {
     const allData = await remoteData.get();
@@ -611,7 +625,7 @@ app.get('/items/:type/edit/:id', async (req, res) => {
             </form>
         </div>
 
-    `);
+    ${getFooter(req)}`);
 });
 
 app.get('/items/:type', async (req, res) => {
@@ -619,7 +633,7 @@ app.get('/items/:type', async (req, res) => {
     myData = await remoteData.get();
     t.end();
     res.send(`${getHeader(req)}
-        <table class="highlight">
+        <table class="highlight main" style="display:none;">
             <thead>
                 <tr>
                     <th>
@@ -648,7 +662,7 @@ app.get('/items/:type', async (req, res) => {
                 })}
             </tbody>
         </table>
-    `);
+    ${getFooter(req)}`);
 });
 
 app.get('/', async (req, res) => {
@@ -693,12 +707,12 @@ app.get('/', async (req, res) => {
             }).join('')}
         </div>
         <h5>Inactive Scanners</h5>
-        <div class="scanners-wrapper"">
+        <div class="scanners-wrapper">
         ${inactiveScanners.map(latestScan => {
             return getScannerStuff(latestScan, false);
         }).join('')}
         </div>
-    `);
+    ${getFooter(req)}`);
 });
 
 const server = app.listen(port, () => {
