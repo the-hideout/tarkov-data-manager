@@ -687,7 +687,13 @@ app.get('/', async (req, res) => {
                 <li class="${activeClass}">
                     <div class="collapsible-header">
                         <span class="tooltipped" data-tooltip="${scanner.timestamp}" data-position="right" style="vertical-align: middle">
-                            ${active || true ? `<button class="waves-effect waves-light btn-small shutdown-scanner" type="button" data-scanner-name="${encodeURIComponent(scanner.source)}"><i class="material-icons left">power_settings_new</i>${scanner.source}</button>`: scanner.source}
+                            <!--button class="waves-effect waves-light btn-small shutdown-scanner" type="button" data-scanner-name="${encodeURIComponent(scanner.source)}"><i class="material-icons left">power_settings_new</i>${scanner.source}</button-->
+                            <a class="dropdown-trigger btn scanner-dropdown" href="#" data-target="dropdown-${scanner.source}"><i class="material-icons left">arrow_drop_down</i>${scanner.source}</a>
+                            <ul id="dropdown-${scanner.source}" class="dropdown-content">
+                                <li><a href="#!" class="shutdown-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><i class="material-icons left">power_settings_new</i>Shutdown</a></li>
+                                <li class="pause-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="pause-scanner"><i class="material-icons left">pause</i>Pause</a></li>
+                                <li class="resume-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}" style="display:none;"><a href="#!" class="resume-scanner"><i class="material-icons left">play_arrow</i>Resume</a></li>
+                            </ul>
                         </span>
                     </div>
                     <div class="collapsible-body log-messages log-messages-${scanner.source}"></div>
@@ -711,6 +717,16 @@ app.get('/', async (req, res) => {
         ${inactiveScanners.map(latestScan => {
             return getScannerStuff(latestScan, false);
         }).join('')}
+        </div>
+        <div id="modal-shutdown-confirm" class="modal">
+            <div class="modal-content">
+                <h4>Confirm Shutdown</h4>
+                <p>Are you sure you want to shutdown <span class="modal-shutdown-confirm-scanner-name"></span>?</p>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat shutdown-confirm">Yes</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat shutdown-cancel">No</a>
+            </div>
         </div>
     ${getFooter(req)}`);
 });
