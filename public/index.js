@@ -28,7 +28,6 @@ const sendMessage = (sessionID, type, data) => {
 };
 
 const sendCommand = (sessionID, command) => {
-    console.log(`sending ${command} command to ${sessionID}`);
     wsClients[sessionID].send(JSON.stringify({
         sessionID: sessionID,
         type: 'command',
