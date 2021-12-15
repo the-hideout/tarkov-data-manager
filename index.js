@@ -308,12 +308,12 @@ const getHeader = (req) => {
             <nav>
                 <div class="nav-wrapper">
                     <ul id="nav-mobile" class="left hide-on-med-and-down">
-                        <li><a href="/">Home</a></li>
+                        <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Home</a></li>
                         ${
                             AVAILABLE_TYPES
                                 .concat(CUSTOM_HANDLERS)
                                 .sort()
-                                .map(type => `<li><a href="/items/${type}">${capitalizeFirstLetter(type)}</a></li>`)
+                                .map(type => `<li class="${req.params && req.params.type === type ? 'active' : ''}"><a href="/items/${type}">${capitalizeFirstLetter(type)}</a></li>`)
                                 .join(' ')
                         }
                     </ul>
