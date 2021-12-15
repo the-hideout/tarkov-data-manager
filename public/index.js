@@ -139,7 +139,6 @@ $(document).ready( function () {
     showTable();
     $('table.main').css('display', '');
     showTable();
-    //table.draw();
 
     $('.collapsible').collapsible();
     $('.tooltipped').tooltip();
