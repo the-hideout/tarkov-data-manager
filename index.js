@@ -570,7 +570,7 @@ app.get('/items/:type/edit/:id', async (req, res) => {
                         ${currentItemData.image_link ? `<img src="${currentItemData.image_link}">`: ''}
                     </div>
                     <div class="input-field col s10">
-                        <input value="${currentItemData.image_link}" id="image-link" type="text" class="validate" name="image-link">
+                        <input value="${currentItemData.image_link ? currentItemData.image_link : ''}" id="image-link" type="text" class="validate" name="image-link">
                         <label for="image-link">Image Link</label>
                     </div>
                 </div>
@@ -579,7 +579,7 @@ app.get('/items/:type/edit/:id', async (req, res) => {
                         ${currentItemData.icon_link ? `<img src="${currentItemData.icon_link}">`: ''}
                     </div>
                     <div class="input-field col s10">
-                        <input value="${currentItemData.icon_link}" id="icon-link" type="text" class="validate" name="icon-link">
+                        <input value="${currentItemData.icon_link ? currentItemData.icon_link : ''}" id="icon-link" type="text" class="validate" name="icon-link">
                         <label for="icon-link">Icon Link</label>
                     </div>
                 </div>
@@ -588,7 +588,7 @@ app.get('/items/:type/edit/:id', async (req, res) => {
                         ${currentItemData.grid_image_link ? `<img src="${currentItemData.grid_image_link}">`: ''}
                     </div>
                     <div class="input-field col s10">
-                        <input value="${currentItemData.grid_image_link}" id="grid-image-link" type="text" class="validate" name="grid-image-link">
+                        <input value="${currentItemData.grid_image_link ? currentItemData.grid_image_link : ''}" id="grid-image-link" type="text" class="validate" name="grid-image-link">
                         <label for="grid-image-link">Grid image link</label>
                     </div>
                 </div>
