@@ -143,6 +143,7 @@ $(document).ready( function () {
     showTable();
     $('table.main').css('display', '');
     showTable();
+    $('.dataTables_length select').addClass('browser-default');
 
     $('.collapsible').collapsible();
     $('.tooltipped').tooltip();
@@ -158,13 +159,12 @@ $(document).ready( function () {
         event.stopPropagation();
     });
 
-    const shutdownModal = M.Modal.getInstance(document.getElementById('modal-shutdown-confirm'));
-
     $('a.shutdown-scanner').click(function(event){
         event.stopPropagation();
         let scannerName = decodeURIComponent($(event.target).data('scannerName'));
         $('#modal-shutdown-confirm .modal-shutdown-confirm-scanner-name').text(scannerName);
         $('#modal-shutdown-confirm .shutdown-confirm').data('scannerName', scannerName);
+        const shutdownModal = M.Modal.getInstance(document.getElementById('modal-shutdown-confirm'));
         shutdownModal.open();
     });
 
