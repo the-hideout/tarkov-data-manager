@@ -164,8 +164,7 @@ $(document).ready( function () {
         let scannerName = decodeURIComponent($(event.target).data('scannerName'));
         $('#modal-shutdown-confirm .modal-shutdown-confirm-scanner-name').text(scannerName);
         $('#modal-shutdown-confirm .shutdown-confirm').data('scannerName', scannerName);
-        const shutdownModal = M.Modal.getInstance(document.getElementById('modal-shutdown-confirm'));
-        shutdownModal.open();
+        M.Modal.getInstance(document.getElementById('modal-shutdown-confirm')).open();
     });
 
     $('#modal-shutdown-confirm .shutdown-confirm').click(function(event){
