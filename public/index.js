@@ -142,18 +142,55 @@ $(document).ready( function () {
 
     $('.collapsible').collapsible();
     $('.tooltipped').tooltip();
+    $('.dropdown-trigger').dropdown();
+    $('.modal').modal();
 
     $('.guess-wiki-link').click(function(event){
         let itemName = encodeURIComponent($(event.target).data('itemName').replace(/ /g, '_'));
         $('#wiki-link').val(`https://escapefromtarkov.fandom.com/wiki/${itemName}`);
     });
 
-    $('.shutdown-scanner').click(function(event){
+    $('.scanner-dropdown').click(function(event){
         event.stopPropagation();
+    });
+
+    const shutdownModal = M.Modal.getInstance(document.getElementById('modal-shutdown-confirm'));
+
+    $('a.shutdown-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).data('scannerName'));
+        $('#modal-shutdown-confirm .modal-shutdown-confirm-scanner-name').text(scannerName);
+        $('#modal-shutdown-confirm .shutdown-confirm').data('scannerName', scannerName);
+        shutdownModal.open();
+    });
+
+    $('#modal-shutdown-confirm .shutdown-confirm').click(function(event){
         let scannerName = decodeURIComponent($(event.target).data('scannerName'));
         if (!wsClients[scannerName]) {
             return;
         }
         sendCommand(scannerName, 'shutdown');
+    });
+
+    $('a.pause-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        if (!wsClients[scannerName]) {
+            return;
+        }
+        sendCommand(scannerName, 'pause');
+        $(event.target).closest('li').css('display', 'none');
+        $(event.target).closest('ul').find('li.resume-scanner').css('display', '');
+    });
+
+    $('a.resume-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        if (!wsClients[scannerName]) {
+            return;
+        }
+        sendCommand(scannerName, 'resume');
+        $(event.target).closest('li').css('display', 'none');
+        $(event.target).closest('ul').find('li.pause-scanner').css('display', '');
     });
 } );
