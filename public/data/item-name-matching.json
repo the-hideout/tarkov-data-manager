@@ -1,5 +1,5 @@
 {
-    "version": 4,
+    "version": 5,
     "keyAttributes": [
         "GEN M3 (?:W )?\\d+",
         "\\d+(?:-round|-shot)",
@@ -11,7 +11,8 @@
         "\\([^)]+\\)$",
         "MTU002 [a-zA-Z]+ Top",
         "\\d+\\.\\d+x\\d+ mm [\\w]+$",
-        "Style \\d(?: PC)? pistol"
+        "Style \\d(?: PC)? pistol",
+        "\\S+ sight"
     ],
     "replacements": [
         [
@@ -245,6 +246,11 @@
             ""
         ],
         [
+            "gen.i",
+            "gen.1",
+            ""
+        ],
+        [
             "HK417\\/628",
             "HK417/G28",
             ""
@@ -312,6 +318,11 @@
         [
             "MOD\\*0\\*X",
             "MOD*X",
+            ""
+        ],
+        [
+            "Mossberg 5901",
+            "Mossberg 590A1",
             ""
         ],
         [
@@ -412,6 +423,11 @@
         [
             "VS-33cc",
             "VS-33c",
+            ""
+        ],
+        [
+            "X-FAL 500-round",
+            "X-FAL 50-round",
             ""
         ],
         [
