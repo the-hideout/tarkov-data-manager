@@ -19,6 +19,23 @@ async function postData(url = '', data = {}) {
 
 const wsClients = {};
 
+const sendMessage = (sessionID, type, data) => {
+    wsClients[sessionID].send(JSON.stringify({
+        sessionID: sessionID,
+        type: type,
+        data: data
+    }));
+};
+
+const sendCommand = (sessionID, command) => {
+    wsClients[sessionID].send(JSON.stringify({
+        sessionID: sessionID,
+        type: 'command',
+        data: command,
+        password: WS_PASSWORD
+    }));
+}
+
 function startListener(channel) {
     const WEBSOCKET_SERVER = 'wss://tarkov-tools-live.herokuapp.com';
     //const WEBSOCKET_SERVER = 'ws://localhost:8080';
@@ -49,6 +66,7 @@ function startListener(channel) {
         ws.send(JSON.stringify({
             sessionID: channel,
             type: 'connect',
+            role: 'listener'
         }));
     };
 
@@ -81,7 +99,7 @@ function startListener(channel) {
         // console.log(message.data);
     };
     wsClients[channel] = ws;
-}
+};
 
 document.addEventListener('change', (event) => {
     if(event.target.getAttribute('type') !== 'checkbox'){
@@ -102,40 +120,77 @@ document.addEventListener('change', (event) => {
         });
 });
 
+const tableData = [];
+
 $(document).ready( function () {
-    $('table').DataTable({
-        pageLength: 25,
-        columnDefs: [
-            {
-                searchable: false,
-                targets: 4,
-            },
-        ],
-    });
+    let table = false;
+    const showTable = () => {
+        if (table) table.destroy();
+        table = $('table.main').DataTable({
+            pageLength: 25,
+            columnDefs: [
+                {
+                    searchable: false,
+                    targets: 4,
+                },
+            ],
+        });
+    };
+    showTable();
+    $('table.main').css('display', '');
+    showTable();
 
     $('.collapsible').collapsible();
     $('.tooltipped').tooltip();
+    $('.dropdown-trigger').dropdown();
+    $('.modal').modal();
 
     $('.guess-wiki-link').click(function(event){
         let itemName = encodeURIComponent($(event.target).data('itemName').replace(/ /g, '_'));
         $('#wiki-link').val(`https://escapefromtarkov.fandom.com/wiki/${itemName}`);
     });
 
-    $('.shutdown-scanner').click(function(event){
+    $('.scanner-dropdown').click(function(event){
         event.stopPropagation();
+    });
+
+    const shutdownModal = M.Modal.getInstance(document.getElementById('modal-shutdown-confirm'));
+
+    $('a.shutdown-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).data('scannerName'));
+        $('#modal-shutdown-confirm .modal-shutdown-confirm-scanner-name').text(scannerName);
+        $('#modal-shutdown-confirm .shutdown-confirm').data('scannerName', scannerName);
+        shutdownModal.open();
+    });
+
+    $('#modal-shutdown-confirm .shutdown-confirm').click(function(event){
         let scannerName = decodeURIComponent($(event.target).data('scannerName'));
         if (!wsClients[scannerName]) {
             return;
         }
-        console.log(`Sending shutdown command to ${scannerName}`);
-        wsClients[scannerName].send(JSON.stringify({
-            sessionID: scannerName,
-            type: 'command',
-            data: 'shutdown',
-        }), err => {
-            if (err) {
-                console.log(err);
-            }
-        });
+        sendCommand(scannerName, 'shutdown');
+    });
+
+    $('a.pause-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        if (!wsClients[scannerName]) {
+            return;
+        }
+        sendCommand(scannerName, 'pause');
+        $(event.target).closest('li').css('display', 'none');
+        $(event.target).closest('ul').find('li.resume-scanner').css('display', '');
+    });
+
+    $('a.resume-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        if (!wsClients[scannerName]) {
+            return;
+        }
+        sendCommand(scannerName, 'resume');
+        $(event.target).closest('li').css('display', 'none');
+        $(event.target).closest('ul').find('li.pause-scanner').css('display', '');
     });
 } );

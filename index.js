@@ -272,6 +272,13 @@ const getHeader = (req) => {
             </script>
         `;
     }
+    if (req.url === '/') {
+        javascript += `
+            <script>
+                const WS_PASSWORD = '${process.env.WS_PASSWORD}';
+            </script>
+        `;
+    }
     return `
     <!DOCTYPE html>
         <head>
@@ -301,12 +308,12 @@ const getHeader = (req) => {
             <nav>
                 <div class="nav-wrapper">
                     <ul id="nav-mobile" class="left hide-on-med-and-down">
-                        <li><a href="/">Home</a></li>
+                        <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Home</a></li>
                         ${
                             AVAILABLE_TYPES
                                 .concat(CUSTOM_HANDLERS)
                                 .sort()
-                                .map(type => `<li><a href="/items/${type}">${capitalizeFirstLetter(type)}</a></li>`)
+                                .map(type => `<li class="${req.params && req.params.type === type ? 'active' : ''}"><a href="/items/${type}">${capitalizeFirstLetter(type)}</a></li>`)
                                 .join(' ')
                         }
                     </ul>
@@ -314,6 +321,13 @@ const getHeader = (req) => {
             </nav>
         `;
 }
+
+const getFooter = (req) => {
+    return `
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        </body>
+    </html>`;
+};
 
 app.get('/data', async (req, res) => {
     const allData = await remoteData.get();
@@ -611,7 +625,7 @@ app.get('/items/:type/edit/:id', async (req, res) => {
             </form>
         </div>
 
-    `);
+    ${getFooter(req)}`);
 });
 
 app.get('/items/:type', async (req, res) => {
@@ -619,7 +633,7 @@ app.get('/items/:type', async (req, res) => {
     myData = await remoteData.get();
     t.end();
     res.send(`${getHeader(req)}
-        <table class="highlight">
+        <table class="highlight main" style="display:none;">
             <thead>
                 <tr>
                     <th>
@@ -648,7 +662,7 @@ app.get('/items/:type', async (req, res) => {
                 })}
             </tbody>
         </table>
-    `);
+    ${getFooter(req)}`);
 });
 
 app.get('/', async (req, res) => {
@@ -673,7 +687,13 @@ app.get('/', async (req, res) => {
                 <li class="${activeClass}">
                     <div class="collapsible-header">
                         <span class="tooltipped" data-tooltip="${scanner.timestamp}" data-position="right" style="vertical-align: middle">
-                            ${active || true ? `<button class="waves-effect waves-light btn-small shutdown-scanner" type="button" data-scanner-name="${encodeURIComponent(scanner.source)}"><i class="material-icons left">power_settings_new</i>${scanner.source}</button>`: scanner.source}
+                            <!--button class="waves-effect waves-light btn-small shutdown-scanner" type="button" data-scanner-name="${encodeURIComponent(scanner.source)}"><i class="material-icons left">power_settings_new</i>${scanner.source}</button-->
+                            <a class="dropdown-trigger btn scanner-dropdown" href="#" data-target="dropdown-${scanner.source}"><i class="material-icons left">arrow_drop_down</i>${scanner.source}</a>
+                            <ul id="dropdown-${scanner.source}" class="dropdown-content">
+                                <li><a href="#!" class="shutdown-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><i class="material-icons left">power_settings_new</i>Shutdown</a></li>
+                                <li class="pause-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="pause-scanner"><i class="material-icons left">pause</i>Pause</a></li>
+                                <li class="resume-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}" style="display:none;"><a href="#!" class="resume-scanner"><i class="material-icons left">play_arrow</i>Resume</a></li>
+                            </ul>
                         </span>
                     </div>
                     <div class="collapsible-body log-messages log-messages-${scanner.source}"></div>
@@ -693,12 +713,22 @@ app.get('/', async (req, res) => {
             }).join('')}
         </div>
         <h5>Inactive Scanners</h5>
-        <div class="scanners-wrapper"">
+        <div class="scanners-wrapper">
         ${inactiveScanners.map(latestScan => {
             return getScannerStuff(latestScan, false);
         }).join('')}
         </div>
-    `);
+        <div id="modal-shutdown-confirm" class="modal">
+            <div class="modal-content">
+                <h4>Confirm Shutdown</h4>
+                <p>Are you sure you want to shutdown <span class="modal-shutdown-confirm-scanner-name"></span>?</p>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat shutdown-confirm">Yes</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat shutdown-cancel">No</a>
+            </div>
+        </div>
+    ${getFooter(req)}`);
 });
 
 const server = app.listen(port, () => {
