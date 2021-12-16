@@ -91,11 +91,15 @@ function startListener(channel) {
 
         logMessages = logMessages.slice(-100);
 
-        const wrapper = document.querySelector(`.log-messages-${channel}`)
+        const wrapper = document.querySelector(`.log-messages-${channel}`);
+
+        const atBottom = wrapper.scrollTop + wrapper.offsetHeight > wrapper.scrollHeight;
 
         wrapper.innerHTML = logMessages.join('<br>');
 
-        wrapper.scrollTop = wrapper.scrollHeight;
+        if (atBottom) {
+            wrapper.scrollTop = wrapper.scrollHeight;
+        } 
         // console.log(message.data);
     };
     wsClients[channel] = ws;
