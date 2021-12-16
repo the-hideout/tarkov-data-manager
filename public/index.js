@@ -91,11 +91,15 @@ function startListener(channel) {
 
         logMessages = logMessages.slice(-100);
 
-        const wrapper = document.querySelector(`.log-messages-${channel}`)
+        const wrapper = document.querySelector(`.log-messages-${channel}`);
+
+        const atBottom = wrapper.scrollTop + wrapper.offsetHeight > wrapper.scrollHeight;
 
         wrapper.innerHTML = logMessages.join('<br>');
 
-        wrapper.scrollTop = wrapper.scrollHeight;
+        if (atBottom) {
+            wrapper.scrollTop = wrapper.scrollHeight;
+        } 
         // console.log(message.data);
     };
     wsClients[channel] = ws;
@@ -144,9 +148,11 @@ $(document).ready( function () {
     $('.tooltipped').tooltip();
     $('.dropdown-trigger').dropdown();
     $('.modal').modal();
+    $('select').formSelect();
 
     $('.guess-wiki-link').click(function(event){
-        let itemName = encodeURIComponent($(event.target).data('itemName').replace(/ /g, '_'));
+        let itemName = encodeURIComponent(decodeURIComponent($(event.target).data('itemName')).replace(/ /g, '_'));
+        console.log(itemName);
         $('#wiki-link').val(`https://escapefromtarkov.fandom.com/wiki/${itemName}`);
     });
 
@@ -154,14 +160,12 @@ $(document).ready( function () {
         event.stopPropagation();
     });
 
-    const shutdownModal = M.Modal.getInstance(document.getElementById('modal-shutdown-confirm'));
-
     $('a.shutdown-scanner').click(function(event){
         event.stopPropagation();
         let scannerName = decodeURIComponent($(event.target).data('scannerName'));
         $('#modal-shutdown-confirm .modal-shutdown-confirm-scanner-name').text(scannerName);
         $('#modal-shutdown-confirm .shutdown-confirm').data('scannerName', scannerName);
-        shutdownModal.open();
+        M.Modal.getInstance(document.getElementById('modal-shutdown-confirm')).open();
     });
 
     $('#modal-shutdown-confirm .shutdown-confirm').click(function(event){
