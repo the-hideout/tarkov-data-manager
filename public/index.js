@@ -143,12 +143,12 @@ $(document).ready( function () {
     showTable();
     $('table.main').css('display', '');
     showTable();
-    $('.dataTables_length select').addClass('browser-default');
 
     $('.collapsible').collapsible();
     $('.tooltipped').tooltip();
     $('.dropdown-trigger').dropdown();
     $('.modal').modal();
+    $('select').formSelect();
 
     $('.guess-wiki-link').click(function(event){
         let itemName = encodeURIComponent($(event.target).data('itemName').replace(/ /g, '_'));
