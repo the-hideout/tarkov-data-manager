@@ -115,8 +115,6 @@ const AVAILABLE_TYPES = [
 
 const CUSTOM_HANDLERS = [
     'untagged',
-    'no-icon',
-    'no-image',
     'missing-image',
     'no-wiki',
     'all',
@@ -191,20 +189,8 @@ const getTableContents = async (filterObject) => {
                         continue;
                     }
                     break;
-                case 'no-image':
-                    if(item.image_link){
-                        continue;
-                    }
-
-                    break;
-                case 'no-icon':
-                    if(item.icon_link){
-                        continue;
-                    }
-
-                    break;
                 case 'missing-image':
-                    if(item.image_link && item.icon_link && item.grid_image_link){
+                    if((item.image_link && item.icon_link && item.grid_image_link) || item.types.includes('disabled')){
                         continue;
                     }
 
