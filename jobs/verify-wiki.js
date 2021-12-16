@@ -16,18 +16,24 @@ const postMessage = (spinner, id, name, link, type) => {
     const messageData = {
         title: `Broken wiki link for ${name}`,
         message: `Wiki link for ${name} does no longer work`,
-        url: link.replace( /_/g, '\\_' ),
         users: 'QBfmptGTgQoOS2gGOobd5Olfp31hTKrG',
     };
+
+    if(link){
+        messageData.url = link.replace( /_/g, '\\_' );
+    }
 
     switch (type) {
         case 'new':
             spinner.succeed(`${id} | ${link} | ${name}`);
+
             messageData.title = `New wiki link for ${name}`;
             messageData.message = `Updated wiki link for ${name}`;
+
             break;
         case 'broken':
             spinner.fail(`${id} | ${link} | ${name}`);
+
             break;
     }
 
@@ -85,7 +91,7 @@ module.exports = async () => {
                     }
                 }
 
-                if(shouldRemoveCurrentLink){
+                if(shouldRemoveCurrentLink && result.wiki_link){
                     postMessage(spinner, result.id, result.name, newWikiLink, 'broken');
                     await new Promise((resolveUpdate, rejectUpdate) => {
                         connection.query(`UPDATE item_data SET wiki_link = ? WHERE id = ?`, ['', result.id], (error) => {
