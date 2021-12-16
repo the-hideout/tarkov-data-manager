@@ -61,10 +61,13 @@ module.exports = async () => {
         let itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === key);
         if(!itemPriceYesterday || itemData[key].avg24hPrice === 0){
             itemData[key].changeLast48h = 0;
+        if(!itemPriceYesterday || itemData[key].avg24hPrice === 0){
+            itemData[key].changeLast48hPercent = 0;
         } else {
             const percentOfDayBefore = itemData[key].avg24hPrice / itemPriceYesterday.priceYesterday
-            itemData[key].changeLast48h = roundTo((percentOfDayBefore - 1) * 100, 2);
+            itemData[key].changeLast48hPercent = roundTo((percentOfDayBefore - 1) * 100, 2);
         }
+        itemData[key].changeLast48h = itemData[key].changeLast48hPercent
 
         if(!itemData[key].lastLowPrice){
             let lastKnownPrice = lastKnownPriceData.find(row => row.item_id === key);
