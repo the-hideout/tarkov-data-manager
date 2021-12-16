@@ -151,7 +151,8 @@ $(document).ready( function () {
     $('select').formSelect();
 
     $('.guess-wiki-link').click(function(event){
-        let itemName = encodeURIComponent($(event.target).data('itemName').replace(/ /g, '_'));
+        let itemName = encodeURIComponent(decodeURIComponent($(event.target).data('itemName')).replace(/ /g, '_'));
+        console.log(itemName);
         $('#wiki-link').val(`https://escapefromtarkov.fandom.com/wiki/${itemName}`);
     });
 

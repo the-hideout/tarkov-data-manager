@@ -594,7 +594,7 @@ app.get('/items/:type/edit/:id', async (req, res) => {
                 </div>
                 <div class="row">
                 <div class="input-field col s2">
-                    ${currentItemData.wiki_link ? `<a href="${currentItemData.wiki_link}">WIKI</a>`: `<button class="btn guess-wiki-link" type="button" data-item-name="${currentItemData.name}">Guess</button>`}
+                    ${currentItemData.wiki_link ? `<a href="${currentItemData.wiki_link}">WIKI</a>`: `<button class="btn guess-wiki-link" type="button" data-item-name="${encodeURIComponent(currentItemData.name)}">Guess</button>`}
                 </div>
                 <div class="input-field col s10">
                     <input value="${currentItemData.wiki_link}" id="wiki-link" type="text" class="validate" name="wiki-link">
