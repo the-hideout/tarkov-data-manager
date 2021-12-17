@@ -162,7 +162,7 @@ $(document).ready( function () {
 
     $('a.shutdown-scanner').click(function(event){
         event.stopPropagation();
-        let scannerName = decodeURIComponent($(event.target).data('scannerName'));
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
         $('#modal-shutdown-confirm .modal-shutdown-confirm-scanner-name').text(scannerName);
         $('#modal-shutdown-confirm .shutdown-confirm').data('scannerName', scannerName);
         M.Modal.getInstance(document.getElementById('modal-shutdown-confirm')).open();
@@ -196,5 +196,14 @@ $(document).ready( function () {
         sendCommand(scannerName, 'resume');
         $(event.target).closest('li').css('display', 'none');
         $(event.target).closest('ul').find('li.pause-scanner').css('display', '');
+    });
+
+    $('a.generate-images-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        if (!wsClients[scannerName]) {
+            return;
+        }
+        sendCommand(scannerName, 'generate-images');
     });
 } );
