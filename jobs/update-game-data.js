@@ -289,15 +289,15 @@ module.exports = async () => {
         }
 
         console.error(`${allTTItems[ttItemId].name} is no longer available in the game`);
-        await new Promise((resolve, reject) => {
-            connection.query(`UPDATE item_data SET disabled = 1 WHERE id = ?`, [ttItemId], async (error, results) => {
-                    if (error) {
-                        reject(error)
-                    }
+        // await new Promise((resolve, reject) => {
+        //     connection.query(`UPDATE item_data SET disabled = 1 WHERE id = ?`, [ttItemId], async (error, results) => {
+        //             if (error) {
+        //                 reject(error)
+        //             }
 
-                    resolve();
-                }
-            );
-        });
+        //             resolve();
+        //         }
+        //     );
+        // });
     }
 };
