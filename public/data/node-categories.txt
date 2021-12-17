@@ -1,0 +1,105 @@
+54009119af1c881c07000029 -> Item
+├── 543be5664bdc2dd4348b4569 -> Meds
+│   ├── 5448f39d4bdc2d0a728b4568 -> Medikit
+│   ├── 5448f3a14bdc2d27728b4569 -> Drug
+│   ├── 5448f3a64bdc2d60728b456a -> Stimulant
+│   └── 5448f3ac4bdc2dce718b4569 -> Medical item
+├── 543be5e94bdc2df1348b4568 -> Key
+│   ├── 5c164d2286f774194c5e69fa -> Keycard
+│   └── 5c99f98d86f7745c314214b3 -> KeyMechanical
+├── 543be6564bdc2df4348b4568 -> Throwable weapon
+├── 543be6674bdc2df1348b4569 -> Food and drink
+│   ├── 5448e8d04bdc2ddf718b4569 -> Food
+│   └── 5448e8d64bdc2dce718b4568 -> Drink
+├── 5447e0e74bdc2d3c308b4567 -> Special item
+│   ├── 5f4fbaaca5573a5ac31db429 -> Compass
+│   └── 61605ddea09d851a0a0c1bbc -> PortableRangeFinder
+├── 5447e1d04bdc2dff2f8b4567 -> Knife
+├── 5448eb774bdc2d0a728b4567 -> Barter item
+│   ├── 57864a3d24597754843f8721 -> Jewelry
+│   ├── 57864a66245977548f04a81f -> Electronics
+│   ├── 57864ada245977548638de91 -> Building material
+│   ├── 57864bb7245977548b3b66c2 -> Tool
+│   ├── 57864c322459775490116fbf -> Household goods
+│   ├── 57864c8c245977548867e7f1 -> Medical supplies
+│   ├── 57864e4c24597754843f8723 -> Lubricant
+│   │   └── 5d650c3e815116009f6201d2 -> Fuel
+│   ├── 57864ee62459775490116fc1 -> Battery
+│   └── 590c745b86f7743cc433c5f2 -> Other
+├── 5448ecbe4bdc2d60728b4568 -> Info
+├── 566162e44bdc2d3f298b4573 -> Compound item
+│   ├── 5422acb9af1c889c16000029 -> Weapon
+│   │   ├── 5447b5cf4bdc2d65278b4567 -> Handgun
+│   │   ├── 5447b5e04bdc2d62278b4567 -> SMG
+│   │   ├── 5447b5f14bdc2d61278b4567 -> Assault rifle
+│   │   ├── 5447b5fc4bdc2d87278b4567 -> Assault carbine
+│   │   ├── 5447b6094bdc2dc3278b4567 -> Shotgun
+│   │   ├── 5447b6194bdc2d67278b4567 -> Marksman rifle
+│   │   ├── 5447b6254bdc2dc3278b4568 -> Sniper rifle
+│   │   ├── 5447bed64bdc2d97278b4568 -> Machinegun
+│   │   ├── 5447bedf4bdc2d87278b4568 -> Grenade launcher
+│   │   ├── 5447bee84bdc2dc3278b4569 -> Special weapon
+│   │   └── 617f1ef5e8b54b0998387733 -> Revolver
+│   ├── 543be5f84bdc2dd4348b456a -> Equipment
+│   │   ├── 5645bcb74bdc2ded0b8b4578 -> Headphones
+│   │   ├── 57bef4c42459772e8d35a53b -> Armored equipment
+│   │   │   ├── 5448e54d4bdc2dcc718b4568 -> Armor
+│   │   │   ├── 5448e5724bdc2ddf718b4568 -> Vis. observ. device
+│   │   │   ├── 5a341c4086f77401f2541505 -> Headwear
+│   │   │   └── 5a341c4686f77469e155819e -> FaceCover
+│   │   └── 5b3f15d486f77432d0509248 -> ArmBand
+│   ├── 5448fe124bdc2da5018b4567 -> Weapon mod
+│   │   ├── 550aa4154bdc2dd8348b456b -> Functional mod
+│   │   │   ├── 5448fe394bdc2d0d028b456c -> Muzzle device
+│   │   │   │   ├── 550aa4af4bdc2dd4348b456e -> Compensator
+│   │   │   │   ├── 550aa4bf4bdc2dd6348b456b -> Flashhider
+│   │   │   │   ├── 550aa4cd4bdc2dd8348b456c -> Silencer
+│   │   │   │   ├── 550aa4dd4bdc2dc9348b4569 -> Comb. muzzle device
+│   │   │   │   └── 550ad14d4bdc2dd5348b456c -> PMS
+│   │   │   ├── 5448fe7a4bdc2d6f028b456b -> Sights
+│   │   │   │   ├── 55818ac54bdc2d5b648b456e -> Ironsight
+│   │   │   │   ├── 55818acf4bdc2dde698b456b -> Compact reflex sight
+│   │   │   │   ├── 55818ad54bdc2ddc698b4569 -> Reflex sight
+│   │   │   │   ├── 55818add4bdc2d5b648b456f -> Assault scope
+│   │   │   │   ├── 55818ae44bdc2dde698b456c -> Scope
+│   │   │   │   └── 55818aeb4bdc2ddc698b456a -> Special scope
+│   │   │   │       ├── 5a2c3a9486f774688b05e574 -> NightVision
+│   │   │   │       └── 5d21f59b6dbe99052b54ef83 -> ThermalVision
+│   │   │   ├── 55818af64bdc2d5b648b4570 -> Foregrip
+│   │   │   ├── 55818afb4bdc2dde698b456d -> Bipod
+│   │   │   ├── 55818b084bdc2d5b648b4571 -> Flashlight
+│   │   │   ├── 55818b0e4bdc2dde698b456e -> Laser designator
+│   │   │   ├── 55818b164bdc2ddc698b456c -> Comb. tact. device
+│   │   │   ├── 55818b1d4bdc2d5b648b4572 -> Rail covers
+│   │   │   ├── 56ea9461d2720b67698b456f -> Gas block
+│   │   │   └── 5a74651486f7744e73386dd1 -> AuxiliaryMod
+│   │   ├── 55802f3e4bdc2de7118b4584 -> Gear mod
+│   │   │   ├── 5448bc234bdc2d3c308b4569 -> Magazine
+│   │   │   │   └── 610720f290b75a49ff2e5e25 -> CylinderMagazine
+│   │   │   ├── 55818a594bdc2db9688b456a -> Stock
+│   │   │   ├── 55818a604bdc2db5418b457e -> Mag shaft
+│   │   │   ├── 55818a6f4bdc2db9688b456b -> Charging handle
+│   │   │   ├── 55818b014bdc2ddc698b456b -> UBGL
+│   │   │   └── 55818b224bdc2dde698b456f -> Mount
+│   │   └── 55802f4a4bdc2ddb688b4569 -> Essential mod
+│   │       ├── 555ef6e44bdc2de9068b457e -> Barrel
+│   │       ├── 55818a104bdc2db9688b4569 -> Handguard
+│   │       ├── 55818a304bdc2db5418b457d -> Receiver
+│   │       └── 55818a684bdc2ddd698b456d -> Pistol grip
+│   ├── 55d720f24bdc2d88028b456d -> Inventory
+│   ├── 566168634bdc2d144c8b456c -> Searchable item
+│   │   ├── 5448bf274bdc2dfc2f8b456a -> Port. container
+│   │   ├── 5448e5284bdc2dcb718b4567 -> Chest rig
+│   │   ├── 5448e53e4bdc2d60728b4567 -> Backpack
+│   │   ├── 557596e64bdc2dc2118b4571 -> Pockets
+│   │   └── 566965d44bdc2d814c8b4571 -> Loot container
+│   ├── 566abbb64bdc2d144c8b457d -> Stash
+│   │   └── 6050cac987d3f925bf016837 -> SortingTable
+│   ├── 5671435f4bdc2d96058b4569 -> Locking container
+│   ├── 567583764bdc2d98058b456e -> Stationary cont.
+│   └── 5795f317245977243854e041 -> Common container
+├── 5661632d4bdc2d903d8b456b -> Stackable item
+│   ├── 543be5cb4bdc2deb348b4568 -> Ammo container
+│   ├── 543be5dd4bdc2deb348b4569 -> Money
+│   └── 5485a8684bdc2da71d8b4567 -> Ammo
+└── 567849dd4bdc2d150f8b456e -> Map
