@@ -676,9 +676,11 @@ app.get('/', async (req, res) => {
                             <!--button class="waves-effect waves-light btn-small shutdown-scanner" type="button" data-scanner-name="${encodeURIComponent(scanner.source)}"><i class="material-icons left">power_settings_new</i>${scanner.source}</button-->
                             <a class="dropdown-trigger btn scanner-dropdown" href="#" data-target="dropdown-${scanner.source}"><i class="material-icons left">arrow_drop_down</i>${scanner.source}</a>
                             <ul id="dropdown-${scanner.source}" class="dropdown-content">
-                                <li><a href="#!" class="shutdown-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><i class="material-icons left">power_settings_new</i>Shutdown</a></li>
                                 <li class="pause-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="pause-scanner"><i class="material-icons left">pause</i>Pause</a></li>
                                 <li class="resume-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}" style="display:none;"><a href="#!" class="resume-scanner"><i class="material-icons left">play_arrow</i>Resume</a></li>
+                                <li class="generate-images-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="generate-images-scanner"><i class="material-icons left">image</i>Generate Images</a></li>
+                                <li class="set-trader-scan-day" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="set-trader-scan-day"><i class="material-icons left">schedule</i>Set Trader Scan Day</a></li>
+                                <li class="shutdown-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="shutdown-scanner"><i class="material-icons left">power_settings_new</i>Shutdown</a></li>
                             </ul>
                         </span>
                     </div>
@@ -712,6 +714,26 @@ app.get('/', async (req, res) => {
             <div class="modal-footer">
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat shutdown-confirm">Yes</a>
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat shutdown-cancel">No</a>
+            </div>
+        </div>
+        <div id="modal-trader-scan-day" class="modal">
+            <div class="modal-content">
+                <h4>Set Trader Scan Day</h4>
+                <p>Select the day you want <span class="modal-trader-scan-day-scanner-name"></span> to scan trader prices.</p>
+                <select class="trader-scan-day">
+                    <option value="false">Disable</option>
+                    <option value="0">Sunday</option>
+                    <option value="1">Monday</option>
+                    <option value="2">Tuesday</option>
+                    <option value="3">Wednesday</option>
+                    <option value="4">Thursday</option>
+                    <option value="5">Friday</option>
+                    <option value="6">Saturday</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat trader-scan-day-confirm">Save</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat trader-scan-day-cancel">Cancel</a>
             </div>
         </div>
     ${getFooter(req)}`);

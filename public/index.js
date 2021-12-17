@@ -162,7 +162,7 @@ $(document).ready( function () {
 
     $('a.shutdown-scanner').click(function(event){
         event.stopPropagation();
-        let scannerName = decodeURIComponent($(event.target).data('scannerName'));
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
         $('#modal-shutdown-confirm .modal-shutdown-confirm-scanner-name').text(scannerName);
         $('#modal-shutdown-confirm .shutdown-confirm').data('scannerName', scannerName);
         M.Modal.getInstance(document.getElementById('modal-shutdown-confirm')).open();
@@ -196,5 +196,31 @@ $(document).ready( function () {
         sendCommand(scannerName, 'resume');
         $(event.target).closest('li').css('display', 'none');
         $(event.target).closest('ul').find('li.pause-scanner').css('display', '');
+    });
+
+    $('a.generate-images-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        if (!wsClients[scannerName]) {
+            return;
+        }
+        sendCommand(scannerName, 'generate-images');
+    });
+
+    $('a.set-trader-scan-day').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        $('#modal-trader-scan-day .modal-trader-scan-day-scanner-name').text(scannerName);
+        $('#modal-trader-scan-day .trader-scan-day-confirm').data('scannerName', scannerName);
+        M.Modal.getInstance(document.getElementById('modal-trader-scan-day')).open();
+    });
+
+    $('#modal-trader-scan-day .trader-scan-day-confirm').click(function(event){
+        let scannerName = decodeURIComponent($(event.target).data('scannerName'));
+        if (!wsClients[scannerName]) {
+            return;
+        }
+        const scanDay = $('#modal-trader-scan-day select').val();
+        sendCommand(scannerName, {setting: 'TRADER_SCAN_DAY', value: scanDay});
     });
 } );
