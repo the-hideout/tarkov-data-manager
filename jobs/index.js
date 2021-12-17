@@ -21,6 +21,7 @@ module.exports = () => {
     runJob('update-barters', '*/15 * * * *');
     runJob('update-cache', '* * * * *');
     runJob('update-crafts', '*/10 * * * *');
+    runJob('update-hideout', '10 * * * *')
     //runJob('update-game-data', '45 3 * * *');
     runJob('update-quests', '45 * * * *');
     runJob('verify-wiki', '5 9 * * *');
