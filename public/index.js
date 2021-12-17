@@ -206,4 +206,21 @@ $(document).ready( function () {
         }
         sendCommand(scannerName, 'generate-images');
     });
+
+    $('a.set-trader-scan-day').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        $('#modal-trader-scan-day .modal-trader-scan-day-scanner-name').text(scannerName);
+        $('#modal-trader-scan-day .trader-scan-day-confirm').data('scannerName', scannerName);
+        M.Modal.getInstance(document.getElementById('modal-trader-scan-day')).open();
+    });
+
+    $('#modal-trader-scan-day .trader-scan-day-confirm').click(function(event){
+        let scannerName = decodeURIComponent($(event.target).data('scannerName'));
+        if (!wsClients[scannerName]) {
+            return;
+        }
+        const scanDay = $('#modal-trader-scan-day select').val();
+        sendCommand(scannerName, {setting: 'TRADER_SCAN_DAY', value: scanDay});
+    });
 } );
