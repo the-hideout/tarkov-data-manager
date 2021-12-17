@@ -83,10 +83,9 @@ module.exports = async () => {
                     }
                 );
             });
+
+            fs.writeFileSync(path.join(__dirname, '..', 'redirects.json'), JSON.stringify(redirects, null, 4));
+            fs.writeFileSync(path.join(__dirname, '..', 'old-names.json'), JSON.stringify(oldNames, null, 4));
         }
     }
-
-    fs.writeFileSync(path.join(__dirname, '..', 'redirects.json'), JSON.stringify(redirects, null, 4));
-
-    fs.writeFileSync(path.join(__dirname, '..', 'old-names.json'), JSON.stringify(oldNames, null, 4));
 };
