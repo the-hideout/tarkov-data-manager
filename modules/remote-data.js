@@ -133,7 +133,7 @@ const methods = {
                                     avg24hPrice: getPercentile(itemPrices[result.id]?.prices || []),
                                     low24hPrice: itemPrices[result.id]?.prices[0],
                                     high24hPrice: itemPrices[result.id]?.prices[itemPrices[result.id]?.prices.length - 1],
-                                    updated: itemPrices[result.id]?.lastUpdated,
+                                    updated: itemPrices[result.id]?.lastUpdated || new Date(),
                                     properties: itemProperties,
                                     types: result.types?.split(',') || [],
                                     traderPrices: [],
