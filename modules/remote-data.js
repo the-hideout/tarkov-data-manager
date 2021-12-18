@@ -222,22 +222,6 @@ const methods = {
             });
         });
     },
-    update: async () => {
-        const newData = await methods.get();
-        const uploadParams = {
-            Bucket: 'tarkov-data',
-            Key: 'data.json',
-            Body: JSON.stringify(Object.fromEntries(newData), null, 4),
-            ContentType: 'application/json',
-        };
-
-        try {
-            const data = await client.send(new PutObjectCommand(uploadParams));
-            console.log('Remote JSON data updated');
-        } catch (err) {
-            console.log('Error', err);
-        }
-    },
 };
 
 module.exports = methods;

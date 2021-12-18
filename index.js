@@ -148,7 +148,6 @@ const updateTypes = async (updateObject) => {
 
     updateData.set(updateObject.id, currentItemData);
 
-    remoteData.update();
     myData = updateData;
 };
 
