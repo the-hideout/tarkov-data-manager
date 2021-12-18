@@ -22,6 +22,8 @@ const REPLACEMENTS = {
     'Kiba Arms International SPRM mount for pump-action shotguns': 'Kiba Arms International SPRM rail mount for pump-action shotguns',
     'Sig-Sauer SRD QD 7.62x51 Sound Suppressor': 'SIG Sauer SRD762-QD 7.62x51 sound suppressor',
     'Immobilizing splint (alu)': 'Aluminum splint',
+    'Maska-1Shch bulletproof helmet': 'Maska-1SCh bulletproof helmet (Olive Drab)',
+    'Maska-1Shch face shield': 'Maska-1SCh face shield (Olive Drab)',
 };
 
 const PARTIAL_REPLACEMENTS = {
