@@ -603,7 +603,9 @@ module.exports = {
         '5447e0e74bdc2d3c308b4567': {
             name: 'SpecItem',
             id: '5447e0e74bdc2d3c308b4567',
-            traders: [],
+            traders: [
+                TRADERS.prapor,
+            ],
         },
         '543be5cb4bdc2deb348b4568': {
             name: 'AmmoBox',
