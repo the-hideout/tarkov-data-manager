@@ -215,9 +215,17 @@ const getTableContents = async (filterObject) => {
         tableContentsString = `${tableContentsString}
         <tr>
             <td class="name-column">
-                <a href="${item.wiki_link}" >${item.name}</a>
-                ${item.id}
                 <div>
+                    ${item.name}
+                </div>
+                <div>
+                    ${item.id}
+                </div>
+                <div>
+                    <a href="${item.wiki_link}">Wiki</a>
+                    |
+                    <a href="https://tarkov-tools.com/item/${item.normalized_name}">Tarkov Tools</a>
+                    |
                     <a href="/items/${filterObject.type}/edit/${item.id}">Edit</a>
                 </div>
             </td>
