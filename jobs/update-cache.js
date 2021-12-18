@@ -53,6 +53,8 @@ module.exports = async () => {
         Reflect.deleteProperty(itemData[key], 'checked_out_by');
         Reflect.deleteProperty(itemData[key], 'trader_last_scan');
         Reflect.deleteProperty(itemData[key], 'trader_checked_out_by');
+        Reflect.deleteProperty(itemData[key], 'scan_position');
+        Reflect.deleteProperty(itemData[key], 'match_index');
 
         let itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === key);
 
