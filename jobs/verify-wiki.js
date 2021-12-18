@@ -76,7 +76,21 @@ module.exports = async () => {
                     }
                 }
 
-                // We don't have a wiki link, let's try to guess one
+                // We don't have a wiki link, let's try retrieving from the id
+                if(!newWikiLink){
+                    try {
+                        const templatePage = await got(`https://escapefromtarkov.fandom.com/wiki/Template:${result.id}`);
+                        const matches = templatePage.body.match(/<div class="mw-parser-output"><p><a href="(?<link>[^"]+)"/);
+
+                        if (matches) {
+                            newWikiLink = `https://escapefromtarkov.fandom.com${matches.groups.link}`;
+                        }
+                    } catch (requestError){
+                        // nothing to do
+                    }
+                }
+
+                // We still don't have a wiki link, let's try to guess one
                 if(!newWikiLink){
                     newWikiLink = nameToWikiLink(result.name);
 
