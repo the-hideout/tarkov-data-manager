@@ -9,7 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon -r dotenv/config --trace-warnings --ignore cache/ --ignore data.json index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "job": "node -r dotenv/config --trace-warnings test-job.js"
   },
   "keywords": [],
   "author": "",
