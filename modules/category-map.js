@@ -640,4 +640,20 @@ module.exports = {
             traders: [],
         },
     },
+    items: {
+        '5d1b376e86f774252519444e': {
+            id: '5d1b376e86f774252519444e',
+            name: '"Fierce Hatchling" moonshine',
+            traders: [
+                TRADERS.prapor,
+            ],
+        },
+        '5d40407c86f774318526545a': {
+            id: '5d40407c86f774318526545a',
+            name: 'Bottle of Tarkovskaya vodka',
+            traders: [
+                TRADERS.prapor,
+            ],
+        },
+    }
 }
