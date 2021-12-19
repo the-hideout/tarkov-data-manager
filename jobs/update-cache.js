@@ -47,6 +47,26 @@ module.exports = async () => {
         item_id;`);
     console.timeEnd('last-low-price-query');
 
+    console.time('contained-items-query');
+    const containedItems = await doQuery(`SELECT
+        *
+    FROM
+        item_children;`);
+    console.timeEnd('contained-items-query');
+
+    let containedItemsMap = {};
+
+    for(const result of containedItems){
+        if(!containedItemsMap[result.container_item_id]){
+            containedItemsMap[result.container_item_id] = [];
+        }
+
+        containedItemsMap[result.container_item_id].push({
+            itemId: result.child_item_id,
+            count: result.count,
+        });
+    }
+
     for (const [key, value] of itemMap.entries()) {
         itemData[key] = value;
 
@@ -75,6 +95,8 @@ module.exports = async () => {
                 itemData[key].lastLowPrice = lastKnownPrice.price;
             }
         }
+
+        itemData[key].containsItems = containedItemsMap[key];
 
         // itemData[key].changeLast48h = itemPriceYesterday.priceYesterday || 0;
     }
