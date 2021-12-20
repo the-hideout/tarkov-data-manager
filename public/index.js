@@ -146,7 +146,7 @@ $(document).ready( function () {
 
     $('.collapsible').collapsible();
     $('.tooltipped').tooltip();
-    $('.dropdown-trigger').dropdown();
+    $('.dropdown-trigger.scanner-dropdown').dropdown({constrainWidth: false});
     $('.modal').modal();
     $('select').formSelect();
 

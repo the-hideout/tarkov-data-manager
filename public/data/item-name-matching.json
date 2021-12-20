@@ -1,5 +1,5 @@
 {
-    "version": 6,
+    "version": 7,
     "keyAttributes": [
         "GEN M3 (?:W )?\\d+",
         "\\d+(?:-round|-shot)",
@@ -12,7 +12,8 @@
         "MTU002 [a-zA-Z]+ Top",
         "\\d+\\.\\d+x\\d+ mm [\\w]+$",
         "Style \\d(?: PC)? pistol",
-        "(?:front|rear) sight"
+        "(?:front|rear) sight",
+        "pistol (?:slide|grip)"
     ],
     "replacements": [
         [
