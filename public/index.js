@@ -126,6 +126,35 @@ document.addEventListener('change', (event) => {
 
 const tableData = [];
 
+const showEditItemModal = function(event){
+    let link = $(event.target);
+    if (event.target.nodeName != 'A') {
+        link = $(event.target.parentNode);
+    }
+    const item = JSON.parse(decodeURIComponent(link.data('item')));
+    const editModal = $('#modal-edit-item');
+    for (const field in item) {
+        editModal.find(`.item-content-${field}`).text(item[field]);
+        editModal.find(`.item-value-${field}`).val(item[field]);
+        editModal.find(`.item-attribute-${field}`).each(function(){
+            const attributeName = $(this).data('attribute');
+            let value = item[field];
+            if ($(this).data('prependValue')) {
+                value = $(this).data('prependValue')+value;
+            }
+            $(this).attr(attributeName, value);
+        });
+        editModal.find(`.item-image-${field}`).each(function(){
+            $(this).empty();
+            if (!item[field]) {
+                return;
+            }
+            $(this).append(`<img src="${item[field]}">`)
+        });
+    }
+    M.Modal.getInstance(document.getElementById('modal-edit-item')).open();
+};
+
 $(document).ready( function () {
     let table = false;
     const showTable = () => {
@@ -142,6 +171,10 @@ $(document).ready( function () {
     };
     showTable();
     $('table.main').css('display', '');
+    $('table.main').DataTable().on('draw', function() {
+        $('.edit-item').off('click');
+        $('.edit-item').click(showEditItemModal);
+    });
     showTable();
 
     $('.collapsible').collapsible();
@@ -222,5 +255,24 @@ $(document).ready( function () {
         }
         const scanDay = $('#modal-trader-scan-day select').val();
         sendCommand(scannerName, {setting: 'TRADER_SCAN_DAY', value: scanDay});
+    });
+
+    $('a.edit-item-save').click(function(event){
+        const form = $('#modal-edit-item').find('form').first();
+        const formData = form.serialize();
+        $.ajax({
+            type: "POST",
+            url: form.attr('action'),
+            data: formData,
+            dataType: "json"
+          }).done(function (data) {
+            M.toast({html: data.message});
+            if (data.errors.length > 0) {
+                for (let i = 0; i < data.errors.length; i++) {
+                    M.toast({html: data.errors[i]});
+                }
+            }
+          });
+        M.Modal.getInstance(document.getElementById('modal-edit-item')).close();
     });
 } );

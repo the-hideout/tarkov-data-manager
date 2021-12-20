@@ -225,8 +225,8 @@ const getTableContents = async (filterObject) => {
                     <a href="${item.wiki_link}">Wiki</a>
                     |
                     <a href="https://tarkov-tools.com/item/${item.normalized_name}">Tarkov Tools</a>
-                    |
-                    <a href="/items/${filterObject.type}/edit/${item.id}" data-item="${JSON.stringify(item)}">Edit</a>
+                    <br>
+                    <a class="waves-effect waves-light btn edit-item" data-item="${encodeURIComponent(JSON.stringify(item))}"><i class="material-icons">edit</i></a>
                 </div>
             </td>
             <td>
@@ -278,7 +278,7 @@ const getHeader = (req) => {
         <head>
             <title>Tarkov Data Studio</title>
 
-            <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+            <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
             <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css">
             <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
 
@@ -437,12 +437,12 @@ app.post('/suggest-image', (request, response) => {
     });
 });
 
-app.post('/items/:type/edit/:id', urlencodedParser, async (req, res) => {
+app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
     console.log(req.body);
     const allItemData = await remoteData.get();
     const currentItemData = allItemData.get(req.params.id);
     let updated = false;
-    let message = 'No changes made.';
+    const response = {success: false, message: 'No changes made.', errors: []};
 
     if(req.body['icon-link'] && req.body['icon-link'] !== 'null' && currentItemData.icon_link !== req.body['icon-link']){
         console.log('Updating icon link');
@@ -454,7 +454,7 @@ app.post('/items/:type/edit/:id', urlencodedParser, async (req, res) => {
         }
 
         if(!image){
-            return res.send('Failed to add image');
+            response.errors.push(`Failed to add icon_link image from ${req.body['icon-link']}`);
         }
 
         const uploadParams = {
@@ -471,7 +471,7 @@ app.post('/items/:type/edit/:id', urlencodedParser, async (req, res) => {
         } catch (err) {
             console.log("Error", err);
 
-            return res.send(err);
+            response.errors.push(`Failed to save icon_link image to s3 ${err}`);
         }
 
         await remoteData.setProperty(req.params.id, 'icon_link', `https://assets.tarkov-tools.com/${req.params.id}-icon.jpg`);
@@ -483,7 +483,7 @@ app.post('/items/:type/edit/:id', urlencodedParser, async (req, res) => {
         let image = await Jimp.read(req.body['image-link']);
 
         if(!image){
-            return res.send('Failed to add image');
+            response.errors.push(`Failed to add image_link image from ${req.body['image-link']}`);
         }
 
         const uploadParams = {
@@ -500,7 +500,7 @@ app.post('/items/:type/edit/:id', urlencodedParser, async (req, res) => {
         } catch (err) {
             console.log("Error", err);
 
-            return res.send(err);
+            response.errors.push(`Failed to save image_link image to s3 ${err}`);
         }
 
         await remoteData.setProperty(req.params.id, 'image_link', `https://assets.tarkov-tools.com/${req.params.id}-image.jpg`);
@@ -511,7 +511,7 @@ app.post('/items/:type/edit/:id', urlencodedParser, async (req, res) => {
         let image = await Jimp.read(req.body['grid-image-link']);
 
         if(!image){
-            return res.send('Failed to add image');
+            response.errors.push(`Failed to add grid_image_link image from ${req.body['grid-image-link']}`);
         }
 
         const uploadParams = {
@@ -528,7 +528,7 @@ app.post('/items/:type/edit/:id', urlencodedParser, async (req, res) => {
         } catch (err) {
             console.log("Error", err);
 
-            return res.send(err);
+            response.errors.push(`Failed to save grid_image_link image to s3 ${err}`);
         }
 
         await remoteData.setProperty(req.params.id, 'grid_image_link', `https://assets.tarkov-tools.com/${req.params.id}-grid-image.jpg`);
@@ -541,85 +541,10 @@ app.post('/items/:type/edit/:id', urlencodedParser, async (req, res) => {
     }
 
     if (updated) {
-        message = `${currentItemData.name} updated.<br>Will be live in < 4 hours.`;
+        response.success = true;
+        response.message = `${currentItemData.name} updated.<br>Will be live in < 4 hours.`;
     }
-    return res.redirect(`/items/${req.params.type}?toast=${encodeToast(message)}`);
-});
-
-app.get('/items/:type/edit/:id', async (req, res) => {
-    const allItemData = await remoteData.get();
-    const currentItemData = allItemData.get(req.params.id);
-
-    // return res.send(currentItemData);
-
-    // console.log(currentItemData);
-
-    let updatedText = '';
-    if (req.query.updated == 1) {
-        updatedText = '<div class="row">Updated. Will be live in < 4 hours</div>';
-    } else if (req.query.updated == 0) {
-        updatedText = '<div class="row">No changes made.</div>'
-    }
-
-    return res.send(`${getHeader(req)}
-        ${updatedText}
-        <div class="row">
-            <div class"col s6">
-                ${currentItemData.name}
-            </div>
-            <div class"col s6">
-                ${currentItemData.id}
-            </div>
-        </div>
-        <div class="row">
-            <form class="col s12" method="post" action="/items/${req.params.type}/edit/${currentItemData.id}">
-            <div class="row">
-                    <div class="input-field col s2">
-                        ${currentItemData.image_link ? `<img src="${currentItemData.image_link}">`: ''}
-                    </div>
-                    <div class="input-field col s10">
-                        <input value="${currentItemData.image_link ? currentItemData.image_link : ''}" id="image-link" type="text" class="validate" name="image-link">
-                        <label for="image-link">Image Link</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="input-field col s2">
-                        ${currentItemData.icon_link ? `<img src="${currentItemData.icon_link}">`: ''}
-                    </div>
-                    <div class="input-field col s10">
-                        <input value="${currentItemData.icon_link ? currentItemData.icon_link : ''}" id="icon-link" type="text" class="validate" name="icon-link">
-                        <label for="icon-link">Icon Link</label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="input-field col s2">
-                        ${currentItemData.grid_image_link ? `<img src="${currentItemData.grid_image_link}">`: ''}
-                    </div>
-                    <div class="input-field col s10">
-                        <input value="${currentItemData.grid_image_link ? currentItemData.grid_image_link : ''}" id="grid-image-link" type="text" class="validate" name="grid-image-link">
-                        <label for="grid-image-link">Grid image link</label>
-                    </div>
-                </div>
-                <div class="row">
-                <div class="input-field col s2">
-                    ${currentItemData.wiki_link ? `<a href="${currentItemData.wiki_link}">WIKI</a>`: `<button class="btn guess-wiki-link" type="button" data-item-name="${encodeURIComponent(currentItemData.name)}">Guess</button>`}
-                </div>
-                <div class="input-field col s10">
-                    <input value="${currentItemData.wiki_link}" id="wiki-link" type="text" class="validate" name="wiki-link">
-                    <label for="wiki-link">wiki link</label>
-                </div>
-            </div>
-                <div class="row">
-                    <div class="input-field col s12">
-                        <button class="btn waves-effect waves-light" type="submit" name="action">
-                            Save
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-    ${getFooter(req)}`);
+    res.send(response);
 });
 
 app.get('/items/:type', async (req, res) => {
@@ -656,6 +581,50 @@ app.get('/items/:type', async (req, res) => {
                 })}
             </tbody>
         </table>
+        <div id="modal-edit-item" class="modal modal-fixed-footer">
+            <div class="modal-content">
+                <h4 class="item-content-name"></h4>
+                <p class="item-content-id"></p>
+                <div class="row">
+                    <form class="col s12 post-url item-attribute-id" data-attribute="action" data-prepend-value="/items/edit/" method="post" action="">
+                        <div class="row">
+                                <div class="input-field col s2 item-image-image_link"></div>
+                                <div class="input-field col s10">
+                                    <input value="" id="image-link" type="text" class="validate item-value-image_link" name="image-link">
+                                    <label for="image-link">Image Link</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s2 item-image-icon_link"></div>
+                                <div class="input-field col s10">
+                                    <input value="" id="icon-link" type="text" class="validate item-value-icon_link" name="icon-link">
+                                    <label for="icon-link">Icon Link</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s2 item-image-grid_image_link"></div>
+                                <div class="input-field col s10">
+                                    <input value="" id="grid-image-link" type="text" class="validate item-value-icon_link" name="grid-image-link">
+                                    <label for="grid-image-link">Grid image link</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                            <div class="input-field col s2">
+                                <a class="item-attribute-wiki_link" data-attribute="href" href="">WIKI</a>
+                            </div>
+                            <div class="input-field col s10">
+                                <input value="" id="wiki-link" type="text" class="validate item-value-wiki_link" name="wiki-link">
+                                <label for="wiki-link">wiki link</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="waves-effect waves-green btn edit-item-save">Save</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat edit-item-cancel">Cancel</a>
+            </div>
+        </div>
     ${getFooter(req)}`);
 });
 
