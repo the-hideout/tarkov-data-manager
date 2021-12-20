@@ -603,7 +603,9 @@ module.exports = {
         '5447e0e74bdc2d3c308b4567': {
             name: 'SpecItem',
             id: '5447e0e74bdc2d3c308b4567',
-            traders: [],
+            traders: [
+                TRADERS.prapor,
+            ],
         },
         '543be5cb4bdc2deb348b4568': {
             name: 'AmmoBox',
@@ -638,4 +640,20 @@ module.exports = {
             traders: [],
         },
     },
+    items: {
+        '5d1b376e86f774252519444e': {
+            id: '5d1b376e86f774252519444e',
+            name: '"Fierce Hatchling" moonshine',
+            traders: [
+                TRADERS.prapor,
+            ],
+        },
+        '5d40407c86f774318526545a': {
+            id: '5d40407c86f774318526545a',
+            name: 'Bottle of Tarkovskaya vodka',
+            traders: [
+                TRADERS.prapor,
+            ],
+        },
+    }
 }

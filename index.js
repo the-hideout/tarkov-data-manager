@@ -93,24 +93,25 @@ try {
 }
 
 const AVAILABLE_TYPES = [
-    'glasses',
-    'helmet',
-    'barter',
-    'provisions',
-    'wearable',
-    'mods',
-    'keys',
-    'marked-only',
+    'ammo-box',
     'ammo',
     'armor',
-    'no-flea',
     'backpack',
+    'barter',
+    'disabled',
+    'glasses',
     'grenade',
     'gun',
     'headphones',
+    'helmet',
+    'keys',
+    'marked-only',
+    'mods',
+    'no-flea',
+    'provisions',
     'rig',
     'suppressor',
-    'disabled'
+    'wearable',
 ];
 
 const CUSTOM_HANDLERS = [
@@ -148,7 +149,6 @@ const updateTypes = async (updateObject) => {
 
     updateData.set(updateObject.id, currentItemData);
 
-    remoteData.update();
     myData = updateData;
 };
 
@@ -215,9 +215,17 @@ const getTableContents = async (filterObject) => {
         tableContentsString = `${tableContentsString}
         <tr>
             <td class="name-column">
-                <a href="${item.wiki_link}" >${item.name}</a>
-                ${item.id}
                 <div>
+                    ${item.name}
+                </div>
+                <div>
+                    ${item.id}
+                </div>
+                <div>
+                    <a href="${item.wiki_link}">Wiki</a>
+                    |
+                    <a href="https://tarkov-tools.com/item/${item.normalized_name}">Tarkov Tools</a>
+                    |
                     <a href="/items/${filterObject.type}/edit/${item.id}">Edit</a>
                 </div>
             </td>
