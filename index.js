@@ -218,7 +218,7 @@ const getTableContents = async (filterObject) => {
                 <a href="${item.wiki_link}" >${item.name}</a>
                 ${item.id}
                 <div>
-                    <a href="/items/${filterObject.type}/edit/${item.id}">Edit</a>
+                    <a href="/items/${filterObject.type}/edit/${item.id}" data-item="${JSON.stringify(item)}">Edit</a>
                 </div>
             </td>
             <td>
