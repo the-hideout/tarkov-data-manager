@@ -4,7 +4,7 @@ const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const midmean = require('compute-midmean');
 
 const bitcoinPrice = require('./bitcoin-price');
-const {categories} = require('../modules/category-map');
+const {categories, items} = require('../modules/category-map');
 const timer = require('./console-timer');
 
 // a client can be shared by difference commands.
@@ -133,7 +133,7 @@ const methods = {
                                     avg24hPrice: getPercentile(itemPrices[result.id]?.prices || []),
                                     low24hPrice: itemPrices[result.id]?.prices[0],
                                     high24hPrice: itemPrices[result.id]?.prices[itemPrices[result.id]?.prices.length - 1],
-                                    updated: itemPrices[result.id]?.lastUpdated,
+                                    updated: itemPrices[result.id]?.lastUpdated || new Date(),
                                     properties: itemProperties,
                                     types: result.types?.split(',') || [],
                                     traderPrices: [],
@@ -165,6 +165,18 @@ const methods = {
                                     }
                                 } else {
                                     console.log(`No category for trader prices mapped for ${preparedData.name} with id ${itemProperties.bsgCategoryId}`);
+                                }
+
+                                // Map special items bought by specific vendors
+                                if(itemProperties && items[result.id]){
+                                    for(const trader of items[result.id].traders){
+                                        // console.log(`Suggested price for ${preparedData.name} at ${trader.name}: ${Math.floor(trader.multiplier * preparedData.base_price)}`);
+                                        console.log(trader);
+                                        preparedData.traderPrices.push({
+                                            name: trader.name,
+                                            price: Math.floor(trader.multiplier * preparedData.base_price),
+                                        });
+                                    }
                                 }
 
                                 if(result.id === '59faff1d86f7746c51718c9c'){
@@ -221,22 +233,6 @@ const methods = {
                 return resolve();
             });
         });
-    },
-    update: async () => {
-        const newData = await methods.get();
-        const uploadParams = {
-            Bucket: 'tarkov-data',
-            Key: 'data.json',
-            Body: JSON.stringify(Object.fromEntries(newData), null, 4),
-            ContentType: 'application/json',
-        };
-
-        try {
-            const data = await client.send(new PutObjectCommand(uploadParams));
-            console.log('Remote JSON data updated');
-        } catch (err) {
-            console.log('Error', err);
-        }
     },
 };
 

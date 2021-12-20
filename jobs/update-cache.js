@@ -36,6 +36,8 @@ module.exports = async () => {
             item_id
         FROM
             price_data
+        WHERE
+        	timestamp > '2021-12-12 01:00:00'
         GROUP BY
             item_id
     ) b
@@ -45,6 +47,26 @@ module.exports = async () => {
         item_id;`);
     console.timeEnd('last-low-price-query');
 
+    console.time('contained-items-query');
+    const containedItems = await doQuery(`SELECT
+        *
+    FROM
+        item_children;`);
+    console.timeEnd('contained-items-query');
+
+    let containedItemsMap = {};
+
+    for(const result of containedItems){
+        if(!containedItemsMap[result.container_item_id]){
+            containedItemsMap[result.container_item_id] = [];
+        }
+
+        containedItemsMap[result.container_item_id].push({
+            itemId: result.child_item_id,
+            count: result.count,
+        });
+    }
+
     for (const [key, value] of itemMap.entries()) {
         itemData[key] = value;
 
@@ -53,6 +75,8 @@ module.exports = async () => {
         Reflect.deleteProperty(itemData[key], 'checked_out_by');
         Reflect.deleteProperty(itemData[key], 'trader_last_scan');
         Reflect.deleteProperty(itemData[key], 'trader_checked_out_by');
+        Reflect.deleteProperty(itemData[key], 'scan_position');
+        Reflect.deleteProperty(itemData[key], 'match_index');
 
         let itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === key);
 
@@ -71,6 +95,8 @@ module.exports = async () => {
                 itemData[key].lastLowPrice = lastKnownPrice.price;
             }
         }
+
+        itemData[key].containsItems = containedItemsMap[key];
 
         // itemData[key].changeLast48h = itemPriceYesterday.priceYesterday || 0;
     }

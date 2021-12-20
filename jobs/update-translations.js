@@ -61,7 +61,7 @@ module.exports = async () => {
             console.log(`OLD: ${allTTItems[item._id][insertKey.toLowerCase()]}`);
             console.log(`NEW: ${item._props[insertKey].toString().trim()}`);
 
-            oldNames[allTTItems[item._id][insertKey.toLowerCase()]] = item._id;
+            oldNames[allTTItems[item._id][insertKey.toLowerCase()].trim()] = item._id;
 
             await new Promise((translationResolve, translationReject) => {
                 connection.query(`UPDATE
