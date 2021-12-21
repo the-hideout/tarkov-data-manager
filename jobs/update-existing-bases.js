@@ -41,7 +41,7 @@ const getBucketContents = async (continuationToken = false) => {
 module.exports = async () => {
     const allKeys = await getBucketContents();
 
-    const baseKeys = allKeys.filter(key => key.includes('-base'));
+    const baseKeys = allKeys.filter(key => key.includes('-base')).map(key => key.split('-')[0]);
 
-    fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'base-keys.json'), JSON.stringify(baseKeys, null, 4));
+    fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json'), JSON.stringify(baseKeys, null, 4));
 }
