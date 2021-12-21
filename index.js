@@ -414,9 +414,14 @@ app.post('/suggest-image', (request, response) => {
                 .send('Failed to add image');
         }
 
+        let ext = 'jpg';
+        if(fields.type === 'base-image'){
+            ext = 'png';
+        }
+
         const uploadParams = {
             Bucket: 'assets.tarkov-tools.com',
-            Key: `${fields.id}-${fields.type}.jpg`,
+            Key: `${fields.id}-${fields.type}.${ext}`,
             ContentType: 'image/jpeg',
             CacheControl: 'max-age=604800',
         };
