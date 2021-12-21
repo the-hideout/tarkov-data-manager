@@ -415,14 +415,16 @@ app.post('/suggest-image', (request, response) => {
         }
 
         let ext = 'jpg';
+        let contentType = 'image/jpeg';
         if(fields.type === 'base-image'){
             ext = 'png';
+            contentType = 'image/png';
         }
 
         const uploadParams = {
             Bucket: 'assets.tarkov-tools.com',
             Key: `${fields.id}-${fields.type}.${ext}`,
-            ContentType: 'image/jpeg',
+            ContentType: contentType,
             CacheControl: 'max-age=604800',
         };
 
