@@ -26,5 +26,6 @@ module.exports = () => {
     runJob('update-quests', '45 * * * *');
     runJob('verify-wiki', '5 9 * * *');
     runJob('update-trader-prices', '45 * * * *');
+    runJob('update-base-image-index', '*/5 * * * *');
     // runJob('update-translations', '45 * * * *');
 };
