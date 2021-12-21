@@ -359,7 +359,7 @@ app.post('/suggest-image', (request, response) => {
         const allItemData = await remoteData.get();
         const currentItemData = allItemData.get(fields.id);
 
-        if(fields.type !== 'grid-image' && fields.type !== 'icon' && fields.type !== 'image'){
+        if(fields.type !== 'grid-image' && fields.type !== 'icon' && fields.type !== 'image' && fields.type !== 'base-image'){
             return response
                 .status(400)
                 .send({
@@ -387,7 +387,15 @@ app.post('/suggest-image', (request, response) => {
             return response
                 .status(400)
                 .send({
-                    error: 'That item ID already has a icon',
+                    error: 'That item ID already has an image',
+                });
+        }
+
+        if(fields.type === 'base-image' && currentItemData.base_image_link){
+            return response
+                .status(400)
+                .send({
+                    error: 'That item ID already has a base image',
                 });
         }
 
@@ -424,11 +432,13 @@ app.post('/suggest-image', (request, response) => {
             return response.send(err);
         }
 
-        try {
-            await remoteData.setProperty(fields.id, `${fields.type.replace(/\-/g, '_')}_link`, `https://assets.tarkov-tools.com/${fields.id}-${fields.type}.jpg`);
-        } catch (updateError){
-            console.error(updateError);
-            return response.send(updateError);
+        if(fields.type !== 'base-image'){
+            try {
+                await remoteData.setProperty(fields.id, `${fields.type.replace(/\-/g, '_')}_link`, `https://assets.tarkov-tools.com/${fields.id}-${fields.type}.jpg`);
+            } catch (updateError){
+                console.error(updateError);
+                return response.send(updateError);
+            }
         }
 
         console.log(`${fields.id} ${fields.type} updated`);
