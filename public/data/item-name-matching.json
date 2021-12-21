@@ -1,7 +1,7 @@
 {
-    "version": 7,
+    "version": 8,
     "keyAttributes": [
-        "GEN M3 (?:W )?\\d+",
+        "GEN M3 (?:W )?",
         "\\d+(?:-round|-shot)",
         "(?:\\d+\\.)?\\d+mm [\\w\"\\\\-]+",
         "(?:\\d+\\.)?\\d+ inch",
@@ -13,7 +13,10 @@
         "\\d+\\.\\d+x\\d+ mm [\\w]+$",
         "Style \\d(?: PC)? pistol",
         "(?:front|rear) sight",
-        "pistol (?:slide|grip)"
+        "pistol (?:slide|grip)",
+        "A?PB 9x18",
+        "LVOA-[\\S]+",
+        "CASV-[\\S]+"
     ],
     "replacements": [
         [
