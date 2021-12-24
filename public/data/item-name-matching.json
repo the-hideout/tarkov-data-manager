@@ -1,5 +1,5 @@
 {
-    "version": 8,
+    "version": 9,
     "keyAttributes": [
         "GEN M3 (?:W )?",
         "\\d+(?:-round|-shot)",
@@ -355,7 +355,7 @@
             ""
         ],
         [
-            "\\bpc?os\\.",
+            "\\bpc?os\\b",
             "pcs.",
             ""
         ],
