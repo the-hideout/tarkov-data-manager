@@ -106,7 +106,7 @@
         ],
         [
             "([136]0)(| GEN M3 W| GEN M3) STANAG [136]00-round",
-            "$1 STANAG $1-round",
+            "$1$2 STANAG $1-round",
             ""
         ],
         [
