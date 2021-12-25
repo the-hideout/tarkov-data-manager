@@ -1,0 +1,211 @@
+[{
+    "id": "7-1",
+    "requiredItems": [
+        {
+            "name": "Christmas tree ornament (Red)",
+            "id": "5df8a6a186f77412640e2e80",
+            "count": 3
+        }
+    ],
+    "rewardItems": [
+        {
+            "name": "TDI KRISS Vector Gen.2 .45 ACP submachine gun",
+            "id": "5fb64bc92b1b027b1f50bcf2",
+            "count": 1
+        }
+    ],
+    "station": "Christmas tree level 1",
+    "time": "1 h 26 min",
+    "duration": 5160
+},
+{
+    "id": "7-2",
+    "requiredItems": [
+        {
+            "name": "Christmas tree ornament (Silver)",
+            "id": "5df8a72c86f77412640e2e83",
+            "count": 5
+        }
+    ],
+    "rewardItems": [
+        {
+            "name": "Oakley Mechanism heavy duty backpack (Black)",
+            "id": "5d5d940f86f7742797262046",
+            "count": 1
+        }
+    ],
+    "station": "Christmas tree level 1",
+    "time": "1 h 32 min",
+    "duration": 5520
+},
+{
+    "id": "7-3",
+    "requiredItems": [
+        {
+            "name": "Christmas tree ornament (Violet)",
+            "id": "5df8a77486f77412672a1e3f",
+            "count": 3
+        }
+    ],
+    "rewardItems": [
+        {
+            "name": "VSS Vintorez 9x39 special sniper rifle",
+            "id": "57838ad32459774a17445cd2",
+            "count": 1
+        }
+    ],
+    "station": "Christmas tree level 1",
+    "time": "1 h 43 min",
+    "duration": 6180
+},
+{
+    "id": "7-4",
+    "requiredItems": [
+        {
+            "name": "Christmas tree ornament (Red)",
+            "id": "5df8a6a186f77412640e2e80",
+            "count": 1
+        },
+        {
+            "name": "Christmas tree ornament (Silver)",
+            "id": "5df8a72c86f77412640e2e83",
+            "count": 1
+        },
+        {
+            "name": "Christmas tree ornament (Violet)",
+            "id": "5df8a77486f77412672a1e3f",
+            "count": 1
+        }
+    ],
+    "rewardItems": [
+        {
+            "name": "FN SCAR-L 5.56x45 assault rifle",
+            "id": "6184055050224f204c1da540",
+            "count": 1
+        }
+    ],
+    "station": "Christmas tree level 1",
+    "time": "1 h 39 min",
+    "duration": 5940
+},
+{
+    "id": "7-5",
+    "requiredItems": [
+        {
+            "name": "Christmas tree ornament (Silver)",
+            "id": "5df8a72c86f77412640e2e83",
+            "count": 20
+        },
+        {
+            "name": "Christmas tree ornament (Violet)",
+            "id": "5df8a77486f77412672a1e3f",
+            "count": 13
+        }
+    ],
+    "rewardItems": [
+        {
+            "name": "Weapon case",
+            "id": "59fb023c86f7746d0d4b423c",
+            "count": 1
+        }
+    ],
+    "station": "Christmas tree level 1",
+    "time": "4 h 51 min",
+    "duration": 17460
+},
+{
+    "id": "7-6",
+    "requiredItems": [
+        {
+            "name": "Christmas tree ornament (Silver)",
+            "id": "5df8a72c86f77412640e2e83",
+            "count": 30
+        },
+        {
+            "name": "Christmas tree ornament (Violet)",
+            "id": "5df8a77486f77412672a1e3f",
+            "count": 2
+        }
+    ],
+    "rewardItems": [
+        {
+            "name": "LEDX Skin Transilluminator",
+            "id": "5c0530ee86f774697952d952",
+            "count": 1
+        }
+    ],
+    "station": "Christmas tree level 1",
+    "time": "3 h 28 min",
+    "duration": 13080
+},
+{
+    "id": "7-7",
+    "requiredItems": [
+        {
+            "name": "Christmas tree ornament (Silver)",
+            "id": "5df8a72c86f77412640e2e83",
+            "count": 3
+        }
+    ],
+    "rewardItems": [
+        {
+            "name": "M.U.L.E. stimulant injector",
+            "id": "5ed51652f6c34d2cc26336a1",
+            "count": 1
+        }
+    ],
+    "station": "Christmas tree level 1",
+    "time": "1 h 13 min",
+    "duration": 4380
+},
+{
+    "id": "7-8",
+    "requiredItems": [
+        {
+            "name": "Christmas tree ornament (Silver)",
+            "id": "5df8a72c86f77412640e2e83",
+            "count": 1
+        }
+    ],
+    "rewardItems": [
+        {
+            "name": "Car first aid kit",
+            "id": "590c661e86f7741e566b646a",
+            "count": 1
+        }
+    ],
+    "station": "Christmas tree level 1",
+    "time": "0 h 35 min",
+    "duration": 2100
+},
+{
+    "id": "7-9",
+    "requiredItems": [
+        {
+            "name": "Christmas tree ornament (Red)",
+            "id": "5df8a6a186f77412640e2e80",
+            "count": 1
+        },
+        {
+            "name": "Christmas tree ornament (Silver)",
+            "id": "5df8a72c86f77412640e2e83",
+            "count": 1
+        },
+        {
+            "name": "Christmas tree ornament (Violet)",
+            "id": "5df8a77486f77412672a1e3f",
+            "count": 1
+        }
+    ],
+    "rewardItems": [
+        {
+            "name": "Gas analyzer",
+            "id": "590a3efd86f77437d351a25b",
+            "count": 1
+        }
+    ],
+    "station": "Christmas tree level 1",
+    "time": "3 h 11 min",
+    "duration": 11460
+}
+]
