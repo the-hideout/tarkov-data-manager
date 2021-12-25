@@ -1,5 +1,5 @@
 {
-    "version": 9,
+    "version": 10,
     "keyAttributes": [
         "GEN M3 (?:W )?",
         "\\d+(?:-round|-shot)",
@@ -105,7 +105,7 @@
             ""
         ],
         [
-            "([13]0) STANAG [13]00-round",
+            "([136]0)(| GEN M3 W| GEN M3) STANAG [136]00-round",
             "$1 STANAG $1-round",
             ""
         ],
@@ -152,11 +152,6 @@
         [
             "\\b5[1]{1,2}[7T]\\b",
             "51T",
-            ""
-        ],
-        [
-            "60 STANAG 600-round",
-            "60 STANAG 60-round",
             ""
         ],
         [
