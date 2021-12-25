@@ -108,6 +108,7 @@ const AVAILABLE_TYPES = [
     'marked-only',
     'mods',
     'no-flea',
+    'pistol-grip',
     'provisions',
     'rig',
     'suppressor',
