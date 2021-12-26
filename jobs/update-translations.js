@@ -98,4 +98,25 @@ module.exports = async () => {
             });
         }
     }
+
+    await new Promise((resolve, reject) => {
+        connection.query(`SELECT source, destination FROM redirects`, (error, results) => {
+                if (error) {
+                    console.log(error);
+                    reject(error);
+                }
+
+                const redirects = results.map(row => {
+                    return [
+                        `/item/${row.source}`,
+                        `/item/${row.destination}`,
+                    ];
+                })
+
+                fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'redirects.json'), JSON.stringify(Object.fromEntries(redirects), null, 4));
+
+                resolve();
+            }
+        );
+    });
 };
