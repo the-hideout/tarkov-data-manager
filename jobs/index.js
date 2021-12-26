@@ -26,6 +26,5 @@ module.exports = () => {
     runJob('verify-wiki', '5 9 * * *');
     runJob('update-trader-prices', '45 * * * *');
     runJob('update-existing-bases', '*/5 * * * *');
-
-    runJob('game-data', '*/15 * * * *')
+    runJob('game-data', '*/15 * * * *');
 };
