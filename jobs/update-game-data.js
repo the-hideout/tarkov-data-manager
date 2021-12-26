@@ -1,12 +1,15 @@
+const fs = require('fs');
+const path = require('path');
+
 const normalizeName = require('../modules/normalize-name');
 const {categories} = require('../modules/category-map');
 const presetSize = require('../modules/preset-size');
 const ttData = require('../modules/tt-data');
 const oldShortnames = require('../old-shortnames.json');
 
-const bsgData = require('../bsg-data.json');
-
 const connection = require('../modules/db-connection');
+
+let bsgData;
 
 const mappingProperties = [
     'BlindnessProtection',
@@ -114,6 +117,8 @@ const getItemCategories = (item, previousCategories = []) => {
 module.exports = async () => {
     const allTTItems = await ttData();
 
+    bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
+
     const items = Object.values(bsgData).filter((bsgObject) => {
         if(bsgObject._type !== 'Item'){
             return false;
@@ -189,7 +194,7 @@ module.exports = async () => {
 
         const itemCategory = getItemCategory(item);
 
-        extraProperties.bsgCategoryId = itemCategory?.id || item._parent;
+        extraProperties.bsgCategoryId = itemCategory?.id || item._parent;
 
         item.name = item._props.Name.toString();
         item.shortName = item._props.ShortName.toString();
@@ -208,9 +213,12 @@ module.exports = async () => {
             item.height = itemPresetSize.height;
         }
 
-        if(!allTTItems[item._id]){
-            console.log(`New item: ${item.name}`);
+        // Skip already existing items
+        if(allTTItems[item._id]){
+            continue;
         }
+
+        console.log(`New item: ${item.name}`);
 
         const promise = new Promise((resolve, reject) => {
             connection.query(`INSERT INTO item_data (id, normalized_name, base_price, width, height, properties)
@@ -289,15 +297,5 @@ module.exports = async () => {
         }
 
         console.error(`${allTTItems[ttItemId].name} is no longer available in the game`);
-        // await new Promise((resolve, reject) => {
-        //     connection.query(`UPDATE item_data SET disabled = 1 WHERE id = ?`, [ttItemId], async (error, results) => {
-        //             if (error) {
-        //                 reject(error)
-        //             }
-
-        //             resolve();
-        //         }
-        //     );
-        // });
     }
 };

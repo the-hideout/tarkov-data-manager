@@ -22,10 +22,10 @@ module.exports = () => {
     runJob('update-cache', '* * * * *');
     runJob('update-crafts', '*/10 * * * *');
     runJob('update-hideout', '10 * * * *')
-    //runJob('update-game-data', '45 3 * * *');
     runJob('update-quests', '45 * * * *');
     runJob('verify-wiki', '5 9 * * *');
     runJob('update-trader-prices', '45 * * * *');
     runJob('update-existing-bases', '*/5 * * * *');
-    // runJob('update-translations', '45 * * * *');
+
+    runJob('game-data', '*/15 * * * *')
 };

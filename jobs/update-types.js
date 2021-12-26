@@ -1,11 +1,10 @@
 const ttData = require('../modules/tt-data');
 
-const bsgData = require('../bsg-data.json');
-
 const connection = require('../modules/db-connection');
 
 module.exports = async () => {
     const allTTItems = await ttData();
+    const bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
 
     let i = 0;
     for(const itemId in allTTItems){

@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const bsgData = require('../bsg-data.json');
 const ttData = require('../modules/tt-data');
 const normalizeName = require('../modules/normalize-name');
 
@@ -12,11 +11,9 @@ const INSERT_KEYS = [
     'ShortName',
 ];
 
-const redirects = require('../../tarkov-tools/workers-site/redirects.json');
-const oldNames = require('../old-names.json');
-
 module.exports = async () => {
     const allTTItems = await ttData();
+    const bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
     const allKeys = Object.keys(bsgData);
 
     for(const key in allTTItems){
@@ -53,15 +50,31 @@ module.exports = async () => {
                 const newKey = normalizeName(item._props[insertKey].toString().trim());
 
                 if(oldKey !== newKey){
-                    redirects[`/item/${oldKey}`] = `/item/${newKey}`;
+                    try {
+                        await new Promise((resolve, reject) => {
+                            connection.query(`INSERT INTO
+                            redirects
+                                (source, destination)
+                            VALUES
+                                (?, ?)`, [oldKey, newKey], (error) => {
+                                    if (error) {
+                                        console.log(error);
+                                        reject(error);
+                                    }
+
+                                    resolve();
+                                }
+                            );
+                        });
+                    } catch (redirectInsertError){
+                        console.error(redirectInsertError);
+                    }
                 }
             }
 
             console.log(`New ${insertKey} for ${item._id}`);
             console.log(`OLD: ${allTTItems[item._id][insertKey.toLowerCase()]}`);
             console.log(`NEW: ${item._props[insertKey].toString().trim()}`);
-
-            oldNames[allTTItems[item._id][insertKey.toLowerCase()].trim()] = item._id;
 
             await new Promise((translationResolve, translationReject) => {
                 connection.query(`UPDATE
@@ -83,9 +96,6 @@ module.exports = async () => {
                     }
                 );
             });
-
-            fs.writeFileSync(path.join(__dirname, '..', 'redirects.json'), JSON.stringify(redirects, null, 4));
-            fs.writeFileSync(path.join(__dirname, '..', 'old-names.json'), JSON.stringify(oldNames, null, 4));
         }
     }
 };
