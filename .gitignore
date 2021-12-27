@@ -4,3 +4,4 @@ node_modules
 *.sql
 dumps/
 bsg-data.json
+item-props.json
