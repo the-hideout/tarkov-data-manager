@@ -16,7 +16,7 @@ module.exports = async () => {
         itemData = response.body;
         console.timeEnd('bsg-data');
     } catch (gotError){
-        console.error(gotError);
+        throw gotError;
     }
 
     try {
@@ -35,7 +35,7 @@ module.exports = async () => {
             };
         }
     } catch (gotError){
-        console.error(gotError);
+        throw gotError;
     }
 
     const writeData = {};
