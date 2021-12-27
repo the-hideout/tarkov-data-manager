@@ -14,7 +14,6 @@ const mappingProperties = [
     'weaponErgonomicPenalty',
     'armorZone',
     'ArmorMaterial',
-    'RicochetParams',
     'Weight',
     'Accuracy',
     'Recoil',
@@ -122,7 +121,9 @@ const getGrid = (item) => {
                 continue;
             }
 
-            if(!allTTData[itemId].types.filter(type => typeMapping[typeProp].includes(type))){
+            const intersection = allTTData[itemId].types.filter(type => typeMapping[typeProp].includes(type));
+
+            if(intersection.length < 1){
                 continue;
             }
 
