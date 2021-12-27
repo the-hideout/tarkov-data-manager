@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const ttData = require('../modules/tt-data');
 
 const connection = require('../modules/db-connection');
