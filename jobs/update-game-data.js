@@ -23,7 +23,6 @@ const mappingProperties = [
     'headSegments',
     'BlocksEarpiece',
     'DeafStrength',
-    'RicochetParams',
     'Accuracy',
     'Recoil',
     'Ergonomics',
