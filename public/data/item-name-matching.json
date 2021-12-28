@@ -1,5 +1,5 @@
 {
-    "version": 10,
+    "version": 11,
     "keyAttributes": [
         "GEN M3 (?:W )?",
         "\\d+(?:-round|-shot)",
@@ -347,6 +347,11 @@
         [
             "Muilticam",
             "Multicam",
+            ""
+        ],
+        [
+            "OPFOR 100-round",
+            "OPFOR 10-round",
             ""
         ],
         [
