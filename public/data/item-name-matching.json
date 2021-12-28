@@ -1,5 +1,5 @@
 {
-    "version": 11,
+    "version": 12,
     "keyAttributes": [
         "GEN M3 (?:W )?",
         "\\d+(?:-round|-shot)",
@@ -105,8 +105,8 @@
             ""
         ],
         [
-            "([136]0)(| GEN M3 W| GEN M3) STANAG [136]00-round",
-            "$1$2 STANAG $1-round",
+            "((?<!MAG5-100 STANAG ))(\\d)00-round",
+            "$1$20-round",
             ""
         ],
         [
@@ -230,11 +230,6 @@
             ""
         ],
         [
-            "D-60 600-round",
-            "D-60 60-round",
-            ""
-        ],
-        [
             "FH[5S]{1,3}6RC",
             "FH556RC",
             ""
@@ -350,13 +345,8 @@
             ""
         ],
         [
-            "OPFOR 100-round",
-            "OPFOR 10-round",
-            ""
-        ],
-        [
             "\\bpc?os\\b",
-            "pcs.",
+            "pcs",
             ""
         ],
         [
@@ -377,11 +367,6 @@
         [
             "ROMEO[BS8]{1,3}T",
             "ROMEO8T",
-            ""
-        ],
-        [
-            "SG-919 ([23]0) [23]00-round",
-            "SG-919 $1 $1-round",
             ""
         ],
         [
@@ -427,11 +412,6 @@
         [
             "VS-33cc",
             "VS-33c",
-            ""
-        ],
-        [
-            "X-FAL 500-round",
-            "X-FAL 50-round",
             ""
         ],
         [
