@@ -17,14 +17,19 @@ module.exports = () => {
     }
 
     // runJob('check-scans', '20 * * * *');
-    runJob('clear-checkouts', '5 */6 * * *');
-    runJob('update-barters', '*/15 * * * *');
     runJob('update-cache', '* * * * *');
-    runJob('update-crafts', '*/10 * * * *');
-    runJob('update-hideout', '10 * * * *')
-    runJob('update-quests', '45 * * * *');
-    runJob('verify-wiki', '5 9 * * *');
-    runJob('update-trader-prices', '45 * * * *');
-    runJob('update-existing-bases', '*/5 * * * *');
+
+    runJob('update-barters', '*/5 * * * *');
+    runJob('update-crafts', '1-59/5 * * * *');
+    runJob('update-hideout', '2-59/5 * * * *')
+    runJob('update-quests', '3-59/5 * * * *');
+    runJob('update-existing-bases', '4-59/5 * * * *');
+
     runJob('game-data', '*/15 * * * *');
+
+    runJob('update-trader-prices', '45 * * * *');
+
+    runJob('clear-checkouts', '5 */6 * * *');
+
+    runJob('verify-wiki', '5 9 * * *');
 };
