@@ -1,5 +1,5 @@
 {
-    "version": 12,
+    "version": 13,
     "keyAttributes": [
         "GEN M3 (?:W )?",
         "\\d+(?:-round|-shot)",
@@ -102,6 +102,11 @@
         [
             "[1i]{1,3}x\\/b?(\\d)x",
             "1x/$1x",
+            ""
+        ],
+        [
+            "MAGS-100 STANAG",
+            "MAG5-100 STANAG",
             ""
         ],
         [
