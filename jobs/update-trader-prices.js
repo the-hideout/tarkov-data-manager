@@ -5,6 +5,19 @@ const cloudflare = require('../modules/cloudflare');
 const doQuery = require('../modules/do-query');
 
 module.exports = async () => {
+    const scanOffsetTimestamp = await doQuery(`SELECT
+        *
+    FROM
+        trader_price_data
+    WHERE
+        trade_id = 799
+    ORDER BY
+        timestamp
+        desc
+    LIMIT 1`);
+
+    scanOffsetTimestamp[0].timestamp.setHours(scanOffsetTimestamp[0].timestamp.getHours() - 6);
+
     const traderItems = await doQuery(`SELECT
         *
     FROM
@@ -13,7 +26,9 @@ module.exports = async () => {
     const traderPriceData = await doQuery(`SELECT
         *
     FROM
-        trader_price_data;`);
+        trader_price_data
+    WHERE
+        timestamp > ?;`, [scanOffsetTimestamp[0].timestamp]);
 
     const latestTraderPrices = {};
 
