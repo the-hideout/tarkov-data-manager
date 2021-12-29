@@ -114,7 +114,6 @@ module.exports = {
                 TRADERS.prapor,
                 TRADERS.therapist,
                 TRADERS.fence,
-                TRADERS.jaeger,
             ],
         },
         '57864a66245977548f04a81f': {
