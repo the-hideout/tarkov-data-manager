@@ -417,9 +417,11 @@ app.post('/suggest-image', (request, response) => {
 
         let ext = 'jpg';
         let contentType = 'image/jpeg';
+        let MIME = Jimp.MIME_JPEG;
         if(fields.type === 'base-image'){
             ext = 'png';
             contentType = 'image/png';
+            MIME = Jimp.MIME_PNG;
         }
 
         const uploadParams = {
@@ -429,7 +431,7 @@ app.post('/suggest-image', (request, response) => {
             CacheControl: 'max-age=604800',
         };
 
-        uploadParams.Body = await image.getBufferAsync(Jimp.MIME_JPEG);
+        uploadParams.Body = await image.getBufferAsync(MIME);
 
         try {
             await s3.send(new PutObjectCommand(uploadParams));
