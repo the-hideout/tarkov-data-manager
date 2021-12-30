@@ -5,13 +5,20 @@ const got = require('got');
 
 const BASE_URL = 'https://api.cloudflare.com/client/v4/';
 
-const doRequest = async (cloudflarePath, method = 'GET', value) => {
+const doRequest = async (cloudflarePath, method = 'GET', value, extraHeaders) => {
     const requestOptions = {
         method: method,
         headers: {
             'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
         },
     };
+
+    if(extraHeaders){
+        requestOptions.headers = {
+            ...requestOptions.headers,
+            ...extraHeaders,
+        };
+    }
 
     const objectData = JSON.parse(value);
 
