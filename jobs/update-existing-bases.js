@@ -23,25 +23,25 @@ const getBucketContents = async (continuationToken = false) => {
     let responseKeys = [];
 
     const command = new ListObjectsV2Command(input);
-    try {
-        const response = await s3.send(command);
+    const response = await s3.send(command);
 
-        responseKeys = response.Contents.map(item => item.Key);
+    responseKeys = response.Contents.map(item => item.Key);
 
-        if(response.NextContinuationToken){
-            responseKeys = responseKeys.concat(await getBucketContents(response.NextContinuationToken));
-        }
-    } catch (err) {
-        console.log("Error", err);
-    };
+    if(response.NextContinuationToken){
+        responseKeys = responseKeys.concat(await getBucketContents(response.NextContinuationToken));
+    }
 
     return responseKeys;
 }
 
 module.exports = async () => {
-    const allKeys = await getBucketContents();
+    try {
+        const allKeys = await getBucketContents();
 
-    const baseKeys = allKeys.filter(key => key.includes('-base')).map(key => key.split('-')[0]);
+        const baseKeys = allKeys.filter(key => key.includes('-base')).map(key => key.split('-')[0]);
 
-    fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json'), JSON.stringify(baseKeys, null, 4));
+        fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json'), JSON.stringify(baseKeys, null, 4));
+    } catch (err) {
+        console.log("Error", err);
+    }
 }
