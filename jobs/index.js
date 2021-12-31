@@ -10,6 +10,8 @@ const runJob = function(name, cronSchedule) {
     });
 }
 
+const startupJobs = ['update-existing-bases'];
+
 module.exports = () => {
     // Only run in production
     if(process.env.NODE_ENV !== 'production'){
@@ -33,4 +35,11 @@ module.exports = () => {
     runJob('clear-checkouts', '5 */6 * * *');
 
     runJob('verify-wiki', '5 9 * * *');
+
+    for (let i = 0; i < startupJobs.length; i++) {
+        const jobName = startupJobs[i];
+        const jobModule = require(`./${jobName}`);
+        console.log(`Running ${jobName} job at startup`);
+        jobModule();
+    }
 };
