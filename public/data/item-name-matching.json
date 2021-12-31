@@ -1,5 +1,5 @@
 {
-    "version": 14,
+    "version": 17,
     "keyAttributes": [
         "GEN M3 (?:W )?",
         "\\d+(?:-round|-shot)",
@@ -80,7 +80,7 @@
             ""
         ],
         [
-            "^\\.5358\\b",
+            "^\\.535?8\\b",
             ".338",
             ""
         ],
@@ -220,7 +220,7 @@
             ""
         ],
         [
-            "balacliava",
+            "balacl?iava",
             "balaclava",
             ""
         ],
@@ -245,8 +245,18 @@
             ""
         ],
         [
-            "gen.i",
+            "gen.i?]",
             "gen.1",
+            ""
+        ],
+        [
+            "GENZ stock",
+            "GEN2 stock",
+            ""
+        ],
+        [
+            "HK 628",
+            "HK G28",
             ""
         ],
         [
@@ -330,7 +340,12 @@
             ""
         ],
         [
-            "MPIY-N",
+            "MP3 9x19",
+            "MP9 9x19",
+            ""
+        ],
+        [
+            "MPI?Y?-N",
             "MP9-N",
             ""
         ],
@@ -400,13 +415,18 @@
             ""
         ],
         [
-            "Tula TT[0O]Q?1",
+            "Tula TT[0O]?Q?1",
             "Tula TT01",
             ""
         ],
         [
             "\\bUitima\\b",
             "Ultima",
+            ""
+        ],
+        [
+            "U[lI]tiMAK M8",
+            "UltiMAK M8",
             ""
         ],
         [
