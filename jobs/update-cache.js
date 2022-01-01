@@ -78,21 +78,24 @@ module.exports = async () => {
         Reflect.deleteProperty(itemData[key], 'scan_position');
         Reflect.deleteProperty(itemData[key], 'match_index');
 
-        let itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === key);
+        // Only add these if it's allowed on the flea market
+        if(!itemData[key].types.includes('no-flea')){
+            let itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === key);
 
-        if(!itemPriceYesterday || itemData[key].avg24hPrice === 0){
-            itemData[key].changeLast48hPercent = 0;
-        } else {
-            const percentOfDayBefore = itemData[key].avg24hPrice / itemPriceYesterday.priceYesterday
-            itemData[key].changeLast48hPercent = roundTo((percentOfDayBefore - 1) * 100, 2);
-        }
-        itemData[key].changeLast48h = itemData[key].changeLast48hPercent
+            if(!itemPriceYesterday || itemData[key].avg24hPrice === 0){
+                itemData[key].changeLast48hPercent = 0;
+            } else {
+                const percentOfDayBefore = itemData[key].avg24hPrice / itemPriceYesterday.priceYesterday
+                itemData[key].changeLast48hPercent = roundTo((percentOfDayBefore - 1) * 100, 2);
+            }
+            itemData[key].changeLast48h = itemData[key].changeLast48hPercent
 
-        if(!itemData[key].lastLowPrice){
-            let lastKnownPrice = lastKnownPriceData.find(row => row.item_id === key);
-            if(lastKnownPrice){
-                itemData[key].updated = lastKnownPrice.timestamp;
-                itemData[key].lastLowPrice = lastKnownPrice.price;
+            if(!itemData[key].lastLowPrice){
+                let lastKnownPrice = lastKnownPriceData.find(row => row.item_id === key);
+                if(lastKnownPrice){
+                    itemData[key].updated = lastKnownPrice.timestamp;
+                    itemData[key].lastLowPrice = lastKnownPrice.price;
+                }
             }
         }
 
