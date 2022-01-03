@@ -15,7 +15,7 @@ module.exports = async () => {
     }
 
     for(const presetId in presets){
-        if(!presets[presetId]._name.includes(' Default')){
+        if(!presets[presetId]._name.toLowerCase().includes(' default')){
             continue;
         }
 
@@ -23,7 +23,7 @@ module.exports = async () => {
         for(const item of presets[presetId]._items){
             i = i + 1;
 
-            console.log(`Adding item ${i}/${presets[presetId]._items.length} for ${presets[presetId]._name}`);
+            console.log(`Adding item ${i}/${presets[presetId]._items.length} for ${presets[presetId]._name} ${presets[presetId]._encyclopedia}`);
 
             if(item._tpl === presets[presetId]._encyclopedia){
                 continue;
@@ -35,7 +35,7 @@ module.exports = async () => {
                         ?,
                         ?,
                         ?
-                    )`, [presetId, item.tpl, 1], async (error, results) => {
+                    )`, [presets[presetId]._encyclopedia, item._tpl, 1], async (error, results) => {
                         if (error) {
                             reject(error)
                         }
@@ -44,6 +44,7 @@ module.exports = async () => {
                     }
                 );
             });
+
             try {
                 await promise;
             } catch (upsertError){
@@ -52,6 +53,7 @@ module.exports = async () => {
                 throw upsertError;
             }
         }
-
     }
+
+    console.log('Done with all presets');
 };
