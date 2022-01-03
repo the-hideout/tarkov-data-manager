@@ -15,7 +15,7 @@ module.exports = async () => {
     }
 
     for(const presetId in presets){
-        if(!presets[presetId]._name.toLowerCase().includes(' default')){
+        if(!presets[presetId]._name.toLowerCase().includes(' default') && !presets[presetId]._name.toLowerCase().includes('_std')){
             continue;
         }
 
