@@ -216,9 +216,26 @@ module.exports = async () => {
             item.height = itemPresetSize.height;
         }
 
-        if(allTTItems[item._id].basePrice !== item._props.CreditsPrice){
+        if(allTTItems[item._id] && allTTItems[item._id].basePrice !== item._props.CreditsPrice){
             spinner.warn(`${allTTItems[item._id].name} has the wrong basePrice. is ${allTTItems[item._id].basePrice} should be ${item._props.CreditsPrice}`);
             spinner.start();
+
+            try {
+                await new Promise((resolve, reject) => {
+                    connection.query(`UPDATE item_data SET base_price = ? WHERE id = ?`, [item._id, item._props.CreditsPrice], (error) => {
+                            if (error) {
+                                reject(error)
+                            }
+
+                            spinner.succeed(`Updated base_price for ${item._id} to ${item._props.CreditsPrice}`);
+                            spinner.start();
+                            resolve();
+                        }
+                    );
+                });
+            } catch (updateError){
+                console.error(updateError);
+            }
         }
 
         // Skip already existing items
