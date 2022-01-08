@@ -222,7 +222,7 @@ module.exports = async () => {
 
             try {
                 await new Promise((resolve, reject) => {
-                    connection.query(`UPDATE item_data SET base_price = ? WHERE id = ?`, [item._id, item._props.CreditsPrice], (error) => {
+                    connection.query(`UPDATE item_data SET base_price = ? WHERE id = ?`, [item._props.CreditsPrice, item._id], (error) => {
                             if (error) {
                                 reject(error)
                             }
