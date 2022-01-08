@@ -654,5 +654,14 @@ module.exports = {
                 TRADERS.prapor,
             ],
         },
-    }
-}
+    },
+    distinctList: {
+        '59faff1d86f7746c51718c9c': {
+            id: '59faff1d86f7746c51718c9c',
+            name: 'Physical bitcoin',
+            traders: [
+                TRADERS.therapist,
+            ],
+        },
+    },
+};

@@ -3,8 +3,7 @@ const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const midmean = require('compute-midmean');
 
-const bitcoinPrice = require('./bitcoin-price');
-const {categories, items} = require('../modules/category-map');
+const {categories, items, distinctList} = require('../modules/category-map');
 const timer = require('./console-timer');
 
 // a client can be shared by difference commands.
@@ -171,7 +170,6 @@ const methods = {
                                 if(itemProperties && items[result.id]){
                                     for(const trader of items[result.id].traders){
                                         // console.log(`Suggested price for ${preparedData.name} at ${trader.name}: ${Math.floor(trader.multiplier * preparedData.base_price)}`);
-                                        console.log(trader);
                                         preparedData.traderPrices.push({
                                             name: trader.name,
                                             price: Math.floor(trader.multiplier * preparedData.base_price),
@@ -179,15 +177,24 @@ const methods = {
                                     }
                                 }
 
-                                if(result.id === '59faff1d86f7746c51718c9c'){
-                                    // Remove Therapist price
-                                    preparedData.traderPrices = preparedData.traderPrices.filter(traderPrice => traderPrice.name !== 'Therapist');
+                                if(itemProperties && distinctList[result.id]){
+                                    preparedData.traderPrices = [];
 
-                                    preparedData.traderPrices.push({
-                                        price: await bitcoinPrice(),
-                                        name: 'Therapist',
-                                    });
+                                    for(const trader of distinctList[result.id].traders){
+                                        // console.log(`Suggested price for ${preparedData.name} at ${trader.name}: ${Math.floor(trader.multiplier * preparedData.base_price)}`);
+                                        preparedData.traderPrices.push({
+                                            name: trader.name,
+                                            price: Math.floor(trader.multiplier * preparedData.base_price),
+                                        });
+                                    }
                                 }
+
+                                // if(result.id === '59faff1d86f7746c51718c9c'){
+                                //     preparedData.traderPrices = [{
+                                //         price: Math.floor(trader.multiplier * preparedData.base_price),
+                                //         name: 'Therapist',
+                                //     }];
+                                // }
 
                                 returnData.set(result.id, preparedData);
                             }
