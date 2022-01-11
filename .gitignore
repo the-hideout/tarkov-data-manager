@@ -5,3 +5,4 @@ node_modules
 dumps/
 bsg-data.json
 item-props.json
+scripts/local/
