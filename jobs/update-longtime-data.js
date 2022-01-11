@@ -102,7 +102,7 @@ module.exports = async () => {
     for(const map in keys){
         const mapPriceData = ['price,timestamp,name'];
 
-        console.time(`historical-price-query-${map}`);
+        console.time(`longtime-price-query-${map}`);
         const historicalPriceData = await doQuery(`SELECT
             item_id, price, timestamp
         FROM
@@ -112,7 +112,7 @@ module.exports = async () => {
         AND
             item_id
         IN (?)`, [Object.values(keys[map])]);
-        console.timeEnd(`historical-price-query-${map}`);
+        console.timeEnd(`longtime-price-query-${map}`);
 
         for (const row of historicalPriceData) {
             let keyName = false;
@@ -128,6 +128,10 @@ module.exports = async () => {
             mapPriceData.push(`${row.price},${row.timestamp.toISOString()},${keyName}`);
         }
 
+        historicalPriceData = null;
+
         fs.writeFileSync(path.join(__dirname, '..', 'public', `historical-prices-${map}.csv`), mapPriceData.join('\n'));
+
+        mapPriceData = null;
     }
 };
