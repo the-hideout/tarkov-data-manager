@@ -10,7 +10,10 @@ const runJob = function(name, cronSchedule) {
     });
 }
 
-const startupJobs = ['update-existing-bases'];
+const startupJobs = [
+    'update-existing-bases',
+    'update-longtime-data',
+];
 
 module.exports = () => {
     // Only run in production
@@ -35,6 +38,7 @@ module.exports = () => {
     runJob('clear-checkouts', '5 */6 * * *');
 
     runJob('verify-wiki', '5 9 * * *');
+    runJob('update-longtime-data', '49 8 * * *');
 
     for (let i = 0; i < startupJobs.length; i++) {
         const jobName = startupJobs[i];
