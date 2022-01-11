@@ -100,10 +100,10 @@ const keys = {
 
 module.exports = async () => {
     for(const map in keys){
-        const mapPriceData = ['price,timestamp,name'];
+        let mapPriceData = ['price,timestamp,name'];
 
         console.time(`longtime-price-query-${map}`);
-        const historicalPriceData = await doQuery(`SELECT
+        let historicalPriceData = await doQuery(`SELECT
             item_id, price, timestamp
         FROM
             price_data
@@ -130,7 +130,7 @@ module.exports = async () => {
 
         historicalPriceData = null;
 
-        fs.writeFileSync(path.join(__dirname, '..', 'public', `historical-prices-${map}.csv`), mapPriceData.join('\n'));
+        fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', `historical-prices-${map}.csv`), mapPriceData.join('\n'));
 
         mapPriceData = null;
     }
