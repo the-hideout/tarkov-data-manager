@@ -100,8 +100,6 @@ const keys = {
 
 module.exports = async () => {
     for(const map in keys){
-        let mapPriceData = ['price,timestamp,name'];
-
         console.time(`longtime-price-query-${map}`);
         let historicalPriceData = await doQuery(`SELECT
             item_id, price, timestamp
@@ -114,8 +112,15 @@ module.exports = async () => {
         IN (?)`, [Object.values(keys[map])]);
         console.timeEnd(`longtime-price-query-${map}`);
 
+        const fileHandle = fs.createWriteStream(path.join(__dirname, '..', 'public', 'data', `historical-prices-${map}.csv`), {
+            flags: 'a',
+        });
+
+        fileHandle.write('price,timestamp,name\n');
+
         for (const row of historicalPriceData) {
             let keyName = false;
+
             for(const name in keys[map]){
                 if(keys[map][name] !== row.item_id){
                     continue;
@@ -125,13 +130,12 @@ module.exports = async () => {
                 break;
             }
 
-            mapPriceData.push(`${row.price},${row.timestamp.toISOString()},${keyName}`);
+            fileHandle.write(`${row.price},${row.timestamp.toISOString()},${keyName}\n`);
         }
 
+        fileHandle.end();
+
         historicalPriceData = null;
-
-        fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', `historical-prices-${map}.csv`), mapPriceData.join('\n'));
-
         mapPriceData = null;
     }
 };
