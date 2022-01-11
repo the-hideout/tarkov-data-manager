@@ -12,7 +12,6 @@ const runJob = function(name, cronSchedule) {
 
 const startupJobs = [
     'update-existing-bases',
-    'update-longtime-data',
 ];
 
 module.exports = () => {
@@ -38,7 +37,9 @@ module.exports = () => {
     runJob('clear-checkouts', '5 */6 * * *');
 
     runJob('verify-wiki', '5 9 * * *');
-    runJob('update-longtime-data', '49 8 * * *');
+
+    // Too much memory :'(
+    // runJob('update-longtime-data', '49 8 * * *');
 
     for (let i = 0; i < startupJobs.length; i++) {
         const jobName = startupJobs[i];
