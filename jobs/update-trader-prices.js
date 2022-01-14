@@ -78,7 +78,7 @@ module.exports = async () => {
     fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'trader-inventory.json'), JSON.stringify(outputData, null, 4));
 
     try {
-        const response = await cloudflare(`accounts/66766e138fce1ac1d2ef95953e037f4e/storage/kv/namespaces/f04e5b75ee894b3a90cec2b7cc351311/values/TRADER_ITEMS`, 'PUT', JSON.stringify(outputData));
+        const response = await cloudflare(`/values/TRADER_ITEMS`, 'PUT', JSON.stringify(outputData));
         console.log(response);
     } catch (requestError){
         console.error(requestError);
