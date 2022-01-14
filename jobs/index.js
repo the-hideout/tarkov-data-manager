@@ -22,6 +22,7 @@ module.exports = () => {
 
     // runJob('check-scans', '20 * * * *');
     runJob('update-cache', '* * * * *');
+    runJob('update-reset-timers', '* * * * *');
 
     runJob('update-barters', '*/5 * * * *');
     runJob('update-crafts', '1-59/5 * * * *');
