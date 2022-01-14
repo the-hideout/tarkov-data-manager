@@ -106,7 +106,7 @@ module.exports = async () => {
         FROM
             price_data
         WHERE
-            timestamp > 2021-12-12
+            timestamp > '2021-12-14'
         AND
             item_id
         IN (?)`, [Object.values(keys[map])]);
