@@ -234,43 +234,35 @@ $(document).ready( function () {
 
 jQuery.fn.dataTableExt.afnFiltering.push(
     function( oSettings, aData, iDataIndex ) {
-        const column = 4;
-        let columnData = aData[column];
-        if (columnData) columnData = columnData.split(',');
-        var checked = jQuery('input.filter-type:checked');
-        if (typeof checked == 'undefined') return false;
-        for (var i=0; i< checked.length; i++) {
-            if (columnData.includes(jQuery(checked[i]).val())) {
-                return true;
-            }
-        }
-        return false;
-    }
-);
-
-jQuery.fn.dataTableExt.afnFiltering.push(
-    function( oSettings, aData, iDataIndex ) {
-        const column = 4;
-        let columnData = aData[column];
-        if (columnData) columnData = columnData.split(',');
-        var checked = jQuery('input.filter-special:checked');
-        if (typeof checked == 'undefined') return false;
-        for (var i=0; i< checked.length; i++) {
-            const filter = jQuery(checked[i]).val();
+        const item = all_items[iDataIndex];
+        let specialPassd = false;
+        let typePassed = false;
+        let specialChecked = jQuery('input.filter-special:checked');
+        if (typeof specialChecked == 'undefined') return false;
+        for (let i=0; i< specialChecked.length; i++) {
+            const filter = jQuery(specialChecked[i]).val();
             if (filter === 'all') {
                 return true;
             } else if (filter === 'untagged') {
-                if (!aData[4]) return true;
+                console.log(`${all_items[iDataIndex].name} ${all_items[iDataIndex].types.length}`);
+                if (all_items[iDataIndex].types.length == 0) return true;
             } else if (filter === 'missing-image') {
                 let disabled = false;
                 let types = aData[4];
                 if (types) types = types.split(',');
                 if (types.includes('disabled')) disabled = true;
-                if ((!aData[1] || !aData[2] || !aData[3]) && !disabled) return true;
+                if ((!aData[1] || !aData[2] || !aData[3]) && !disabled) specialPassd = true;
             } else if (filter === 'no-wiki') {
-                if (!all_items[iDataIndex].wiki_link) return true;
+                if (!all_items[iDataIndex].wiki_link) specialPassd = true;
             }
         }
-        return false;
+        let typeChecked = jQuery('input.filter-type:checked');
+        if (typeof typeChecked == 'undefined') return false;
+        for (let i=0; i< typeChecked.length; i++) {
+            if (item.types.includes(jQuery(typeChecked[i]).val())) {
+                typePassed = true;
+            }
+        }
+        return specialPassd && typePassed;
     }
 );
