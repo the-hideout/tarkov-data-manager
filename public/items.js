@@ -220,57 +220,51 @@ $(document).ready( function () {
     });
 
     $('.filter-special-all').click(() => {
-        $('input.filter-special').prop('checked', true);
+        $('.filter-special[value="all"]').prop('checked', true);
+        $('.filter-special[value!="all"]').prop('checked', false);
         drawTable();
     });
     $('.filter-special-none').click(() => {
         $('input.filter-special').prop('checked', false);
         drawTable();
     });
-    $('.filter-special').change(() => {
+    $('.filter-special').change((event) => {
+        const check = $(event.target);
+        if (check.val() == 'all') {
+            $('.filter-special[value!="all"]').prop('checked', !check.prop('checked'));
+        } else if (check.prop('checked')) {
+            $('.filter-special[value="all"]').prop('checked', false);
+        }
         drawTable();
     });
 } );
 
 jQuery.fn.dataTableExt.afnFiltering.push(
     function( oSettings, aData, iDataIndex ) {
-        const column = 4;
-        let columnData = aData[column];
-        if (columnData) columnData = columnData.split(',');
-        var checked = jQuery('input.filter-type:checked');
-        if (typeof checked == 'undefined') return false;
-        for (var i=0; i< checked.length; i++) {
-            if (columnData.includes(jQuery(checked[i]).val())) {
-                return true;
-            }
-        }
-        return false;
-    }
-);
-
-jQuery.fn.dataTableExt.afnFiltering.push(
-    function( oSettings, aData, iDataIndex ) {
-        const column = 4;
-        let columnData = aData[column];
-        if (columnData) columnData = columnData.split(',');
-        var checked = jQuery('input.filter-special:checked');
-        if (typeof checked == 'undefined') return false;
-        for (var i=0; i< checked.length; i++) {
-            const filter = jQuery(checked[i]).val();
+        const item = all_items[iDataIndex];
+        let specialPassed = false;
+        let typePassed = false;
+        let specialChecked = jQuery('input.filter-special:checked');
+        if (typeof specialChecked == 'undefined') return false;
+        for (let i=0; i< specialChecked.length; i++) {
+            const filter = jQuery(specialChecked[i]).val();
             if (filter === 'all') {
-                return true;
+                specialPassed = true;
             } else if (filter === 'untagged') {
-                if (!aData[4]) return true;
+                if (item.types.length == 0) return true;
             } else if (filter === 'missing-image') {
-                let disabled = false;
-                let types = aData[4];
-                if (types) types = types.split(',');
-                if (types.includes('disabled')) disabled = true;
-                if ((!aData[1] || !aData[2] || !aData[3]) && !disabled) return true;
+                if (!aData[1] || !aData[2] || !aData[3]) specialPassed = true;
             } else if (filter === 'no-wiki') {
-                if (!all_items[iDataIndex].wiki_link) return true;
+                if (!item.wiki_link) specialPassed = true;
             }
         }
-        return false;
+        let typeChecked = jQuery('input.filter-type:checked');
+        if (typeof typeChecked == 'undefined') return false;
+        for (let i=0; i< typeChecked.length; i++) {
+            if (item.types.includes(jQuery(typeChecked[i]).val())) {
+                typePassed = true;
+            }
+        }
+        return specialPassed && typePassed;
     }
 );
