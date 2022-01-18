@@ -442,6 +442,11 @@ app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
         updated = true;
     }
 
+    if (req.body['match-index'] && req.body['match-index'] !== 'null' && currentItemData.match_index !== req.body['match-index']) {
+        await remoteData.setProperty(req.params.id, 'match_index', req.body['match-index']);
+        updated = true;
+    }
+
     if (updated) {
         response.success = true;
         response.message = `${currentItemData.name} updated.<br>Will be live in < 4 hours.`;
@@ -533,33 +538,40 @@ app.get('/items/:type', async (req, res) => {
                 <div class="row">
                     <form class="col s12 post-url item-attribute-id" data-attribute="action" data-prepend-value="/items/edit/" method="post" action="">
                         <div class="row">
-                                <div class="input-field col s2 item-image-image_link"></div>
-                                <div class="input-field col s10">
-                                    <input value="" id="image-link" type="text" class="validate item-value-image_link" name="image-link">
-                                    <label for="image-link">Image Link</label>
-                                </div>
+                            <div class="input-field col s2 item-image-image_link"></div>
+                            <div class="input-field col s10">
+                                <input value="" id="image-link" type="text" class="validate item-value-image_link" name="image-link">
+                                <label for="image-link">Image Link</label>
                             </div>
-                            <div class="row">
-                                <div class="input-field col s2 item-image-icon_link"></div>
-                                <div class="input-field col s10">
-                                    <input value="" id="icon-link" type="text" class="validate item-value-icon_link" name="icon-link">
-                                    <label for="icon-link">Icon Link</label>
-                                </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s2 item-image-icon_link"></div>
+                            <div class="input-field col s10">
+                                <input value="" id="icon-link" type="text" class="validate item-value-icon_link" name="icon-link">
+                                <label for="icon-link">Icon Link</label>
                             </div>
-                            <div class="row">
-                                <div class="input-field col s2 item-image-grid_image_link"></div>
-                                <div class="input-field col s10">
-                                    <input value="" id="grid-image-link" type="text" class="validate item-value-icon_link" name="grid-image-link">
-                                    <label for="grid-image-link">Grid image link</label>
-                                </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s2 item-image-grid_image_link"></div>
+                            <div class="input-field col s10">
+                                <input value="" id="grid-image-link" type="text" class="validate item-value-icon_link" name="grid-image-link">
+                                <label for="grid-image-link">Grid image link</label>
                             </div>
-                            <div class="row">
+                        </div>
+                        <div class="row">
                             <div class="input-field col s2">
                                 <a class="item-attribute-wiki_link" data-attribute="href" href="">WIKI</a>
                             </div>
                             <div class="input-field col s10">
                                 <input value="" id="wiki-link" type="text" class="validate item-value-wiki_link" name="wiki-link">
                                 <label for="wiki-link">wiki link</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s2 item-match_index"></div>
+                            <div class="input-field col s10">
+                                <input value="" id="match-index" type="text" class="validate item-value-match_index" name="match-index">
+                                <label for="match-index">Match index</label>
                             </div>
                         </div>
                     </form>
