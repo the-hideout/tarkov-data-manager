@@ -562,7 +562,7 @@ app.get('/', async (req, res) => {
     const activeScanners = [];
     const inactiveScanners = [];
     latestScanResults.map(latestScan => {
-        if (new Date - latestScan.timestamp > 1000 * 60 * 60 *24 * 7) {
+        if (new Date - latestScan.timestamp > 1000 * 60 * 60 * 2) {
             inactiveScanners.push(latestScan);
         } else {
             activeScanners.push(latestScan);
