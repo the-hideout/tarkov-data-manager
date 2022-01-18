@@ -220,14 +220,21 @@ $(document).ready( function () {
     });
 
     $('.filter-special-all').click(() => {
-        $('input.filter-special').prop('checked', true);
+        $('.filter-special[value="all"]').prop('checked', true);
+        $('.filter-special[value!="all"]').prop('checked', false);
         drawTable();
     });
     $('.filter-special-none').click(() => {
         $('input.filter-special').prop('checked', false);
         drawTable();
     });
-    $('.filter-special').change(() => {
+    $('.filter-special').change((event) => {
+        const check = $(event.target);
+        if (check.val() == 'all') {
+            $('.filter-special[value!="all"]').prop('checked', !check.prop('checked'));
+        } else if (check.prop('checked')) {
+            $('.filter-special[value="all"]').prop('checked', false);
+        }
         drawTable();
     });
 } );
@@ -246,9 +253,7 @@ jQuery.fn.dataTableExt.afnFiltering.push(
             } else if (filter === 'untagged') {
                 if (item.types.length == 0) return true;
             } else if (filter === 'missing-image') {
-                let disabled = false;
-                if (item.types.includes('disabled')) disabled = true;
-                if ((!aData[1] || !aData[2] || !aData[3]) && !disabled) specialPassed = true;
+                if (!aData[1] || !aData[2] || !aData[3]) specialPassed = true;
             } else if (filter === 'no-wiki') {
                 if (!item.wiki_link) specialPassed = true;
             }

@@ -484,7 +484,7 @@ app.get('/items', async (req, res) => {
         specFilters = `${specFilters}
         <div class="type-wrapper">
             <label for="type-${type}">
-                <input type="checkbox" class="filled-in filter-special" id="type-${type}" value="${type}" checked />
+                <input type="checkbox" class="filled-in filter-special" id="type-${type}" value="${type}" ${type === 'all' ? 'checked' : ''} />
                 <span>${type}</span>
             </label>
         </div>`;
