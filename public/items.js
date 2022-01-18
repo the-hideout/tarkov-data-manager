@@ -260,6 +260,6 @@ jQuery.fn.dataTableExt.afnFiltering.push(
                 typePassed = true;
             }
         }
-        return specialPassd && typePassed;
+        return specialPassed && typePassed;
     }
 );
