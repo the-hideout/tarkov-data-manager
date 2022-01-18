@@ -257,12 +257,14 @@ jQuery.fn.dataTableExt.afnFiltering.push(
             } else if (filter === 'no-wiki') {
                 if (!item.wiki_link) specialPassed = true;
             }
+            if (specialPassed) break;
         }
         let typeChecked = jQuery('input.filter-type:checked');
         if (typeof typeChecked == 'undefined') return false;
         for (let i=0; i< typeChecked.length; i++) {
             if (item.types.includes(jQuery(typeChecked[i]).val())) {
                 typePassed = true;
+                break;
             }
         }
         return specialPassed && typePassed;
