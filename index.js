@@ -165,12 +165,17 @@ const getHeader = (req) => {
         </head>
         <body>
             <script src="/ansi_up.js"></script>
-            <script src="/index.js"></script>
             <script src="/common.js"></script>
+            <script>
+                $(document).ready(function(){
+                    $('.sidenav').sidenav();
+                });
+            </script>
             <nav>
                 <div class="nav-wrapper">
+                    <a href="#" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
                     <ul id="nav-mobile" class="left hide-on-med-and-down">
-                        <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Home</a></li>
+                        <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Scanners</a></li>
                         ${
                             AVAILABLE_TYPES
                                 .concat(CUSTOM_HANDLERS)
@@ -181,6 +186,16 @@ const getHeader = (req) => {
                     </ul>
                 </div>
             </nav>
+            <ul class="sidenav" id="mobile-menu">
+                <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Scanners</a></li>
+                ${
+                    AVAILABLE_TYPES
+                        .concat(CUSTOM_HANDLERS)
+                        .sort()
+                        .map(type => `<li class="${req.params && req.params.type === type ? 'active' : ''}"><a href="/items/${type}">${capitalizeFirstLetter(type)}</a></li>`)
+                        .join(' ')
+                }
+            </ul>
         `;
 }
 
@@ -481,6 +496,7 @@ app.get('/items/:type', async (req, res) => {
     }
     t.end();
     res.send(`${getHeader(req)}
+        <script src="/items.js"></script>
         <script>
         const all_items = ${JSON.stringify(items, null, 4)};
         </script>
@@ -574,6 +590,7 @@ app.get('/', async (req, res) => {
             activeClass = ' active';
         }
         return `
+        <script src="/scanners.js"></script>
         <div class="scanner">
             <ul class="collapsible" data-collapsible="collapsible">
                 <li class="${activeClass}">
