@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const vm = require('vm');
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -16,6 +17,8 @@ const jobs = require('./jobs');
 const connection = require('./modules/db-connection');
 const timer = require('./modules/console-timer');
 
+vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
+
 const rollbar = new Rollbar({
     accessToken: process.env.ROLLBAR_TOKEN,
     captureUncaught: true,
@@ -23,7 +26,7 @@ const rollbar = new Rollbar({
 });
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 4000;
 
 let myData = false;
 
@@ -92,45 +95,6 @@ try {
     }
 }
 
-const AVAILABLE_TYPES = [
-    'ammo-box',
-    'ammo',
-    'armor',
-    'backpack',
-    'barter',
-    'container',
-    'disabled',
-    'glasses',
-    'grenade',
-    'gun',
-    'headphones',
-    'helmet',
-    'keys',
-    'marked-only',
-    'mods',
-    'no-flea',
-    'pistol-grip',
-    'provisions',
-    'rig',
-    'suppressor',
-    'wearable',
-];
-
-const CUSTOM_HANDLERS = [
-    'untagged',
-    'missing-image',
-    'no-wiki',
-    'all',
-];
-
-const formatPrice = (price) => {
-    return new Intl.NumberFormat('ru-RU', {
-        style: 'currency',
-        currency: 'RUB',
-        maximumSignificantDigits: 6,
-    }).format(price);
-};
-
 const updateTypes = async (updateObject) => {
     const updateData = await remoteData.get();
     const currentItemData = updateData.get(updateObject.id);
@@ -154,108 +118,9 @@ const updateTypes = async (updateObject) => {
     myData = updateData;
 };
 
-const getItemTypesMarkup = (item) => {
-    let markupString = '<td class="types-column">';
-    for(const type of AVAILABLE_TYPES){
-        markupString = `${markupString}
-        <div class="type-wrapper">
-            <label for="${item.id}-${type}">
-                <input type="checkbox" id="${item.id}-${type}" value="${type}" data-item-id="${item.id}" ${myData.get(item.id).types?.includes(type) ? 'checked' : ''} />
-                <span>${type}</span>
-            </label>
-        </div>`;
-    }
-
-    markupString = `${markupString}</td>`;
-
-    return markupString;
-};
-
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
-
-const getTableContents = async (filterObject) => {
-    let tableContentsString = '';
-    let maxItems = 3000;
-    let items = 0;
-
-    for(const [key, item] of myData){
-        if(filterObject?.type){
-            switch (filterObject.type){
-                case 'all':
-                    // Allow all items
-                    break;
-                case 'untagged':
-                    if(item.types.length > 0){
-                        continue;
-                    }
-                    break;
-                case 'missing-image':
-                    if((item.image_link && item.icon_link && item.grid_image_link) || item.types.includes('disabled')){
-                        continue;
-                    }
-
-                    break;
-
-                case 'no-wiki':
-                    if(item.wiki_link){
-                        continue;
-                    }
-
-                    break;
-                default:
-                    if(!item.types.includes(filterObject.type)){
-                        continue;
-                    }
-            }
-        }
-
-        items = items + 1;
-
-        const scanImageUrl = `https://tarkov-data.s3.eu-north-1.amazonaws.com/${item.id}/latest.jpg`;
-        tableContentsString = `${tableContentsString}
-        <tr>
-            <td class="name-column">
-                <div>
-                    ${item.name}
-                </div>
-                <div>
-                    ${item.id}
-                </div>
-                <div>
-                    <a href="${item.wiki_link}">Wiki</a>
-                    |
-                    <a href="https://tarkov-tools.com/item/${item.normalized_name}">Tarkov Tools</a>
-                    <br>
-                    <a class="waves-effect waves-light btn edit-item" data-item="${encodeURIComponent(JSON.stringify(item))}"><i class="material-icons">edit</i></a>
-                </div>
-            </td>
-            <td>
-                ${item.image_link ? `<img src="${item.image_link}" loading="lazy" />`: ''}
-            </td>
-            <td>
-                ${item.icon_link ? `<img src="${item.icon_link}" loading="lazy" />`: ''}
-            </td>
-            <td>
-                ${item.grid_image_link ? `<img src="${item.grid_image_link}" loading="lazy" />`: ''}
-            </td>
-            ${getItemTypesMarkup(item)}
-            <td>
-                ${formatPrice(item.avg24hPrice)}
-            </td>
-            </tr>`;
-
-            // <td>
-            //     <pre>${JSON.stringify(item, null, 4)}</pre>
-            // </td>
-        if(items > maxItems){
-            break;
-        }
-    }
-
-    return tableContentsString;
-};
 
 const getHeader = (req) => {
     let javascript = '';
@@ -300,11 +165,17 @@ const getHeader = (req) => {
         </head>
         <body>
             <script src="/ansi_up.js"></script>
-            <script src="/index.js"></script>
+            <script src="/common.js"></script>
+            <script>
+                $(document).ready(function(){
+                    $('.sidenav').sidenav();
+                });
+            </script>
             <nav>
                 <div class="nav-wrapper">
+                    <a href="#" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
                     <ul id="nav-mobile" class="left hide-on-med-and-down">
-                        <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Home</a></li>
+                        <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Scanners</a></li>
                         ${
                             AVAILABLE_TYPES
                                 .concat(CUSTOM_HANDLERS)
@@ -315,6 +186,16 @@ const getHeader = (req) => {
                     </ul>
                 </div>
             </nav>
+            <ul class="sidenav" id="mobile-menu">
+                <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Scanners</a></li>
+                ${
+                    AVAILABLE_TYPES
+                        .concat(CUSTOM_HANDLERS)
+                        .sort()
+                        .map(type => `<li class="${req.params && req.params.type === type ? 'active' : ''}"><a href="/items/${type}">${capitalizeFirstLetter(type)}</a></li>`)
+                        .join(' ')
+                }
+            </ul>
         `;
 }
 
@@ -561,6 +442,11 @@ app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
         updated = true;
     }
 
+    if (req.body['match-index'] && req.body['match-index'] !== 'null' && currentItemData.match_index !== req.body['match-index']) {
+        await remoteData.setProperty(req.params.id, 'match_index', req.body['match-index']);
+        updated = true;
+    }
+
     if (updated) {
         response.success = true;
         response.message = `${currentItemData.name} updated.<br>Will be live in < 4 hours.`;
@@ -571,9 +457,55 @@ app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
 app.get('/items/:type', async (req, res) => {
     const t = timer('getting-items');
     myData = await remoteData.get();
+    const items = [];
+    const attributes = [
+        'id', 
+        'name', 
+        'shortname', 
+        'types', 
+        'normalized_name',
+        'wiki_link',
+        'icon_link',
+        'grid_image_link',
+        'image_link',
+        'match_index',
+        'avg24hPrice',
+        'lastLowPrice'
+    ];
+    for (const [key, item] of myData) {
+        if (req.params.type !== 'all') {
+            if (!item.types.includes(req.params.type) && !CUSTOM_HANDLERS.includes(req.params.type)) {
+                continue;
+            } else if (CUSTOM_HANDLERS.includes(req.params.type)) {
+                if (req.params.type == 'untagged') {
+                    if (item.types.length > 0) {
+                        continue;
+                    }
+                } else if (req.params.type == 'missing-image') {
+                    if ((item.image_link && item.icon_link && item.grid_image_link) || item.types.includes('disabled')) {
+                        continue;
+                    }
+                } else if (req.params.type == 'no-wiki') {
+                    if (item.wiki_link) {
+                        continue;
+                    }
+                }
+            }
+        }
+        const newItem = {};
+        for (let i = 0; i < attributes.length; i++) {
+            const attribute = attributes[i];
+            newItem[attribute] = item[attribute];
+        }
+        items.push(newItem);
+    }
     t.end();
     res.send(`${getHeader(req)}
-        <table class="highlight main" style="display:none;">
+        <script src="/items.js"></script>
+        <script>
+        const all_items = ${JSON.stringify(items, null, 4)};
+        </script>
+        <table class="highlight main">
             <thead>
                 <tr>
                     <th>
@@ -583,10 +515,10 @@ app.get('/items/:type', async (req, res) => {
                         Image
                     </th>
                     <th>
-                        Icon
+                        Grid image
                     </th>
                     <th>
-                        Grid image
+                        Icon
                     </th>
                     <th>
                         Tags
@@ -597,9 +529,6 @@ app.get('/items/:type', async (req, res) => {
                 </tr>
             </thead>
             <tbody>
-                ${ await getTableContents({
-                    type: req.params.type,
-                })}
             </tbody>
         </table>
         <div id="modal-edit-item" class="modal modal-fixed-footer">
@@ -609,33 +538,40 @@ app.get('/items/:type', async (req, res) => {
                 <div class="row">
                     <form class="col s12 post-url item-attribute-id" data-attribute="action" data-prepend-value="/items/edit/" method="post" action="">
                         <div class="row">
-                                <div class="input-field col s2 item-image-image_link"></div>
-                                <div class="input-field col s10">
-                                    <input value="" id="image-link" type="text" class="validate item-value-image_link" name="image-link">
-                                    <label for="image-link">Image Link</label>
-                                </div>
+                            <div class="input-field col s2 item-image-image_link"></div>
+                            <div class="input-field col s10">
+                                <input value="" id="image-link" type="text" class="validate item-value-image_link" name="image-link">
+                                <label for="image-link">Image Link</label>
                             </div>
-                            <div class="row">
-                                <div class="input-field col s2 item-image-icon_link"></div>
-                                <div class="input-field col s10">
-                                    <input value="" id="icon-link" type="text" class="validate item-value-icon_link" name="icon-link">
-                                    <label for="icon-link">Icon Link</label>
-                                </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s2 item-image-icon_link"></div>
+                            <div class="input-field col s10">
+                                <input value="" id="icon-link" type="text" class="validate item-value-icon_link" name="icon-link">
+                                <label for="icon-link">Icon Link</label>
                             </div>
-                            <div class="row">
-                                <div class="input-field col s2 item-image-grid_image_link"></div>
-                                <div class="input-field col s10">
-                                    <input value="" id="grid-image-link" type="text" class="validate item-value-icon_link" name="grid-image-link">
-                                    <label for="grid-image-link">Grid image link</label>
-                                </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s2 item-image-grid_image_link"></div>
+                            <div class="input-field col s10">
+                                <input value="" id="grid-image-link" type="text" class="validate item-value-icon_link" name="grid-image-link">
+                                <label for="grid-image-link">Grid image link</label>
                             </div>
-                            <div class="row">
+                        </div>
+                        <div class="row">
                             <div class="input-field col s2">
                                 <a class="item-attribute-wiki_link" data-attribute="href" href="">WIKI</a>
                             </div>
                             <div class="input-field col s10">
                                 <input value="" id="wiki-link" type="text" class="validate item-value-wiki_link" name="wiki-link">
                                 <label for="wiki-link">wiki link</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s2 item-match_index"></div>
+                            <div class="input-field col s10">
+                                <input value="" id="match-index" type="text" class="validate item-value-match_index" name="match-index">
+                                <label for="match-index">Match index</label>
                             </div>
                         </div>
                     </form>
@@ -654,7 +590,7 @@ app.get('/', async (req, res) => {
     const activeScanners = [];
     const inactiveScanners = [];
     latestScanResults.map(latestScan => {
-        if (new Date - latestScan.timestamp > 1000 * 60 * 60 *24 * 7) {
+        if (new Date - latestScan.timestamp > 1000 * 60 * 60 * 2) {
             inactiveScanners.push(latestScan);
         } else {
             activeScanners.push(latestScan);
@@ -692,6 +628,7 @@ app.get('/', async (req, res) => {
         `;
     };
     res.send(`${getHeader(req)}
+        <script src="/scanners.js"></script>
         <h5>Active Scanners</h5>
         <div class="scanners-wrapper">
             ${activeScanners.map((latestScan) => {

@@ -19,6 +19,7 @@ tr:hover {
 }
 
 .types-column {
+    max-width: 475px;
     display: flex;
     flex-wrap: wrap;
 }

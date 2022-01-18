@@ -1,22 +1,3 @@
-async function postData(url = '', data = {}) {
-    // Default options are marked with *
-    const response = await fetch(url, {
-      method: 'POST', // *GET, POST, PUT, DELETE, etc.
-      mode: 'cors', // no-cors, *cors, same-origin
-      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: 'same-origin', // include, *same-origin, omit
-      headers: {
-        'Content-Type': 'application/json'
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      redirect: 'follow', // manual, *follow, error
-      referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-      body: JSON.stringify(data) // body data type must match "Content-Type" header
-    });
-
-    return response.json(); // parses JSON response into native JavaScript objects
-}
-
 const wsClients = {};
 
 const sendMessage = (sessionID, type, data) => {
@@ -105,89 +86,12 @@ function startListener(channel) {
     wsClients[channel] = ws;
 };
 
-document.addEventListener('change', (event) => {
-    if(event.target.getAttribute('type') !== 'checkbox'){
-        return true;
-    }
-
-    const dataUpdate = {
-        id: event.target.dataset.itemId,
-        type: event.target.value,
-        active: event.target.checked,
-    }
-    console.log(dataUpdate);
-    console.log(event);
-
-    postData('/update', dataUpdate)
-        .then(data => {
-            console.log(data); // JSON data parsed by `data.json()` call
-        });
-});
-
-const tableData = [];
-
-const showEditItemModal = function(event){
-    let link = $(event.target);
-    if (event.target.nodeName != 'A') {
-        link = $(event.target.parentNode);
-    }
-    const item = JSON.parse(decodeURIComponent(link.data('item')));
-    const editModal = $('#modal-edit-item');
-    for (const field in item) {
-        editModal.find(`.item-content-${field}`).text(item[field]);
-        editModal.find(`.item-value-${field}`).val(item[field]);
-        editModal.find(`.item-attribute-${field}`).each(function(){
-            const attributeName = $(this).data('attribute');
-            let value = item[field];
-            if ($(this).data('prependValue')) {
-                value = $(this).data('prependValue')+value;
-            }
-            $(this).attr(attributeName, value);
-        });
-        editModal.find(`.item-image-${field}`).each(function(){
-            $(this).empty();
-            if (!item[field]) {
-                return;
-            }
-            $(this).append(`<img src="${item[field]}">`)
-        });
-    }
-    M.Modal.getInstance(document.getElementById('modal-edit-item')).open();
-};
-
 $(document).ready( function () {
-    let table = false;
-    const showTable = () => {
-        if (table) table.destroy();
-        table = $('table.main').DataTable({
-            pageLength: 25,
-            columnDefs: [
-                {
-                    searchable: false,
-                    targets: 4,
-                },
-            ],
-        });
-    };
-    showTable();
-    $('table.main').css('display', '');
-    $('table.main').DataTable().on('draw', function() {
-        $('.edit-item').off('click');
-        $('.edit-item').click(showEditItemModal);
-    });
-    showTable();
-
     $('.collapsible').collapsible();
     $('.tooltipped').tooltip();
     $('.dropdown-trigger.scanner-dropdown').dropdown({constrainWidth: false});
     $('.modal').modal();
     $('select').formSelect();
-
-    $('.guess-wiki-link').click(function(event){
-        let itemName = encodeURIComponent(decodeURIComponent($(event.target).data('itemName')).replace(/ /g, '_'));
-        console.log(itemName);
-        $('#wiki-link').val(`https://escapefromtarkov.fandom.com/wiki/${itemName}`);
-    });
 
     $('.scanner-dropdown').click(function(event){
         event.stopPropagation();
