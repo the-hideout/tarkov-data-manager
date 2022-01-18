@@ -515,10 +515,10 @@ app.get('/items/:type', async (req, res) => {
                         Image
                     </th>
                     <th>
-                        Icon
+                        Grid image
                     </th>
                     <th>
-                        Grid image
+                        Icon
                     </th>
                     <th>
                         Tags

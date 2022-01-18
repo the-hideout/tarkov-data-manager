@@ -104,7 +104,7 @@ $(document).ready( function () {
             }
         },
         {
-            data: 'icon_link',
+            data: 'grid_image_link',
             render: (data, type, item) => {
                 if (type === 'display') {
                     return `${data ? `<img src="${data}" loading="lazy" />`: ''}`;
@@ -113,7 +113,7 @@ $(document).ready( function () {
             }
         },
         {
-            data: 'grid_image_link',
+            data: 'icon_link',
             render: (data, type, item) => {
                 if (type === 'display') {
                     return `${data ? `<img src="${data}" loading="lazy" />`: ''}`;
