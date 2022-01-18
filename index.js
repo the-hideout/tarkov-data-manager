@@ -590,7 +590,6 @@ app.get('/', async (req, res) => {
             activeClass = ' active';
         }
         return `
-        <script src="/scanners.js"></script>
         <div class="scanner">
             <ul class="collapsible" data-collapsible="collapsible">
                 <li class="${activeClass}">
@@ -617,6 +616,7 @@ app.get('/', async (req, res) => {
         `;
     };
     res.send(`${getHeader(req)}
+        <script src="/scanners.js"></script>
         <h5>Active Scanners</h5>
         <div class="scanners-wrapper">
             ${activeScanners.map((latestScan) => {
