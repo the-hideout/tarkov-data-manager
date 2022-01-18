@@ -19,10 +19,13 @@ module.exports = async () => {
         throw gotError;
     }
 
+    console.time('bsg-translation-data');
     try {
         const response = await got(process.env.BSG_TRANSLATIONS_URL, {
             responseType: 'json'
         });
+
+        console.timeEnd('bsg-translation-data');
 
         for(const key in itemData){
             if(!itemData[key]._props){
@@ -32,6 +35,28 @@ module.exports = async () => {
             itemData[key]._props = {
                 ...itemData[key]._props,
                 ...response.body.templates[key],
+            };
+        }
+    } catch (gotError){
+        throw gotError;
+    }
+
+    console.time('bsg-base-price-data');
+    try {
+        const response = await got(process.env.BSG_BASE_PRICE_URL, {
+            responseType: 'json'
+        });
+
+        console.timeEnd('bsg-base-price-data');
+
+        for(const key in itemData){
+            if(!itemData[key]._props){
+                continue;
+            }
+
+            itemData[key]._props = {
+                ...itemData[key]._props,
+                CreditsPrice: response.body[key],
             };
         }
     } catch (gotError){

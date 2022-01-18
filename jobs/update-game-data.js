@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const ora = require('ora');
+
 const normalizeName = require('../modules/normalize-name');
 const {categories} = require('../modules/category-map');
 const presetSize = require('../modules/preset-size');
@@ -118,6 +120,8 @@ module.exports = async () => {
 
     bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
 
+    const spinner = ora('Updating game data').start();
+
     const items = Object.values(bsgData).filter((bsgObject) => {
         if(bsgObject._type !== 'Item'){
             return false;
@@ -178,7 +182,7 @@ module.exports = async () => {
 
     for(let i = 0; i < items.length; i = i + 1){
         const item = items[i];
-        console.log(`Updating ${i + 1}/${items.length} ${item._id} ${item._props.ShortName}`);
+        spinner.start(`Updating ${i + 1}/${items.length} ${item._id} ${item._props.ShortName}`);
         const extraProperties = {};
         for(const extraProp of mappingProperties){
 
@@ -212,12 +216,34 @@ module.exports = async () => {
             item.height = itemPresetSize.height;
         }
 
+        if(allTTItems[item._id] && allTTItems[item._id].basePrice !== item._props.CreditsPrice){
+            spinner.warn(`${allTTItems[item._id].name} has the wrong basePrice. is ${allTTItems[item._id].basePrice} should be ${item._props.CreditsPrice}`);
+            spinner.start();
+
+            try {
+                await new Promise((resolve, reject) => {
+                    connection.query(`UPDATE item_data SET base_price = ? WHERE id = ?`, [item._props.CreditsPrice, item._id], (error) => {
+                            if (error) {
+                                reject(error)
+                            }
+
+                            spinner.succeed(`Updated base_price for ${item._id} to ${item._props.CreditsPrice}`);
+                            spinner.start();
+                            resolve();
+                        }
+                    );
+                });
+            } catch (updateError){
+                console.error(updateError);
+            }
+        }
+
         // Skip already existing items
         if(allTTItems[item._id]){
             continue;
         }
 
-        console.log(`New item: ${item.name}`);
+        spinner.succeed(`New item: ${item.name}`);
 
         const promise = new Promise((resolve, reject) => {
             connection.query(`INSERT INTO item_data (id, normalized_name, base_price, width, height, properties)
@@ -295,6 +321,9 @@ module.exports = async () => {
             continue;
         }
 
-        console.error(`${allTTItems[ttItemId].name} is no longer available in the game`);
+        spinner.warn(`${allTTItems[ttItemId].name} is no longer available in the game`);
+        spinner.start();
     }
+
+    spinner.stop();
 };

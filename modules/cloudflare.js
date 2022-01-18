@@ -20,9 +20,11 @@ const doRequest = async (cloudflarePath, method = 'GET', value, extraHeaders) =>
         };
     }
 
+    const fullCloudflarePath = `accounts/66766e138fce1ac1d2ef95953e037f4e/storage/kv/namespaces/f04e5b75ee894b3a90cec2b7cc351311${cloudflarePath}`;
+
     const objectData = JSON.parse(value);
 
-    fs.writeFileSync(path.join(__dirname, '..', 'dumps', `${cloudflarePath.split("/").pop().toLowerCase()}.json`), JSON.stringify(objectData, null, 4));
+    fs.writeFileSync(path.join(__dirname, '..', 'dumps', `${fullCloudflarePath.split("/").pop().toLowerCase()}.json`), JSON.stringify(objectData, null, 4));
 
     if(value){
         requestOptions.body = value;
@@ -31,7 +33,7 @@ const doRequest = async (cloudflarePath, method = 'GET', value, extraHeaders) =>
     let response;
 
     try {
-        response = await got(`${BASE_URL}${cloudflarePath}`, requestOptions);
+        response = await got(`${BASE_URL}${fullCloudflarePath}`, requestOptions);
     } catch (requestError){
         console.log(requestError);
     }

@@ -187,7 +187,7 @@ module.exports = async function() {
                 craftData.duration = parseDuration(craftData.time, 's');
 
                 let items = $trade.find('th').eq(0).html().split(/<br>\s?\+\s?<br>/);
-                const itemCountMatches = $trade.find('th').eq(0).text().match(/\sx\d/gm) || ['x1'];
+                const itemCountMatches = $trade.find('th').eq(0).text().match(/\sx\d/gm) || ['x1'];
 
                 if(itemCountMatches.length > items.length){
                     items = $trade.find('th').eq(0).html().split(/<br><br>/);
@@ -236,7 +236,7 @@ module.exports = async function() {
             });
     });
 
-    crafts.data = crafts.data.concat(christmasTreeCrafts);
+    // crafts.data = crafts.data.concat(christmasTreeCrafts);
 
     // for(const trade of crafts.data){
     //     console.log(trade);
@@ -306,7 +306,7 @@ module.exports = async function() {
     console.log();
 
     try {
-        const response = await cloudflare(`accounts/66766e138fce1ac1d2ef95953e037f4e/storage/kv/namespaces/f04e5b75ee894b3a90cec2b7cc351311/values/CRAFT_DATA`, 'PUT', JSON.stringify(crafts));
+        const response = await cloudflare(`/values/CRAFT_DATA`, 'PUT', JSON.stringify(crafts));
         console.log(response);
     } catch (requestError){
         console.error(requestError);

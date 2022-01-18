@@ -10,7 +10,9 @@ const runJob = function(name, cronSchedule) {
     });
 }
 
-const startupJobs = ['update-existing-bases'];
+const startupJobs = [
+    'update-existing-bases',
+];
 
 module.exports = () => {
     // Only run in production
@@ -20,6 +22,7 @@ module.exports = () => {
 
     // runJob('check-scans', '20 * * * *');
     runJob('update-cache', '* * * * *');
+    runJob('update-reset-timers', '* * * * *');
 
     runJob('update-barters', '*/5 * * * *');
     runJob('update-crafts', '1-59/5 * * * *');
@@ -35,6 +38,9 @@ module.exports = () => {
     runJob('clear-checkouts', '5 */6 * * *');
 
     runJob('verify-wiki', '5 9 * * *');
+
+    // Too much memory :'(
+    // runJob('update-longtime-data', '49 8 * * *');
 
     for (let i = 0; i < startupJobs.length; i++) {
         const jobName = startupJobs[i];
