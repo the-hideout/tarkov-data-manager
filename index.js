@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const vm = require('vm');
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -16,6 +17,8 @@ const jobs = require('./jobs');
 const connection = require('./modules/db-connection');
 const timer = require('./modules/console-timer');
 
+vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
+
 const rollbar = new Rollbar({
     accessToken: process.env.ROLLBAR_TOKEN,
     captureUncaught: true,
@@ -23,7 +26,7 @@ const rollbar = new Rollbar({
 });
 
 const app = express();
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 4000;
 
 let myData = false;
 
@@ -92,44 +95,6 @@ try {
     }
 }
 
-const AVAILABLE_TYPES = [
-    'ammo-box',
-    'ammo',
-    'armor',
-    'backpack',
-    'barter',
-    'disabled',
-    'glasses',
-    'grenade',
-    'gun',
-    'headphones',
-    'helmet',
-    'keys',
-    'marked-only',
-    'mods',
-    'no-flea',
-    'pistol-grip',
-    'provisions',
-    'rig',
-    'suppressor',
-    'wearable',
-];
-
-const CUSTOM_HANDLERS = [
-    'untagged',
-    'missing-image',
-    'no-wiki',
-    'all',
-];
-
-const formatPrice = (price) => {
-    return new Intl.NumberFormat('ru-RU', {
-        style: 'currency',
-        currency: 'RUB',
-        maximumSignificantDigits: 6,
-    }).format(price);
-};
-
 const updateTypes = async (updateObject) => {
     const updateData = await remoteData.get();
     const currentItemData = updateData.get(updateObject.id);
@@ -153,108 +118,9 @@ const updateTypes = async (updateObject) => {
     myData = updateData;
 };
 
-const getItemTypesMarkup = (item) => {
-    let markupString = '<td class="types-column">';
-    for(const type of AVAILABLE_TYPES){
-        markupString = `${markupString}
-        <div class="type-wrapper">
-            <label for="${item.id}-${type}">
-                <input type="checkbox" id="${item.id}-${type}" value="${type}" data-item-id="${item.id}" ${myData.get(item.id).types?.includes(type) ? 'checked' : ''} />
-                <span>${type}</span>
-            </label>
-        </div>`;
-    }
-
-    markupString = `${markupString}</td>`;
-
-    return markupString;
-};
-
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
-
-const getTableContents = async (filterObject) => {
-    let tableContentsString = '';
-    let maxItems = 3000;
-    let items = 0;
-
-    for(const [key, item] of myData){
-        if(filterObject?.type){
-            switch (filterObject.type){
-                case 'all':
-                    // Allow all items
-                    break;
-                case 'untagged':
-                    if(item.types.length > 0){
-                        continue;
-                    }
-                    break;
-                case 'missing-image':
-                    if((item.image_link && item.icon_link && item.grid_image_link) || item.types.includes('disabled')){
-                        continue;
-                    }
-
-                    break;
-
-                case 'no-wiki':
-                    if(item.wiki_link){
-                        continue;
-                    }
-
-                    break;
-                default:
-                    if(!item.types.includes(filterObject.type)){
-                        continue;
-                    }
-            }
-        }
-
-        items = items + 1;
-
-        const scanImageUrl = `https://tarkov-data.s3.eu-north-1.amazonaws.com/${item.id}/latest.jpg`;
-        tableContentsString = `${tableContentsString}
-        <tr>
-            <td class="name-column">
-                <div>
-                    ${item.name}
-                </div>
-                <div>
-                    ${item.id}
-                </div>
-                <div>
-                    <a href="${item.wiki_link}">Wiki</a>
-                    |
-                    <a href="https://tarkov-tools.com/item/${item.normalized_name}">Tarkov Tools</a>
-                    <br>
-                    <a class="waves-effect waves-light btn edit-item" data-item="${encodeURIComponent(JSON.stringify(item))}"><i class="material-icons">edit</i></a>
-                </div>
-            </td>
-            <td>
-                ${item.image_link ? `<img src="${item.image_link}" loading="lazy" />`: ''}
-            </td>
-            <td>
-                ${item.icon_link ? `<img src="${item.icon_link}" loading="lazy" />`: ''}
-            </td>
-            <td>
-                ${item.grid_image_link ? `<img src="${item.grid_image_link}" loading="lazy" />`: ''}
-            </td>
-            ${getItemTypesMarkup(item)}
-            <td>
-                ${formatPrice(item.avg24hPrice)}
-            </td>
-            </tr>`;
-
-            // <td>
-            //     <pre>${JSON.stringify(item, null, 4)}</pre>
-            // </td>
-        if(items > maxItems){
-            break;
-        }
-    }
-
-    return tableContentsString;
-};
 
 const getHeader = (req) => {
     let javascript = '';
@@ -300,6 +166,7 @@ const getHeader = (req) => {
         <body>
             <script src="/ansi_up.js"></script>
             <script src="/index.js"></script>
+            <script src="/common.js"></script>
             <nav>
                 <div class="nav-wrapper">
                     <ul id="nav-mobile" class="left hide-on-med-and-down">
@@ -570,9 +437,54 @@ app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
 app.get('/items/:type', async (req, res) => {
     const t = timer('getting-items');
     myData = await remoteData.get();
+    const items = [];
+    const attributes = [
+        'id', 
+        'name', 
+        'shortname', 
+        'types', 
+        'normalized_name',
+        'wiki_link',
+        'icon_link',
+        'grid_image_link',
+        'image_link',
+        'match_index',
+        'avg24hPrice',
+        'lastLowPrice'
+    ];
+    for (const [key, item] of myData) {
+        if (req.params.type !== 'all') {
+            if (!item.types.includes(req.params.type) && !CUSTOM_HANDLERS.includes(req.params.type)) {
+                continue;
+            } else if (CUSTOM_HANDLERS.includes(req.params.type)) {
+                if (req.params.type == 'untagged') {
+                    if (item.types.length > 0) {
+                        continue;
+                    }
+                } else if (req.params.type == 'missing-image') {
+                    if ((item.image_link && item.icon_link && item.grid_image_link) || item.types.includes('disabled')) {
+                        continue;
+                    }
+                } else if (req.params.type == 'no-wiki') {
+                    if (item.wiki_link) {
+                        continue;
+                    }
+                }
+            }
+        }
+        const newItem = {};
+        for (let i = 0; i < attributes.length; i++) {
+            const attribute = attributes[i];
+            newItem[attribute] = item[attribute];
+        }
+        items.push(newItem);
+    }
     t.end();
     res.send(`${getHeader(req)}
-        <table class="highlight main" style="display:none;">
+        <script>
+        const all_items = ${JSON.stringify(items, null, 4)};
+        </script>
+        <table class="highlight main">
             <thead>
                 <tr>
                     <th>
@@ -596,9 +508,6 @@ app.get('/items/:type', async (req, res) => {
                 </tr>
             </thead>
             <tbody>
-                ${ await getTableContents({
-                    type: req.params.type,
-                })}
             </tbody>
         </table>
         <div id="modal-edit-item" class="modal modal-fixed-footer">

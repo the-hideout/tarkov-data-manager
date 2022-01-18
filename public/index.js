@@ -1,3 +1,4 @@
+
 async function postData(url = '', data = {}) {
     // Default options are marked with *
     const response = await fetch(url, {
@@ -124,8 +125,6 @@ document.addEventListener('change', (event) => {
         });
 });
 
-const tableData = [];
-
 const showEditItemModal = function(event){
     let link = $(event.target);
     if (event.target.nodeName != 'A') {
@@ -153,29 +152,114 @@ const showEditItemModal = function(event){
         });
     }
     M.Modal.getInstance(document.getElementById('modal-edit-item')).open();
+    M.updateTextFields();
 };
 
 $(document).ready( function () {
     let table = false;
+    const columns = [
+        {
+            data: 'name',
+            render: (data, type, item) => {
+                if (type === 'display') {
+                    return `
+                        <div>
+                            ${data}
+                        </div>
+                        <div>
+                            ${item.id}
+                        </div>
+                        <div>
+                            <a href="${item.wiki_link}">Wiki</a>
+                            |
+                            <a href="https://tarkov-tools.com/item/${item.normalized_name}">Tarkov Tools</a>
+                            <br>
+                            <a class="waves-effect waves-light btn edit-item" data-item="${encodeURIComponent(JSON.stringify(item))}"><i class="material-icons">edit</i></a>
+                        </div>
+                    `;
+                }
+                return data;
+            },
+            className: 'name-column'
+        },
+        {
+            data: 'image_link',
+            render: (data, type, item) => {
+                if (type === 'display') {
+                    return `${data ? `<img src="${data}" loading="lazy" />`: ''}`;
+                }
+                return data;
+            }
+        },
+        {
+            data: 'icon_link',
+            render: (data, type, item) => {
+                if (type === 'display') {
+                    return `${data ? `<img src="${data}" loading="lazy" />`: ''}`;
+                }
+                return data;
+            }
+        },
+        {
+            data: 'grid_image_link',
+            render: (data, type, item) => {
+                if (type === 'display') {
+                    return `${data ? `<img src="${data}" loading="lazy" />`: ''}`;
+                }
+                return data;
+            }
+        },
+        {
+            data: 'types',
+            render: (data, type, item) => {
+                if (type === 'display') {
+                    let markupString = '';
+                    for(const type of AVAILABLE_TYPES){
+                        markupString = `${markupString}
+                        <div class="type-wrapper">
+                            <label for="${item.id}-${type}">
+                                <input type="checkbox" id="${item.id}-${type}" value="${type}" data-item-id="${item.id}" ${data.includes(type) ? 'checked' : ''} />
+                                <span>${type}</span>
+                            </label>
+                        </div>`;
+                    }
+                    return markupString;
+                }
+                return data.join(',');
+            },
+            className: 'types-column'
+        },
+        {
+            data: 'avg24hPrice',
+            render: (data, type, item) => {
+                if (type === 'display') {
+                    return formatPrice(data)
+                }
+                return data;
+            }
+        }
+    ]
     const showTable = () => {
         if (table) table.destroy();
         table = $('table.main').DataTable({
             pageLength: 25,
-            columnDefs: [
-                {
-                    searchable: false,
-                    targets: 4,
-                },
-            ],
+            order: [[0, 'asc']],
+            data: all_items,
+            columns: columns,
+            drawCallback: (settings) => {
+                M.AutoInit();
+            }
         });
     };
     showTable();
-    $('table.main').css('display', '');
+    //$('table.main').css('display', '');
     $('table.main').DataTable().on('draw', function() {
         $('.edit-item').off('click');
         $('.edit-item').click(showEditItemModal);
     });
-    showTable();
+    if (table) {
+        table.draw();
+    }
 
     $('.collapsible').collapsible();
     $('.tooltipped').tooltip();
