@@ -176,25 +176,13 @@ const getHeader = (req) => {
                     <a href="#" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
                     <ul id="nav-mobile" class="left hide-on-med-and-down">
                         <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Scanners</a></li>
-                        ${
-                            AVAILABLE_TYPES
-                                .concat(CUSTOM_HANDLERS)
-                                .sort()
-                                .map(type => `<li class="${req.params && req.params.type === type ? 'active' : ''}"><a href="/items/${type}">${capitalizeFirstLetter(type)}</a></li>`)
-                                .join(' ')
-                        }
+                        <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
                     </ul>
                 </div>
             </nav>
             <ul class="sidenav" id="mobile-menu">
                 <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Scanners</a></li>
-                ${
-                    AVAILABLE_TYPES
-                        .concat(CUSTOM_HANDLERS)
-                        .sort()
-                        .map(type => `<li class="${req.params && req.params.type === type ? 'active' : ''}"><a href="/items/${type}">${capitalizeFirstLetter(type)}</a></li>`)
-                        .join(' ')
-                }
+                <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
             </ul>
         `;
 }
@@ -454,7 +442,7 @@ app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
     res.send(response);
 });
 
-app.get('/items/:type', async (req, res) => {
+app.get('/items', async (req, res) => {
     const t = timer('getting-items');
     myData = await remoteData.get();
     const items = [];
@@ -473,25 +461,6 @@ app.get('/items/:type', async (req, res) => {
         'lastLowPrice'
     ];
     for (const [key, item] of myData) {
-        if (req.params.type !== 'all') {
-            if (!item.types.includes(req.params.type) && !CUSTOM_HANDLERS.includes(req.params.type)) {
-                continue;
-            } else if (CUSTOM_HANDLERS.includes(req.params.type)) {
-                if (req.params.type == 'untagged') {
-                    if (item.types.length > 0) {
-                        continue;
-                    }
-                } else if (req.params.type == 'missing-image') {
-                    if ((item.image_link && item.icon_link && item.grid_image_link) || item.types.includes('disabled')) {
-                        continue;
-                    }
-                } else if (req.params.type == 'no-wiki') {
-                    if (item.wiki_link) {
-                        continue;
-                    }
-                }
-            }
-        }
         const newItem = {};
         for (let i = 0; i < attributes.length; i++) {
             const attribute = attributes[i];
@@ -500,11 +469,50 @@ app.get('/items/:type', async (req, res) => {
         items.push(newItem);
     }
     t.end();
+    let typeFilters = '';
+    for(const type of AVAILABLE_TYPES){
+        typeFilters = `${typeFilters}
+        <div class="type-wrapper">
+            <label for="type-${type}">
+                <input type="checkbox" class="filled-in filter-type" id="type-${type}" value="${type}" checked />
+                <span>${type}</span>
+            </label>
+        </div>`;
+    }
+    let specFilters = '';
+    for(const type of CUSTOM_HANDLERS){
+        specFilters = `${specFilters}
+        <div class="type-wrapper">
+            <label for="type-${type}">
+                <input type="checkbox" class="filled-in filter-special" id="type-${type}" value="${type}" checked />
+                <span>${type}</span>
+            </label>
+        </div>`;
+    }
     res.send(`${getHeader(req)}
         <script src="/items.js"></script>
         <script>
         const all_items = ${JSON.stringify(items, null, 4)};
         </script>
+        <ul class="collapsible">
+            <li>
+                <div class="collapsible-header"><i class="material-icons left">filter_list</i>Item Filters</div>
+                <div class="collapsible-body">
+                    <div>Item Types</div>
+                    <div>
+                        <a class="waves-effect waves-light btn filter-types-all"><i class="material-icons left">all_inclusive</i>All</a>
+                        <a class="waves-effect waves-light btn filter-types-none"><i class="material-icons left">not_interested</i>None</a>
+                    </div>
+                    <div class="type-filters">${typeFilters}</div>
+                    <div>Special Handlers</div>
+                    <div>
+                        <a class="waves-effect waves-light btn filter-special-all"><i class="material-icons left">all_inclusive</i>All</a>
+                        <a class="waves-effect waves-light btn filter-special-none"><i class="material-icons left">not_interested</i>None</a>
+                    </div>
+                    <div class="type-filters">${specFilters}</div>
+                </div>
+            </li>
+        </ul>
         <table class="highlight main">
             <thead>
                 <tr>

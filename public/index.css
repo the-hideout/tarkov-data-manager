@@ -55,3 +55,8 @@ nav {
     height: auto;
     float: left;
 }
+
+.type-filters {
+    display: flex;
+    flex-wrap: wrap;
+}
