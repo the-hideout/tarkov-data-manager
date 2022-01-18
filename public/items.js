@@ -17,26 +17,6 @@ async function postData(url = '', data = {}) {
     return response.json(); // parses JSON response into native JavaScript objects
 }
 
-
-document.addEventListener('change', (event) => {
-    if(event.target.getAttribute('type') !== 'checkbox'){
-        return true;
-    }
-
-    const dataUpdate = {
-        id: event.target.dataset.itemId,
-        type: event.target.value,
-        active: event.target.checked,
-    }
-    console.log(dataUpdate);
-    console.log(event);
-
-    postData('/update', dataUpdate)
-        .then(data => {
-            console.log(data); // JSON data parsed by `data.json()` call
-        });
-});
-
 const showEditItemModal = function(event){
     let link = $(event.target);
     if (event.target.nodeName != 'A') {
@@ -67,8 +47,13 @@ const showEditItemModal = function(event){
     M.updateTextFields();
 };
 
+let table = false;
+
+const drawTable = () => {
+    if (table) table.draw();
+};
+
 $(document).ready( function () {
-    let table = false;
     const columns = [
         {
             data: 'name',
@@ -130,7 +115,7 @@ $(document).ready( function () {
                         markupString = `${markupString}
                         <div class="type-wrapper">
                             <label for="${item.id}-${type}">
-                                <input type="checkbox" id="${item.id}-${type}" value="${type}" data-item-id="${item.id}" ${data.includes(type) ? 'checked' : ''} />
+                                <input type="checkbox" class="item-type" id="${item.id}-${type}" value="${type}" data-item-id="${item.id}" ${data.includes(type) ? 'checked' : ''} />
                                 <span>${type}</span>
                             </label>
                         </div>`;
@@ -170,8 +155,27 @@ $(document).ready( function () {
         $('.edit-item').click(showEditItemModal);
     });
     if (table) {
-        table.draw();
+        //table.draw();
     }
+
+    $('input.item-type').change((event) => {
+        if(event.target.getAttribute('type') !== 'checkbox'){
+            return true;
+        }
+    
+        const dataUpdate = {
+            id: event.target.dataset.itemId,
+            type: event.target.value,
+            active: event.target.checked,
+        }
+        console.log(dataUpdate);
+        console.log(event);
+    
+        postData('/update', dataUpdate)
+            .then(data => {
+                console.log(data); // JSON data parsed by `data.json()` call
+            });
+    });
 
     $('.collapsible').collapsible();
     $('.tooltipped').tooltip();
@@ -202,4 +206,71 @@ $(document).ready( function () {
           });
         M.Modal.getInstance(document.getElementById('modal-edit-item')).close();
     });
+
+    $('.filter-types-all').click(() => {
+        $('input.filter-type').prop('checked', true);
+        drawTable();
+    });
+    $('.filter-types-none').click(() => {
+        $('input.filter-type').prop('checked', false);
+        drawTable();
+    });
+    $('.filter-type').change(() => {
+        drawTable();
+    });
+
+    $('.filter-special-all').click(() => {
+        $('input.filter-special').prop('checked', true);
+        drawTable();
+    });
+    $('.filter-special-none').click(() => {
+        $('input.filter-special').prop('checked', false);
+        drawTable();
+    });
+    $('.filter-special').change(() => {
+        drawTable();
+    });
 } );
+
+jQuery.fn.dataTableExt.afnFiltering.push(
+    function( oSettings, aData, iDataIndex ) {
+        const column = 4;
+        let columnData = aData[column];
+        if (columnData) columnData = columnData.split(',');
+        var checked = jQuery('input.filter-type:checked');
+        if (typeof checked == 'undefined') return false;
+        for (var i=0; i< checked.length; i++) {
+            if (columnData.includes(jQuery(checked[i]).val())) {
+                return true;
+            }
+        }
+        return false;
+    }
+);
+
+jQuery.fn.dataTableExt.afnFiltering.push(
+    function( oSettings, aData, iDataIndex ) {
+        const column = 4;
+        let columnData = aData[column];
+        if (columnData) columnData = columnData.split(',');
+        var checked = jQuery('input.filter-special:checked');
+        if (typeof checked == 'undefined') return false;
+        for (var i=0; i< checked.length; i++) {
+            const filter = jQuery(checked[i]).val();
+            if (filter === 'all') {
+                return true;
+            } else if (filter === 'untagged') {
+                if (!aData[4]) return true;
+            } else if (filter === 'missing-image') {
+                let disabled = false;
+                let types = aData[4];
+                if (types) types = types.split(',');
+                if (types.includes('disabled')) disabled = true;
+                if ((!aData[1] || !aData[2] || !aData[3]) && !disabled) return true;
+            } else if (filter === 'no-wiki') {
+                if (!all_items[iDataIndex].wiki_link) return true;
+            }
+        }
+        return false;
+    }
+);
