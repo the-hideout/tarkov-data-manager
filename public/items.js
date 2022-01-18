@@ -244,14 +244,14 @@ jQuery.fn.dataTableExt.afnFiltering.push(
         const item = all_items[iDataIndex];
         let specialPassed = false;
         let typePassed = false;
+        let allItems = false;
         let specialChecked = jQuery('input.filter-special:checked');
         if (typeof specialChecked == 'undefined') return false;
         for (let i=0; i< specialChecked.length; i++) {
             const filter = jQuery(specialChecked[i]).val();
             if (filter === 'all') {
                 specialPassed = true;
-            } else if (filter === 'untagged') {
-                if (item.types.length == 0) return true;
+                allItems = true;
             } else if (filter === 'missing-image') {
                 if (!aData[1] || !aData[2] || !aData[3]) specialPassed = true;
             } else if (filter === 'no-wiki') {
@@ -267,6 +267,7 @@ jQuery.fn.dataTableExt.afnFiltering.push(
                 break;
             }
         }
+        if (item.types.length == 0 && allItems) typePassed = true;
         return specialPassed && typePassed;
     }
 );
