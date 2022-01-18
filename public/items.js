@@ -244,16 +244,13 @@ jQuery.fn.dataTableExt.afnFiltering.push(
             if (filter === 'all') {
                 return true;
             } else if (filter === 'untagged') {
-                console.log(`${all_items[iDataIndex].name} ${all_items[iDataIndex].types.length}`);
-                if (all_items[iDataIndex].types.length == 0) return true;
+                if (item.types.length == 0) return true;
             } else if (filter === 'missing-image') {
                 let disabled = false;
-                let types = aData[4];
-                if (types) types = types.split(',');
-                if (types.includes('disabled')) disabled = true;
+                if (item.types.includes('disabled')) disabled = true;
                 if ((!aData[1] || !aData[2] || !aData[3]) && !disabled) specialPassed = true;
             } else if (filter === 'no-wiki') {
-                if (!all_items[iDataIndex].wiki_link) specialPassed = true;
+                if (!item.wiki_link) specialPassed = true;
             }
         }
         let typeChecked = jQuery('input.filter-type:checked');
