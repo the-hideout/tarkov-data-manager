@@ -235,7 +235,7 @@ $(document).ready( function () {
 jQuery.fn.dataTableExt.afnFiltering.push(
     function( oSettings, aData, iDataIndex ) {
         const item = all_items[iDataIndex];
-        let specialPassd = false;
+        let specialPassed = false;
         let typePassed = false;
         let specialChecked = jQuery('input.filter-special:checked');
         if (typeof specialChecked == 'undefined') return false;
@@ -251,9 +251,9 @@ jQuery.fn.dataTableExt.afnFiltering.push(
                 let types = aData[4];
                 if (types) types = types.split(',');
                 if (types.includes('disabled')) disabled = true;
-                if ((!aData[1] || !aData[2] || !aData[3]) && !disabled) specialPassd = true;
+                if ((!aData[1] || !aData[2] || !aData[3]) && !disabled) specialPassed = true;
             } else if (filter === 'no-wiki') {
-                if (!all_items[iDataIndex].wiki_link) specialPassd = true;
+                if (!all_items[iDataIndex].wiki_link) specialPassed = true;
             }
         }
         let typeChecked = jQuery('input.filter-type:checked');
