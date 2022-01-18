@@ -249,7 +249,7 @@ jQuery.fn.dataTableExt.afnFiltering.push(
         for (let i=0; i< specialChecked.length; i++) {
             const filter = jQuery(specialChecked[i]).val();
             if (filter === 'all') {
-                return true;
+                specialPassed = true;
             } else if (filter === 'untagged') {
                 if (item.types.length == 0) return true;
             } else if (filter === 'missing-image') {
