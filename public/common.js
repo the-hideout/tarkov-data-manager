@@ -22,10 +22,9 @@ const AVAILABLE_TYPES = [
 ];
 
 const CUSTOM_HANDLERS = [
-    'untagged',
-    'missing-image',
-    'no-wiki',
     'all',
+    'missing-image',
+    'no-wiki'
 ];
 
 const formatPrice = (price) => {

@@ -504,7 +504,7 @@ app.get('/items', async (req, res) => {
                         <a class="waves-effect waves-light btn filter-types-none"><i class="material-icons left">not_interested</i>None</a>
                     </div>
                     <div class="type-filters">${typeFilters}</div>
-                    <div>Special Handlers</div>
+                    <div>Special Filters</div>
                     <div>
                         <a class="waves-effect waves-light btn filter-special-all"><i class="material-icons left">all_inclusive</i>All</a>
                         <a class="waves-effect waves-light btn filter-special-none"><i class="material-icons left">not_interested</i>None</a>
