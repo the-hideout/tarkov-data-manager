@@ -192,30 +192,14 @@ module.exports = async function() {
                 }
 
                 if(itemCountMatches.length > items.length){
-                    // console.log($trade.find('th').eq(0).html());
-                    // console.log(items.length, itemCountMatches);
-                    // console.log();
-
                     return true;
                 }
 
                 tradeData.requiredItems = items.map(getItemData).filter(Boolean);
 
-                // if(tradeData.id === '6-16'){
-                //     console.log(items);
-                //     console.log(tradeData);
-                // }
-
                 // Failed to map at least one item
                 if(tradeData.requiredItems.length !== items.length){
-                    // console.log(tradeData);
-                    return true;
-                }
-
-                // Tactical sword is not in the game?
-                if(tradeData.requiredItems.find((item) => {
-                    return item.name.toLowerCase().includes('m-2 tactical sword');
-                })) {
+                    console.log(tradeData);
                     return true;
                 }
 
@@ -225,7 +209,7 @@ module.exports = async function() {
             });
     });
 
-    for(const trade of trades.data){
+    // for(const trade of trades.data){
     //     console.log(trade);
     //     await new Promise((resolve, reject) => {
     //         connection.query(`INSERT IGNORE INTO trades (id, type, source)
@@ -278,7 +262,7 @@ module.exports = async function() {
     //             }
     //         );
     //     });
-    }
+    // }
 
     try {
         const response = await cloudflare(`/values/BARTER_DATA`, 'PUT', JSON.stringify(trades));
