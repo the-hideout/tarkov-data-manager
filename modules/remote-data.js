@@ -241,6 +241,67 @@ const methods = {
             });
         });
     },
+    getTraderPrices: async () => {
+        console.log('Loading all data');
+        const allDataTimer = timer('item-data-query');
+        const items = await connection.promiseQuery(`
+            SELECT
+                item_data.*,
+                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
+            FROM
+                item_data
+            LEFT JOIN types ON
+                types.item_id = item_data.id
+            GROUP BY
+                item_data.id
+        `);
+        allDataTimer.end();
+        const translationsTimer = timer('translations');
+        const translations = await connection.promiseQuery(`
+            SELECT item_id, type, value 
+            FROM translations 
+            WHERE language_code = 'en' AND (type = 'name' OR type = 'shortName')
+        `);
+        translationsTimer.end();
+        const pricesTimer = timer('trader-prices');
+        const prices = await connection.promiseQuery(`
+            SELECT trader_items.id, trader_items.trader_name, trader_items.currency, trader_items.min_level, trader_items.quest_unlock_id, trader_items.item_id,
+                price_data.trade_id, price_data.id as price_id, price_data.price, price_data.source, price_data.timestamp
+            FROM
+                trader_items
+            LEFT JOIN (
+                SELECT p1.id, p1.price, p1.source, p1.timestamp, p1.trade_id
+                FROM trader_price_data p1
+                WHERE p1.timestamp = (
+                    SELECT MAX(p2.timestamp)
+                    FROM trader_price_data p2
+                    WHERE p2.trade_id = p1.trade_id
+                )
+            ) price_data
+            ON trader_items.id = price_data.trade_id
+        `);
+        pricesTimer.end();
+        const returnData = new Map();
+        for(const item of items){
+            for(const translationResult of translations){
+                if(translationResult.item_id !== item.id){
+                    continue;
+                }
+    
+                item[translationResult.type] = translationResult.value;
+            }
+            item.prices = [];
+            for (const priceResult of prices) {
+                if (priceResult.item_id !== item.id) {
+                    continue;
+                }
+                item.prices.push(priceResult);
+            }
+            //console.log(item);
+            returnData.set(item.id, item);
+        }
+        return returnData;
+    }
 };
 
 module.exports = methods;

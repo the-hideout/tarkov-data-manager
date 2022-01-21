@@ -133,13 +133,6 @@ const getHeader = (req) => {
             </script>
         `;
     }
-    if (req.url === '/') {
-        javascript += `
-            <script>
-                const WS_PASSWORD = '${process.env.WS_PASSWORD}';
-            </script>
-        `;
-    }
     return `
     <!DOCTYPE html>
         <head>
@@ -178,6 +171,7 @@ const getHeader = (req) => {
                         <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Home</a></li>
                         <li class="${req.url === '/scanners' ? 'active' : ''}"><a href="/scanners">Scanners</a></li>
                         <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
+                        <!--li class="${req.url === '/trader-prices' ? 'active' : ''}"><a href="/trader-prices">Trader Prices</a></li-->
                     </ul>
                 </div>
             </nav>
@@ -185,6 +179,7 @@ const getHeader = (req) => {
                 <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Home</a></li>
                 <li class="${req.url === '/scanners' ? 'active' : ''}"><a href="/scanners">Scanners</a></li>
                 <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
+                <!--li class="${req.url === '/trader-prices' ? 'active' : ''}"><a href="/trader-prices">Trader Prices</a></li-->
             </ul>
         `;
 }
@@ -211,8 +206,8 @@ app.get('/', async (req, res) => {
     myData = await remoteData.get();
     for (const [key, item] of myData) {
         if (item.types.length == 0) untagged++;
-        if (!item.wiki_link) missingWiki++;
-        if (!item.image_link || !item.grid_image_link || !item.icon_link) missingImage++;
+        if (!item.wiki_link && !item.types.includes('disabled')) missingWiki++;
+        if ((!item.image_link || !item.grid_image_link || !item.icon_link) && !item.types.includes('disabled')) missingImage++;
         itemCount++;
     }
     res.send(`${getHeader(req)}
@@ -539,6 +534,14 @@ app.get('/items', async (req, res) => {
                         <a class="waves-effect waves-light btn filter-types-all"><i class="material-icons left">all_inclusive</i>All</a>
                         <a class="waves-effect waves-light btn filter-types-none"><i class="material-icons left">not_interested</i>None</a>
                     </div>
+                    <div class="switch">
+                        <label>
+                            Require any selected
+                            <input class="filter-types-require-selected" type="checkbox" value="true">
+                            <span class="lever"></span>
+                            Require all selected
+                        </label>
+                    </div>
                     <div class="type-filters">${typeFilters}</div>
                     <div>Special Filters</div>
                     <div>
@@ -656,6 +659,7 @@ app.get('/scanners', async (req, res) => {
                             <ul id="dropdown-${scanner.source}" class="dropdown-content">
                                 <li class="pause-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="pause-scanner"><i class="material-icons left">pause</i>Pause</a></li>
                                 <li class="resume-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}" style="display:none;"><a href="#!" class="resume-scanner"><i class="material-icons left">play_arrow</i>Resume</a></li>
+                                <li class="screenshot-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="screenshot-scanner"><i class="material-icons left">camera_alt</i>Screenshot</a></li>
                                 <li class="generate-images-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="generate-images-scanner"><i class="material-icons left">image</i>Generate Images</a></li>
                                 <li class="set-trader-scan-day" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="set-trader-scan-day"><i class="material-icons left">schedule</i>Set Trader Scan Day</a></li>
                                 <li class="shutdown-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="shutdown-scanner"><i class="material-icons left">power_settings_new</i>Shutdown</a></li>
@@ -672,6 +676,9 @@ app.get('/scanners', async (req, res) => {
         `;
     };
     res.send(`${getHeader(req)}
+        <script>
+            const WS_PASSWORD = '${process.env.WS_PASSWORD}';
+        </script>
         <script src="/scanners.js"></script>
         <h5>Active Scanners</h5>
         <div class="scanners-wrapper">
@@ -715,6 +722,22 @@ app.get('/scanners', async (req, res) => {
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat trader-scan-day-cancel">Cancel</a>
             </div>
         </div>
+    ${getFooter(req)}`);
+});
+
+app.get('/trader-prices', async (req, res) => {
+    const t = timer('getting-items');
+    const priceData = await remoteData.getTraderPrices();
+    const items = [];
+    for (const [key, item] of priceData) {
+        items.push(item);
+    }
+    t.end();
+    res.send(`${getHeader(req)}
+        <script>
+            const all_items = ${JSON.stringify(items, null, 4)};
+        </script>
+        <div>hello world</div>
     ${getFooter(req)}`);
 });
 
