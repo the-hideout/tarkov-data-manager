@@ -11,8 +11,12 @@ const fixName = require('../modules/wiki-replacements');
 const connection = require('../modules/db-connection');
 
 let itemData = false;
-
 const TRADES_URL = 'https://escapefromtarkov.gamepedia.com/Barter_trades';
+const trades = {
+    updated: new Date(),
+    data: [],
+};
+let $;
 
 const getItemByName = (searchName) => {
     const itemArray = Object.values(itemData);
@@ -61,21 +65,27 @@ const getItemData = function getItemData(html){
         return false;
     }
 
-    const $ = cheerio.load(html);
+    const $local = cheerio.load(html);
 
-    let name = fixName($('a').eq(0).prop('title'));
+    let name = fixName($local('a').eq(0).prop('title'));
 
     if(!name){
-        name = fixName($('a').eq(-1).prop('title'));
+        name = fixName($local('a').eq(-1).prop('title'));
     }
 
     let item = getItemByName(name);
 
     if(!item && name === 'Dogtag'){
-        let dogtagName = fixName($('a').eq(-1).text());
+        let dogtagName = fixName($local('a').eq(-1).text());
         dogtagName = dogtagName.replace(/ ≥ Lvl \d+,?/, '');
-        // console.log(dogtagName);
         item = getItemByName(dogtagName);
+    }
+
+    if(!item && name === 'Dogtag'){
+        item = {
+            name: 'Dogtag',
+            id: 'N/A',
+        };
     }
 
     if(!item){
@@ -87,8 +97,8 @@ const getItemData = function getItemData(html){
     let count = 1;
 
     // Strip the links
-    $('a').remove();
-    const numberMatch = $.text().match(/\d+/gm);
+    $local('a').remove();
+    const numberMatch = $local.text().match(/\d+/gm);
 
     if(numberMatch){
         count = Number(numberMatch[0]);
@@ -101,13 +111,105 @@ const getItemData = function getItemData(html){
     };
 };
 
+const parseTradeRow = (tradeElement) => {
+    const $trade = $(tradeElement);
+    const rewardItemName = fixName($trade.find('th').eq(-1).find('a').eq(0).prop('title'));
+    const traderRequirement = fixName($trade.find('th').eq(2).find('a').eq(1).text());
+    const rewardItem = getItemByName(rewardItemName);
+
+    if(!rewardItem){
+        console.log(`Found no item called "${rewardItemName}"`);
+
+        return true;
+    }
+
+    const tradeData = {
+        requiredItems: [],
+        rewardItems: [{
+            name: rewardItem.name,
+            id: rewardItem.id,
+            count: 1,
+        }],
+        trader: traderRequirement,
+    };
+
+    let items = $trade.find('th').eq(0).html().split(/<br>\s?\+\s?<br>/);
+    const itemCountMatches = $trade.find('th').eq(0).text().match(/\sx\d/gm) || ['x1'];
+
+    if(itemCountMatches.length > items.length){
+        items = $trade.find('th').eq(0).html().split(/<br><br>/);
+    }
+
+    if(itemCountMatches.length > items.length){
+        items = $trade.find('th').eq(0).html().split(/\n.+?<\/a>/gm);
+    }
+
+    if(itemCountMatches.length > items.length){
+        return true;
+    }
+
+    tradeData.requiredItems = items.map(getItemData).filter(Boolean);
+
+    // Failed to map at least one item
+    if(tradeData.requiredItems.length !== items.length){
+        console.log(tradeData);
+
+        return true;
+    }
+
+    // If there's an item called just "Dogtag" we want 2 different trades
+    // This is not 100% correct as you can use either/or
+    if(tradeData.requiredItems.find(requiredItem => requiredItem.name === 'Dogtag')){
+        const usecTrade = {
+            ...tradeData,
+        };
+
+        const bearTrade = {
+            ...tradeData,
+        };
+
+        usecTrade.requiredItems = usecTrade.requiredItems.map(requiredItem => {
+            if(requiredItem.name !== 'Dogtag'){
+                return requiredItem;
+            }
+
+            const dogtagUSEC = getItemByName('Dogtag USEC');
+
+            return {
+                name: 'Dogtag USEC',
+                id: dogtagUSEC.id,
+                count: requiredItem.count,
+            };
+        });
+
+        trades.data.push(usecTrade);
+
+        bearTrade.requiredItems = bearTrade.requiredItems.map(requiredItem => {
+            if(requiredItem.name !== 'Dogtag'){
+                return requiredItem;
+            }
+
+            const dogtagBEAR = getItemByName('Dogtag BEAR');
+
+            return {
+                name: 'Dogtag BEAR',
+                id: dogtagBEAR.id,
+                count: requiredItem.count,
+            };
+        });
+
+        trades.data.push(bearTrade);
+    } else {
+        trades.data.push(tradeData);
+    }
+
+
+    return true;
+}
+
 module.exports = async function() {
     const response = await got(TRADES_URL);
-    const $ = cheerio.load(response.body);
-    const trades = {
-        updated: new Date(),
-        data: [],
-    };
+    $ = cheerio.load(response.body);
 
     const promise = new Promise((resolve, reject) => {
         connection.query('SELECT * FROM item_data ORDER BY id', async (error, results) => {
@@ -148,6 +250,8 @@ module.exports = async function() {
 
     // itemData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'src', 'data', 'all-en.json')));
 
+    const traderRows = [];
+
     $('.wikitable').each((traderTableIndex, traderTableElement) => {
         $(traderTableElement)
             .find('tr')
@@ -156,67 +260,20 @@ module.exports = async function() {
                     return true;
                 }
 
-                const $trade = $(tradeElement);
-                const rewardItemName = fixName($trade.find('th').eq(-1).find('a').eq(0).prop('title'));
-                const traderRequirement = fixName($trade.find('th').eq(2).find('a').eq(1).text());
-                const rewardItem = getItemByName(rewardItemName);
-
-                if(!rewardItem){
-                    console.log(`Found no item called "${rewardItemName}"`);
-
-                    return true;
-                }
-
-                const tradeData = {
-                    id: `${traderTableIndex}-${tradeIndex}`,
-                    requiredItems: [],
-                    rewardItems: [{
-                        name: rewardItem.name,
-                        id: rewardItem.id,
-                        count: 1,
-                    }],
-                    trader: traderRequirement,
-                };
-
-                let items = $trade.find('th').eq(0).html().split(/<br>\s?\+\s?<br>/);
-                const itemCountMatches = $trade.find('th').eq(0).text().match(/\sx\d/gm) || ['x1'];
-
-                if(itemCountMatches.length > items.length){
-                    items = $trade.find('th').eq(0).html().split(/<br><br>/);
-                }
-
-                if(itemCountMatches.length > items.length){
-                    items = $trade.find('th').eq(0).html().split(/\n.+?<\/a>/gm);
-                }
-
-                if(itemCountMatches.length > items.length){
-                    return true;
-                }
-
-                tradeData.requiredItems = items.map(getItemData).filter(Boolean);
-
-                // Failed to map at least one item
-                if(tradeData.requiredItems.length !== items.length){
-                    console.log(tradeData);
-                    return true;
-                }
-
-                trades.data.push(tradeData);
-
-                return true;
+                traderRows.push(tradeElement);
             });
     });
 
-    // try {
-    //     const response = await cloudflare(`/values/BARTER_DATA`, 'PUT', JSON.stringify(trades));
-    //     console.log(response);
-    // } catch (requestError){
-    //     console.error(requestError);
-    // }
+    traderRows.map(parseTradeRow);
+
+    try {
+        const response = await cloudflare(`/values/BARTER_DATA`, 'PUT', JSON.stringify(trades));
+        console.log(response);
+    } catch (requestError){
+        console.error(requestError);
+    }
 
     fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'barters.json'), JSON.stringify(trades, null, 4));
 
-    // console.log('Now you should run')
-    // console.log('wrangler kv:key put --namespace-id f04e5b75ee894b3a90cec2b7cc351311 "BARTER_DATA" ../tarkov-data-manager/scripts/barters.json --path');
-    // console.log('from the data-handler repo');
+    console.log('Barters updated');
 };
