@@ -12,10 +12,7 @@ const connection = require('../modules/db-connection');
 
 let itemData = false;
 const TRADES_URL = 'https://escapefromtarkov.gamepedia.com/Barter_trades';
-const trades = {
-    updated: new Date(),
-    data: [],
-};
+let trades;
 let $;
 
 const getItemByName = (searchName) => {
@@ -203,13 +200,16 @@ const parseTradeRow = (tradeElement) => {
         trades.data.push(tradeData);
     }
 
-
     return true;
 }
 
 module.exports = async function() {
     const response = await got(TRADES_URL);
     $ = cheerio.load(response.body);
+    trades = {
+        updated: new Date(),
+        data: [],
+    };
 
     const promise = new Promise((resolve, reject) => {
         connection.query('SELECT * FROM item_data ORDER BY id', async (error, results) => {
