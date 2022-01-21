@@ -69,7 +69,14 @@ const getItemData = function getItemData(html){
         name = fixName($('a').eq(-1).prop('title'));
     }
 
-    const item = getItemByName(name);
+    let item = getItemByName(name);
+
+    if(!item && name === 'Dogtag'){
+        let dogtagName = fixName($('a').eq(-1).text());
+        dogtagName = dogtagName.replace(/ ≥ Lvl \d+,?/, '');
+        // console.log(dogtagName);
+        item = getItemByName(dogtagName);
+    }
 
     if(!item){
         console.log(`Found no item called "${name}"`);
@@ -264,12 +271,12 @@ module.exports = async function() {
     //     });
     // }
 
-    try {
-        const response = await cloudflare(`/values/BARTER_DATA`, 'PUT', JSON.stringify(trades));
-        console.log(response);
-    } catch (requestError){
-        console.error(requestError);
-    }
+    // try {
+    //     const response = await cloudflare(`/values/BARTER_DATA`, 'PUT', JSON.stringify(trades));
+    //     console.log(response);
+    // } catch (requestError){
+    //     console.error(requestError);
+    // }
 
     fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'barters.json'), JSON.stringify(trades, null, 4));
 
