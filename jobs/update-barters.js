@@ -108,15 +108,6 @@ module.exports = async function() {
         updated: new Date(),
         data: [],
     };
-    const traderIndex = [
-        'Prapor',
-        'Therapist',
-        'Skier',
-        'Peacekeeper',
-        'Mechanic',
-        'Ragman',
-        'Jaeger',
-    ];
 
     const promise = new Promise((resolve, reject) => {
         connection.query('SELECT * FROM item_data ORDER BY id', async (error, results) => {
@@ -215,61 +206,6 @@ module.exports = async function() {
                 return true;
             });
     });
-
-    // for(const trade of trades.data){
-    //     console.log(trade);
-    //     await new Promise((resolve, reject) => {
-    //         connection.query(`INSERT IGNORE INTO trades (id, type, source)
-    //             VALUES (
-    //                 '${trade.id}',
-    //                 'barter',
-    //                 '${trade.trader}'
-    //             )`, async (error, result, fields) => {
-    //                 if (error) {
-    //                     return reject(error);
-    //                 }
-
-    //                 for(const requiredItem of trade.requiredItems){
-    //                     await new Promise((innerResolve, innerReject) => {
-    //                         connection.query(`INSERT IGNORE INTO trade_requirements (trade_id, item_id, count)
-    //                             VALUES (
-    //                                 '${trade.id}',
-    //                                 '${requiredItem.id}',
-    //                                 ${requiredItem.count}
-    //                             )`, (error, result, fields) => {
-    //                                 if (error) {
-    //                                     innerReject(error);
-    //                                 }
-
-    //                                 innerResolve();
-    //                             }
-    //                         );
-    //                     });
-    //                 }
-
-    //                 for(const rewardItem of trade.rewardItems){
-    //                     await new Promise((innerResolve, innerReject) => {
-    //                         connection.query(`INSERT IGNORE INTO trade_rewards (trade_id, item_id, count)
-    //                             VALUES (
-    //                                 '${trade.id}',
-    //                                 '${rewardItem.id}',
-    //                                 ${rewardItem.count}
-    //                             )`, (error, result, fields) => {
-    //                                 if (error) {
-    //                                     innerReject(error);
-    //                                 }
-
-    //                                 innerResolve();
-    //                             }
-    //                         );
-    //                     });
-    //                 }
-
-    //                 return resolve();
-    //             }
-    //         );
-    //     });
-    // }
 
     // try {
     //     const response = await cloudflare(`/values/BARTER_DATA`, 'PUT', JSON.stringify(trades));
