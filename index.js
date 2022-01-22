@@ -133,13 +133,6 @@ const getHeader = (req) => {
             </script>
         `;
     }
-    if (req.url === '/') {
-        javascript += `
-            <script>
-                const WS_PASSWORD = '${process.env.WS_PASSWORD}';
-            </script>
-        `;
-    }
     return `
     <!DOCTYPE html>
         <head>
@@ -175,14 +168,18 @@ const getHeader = (req) => {
                 <div class="nav-wrapper">
                     <a href="#" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
                     <ul id="nav-mobile" class="left hide-on-med-and-down">
-                        <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Scanners</a></li>
+                        <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Home</a></li>
+                        <li class="${req.url === '/scanners' ? 'active' : ''}"><a href="/scanners">Scanners</a></li>
                         <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
+                        <!--li class="${req.url === '/trader-prices' ? 'active' : ''}"><a href="/trader-prices">Trader Prices</a></li-->
                     </ul>
                 </div>
             </nav>
             <ul class="sidenav" id="mobile-menu">
-                <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Scanners</a></li>
+                <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Home</a></li>
+                <li class="${req.url === '/scanners' ? 'active' : ''}"><a href="/scanners">Scanners</a></li>
                 <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
+                <!--li class="${req.url === '/trader-prices' ? 'active' : ''}"><a href="/trader-prices">Trader Prices</a></li-->
             </ul>
         `;
 }
@@ -193,6 +190,40 @@ const getFooter = (req) => {
         </body>
     </html>`;
 };
+
+app.get('/', async (req, res) => {
+    const latestScanResults = await getLatestScanResults();
+    let activeScanners = 0;
+    latestScanResults.map(latestScan => {
+        if (new Date - latestScan.timestamp < 1000 * 60 * 60 * 2) {
+            activeScanners++;
+        } 
+    });
+    let itemCount = 0;
+    let missingImage = 0;
+    let missingWiki = 0;
+    let untagged = 0;
+    myData = await remoteData.get();
+    for (const [key, item] of myData) {
+        if (item.types.length == 0) untagged++;
+        if (!item.wiki_link && !item.types.includes('disabled')) missingWiki++;
+        if ((!item.image_link || !item.grid_image_link || !item.icon_link) && !item.types.includes('disabled')) missingImage++;
+        itemCount++;
+    }
+    res.send(`${getHeader(req)}
+        <div><a href="/scanners" class="waves-effect waves-light btn"><i class="material-icons left">scanner</i>Scanners</a></div>
+        <ul class="browser-default">
+            <li>Active: ${activeScanners}</li>
+        </ul>
+        <div><a href="/items" class="waves-effect waves-light btn"><i class="material-icons left">search</i>Items</a></div>
+        <ul class="browser-default">
+            <li>Total: ${itemCount}</li>
+            <li>Untagged: ${untagged}</li>
+            <li>Missing image(s): ${missingImage}</li>
+            <li>Missing wiki link: ${missingWiki}</li>
+        </ul>
+    ${getFooter(req)}`);
+});
 
 app.get('/data', async (req, res) => {
     const allData = await remoteData.get();
@@ -503,6 +534,14 @@ app.get('/items', async (req, res) => {
                         <a class="waves-effect waves-light btn filter-types-all"><i class="material-icons left">all_inclusive</i>All</a>
                         <a class="waves-effect waves-light btn filter-types-none"><i class="material-icons left">not_interested</i>None</a>
                     </div>
+                    <div class="switch">
+                        <label>
+                            Require any selected
+                            <input class="filter-types-require-selected" type="checkbox" value="true">
+                            <span class="lever"></span>
+                            Require all selected
+                        </label>
+                    </div>
                     <div class="type-filters">${typeFilters}</div>
                     <div>Special Filters</div>
                     <div>
@@ -542,7 +581,7 @@ app.get('/items', async (req, res) => {
         <div id="modal-edit-item" class="modal modal-fixed-footer">
             <div class="modal-content">
                 <h4 class="item-content-name"></h4>
-                <p class="item-content-id"></p>
+                <div class="item-content-id"></div>
                 <div class="row">
                     <form class="col s12 post-url item-attribute-id" data-attribute="action" data-prepend-value="/items/edit/" method="post" action="">
                         <div class="row">
@@ -593,7 +632,7 @@ app.get('/items', async (req, res) => {
     ${getFooter(req)}`);
 });
 
-app.get('/', async (req, res) => {
+app.get('/scanners', async (req, res) => {
     const latestScanResults = await getLatestScanResults();
     const activeScanners = [];
     const inactiveScanners = [];
@@ -620,6 +659,7 @@ app.get('/', async (req, res) => {
                             <ul id="dropdown-${scanner.source}" class="dropdown-content">
                                 <li class="pause-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="pause-scanner"><i class="material-icons left">pause</i>Pause</a></li>
                                 <li class="resume-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}" style="display:none;"><a href="#!" class="resume-scanner"><i class="material-icons left">play_arrow</i>Resume</a></li>
+                                <li class="screenshot-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="screenshot-scanner"><i class="material-icons left">camera_alt</i>Screenshot</a></li>
                                 <li class="generate-images-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="generate-images-scanner"><i class="material-icons left">image</i>Generate Images</a></li>
                                 <li class="set-trader-scan-day" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="set-trader-scan-day"><i class="material-icons left">schedule</i>Set Trader Scan Day</a></li>
                                 <li class="shutdown-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="shutdown-scanner"><i class="material-icons left">power_settings_new</i>Shutdown</a></li>
@@ -636,6 +676,9 @@ app.get('/', async (req, res) => {
         `;
     };
     res.send(`${getHeader(req)}
+        <script>
+            const WS_PASSWORD = '${process.env.WS_PASSWORD}';
+        </script>
         <script src="/scanners.js"></script>
         <h5>Active Scanners</h5>
         <div class="scanners-wrapper">
@@ -652,7 +695,7 @@ app.get('/', async (req, res) => {
         <div id="modal-shutdown-confirm" class="modal">
             <div class="modal-content">
                 <h4>Confirm Shutdown</h4>
-                <p>Are you sure you want to shutdown <span class="modal-shutdown-confirm-scanner-name"></span>?</p>
+                <div>Are you sure you want to shutdown <span class="modal-shutdown-confirm-scanner-name"></span>?</div>
             </div>
             <div class="modal-footer">
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat shutdown-confirm">Yes</a>
@@ -662,7 +705,7 @@ app.get('/', async (req, res) => {
         <div id="modal-trader-scan-day" class="modal">
             <div class="modal-content">
                 <h4>Set Trader Scan Day</h4>
-                <p>Select the day you want <span class="modal-trader-scan-day-scanner-name"></span> to scan trader prices.</p>
+                <div>Select the day you want <span class="modal-trader-scan-day-scanner-name"></span> to scan trader prices.</div>
                 <select class="trader-scan-day">
                     <option value="false">Disable</option>
                     <option value="0">Sunday</option>
@@ -679,6 +722,22 @@ app.get('/', async (req, res) => {
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat trader-scan-day-cancel">Cancel</a>
             </div>
         </div>
+    ${getFooter(req)}`);
+});
+
+app.get('/trader-prices', async (req, res) => {
+    const t = timer('getting-items');
+    const priceData = await remoteData.getTraderPrices();
+    const items = [];
+    for (const [key, item] of priceData) {
+        items.push(item);
+    }
+    t.end();
+    res.send(`${getHeader(req)}
+        <script>
+            const all_items = ${JSON.stringify(items, null, 4)};
+        </script>
+        <div>hello world</div>
     ${getFooter(req)}`);
 });
 

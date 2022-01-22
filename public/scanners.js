@@ -144,6 +144,15 @@ $(document).ready( function () {
         sendCommand(scannerName, 'generate-images');
     });
 
+    $('a.screenshot-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        if (!wsClients[scannerName]) {
+            return;
+        }
+        sendCommand(scannerName, 'screenshot');
+    });
+
     $('a.set-trader-scan-day').click(function(event){
         event.stopPropagation();
         let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
