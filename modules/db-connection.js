@@ -19,4 +19,15 @@ const connection = mysql.createPool({
     queueLimit: 0
 });
 
+connection.promiseQuery = async (sql) => {
+    return new Promise((resolve, reject) => {
+        connection.query(sql, (queryError, results) => {
+            if(queryError){
+                return reject(queryError);
+            }
+            return resolve(results);
+        });
+    });
+};
+
 module.exports = connection;

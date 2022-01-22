@@ -14,7 +14,7 @@ async function postData(url = '', data = {}) {
       body: JSON.stringify(data) // body data type must match "Content-Type" header
     });
 
-    return response.json(); // parses JSON response into native JavaScript objects
+    return response;//.json(); // parses JSON response into native JavaScript objects
 }
 
 const showEditItemModal = function(event){
@@ -135,46 +135,50 @@ $(document).ready( function () {
                 return data;
             }
         }
-    ]
-    const showTable = () => {
-        if (table) table.destroy();
-        table = $('table.main').DataTable({
-            pageLength: 25,
-            order: [[0, 'asc']],
-            data: all_items || [],
-            columns: columns,
-            drawCallback: (settings) => {
-                M.AutoInit();
-            }
-        });
-    };
-    showTable();
-    //$('table.main').css('display', '');
-    $('table.main').DataTable().on('draw', function() {
-        $('.edit-item').off('click');
-        $('.edit-item').click(showEditItemModal);
-    });
-    if (table) {
-        //table.draw();
-    }
+    ];
 
-    $('input.item-type').change((event) => {
-        if(event.target.getAttribute('type') !== 'checkbox'){
-            return true;
-        }
-    
-        const dataUpdate = {
-            id: event.target.dataset.itemId,
-            type: event.target.value,
-            active: event.target.checked,
-        }
-        console.log(dataUpdate);
-        console.log(event);
-    
-        postData('/update', dataUpdate)
-            .then(data => {
-                console.log(data); // JSON data parsed by `data.json()` call
+    table = $('table.main').DataTable({
+        pageLength: 25,
+        order: [[0, 'asc']],
+        data: all_items || [],
+        columns: columns,
+        drawCallback: (settings) => {
+            M.AutoInit();
+
+            $('.edit-item').off('click');
+            $('.edit-item').click(showEditItemModal);
+
+            $('input.item-type').off('change');
+            $('input.item-type').change((event) => {
+                console.log(event);
+                if(event.target.getAttribute('type') !== 'checkbox'){
+                    return true;
+                }
+            
+                const dataUpdate = {
+                    id: event.target.dataset.itemId,
+                    type: event.target.value,
+                    active: event.target.checked,
+                }
+                console.log(dataUpdate);
+                console.log(event);
+            
+                postData('/update', dataUpdate)
+                    .then(data => {
+                        console.log(data); // JSON data parsed by `data.json()` call
+                        for (let i = 0; i < all_items.length; i++) {
+                            const item = all_items[i];
+                            if (item.id !== event.target.dataset.itemId) continue;
+                            if (event.target.checked) {
+                                item.types.push(event.target.value)
+                            } else {
+                                item.types = item.types.filter(t => t !== event.target.value);
+                            }
+                            break;
+                        }
+                    });
             });
+        }
     });
 
     $('.collapsible').collapsible();
@@ -215,6 +219,9 @@ $(document).ready( function () {
         $('input.filter-type').prop('checked', false);
         drawTable();
     });
+    $('.filter-types-require-selected').change(() => {
+        drawTable();
+    });
     $('.filter-type').change(() => {
         drawTable();
     });
@@ -243,7 +250,6 @@ jQuery.fn.dataTableExt.afnFiltering.push(
     function( oSettings, aData, iDataIndex ) {
         const item = all_items[iDataIndex];
         let specialPassed = false;
-        let typePassed = false;
         let allItems = false;
         let specialChecked = jQuery('input.filter-special:checked');
         if (typeof specialChecked == 'undefined') return false;
@@ -259,15 +265,26 @@ jQuery.fn.dataTableExt.afnFiltering.push(
             }
             if (specialPassed) break;
         }
+        if (!specialPassed) console.log('special failed');
+        if (!specialPassed) return false;
+        let requireSelected = jQuery('input.filter-types-require-selected:checked').length > 0; 
+        let typePassed = requireSelected;
         let typeChecked = jQuery('input.filter-type:checked');
         if (typeof typeChecked == 'undefined') return false;
         for (let i=0; i< typeChecked.length; i++) {
+            if (requireSelected) {
+                if (!item.types.includes(jQuery(typeChecked[i]).val())) {
+                    return false;
+                } else {
+                    continue;
+                }
+            }
             if (item.types.includes(jQuery(typeChecked[i]).val())) {
                 typePassed = true;
                 break;
             }
         }
         if (item.types.length == 0 && allItems) typePassed = true;
-        return specialPassed && typePassed;
+        return typePassed;
     }
 );
