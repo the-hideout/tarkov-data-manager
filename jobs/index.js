@@ -33,6 +33,7 @@ module.exports = () => {
     runJob('game-data', '*/15 * * * *');
     runJob('update-historical-prices', '1-59/15 * * * *');
 
+    runJob('update-item-properties', '15 * * * *');
     runJob('update-trader-prices', '45 * * * *');
 
     runJob('clear-checkouts', '5 */6 * * *');
