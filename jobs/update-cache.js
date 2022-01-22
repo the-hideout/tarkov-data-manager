@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const roundTo = require('round-to');
 
 const cloudflare = require('../modules/cloudflare');
@@ -110,4 +113,6 @@ module.exports = async () => {
     } catch (requestError){
         console.error(requestError);
     }
+
+    fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'item-cache.json'), JSON.stringify(itemData, null, 4));
 };
