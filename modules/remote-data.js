@@ -170,9 +170,9 @@ const methods = {
                                 }
 
                                 if(!itemProperties){
-                                    console.log('Missing properties for');
-                                    console.log(result);
-                                    console.log(itemProperties);
+                                    console.log(`Missing properties for ${result.id}`);
+                                    // console.log(result);
+                                    // console.log(itemProperties);
                                 }
 
                                 // Add trader prices
@@ -280,8 +280,8 @@ const methods = {
         allDataTimer.end();
         const translationsTimer = timer('translations');
         const translations = await connection.promiseQuery(`
-            SELECT item_id, type, value 
-            FROM translations 
+            SELECT item_id, type, value
+            FROM translations
             WHERE language_code = 'en' AND (type = 'name' OR type = 'shortName')
         `);
         translationsTimer.end();
@@ -309,7 +309,7 @@ const methods = {
                 if(translationResult.item_id !== item.id){
                     continue;
                 }
-    
+
                 item[translationResult.type] = translationResult.value;
             }
             item.prices = [];

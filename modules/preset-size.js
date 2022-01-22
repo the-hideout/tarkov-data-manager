@@ -38,8 +38,8 @@ module.exports = async(shortName, itemId) => {
             const part = itemData[preset.parts[i].id];
 
             if(!part){
-                console.log(preset.parts[i]);
-                console.log(preset);
+                // console.log(preset.parts[i]);
+                // console.log(preset);
                 continue;
             }
 
