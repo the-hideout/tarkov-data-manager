@@ -4,6 +4,7 @@ const AVAILABLE_TYPES = [
     'armor',
     'backpack',
     'barter',
+    'container',
     'disabled',
     'glasses',
     'grenade',
