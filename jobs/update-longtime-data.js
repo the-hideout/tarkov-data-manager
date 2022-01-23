@@ -138,4 +138,30 @@ module.exports = async () => {
         historicalPriceData = null;
         mapPriceData = null;
     }
+
+        console.time(`longtime-price-query-all`);
+        let historicalPriceData = await doQuery(`SELECT
+            item_id, price, timestamp
+        FROM
+            price_data
+        WHERE
+            timestamp > '2021-12-14'`);
+        console.timeEnd(`longtime-price-query-all`);
+
+        const fileHandle = fs.createWriteStream(path.join(__dirname, '..', 'public', 'data', `historical-prices-all.csv`), {
+            flags: 'a',
+        });
+
+        fileHandle.write('price,timestamp,item_id\n');
+
+        console.time('write-all-file');
+        for (const row of historicalPriceData) {
+            fileHandle.write(`${row.price},${row.timestamp.toISOString()},${row.item_id}\n`);
+        }
+
+        fileHandle.end();
+        console.timeEnd('write-all-file');
+
+        historicalPriceData = null;
+        mapPriceData = null;
 };

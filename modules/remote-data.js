@@ -13,6 +13,7 @@ const client = new S3Client({
 });
 
 const connection = require('./db-connection');
+const doQuery = require('./do-query');
 
 const getPercentile = (validValues) => {
     if(validValues.length === 0){
@@ -55,6 +56,26 @@ const getPercentile = (validValues) => {
 const methods = {
     get: async () => {
         console.log('Loading all data');
+
+        console.time('item-properties-query');
+        const allItemProperties = await doQuery(`SELECT
+            item_id,
+            property_key,
+            property_value
+        FROM
+            item_properties`);
+        console.timeEnd('item-properties-query');
+
+        const itemPropertiesMap = {};
+
+        for(const itemProperty of allItemProperties){
+            if(!itemPropertiesMap[itemProperty.item_id]){
+                itemPropertiesMap[itemProperty.item_id] = {};
+            }
+
+            itemPropertiesMap[itemProperty.item_id][itemProperty.property_key] = itemProperty.property_value;
+        }
+
         const allDataTimer = timer('item-data-query');
         return new Promise((resolve, reject) => {
             connection.query(`
@@ -124,7 +145,7 @@ const methods = {
 
                             for(const result of results){
                                 Reflect.deleteProperty(result, 'item_id');
-                                const itemProperties = JSON.parse(result.properties);
+                                const itemProperties = itemPropertiesMap[result.id];
                                 itemPrices[result.id]?.prices.sort();
 
                                 const preparedData = {
@@ -149,8 +170,9 @@ const methods = {
                                 }
 
                                 if(!itemProperties){
-                                    console.log('Missing bsgCategoryId for');
-                                    console.log(result);
+                                    console.log(`Missing properties for ${result.id}`);
+                                    // console.log(result);
+                                    // console.log(itemProperties);
                                 }
 
                                 // Add trader prices
@@ -163,7 +185,7 @@ const methods = {
                                         });
                                     }
                                 } else {
-                                    console.log(`No category for trader prices mapped for ${preparedData.name} with id ${itemProperties.bsgCategoryId}`);
+                                    console.log(`No category for trader prices mapped for ${preparedData.name} with category id ${itemProperties?.bsgCategoryId}`);
                                 }
 
                                 // Map special items bought by specific vendors
@@ -258,8 +280,8 @@ const methods = {
         allDataTimer.end();
         const translationsTimer = timer('translations');
         const translations = await connection.promiseQuery(`
-            SELECT item_id, type, value 
-            FROM translations 
+            SELECT item_id, type, value
+            FROM translations
             WHERE language_code = 'en' AND (type = 'name' OR type = 'shortName')
         `);
         translationsTimer.end();
@@ -287,7 +309,7 @@ const methods = {
                 if(translationResult.item_id !== item.id){
                     continue;
                 }
-    
+
                 item[translationResult.type] = translationResult.value;
             }
             item.prices = [];
