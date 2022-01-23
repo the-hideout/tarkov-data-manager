@@ -205,11 +205,11 @@ module.exports = async () => {
         item.width = item._props.Width;
         item.height = item._props.Height;
 
-        let itemPresetSize = await presetSize(item.shortName, item._id);
+        let itemPresetSize = await presetSize(item._id);
 
-        if(!itemPresetSize && oldShortnames[item._id]){
+        /*if(!itemPresetSize && oldShortnames[item._id]){
             itemPresetSize = await presetSize(oldShortnames[item._id], item._id);
-        }
+        }*/
 
         if(itemPresetSize){
             item.width = itemPresetSize.width;
