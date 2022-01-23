@@ -6,7 +6,7 @@ const got = require('got');
 let presets = false;
 let itemData = false;
 
-module.exports = async(shortName, itemId) => {
+module.exports = async(itemId) => {
     if(!itemData){
         itemData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
     }
@@ -34,6 +34,10 @@ module.exports = async(shortName, itemId) => {
         const preset = presets[presetId];
         const baseItem = itemData[preset.baseId];
 
+        if (itemId !== presetId && !(itemId === preset.baseId && preset.default)) {
+            continue;
+        }
+
         for (let i = 0; i < preset.parts.length; i++) {
             const part = itemData[preset.parts[i].id];
 
@@ -55,14 +59,10 @@ module.exports = async(shortName, itemId) => {
             }
         }
 
-        const presetSize = {
+        return {
             width: baseItem._props.Width + softSizes.Left + softSizes.Right + hardSizes.Left + hardSizes.Right,
             height: baseItem._props.Height + softSizes.Up + softSizes.Down + hardSizes.Up + hardSizes.Down,
         };
-
-        if(preset.name === shortName && preset.baseId === itemId){
-            return presetSize;
-        }
     }
 
     return false;

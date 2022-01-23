@@ -200,14 +200,14 @@ app.get('/', async (req, res) => {
         } 
     });
     let itemCount = 0;
-    let missingImage = 0;
-    let missingWiki = 0;
-    let untagged = 0;
+    let missingImage = [];
+    let missingWiki = [];
+    let untagged = [];
     myData = await remoteData.get();
     for (const [key, item] of myData) {
-        if (item.types.length == 0) untagged++;
-        if (!item.wiki_link && !item.types.includes('disabled')) missingWiki++;
-        if ((!item.image_link || !item.grid_image_link || !item.icon_link) && !item.types.includes('disabled')) missingImage++;
+        if (item.types.length == 0) untagged.push(item);
+        if (!item.wiki_link && !item.types.includes('disabled')) missingWiki.push(item);
+        if ((!item.image_link || !item.grid_image_link || !item.icon_link) && !item.types.includes('disabled')) missingImage.push(item);
         itemCount++;
     }
     res.send(`${getHeader(req)}
@@ -218,9 +218,9 @@ app.get('/', async (req, res) => {
         <div><a href="/items" class="waves-effect waves-light btn"><i class="material-icons left">search</i>Items</a></div>
         <ul class="browser-default">
             <li>Total: ${itemCount}</li>
-            <li>Untagged: ${untagged}</li>
-            <li>Missing image(s): ${missingImage}</li>
-            <li>Missing wiki link: ${missingWiki}</li>
+            <li>Untagged: ${untagged.length}</li>
+            <li>Missing image(s): ${missingImage.length}</li>
+            <li>Missing wiki link: ${missingWiki.length}</li>
         </ul>
     ${getFooter(req)}`);
 });
