@@ -153,6 +153,15 @@ $(document).ready( function () {
         sendCommand(scannerName, 'screenshot');
     });
 
+    $('a.log-repeat-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        if (!wsClients[scannerName]) {
+            return;
+        }
+        sendCommand(scannerName, 'repeat-log');
+    });
+
     $('a.set-trader-scan-day').click(function(event){
         event.stopPropagation();
         let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
