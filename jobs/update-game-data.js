@@ -239,9 +239,9 @@ module.exports = async () => {
         }
 
         // Skip already existing items
-        if(allTTItems[item._id]){
-            continue;
-        }
+        // if(allTTItems[item._id]){
+        //     continue;
+        // }
 
         spinner.succeed(`New item: ${item.name}`);
 
