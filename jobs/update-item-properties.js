@@ -226,7 +226,8 @@ module.exports = async () => {
             await updateProperty(item.id, mappingProperties[propertyKey], propertyValue);
         }
 
-        const bsgCategoryId = itemCategory(bsgData[item.id]);
+        // const bsgCategoryId = itemCategory(bsgData[item.id]);
+        const bsgCategoryId = bsgData[item.id]._parent;
 
         if(currentProperties[item.id] && currentProperties[item.id].bsgCategoryId === bsgCategoryId){
             continue;
