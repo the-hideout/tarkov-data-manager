@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const got = require('got');
+
 const ttData = require('../modules/tt-data');
 
 const hideoutData = require('../dumps/hideout.json');
@@ -17,6 +19,14 @@ const getNewId = () => {
     }
 
     return max + 1;
+};
+
+const loadHideoutData = async () => {
+    const liveData = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/hideout.json', {
+        responseType: 'json',
+    });
+
+    fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'hideout.json'), JSON.stringify(liveData.body, null, 4));
 };
 
 const viewModule = (name, allTTData) => {
@@ -108,6 +118,10 @@ const changeItem = (moduleName, moduleLevel, itemId, itemQuantity) => {
     const allTTData = await ttData();
 
     switch(commandAruments[0]){
+        case 'get':
+            loadHideoutData();
+
+            break;
         case 'view':
             viewModule(commandAruments[1], allTTData);
 
