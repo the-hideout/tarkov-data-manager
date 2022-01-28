@@ -660,6 +660,7 @@ app.get('/scanners', async (req, res) => {
                                 <li class="pause-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="pause-scanner"><i class="material-icons left">pause</i>Pause</a></li>
                                 <li class="resume-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}" style="display:none;"><a href="#!" class="resume-scanner"><i class="material-icons left">play_arrow</i>Resume</a></li>
                                 <li class="screenshot-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="screenshot-scanner"><i class="material-icons left">camera_alt</i>Screenshot</a></li>
+                                <li class="click-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="click-scanner"><i class="material-icons left">mouse</i>Click</a></li>
                                 <li class="log-repeat-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="log-repeat-scanner"><i class="material-icons left">event_note</i>Repeat log</a></li>
                                 <li class="generate-images-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="generate-images-scanner"><i class="material-icons left">image</i>Generate Images</a></li>
                                 <li class="set-trader-scan-day" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="set-trader-scan-day"><i class="material-icons left">schedule</i>Set Trader Scan Day</a></li>
@@ -721,6 +722,24 @@ app.get('/scanners', async (req, res) => {
             <div class="modal-footer">
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat trader-scan-day-confirm">Save</a>
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat trader-scan-day-cancel">Cancel</a>
+            </div>
+        </div>
+        <div id="modal-click" class="modal">
+            <div class="modal-content">
+                <h4>Click Point on Screen</h4>
+                <div>Select the point you want to click.</div>
+                <div class="input-field">
+                    <input id="click-x" type="number" value="0" class="validate click-x" />
+                    <label for="click-x">Pixels from left</label>
+                </div>
+                <div class="input-field">
+                    <input id="click-y" type="number" value="0" class="validate click-y" />
+                    <label for="click-y">Pixels from top</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat click-confirm">Click</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat click-cancel">Cancel</a>
             </div>
         </div>
     ${getFooter(req)}`);

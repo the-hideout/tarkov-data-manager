@@ -153,6 +153,26 @@ $(document).ready( function () {
         sendCommand(scannerName, 'screenshot');
     });
 
+    $('a.click-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        $('#modal-click .modal-click-scanner-name').text(scannerName);
+        $('#modal-click .click-x').val('');
+        $('#modal-click .click-y').val('');
+        $('#modal-click .click-confirm').data('scannerName', scannerName);
+        M.Modal.getInstance(document.getElementById('modal-click')).open();
+    });
+
+    $('#modal-click .click-confirm').click(function(event){
+        let scannerName = decodeURIComponent($(event.target).data('scannerName'));
+        if (!wsClients[scannerName]) {
+            return;
+        }
+        const x = $('#modal-click input.click-x').val();
+        const y = $('#modal-click input.click-y').val();
+        sendCommand(scannerName, {clickX: x, clickY: y});
+    });
+
     $('a.log-repeat-scanner').click(function(event){
         event.stopPropagation();
         let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
