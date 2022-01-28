@@ -61,6 +61,24 @@ module.exports = {
                 TRADERS.mechanic,
             ],
         },
+        '5d21f59b6dbe99052b54ef83': {
+            id: '5d21f59b6dbe99052b54ef83',
+            name: 'ThermalVision',
+            traders: [
+                TRADERS.fence,
+                TRADERS.peacekeeper,
+                TRADERS.mechanic,
+            ],
+        },
+        '5a2c3a9486f774688b05e574': {
+            id: '5a2c3a9486f774688b05e574',
+            name: 'NightVision',
+            traders: [
+                TRADERS.fence,
+                TRADERS.peacekeeper,
+                TRADERS.mechanic,
+            ],
+        },
         '5448e8d64bdc2dce718b4568': {
             name: 'Drinks',
             id: '5448e8d64bdc2dce718b4568',
@@ -147,9 +165,119 @@ module.exports = {
                 TRADERS.skier,
             ],
         },
+        '57864c8c245977548867e7f1': {
+            name: 'MedicalSupplies',
+            id: '57864c8c245977548867e7f1',
+            traders: [
+                TRADERS.prapor,
+                TRADERS.therapist,
+                TRADERS.fence,
+                TRADERS.skier,
+            ],
+        },
+        '590c745b86f7743cc433c5f2': {
+            name: 'Other',
+            id: '590c745b86f7743cc433c5f2',
+            traders: [
+                TRADERS.prapor,
+                TRADERS.therapist,
+                TRADERS.fence,
+                TRADERS.skier,
+            ],
+        },
+        '57864c322459775490116fbf': {
+            name: 'HouseholdGoods',
+            id: '57864c322459775490116fbf',
+            traders: [
+                TRADERS.prapor,
+                TRADERS.therapist,
+                TRADERS.fence,
+                TRADERS.skier,
+            ],
+        },
+        '57864bb7245977548b3b66c2': {
+            name: 'Tool',
+            id: '57864bb7245977548b3b66c2',
+            traders: [
+                TRADERS.prapor,
+                TRADERS.therapist,
+                TRADERS.fence,
+                TRADERS.skier,
+            ],
+        },
+        '57864ee62459775490116fc1': {
+            name: 'Battery',
+            id: '57864ee62459775490116fc1',
+            traders: [
+                TRADERS.prapor,
+                TRADERS.therapist,
+                TRADERS.fence,
+                TRADERS.skier,
+            ],
+        },
+        '57864e4c24597754843f8723': {
+            name: 'Lubricant',
+            id: '57864e4c24597754843f8723',
+            traders: [
+                TRADERS.prapor,
+                TRADERS.therapist,
+                TRADERS.fence,
+                TRADERS.skier,
+            ],
+        },
+        '5d650c3e815116009f6201d2': {
+            name: 'Fuel',
+            id: '5d650c3e815116009f6201d2',
+            traders: [
+                TRADERS.prapor,
+                TRADERS.therapist,
+                TRADERS.fence,
+                TRADERS.skier,
+            ],
+        },
         '57bef4c42459772e8d35a53b': {
             name: 'ArmoredEquipment',
             id: '57bef4c42459772e8d35a53b',
+            traders: [
+                TRADERS.fence,
+                TRADERS.skier,
+                TRADERS.peacekeeper,
+                TRADERS.ragman,
+            ],
+        },
+        '5448e54d4bdc2dcc718b4568': {
+            name: 'Armor',
+            id: '5448e54d4bdc2dcc718b4568',
+            traders: [
+                TRADERS.fence,
+                TRADERS.skier,
+                TRADERS.peacekeeper,
+                TRADERS.ragman,
+            ],
+        },
+        '5a341c4686f77469e155819e': {
+            name: 'FaceCover',
+            id: '5a341c4686f77469e155819e',
+            traders: [
+                TRADERS.fence,
+                TRADERS.skier,
+                TRADERS.peacekeeper,
+                TRADERS.ragman,
+            ],
+        },
+        '5448e5724bdc2ddf718b4568': {
+            name: 'Visors',
+            id: '5448e5724bdc2ddf718b4568',
+            traders: [
+                TRADERS.fence,
+                TRADERS.skier,
+                TRADERS.peacekeeper,
+                TRADERS.ragman,
+            ],
+        },
+        '5a341c4086f77401f2541505': {
+            name: 'Headwear',
+            id: '5a341c4086f77401f2541505',
             traders: [
                 TRADERS.fence,
                 TRADERS.skier,
@@ -416,6 +544,16 @@ module.exports = {
                 TRADERS.mechanic,
             ],
         },
+        '610720f290b75a49ff2e5e25': {
+            name: 'CylinderMagazine',
+            id: '610720f290b75a49ff2e5e25',
+            traders: [
+                TRADERS.prapor,
+                TRADERS.fence,
+                TRADERS.peacekeeper,
+                TRADERS.mechanic,
+            ],
+        },
         '55818b164bdc2ddc698b456c': {
             name: 'TacticalCombo',
             id: '55818b164bdc2ddc698b456c',
@@ -602,6 +740,20 @@ module.exports = {
         '5447e0e74bdc2d3c308b4567': {
             name: 'SpecItem',
             id: '5447e0e74bdc2d3c308b4567',
+            traders: [
+                TRADERS.prapor,
+            ],
+        },
+        '61605ddea09d851a0a0c1bbc': {
+            name: 'PortableRangeFinder',
+            id: '61605ddea09d851a0a0c1bbc',
+            traders: [
+                TRADERS.prapor,
+            ],
+        },
+        '5f4fbaaca5573a5ac31db429': {
+            name: 'Compass',
+            id: '5f4fbaaca5573a5ac31db429',
             traders: [
                 TRADERS.prapor,
             ],
