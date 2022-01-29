@@ -17,12 +17,22 @@ const sendCommand = (sessionID, command) => {
     }));
 }
 
+getScannerValue = (sessionID, settingName) => {
+    return wsClients[sessionID].send(JSON.stringify({
+        sessionID: sessionID,
+        type: 'getValue',
+        data: {name: settingName}
+    }));
+};
+
 function startListener(channel) {
-    const WEBSOCKET_SERVER = 'wss://tarkov-tools-live.herokuapp.com';
-    //const WEBSOCKET_SERVER = 'ws://localhost:8080';
+    //const WEBSOCKET_SERVER = 'wss://tarkov-tools-live.herokuapp.com';
+    const WEBSOCKET_SERVER = 'ws://localhost:8080';
     let logMessages = [];
 
     const ws = new WebSocket(WEBSOCKET_SERVER);
+    ws.sessionID = channel;
+    ws.settings = {};
 
     const heartbeat = function heartbeat() {
         clearTimeout(ws.pingTimeout);
@@ -54,6 +64,8 @@ function startListener(channel) {
     ws.onmessage = (rawMessage) => {
         const message = JSON.parse(rawMessage.data);
 
+        const ansi_up = new AnsiUp;
+
         if(message.type === 'ping'){
             heartbeat();
 
@@ -62,14 +74,34 @@ function startListener(channel) {
             return true;
         } else if (message.type === 'command') {
             return;
+        } else if (message.type === 'scannerValue') {
+            console.log(`Setting scanner values for ${ws.sessionID}`);
+            console.log(message);
+            ws.settings[message.data.name] = message.data.value;
+        } else if (message.type === 'scannerValues') {
+            console.log(`Setting scanner values for ${ws.sessionID}`);
+            console.log(message.data);
+            ws.settings = {
+                ...ws.settings,
+                ...message.data
+            };
+            let openScanner = decodeURIComponent($('#modal-click .click-confirm').data('scannerName'));
+            if (openScanner == channel) {
+                $('#modal-click .scanner-last-screenshot').attr('src', ws.settings.lastScreenshot);
+            }
+            return;
+        } else if (message.type === 'logHistory' && logMessages.length < 2) {
+            logMessages = [];
+            for (let i = 0; i < message.data.length; i++) {
+                logMessages.push(ansi_up.ansi_to_html(message.data[i]))
+            }
         }
 
-        const ansi_up = new AnsiUp;
-
-        const html = ansi_up.ansi_to_html(message.data);
-
-        logMessages.push(html);
-
+        if (message.type !== 'logHistory') {
+            const html = ansi_up.ansi_to_html(message.data);
+            logMessages.push(html);
+        }
+        
         logMessages = logMessages.slice(-100);
 
         const wrapper = document.querySelector(`.log-messages-${channel}`);
@@ -156,11 +188,34 @@ $(document).ready( function () {
     $('a.click-scanner').click(function(event){
         event.stopPropagation();
         let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
-        $('#modal-click .modal-click-scanner-name').text(scannerName);
+        $('#modal-click .scanner-click-name').text(scannerName);
         $('#modal-click .click-x').val('');
         $('#modal-click .click-y').val('');
+        $('#modal-click .scanner-last-screenshot').attr('src', '');
+        if (wsClients[scannerName] && wsClients[scannerName].settings.lastScreenshot) {
+            $('#modal-click .scanner-last-screenshot').attr('src', wsClients[scannerName].settings.lastScreenshot);
+        }
         $('#modal-click .click-confirm').data('scannerName', scannerName);
         M.Modal.getInstance(document.getElementById('modal-click')).open();
+    });
+
+    $('#modal-click .btn.refresh-screenshot').click(function(event){
+        let scannerName = $('#modal-click .scanner-click-name').text();
+        sendCommand(scannerName, 'screenshot');
+    });
+
+    $('#modal-click .scanner-last-screenshot').click(function(event) {
+        const img = $(this);
+        const parentOffset = img.parent().offset(); 
+        const relX = event.pageX - parentOffset.left;
+        const relY = event.pageY - parentOffset.top;
+
+        const scaleX = this.width / this.naturalWidth;
+        const scaleY = this.height / this.naturalHeight;
+
+        $('#modal-click .click-x').val(Math.round(relX / scaleX));
+        $('#modal-click .click-y').val(Math.round(relY / scaleY));
+        M.updateTextFields();
     });
 
     $('#modal-click .click-confirm').click(function(event){
