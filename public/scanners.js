@@ -26,8 +26,8 @@ getScannerValue = (sessionID, settingName) => {
 };
 
 function startListener(channel) {
-    //const WEBSOCKET_SERVER = 'wss://tarkov-tools-live.herokuapp.com';
-    const WEBSOCKET_SERVER = 'ws://localhost:8080';
+    const WEBSOCKET_SERVER = 'wss://tarkov-tools-live.herokuapp.com';
+    //const WEBSOCKET_SERVER = 'ws://localhost:8080';
     let logMessages = [];
 
     const ws = new WebSocket(WEBSOCKET_SERVER);
