@@ -31,7 +31,7 @@ module.exports = async () => {
             console.log(`Adding item ${i}/${presets[presetId].parts.length} for ${presets[presetId].name}`);
 
             // Skip the "container item"
-            if(item.id === presetId){
+            if(item.id === presets[presetId].baseId){
                 continue;
             }
 
