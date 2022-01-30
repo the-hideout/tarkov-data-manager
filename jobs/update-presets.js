@@ -24,13 +24,16 @@ module.exports = async () => {
             continue;
         }
 
-        continue;
-
         let i = 0;
         for(const item of presets[presetId].parts){
             i = i + 1;
 
             console.log(`Adding item ${i}/${presets[presetId].parts.length} for ${presets[presetId].name}`);
+
+            // Skip the "container item"
+            if(item.id === presetId){
+                continue;
+            }
 
             await new Promise((resolve, reject) => {
                 connection.query(`INSERT IGNORE INTO item_children (container_item_id, child_item_id, count)
