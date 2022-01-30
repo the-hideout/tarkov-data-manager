@@ -659,7 +659,7 @@ app.get('/scanners', async (req, res) => {
                             <ul id="dropdown-${scanner.source}" class="dropdown-content">
                                 <li class="pause-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="pause-scanner"><i class="material-icons left">pause</i>Pause</a></li>
                                 <li class="resume-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}" style="display:none;"><a href="#!" class="resume-scanner"><i class="material-icons left">play_arrow</i>Resume</a></li>
-                                <li class="screenshot-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="screenshot-scanner"><i class="material-icons left">camera_alt</i>Screenshot</a></li>
+                                <!--li class="screenshot-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="screenshot-scanner"><i class="material-icons left">camera_alt</i>Screenshot</a></li-->
                                 <li class="click-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="click-scanner"><i class="material-icons left">mouse</i>Click</a></li>
                                 <li class="log-repeat-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="log-repeat-scanner"><i class="material-icons left">event_note</i>Repeat log</a></li>
                                 <li class="generate-images-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="generate-images-scanner"><i class="material-icons left">image</i>Generate Images</a></li>
@@ -726,15 +726,23 @@ app.get('/scanners', async (req, res) => {
         </div>
         <div id="modal-click" class="modal">
             <div class="modal-content">
-                <h4>Click Point on Screen</h4>
-                <div>Select the point you want to click.</div>
-                <div class="input-field">
-                    <input id="click-x" type="number" value="0" class="validate click-x" />
-                    <label for="click-x">Pixels from left</label>
-                </div>
-                <div class="input-field">
-                    <input id="click-y" type="number" value="0" class="validate click-y" />
-                    <label for="click-y">Pixels from top</label>
+                <h4 class="scanner-click-name">Click Point on Screen</h4>
+                <div>Click the screen position you want to click.</div>
+                <div><img src="" class="scanner-last-screenshot" style="max-width: 100%" /></div>
+                <div class="row">
+                    <div class="input-field col s3">
+                        <input id="click-x" type="number" value="0" class="validate click-x" />
+                        <label for="click-x">Pixels from left</label>
+                    </div>
+                    <div class="input-field col s3">
+                        <input id="click-y" type="number" value="0" class="validate click-y" />
+                        <label for="click-y">Pixels from top</label>
+                    </div>
+                    <div class="col s2 offset-s4">
+                        <a href="#!" class="waves-effect waves-green btn refresh-screenshot">
+                            <i class="material-icons">refresh</i>
+                        </a>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
