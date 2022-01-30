@@ -24,6 +24,8 @@ module.exports = async () => {
             continue;
         }
 
+        continue;
+
         let i = 0;
         for(const item of presets[presetId].parts){
             i = i + 1;
