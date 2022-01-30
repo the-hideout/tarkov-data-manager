@@ -5,37 +5,38 @@ const connection = require('../modules/db-connection');
 module.exports = async () => {
     let presets;
     try {
-        const response = await got('https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/globals.json', {
+        // const response = await got('https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/globals.json', {
+        //     responseType: 'json',
+        // });
+
+        const response = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/item_presets.json', {
             responseType: 'json',
         });
 
-        presets = response.body.ItemPresets;
+        presets = response.body;
     } catch (requestError){
         console.error(requestError);
     }
 
     for(const presetId in presets){
-        if(!presets[presetId]._name.toLowerCase().includes(' default') && !presets[presetId]._name.toLowerCase().includes('_std')){
+        // Skip non-default presets for now
+        if(!presets[presetId].default){
             continue;
         }
 
         let i = 0;
-        for(const item of presets[presetId]._items){
+        for(const item of presets[presetId].parts){
             i = i + 1;
 
-            console.log(`Adding item ${i}/${presets[presetId]._items.length} for ${presets[presetId]._name} ${presets[presetId]._encyclopedia}`);
+            console.log(`Adding item ${i}/${presets[presetId].parts.length} for ${presets[presetId].name}`);
 
-            if(item._tpl === presets[presetId]._encyclopedia){
-                continue;
-            }
-
-            const promise = new Promise((resolve, reject) => {
+            await new Promise((resolve, reject) => {
                 connection.query(`INSERT IGNORE INTO item_children (container_item_id, child_item_id, count)
                     VALUES (
                         ?,
                         ?,
                         ?
-                    )`, [presets[presetId]._encyclopedia, item._tpl, 1], async (error, results) => {
+                    )`, [presets[presetId].baseId, item.id, 1], async (error, results) => {
                         if (error) {
                             reject(error)
                         }
@@ -44,14 +45,6 @@ module.exports = async () => {
                     }
                 );
             });
-
-            try {
-                await promise;
-            } catch (upsertError){
-                console.error(upsertError);
-
-                throw upsertError;
-            }
         }
     }
 
