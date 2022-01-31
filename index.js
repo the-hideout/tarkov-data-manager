@@ -746,7 +746,8 @@ app.get('/scanners', async (req, res) => {
                 </div>
             </div>
             <div class="modal-footer">
-                <a href="#!" class="modal-close waves-effect waves-green btn-flat click-confirm">Click</a>
+                <a href="#!" class="waves-effect waves-green btn-flat do-click">Click</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat do-click">Click & Close</a>
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat click-cancel">Cancel</a>
             </div>
         </div>
