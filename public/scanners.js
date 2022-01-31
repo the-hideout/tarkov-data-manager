@@ -85,7 +85,7 @@ function startListener(channel) {
                 ...ws.settings,
                 ...message.data
             };
-            let openScanner = decodeURIComponent($('#modal-click .click-confirm').data('scannerName'));
+            let openScanner = decodeURIComponent($('#modal-click .do-click').first().data('scannerName'));
             if (openScanner == channel) {
                 $('#modal-click .scanner-last-screenshot').attr('src', ws.settings.lastScreenshot);
             }
@@ -195,7 +195,7 @@ $(document).ready( function () {
         if (wsClients[scannerName] && wsClients[scannerName].settings.lastScreenshot) {
             $('#modal-click .scanner-last-screenshot').attr('src', wsClients[scannerName].settings.lastScreenshot);
         }
-        $('#modal-click .click-confirm').data('scannerName', scannerName);
+        $('#modal-click .do-click').data('scannerName', scannerName);
         M.Modal.getInstance(document.getElementById('modal-click')).open();
     });
 
@@ -218,7 +218,7 @@ $(document).ready( function () {
         M.updateTextFields();
     });
 
-    $('#modal-click .click-confirm').click(function(event){
+    $('#modal-click .do-click').click(function(event){
         let scannerName = decodeURIComponent($(event.target).data('scannerName'));
         if (!wsClients[scannerName]) {
             return;
