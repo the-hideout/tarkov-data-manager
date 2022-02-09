@@ -228,6 +228,15 @@ $(document).ready( function () {
         sendCommand(scannerName, {clickX: x, clickY: y});
     });
 
+    $('a.update-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        if (!wsClients[scannerName]) {
+            return;
+        }
+        sendCommand(scannerName, 'update');
+    });
+
     $('a.log-repeat-scanner').click(function(event){
         event.stopPropagation();
         let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
