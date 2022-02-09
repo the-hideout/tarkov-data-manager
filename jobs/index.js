@@ -31,7 +31,7 @@ module.exports = () => {
     runJob('update-existing-bases', '4-59/5 * * * *');
 
     runJob('game-data', '*/15 * * * *');
-    runJob('update-historical-prices', '1-59/15 * * * *');
+    runJob('update-historical-prices', '5-59/15 * * * *');
 
     runJob('update-item-properties', '15 * * * *');
     runJob('update-trader-prices', '45 * * * *');
