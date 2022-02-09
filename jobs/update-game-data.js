@@ -237,14 +237,38 @@ module.exports = async () => {
                 console.error(updateError);
             }
         }
+        let shouldUpsert = false;
+        // Skip existing items to speed things up
+        if(allTTItems[item._id]){
+            shouldUpsert = false;
+        }
 
-        // Skip already existing items
-        // if(allTTItems[item._id]){
-        //     continue;
-        // }
+        if(allTTItems[item._id] && allTTItems[item._id].basePrice !== item._props.CreditsPrice){
+            spinner.warn(`${allTTItems[item._id].name} has the wrong basePrice. is ${allTTItems[item._id].basePrice} should be ${item._props.CreditsPrice}`);
+            spinner.start();
 
-        spinner.succeed(`New item: ${item.name}`);
+            shouldUpsert = true;
+        }
 
+        if(allTTItems[item._id] && allTTItems[item._id].width !== item.width){
+            spinner.warn(`${allTTItems[item._id].name} has a new width ${item.width}`);
+            spinner.start();
+
+            shouldUpsert = true;
+        }
+
+        if(allTTItems[item._id] && allTTItems[item._id].height !== item.height){
+            spinner.warn(`${allTTItems[item._id].name} has a new height ${item.height}`);
+            spinner.start();
+
+            shouldUpsert = true;
+        }
+
+        if(!shouldUpsert){
+            continue;
+        }
+
+        spinner.succeed(`Upserting item: ${item.name}`);
         const promise = new Promise((resolve, reject) => {
             connection.query(`INSERT INTO item_data (id, normalized_name, base_price, width, height, properties)
                 VALUES (
