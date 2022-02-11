@@ -10,6 +10,8 @@ module.exports = async () => {
               types
               normalizedName
               basePrice
+              width
+              height
               traderPrices {
                   trader {
                       name
@@ -31,6 +33,8 @@ module.exports = async () => {
             traderPrices: item.traderPrices,
             normalizedName: item.normalizedName,
             basePrice: item.basePrice,
+            width: item.width,
+            height: item.height,
         }];
     }));
 };
