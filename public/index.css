@@ -1,5 +1,5 @@
-img {
-    max-width: 128px;
+.image-column img {
+    max-width: 100%;
 }
 
 pre {
@@ -13,35 +13,6 @@ tr:hover {
     background-color: #ccc;
 }
 
-.name-column {
-    max-width: 200px;
-    text-overflow: ellipsis;
-}
-
-.types-column {
-    max-width: 475px;
-    display: flex;
-    flex-wrap: wrap;
-}
-
-.type-wrapper {
-    width: 33%;
-}
-
-.scanners-wrapper {
-    display: flex;
-    flex-flow: wrap;
-    width: 100%;
-}
-
-.scanner {
-    width: 50%;
-}
-
-.scanner pre {
-    width: 100%;
-}
-
 .log-messages {
     color: #fff;
     background-color: #000;
@@ -49,14 +20,4 @@ tr:hover {
     height: 200px;
     overflow: hidden scroll;
     padding-left: 15px;
-}
-
-nav {
-    height: auto;
-    float: left;
-}
-
-.type-filters {
-    display: flex;
-    flex-wrap: wrap;
 }

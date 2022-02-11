@@ -211,17 +211,24 @@ app.get('/', async (req, res) => {
         itemCount++;
     }
     res.send(`${getHeader(req)}
-        <div><a href="/scanners" class="waves-effect waves-light btn"><i class="material-icons left">scanner</i>Scanners</a></div>
-        <ul class="browser-default">
-            <li>Active: ${activeScanners}</li>
-        </ul>
-        <div><a href="/items" class="waves-effect waves-light btn"><i class="material-icons left">search</i>Items</a></div>
-        <ul class="browser-default">
-            <li>Total: ${itemCount}</li>
-            <li>Untagged: ${untagged.length}</li>
-            <li>Missing image(s): ${missingImage.length}</li>
-            <li>Missing wiki link: ${missingWiki.length}</li>
-        </ul>
+        <div class="row">
+            <div class="section col s12">
+                <h5><a href="/scanners" class="waves-effect waves-light btn"><i class="material-icons left">scanner</i>Scanners</a></h5>
+                <ul class="browser-default">
+                    <li>Active: ${activeScanners}</li>
+                </ul>
+            </div>
+            <div class="divider col s12"></div>
+            <div class="section col s12">
+                <h5><a href="/items" class="waves-effect waves-light btn"><i class="material-icons left">search</i>Items</a></h5>
+                <ul class="browser-default">
+                    <li>Total: ${itemCount}</li>
+                    <li>Untagged: ${untagged.length}</li>
+                    <li>Missing image(s): ${missingImage.length}</li>
+                    <li>Missing wiki link: ${missingWiki.length}</li>
+                </ul>
+            </div>
+        </div>
     ${getFooter(req)}`);
 });
 
@@ -503,7 +510,7 @@ app.get('/items', async (req, res) => {
     let typeFilters = '';
     for(const type of AVAILABLE_TYPES){
         typeFilters = `${typeFilters}
-        <div class="type-wrapper">
+        <div class="col s4 l3 xl2">
             <label for="type-${type}">
                 <input type="checkbox" class="filled-in filter-type" id="type-${type}" value="${type}" checked />
                 <span>${type}</span>
@@ -513,7 +520,7 @@ app.get('/items', async (req, res) => {
     let specFilters = '';
     for(const type of CUSTOM_HANDLERS){
         specFilters = `${specFilters}
-        <div class="type-wrapper">
+        <div class="col s4 l3">
             <label for="type-${type}">
                 <input type="checkbox" class="filled-in filter-special" id="type-${type}" value="${type}" ${type === 'all' ? 'checked' : ''} />
                 <span>${type}</span>
@@ -525,59 +532,61 @@ app.get('/items', async (req, res) => {
         <script>
         const all_items = ${JSON.stringify(items, null, 4)};
         </script>
-        <ul class="collapsible">
-            <li>
-                <div class="collapsible-header"><i class="material-icons left">filter_list</i>Item Filters</div>
-                <div class="collapsible-body">
-                    <div>Item Types</div>
-                    <div>
-                        <a class="waves-effect waves-light btn filter-types-all"><i class="material-icons left">all_inclusive</i>All</a>
-                        <a class="waves-effect waves-light btn filter-types-none"><i class="material-icons left">not_interested</i>None</a>
-                    </div>
-                    <div class="switch">
-                        <label>
-                            Require any selected
-                            <input class="filter-types-require-selected" type="checkbox" value="true">
-                            <span class="lever"></span>
-                            Require all selected
-                        </label>
-                    </div>
-                    <div class="type-filters">${typeFilters}</div>
-                    <div>Special Filters</div>
-                    <div>
-                        <a class="waves-effect waves-light btn filter-special-all"><i class="material-icons left">all_inclusive</i>All</a>
-                        <a class="waves-effect waves-light btn filter-special-none"><i class="material-icons left">not_interested</i>None</a>
-                    </div>
-                    <div class="type-filters">${specFilters}</div>
-                </div>
-            </li>
-        </ul>
-        <table class="highlight main">
-            <thead>
-                <tr>
-                    <th>
-                        Name
-                    </th>
-                    <th>
-                        Image
-                    </th>
-                    <th>
-                        Grid image
-                    </th>
-                    <th>
-                        Icon
-                    </th>
-                    <th>
-                        Tags
-                    </th>
-                    <th>
-                        Price
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="row">
+            <div class="col s12">
+                <ul class="collapsible">
+                    <li>
+                        <div class="collapsible-header"><i class="material-icons left">filter_list</i>Item Filters</div>
+                        <div class="collapsible-body">
+                            <div>Item Types</div>
+                            <div>
+                                <a class="waves-effect waves-light btn filter-types-all"><i class="material-icons left">all_inclusive</i>All</a>
+                                <a class="waves-effect waves-light btn filter-types-none"><i class="material-icons left">not_interested</i>None</a>
+                            </div>
+                            <div class="switch">
+                                <label>
+                                    Require any selected
+                                    <input class="filter-types-require-selected" type="checkbox" value="true">
+                                    <span class="lever"></span>
+                                    Require all selected
+                                </label>
+                            </div>
+                            <div class="row">${typeFilters}</div>
+                            <div>Special Filters</div>
+                            <div>
+                                <a class="waves-effect waves-light btn filter-special-all"><i class="material-icons left">all_inclusive</i>All</a>
+                                <a class="waves-effect waves-light btn filter-special-none"><i class="material-icons left">not_interested</i>None</a>
+                            </div>
+                            <div class="row">${specFilters}</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col s12">
+                <table class="highlight main">
+                    <thead>
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <th>
+                                Images
+                            </th>
+                            <th>
+                                Tags
+                            </th>
+                            <th>
+                                Price
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
         <div id="modal-edit-item" class="modal modal-fixed-footer">
             <div class="modal-content">
                 <h4 class="item-content-name"></h4>
@@ -649,7 +658,7 @@ app.get('/scanners', async (req, res) => {
             activeClass = ' active';
         }
         return `
-        <div class="scanner">
+        <div class="scanner col s12 l6">
             <ul class="collapsible" data-collapsible="collapsible">
                 <li class="${activeClass}">
                     <div class="collapsible-header">
@@ -662,7 +671,7 @@ app.get('/scanners', async (req, res) => {
                                 <!--li class="screenshot-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="screenshot-scanner"><i class="material-icons left">camera_alt</i>Screenshot</a></li-->
                                 <li class="click-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="click-scanner"><i class="material-icons left">mouse</i>Click</a></li>
                                 <li class="update-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="update-scanner"><i class="material-icons left">update</i>Update</a></li>
-                                <li class="log-repeat-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="log-repeat-scanner"><i class="material-icons left">event_note</i>Repeat log</a></li>
+                                <!--li class="log-repeat-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="log-repeat-scanner"><i class="material-icons left">event_note</i>Repeat log</a></li-->
                                 <li class="generate-images-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="generate-images-scanner"><i class="material-icons left">image</i>Generate Images</a></li>
                                 <li class="set-trader-scan-day" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="set-trader-scan-day"><i class="material-icons left">schedule</i>Set Trader Scan Day</a></li>
                                 <li class="shutdown-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="shutdown-scanner"><i class="material-icons left">power_settings_new</i>Shutdown</a></li>
@@ -683,17 +692,27 @@ app.get('/scanners', async (req, res) => {
             const WS_PASSWORD = '${process.env.WS_PASSWORD}';
         </script>
         <script src="/scanners.js"></script>
-        <h5>Active Scanners</h5>
-        <div class="scanners-wrapper">
-            ${activeScanners.map((latestScan) => {
-                return getScannerStuff(latestScan, true);
-            }).join('')}
-        </div>
-        <h5>Inactive Scanners</h5>
-        <div class="scanners-wrapper">
-        ${inactiveScanners.map(latestScan => {
-            return getScannerStuff(latestScan, false);
-        }).join('')}
+        <div class="row">
+            <div class="col s12">
+                <ul class="tabs">
+                    <li class="tab col s6"><a href="#activescanners">Active Scanners</a></li>
+                    <li class="tab col s6"><a href="#inactivescanners">Inactive Scanners</a></li>
+                </ul>
+            </div>
+            <div id="activescanners" class="col s12">
+                <div class="scanners-wrapper row">
+                    ${activeScanners.map((latestScan) => {
+                        return getScannerStuff(latestScan, true);
+                    }).join('')}
+                </div>
+            </div>
+            <div id="inactivescanners" class="col s12">
+                <div class="scanners-wrapper row">
+                    ${inactiveScanners.map((latestScan) => {
+                        return getScannerStuff(latestScan, true);
+                    }).join('')}
+                </div>
+            </div>
         </div>
         <div id="modal-shutdown-confirm" class="modal">
             <div class="modal-content">
