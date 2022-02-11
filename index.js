@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const Jimp = require('jimp');
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
-const basicAuth = require('express-basic-auth');
+const session = require('express-session');
 const formidable = require('formidable');
 const Rollbar = require('rollbar');
 
@@ -37,6 +37,12 @@ const s3 = new S3Client({
 
 function maybe(fn) {
     return function(req, res, next) {
+        if (req.path === '/auth' && req.method === 'POST') {
+            next();
+
+            return true;
+        }
+
         if (req.path === '/suggest-image' && req.method === 'POST') {
             next();
 
@@ -63,12 +69,20 @@ if(process.env.SECOND_AUTH_PASSWORD){
 
 app.use(bodyParser.json());
 app.use(express.static('public'));
-app.use(maybe(basicAuth({
-    challenge: true,
-    realm: 'tarkov-data-manager',
-    users: users,
-})));
-
+app.use(session({
+    secret: process.env.AUTH_SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+app.use(maybe((req, res, next) => {
+    if (req.session.loggedin) {
+        next();
+    } else {
+        res.sendFile(path.join(__dirname, 'login.html'));
+    }
+}));
 const encodeToast = (text) => {
     return Buffer.from(text, 'utf8').toString('hex');
 };
@@ -122,6 +136,21 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+app.post('/auth', async (req, res) => {
+    const response = {success: false, message: 'Invalid username/password.'};
+    let username = req.body.username;
+    let password = req.body.password;
+    if (username && password) {
+        if (users[username] && users[username] == password) {
+            req.session.loggedin = true;
+            req.session.username = username;
+            response.success = true;
+            response.message = 'Login successful!';
+        }
+    }
+    res.send(response);
+});
+
 const getHeader = (req) => {
     let javascript = '';
     if (req.query.toast) {
@@ -157,7 +186,6 @@ const getHeader = (req) => {
             ${javascript}
         </head>
         <body>
-            <script src="/ansi_up.js"></script>
             <script src="/common.js"></script>
             <script>
                 $(document).ready(function(){
@@ -167,6 +195,7 @@ const getHeader = (req) => {
             <nav>
                 <div class="nav-wrapper">
                     <a href="#" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                    <a href="#" class="brand-logo right">Tarkov Data Studio</a>
                     <ul id="nav-mobile" class="left hide-on-med-and-down">
                         <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Home</a></li>
                         <li class="${req.url === '/scanners' ? 'active' : ''}"><a href="/scanners">Scanners</a></li>
@@ -691,6 +720,7 @@ app.get('/scanners', async (req, res) => {
         <script>
             const WS_PASSWORD = '${process.env.WS_PASSWORD}';
         </script>
+        <script src="/ansi_up.js"></script>
         <script src="/scanners.js"></script>
         <div class="row">
             <div class="col s12">
