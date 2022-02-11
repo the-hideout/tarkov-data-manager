@@ -76,19 +76,25 @@ $(document).ready( function () {
                     `;
                 }
                 return data;
-            },
-            className: 'name-column'
+            }
         },
         {
             data: 'image_link',
             render: (data, type, item) => {
                 if (type === 'display') {
-                    return `${data ? `<img src="${data}" loading="lazy" />`: ''}`;
+                    return `
+                        <div class="row">
+                            ${data ? `<div class="col s12 xl6"><img src="${data}" class="tooltipped" loading="lazy" data-tooltip="image" /></div>`: ''}
+                            ${item.grid_image_link ? `<div class="col s12 xl6"><img src="${item.grid_image_link}" class="tooltipped" loading="lazy" data-tooltip="grid image" /></div>`: ''}
+                            ${item.icon_link ? `<div class="col s12 xl6"><img src="${item.icon_link}" class="tooltipped" loading="lazy" data-tooltip="icon" /></div>`: ''}
+                        </div>
+                    `;
                 }
                 return data;
-            }
+            },
+            className: 'image-column'
         },
-        {
+        /*{
             data: 'grid_image_link',
             render: (data, type, item) => {
                 if (type === 'display') {
@@ -105,26 +111,25 @@ $(document).ready( function () {
                 }
                 return data;
             }
-        },
+        },*/
         {
             data: 'types',
             render: (data, type, item) => {
                 if (type === 'display') {
-                    let markupString = '';
+                    let markupString = '<div class="row">';
                     for(const type of AVAILABLE_TYPES){
                         markupString = `${markupString}
-                        <div class="type-wrapper">
+                        <div class="col s12 l6 xl4 xxl3">
                             <label for="${item.id}-${type}">
                                 <input type="checkbox" class="item-type" id="${item.id}-${type}" value="${type}" data-item-id="${item.id}" ${data.includes(type) ? 'checked' : ''} />
                                 <span>${type}</span>
                             </label>
                         </div>`;
                     }
-                    return markupString;
+                    return `${markupString}</div>`;
                 }
                 return data.join(',');
-            },
-            className: 'types-column'
+            }
         },
         {
             data: 'avg24hPrice',
@@ -142,6 +147,7 @@ $(document).ready( function () {
         order: [[0, 'asc']],
         data: all_items || [],
         columns: columns,
+        autoWidth: false,
         drawCallback: (settings) => {
             M.AutoInit();
 

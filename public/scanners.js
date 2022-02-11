@@ -124,6 +124,7 @@ $(document).ready( function () {
     $('.dropdown-trigger.scanner-dropdown').dropdown({constrainWidth: false});
     $('.modal').modal();
     $('select').formSelect();
+    $('.tabs').tabs();
 
     $('.scanner-dropdown').click(function(event){
         event.stopPropagation();
