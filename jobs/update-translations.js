@@ -15,9 +15,11 @@ module.exports = async () => {
     const allTTItems = await ttData();
     const bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
     const allKeys = Object.keys(bsgData);
+    const currentDestinations = [];
 
     for(const key in allTTItems){
         const newKeys = Object.keys(allTTItems[key]);
+        currentDestinations.push(allTTItems[key].normalizedName);
 
         for(const newKey of newKeys){
             allTTItems[key][newKey.toLowerCase()] = allTTItems[key][newKey];
@@ -49,7 +51,7 @@ module.exports = async () => {
                 const oldKey = normalizeName(allTTItems[item._id][insertKey.toLowerCase()]);
                 const newKey = normalizeName(item._props[insertKey].toString().trim());
 
-                if(oldKey !== newKey){
+                if(oldKey !== newKey && validDestinations.includes(newKey)){
                     try {
                         await new Promise((resolve, reject) => {
                             connection.query(`INSERT INTO
@@ -106,12 +108,37 @@ module.exports = async () => {
                     reject(error);
                 }
 
-                const redirects = results.map(row => {
-                    return [
-                        `/item/${row.source}`,
-                        `/item/${row.destination}`,
-                    ];
-                })
+                const sources = [];
+                const destinations = [];
+
+                const redirects = results
+                    .map(row => {
+                        sources.push(row.source);
+                        destinations.push(row.destination);
+
+                        return [
+                            `/item/${row.source}`,
+                            `/item/${row.destination}`,
+                        ];
+                    })
+                    .filter(Boolean);
+
+
+                for(const source of sources){
+                    if(!currentDestinations.includes(source)){
+                        continue;
+                    }
+
+                    console.log(`${source} is not a valid source`);
+                }
+
+                for(const source of sources){
+                    if(!destinations.includes(source)){
+                        continue;
+                    }
+
+                    console.log(`${source} is both a source and a destination`);
+                }
 
                 fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'redirects.json'), JSON.stringify(Object.fromEntries(redirects), null, 4));
 

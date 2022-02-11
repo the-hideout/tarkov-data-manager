@@ -216,35 +216,38 @@ module.exports = async () => {
             item.height = itemPresetSize.height;
         }
 
+        let shouldUpsert = false;
+        // Skip existing items to speed things up
+        if(allTTItems[item._id]){
+            shouldUpsert = false;
+        }
+
         if(allTTItems[item._id] && allTTItems[item._id].basePrice !== item._props.CreditsPrice){
             spinner.warn(`${allTTItems[item._id].name} has the wrong basePrice. is ${allTTItems[item._id].basePrice} should be ${item._props.CreditsPrice}`);
             spinner.start();
 
-            try {
-                await new Promise((resolve, reject) => {
-                    connection.query(`UPDATE item_data SET base_price = ? WHERE id = ?`, [item._props.CreditsPrice, item._id], (error) => {
-                            if (error) {
-                                reject(error)
-                            }
-
-                            spinner.succeed(`Updated base_price for ${item._id} to ${item._props.CreditsPrice}`);
-                            spinner.start();
-                            resolve();
-                        }
-                    );
-                });
-            } catch (updateError){
-                console.error(updateError);
-            }
+            shouldUpsert = true;
         }
 
-        // Skip already existing items
-        // if(allTTItems[item._id]){
-        //     continue;
-        // }
+        if(allTTItems[item._id] && allTTItems[item._id].width !== item.width){
+            spinner.warn(`${allTTItems[item._id].name} has a new width ${item.width}`);
+            spinner.start();
 
-        spinner.succeed(`New item: ${item.name}`);
+            shouldUpsert = true;
+        }
 
+        if(allTTItems[item._id] && allTTItems[item._id].height !== item.height){
+            spinner.warn(`${allTTItems[item._id].name} has a new height ${item.height}`);
+            spinner.start();
+
+            shouldUpsert = true;
+        }
+
+        if(!shouldUpsert){
+            continue;
+        }
+
+        spinner.succeed(`Upserting item: ${item.name}`);
         const promise = new Promise((resolve, reject) => {
             connection.query(`INSERT INTO item_data (id, normalized_name, base_price, width, height, properties)
                 VALUES (
