@@ -23,7 +23,7 @@
     "compute-midmean": "^1.0.3",
     "dotenv": "^10.0.0",
     "express": "^5.0.0-alpha.8",
-    "express-basic-auth": "^1.2.0",
+    "express-session": "^1.17.2",
     "formidable": "^1.2.2",
     "got": "^11.8.2",
     "jimp": "^0.16.1",

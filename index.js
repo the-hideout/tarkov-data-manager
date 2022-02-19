@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const Jimp = require('jimp');
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
-const basicAuth = require('express-basic-auth');
+const session = require('express-session');
 const formidable = require('formidable');
 const Rollbar = require('rollbar');
 
@@ -37,6 +37,12 @@ const s3 = new S3Client({
 
 function maybe(fn) {
     return function(req, res, next) {
+        if (req.path === '/auth' && req.method === 'POST') {
+            next();
+
+            return true;
+        }
+
         if (req.path === '/suggest-image' && req.method === 'POST') {
             next();
 
@@ -63,12 +69,66 @@ if(process.env.SECOND_AUTH_PASSWORD){
 
 app.use(bodyParser.json());
 app.use(express.static('public'));
-app.use(maybe(basicAuth({
-    challenge: true,
-    realm: 'tarkov-data-manager',
-    users: users,
-})));
-
+app.use(session({
+    secret: process.env.AUTH_SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+app.use(maybe((req, res, next) => {
+    if (req.session.loggedin) {
+        next();
+    } else {
+        res.send(`${getHeader(req)}
+            <div class="container">
+                <div class="row">
+                    <form class="col s12">
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input id="username" name="username" type="text" class="validate">
+                                <label for="username">Username</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input id="password" name="password" type="password" class="validate">
+                                <label for="password">Password</label>
+                            </div>
+                        </div>
+                        <a href="#" class="waves-effect waves-light btn">Login</a>
+                    </form>
+                </div>
+            </div>
+            <script>
+                const attemptLogin = () => {
+                    $.ajax({
+                        type: "POST",
+                        url: '/auth',
+                        data: $('form').first().serialize(),
+                        dataType: "json"
+                    }).done(function (data) {
+                        if (!data.success) {
+                            M.toast({html: data.message});
+                        } else {
+                            location.reload();
+                        }
+                    });
+                }
+                $(document).ready(function(){
+                    $('a.btn').click(function(){
+                        attemptLogin();
+                    });
+                    $('input').keyup(function(e){
+                        if(e.keyCode == 13) {
+                            attemptLogin();
+                        }
+                    });
+                });
+            </script>
+        ${getFooter(req)}`);
+    }
+}));
 const encodeToast = (text) => {
     return Buffer.from(text, 'utf8').toString('hex');
 };
@@ -122,30 +182,53 @@ function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-const getHeader = (req) => {
-    let javascript = '';
-    if (req.query.toast) {
-        javascript = `
-            <script>
-                $(document).ready(function() {
-                    M.toast({html: '${decodeToast(req.query.toast)}'});
-                });
-            </script>
-        `;
+app.post('/auth', async (req, res) => {
+    const response = {success: false, message: 'Invalid username/password.'};
+    let username = req.body.username;
+    let password = req.body.password;
+    if (username && password) {
+        if (users[username] && users[username] == password) {
+            req.session.loggedin = true;
+            req.session.username = username;
+            response.success = true;
+            response.message = 'Login successful!';
+        }
+    }
+    res.send(response);
+});
+
+const getHeader = (req, options) => {
+    const jsLibrary = {
+        datatables: 'https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js'
+    };
+    const cssLibrary = {
+        datatables: 'https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css'
+    };
+    let includeJs = '';
+    let includeCss = '';
+    if (typeof options === 'object' && options.include) {
+        if (typeof options.include === 'string') {
+            options.include = [options.include];
+            for (let i = 0; i < options.include.length; i++) {
+                if (jsLibrary[options.include[i]]) {
+                    includeJs = `${includeJs}\n            <script src="${jsLibrary[options.include[i]]}"></script>`
+                }
+                if (cssLibrary[options.include[i]]) {
+                    includeCss = `${includeCss}\n            <link rel="stylesheet" href="${cssLibrary[options.include[i]]}">`
+                }
+            }
+        }
     }
     return `
     <!DOCTYPE html>
         <head>
             <title>Tarkov Data Studio</title>
-
-            <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-            <link rel="stylesheet" href="https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css">
-            <script src="https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js"></script>
-
             <!-- Compiled and minified CSS -->
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">${includeCss}
 
             <!-- Compiled and minified JavaScript -->
+            <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+            <script src="/common.js"></script>${includeJs}
             <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
             <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
             <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -154,19 +237,12 @@ const getHeader = (req) => {
             <meta name="theme-color" content="#ffffff">
             <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
             <link rel="stylesheet" href="/index.css" />
-            ${javascript}
         </head>
         <body>
-            <script src="/ansi_up.js"></script>
-            <script src="/common.js"></script>
-            <script>
-                $(document).ready(function(){
-                    $('.sidenav').sidenav();
-                });
-            </script>
             <nav>
                 <div class="nav-wrapper">
                     <a href="#" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                    <a href="#" class="brand-logo right">Tarkov Data Studio</a>
                     <ul id="nav-mobile" class="left hide-on-med-and-down">
                         <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Home</a></li>
                         <li class="${req.url === '/scanners' ? 'active' : ''}"><a href="/scanners">Scanners</a></li>
@@ -185,8 +261,18 @@ const getHeader = (req) => {
 }
 
 const getFooter = (req) => {
+    let toastJs = '';
+    if (req.query.toast) {
+        toastJs = `M.toast({html: '${decodeToast(req.query.toast)}'});`;
+    }
     return `
             <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+            <script>
+                $(document).ready(function(){
+                    $('.sidenav').sidenav();
+                    ${toastJs}
+                });
+            </script>
         </body>
     </html>`;
 };
@@ -527,7 +613,7 @@ app.get('/items', async (req, res) => {
             </label>
         </div>`;
     }
-    res.send(`${getHeader(req)}
+    res.send(`${getHeader(req, {include: 'datatables'})}
         <script src="/items.js"></script>
         <script>
         const all_items = ${JSON.stringify(items, null, 4)};
@@ -691,6 +777,7 @@ app.get('/scanners', async (req, res) => {
         <script>
             const WS_PASSWORD = '${process.env.WS_PASSWORD}';
         </script>
+        <script src="/ansi_up.js"></script>
         <script src="/scanners.js"></script>
         <div class="row">
             <div class="col s12">
