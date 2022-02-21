@@ -760,6 +760,7 @@ app.get('/scanners', async (req, res) => {
                                 <!--li class="log-repeat-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="log-repeat-scanner"><i class="material-icons left">event_note</i>Repeat log</a></li-->
                                 <li class="generate-images-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="generate-images-scanner"><i class="material-icons left">image</i>Generate Images</a></li>
                                 <li class="set-trader-scan-day" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="set-trader-scan-day"><i class="material-icons left">schedule</i>Set Trader Scan Day</a></li>
+                                <li class="restart-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="restart-scanner"><i class="material-icons left">refresh</i>Restart</a></li>
                                 <li class="shutdown-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="shutdown-scanner"><i class="material-icons left">power_settings_new</i>Shutdown</a></li>
                             </ul>
                         </span>
@@ -799,6 +800,16 @@ app.get('/scanners', async (req, res) => {
                         return getScannerStuff(latestScan, true);
                     }).join('')}
                 </div>
+            </div>
+        </div>
+        <div id="modal-restart-confirm" class="modal">
+            <div class="modal-content">
+                <h4>Confirm Restart</h4>
+                <div>Are you sure you want to restart <span class="modal-restart-confirm-scanner-name"></span>?</div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat restart-confirm">Yes</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat restart-cancel">No</a>
             </div>
         </div>
         <div id="modal-shutdown-confirm" class="modal">
