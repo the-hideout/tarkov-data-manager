@@ -170,7 +170,9 @@ const methods = {
                                 }
 
                                 if(!itemProperties){
-                                    console.log(`Missing properties for ${result.id}`);
+                                    if (result.types && !result.types.includes('disabled')) {
+                                        console.log(`Missing properties for ${result.id}`);
+                                    }
                                     // console.log(result);
                                     // console.log(itemProperties);
                                 }
@@ -185,7 +187,9 @@ const methods = {
                                         });
                                     }
                                 } else {
-                                    console.log(`No category for trader prices mapped for ${preparedData.name} with category id ${itemProperties?.bsgCategoryId}`);
+                                    if (result.types && !result.types.includes('disabled')) {
+                                        console.log(`No category for trader prices mapped for ${preparedData.name} with category id ${itemProperties?.bsgCategoryId}`);
+                                    }
                                 }
 
                                 // Map special items bought by specific vendors
