@@ -130,6 +130,22 @@ $(document).ready( function () {
         event.stopPropagation();
     });
 
+    $('a.restart-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        $('#modal-restart-confirm .modal-restart-confirm-scanner-name').text(scannerName);
+        $('#modal-restart-confirm .restart-confirm').data('scannerName', scannerName);
+        M.Modal.getInstance(document.getElementById('modal-restart-confirm')).open();
+    });
+
+    $('#modal-restart-confirm .restart-confirm').click(function(event){
+        let scannerName = decodeURIComponent($(event.target).data('scannerName'));
+        if (!wsClients[scannerName]) {
+            return;
+        }
+        sendCommand(scannerName, 'restart');
+    });
+
     $('a.shutdown-scanner').click(function(event){
         event.stopPropagation();
         let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
