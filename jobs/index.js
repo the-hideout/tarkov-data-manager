@@ -35,6 +35,7 @@ module.exports = () => {
 
     runJob('update-item-properties', '15 * * * *');
     runJob('update-trader-prices', '45 * * * *');
+    runJob('update-currency-prices', '0 3,15 * * *');
 
     runJob('clear-checkouts', '5 */6 * * *');
 
