@@ -150,6 +150,8 @@ const mappingProperties = {
     '_props.ammoAccr': 'accuracy',
     '_props.ammoRec': 'recoil',
     '_props.InitialSpee': 'initialSpeed',
+    '_props.Velocity': 'velocity',
+    '_props.Loudness': 'loudness',
 };
 
 module.exports = async () => {
