@@ -22,7 +22,7 @@ const TRADERS = {
     peacekeeper: {
         id: '5935c25fb3acc3127c3d8cd9',
         name: 'Peacekeeper',
-        multiplier: 0.50, // A little off
+        multiplier: 0.495, // 0.50 was a little off; is this better?
     },
     mechanic: {
         id: '5a7c2eca46aef81a7ca2145d',
