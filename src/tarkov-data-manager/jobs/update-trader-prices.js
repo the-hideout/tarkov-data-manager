@@ -15,7 +15,15 @@ module.exports = async () => {
         timestamp
         desc
     LIMIT 1`);
-    if (junkboxLastScan.lengh === 0) return;
+    if (junkboxLastScan.lengh === 0) {
+        try {
+            const response = await cloudflare(`/values/TRADER_ITEMS`, 'PUT', JSON.stringify({}));
+            console.log(response);
+        } catch (requestError){
+            console.error(requestError);
+        }
+        return;
+    }
 
     const scanOffsetTimestamp = new Date(junkboxLastScan[0].timestamp).setHours(junkboxLastScan[0].timestamp.getHours() - 6);
 
