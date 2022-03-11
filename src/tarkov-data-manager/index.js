@@ -415,7 +415,7 @@ app.post('/suggest-image', (request, response) => {
         }
 
         const uploadParams = {
-            Bucket: 'assets.tarkov-tools.com',
+            Bucket: process.env.S3_BUCKET,
             Key: `${fields.id}-${fields.type}.${ext}`,
             ContentType: contentType,
             CacheControl: 'max-age=604800',
@@ -434,7 +434,7 @@ app.post('/suggest-image', (request, response) => {
 
         if(fields.type !== 'base-image'){
             try {
-                await remoteData.setProperty(fields.id, `${fields.type.replace(/\-/g, '_')}_link`, `https://assets.tarkov-tools.com/${fields.id}-${fields.type}.jpg`);
+                await remoteData.setProperty(fields.id, `${fields.type.replace(/\-/g, '_')}_link`, `https://${process.env.S3_BUCKET}/${fields.id}-${fields.type}.jpg`);
             } catch (updateError){
                 console.error(updateError);
                 return response.send(updateError);
@@ -468,7 +468,7 @@ app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
         }
 
         const uploadParams = {
-            Bucket: 'assets.tarkov-tools.com',
+            Bucket: process.env.S3_BUCKET,
             Key: `${req.params.id}-icon.jpg`,
             ContentType: 'image/jpeg',
         };
@@ -484,7 +484,7 @@ app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
             response.errors.push(`Failed to save icon_link image to s3 ${err}`);
         }
 
-        await remoteData.setProperty(req.params.id, 'icon_link', `https://assets.tarkov-tools.com/${req.params.id}-icon.jpg`);
+        await remoteData.setProperty(req.params.id, 'icon_link', `https://${process.env.S3_BUCKET}/${req.params.id}-icon.jpg`);
         updated = true;
     }
 
@@ -497,7 +497,7 @@ app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
         }
 
         const uploadParams = {
-            Bucket: 'assets.tarkov-tools.com',
+            Bucket: process.env.S3_BUCKET,
             Key: `${req.params.id}-image.jpg`,
             ContentType: 'image/jpeg',
         };
@@ -513,7 +513,7 @@ app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
             response.errors.push(`Failed to save image_link image to s3 ${err}`);
         }
 
-        await remoteData.setProperty(req.params.id, 'image_link', `https://assets.tarkov-tools.com/${req.params.id}-image.jpg`);
+        await remoteData.setProperty(req.params.id, 'image_link', `https://${process.env.S3_BUCKET}/${req.params.id}-image.jpg`);
         updated = true;
     }
 
@@ -525,7 +525,7 @@ app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
         }
 
         const uploadParams = {
-            Bucket: 'assets.tarkov-tools.com',
+            Bucket: process.env.S3_BUCKET,
             Key: `${req.params.id}-grid-image.jpg`,
             ContentType: 'image/jpeg',
         };
@@ -541,7 +541,7 @@ app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
             response.errors.push(`Failed to save grid_image_link image to s3 ${err}`);
         }
 
-        await remoteData.setProperty(req.params.id, 'grid_image_link', `https://assets.tarkov-tools.com/${req.params.id}-grid-image.jpg`);
+        await remoteData.setProperty(req.params.id, 'grid_image_link', `https://${process.env.S3_BUCKET}/${req.params.id}-grid-image.jpg`);
         updated = true;
     }
 
