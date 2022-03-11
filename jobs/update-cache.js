@@ -14,8 +14,7 @@ module.exports = async () => {
     console.time('price-yesterday-query');
     const avgPriceYesterday = await doQuery(`SELECT
         avg(price) AS priceYesterday,
-        item_id,
-        timestamp
+        item_id
     FROM
         price_data
     WHERE
@@ -47,7 +46,7 @@ module.exports = async () => {
     ON
         a.timestamp = b.timestamp
     GROUP BY
-        item_id;`);
+        item_id, timestamp, price;`);
     console.timeEnd('last-low-price-query');
 
     console.time('contained-items-query');
