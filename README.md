@@ -66,7 +66,7 @@ The Tarkov Socket Server can be started locally without Docker by running the fo
     npm run dev
     ```
 
-## Runnin locally with Docker 🐳
+## Running locally with Docker 🐳
 
 > This is the suggested option for local development
 
