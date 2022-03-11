@@ -65,3 +65,18 @@ The Tarkov Socket Server can be started locally without Docker by running the fo
     ```bash
     npm run dev
     ```
+
+## Runnin locally with Docker 🐳
+
+> This is the suggested option for local development
+
+First, edit the `src/tarkov-data-manager/.env` file to include your proper credentials.
+
+> An example of this file can be found at [`src/tarkov-data-manager/.env.example`](src/tarkov-data-manager/.env.example).
+
+You now have two options to start the docker-compose stack (both do the exact same thing):
+
+- `make run`
+- `docker-compose up --build`
+
+Browse to your web app when it starts up [localhost:4000](http://localhost:4000).

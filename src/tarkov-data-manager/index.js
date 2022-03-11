@@ -218,7 +218,7 @@ const getHeader = (req, options) => {
     return `
     <!DOCTYPE html>
         <head>
-            <title>Tarkov Data Studio</title>
+            <title>Tarkov Data Manager</title>
             <!-- Compiled and minified CSS -->
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">${includeCss}
 
@@ -238,7 +238,7 @@ const getHeader = (req, options) => {
             <nav>
                 <div class="nav-wrapper">
                     <a href="#" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
-                    <a href="#" class="brand-logo right">Tarkov Data Studio</a>
+                    <a href="#" class="brand-logo right">Tarkov Data Manager</a>
                     <ul id="nav-mobile" class="left hide-on-med-and-down">
                         <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Home</a></li>
                         <li class="${req.url === '/scanners' ? 'active' : ''}"><a href="/scanners">Scanners</a></li>

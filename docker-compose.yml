@@ -1,0 +1,25 @@
+# To build the entire stack run 'make run'
+
+version: '3'
+
+services:
+  tarkov-data-manager:
+    container_name: tarkov-data-manager
+    restart: always
+    build:
+      context: ./src/tarkov-data-manager
+      dockerfile: ./Dockerfile
+    env_file: 
+      - ./src/tarkov-data-manager/.env
+    ports:
+      - 4000:4000
+
+  tarkov-socket-server:
+    container_name: tarkov-socket-server
+    build:
+      context: ./src/tarkov-socket-server
+      dockerfile: ./Dockerfile
+    depends_on:
+      - tarkov-data-manager
+    ports:
+      - 8080:8080
