@@ -13,7 +13,7 @@ module.exports = async () => {
     INNER JOIN (
       SELECT id, trader_name, MAX(created) AS timestamp
       FROM trader_reset
-      GROUP BY trader_name
+      GROUP BY trader_name, id, created
     ) AS max_time
     ON
         trader.created = max_time.timestamp
