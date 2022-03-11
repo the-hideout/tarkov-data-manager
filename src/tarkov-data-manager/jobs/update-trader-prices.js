@@ -15,6 +15,7 @@ module.exports = async () => {
         timestamp
         desc
     LIMIT 1`);
+    if (junkboxLastScan.lengh === 0) return;
 
     const scanOffsetTimestamp = new Date(junkboxLastScan[0].timestamp).setHours(junkboxLastScan[0].timestamp.getHours() - 6);
 
@@ -126,12 +127,16 @@ module.exports = async () => {
             outputData[traderItem.item_id] = [];
         }
 
-        const rublesCost = currenciesThen[traderItem.currency]*latestTraderPrices[traderItem.id].price;
+        let itemPrice = latestTraderPrices[traderItem.id].price;
+        if (currenciesThen[traderItem.currency] && currenciesNow[traderItem.currency]) {
+            const rublesCost = currenciesThen[traderItem.currency]*itemPrice;
+            itemPrice = Math.ceil(rublesCost / currenciesNow[traderItem.currency]);
+        }
         outputData[traderItem.item_id].push({
             id: traderItem.item_id,
             source: traderItem.trader_name,
             min_level: traderItem.min_level,
-            price: Math.ceil(rublesCost / currenciesNow[traderItem.currency]),
+            price: itemPrice,
             updated: latestTraderPrices[traderItem.id].timestamp,
             quest_unlock: Boolean(traderItem.quest_unlock_id),
             quest_unlock_id: traderItem.quest_unlock_id,
