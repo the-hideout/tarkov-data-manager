@@ -128,7 +128,7 @@ module.exports = async () => {
         }
 
         let itemPrice = latestTraderPrices[traderItem.id].price;
-        if (currenciesThen[traderItem.currency] && currenciesNow[traderItem.currency]) {
+        if (traderItem.currency !== 'RUB' && currenciesThen[traderItem.currency] && currenciesNow[traderItem.currency]) {
             const rublesCost = currenciesThen[traderItem.currency]*itemPrice;
             itemPrice = Math.ceil(rublesCost / currenciesNow[traderItem.currency]);
         }
