@@ -60,12 +60,7 @@ function maybe(fn) {
 };
 
 const users = {
-    'kokarn': process.env.AUTH_PASSWORD,
-    'legend': 'test'
-};
-
-if(process.env.SECOND_AUTH_PASSWORD){
-    users.razzmatazz = process.env.SECOND_AUTH_PASSWORD;
+    "admin": process.env.AUTH_PASSWORD
 };
 
 app.use(bodyParser.json());
