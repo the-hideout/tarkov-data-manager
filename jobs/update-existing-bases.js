@@ -5,13 +5,13 @@ const { S3Client, ListObjectsV2Command } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
 
 const s3 = new S3Client({
-    region: 'eu-west-1',
+    region: 'us-east-1',
     credentials: fromEnv(),
 });
 
 const getBucketContents = async (continuationToken = false) => {
     const input = {
-        Bucket: 'assets.tarkov-tools.com',
+        Bucket: 'hideout-api',
     };
 
     if(continuationToken){

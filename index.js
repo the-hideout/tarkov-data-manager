@@ -31,7 +31,7 @@ const port = process.env.PORT || 4000;
 let myData = false;
 
 const s3 = new S3Client({
-    region: 'eu-west-1',
+    region: 'us-east-1',
     credentials: fromEnv(),
 });
 
@@ -61,6 +61,7 @@ function maybe(fn) {
 
 const users = {
     'kokarn': process.env.AUTH_PASSWORD,
+    'legend': 'test'
 };
 
 if(process.env.SECOND_AUTH_PASSWORD){

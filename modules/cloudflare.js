@@ -20,7 +20,7 @@ const doRequest = async (cloudflarePath, method = 'GET', value, extraHeaders) =>
         };
     }
 
-    const fullCloudflarePath = `accounts/66766e138fce1ac1d2ef95953e037f4e/storage/kv/namespaces/f04e5b75ee894b3a90cec2b7cc351311${cloudflarePath}`;
+    const fullCloudflarePath = `accounts/424ad63426a1ae47d559873f929eb9fc/storage/kv/namespaces/bd27d6085c6a4b43a8375f710dd6536e${cloudflarePath}`;
 
     const objectData = JSON.parse(value);
 

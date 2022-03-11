@@ -1,4 +1,4 @@
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 /*const connection = mysql.createConnection({
     host     : 'tarkov-tools-master-1.cluster-c1vhfeufwkpn.eu-west-1.rds.amazonaws.com',
@@ -10,13 +10,16 @@ const mysql = require('mysql');
 connection.connect();*/
 
 const connection = mysql.createPool({
-    host     : 'tarkov-tools-master-1.cluster-c1vhfeufwkpn.eu-west-1.rds.amazonaws.com',
+    host     : '6hvetf6kcr04.us-east-1.psdb.cloud',
     user     : process.env.MYSQL_USERNAME,
     password : process.env.MYSQL_PASSWORD,
-    database : 'tarkov_tools',
+    database : 'tarkov',
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    ssl: {
+        rejectUnauthorized: true
+    }
 });
 
 connection.promiseQuery = async (sql) => {

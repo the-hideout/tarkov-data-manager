@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon -r dotenv/config --trace-warnings --ignore cache/ --ignore data.json index.js",
+    "dev": "node -r dotenv/config --trace-warnings  index.js",
     "start": "node --max-old-space-size=460 index.js",
     "job": "node -r dotenv/config --trace-warnings test-job.js"
   },
@@ -29,6 +29,7 @@
     "jimp": "^0.16.1",
     "json-diff": "^0.5.4",
     "mysql": "^2.18.1",
+    "mysql2": "^2.3.3",
     "node-schedule": "^2.0.0",
     "nodemon": "^2.0.12",
     "object-path": "^0.11.8",

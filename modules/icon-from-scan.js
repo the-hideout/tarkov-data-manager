@@ -16,7 +16,7 @@ const Jimp = require('jimp');
     // });
 
 module.exports = async (itemId) => {
-    inputImage = `https://tarkov-data.s3.eu-north-1.amazonaws.com/${itemId}/latest.jpg`;
+    inputImage = `https://hideout-api.s3.us-east-1.amazonaws.com/${itemId}/latest.jpg`;
 
     const image = await Jimp.read(inputImage);
 

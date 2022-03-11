@@ -1,3 +1,3 @@
-const jobModule = require(`./jobs/${process.argv[2]}`);
+const jobModule = require(`./jobs/index`);
 console.log(`Running ${process.argv[2]}`);
 jobModule();

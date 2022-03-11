@@ -59,8 +59,8 @@ module.exports = async () => {
 
     let containedItemsMap = {};
 
-    for(const result of containedItems){
-        if(!containedItemsMap[result.container_item_id]){
+    for (const result of containedItems) {
+        if (!containedItemsMap[result.container_item_id]) {
             containedItemsMap[result.container_item_id] = [];
         }
 
@@ -82,10 +82,10 @@ module.exports = async () => {
         Reflect.deleteProperty(itemData[key], 'match_index');
 
         // Only add these if it's allowed on the flea market
-        if(!itemData[key].types.includes('no-flea')){
+        if (!itemData[key].types.includes('no-flea')) {
             let itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === key);
 
-            if(!itemPriceYesterday || itemData[key].avg24hPrice === 0){
+            if (!itemPriceYesterday || itemData[key].avg24hPrice === 0) {
                 itemData[key].changeLast48hPercent = 0;
             } else {
                 const percentOfDayBefore = itemData[key].avg24hPrice / itemPriceYesterday.priceYesterday
@@ -93,9 +93,9 @@ module.exports = async () => {
             }
             itemData[key].changeLast48h = itemData[key].changeLast48hPercent
 
-            if(!itemData[key].lastLowPrice){
+            if (!itemData[key].lastLowPrice) {
                 let lastKnownPrice = lastKnownPriceData.find(row => row.item_id === key);
-                if(lastKnownPrice){
+                if (lastKnownPrice) {
                     itemData[key].updated = lastKnownPrice.timestamp;
                     itemData[key].lastLowPrice = lastKnownPrice.price;
                 }
@@ -110,7 +110,7 @@ module.exports = async () => {
     try {
         const response = await cloudflare(`/values/ITEM_CACHE`, 'PUT', JSON.stringify(itemData));
         console.log(response);
-    } catch (requestError){
+    } catch (requestError) {
         console.error(requestError);
     }
 
