@@ -123,11 +123,12 @@ resource "azurerm_linux_virtual_machine" "tdm_vm" {
     storage_account_type = "StandardSSD_LRS"
   }
 
+  # https://stackoverflow.com/questions/71253468/creating-an-azure-linux-vm-with-ubuntu-20-04-with-terraform
   source_image_reference {
     publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "20.04-LTS"
-    version   = "latest"
+    offer     = "0001-com-ubuntu-server-focal"
+    sku       = "20_04-lts-gen2"
+    version   = "20.04.202203080"
   }
 
   computer_name                   = "${var.PROJECT_NAME}-vm"
