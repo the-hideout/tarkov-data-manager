@@ -7,6 +7,7 @@ bsg-data.json
 item-props.json
 scripts/local/
 *.pem
+!src/nginx/ssl-fake/*
 
 # Terraform
 terraform.auto.tfvars.json
