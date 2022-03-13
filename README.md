@@ -74,6 +74,12 @@ First, edit the `src/tarkov-data-manager/creds.env` file to include your proper 
 
 > An example of this file can be found at [`src/tarkov-data-manager/creds.env.example`](src/tarkov-data-manager/creds.env.example).
 
+Second, copy the fake ssl cert + key:
+
+```bash
+cp src/nginx/ssl-fake/* src/nginx/ssl/
+```
+
 You now have two options to start the docker-compose stack (both do the exact same thing):
 
 - `make run`
