@@ -16,3 +16,6 @@ git clone git@github.com:the-hideout/tarkov-crons.git
 # firewall connections for web traffic
 sudo ufw allow 80
 sudo ufw allow 443
+
+# finish off with one more update
+sudo apt-get update && sudo apt-get upgrade -y
