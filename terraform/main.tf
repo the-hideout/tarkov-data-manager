@@ -147,9 +147,9 @@ resource "azurerm_linux_virtual_machine" "tdm_vm" {
   size                  = "Standard_B2s"
 
   os_disk {
-    name                          = "${var.PROJECT_NAME}_os_disk"
-    caching                       = "ReadWrite"
-    storage_account_type          = "StandardSSD_LRS"
+    name                 = "${var.PROJECT_NAME}_os_disk"
+    caching              = "ReadWrite"
+    storage_account_type = "StandardSSD_LRS"
   }
 
   # https://stackoverflow.com/questions/71253468/creating-an-azure-linux-vm-with-ubuntu-20-04-with-terraform
