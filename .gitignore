@@ -1,8 +1,15 @@
 cache/
-.env
+creds.env
 node_modules
 *.sql
 dumps/
 bsg-data.json
 item-props.json
 scripts/local/
+*.pem
+!src/nginx/ssl-fake/*
+
+# Terraform
+terraform.auto.tfvars.json
+terraform/.terraform/providers
+**/.terraform/*

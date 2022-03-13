@@ -3,23 +3,40 @@
 version: '3'
 
 services:
-  tarkov-data-manager:
-    container_name: tarkov-data-manager
+  tarkov_data_manager:
+    container_name: tarkov_data_manager
     restart: always
     build:
       context: ./src/tarkov-data-manager
       dockerfile: ./Dockerfile
     env_file: 
-      - ./src/tarkov-data-manager/.env
+      - ./src/tarkov-data-manager/config.env
+      - ./src/tarkov-data-manager/creds.env
     ports:
       - 4000:4000
 
-  tarkov-socket-server:
-    container_name: tarkov-socket-server
+  tarkov_socket_server:
+    container_name: tarkov_socket_server
     build:
       context: ./src/tarkov-socket-server
       dockerfile: ./Dockerfile
     depends_on:
-      - tarkov-data-manager
+      - tarkov_data_manager
     ports:
       - 8080:8080
+
+  nginx_proxy:
+    container_name: nginx_proxy
+    build:
+      context: ./src/nginx
+      dockerfile: ./Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - SERVER_NAME=manager.thehideout.io
+      - BACKEND_ADDR=tarkov_data_manager
+      - BACKEND_PORT=4000
+    depends_on:
+      - tarkov_socket_server
+      - tarkov_data_manager

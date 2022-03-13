@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    environment: production
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
+
+      - uses: azure/login@77f1b2e3fb80c0e8645114159d17008b8a2e475a # pin@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - uses: hashicorp/setup-terraform@3d8debd658c92063839bc97da5c2427100420dec # pin@v1
+        with:
+          terraform_version: 1.1.7
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform init
+        working-directory: terraform/
+        run: terraform init
+
+      - name: Terraform apply
+        working-directory: terraform/
+        env:
+          # Creds
+          TF_VAR_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          TF_VAR_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          TF_VAR_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+          TF_VAR_TENANT_ID: ${{ secrets.TENANT_ID }}
+        run: terraform apply -auto-approve
+
+      - name: SSH Remote Deploy
+        uses: appleboy/ssh-action@1d1b21ca96111b1eb4c03c21c14ebb971d2200f6 # pin@v0.1.4
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script_stop: true
+          script: ~/tarkov-data-manager/script/deploy

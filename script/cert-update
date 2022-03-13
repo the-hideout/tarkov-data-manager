@@ -1,0 +1,9 @@
+#!/bin/bash
+
+sudo cp /etc/letsencrypt/live/manager.thehideout.io/privkey.pem ~/tarkov-data-manager/src/nginx/ssl/
+sudo cp /etc/letsencrypt/live/manager.thehideout.io/fullchain.pem ~/tarkov-data-manager/src/nginx/ssl/
+
+sudo chown -R tdm:tdm ~/tarkov-data-manager/src/nginx/ssl/
+
+# Run a fresh deploy
+~/tarkov-data-manager/script/deploy

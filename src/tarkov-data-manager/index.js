@@ -888,7 +888,7 @@ const server = app.listen(port, () => {
     console.log(`Tarkov Data Manager listening at http://localhost:${port}`)
 });
 
-jobs();
+// jobs();
 
 (async () => {
     const triggerShutdown = () => {

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cd ~/tarkov-data-manager
+
+git fetch --all
+git reset --hard origin/main
+
+sudo make run
