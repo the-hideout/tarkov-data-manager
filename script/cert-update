@@ -6,4 +6,4 @@ sudo cp /etc/letsencrypt/live/manager.thehideout.io/fullchain.pem ~/tarkov-data-
 sudo chown -R tdm:tdm ~/tarkov-data-manager/src/nginx/ssl/
 
 # Run a fresh deploy
-~/borscht/script/deploy
+~/tarkov-data-manager/script/deploy
