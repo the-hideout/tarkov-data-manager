@@ -6,3 +6,8 @@ dumps/
 bsg-data.json
 item-props.json
 scripts/local/
+
+# Terraform
+terraform.auto.tfvars.json
+terraform/.terraform/providers
+**/.terraform/*
