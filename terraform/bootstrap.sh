@@ -23,5 +23,11 @@ sudo ufw allow 443
 # enable the firewall
 sudo ufw --force enable
 
+# install certbot
+sudo snap install --classic certbot
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+
 # finish off with one more update
 sudo apt-get update && sudo apt-get upgrade -y
+
+# 0 7 * * SUN ~/borscht/script/cert-update
