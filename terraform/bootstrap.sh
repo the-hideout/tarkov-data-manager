@@ -11,7 +11,7 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 
 # clone the tarkov-data-manager repo
-git clone https://github.com/the-hideout/tarkov-data-manager.git
+git clone https://github.com/the-hideout/tarkov-data-manager.git /home/tdm/tarkov-data-manager
 
 # firewall connections for web traffic
 sudo ufw allow 80
