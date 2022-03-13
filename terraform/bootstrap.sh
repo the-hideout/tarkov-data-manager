@@ -11,7 +11,7 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 
 # clone the tarkov-data-manager repo (tarkov-crons for testing)
-git clone git@github.com:the-hideout/tarkov-crons.git
+git clone https://github.com/the-hideout/tarkov-crons.git
 
 # firewall connections for web traffic
 sudo ufw allow 80

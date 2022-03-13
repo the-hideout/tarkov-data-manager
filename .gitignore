@@ -1,5 +1,5 @@
 cache/
-.env
+creds.env
 node_modules
 *.sql
 dumps/

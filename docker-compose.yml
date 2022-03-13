@@ -10,7 +10,8 @@ services:
       context: ./src/tarkov-data-manager
       dockerfile: ./Dockerfile
     env_file: 
-      - ./src/tarkov-data-manager/.env
+      - ./src/tarkov-data-manager/config.env
+      - ./src/tarkov-data-manager/creds.env
     ports:
       - 4000:4000
 

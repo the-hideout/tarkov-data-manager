@@ -1,19 +1,10 @@
 const mysql = require('mysql2');
 
-/*const connection = mysql.createConnection({
-    host     : 'tarkov-tools-master-1.cluster-c1vhfeufwkpn.eu-west-1.rds.amazonaws.com',
-    user     : process.env.MYSQL_USERNAME,
-    password : process.env.MYSQL_PASSWORD,
-    database : 'tarkov_tools',
-});
-
-connection.connect();*/
-
 const connection = mysql.createPool({
-    host     : '6hvetf6kcr04.us-east-1.psdb.cloud',
-    user     : process.env.MYSQL_USERNAME,
-    password : process.env.MYSQL_PASSWORD,
-    database : 'tarkov',
+    host     : process.env.DATABASE_HOST,
+    user     : process.env.PSCALE_USER,
+    password : process.env.PSCALE_PASS,
+    database : process.env.DATABASE_NAME,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
