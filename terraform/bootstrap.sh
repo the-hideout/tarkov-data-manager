@@ -13,9 +13,15 @@ sudo chmod +x /usr/local/bin/docker-compose
 # clone the tarkov-data-manager repo
 git clone https://github.com/the-hideout/tarkov-data-manager.git /home/tdm/tarkov-data-manager
 
+# firewall connections for ssh
+sudo ufw allow 22
+
 # firewall connections for web traffic
 sudo ufw allow 80
 sudo ufw allow 443
+
+# enable the firewall
+sudo ufw --force enable
 
 # finish off with one more update
 sudo apt-get update && sudo apt-get upgrade -y
