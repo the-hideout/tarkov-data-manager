@@ -122,12 +122,10 @@ resource "azurerm_linux_virtual_machine" "tdm_vm" {
   network_interface_ids = [azurerm_network_interface.tdm_nic.id]
   size                  = "Standard_B1s"
 
-  delete_os_disk_on_termination = true
-
   os_disk {
-    name                 = "${var.PROJECT_NAME}_os_disk"
-    caching              = "ReadWrite"
-    storage_account_type = "StandardSSD_LRS"
+    name                          = "${var.PROJECT_NAME}_os_disk"
+    caching                       = "ReadWrite"
+    storage_account_type          = "StandardSSD_LRS"
   }
 
   # https://stackoverflow.com/questions/71253468/creating-an-azure-linux-vm-with-ubuntu-20-04-with-terraform
@@ -141,7 +139,7 @@ resource "azurerm_linux_virtual_machine" "tdm_vm" {
   computer_name                   = "${var.PROJECT_NAME}-vm"
   admin_username                  = var.PROJECT_NAME
   disable_password_authentication = true
-  custom_data    = base64encode(data.template_file.linux-vm-cloud-init.rendered)
+  custom_data                     = base64encode(data.template_file.linux-vm-cloud-init.rendered)
 
   admin_ssh_key {
     username   = var.PROJECT_NAME
