@@ -27,19 +27,16 @@ jobs:
         continue-on-error: true
 
       - name: Terraform init
-        if: github.event_name == 'pull_request'
         working-directory: terraform/
         id: init_tf
         run: terraform init
 
       - name: Terraform validate
-        if: github.event_name == 'pull_request'
         working-directory: terraform/
         id: validate_tf
         run: terraform validate -no-color
 
       - name: Terraform plan
-        if: github.event_name == 'pull_request'
         working-directory: terraform/
         id: plan_tf
         env:
@@ -52,7 +49,6 @@ jobs:
 
       # Post comment on PR with development plan info
       - uses: actions/github-script@5d03ada4b0a753e9460b312e61cc4f8fdeacf163 # pin@0.9.0
-        if: github.event_name == 'pull_request'
         env:
           PLAN_TF: "terraform ${{ steps.plan_tf.outputs.stdout }}"
         with:
@@ -67,7 +63,7 @@ jobs:
             \`\`\`${process.env.PLAN_TF}\`\`\`
             </details>
             > Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`terraform/\`, Workflow: \`${{ github.workflow }}\``;
-
+              
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
