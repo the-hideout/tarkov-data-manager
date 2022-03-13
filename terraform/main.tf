@@ -109,6 +109,11 @@ output "tls_private_key" {
   sensitive = true
 }
 
+# Data template Bash bootstrapping file
+data "template_file" "linux-vm-cloud-init" {
+  template = file("bootstrap.sh")
+}
+
 # Create virtual machine
 resource "azurerm_linux_virtual_machine" "tdm_vm" {
   name                  = "${var.PROJECT_NAME}_vm"
@@ -116,6 +121,8 @@ resource "azurerm_linux_virtual_machine" "tdm_vm" {
   resource_group_name   = azurerm_resource_group.tdm_rg.name
   network_interface_ids = [azurerm_network_interface.tdm_nic.id]
   size                  = "Standard_B1s"
+
+  delete_os_disk_on_termination = true
 
   os_disk {
     name                 = "${var.PROJECT_NAME}_os_disk"
@@ -134,6 +141,7 @@ resource "azurerm_linux_virtual_machine" "tdm_vm" {
   computer_name                   = "${var.PROJECT_NAME}-vm"
   admin_username                  = var.PROJECT_NAME
   disable_password_authentication = true
+  custom_data    = base64encode(data.template_file.linux-vm-cloud-init.rendered)
 
   admin_ssh_key {
     username   = var.PROJECT_NAME
