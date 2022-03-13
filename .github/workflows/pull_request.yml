@@ -22,23 +22,23 @@ jobs:
 
       - name: Terraform fmt
         working-directory: terraform/
-        id: fmt_tf
+        id: fmt
         run: terraform fmt -check
         continue-on-error: true
 
       - name: Terraform init
         working-directory: terraform/
-        id: init_tf
+        id: init
         run: terraform init
 
       - name: Terraform validate
         working-directory: terraform/
-        id: validate_tf
+        id: validate
         run: terraform validate -no-color
 
       - name: Terraform plan
         working-directory: terraform/
-        id: plan_tf
+        id: plan
         env:
           TF_VAR_CLIENT_ID: ${{ secrets.CLIENT_ID }}
           TF_VAR_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
@@ -50,20 +50,26 @@ jobs:
       # Post comment on PR with development plan info
       - uses: actions/github-script@5d03ada4b0a753e9460b312e61cc4f8fdeacf163 # pin@0.9.0
         env:
-          PLAN_TF: "terraform ${{ steps.plan_tf.outputs.stdout }}"
+          PLAN: "terraform ${{ steps.plan.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const output = `### Terraform Plan - Production 🪐
-            - Terraform Format and Style 🖌: \`${{ steps.fmt_tf.outcome }}\`
-            - Terraform Initialization ⚙️: \`${{ steps.init_tf.outcome }}\`
-            - Terraform Validation 🤖: \`${{ steps.validate_tf.outcome }}\`
-            - Terraform Plan 📖: \`${{ steps.plan_tf.outcome }}\`
-            <details><summary><b>Show Plan</b></summary>
-            \`\`\`${process.env.PLAN_TF}\`\`\`
+            - Terraform Format and Style 🖌: \`${{ steps.fmt.outcome }}\`
+            - Terraform Initialization ⚙️: \`${{ steps.init.outcome }}\`
+            - Terraform Validation 🤖: \`${{ steps.validate.outcome }}\`
+            - Terraform Plan 📖: \`${{ steps.plan.outcome }}\`
+            
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
             </details>
-            > Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`terraform/\`, Workflow: \`${{ github.workflow }}\``;
-              
+
+            > Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
             github.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
