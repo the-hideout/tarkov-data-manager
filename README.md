@@ -19,7 +19,7 @@ This repo contains two main components:
 
 The Tarkov Data Manager can be run locally without Docker by running the following commands:
 
-> This section is still under construction. We are working on creating a local environment to test the application locally with Docker and a mock instance of the database. Right now, developers connect to a testing branch of the prod database. Developers also need database credentials stored in `src/tarkov-data-manager/.env`.
+> This section is still under construction. We are working on creating a local environment to test the application locally with Docker and a mock instance of the database. Right now, developers connect to a testing branch of the prod database. Developers also need database credentials stored in `src/tarkov-data-manager/creds.env`.
 > For active developers with database connections, you can run the following commands:
 
 1. Enter the proper directory:
@@ -70,9 +70,9 @@ The Tarkov Socket Server can be started locally without Docker by running the fo
 
 > This is the suggested option for local development
 
-First, edit the `src/tarkov-data-manager/.env` file to include your proper credentials.
+First, edit the `src/tarkov-data-manager/creds.env` file to include your proper credentials.
 
-> An example of this file can be found at [`src/tarkov-data-manager/.env.example`](src/tarkov-data-manager/.env.example).
+> An example of this file can be found at [`src/tarkov-data-manager/creds.env.example`](src/tarkov-data-manager/creds.env.example).
 
 You now have two options to start the docker-compose stack (both do the exact same thing):
 
