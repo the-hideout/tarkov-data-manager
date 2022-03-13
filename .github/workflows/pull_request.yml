@@ -66,7 +66,7 @@ jobs:
 
             </details>
 
-            > Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`terraform/k8s\`, Workflow: \`${{ github.workflow }}\``;
+            > Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`terraform/\`, Workflow: \`${{ github.workflow }}\``;
 
             github.issues.createComment({
               issue_number: context.issue.number,
