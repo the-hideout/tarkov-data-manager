@@ -62,13 +62,11 @@ jobs:
             
             <details><summary>Show Plan</summary>
 
-            \`\`\`\n
-            ${process.env.PLAN}
-            \`\`\`
+            \`\`\`${process.env.PLAN}\`\`\`
 
             </details>
 
-            > Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            > Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`terraform/k8s\`, Workflow: \`${{ github.workflow }}\``;
 
             github.issues.createComment({
               issue_number: context.issue.number,
