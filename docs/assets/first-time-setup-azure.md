@@ -39,3 +39,23 @@ The very first time you go to build this application in production for Azure you
     1. Add your secrets to the file you just created
 
 1. Optionally, create a DNS record that points to the VM's public IP address
+
+1. Optionally, setup a SSL/TLS certificate to security serve traffic to your domain
+
+    1. Ensure that you have a DNS record pointing to the public IP of your VM
+    2. On your VM, generate a TLS certificate with lets-encrypt
+
+        ```bash
+        sudo certbot certonly --standalone --register-unsafely-without-email
+        ```
+
+        > This example uses `manager.thehideout.io` as the domain
+
+    3. Run the following script (edit if you changed the domain) to copy your certs into your nginx container directory that gets mounted when it runs:
+
+        ```bash
+        script/cert-update
+        ```
+
+    4. Finally, restart your container stack `sudo make run`
+    5. Connect to `manager.thehideout.io` and login with the password you placed in the `creds.env` file above
