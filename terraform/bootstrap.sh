@@ -12,7 +12,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 # clone the tarkov-data-manager repo
 git clone https://github.com/the-hideout/tarkov-data-manager.git /home/tdm/tarkov-data-manager
-sudo chown -R tdm:tdm tarkov-data-manager/
+sudo chown -R tdm:tdm /home/tdm/tarkov-data-manager
 
 # firewall connections for ssh
 sudo ufw allow 22
