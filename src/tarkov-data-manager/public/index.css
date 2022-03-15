@@ -2,6 +2,10 @@
     max-width: 100%;
 }
 
+.item-image img {
+    max-width: 100%;
+}
+
 pre {
     resize: both;
     overflow: auto;

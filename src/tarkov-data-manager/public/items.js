@@ -25,9 +25,9 @@ const showEditItemModal = function(event){
     const item = JSON.parse(decodeURIComponent(link.data('item')));
     const editModal = $('#modal-edit-item');
     for (const field in item) {
-        editModal.find(`.item-content-${field}`).text(item[field]);
-        editModal.find(`.item-value-${field}`).val(item[field]);
-        editModal.find(`.item-attribute-${field}`).each(function(){
+        editModal.find(`.item-content.${field}`).text(item[field]);
+        editModal.find(`.item-value.${field}`).val(item[field]);
+        editModal.find(`.item-attribute.${field}`).each(function(){
             const attributeName = $(this).data('attribute');
             let value = item[field];
             if ($(this).data('prependValue')) {
@@ -35,7 +35,7 @@ const showEditItemModal = function(event){
             }
             $(this).attr(attributeName, value);
         });
-        editModal.find(`.item-image-${field}`).each(function(){
+        editModal.find(`.item-image.${field}`).each(function(){
             $(this).empty();
             if (!item[field]) {
                 return;
