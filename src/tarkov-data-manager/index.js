@@ -16,7 +16,6 @@ if (process.env.NODE_ENV !== 'production') {
     dotenv.config({path : './config.env'});
     dotenv.config({path : './creds.env'});
     process.env.NODE_ENV = 'dev';
-    console.log(process.env);
 }
 
 const remoteData = require('./modules/remote-data');
@@ -679,8 +678,8 @@ app.get('/items', async (req, res) => {
         </div>
         <div id="modal-edit-item" class="modal modal-fixed-footer">
             <div class="modal-content">
-                <h4 class="item-content-name"></h4>
-                <div class="item-content-id"></div>
+                <h4 class="item-content name"></h4>
+                <div class="item-content id"></div>
                 <div class="row">
                     <form class="col s12 post-url item-attribute-id" data-attribute="action" data-prepend-value="/items/edit/" method="post" action="">
                         <div class="row">
