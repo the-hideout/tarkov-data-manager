@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# script configuration
+DOMAIN=manager.thehideout.io # the domain to serve traffic with
+REPO_DIR=/home/tdm/tarkov-data-manager # the repo to clone and use for the app deployment
+VM_USER=tdm # the name of the vm user
+
 # add dependencies
 sudo apt-get update && sudo apt-get upgrade -y
 sudo apt-get install make -y
@@ -11,8 +16,8 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 
 # clone the tarkov-data-manager repo
-git clone https://github.com/the-hideout/tarkov-data-manager.git /home/tdm/tarkov-data-manager
-sudo chown -R tdm:tdm /home/tdm/tarkov-data-manager
+git clone https://github.com/the-hideout/tarkov-data-manager.git $REPO_DIR
+sudo chown -R $VM_USER:$VM_USER $REPO_DIR
 
 # firewall connections for ssh
 sudo ufw allow 22
@@ -26,9 +31,17 @@ sudo ufw allow https
 # enable the firewall
 sudo ufw --force enable
 
-# install certbot
-sudo snap install --classic certbot
-sudo ln -s /snap/bin/certbot /usr/bin/certbot
-
-# finish off with one more update
+# run updates again
 sudo apt-get update && sudo apt-get upgrade -y
+
+# switch to the main vm user
+sudo su $VM_USER
+
+# Setup DOMAIN as an env var
+echo "export DOMAIN=$DOMAIN" >> ~/.profile
+
+# Install a crontab that runs on reboot
+(crontab -l ; echo "@reboot $REPO_DIR/script/deploy") | crontab -
+
+# launch the container stack
+bash $REPO_DIR/script/deploy
