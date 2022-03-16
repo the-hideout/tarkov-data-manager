@@ -1,6 +1,6 @@
 # To build the entire stack run 'make run'
 
-version: '3'
+version: '3.7'
 
 services:
   tarkov_data_manager:
@@ -15,17 +15,6 @@ services:
     ports:
       - 4000:4000
 
-  tarkov_socket_server:
-    container_name: tarkov_socket_server
-    restart: unless-stopped
-    build:
-      context: ./src/tarkov-socket-server
-      dockerfile: ./Dockerfile
-    depends_on:
-      - tarkov_data_manager
-    ports:
-      - 8080:8080
-
   caddy:
     container_name: caddy-service
     restart: unless-stopped
@@ -33,13 +22,12 @@ services:
       context: ./src/caddy
       dockerfile: ./Dockerfile
     ports:
-      - "80:80"
-      - "443:443"
+      - 80:80
+      - 443:443
     volumes:
       - ./data/caddy_data:/data
       - ./data/caddy_config:/config
     depends_on:
-      - tarkov_socket_server
       - tarkov_data_manager
     environment:
       PROXY_BACKEND: tarkov_data_manager
