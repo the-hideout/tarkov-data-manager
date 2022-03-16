@@ -13,3 +13,7 @@ scripts/local/
 terraform.auto.tfvars.json
 terraform/.terraform/providers
 **/.terraform/*
+
+# container volume files
+data/*
+!data/.gitkeep
