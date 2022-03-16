@@ -13,7 +13,7 @@ It is a web application that allows you to do the following:
 This repo contains two main components:
 
 - The **Tarkov Data Manager** - Web application for managing Tarkov game data and scanners
-- The **Tarkov Socket Server** - Service for sending commands to scanners and more
+- The **Caddy Reverse Proxy** - Reverse proxy for the Tarkov Data Manager, handles TLS
 
 ### Tarkov Data Manager
 
@@ -43,28 +43,6 @@ The Tarkov Data Manager can be run locally without Docker by running the followi
 ### Example 📸
 
 ![local example](docs/assets/data-manager-example.png)
-
-## Tarkov Socket Server 🔌
-
-The Tarkov Socket Server can be started locally without Docker by running the following commands:
-
-1. Enter the proper directory:
-
-    ```bash
-    cd src/tarkov-socket-server
-    ```
-
-1. Install dependencies:
-
-    ```bash
-    npm install
-    ```
-
-1. Run the application:
-
-    ```bash
-    npm run dev
-    ```
 
 ## Running locally with Docker 🐳
 
