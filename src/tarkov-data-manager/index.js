@@ -11,9 +11,16 @@ const session = require('express-session');
 const formidable = require('formidable');
 const Rollbar = require('rollbar');
 
+if (process.env.NODE_ENV !== 'production') {
+    const dotenv = require("dotenv");
+    dotenv.config({path : './config.env'});
+    dotenv.config({path : './creds.env'});
+    process.env.NODE_ENV = 'dev';
+}
+
 const remoteData = require('./modules/remote-data');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
-const jobs = require('./jobs');
+//const jobs = require('./jobs');
 const connection = require('./modules/db-connection');
 const timer = require('./modules/console-timer');
 
@@ -671,44 +678,44 @@ app.get('/items', async (req, res) => {
         </div>
         <div id="modal-edit-item" class="modal modal-fixed-footer">
             <div class="modal-content">
-                <h4 class="item-content-name"></h4>
-                <div class="item-content-id"></div>
+                <h4 class="item-content name"></h4>
+                <div class="item-content id"></div>
                 <div class="row">
                     <form class="col s12 post-url item-attribute-id" data-attribute="action" data-prepend-value="/items/edit/" method="post" action="">
                         <div class="row">
-                            <div class="input-field col s2 item-image-image_link"></div>
+                            <div class="input-field col s2 item-image image_link"></div>
                             <div class="input-field col s10">
-                                <input value="" id="image-link" type="text" class="validate item-value-image_link" name="image-link">
+                                <input value="" id="image-link" type="text" class="validate item-value image_link" name="image-link">
                                 <label for="image-link">Image Link</label>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="input-field col s2 item-image-icon_link"></div>
+                            <div class="input-field col s2 item-image icon_link"></div>
                             <div class="input-field col s10">
-                                <input value="" id="icon-link" type="text" class="validate item-value-icon_link" name="icon-link">
+                                <input value="" id="icon-link" type="text" class="validate item-value icon_link" name="icon-link">
                                 <label for="icon-link">Icon Link</label>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="input-field col s2 item-image-grid_image_link"></div>
+                            <div class="input-field col s2 item-image grid_image_link"></div>
                             <div class="input-field col s10">
-                                <input value="" id="grid-image-link" type="text" class="validate item-value-icon_link" name="grid-image-link">
+                                <input value="" id="grid-image-link" type="text" class="validate item-value grid_image_link" name="grid-image-link">
                                 <label for="grid-image-link">Grid image link</label>
                             </div>
                         </div>
                         <div class="row">
                             <div class="input-field col s2">
-                                <a class="item-attribute-wiki_link" data-attribute="href" href="">WIKI</a>
+                                <a class="item-attribute wiki_link" data-attribute="href" href="">WIKI</a>
                             </div>
                             <div class="input-field col s10">
-                                <input value="" id="wiki-link" type="text" class="validate item-value-wiki_link" name="wiki-link">
+                                <input value="" id="wiki-link" type="text" class="validate item-value wiki_link" name="wiki-link">
                                 <label for="wiki-link">wiki link</label>
                             </div>
                         </div>
                         <div class="row">
                             <div class="input-field col s2 item-match_index"></div>
                             <div class="input-field col s10">
-                                <input value="" id="match-index" type="text" class="validate item-value-match_index" name="match-index">
+                                <input value="" id="match-index" type="text" class="validate item-value match_index" name="match-index">
                                 <label for="match-index">Match index</label>
                             </div>
                         </div>

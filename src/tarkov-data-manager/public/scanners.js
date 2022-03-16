@@ -26,7 +26,7 @@ getScannerValue = (sessionID, settingName) => {
 };
 
 function startListener(channel) {
-    const WEBSOCKET_SERVER = 'wss://tarkov-tools-live.herokuapp.com';
+    const WEBSOCKET_SERVER = 'wss://manager.thehideout.io';
     //const WEBSOCKET_SERVER = 'ws://localhost:8080';
     let logMessages = [];
 
