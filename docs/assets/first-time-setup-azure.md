@@ -37,7 +37,7 @@ The very first time you go to build this application in production for Azure you
     1. `touch src/tarkov-data-manager/creds.env` - Creates the creds file to store secrets for running the app
     1. Add your secrets to the file you just created
 
-1. Run `source ~/.profile` to update env vars
+1. Run `source ~/.profile` to update env vars (if `echo $DOMAIN` isn't set)
 
 1. Optionally, create a DNS record that points to the VM's public IP address
 
