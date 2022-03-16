@@ -40,4 +40,7 @@ echo "export DOMAIN=$DOMAIN" >> ~/.profile
 (crontab -l ; echo "@reboot $REPO_DIR/script/deploy") | crontab -
 EOF
 
+# Add DOMAIN to the root user as well
+echo "export DOMAIN=$DOMAIN" >> ~/.profile
+
 echo "bootstrap complete"
