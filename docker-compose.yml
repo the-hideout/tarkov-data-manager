@@ -5,7 +5,7 @@ version: '3'
 services:
   tarkov_data_manager:
     container_name: tarkov_data_manager
-    restart: always
+    restart: unless-stopped
     build:
       context: ./src/tarkov-data-manager
       dockerfile: ./Dockerfile
@@ -17,6 +17,7 @@ services:
 
   tarkov_socket_server:
     container_name: tarkov_socket_server
+    restart: unless-stopped
     build:
       context: ./src/tarkov-socket-server
       dockerfile: ./Dockerfile
@@ -25,18 +26,25 @@ services:
     ports:
       - 8080:8080
 
-  nginx_proxy:
-    container_name: nginx_proxy
+  caddy:
+    container_name: caddy-service
+    restart: unless-stopped
     build:
-      context: ./src/nginx
+      context: ./src/caddy
       dockerfile: ./Dockerfile
     ports:
-      - 80:80
-      - 443:443
-    environment:
-      - SERVER_NAME=manager.thehideout.io
-      - BACKEND_ADDR=tarkov_data_manager
-      - BACKEND_PORT=4000
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
     depends_on:
       - tarkov_socket_server
       - tarkov_data_manager
+    environment:
+      - PROXY_BACKEND=tarkov_data_manager
+      - PROXY_PORT=4000
+
+volumes:
+  caddy_data:
+  caddy_config:
