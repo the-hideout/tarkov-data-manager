@@ -35,13 +35,9 @@ sudo ufw --force enable
 sudo apt-get update && sudo apt-get upgrade -y
 
 # switch to the main vm user
-sudo su $VM_USER
-
-# Setup DOMAIN as an env var
+sudo -i -u $VM_USER bash << EOF
 echo "export DOMAIN=$DOMAIN" >> ~/.profile
-
-# Install a crontab that runs on reboot
 (crontab -l ; echo "@reboot $REPO_DIR/script/deploy") | crontab -
+EOF
 
-# launch the container stack
-bash $REPO_DIR/script/deploy
+echo "bootstrap complete"
