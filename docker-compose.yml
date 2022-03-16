@@ -36,14 +36,15 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - caddy_data:/data
-      - caddy_config:/config
+      - ./data/caddy_data:/data
+      - ./data/caddy_config:/config
     depends_on:
       - tarkov_socket_server
       - tarkov_data_manager
     environment:
-      - PROXY_BACKEND=tarkov_data_manager
-      - PROXY_PORT=4000
+      PROXY_BACKEND: tarkov_data_manager
+      PROXY_PORT: 4000
+      DOMAIN: ${DOMAIN}
 
 volumes:
   caddy_data:

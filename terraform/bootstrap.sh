@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# script configuration
+# script configuration - change these values to match your environment
 DOMAIN=manager.thehideout.io # the domain to serve traffic with
 REPO_DIR=/home/tdm/tarkov-data-manager # the repo to clone and use for the app deployment
 VM_USER=tdm # the name of the vm user
@@ -35,13 +35,12 @@ sudo ufw --force enable
 sudo apt-get update && sudo apt-get upgrade -y
 
 # switch to the main vm user
-sudo su $VM_USER
+sudo -i -u $VM_USER bash << EOF
+echo "export DOMAIN=$DOMAIN" >> ~/.profile
+(crontab -l ; echo "@reboot $REPO_DIR/script/deploy") | crontab -
+EOF
 
-# Setup DOMAIN as an env var
+# Add DOMAIN to the root user as well
 echo "export DOMAIN=$DOMAIN" >> ~/.profile
 
-# Install a crontab that runs on reboot
-(crontab -l ; echo "@reboot $REPO_DIR/script/deploy") | crontab -
-
-# launch the container stack
-bash $REPO_DIR/script/deploy
+echo "bootstrap complete"

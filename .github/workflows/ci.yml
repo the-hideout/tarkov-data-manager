@@ -44,4 +44,4 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script_stop: true
-          script: ~/tarkov-data-manager/script/deploy
+          script: DOMAIN=manager.thehideout.io ~/tarkov-data-manager/script/deploy
