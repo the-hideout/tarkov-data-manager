@@ -12,7 +12,6 @@ The very first time you go to build this application in production for Azure you
         "SUBSCRIPTION_ID": "abc456-abc456-abc456-abc456",
         "TENANT_ID": "abc789-abc789-abc789-abc789"
     }
-
     ```
 
 1. Run the following commands to build your vm in Azure:
@@ -38,24 +37,83 @@ The very first time you go to build this application in production for Azure you
     1. `touch src/tarkov-data-manager/creds.env` - Creates the creds file to store secrets for running the app
     1. Add your secrets to the file you just created
 
+1. Run `source ~/.profile` to update env vars
+
 1. Optionally, create a DNS record that points to the VM's public IP address
 
-1. Optionally, setup a SSL/TLS certificate to security serve traffic to your domain
+1. Start your container stack `script/deploy`
 
-    1. Ensure that you have a DNS record pointing to the public IP of your VM
-    2. On your VM, generate a TLS certificate with lets-encrypt
+## TLS
 
-        ```bash
-        sudo certbot certonly --standalone --register-unsafely-without-email
-        ```
+If you are using a domain name and have it configured as the DOMAIN env var, then Caddy will attempt to auto-provision a TLS certificate with Let's Encrypt.
 
-        > This example uses `manager.thehideout.io` as the domain
+You will need to ensure you completed the step above to enable a DNS record pointing to your VM
 
-    3. Run the following script (edit if you changed the domain) to copy your certs into your nginx container directory that gets mounted when it runs:
+## First time deploy, failure
 
-        ```bash
-        script/cert-update
-        ```
+You may notice that if you deploy for the first time using GitHub actions, it will fail. This is because of a chicken and the egg problem. You need to deploy the VM via Terraform, then SSH into it and create the `src/tarkov-data-manager/creds.env` so the Docker containers can start. Then, both the `terraform` and `ssh remote deploy` parts of the pipeline will succeed
 
-    4. Finally, restart your container stack `sudo make run`
-    5. Connect to `manager.thehideout.io` and login with the password you placed in the `creds.env` file above
+## GitHub Actions Secrets
+
+There are a few secrets you need to set in GitHub Actions so that our CI/CD pipeline can run
+
+- Azure Credentials
+  - Key: `AZURE_CREDENTIALS`
+  - Value: (string of json below)
+
+    ```json
+    {"clientId": "<GUID>",
+    "clientSecret": "<GUID>",
+    "subscriptionId": "<GUID>",
+    "tenantId": "<GUID>"}
+    ```
+
+    > Note: The formatting of the `AZURE_CREDENTIALS` json is important. See the [docs](https://github.com/marketplace/actions/azure-login)
+
+- Terraform API Token
+  - Key: `TF_API_TOKEN`
+  - Value: `<terraform api key>`
+
+  > See the [docs](https://www.terraform.io/docs/cloud/users-teams-organizations/api-tokens.html) for more info
+
+- Azure CLIENT_ID
+  - Key: `CLIENT_ID`
+  - Value: `<clientId>`
+
+  > See the [docs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli) for more info
+
+- Azure CLIENT_SECRET
+  - Key: `CLIENT_SECRET`
+  - Value: `<clientSecret>`
+
+  > See the [docs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli) for more info
+
+- Azure TENANT_ID
+  - Key: `TENANT_ID`
+  - Value: `<tenantId>`
+
+  > See the [docs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli) for more info
+
+- Azure SUBSCRIPTION_ID
+  - Key: `SUBSCRIPTION_ID`
+  - Value: `<subscriptionId>`
+
+  > See the [docs](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/guides/azure_cli) for more info
+
+- SSH_HOST
+  - Key: `SSH_HOST`
+  - Value: `<public ip address or hostname>`
+
+- SSH_USERNAME
+  - Key: `SSH_USERNAME`
+  - Value: `<username of the vm user>`
+
+- SSH_KEY
+  - Key: `SSH_KEY`
+  - Value: `<ssh private key>`
+
+  > Can be obtained with `terraform output -raw tls_private_key > key.pem`
+
+- SSH_PORT
+  - Key: `SSH_PORT`
+  - Value: `<public port ssh is running on>`
