@@ -4,9 +4,13 @@ const runJob = function(name, cronSchedule) {
     const jobModule = require(`./${name}`);
     console.log(`Setting up ${name} job to run ${cronSchedule}`);
 
-    schedule.scheduleJob(cronSchedule, () => {
+    schedule.scheduleJob(cronSchedule, async () => {
         console.log(`Running ${name} job`);
-        jobModule();
+        try {
+            await jobModule();
+        } catch (error) {
+            console.log(`Error running ${name} job: ${error}`);
+        }
     });
 }
 
@@ -14,11 +18,11 @@ const startupJobs = [
     'update-existing-bases',
 ];
 
-module.exports = () => {
+module.exports = async () => {
     // Only run in production
-    if(process.env.NODE_ENV !== 'production'){
+    /*if(process.env.NODE_ENV !== 'production'){
         return true;
-    }
+    }*/
 
     // runJob('check-scans', '20 * * * *');
     //runJob('update-cache', '* * * * *');
@@ -48,6 +52,10 @@ module.exports = () => {
         const jobName = startupJobs[i];
         const jobModule = require(`./${jobName}`);
         console.log(`Running ${jobName} job at startup`);
-        jobModule();
+        try {
+            await jobModule();
+        } catch (error) {
+            console.log(`Error running ${jobName}: ${error}`);
+        }
     }
 };
