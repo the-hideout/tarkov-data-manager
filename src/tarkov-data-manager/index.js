@@ -21,8 +21,9 @@ if (process.env.NODE_ENV !== 'production') {
 const remoteData = require('./modules/remote-data');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
 //const jobs = require('./jobs');
-const connection = require('./modules/db-connection');
+const {connection, query, format} = require('./modules/db-connection');
 const timer = require('./modules/console-timer');
+const scannerApi = require('./modules/scanner-api');
 
 vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
 
@@ -57,7 +58,13 @@ function maybe(fn) {
         }
 
         if(req.path.substring(0, 6) === '/data/'){
-            next ();
+            next();
+
+            return true;
+        }
+
+        if (req.path === '/api/scanner' && req.method === 'POST') {
+            next();
 
             return true;
         }
@@ -70,13 +77,20 @@ const users = {
     "admin": process.env.AUTH_PASSWORD
 };
 
-app.use(bodyParser.json());
-app.use(express.static('public'));
-app.use(session({
+const sess = {
     secret: process.env.AUTH_SECRET,
     resave: false,
-    saveUninitialized: false
-}));
+    saveUninitialized: false,
+    cookie: {}
+};
+if (app.get('env') === 'production') {
+    app.set('trust proxy', 1);
+    sess.cookie.secure = true;
+}
+
+app.use(bodyParser.json());
+app.use(express.static('public'));
+app.use(session(sess));
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(maybe((req, res, next) => {
@@ -127,6 +141,7 @@ app.use(maybe((req, res, next) => {
                             attemptLogin();
                         }
                     });
+                    $('input#username').focus();
                 });
             </script>
         ${getFooter(req)}`);
@@ -329,9 +344,15 @@ app.get('/data', async (req, res) => {
 
 app.post('/update', (request, response) => {
     console.log(request.body);
-    updateTypes(request.body);
+    const res = {errors: [], message: ''};
+    try {
+        updateTypes(request.body);
+        res.message = 'ok';
+    } catch (error) {
+        res.errors.push(error.message);
+    }
 
-    response.send('ok');
+    response.send(res);
 });
 
 app.post('/suggest-image', (request, response) => {
@@ -734,6 +755,7 @@ app.get('/scanners', async (req, res) => {
     const latestScanResults = await getLatestScanResults();
     const activeScanners = [];
     const inactiveScanners = [];
+    const users = await query('SELECT * FROM scanner_user');
     latestScanResults.map(latestScan => {
         if (new Date - latestScan.timestamp > 1000 * 60 * 60 * 2) {
             inactiveScanners.push(latestScan);
@@ -777,17 +799,19 @@ app.get('/scanners', async (req, res) => {
         </div>
         `;
     };
-    res.send(`${getHeader(req)}
+    res.send(`${getHeader(req, {include: 'datatables'})}
         <script>
             const WS_PASSWORD = '${process.env.WS_PASSWORD}';
+            const users = ${JSON.stringify(users, null, 4)};
         </script>
         <script src="/ansi_up.js"></script>
         <script src="/scanners.js"></script>
         <div class="row">
             <div class="col s12">
                 <ul class="tabs">
-                    <li class="tab col s6"><a href="#activescanners">Active Scanners</a></li>
-                    <li class="tab col s6"><a href="#inactivescanners">Inactive Scanners</a></li>
+                    <li class="tab col s4"><a href="#activescanners">Active Scanners</a></li>
+                    <li class="tab col s4"><a href="#inactivescanners">Inactive Scanners</a></li>
+                    <li class="tab col s4"><a href="#scannerusers">Scanner Users</a></li>
                 </ul>
             </div>
             <div id="activescanners" class="col s12">
@@ -802,6 +826,30 @@ app.get('/scanners', async (req, res) => {
                     ${inactiveScanners.map((latestScan) => {
                         return getScannerStuff(latestScan, true);
                     }).join('')}
+                </div>
+            </div>
+            <div id="scannerusers" class="col s12">
+                <div class="scanner-userss-wrapper row">
+                    <div class="col s10 offset-s1">
+                        <a href="#" class="waves-effect waves-light btn add-user"><i class="material-icons">person_add</i></a>
+                        <table class="highlight main">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Username
+                                    </th>
+                                    <th>
+                                        Password
+                                    </th>
+                                    <th>
+                                        Disabled
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -872,7 +920,132 @@ app.get('/scanners', async (req, res) => {
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat click-cancel">Cancel</a>
             </div>
         </div>
+        <div id="modal-edit-user" class="modal modal-fixed-footer">
+            <div class="modal-content">
+                <div class="row">
+                    <form class="col s12 post-url" method="post" action="">
+                        <input id="old_username" name="old_username" class="old_username" type="hidden">
+                        <div class="row">
+                            <div class="input-field">
+                                <input value="" id="username" type="text" class="validate username" name="username">
+                                <label for="username">Username</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field">
+                                <input value="" id="password" type="text" class="validate password" name="password">
+                                <label for="password">Password</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label for="user_disabled">
+                                <input type="checkbox" class="user_disabled" id="user_disabled" name="user_disabled" value="1"/>
+                                <span>disabled</span>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="waves-effect waves-green btn edit-user-save">Save</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat edit-user-cancel">Cancel</a>
+            </div>
+        </div>
     ${getFooter(req)}`);
+});
+
+app.post('/scanners/add-user', urlencodedParser, async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    if (!req.body.username) {
+        response.errors.push('Username cannot be blank');
+    }
+    if (!req.body.password) {
+        response.errors.push('Password cannot be blank');
+    }
+    if (response.errors.length > 0) {
+        res.send(response);
+        return;
+    }
+    try {
+        const userCheck = await query(format('SELECT * from scanner_user WHERE username=?', [req.body.username]));
+        if (userCheck.length > 0) {
+            response.errors.push(`User ${req.body.username} already exists`);
+            res.send(response);
+            return;
+        }
+    } catch (error) {
+        response.errors.push(error.message);
+        res.send(response);
+        return;
+    }
+    try {
+        const user_disabled = req.body.user_disabled ? 1 : 0;
+        console.log('inserting user');
+        await query(format('INSERT INTO scanner_user (username, password, disabled) VALUES (?, ?, ?)', [req.body.username, req.body.password, user_disabled]))
+        scannerApi.refreshUsers();
+        response.message = `Created user ${req.body.username}`;
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    console.log('sending response', response);
+    res.send(response);
+});
+
+app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        let name = req.body.old_username || req.body.username;
+        let userCheck = await query(format('SELECT * from scanner_user WHERE username=?', [name]));
+        if (userCheck.length == 0) {
+            response.errors.push(`User ${name} not found`);
+            res.send(response);
+            return;
+        }
+        userCheck = userCheck[0];
+        const updates = {};
+        if (req.body.username && req.body.username !== userCheck.username) {
+            updates.username = req.body.username;
+        }
+        if (req.body.password && req.body.password !== userCheck.password) {
+            updates.password = req.body.password;
+        }
+        const disabled = req.body.user_disabled || 0;
+        if (disabled != userCheck.disabled) {
+            updates.disabled = disabled;
+        }
+        const updateFields = [];
+        const updateValues = [];
+        for (const field in updates) {
+            updateFields.push(field);
+            updateValues.push(updates[field]);
+        }
+        if (updateFields.length > 0) {
+            await query(format(`UPDATE scanner_user SET ${updateFields.map(field => {
+                return `${field} = ?`;
+            }).join(', ')} WHERE username='${userCheck.username}'`, updateValues));
+            scannerApi.refreshUsers();
+            response.message = `Updated ${updateFields.join(', ')}`;
+        }
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.send(response);
+});
+
+app.post('/scanners/delete-user', urlencodedParser, async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        let deleteResult = await query(format('DELETE FROM scanner_user WHERE username=?', [req.body.username]));
+        if (deleteResult.affectedRows > 0) {
+            response.message = `User ${req.body.username} deleted`;
+            scannerApi.refreshUsers();
+        } else {
+            response.errors.push(`User ${req.body.usernam} not found`);
+        }
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.send(response);
 });
 
 app.get('/trader-prices', async (req, res) => {
@@ -889,6 +1062,10 @@ app.get('/trader-prices', async (req, res) => {
         </script>
         <div>hello world</div>
     ${getFooter(req)}`);
+});
+
+app.post('/api/scanner', async (req, res) => {
+    scannerApi.request(req, res);
 });
 
 const server = app.listen(port, () => {

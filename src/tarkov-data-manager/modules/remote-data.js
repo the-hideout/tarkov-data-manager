@@ -12,7 +12,7 @@ const client = new S3Client({
     credentials: fromEnv(),
 });
 
-const connection = require('./db-connection');
+const {connection, query} = require('./db-connection');
 const doQuery = require('./do-query');
 
 const getPercentile = (validValues) => {
@@ -270,7 +270,7 @@ const methods = {
     getTraderPrices: async () => {
         console.log('Loading all data');
         const allDataTimer = timer('item-data-query');
-        const items = await connection.promiseQuery(`
+        const items = await query(`
             SELECT
                 item_data.*,
                 GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
@@ -283,14 +283,14 @@ const methods = {
         `);
         allDataTimer.end();
         const translationsTimer = timer('translations');
-        const translations = await connection.promiseQuery(`
+        const translations = await query(`
             SELECT item_id, type, value
             FROM translations
             WHERE language_code = 'en' AND (type = 'name' OR type = 'shortName')
         `);
         translationsTimer.end();
         const pricesTimer = timer('trader-prices');
-        const prices = await connection.promiseQuery(`
+        const prices = await query(`
             SELECT trader_items.id, trader_items.trader_name, trader_items.currency, trader_items.min_level, trader_items.quest_unlock_id, trader_items.item_id,
                 price_data.trade_id, price_data.id as price_id, price_data.price, price_data.source, price_data.timestamp
             FROM

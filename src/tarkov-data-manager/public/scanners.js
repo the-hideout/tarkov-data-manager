@@ -118,6 +118,8 @@ function startListener(channel) {
     wsClients[channel] = ws;
 };
 
+let table = false;
+
 $(document).ready( function () {
     $('.collapsible').collapsible();
     $('.tooltipped').tooltip();
@@ -297,5 +299,171 @@ $(document).ready( function () {
             }
           });
         M.Modal.getInstance(document.getElementById('modal-edit-item')).close();
+    });
+
+    const columns = [
+        {
+            data: 'username',
+            render: (data, type, user) => {
+                if (type === 'display') {
+                    return `
+                        <div>${data}</div>
+                        <div>
+                            <a href="#" class="waves-effect waves-light btn edit-user" data-username="${data}" data-password="${user.password}"><i class="material-icons">edit</i></a>
+                            <a href="#" class="waves-effect waves-light btn delete-user" data-username="${data}"><i class="material-icons">delete</i></a>
+                        </div>
+                    `;
+                }
+                return data;
+            }
+        },
+        {
+            data: 'password'
+        },
+        {
+            data: 'disabled',
+            render: (data, type, item) => {
+                if (type === 'display') {
+                    return `
+                        <div class="row">
+                            <div class="col s12 l6 xl4 xxl3">
+                                <label for="${item.username}-disabled">
+                                    <input type="checkbox" class="user-disabled" id="${item.username}-disabled" value="1" data-username="${item.username}" ${data ? 'checked' : ''} />
+                                    <span>disabled</span>
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                }
+                return data;
+            }
+        }
+    ];
+
+    table = $('table.main').DataTable({
+        pageLength: 25,
+        order: [[0, 'asc']],
+        data: users || [],
+        columns: columns,
+        autoWidth: false,
+        drawCallback: (settings) => {
+            M.AutoInit();
+
+            $('.edit-user').off('click');
+            $('.edit-user').click(function (event) {
+                let target = $(event.target);
+                if (target[0].nodeName === 'I') target = target.parent();
+                $('#modal-edit-user .username').val(target.data('username'));
+                $('#modal-edit-user .old_username').val(target.data('username'));
+                $('#modal-edit-user .password').val(target.data('password'));
+                $('#modal-edit-user .user_disabled').prop('checked', target.closest('tr').find('.user-disabled').first().prop('checked'));
+                const form = $('#modal-edit-user').find('form').first();
+                form.attr('action', '/scanners/edit-user');
+                M.Modal.getInstance(document.getElementById('modal-edit-user')).open();
+                M.updateTextFields();
+                $('#modal-edit-user .username').focus();
+            });
+
+            $('.delete-user').click(function (event) {
+                let target = $(event.target);
+                if (target[0].nodeName === 'I') target = target.parent();
+                postData('/scanners/delete-user', {username: target.data('username')}).then(data => {
+                    if (data.errors.length > 0) {
+                        for (let i = 0; i < data.errors.length; i++) {
+                            M.toast({html: data.errors[i]});
+                        }
+                        return;
+                    }
+                    for (let i = 0; i < users.length; i++) {
+                        const item = users[i];
+                        if (item.username !== target.data('username')) continue;
+                        users.splice(i, 1);
+                        break;
+                    }
+                    table.clear();
+                    table.rows.add(users);
+                    table.draw();
+                });
+            });
+
+            $('input.user-disabled').off('change');
+            $('input.user-disabled').change((event) => {
+                if(event.target.getAttribute('type') !== 'checkbox'){
+                    return true;
+                }
+            
+                const dataUpdate = {
+                    username: event.target.dataset.username,
+                    user_disabled: event.target.checked,
+                }
+            
+                postData('/scanners/edit-user', dataUpdate).then(data => {
+                    if (data.errors.length > 0) {
+                        for (let i = 0; i < data.errors.length; i++) {
+                            M.toast({html: data.errors[i]});
+                        }
+                        return;
+                    }
+                    for (let i = 0; i < users.length; i++) {
+                        const item = users[i];
+                        if (item.username !== event.target.dataset.username) continue;
+                        item.disabled = event.target.checked;
+                        break;
+                    }
+                    table.clear();
+                    table.rows.add(users);
+                    table.draw();
+                });
+            });
+        }
+    });
+
+    $('#modal-edit-user .edit-user-save').click(function(event) {
+        const form = $('#modal-edit-user').find('form').first();
+        const formData = form.serialize();
+        $.ajax({
+            type: "POST",
+            url: form.attr('action'),
+            data: formData,
+            dataType: "json"
+        }).done(function (data) {
+            M.toast({html: data.message});
+            if (data.errors.length > 0) {
+                for (let i = 0; i < data.errors.length; i++) {
+                    M.toast({html: data.errors[i]});
+                }
+            } else {
+                M.Modal.getInstance(document.getElementById('modal-edit-user')).close();
+                const user = {
+                    username: $('#modal-edit-user .username').val(),
+                    password: $('#modal-edit-user .password').val(),
+                    disabled: $('#modal-edit-user .user_disabled').prop('checked') ? 1 : 0
+                };
+                if (form.attr('action') === '/scanners/add-user') {
+                    users.push(user);
+                } else {
+                    // edit user
+                    for (let i = 0; i < users.length; i++) {
+                        const item = users[i];
+                        if (item.username !== $('#modal-edit-user .old_username').val()) continue;
+                        users[i] = user;
+                        break;
+                    }
+                }
+                table.clear();
+                table.rows.add(users);
+                table.draw();
+            }
+        });
+    });
+
+    $('.btn.add-user').click(function(event) {
+        $('#modal-edit-user .username').val('');
+        $('#modal-edit-user .password').val('');
+        $('#modal-edit-user .user_disabled').prop('checked', false);
+        const form = $('#modal-edit-user').find('form').first();
+        form.attr('action', '/scanners/add-user');
+        M.Modal.getInstance(document.getElementById('modal-edit-user')).open();
+        $('#modal-edit-user .username').focus();
     });
 } );

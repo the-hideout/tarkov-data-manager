@@ -1,6 +1,6 @@
 const got = require('got');
 
-const connection = require('../modules/db-connection');
+const {connection} = require('../modules/db-connection');
 
 const ignoreSources = [
     'DESKTOP-DA1IT79',

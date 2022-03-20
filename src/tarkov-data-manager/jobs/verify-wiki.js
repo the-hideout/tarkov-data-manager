@@ -1,7 +1,7 @@
 const got = require('got');
 const ora = require('ora');
 
-const connection = require('../modules/db-connection');
+const {connection} = require('../modules/db-connection');
 
 const nameToWikiLink = (name) => {
     const formattedName = name

@@ -11,7 +11,7 @@ const cloudflare = require('../modules/cloudflare');
 const oldNames = require('../old-names.json');
 const christmasTreeCrafts = require('../public/data/christmas-tree-crafts.json');
 
-const connection = require('../modules/db-connection');
+const {connection} = require('../modules/db-connection');
 
 let itemData = false;
 

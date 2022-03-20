@@ -1,4 +1,4 @@
-const connection = require('../modules/db-connection');
+const {connection} = require('../modules/db-connection');
 
 module.exports = async () => {
     const promise = new Promise((resolve, reject) => {

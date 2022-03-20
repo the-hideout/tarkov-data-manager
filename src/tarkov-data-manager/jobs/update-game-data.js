@@ -9,7 +9,7 @@ const presetSize = require('../modules/preset-size');
 const ttData = require('../modules/tt-data');
 const oldShortnames = require('../old-shortnames.json');
 
-const connection = require('../modules/db-connection');
+const {connection} = require('../modules/db-connection');
 
 let bsgData;
 
