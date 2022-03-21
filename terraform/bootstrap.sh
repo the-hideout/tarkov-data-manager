@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # script configuration - change these values to match your environment
-DOMAIN=manager.thehideout.io # the domain to serve traffic with
+DOMAIN=manager.tarkov.dev # the domain to serve traffic with
 REPO_DIR=/home/tdm/tarkov-data-manager # the repo to clone and use for the app deployment
 VM_USER=tdm # the name of the vm user
 

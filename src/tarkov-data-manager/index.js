@@ -20,8 +20,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 const remoteData = require('./modules/remote-data');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
-//const jobs = require('./jobs');
-const {connection, query, format} = require('./modules/db-connection');
+const jobs = require('./jobs');
+const connection = require('./modules/db-connection');
 const timer = require('./modules/console-timer');
 const scannerApi = require('./modules/scanner-api');
 
@@ -578,7 +578,7 @@ app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
         updated = true;
     }
 
-    if (req.body['match-index'] && req.body['match-index'] !== 'null' && currentItemData.match_index !== req.body['match-index']) {
+    if (req.body['match-index'] && req.body['match-index'] !== 'null' && currentItemData.match_index != req.body['match-index']) {
         await remoteData.setProperty(req.params.id, 'match_index', req.body['match-index']);
         updated = true;
     }
@@ -702,7 +702,7 @@ app.get('/items', async (req, res) => {
                 <h4 class="item-content name"></h4>
                 <div class="item-content id"></div>
                 <div class="row">
-                    <form class="col s12 post-url item-attribute-id" data-attribute="action" data-prepend-value="/items/edit/" method="post" action="">
+                    <form class="col s12 post-url item-attribute id" data-attribute="action" data-prepend-value="/items/edit/" method="post" action="">
                         <div class="row">
                             <div class="input-field col s2 item-image image_link"></div>
                             <div class="input-field col s10">
@@ -1072,9 +1072,9 @@ const server = app.listen(port, () => {
     console.log(`Tarkov Data Manager listening at http://localhost:${port}`)
 });
 
-// jobs();
-
 (async () => {
+    jobs();
+    
     const triggerShutdown = () => {
         console.log('Closing HTTP server');
         server.close(() => {
