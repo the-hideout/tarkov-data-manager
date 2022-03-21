@@ -63,7 +63,7 @@ function maybe(fn) {
             return true;
         }
 
-        if (req.path === '/api/scanner' && req.method === 'POST') {
+        if (req.path.startsWith('/api/scanner')) {
             next();
 
             return true;
@@ -1064,8 +1064,8 @@ app.get('/trader-prices', async (req, res) => {
     ${getFooter(req)}`);
 });
 
-app.post('/api/scanner', async (req, res) => {
-    scannerApi.request(req, res);
+app.all('/api/scanner/:resource', async (req, res) => {
+    scannerApi.request(req, res, req.params.resource);
 });
 
 const server = app.listen(port, () => {

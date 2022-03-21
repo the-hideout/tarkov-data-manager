@@ -1,4 +1,3 @@
-const { response } = require('express');
 const {pool, query, format} = require('./db-connection');
 
 let users = {};
@@ -17,34 +16,51 @@ let users = {};
     });
 };*/
 
-const getOptions = (req, res) => {
-    const response = {errors: [], warnings: [], data: {}};
+// sets defaults for various options used by API calls
+// limitItem is a single item or array of items to specifically retrieve (generally for testing)
+// imageOnly = true will retrieve only items missing images
+// batchSize sets the number of items to retrieve at once
+// offersFrom indicates whether the scanner is scanning player prices, trader prices, or both
+// limitTrderScan = true ensures that a new batch of trader items to scan is only returned if there are some items
+//      missing a trader scan within the past 24 hours
+// trustTraderUnlocks = true means the information provided about trader minimum levels and quests will be used
+//      to create missing trader offers.
+// scanned is a toggle to indicate whether to set an item as scanned or release it
+const getOptions = (options) => {
     const defaultOptions = {
         limitItem: false,
         imageOnly: false,
         batchSize: 50,
         offersFrom: 2,
-        scannerName: false,
         limitTraderScan: true,
-        trustTraderUnlocks: false
+        trustTraderUnlocks: false,
+        scanned: false
     }
-    options = {
+    mergedOptions = {
         ...defaultOptions,
-        ...req.body
+        ...options
     };
-    if (!options.scannerName) {
-        response.errors.push('no scanner name specified');
+    if (mergedOptions.batchSize > 200) {
+        mergedOptions.batchSize = 200;
     }
-    if (response.errors.length > 0) {
-        res.json(response);
-        return false;
+    if (mergedOptions.limitItem && typeof mergedOptions.limitItem === 'string') {
+        mergedOptions.limitItem = [mergedOptions.limitItem];
+    } else if (!mergedOptions.limitItem) {
+        mergedOptions.limitItem = false;
     }
-    if (options.limitItem && typeof options.limitItem === 'string') {
-        options.limitItem = [options.limitItem];
-    } else if (!options.limitItem) {
-        options.limitItem = false;
+    const offerMap = {
+        'any': 0,
+        'traders': 1,
+        'players': 2
     }
-    return options;
+    if (typeof mergedOptions.offersFrom === 'string') {
+        if (offerMap[mergedOptions.offersFrom]) {
+            mergedOptions.offersFrom = offerMap[mergedOptions.offersFrom];
+        } else {
+            mergedOptions.offersFrom = 2;
+        }
+    }
+    return mergedOptions;
 };
 
 const dateToMysqlFormat = (dateTime) => {
@@ -63,12 +79,8 @@ const dateToMysqlFormat = (dateTime) => {
 };
 
 // on success, response.data is an array of items
-const getItems = async(req, res) => {
+const getItems = async(options) => {
     const response = {errors: [], warnings: [], data: []};
-    let options = getOptions(req, res);
-    if (!options) {
-        return;
-    }
     let items = false;
     if (options.limitItem) {
         let itemIds = options.limitItem;
@@ -111,8 +123,7 @@ const getItems = async(req, res) => {
         } catch (error) {
             response.errors.push(String(error));
         }
-        res.json(response);
-        return;
+        return response;
     }
     if (options.imageOnly) {
         const sql = `
@@ -151,8 +162,7 @@ const getItems = async(req, res) => {
         } catch (error) {
             response.errors.push(String(error));
         }
-        res.json(response);
-        return;
+        return response;
     }
 
     let maxItems = options.batchSize;
@@ -239,7 +249,7 @@ const getItems = async(req, res) => {
     } catch (error) {
         response.errors.push(String(error));
     }
-    res.json(response);
+    return response;
 };
 
 //on success, response.data is an array with the first element being the number of player prices inserted
@@ -271,12 +281,8 @@ const getItems = async(req, res) => {
 quest and minLevel are only used for trader prices.
 If the trader price is locked and neither of these values is known, they should be null
 */
-insertPrices = async (req, res) => {
+insertPrices = async (options) => {
     const response = {errors: [], warnings: [], data: [0, 0]};
-    let options = getOptions(req, res);
-    if (!options) {
-        return;
-    }
     const itemId = options.itemId;
     let itemPrices = options.itemPrices;
     if (!itemId) {
@@ -292,8 +298,7 @@ insertPrices = async (req, res) => {
         response.errors.push('no prices to insert');
     }
     if (response.errors.length > 0) {
-        res.json(response);
-        return;
+        return response;
     }
     const playerPrices = [];
     const traderPrices = [];
@@ -434,127 +439,56 @@ insertPrices = async (req, res) => {
             response.data[i] = results[i].value.affectedRows
         }
     }
-    res.json(response);
+    return response;
 };
 
-//on success, response.data is the number of items set scanned (should be 1)
-const setItemScanned = async (req, res) => {
-    let options = getOptions(req, res);
-    if (!options) {
-        return;
-    }
+//To set an item as scanned, include the attribtues offersFrom, scanned (true), and itemId 
+// on success, response.data is the number of items set scanned (should be 1)
+
+//To release a single item without setting as scanned, include the attribtues offersFrom, and itemId
+// on success, response.data is the number of items released (probably 1)
+// might be 0 if the item was already released for some reason
+
+//To release all items, include the attribtue offersFrom
+// on success, response.data is the number of items released
+const releaseItem = async (options) => {
     const response = {errors: [], warnings: [], data: 0};
     if (options.imageOnly) {
-        res.json(response);
-        return;
+        return response;
     }
     const itemId = options.itemId;
-    if (!itemId) {
-        response.errors.push('no item id specified');
-        res.json(response);
-        return;
-    }
-    // player prices
-    // ok if we scanned trader prices too
-    let sql = `
-        UPDATE item_data
-        SET checked_out_by = NULL, last_scan = CURRENT_TIMESTAMP()
-        WHERE item_data.id = ?
-    `;
-    if (options.offersFrom == 1) {
-        // trader-only prices
-        sql = `
-            UPDATE item_data
-            SET trader_checked_out_by = NULL, trader_last_scan = CURRENT_TIMESTAMP()
-            WHERE item_data.id = ?
-        `;
-    }
-    try {
-        const result = await query(format(sql, [itemId]));
-        response.data = result.affectedRows;
-    } catch (error) {
-        response.errors.push(String(error));
-    }
-    res.json(response);
-};
-
-//on success, response.data is the number of items released
-//might be 0 if the item was already released
-const releaseItem = async (req, res) => {
-    let options = getOptions(req, res);
-    if (!options) {
-        return;
-    }
-    const response = {errors: [], warnings: [], data: 0};
-    const itemId = options.itemId;
-    if (!itemId) {
-        response.errors.push('no item id specified');
-        res.json(response);
-        return;
-    }
-    let sql = `
-        UPDATE item_data
-        SET checked_out_by = NULL
-        WHERE item_data.id = ? AND item_data.checked_out_by = ?
-    `;
+    const updateValues = [];
+    let where = [];
+    let scanned = '';
+    let trader = '';
     if (options.offersFrom === 1) {
-        //trader-only prices
-        sql = `
-            UPDATE item_data
-            SET trader_checked_out_by = NULL
-            WHERE item_data.id = ? AND item_data.trader_checked_out_by = ?
-        `;
+        trader = 'trader_'
     }
-    try {
-        const result = await query(format(sql, [itemId, options.scannerName]));
-        response.data = result.affectedRows;
-    } catch (error) {
-        response.errors.push(String(error));
+    if (itemId) {
+        where.push('item_data.id = ?');
+        updateValues.push(itemId);
     }
-    res.json(response);
-};
-
-const releaseAllItems = async (req, res) => {
-    let options = getOptions(req, res);
-    if (!options) {
-        return;
+    if (options.scanned && itemId) {
+        scanned = `, ${trader}last_scan = CURRENT_TIMESTAMP()`;
+    } else if (!options.scanned) {
+        where.push(`item_data.${trader}checked_out_by = ?`);
+        updateValues.push(options.scannerName);
     }
-    const response = {errors: [], warnings: [], data: 0};
-    if (options.offersFrom == 2 || options.offersFrom == 0) {
-        const sql = format(`
-            UPDATE item_data
-            SET checked_out_by = NULL
-            WHERE item_data.checked_out_by = ?
-        `, [options.scannerName]);
-        try {
-            const result = await query(sql);
-            response.data = result.affectedRows;
-        } catch (error) {
-            response.errors.push(String(error));
-        }
-        res.json(response);
-        return;
-    }
-    //trader-only prices
-    const sql = format(`
+    let sql = `
         UPDATE item_data
-        SET trader_checked_out_by = NULL
-        WHERE item_data.trader_checked_out_by = ?
-    `, [options.scannerName]);
+        SET ${trader}checked_out_by = NULL${scanned}
+        WHERE ${where.join(' AND ')}
+    `;
     try {
-        const result = await query(sql);
+        const result = await query(format(sql, updateValues));
         response.data = result.affectedRows;
     } catch (error) {
         response.errors.push(String(error));
     }
-    res.json(response);
+    return response;
 };
 
-const insertTraderRestock = async (req, res) => {
-    let options = getOptions(req, res);
-    if (!options) {
-        return;
-    }
+const insertTraderRestock = async (options) => {
     const response = {errors: [], warnings: [], data: 0};
     const trader = options.trader;
     if (!trader) {
@@ -565,8 +499,7 @@ const insertTraderRestock = async (req, res) => {
         response.errors.push('no timer specified');
     }
     if (response.errors.length > 0) {
-        res.json(response);
-        return;
+        return response;
     }
     try {
         const result = await query(format(`INSERT INTO trader_reset (trader_name, reset_time) VALUES (?, ?)`, [trader, timer]));
@@ -574,15 +507,7 @@ const insertTraderRestock = async (req, res) => {
     } catch (error) {
         response.errors.push(String(error));
     }
-    res.json(response);
-};
-
-const ping = async (req, res) => {
-    let options = getOptions(req, res);
-    if (!options) {
-        return;
-    }
-    res.json({errors: [], warnings: [], data: 'ok'});
+    return response;
 };
 
 const refreshUsers = async () => {
@@ -596,37 +521,53 @@ const refreshUsers = async () => {
 refreshUsers();
 
 module.exports = {
-    request: async (req, res) => {
+    request: async (req, res, resource) => {
         const username = req.headers.username;
         const password = req.headers.password;
         if ((!username || !password) || !users[username] || (users[username] !== password)) {
             res.json({errors: ['access denied'], warnings: [], data: {}});
             return;
         }
+        const scannerName = req.headers.scanner;
+        if (!scannerName) {
+            res.json({errors: ['no scanner name specified'], warnings: [], data: {}});
+            return;
+        }
+        let options = req.body;
+        if (typeof options !== 'object') {
+            options = {};
+        }
+        options.scannerName = scannerName;
+        options = getOptions(options);
+        let response = false;
         try {
-            if (req.body.action === 'getItems') {
-                return await getItems(req, res);
+            if (resource === 'items') {
+                if (req.method === 'GET') {
+                    response = await getItems(options);
+                }
+                if (req.method === 'POST') {
+                    response = await insertPrices(options);
+                }
+                if (req.method === 'DELETE') {
+                    response = await releaseItem(options);
+                }
             }
-            if (req.body.action === 'insertPrices') {
-                return await insertPrices(req, res);
+            if (resource === 'traders') {
+                if (req.method === 'POST') {
+                    response = await insertTraderRestock(options);
+                }
             }
-            if (req.body.action === 'setItemScanned') {
-                return await setItemScanned(req, res);
+            if (resource === 'ping' && req.method === 'GET') {
+                response = {errors: [], warnings: [], data: 'ok'};
             }
-            if (req.body.action === 'releaseItem') {
-                return await releaseItem(req, res);
+            if (response) {
+                res.json(response);
+                return;
             }
-            if (req.body.action === 'releaseAllItems') {
-                return await releaseAllItems(req, res);
-            }
-            if (req.body.action === 'insertTraderRestock') {
-                return await insertTraderRestock(req, res);
-            }
-            if (req.body.action === 'ping') {
-                return await ping(req, res);
-            }
+            res.json({errors: ['unrecognized request'], warnings: [], data: {}});
         } catch (error) {
             console.log('Scanner API Error', error);
+            res.json({errors: [String(error)], warnings: [], data: {}});
         }
     },
     refreshUsers: refreshUsers
