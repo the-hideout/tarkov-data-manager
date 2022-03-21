@@ -20,8 +20,8 @@ if (process.env.NODE_ENV !== 'production') {
 
 const remoteData = require('./modules/remote-data');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
-//const jobs = require('./jobs');
-const {connection, query, format} = require('./modules/db-connection');
+const jobs = require('./jobs');
+const connection = require('./modules/db-connection');
 const timer = require('./modules/console-timer');
 const scannerApi = require('./modules/scanner-api');
 
@@ -1072,9 +1072,9 @@ const server = app.listen(port, () => {
     console.log(`Tarkov Data Manager listening at http://localhost:${port}`)
 });
 
-// jobs();
-
 (async () => {
+    jobs();
+    
     const triggerShutdown = () => {
         console.log('Closing HTTP server');
         server.close(() => {
