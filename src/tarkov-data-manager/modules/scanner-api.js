@@ -79,6 +79,7 @@ const dateToMysqlFormat = (dateTime) => {
 };
 
 // on success, response.data is an array of items
+// relevant options: limitItem, imageOnly, batchSize, offersFrom, limitTraderScan
 const getItems = async(options) => {
     const response = {errors: [], warnings: [], data: []};
     let items = false;
@@ -165,10 +166,6 @@ const getItems = async(options) => {
         return response;
     }
 
-    let maxItems = options.batchSize;
-    if (maxItems > 200) {
-        maxItems = 200;
-    }
     let conditions = [];
     if (options.offersFrom == 2 || options.offersFrom == 0) {
         // if just players, exclude no-flea
@@ -186,7 +183,7 @@ const getItems = async(options) => {
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') ${nofleaCondition} 
             ORDER BY last_scan, id
             LIMIT ?
-        `, [options.scannerName,options.scannerName,maxItems]);
+        `, [options.scannerName,options.scannerName,options.batchSize]);
         await query(checkoutSql);
 
         conditions.push('item_data.checked_out_by = ?');
@@ -204,7 +201,7 @@ const getItems = async(options) => {
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') ${lastScanCondition} )
             ORDER BY trader_last_scan, id
             LIMIT ?
-        `, [options.scannerName,options.scannerName,maxItems]);
+        `, [options.scannerName,options.scannerName,options.batchSize]);
         await query(checkoutSql);
 
         conditions.push('item_data.trader_checked_out_by = ?');
@@ -254,6 +251,8 @@ const getItems = async(options) => {
 
 //on success, response.data is an array with the first element being the number of player prices inserted
 //and the second element being the number of trader prices inserted
+// requires options itemId and itemPrices
+// also uses trustTraderUnlocks
 /*the itemPrices option is an array of objects with the following structure:
 [
     {
