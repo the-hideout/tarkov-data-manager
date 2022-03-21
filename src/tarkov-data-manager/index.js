@@ -578,7 +578,7 @@ app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
         updated = true;
     }
 
-    if (req.body['match-index'] && req.body['match-index'] !== 'null' && currentItemData.match_index !== req.body['match-index']) {
+    if (req.body['match-index'] && req.body['match-index'] !== 'null' && currentItemData.match_index != req.body['match-index']) {
         await remoteData.setProperty(req.params.id, 'match_index', req.body['match-index']);
         updated = true;
     }
@@ -702,7 +702,7 @@ app.get('/items', async (req, res) => {
                 <h4 class="item-content name"></h4>
                 <div class="item-content id"></div>
                 <div class="row">
-                    <form class="col s12 post-url item-attribute-id" data-attribute="action" data-prepend-value="/items/edit/" method="post" action="">
+                    <form class="col s12 post-url item-attribute id" data-attribute="action" data-prepend-value="/items/edit/" method="post" action="">
                         <div class="row">
                             <div class="input-field col s2 item-image image_link"></div>
                             <div class="input-field col s10">
