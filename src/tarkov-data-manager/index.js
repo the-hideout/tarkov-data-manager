@@ -1077,8 +1077,7 @@ const server = app.listen(port, () => {
     
     const triggerShutdown = async () => {
         try {
-            console.log('Closing HTTP server');
-            await new Promise((resolve, reject) => {
+            await new Promise(resolve => {
                 server.close(error => {
                     if (error) {
                         console.log('error closing HTTP server');
@@ -1091,7 +1090,7 @@ const server = app.listen(port, () => {
                 console.log('error stopping scheduled jobs');
                 console.log(error);
             });
-            await new Promise((resolve, reject) => {
+            await new Promise(resolve => {
                 connection.end(error => {
                     if (error) {
                         console.log('error closing database connection pool');
@@ -1103,6 +1102,7 @@ const server = app.listen(port, () => {
         } catch (error) {
             console.log(error);
         }
+        console.log('Shutdown complete');
         process.exit();
     };
     //gracefully shutdown on Ctrl+C
