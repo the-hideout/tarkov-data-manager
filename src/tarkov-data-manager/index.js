@@ -21,7 +21,7 @@ if (process.env.NODE_ENV !== 'production') {
 const remoteData = require('./modules/remote-data');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
 const jobs = require('./jobs');
-const connection = require('./modules/db-connection');
+const {connection} = require('./modules/db-connection');
 const timer = require('./modules/console-timer');
 const scannerApi = require('./modules/scanner-api');
 
@@ -1075,13 +1075,35 @@ const server = app.listen(port, () => {
 (async () => {
     jobs();
     
-    const triggerShutdown = () => {
-        console.log('Closing HTTP server');
-        server.close(() => {
-            console.log('HTTP server closed');
-            connection.end();
-            process.exit();
-        });
+    const triggerShutdown = async () => {
+        try {
+            console.log('Closing HTTP server');
+            await new Promise((resolve, reject) => {
+                server.close(error => {
+                    if (error) {
+                        console.log('error closing HTTP server');
+                        console.log(error);
+                    }
+                    resolve();
+                });
+            });
+            await jobs(false).catch(error => {
+                console.log('error stopping scheduled jobs');
+                console.log(error);
+            });
+            await new Promise((resolve, reject) => {
+                connection.end(error => {
+                    if (error) {
+                        console.log('error closing database connection pool');
+                        console.log(error);
+                    }
+                    resolve();
+                });
+            });
+        } catch (error) {
+            console.log(error);
+        }
+        process.exit();
     };
     //gracefully shutdown on Ctrl+C
     process.on( 'SIGINT', triggerShutdown);
