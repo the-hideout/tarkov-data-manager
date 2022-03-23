@@ -350,7 +350,7 @@ app.post('/suggest-image', (request, response) => {
         console.log(fields);
         // console.log(files);
 
-        const allItemData = await remoteData.get(true);
+        const allItemData = await remoteData.get();
         const currentItemData = allItemData.get(fields.id);
 
         if(fields.type !== 'grid-image' && fields.type !== 'icon' && fields.type !== 'image' && fields.type !== 'base-image'){
