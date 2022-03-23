@@ -1,4 +1,4 @@
-const connection = require('./db-connection');
+const {connection} = require('./db-connection');
 
 module.exports = async function doQuery(query, params) {
     let responseData;

@@ -5,7 +5,7 @@ const ora = require('ora');
 const objectPath = require('object-path');
 
 const ttData = require('../modules/tt-data');
-const connection = require('../modules/db-connection');
+const {connection} = require('../modules/db-connection');
 const {categories} = require('../modules/category-map');
 
 let bsgData;

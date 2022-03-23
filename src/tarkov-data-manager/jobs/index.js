@@ -18,7 +18,10 @@ const startupJobs = [
     'update-existing-bases',
 ];
 
-module.exports = async () => {
+module.exports = async (runJobs) => {
+    if (typeof runJobs === 'boolean' && !runJobs) {
+        return schedule.gracefulShutdown();
+    }
     // Only run in production
     /*if(process.env.NODE_ENV !== 'production'){
         return true;

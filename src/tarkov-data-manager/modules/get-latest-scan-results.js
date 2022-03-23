@@ -1,4 +1,4 @@
-const connection = require('./db-connection');
+const {connection} = require('./db-connection');
 const timer = require('./console-timer');
 
 module.exports = async () => {

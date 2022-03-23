@@ -8,7 +8,7 @@ const cloudflare = require('../modules/cloudflare');
 const oldNames = require('../old-names.json');
 const fixName = require('../modules/wiki-replacements');
 
-const connection = require('../modules/db-connection');
+const {connection} = require('../modules/db-connection');
 
 let itemData = false;
 const TRADES_URL = 'https://escapefromtarkov.gamepedia.com/Barter_trades';

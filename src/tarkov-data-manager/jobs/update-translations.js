@@ -4,7 +4,7 @@ const path = require('path');
 const ttData = require('../modules/tt-data');
 const normalizeName = require('../modules/normalize-name');
 
-const connection = require('../modules/db-connection');
+const {connection} = require('../modules/db-connection');
 
 const INSERT_KEYS = [
     'Name',
