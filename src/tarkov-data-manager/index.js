@@ -21,7 +21,7 @@ if (process.env.NODE_ENV !== 'production') {
 const remoteData = require('./modules/remote-data');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
 const jobs = require('./jobs');
-const {connection} = require('./modules/db-connection');
+const {connection, query} = require('./modules/db-connection');
 const timer = require('./modules/console-timer');
 const scannerApi = require('./modules/scanner-api');
 
@@ -35,8 +35,6 @@ const rollbar = new Rollbar({
 
 const app = express();
 const port = process.env.PORT || 4000;
-
-let myData = false;
 
 const s3 = new S3Client({
     region: 'us-east-1',
@@ -173,29 +171,6 @@ try {
     }
 }
 
-const updateTypes = async (updateObject) => {
-    const updateData = await remoteData.get();
-    const currentItemData = updateData.get(updateObject.id);
-
-    if(updateObject.active === false && !currentItemData.types.includes(updateObject.type)){
-        return true;
-    }
-
-    if(updateObject.active === false){
-        currentItemData.types.splice(currentItemData.types.indexOf(updateObject.type), 1);
-        remoteData.removeType(updateObject.id, updateObject.type);
-    }
-
-    if(updateObject.active === true){
-        currentItemData.types.push(updateObject.type);
-        remoteData.addType(updateObject.id, updateObject.type);
-    }
-
-    updateData.set(updateObject.id, currentItemData);
-
-    myData = updateData;
-};
-
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -307,7 +282,7 @@ app.get('/', async (req, res) => {
     let missingImage = [];
     let missingWiki = [];
     let untagged = [];
-    myData = await remoteData.get();
+    const myData = await remoteData.get();
     for (const [key, item] of myData) {
         if (item.types.length == 0) untagged.push(item);
         if (!item.wiki_link && !item.types.includes('disabled')) missingWiki.push(item);
@@ -336,17 +311,17 @@ app.get('/', async (req, res) => {
     ${getFooter(req)}`);
 });
 
-app.get('/data', async (req, res) => {
+/*app.get('/data', async (req, res) => {
     const allData = await remoteData.get();
 
     res.send(allData);
-});
+});*/
 
 app.post('/update', (request, response) => {
     console.log(request.body);
     const res = {errors: [], message: ''};
     try {
-        updateTypes(request.body);
+        remoteData.updateTypes(request.body);
         res.message = 'ok';
     } catch (error) {
         res.errors.push(error.message);
@@ -592,7 +567,7 @@ app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
 
 app.get('/items', async (req, res) => {
     const t = timer('getting-items');
-    myData = await remoteData.get();
+    const myData = await remoteData.get();
     const items = [];
     const attributes = [
         'id', 
@@ -831,7 +806,7 @@ app.get('/scanners', async (req, res) => {
             <div id="scannerusers" class="col s12">
                 <div class="scanner-userss-wrapper row">
                     <div class="col s10 offset-s1">
-                        <a href="#" class="waves-effect waves-light btn add-user"><i class="material-icons">person_add</i></a>
+                        <a href="#" class="waves-effect waves-light btn add-user tooltipped" data-tooltip="Add API user"><i class="material-icons">person_add</i></a>
                         <table class="highlight main">
                             <thead>
                                 <tr>

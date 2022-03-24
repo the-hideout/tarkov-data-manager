@@ -13,9 +13,9 @@ const pool = mysql.createPool({
     }
 });
 
-const query = (sql) => {
+const query = (sql, params) => {
     return new Promise((resolve, reject) => {
-        pool.query(sql, (error, results) => {
+        pool.query(sql, params, (error, results) => {
             if (error) {
                 reject(error);
                 return;

@@ -11,7 +11,7 @@ const s3 = new S3Client({
 
 const getBucketContents = async (continuationToken = false) => {
     const input = {
-        Bucket: 'hideout-api',
+        Bucket: process.env.S3_BUCKET,
     };
 
     if(continuationToken){
