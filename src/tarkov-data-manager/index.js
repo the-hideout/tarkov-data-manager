@@ -806,7 +806,7 @@ app.get('/scanners', async (req, res) => {
             <div id="scannerusers" class="col s12">
                 <div class="scanner-userss-wrapper row">
                     <div class="col s10 offset-s1">
-                        <a href="#" class="waves-effect waves-light btn add-user"><i class="material-icons">person_add</i></a>
+                        <a href="#" class="waves-effect waves-light btn add-user tooltipped" data-tooltip="Add API user"><i class="material-icons">person_add</i></a>
                         <table class="highlight main">
                             <thead>
                                 <tr>

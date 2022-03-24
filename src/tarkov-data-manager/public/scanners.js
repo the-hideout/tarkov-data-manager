@@ -309,8 +309,8 @@ $(document).ready( function () {
                     return `
                         <div>${data}</div>
                         <div>
-                            <a href="#" class="waves-effect waves-light btn edit-user" data-username="${data}" data-password="${user.password}"><i class="material-icons">edit</i></a>
-                            <a href="#" class="waves-effect waves-light btn delete-user" data-username="${data}"><i class="material-icons">delete</i></a>
+                            <a href="#" class="waves-effect waves-light btn edit-user tooltipped" data-tooltip="Edit" data-username="${data}" data-password="${user.password}"><i class="material-icons">edit</i></a>
+                            <a href="#" class="waves-effect waves-light btn delete-user tooltipped" data-tooltip="Delete" data-username="${data}"><i class="material-icons">delete</i></a>
                         </div>
                     `;
                 }
@@ -325,14 +325,10 @@ $(document).ready( function () {
             render: (data, type, item) => {
                 if (type === 'display') {
                     return `
-                        <div class="row">
-                            <div class="col s12 l6 xl4 xxl3">
-                                <label for="${item.username}-disabled">
-                                    <input type="checkbox" class="user-disabled" id="${item.username}-disabled" value="1" data-username="${item.username}" ${data ? 'checked' : ''} />
-                                    <span>disabled</span>
-                                </label>
-                            </div>
-                        </div>
+                    <label for="${item.username}-disabled">
+                        <input type="checkbox" class="user-disabled" id="${item.username}-disabled" value="1" data-username="${item.username}" ${data ? 'checked' : ''} />
+                        <span></span>
+                    </label>
                     `;
                 }
                 return data;
