@@ -244,13 +244,12 @@ jQuery.fn.dataTableExt.afnFiltering.push(
                 specialPassed = true;
                 allItems = true;
             } else if (filter === 'missing-image') {
-                if (!aData[1] || !aData[2] || !aData[3]) specialPassed = true;
+                if (!item.image_link || !item.grid_image_link || !item.icon_link) specialPassed = true;
             } else if (filter === 'no-wiki') {
                 if (!item.wiki_link) specialPassed = true;
             }
             if (specialPassed) break;
         }
-        if (!specialPassed) console.log('special failed');
         if (!specialPassed) return false;
         let requireSelected = jQuery('input.filter-types-require-selected:checked').length > 0; 
         let typePassed = requireSelected;
