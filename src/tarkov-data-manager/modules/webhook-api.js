@@ -17,10 +17,10 @@ const WEBHOOK_BASE = 'https://discord.com/api/webhooks/';
 
 const processRollbarWebhook = async (res, payload, client) => {
     if (payload.event_name !== 'new_item') {
-        return res.status(204).send();
+        return res.status(422).send();
     }
     if (!payload.data || !payload.data.item) {
-        return res.status(204).send();
+        return res.status(422).send();
     }
     const item = payload.data.item;
     const embed = new MessageEmbed();
@@ -43,7 +43,7 @@ module.exports = async (req, res, hooksource, destination) => {
         'rollbar'
     ];
     if (!validSources.includes(hooksource) || !clients[destination]) {
-        return response.status(204).send();
+        return response.status(401).send();
     }
     try {
         if (hooksource === 'rollbar') {
