@@ -1057,8 +1057,8 @@ app.all('/api/scanner/:resource', async (req, res) => {
     scannerApi.request(req, res, req.params.resource);
 });
 
-app.post('/api/webhooks/:hooksource/:dest1/:dest2', async (req, res) => {
-    webhookApi(req, res, req.params.hooksource, req.params.dest1+'/'+req.params.dest2);
+app.post('/api/webhooks/:hooksource/:webhookid/:webhookkey', async (req, res) => {
+    webhookApi(req, res, req.params.hooksource, req.params.webhookid+'/'+req.params.webhookkey);
 });
 
 const server = app.listen(port, () => {
