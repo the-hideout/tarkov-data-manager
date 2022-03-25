@@ -30,6 +30,7 @@ const processRollbarWebhook = async (res, payload, client) => {
     try {
         await client.send({
             username: 'Rollbar',
+            avatarURL: 'https://avatars.githubusercontent.com/u/3219584',
             embeds: [embed]
         });
     } catch (error) {
