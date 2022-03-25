@@ -24,6 +24,7 @@ const jobs = require('./jobs');
 const {connection, query} = require('./modules/db-connection');
 const timer = require('./modules/console-timer');
 const scannerApi = require('./modules/scanner-api');
+const webhookApi = require('./modules/webhook-api');
 
 vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
 
@@ -62,6 +63,12 @@ function maybe(fn) {
         }
 
         if (req.path.startsWith('/api/scanner')) {
+            next();
+
+            return true;
+        }
+
+        if (req.path.startsWith('/api/webhooks')) {
             next();
 
             return true;
@@ -1048,6 +1055,10 @@ app.get('/trader-prices', async (req, res) => {
 
 app.all('/api/scanner/:resource', async (req, res) => {
     scannerApi.request(req, res, req.params.resource);
+});
+
+app.post('/api/webhooks/:hooksource/:dest1/:dest2', async (req, res) => {
+    webhookApi(req, res, req.params.hooksource, req.params.dest1+'/'+req.params.dest2);
 });
 
 const server = app.listen(port, () => {
