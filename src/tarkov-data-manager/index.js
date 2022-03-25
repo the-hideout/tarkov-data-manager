@@ -338,6 +338,14 @@ app.post('/suggest-image', (request, response) => {
 
     console.log('got request');
 
+    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+        return response
+                .status(400)
+                .send({
+                    error: 'aws variables not configured; image upload disabled',
+            });
+    }
+
     form.parse(request, async (err, fields, files) => {
         if (err) {
             console.log(err);
@@ -451,7 +459,6 @@ app.post('/suggest-image', (request, response) => {
 });
 
 app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
-    console.log(req.body);
     const allItemData = await remoteData.get();
     const currentItemData = allItemData.get(req.params.id);
     let updated = false;
