@@ -1,6 +1,6 @@
 # Tarkov Data Manager 🛢️💻
 
-The Tarkov Data Manager is a tool to manage the Tarkov game data collected by **scanners**.
+The Tarkov Data Manager, which is forked from kokarn's original creation, is a tool to manage the Tarkov item data.
 
 It is a web application that allows you to do the following:
 
