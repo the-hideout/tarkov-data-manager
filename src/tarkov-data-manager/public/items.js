@@ -146,22 +146,19 @@ $(document).ready( function () {
                     type: event.target.value,
                     active: event.target.checked,
                 }
-                console.log(dataUpdate);
             
-                postData('/update', dataUpdate)
-                    .then(data => {
-                        console.log(data); // JSON data parsed by `data.json()` call
-                        for (let i = 0; i < all_items.length; i++) {
-                            const item = all_items[i];
-                            if (item.id !== event.target.dataset.itemId) continue;
-                            if (event.target.checked) {
-                                item.types.push(event.target.value)
-                            } else {
-                                item.types = item.types.filter(t => t !== event.target.value);
-                            }
-                            break;
+                postData('/update', dataUpdate).then(data => {
+                    for (let i = 0; i < all_items.length; i++) {
+                        const item = all_items[i];
+                        if (item.id !== event.target.dataset.itemId) continue;
+                        if (event.target.checked) {
+                            item.types.push(event.target.value)
+                        } else {
+                            item.types = item.types.filter(t => t !== event.target.value);
                         }
-                    });
+                        break;
+                    }
+                });
             });
         }
     });

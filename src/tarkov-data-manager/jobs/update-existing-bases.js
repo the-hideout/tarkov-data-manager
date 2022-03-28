@@ -36,8 +36,8 @@ const getBucketContents = async (continuationToken = false) => {
 
 module.exports = async () => {
     try {
-        if (process.env.NODE_ENV !== 'production') {
-            console.log('not production; skipping update-existing-bases job');
+        if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+            console.log('aws variables not configured; skipping update-existing-bases job');
             return;
         }
         const allKeys = await getBucketContents();
