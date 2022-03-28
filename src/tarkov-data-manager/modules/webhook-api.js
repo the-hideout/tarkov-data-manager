@@ -1,3 +1,4 @@
+const { query } = require('./db-connection');
 const { WebhookClient, MessageEmbed } = require('discord.js');
 
 const clients = {};
@@ -39,20 +40,31 @@ const processRollbarWebhook = async (res, payload, client) => {
     return res.status(200).send();
 };
 
-module.exports = async (req, res, hooksource, destination) => {
-    const validSources = [
-        'rollbar'
-    ];
-    if (!validSources.includes(hooksource) || !clients[destination]) {
-        return response.status(401).send();
+const refreshWebhooks = async () => {
+    const results = await query('SELECT * from webhooks');
+    users = {};
+    for (let i = 0; i < results.length; i++) {
+        users[results[i].username] = results[i].password;
     }
-    try {
-        if (hooksource === 'rollbar') {
-            return processRollbarWebhook(res, req.body, clients[destination]);
+};
+
+module.exports = {
+    handle: async (req, res, hooksource, destination) => {
+        const validSources = [
+            'rollbar'
+        ];
+        if (!validSources.includes(hooksource) || !clients[destination]) {
+            return response.status(401).send();
         }
-        res.status(400).send();
-    } catch (error) {
-        console.log('Webhook API Error', error);
-        response.status(500).send();
-    }
+        try {
+            if (hooksource === 'rollbar') {
+                return processRollbarWebhook(res, req.body, clients[destination]);
+            }
+            res.status(400).send();
+        } catch (error) {
+            console.log('Webhook API Error', error);
+            response.status(500).send();
+        }
+    },
+    refresh: refreshWebhooks
 };

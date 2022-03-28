@@ -21,7 +21,7 @@ if (process.env.NODE_ENV !== 'production') {
 const remoteData = require('./modules/remote-data');
 const getLatestScanResults = require('./modules/get-latest-scan-results');
 const jobs = require('./jobs');
-const {connection, query} = require('./modules/db-connection');
+const {connection, query, format} = require('./modules/db-connection');
 const timer = require('./modules/console-timer');
 const scannerApi = require('./modules/scanner-api');
 const webhookApi = require('./modules/webhook-api');
@@ -247,6 +247,7 @@ const getHeader = (req, options) => {
                         <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Home</a></li>
                         <li class="${req.url === '/scanners' ? 'active' : ''}"><a href="/scanners">Scanners</a></li>
                         <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
+                        <li class="${req.url === '/webhooks' ? 'active' : ''}"><a href="/webhooks">Webhooks</a></li>
                         <!--li class="${req.url === '/trader-prices' ? 'active' : ''}"><a href="/trader-prices">Trader Prices</a></li-->
                     </ul>
                 </div>
@@ -255,6 +256,7 @@ const getHeader = (req, options) => {
                 <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Home</a></li>
                 <li class="${req.url === '/scanners' ? 'active' : ''}"><a href="/scanners">Scanners</a></li>
                 <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
+                <li class="${req.url === '/webhooks' ? 'active' : ''}"><a href="/webhooks">Webhooks</a></li>
                 <!--li class="${req.url === '/trader-prices' ? 'active' : ''}"><a href="/trader-prices">Trader Prices</a></li-->
             </ul>
         `;
@@ -1029,12 +1031,194 @@ app.post('/scanners/delete-user', urlencodedParser, async (req, res) => {
             response.message = `User ${req.body.username} deleted`;
             scannerApi.refreshUsers();
         } else {
-            response.errors.push(`User ${req.body.usernam} not found`);
+            response.errors.push(`User ${req.body.username} not found`);
         }
     } catch (error) {
         response.errors.push(error.message);
     }
     res.send(response);
+});
+
+app.get('/webhooks', async (req, res) => {
+    res.send(`${getHeader(req, {include: 'datatables'})}
+        <script src="/webhooks.js"></script>
+        <div class="row">
+            <div class="col s10 offset-s1">
+                <a href="#" class="waves-effect waves-light btn add-webhook tooltipped" data-tooltip="Add webhook"><i class="material-icons">add</i></a>
+                <table class="highlight main">
+                    <thead>
+                        <tr>
+                            <th>
+                                Webhook
+                            </th>
+                            <th>
+                                URL
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="modal-edit-webhook" class="modal modal-fixed-footer">
+            <div class="modal-content">
+                <div class="row">
+                    <form class="col s12 post-url" method="post" action="">
+                        <div class="row">
+                            <div class="input-field">
+                                <input value="" id="name" type="text" class="validate name" name="name">
+                                <label for="name">Name</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field">
+                                <input value="" id="url" type="text" class="validate url" name="url">
+                                <label for="url">Discord Webhook URL</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="waves-effect waves-green btn edit-webhook-save">Save</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat edit-webhook-cancel">Cancel</a>
+            </div>
+        </div>
+    ${getFooter(req)}`);
+});
+
+app.get('/webhooks/get', async (req, res) => {
+    const webhooks = await query('SELECT * FROM webhooks');
+    res.json(webhooks);
+});
+
+app.post('/webhooks', async (req, res) => {
+    //add
+    const response = {message: 'No changes made.', errors: []};
+    if (!req.body.name) {
+        response.errors.push('Name cannot be blank');
+    }
+    if (!req.body.url) {
+        response.errors.push('URL cannot be blank');
+    }
+    if (response.errors.length > 0) {
+        res.json(response);
+        return;
+    }
+    const WEBHOOK_BASE = 'https://discord.com/api/webhooks/';
+    let webhookUrl = req.body.url.replace(WEBHOOK_BASE, '');
+    const pattern = /^\d+\/[a-zA-Z0-9-_]+$/;
+    if (!webhookUrl.match(pattern)) {
+        response.errors.push('Not a valid webhook url');
+        res.json(response);
+        return;
+    }
+    try {
+        const hookCheck = await query('SELECT * FROM webhooks WHERE name=? OR url=?', [req.body.name, webhookUrl]);
+        for (let i = 0; i < hookCheck.length; i++) {
+            if (hookCheck[i].name === req.body.name) {
+                response.errors.push(`Webhook with name ${req.body.name} already exists`);
+            }
+            if (hookCheck[i].url === webhookUrl) {
+                response.errors.push(`Webhook with url ${webhookUrl} already exists`);
+            }
+        }
+        if (hookCheck.length > 0) {
+            res.json(response);
+            return;
+        }
+    } catch (error) {
+        response.errors.push(error.message);
+        res.json(response);
+        return;
+    }
+    try {
+        console.log(`creating webhook: ${req.body.name} ${webhookUrl}`);
+        await query('INSERT INTO webhooks (name, url) VALUES (?, ?)', [req.body.name, webhookUrl]);
+        webhookApi.refresh();
+        response.message = `Created webhook ${req.body.name}`;
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    console.log('sending response', response);
+    res.json(response);
+});
+
+app.put('/webhooks/:id', async (req, res) => {
+    //edit
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        let hookCheck = await query(format('SELECT * from webhooks WHERE id=?', [req.params.id]));
+        if (hookCheck.length == 0) {
+            response.errors.push(`Webhook not found`);
+            res.json(response);
+            return;
+        }
+        const WEBHOOK_BASE = 'https://discord.com/api/webhooks/';
+        let webhookUrl = req.body.url.replace(WEBHOOK_BASE, '');
+        const pattern = /^\d+\/[a-zA-Z0-9-_]+$/;
+        if (!webhookUrl.match(pattern)) {
+            response.errors.push('Not a valid webhook url');
+            res.json(response);
+            return;
+        }
+        const oldValues = hookCheck[0];
+        hookCheck = await query('SELECT * from webhooks WHERE id<>? AND (name=? OR url=?)', [req.params.id, req.body.name, webhookUrl]);
+        for (let i = 0; i < hookCheck.length; i++) {
+            if (hookCheck[i].name === req.body.name) {
+                response.errors.push(`Webhook with name ${req.body.name} already exists`);
+            }
+            if (hookCheck[i].url === webhookUrl) {
+                response.errors.push(`Webhook with url ${webhookUrl} already exists`);
+            }
+        }
+        if (hookCheck.length > 0) {
+            res.json(response);
+            return;
+        }
+        const updates = {};
+        if (req.body.name && req.body.name !== oldValues.name) {
+            updates.name = req.body.name;
+        }
+        if (webhookUrl !== oldValues.url) {
+            updates.url = webhookUrl;
+        }
+        const updateFields = [];
+        const updateValues = [];
+        for (const field in updates) {
+            updateFields.push(field);
+            updateValues.push(updates[field]);
+        }
+        if (updateFields.length > 0) {
+            await query(format(`UPDATE webhooks SET ${updateFields.map(field => {
+                return `${field} = ?`;
+            }).join(', ')} WHERE id='${req.params.id}'`, updateValues));
+            webhookApi.refresh();
+            response.message = `Updated ${updateFields.join(', ')}`;
+            console.log(`Edited webhook ${req.params.id}: ${updateFields.join(', ')}`)
+        }
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.json(response);
+});
+
+app.delete('/webhooks/:id', async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        let deleteResult = await query(format('DELETE FROM webhooks WHERE id=?', [req.params.id]));
+        if (deleteResult.affectedRows > 0) {
+            console.log(`Deleted webhook ${req.params.id}`);
+            response.message = `Webhook deleted`;
+            webhookApi.refresh();
+        } else {
+            response.errors.push(`Webhook ${req.params.id} not found`);
+        }
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.json(response);
 });
 
 app.get('/trader-prices', async (req, res) => {
@@ -1058,7 +1242,7 @@ app.all('/api/scanner/:resource', async (req, res) => {
 });
 
 app.post('/api/webhooks/:hooksource/:webhookid/:webhookkey', async (req, res) => {
-    webhookApi(req, res, req.params.hooksource, req.params.webhookid+'/'+req.params.webhookkey);
+    webhookApi.handle(req, res, req.params.hooksource, req.params.webhookid+'/'+req.params.webhookkey);
 });
 
 const server = app.listen(port, () => {

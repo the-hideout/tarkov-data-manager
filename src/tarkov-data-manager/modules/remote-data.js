@@ -107,7 +107,9 @@ const methods = {
             translationsTimer.end();
             
             const priceTimer = timer('price-query');
-            const priceResults = await query(`
+            const batchSize = 100000;
+            let offset = 0;
+            const priceSql = `
                 SELECT
                     price,
                     item_id,
@@ -116,7 +118,18 @@ const methods = {
                     price_data
                 WHERE
                     timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)
-            `);
+                LIMIT ?, 100000
+            `;
+            const priceResults = await query(priceSql, [offset]);
+            let moreResults = priceResults.length === 100000;
+            while (moreResults) {
+                offset += batchSize;
+                const moreData = await query(priceSql, [offset]);
+                priceResults.push(...moreData);
+                if (moreData.length < batchSize) {
+                    moreResults = false;
+                }
+            }
             priceTimer.end();
 
             const returnData = new Map();
