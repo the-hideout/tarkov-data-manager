@@ -35,7 +35,23 @@ const processRollbarWebhook = async (res, payload, client) => {
             embeds: [embed]
         });
     } catch (error) {
-        response.status(500).send();
+        return res.status(500).send();
+    }
+    return res.status(200).send();
+};
+
+const processTestWebhook = async (res, payload, client) => {
+    const embed = new MessageEmbed();
+    embed.setAuthor({name: 'Test'});
+    embed.setTitle('Test Webhook');
+    embed.setDescription('`'+JSON.stringify(payload, null, 4)+'`');
+    try {
+        await client.send({
+            username: 'Webhook Test',
+            embeds: [embed]
+        });
+    } catch (error) {
+        return res.status(500).send();
     }
     return res.status(200).send();
 };
@@ -51,7 +67,8 @@ const refreshWebhooks = async () => {
 module.exports = {
     handle: async (req, res, hooksource, destination) => {
         const validSources = [
-            'rollbar'
+            'rollbar',
+            'test'
         ];
         if (!validSources.includes(hooksource) || !clients[destination]) {
             return response.status(401).send();
@@ -59,6 +76,9 @@ module.exports = {
         try {
             if (hooksource === 'rollbar') {
                 return processRollbarWebhook(res, req.body, clients[destination]);
+            }
+            if (hooksource === 'test') {
+                return processTestWebhook(res, req.body, clients[destination]);
             }
             res.status(400).send();
         } catch (error) {
