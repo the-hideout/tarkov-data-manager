@@ -1,6 +1,7 @@
 
 const webhookTypes = [
-    'rollbar'
+    'rollbar',
+    'test'
 ];
 
 let table = false;
