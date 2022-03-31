@@ -17,17 +17,21 @@ const WEBHOOK_BASE = 'https://discord.com/api/webhooks/';
 })();
 
 const processRollbarWebhook = async (res, payload, client) => {
-    if (payload.event_name !== 'new_item') {
+    if (payload.event_name !== 'new_item' && payload.event_name !== 'test') {
         return res.status(422).send();
     }
-    if (!payload.data || !payload.data.item) {
+    if ((!payload.data || !payload.data.item) && payload.event_name !== 'test') {
         return res.status(422).send();
     }
     const item = payload.data.item;
     const embed = new MessageEmbed();
     embed.setAuthor({name: 'Rollbar'});
     embed.setTitle(item.title);
-    embed.setDescription('`'+JSON.stringify(item.last_occurrence.body, null, 4)+'`');
+    if (payload.event_name === 'test') {
+        embed.setDescription(payload.data.message);
+    } else {
+        embed.setDescription('`'+JSON.stringify(item.last_occurrence.body, null, 4)+'`');
+    }
     try {
         await client.send({
             username: 'Rollbar',

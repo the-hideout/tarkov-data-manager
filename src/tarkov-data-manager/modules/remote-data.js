@@ -57,17 +57,90 @@ const methods = {
     refresh: async () => {
         console.log('Loading all data');
 
+        const start = new Date();
         try {
             console.time('item-properties-query');
-            const allItemProperties = await query(`
+            const propertiesPromise = query(`
                 SELECT
                     item_id,
                     property_key,
                     property_value
                 FROM
                     item_properties`
-            );
-            console.timeEnd('item-properties-query');
+            ).then(rows => {
+                console.timeEnd('item-properties-query');
+                return rows;
+            });
+
+            const allDataTimer = timer('item-data-query');
+            const resultsPromise = query(`
+                SELECT
+                    item_data.*,
+                    GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
+                FROM
+                    item_data
+                LEFT JOIN types ON
+                    types.item_id = item_data.id
+                GROUP BY
+                    item_data.id
+            `).then(rows => {
+                allDataTimer.end();
+                return rows;
+            });
+
+            const translationsTimer = timer('translations-query');
+            const translationPromise = query(`
+                SELECT 
+                    item_id, 
+                    type, 
+                    value 
+                FROM 
+                    translations 
+                WHERE 
+                    language_code = ?
+            `, ['en']).then(rows => {
+                translationsTimer.end();
+                return rows;
+            });
+            
+            const priceTimer = timer('price-query');
+            const pricePromise = new Promise(async (resolve, reject) => {
+                const batchSize = 100000;
+                let offset = 0;
+                const priceSql = `
+                    SELECT
+                        price,
+                        item_id,
+                        timestamp
+                    FROM
+                        price_data
+                    WHERE
+                        timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)
+                    LIMIT ?, 100000
+                `;
+                try {
+                    const priceResults = await query(priceSql, [offset]);
+                    let moreResults = priceResults.length === 100000;
+                    while (moreResults) {
+                        offset += batchSize;
+                        const moreData = await query(priceSql, [offset]);
+                        priceResults.push(...moreData);
+                        if (moreData.length < batchSize) {
+                            moreResults = false;
+                        }
+                    }
+                    priceTimer.end();
+                    resolve(priceResults);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+            const allResults = await Promise.all([propertiesPromise, resultsPromise, translationPromise, pricePromise]);
+            console.log(`All queries completed in ${new Date() - start}ms`);
+            const allItemProperties = allResults[0];
+            const results = allResults[1];
+            const translationResults = allResults[2];
+            const priceResults = allResults[3];
 
             const itemPropertiesMap = {};
 
@@ -78,59 +151,6 @@ const methods = {
 
                 itemPropertiesMap[itemProperty.item_id][itemProperty.property_key] = itemProperty.property_value;
             }
-
-            const allDataTimer = timer('item-data-query');
-            const results = await query(`
-                SELECT
-                    item_data.*,
-                    GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
-                FROM
-                    item_data
-                LEFT JOIN types ON
-                    types.item_id = item_data.id
-                GROUP BY
-                    item_data.id
-            `);
-            allDataTimer.end();
-
-            const translationsTimer = timer('translations-query');
-            const translationResults = await query(`
-                SELECT 
-                    item_id, 
-                    type, 
-                    value 
-                FROM 
-                    translations 
-                WHERE 
-                    language_code = ?
-            `, ['en']);
-            translationsTimer.end();
-            
-            const priceTimer = timer('price-query');
-            const batchSize = 100000;
-            let offset = 0;
-            const priceSql = `
-                SELECT
-                    price,
-                    item_id,
-                    timestamp
-                FROM
-                    price_data
-                WHERE
-                    timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)
-                LIMIT ?, 100000
-            `;
-            const priceResults = await query(priceSql, [offset]);
-            let moreResults = priceResults.length === 100000;
-            while (moreResults) {
-                offset += batchSize;
-                const moreData = await query(priceSql, [offset]);
-                priceResults.push(...moreData);
-                if (moreData.length < batchSize) {
-                    moreResults = false;
-                }
-            }
-            priceTimer.end();
 
             const returnData = new Map();
             const itemPrices = {};
