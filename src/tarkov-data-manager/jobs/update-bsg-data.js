@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const got = require('got');
-
 const bitcoinPrice = require('../modules/bitcoin-price');
 const tarkovChanges = require('../modules/tarkov-changes');
 const JobLogger = require('../modules/job-logger');
@@ -10,10 +8,9 @@ const JobLogger = require('../modules/job-logger');
 module.exports = async () => {
     const logger = new JobLogger('update-bsg-data');
     try {
-        let itemData;
         logger.log('Loading bsg data');
         logger.time('item-data');
-        itemData = await tarkovChanges.items();
+        const itemData = await tarkovChanges.items();
         logger.timeEnd('item-data');
 
         logger.time('bsg-translation-data');

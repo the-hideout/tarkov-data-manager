@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const got = require('got');
 
 const jsonRequest = async (path) => {
@@ -14,17 +17,51 @@ const jsonRequest = async (path) => {
     return response.body;
 };
 
+const cachePath = (filename) => {
+    return path.join(__dirname, '..', 'cache', filename);   
+}
+
 module.exports = {
-    items: async () => {
-        return jsonRequest('items.json');
+    get: async (fileName, download = false) => {
+        let returnValue = false;
+        if (download) {
+            returnValue = await jsonRequest(fileName);
+            fs.writeFileSync(cachePath(fileName), JSON.stringify(returnValue, null, 4));
+            return returnValue;
+        }
+        try {
+            return JSON.parse(fs.readFileSync(cachePath(fileName)));
+        } catch (error) {
+            if (error.code === 'ENOENT') {
+                return module.exports.get(fileName, true);
+            }
+            return Promise.reject(error);
+        }
     },
-    crafts: async () => {
-        return jsonRequest('crafts.json');
+    items: async (download = false) => {
+        return module.exports.get('items.json', download);
     },
-    credits: async () => {
-        return jsonRequest('credits.json');
+    crafts: async (download = false) => {
+        return module.exports.get('crafts.json', download);
     },
-    en: async () => {
-        return jsonRequest('locale_en.json');
+    credits: async (download = false) => {
+        return module.exports.get('credits.json', download);
+    },
+    en: async (download = false) => {
+        return module.exports.get('locale_en.json', download);
+    },
+    downloadAll: async () => {
+        const results = await Promise.all([
+            module.exports.items(true), 
+            module.exports.crafts(true),
+            module.exports.credits(true),
+            module.exports.en(true)
+        ]);
+        return {
+            items: results[0],
+            crafts: results[1],
+            credits: results[2],
+            en: results[3]
+        };
     }
 }

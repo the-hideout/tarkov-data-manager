@@ -36,13 +36,15 @@ const allJobs = {
     'update-trader-prices': '45 * * * *',
     'update-currency-prices': '50 * * * *',
     'clear-checkouts': '5,35 * * * *',
-    'verify-wiki': '5 9 * * *'
+    'verify-wiki': '5 9 * * *',
+    'update-tc-data': '*/5 * * * *'
     // Too much memory :'(
     // 'update-longtime-data': '49 8 * * *'
 };
 
 const startupJobs = [
     'update-existing-bases',
+    'update-tc-data'
 ];
 
 const scheduledJobs = {};
