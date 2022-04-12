@@ -101,80 +101,84 @@ const keys = {
 
 module.exports = async () => {
     const logger = new JobLogger('update-longtime-data');
-    for(const map in keys){
-        logger.time(`longtime-price-query-${map}`);
-        let historicalPriceData = await query(`SELECT
-            item_id, price, timestamp
-        FROM
-            price_data
-        WHERE
-            timestamp > '2021-12-14'
-        AND
-            item_id
-        IN (?)`, [Object.values(keys[map])]);
-        logger.timeEnd(`longtime-price-query-${map}`);
-
-        const fileHandle = fs.createWriteStream(path.join(__dirname, '..', 'public', 'data', `historical-prices-${map}.csv`), {
+    try {
+        for(const map in keys){
+            logger.time(`longtime-price-query-${map}`);
+            let historicalPriceData = await query(`SELECT
+                item_id, price, timestamp
+            FROM
+                price_data
+            WHERE
+                timestamp > '2021-12-14'
+            AND
+                item_id
+            IN (?)`, [Object.values(keys[map])]);
+            logger.timeEnd(`longtime-price-query-${map}`);
+    
+            const fileHandle = fs.createWriteStream(path.join(__dirname, '..', 'public', 'data', `historical-prices-${map}.csv`), {
+                flags: 'a',
+            });
+    
+            fileHandle.write('price,timestamp,name\n');
+    
+            for (const row of historicalPriceData) {
+                let keyName = false;
+    
+                for(const name in keys[map]){
+                    if(keys[map][name] !== row.item_id){
+                        continue;
+                    }
+    
+                    keyName = name;
+                    break;
+                }
+    
+                fileHandle.write(`${row.price},${row.timestamp.toISOString()},${keyName}\n`);
+            }
+    
+            fileHandle.end();
+        }
+    
+        logger.time(`longtime-price-query-all`);
+        const batchSize = 100000;
+        let offset = 0;
+        const priceSql = `
+            SELECT
+                item_id, price, timestamp
+            FROM
+                price_data
+            WHERE
+                timestamp > '2021-12-14'
+            LIMIT ?, 100000
+        `;
+        const historicalPriceData = await query(priceSql, [offset]);
+        let moreResults = historicalPriceData.length === 100000;
+        while (moreResults) {
+            offset += batchSize;
+            const moreData = await query(priceSql, [offset]);
+            historicalPriceData.push(...moreData);
+            if (moreData.length < batchSize) {
+                moreResults = false;
+            }
+        }
+        logger.timeEnd(`longtime-price-query-all`);
+    
+        const fileHandle = fs.createWriteStream(path.join(__dirname, '..', 'public', 'data', `historical-prices-all.csv`), {
             flags: 'a',
         });
-
-        fileHandle.write('price,timestamp,name\n');
-
+    
+        fileHandle.write('price,timestamp,item_id\n');
+    
+        logger.time('write-all-file');
         for (const row of historicalPriceData) {
-            let keyName = false;
-
-            for(const name in keys[map]){
-                if(keys[map][name] !== row.item_id){
-                    continue;
-                }
-
-                keyName = name;
-                break;
-            }
-
-            fileHandle.write(`${row.price},${row.timestamp.toISOString()},${keyName}\n`);
+            fileHandle.write(`${row.price},${row.timestamp.toISOString()},${row.item_id}\n`);
         }
-
+    
         fileHandle.end();
+        logger.timeEnd('write-all-file');
+    } catch (error) {
+        logger.error(error);
     }
-
-    logger.time(`longtime-price-query-all`);
-    const batchSize = 100000;
-    let offset = 0;
-    const priceSql = `
-        SELECT
-            item_id, price, timestamp
-        FROM
-            price_data
-        WHERE
-            timestamp > '2021-12-14'
-        LIMIT ?, 100000
-    `;
-    const historicalPriceData = await query(priceSql, [offset]);
-    let moreResults = historicalPriceData.length === 100000;
-    while (moreResults) {
-        offset += batchSize;
-        const moreData = await query(priceSql, [offset]);
-        historicalPriceData.push(...moreData);
-        if (moreData.length < batchSize) {
-            moreResults = false;
-        }
-    }
-    logger.timeEnd(`longtime-price-query-all`);
-
-    const fileHandle = fs.createWriteStream(path.join(__dirname, '..', 'public', 'data', `historical-prices-all.csv`), {
-        flags: 'a',
-    });
-
-    fileHandle.write('price,timestamp,item_id\n');
-
-    logger.time('write-all-file');
-    for (const row of historicalPriceData) {
-        fileHandle.write(`${row.price},${row.timestamp.toISOString()},${row.item_id}\n`);
-    }
-
-    fileHandle.end();
-    logger.timeEnd('write-all-file');
     logger.end();
     await jobComplete();
 };

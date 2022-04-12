@@ -9,21 +9,14 @@ const JobLogger = require('../modules/job-logger');
 
 module.exports = async () => {
     const logger = new JobLogger('update-bsg-data');
-    let itemData;
-
-    logger.log('Loading bsg data');
-    logger.time('item-data');
     try {
+        let itemData;
+        logger.log('Loading bsg data');
+        logger.time('item-data');
         itemData = await tarkovChanges.items();
         logger.timeEnd('item-data');
-    } catch (gotError){
-        logger.error(gotError);
-        logger.end();
-        throw gotError;
-    }
 
-    logger.time('bsg-translation-data');
-    try {
+        logger.time('bsg-translation-data');
         const localeData = await tarkovChanges.en();
         logger.timeEnd('bsg-translation-data');
 
@@ -37,14 +30,8 @@ module.exports = async () => {
                 ...localeData.templates[key],
             };
         }
-    } catch (gotError){
-        logger.error(gotError);
-        logger.end();
-        throw gotError;
-    }
 
-    logger.time('bsg-base-price-data');
-    try {
+        logger.time('bsg-base-price-data');
         const creditsData = await tarkovChanges.credits();
         logger.timeEnd('bsg-base-price-data');
 
@@ -70,21 +57,19 @@ module.exports = async () => {
                 CreditsPrice: creditsData[key],
             };
         }
-    } catch (gotError){
+        
+        const writeData = {};
+        let allKeys = Object.keys(itemData);
+
+        allKeys.sort();
+
+        for(const key of allKeys){
+            writeData[key] = itemData[key];
+        }
+
+        fs.writeFileSync(path.join(__dirname, '..', 'bsg-data.json'), JSON.stringify(writeData, null, 4));
+    } catch (error) {
         logger.error(gotError);
-        logger.end();
-        throw gotError;
     }
-
-    const writeData = {};
-    let allKeys = Object.keys(itemData);
-
-    allKeys.sort();
-
-    for(const key of allKeys){
-        writeData[key] = itemData[key];
-    }
-
-    fs.writeFileSync(path.join(__dirname, '..', 'bsg-data.json'), JSON.stringify(writeData, null, 4));
     logger.end();
 }

@@ -54,9 +54,9 @@ module.exports = async () => {
         }
 
         // Possibility to POST to a Discord webhook here with cron status details
-        await jobComplete();
     } catch (error) {
-        return Promise.reject(error);
+        logger.error(error);
     }
+    await jobComplete();
     logger.end();
 };

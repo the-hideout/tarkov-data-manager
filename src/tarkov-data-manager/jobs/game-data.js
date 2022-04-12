@@ -13,34 +13,15 @@ module.exports = async () => {
         logger.log('Running bsgData...');
         await bsgData();
         logger.log('Completed bsgData...');
-    } catch (updateError){
-        logger.error(updateError);
-        await jobComplete();
-        logger.end();
-        return false;
-    }
 
-    try {
         logger.log('Running updateGameData...');
         await updateGameData();
         logger.log('Completed updateGameData...');
-    } catch (updateError){
-        logger.error(updateError);
-        await jobComplete();
-        logger.end();
 
-        return false;
-    }
-
-    try {
         logger.log('Running updateTranslations...');
         await updateTranslations();
         logger.log('Completed updateTranslations...');
-    } catch (updateError){
-        logger.error(updateError);
-    }
 
-    try {
         logger.log('Running updateTypes...');
         await updateTypes();
         logger.log('Completed updateTypes...');

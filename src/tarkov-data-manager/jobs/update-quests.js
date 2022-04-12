@@ -18,40 +18,31 @@ const traderMap = [
 
 module.exports = async () => {
     const logger = new JobLogger('update-quests');
-    let data;
-
     try {
-        data = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
+        logger('Retrieving TarkovTracker quests.json...');
+        const data = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
             responseType: 'json',
         });
-    } catch (dataError){
-        logger.error('Error retrieving quests.json');
-        logger.error(dataError);
-        logger.end();
-        return false;
-    }
 
-    const quests = data.body.map((quest) => {
-        return {
-            ...quest,
-            reputation: quest.reputation.map((questReputation) => {
-                return {
-                    ...questReputation,
-                    trader: traderMap[questReputation.trader],
-                };
-            }),
-        };
-    });
+        const quests = data.body.map((quest) => {
+            return {
+                ...quest,
+                reputation: quest.reputation.map((questReputation) => {
+                    return {
+                        ...questReputation,
+                        trader: traderMap[questReputation.trader],
+                    };
+                }),
+            };
+        });
 
-    try {
+        logger('Writing quests.json...');
         fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'quests.json'), JSON.stringify(quests, null, 4));
-    } catch (writeError){
-        logger.error('Error writing quests.json dump');
-        logger.error(writeError);
-    }
 
-    try {
-        const response = await cloudflare(`/values/QUEST_DATA`, 'PUT', JSON.stringify(quests));
+        const response = await cloudflare(`/values/QUEST_DATA`, 'PUT', JSON.stringify(quests)).catch(error => {
+            logger.error(error);
+            return {success: false, errors: [], messages: []};
+        });
         if (response.success) {
             logger.success('Successful Cloudflare put of QUEST_DATA');
         } else {
@@ -62,8 +53,8 @@ module.exports = async () => {
         for (let i = 0; i < response.messages.length; i++) {
             logger.error(response.messages[i]);
         }
-    } catch (requestError){
-        logger.error(requestError);
+    } catch (error){
+        logger.error(error);
     }
     logger.end();
 }

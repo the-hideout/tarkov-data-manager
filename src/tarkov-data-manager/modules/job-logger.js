@@ -73,6 +73,7 @@ class JobLogger {
         } catch (error) {
             console.log(`Error writing log file for ${this.jobName}`, error);
         }
+        this.messages.length = 0;
     }
 
     time(label) {

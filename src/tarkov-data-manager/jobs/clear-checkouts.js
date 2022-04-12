@@ -32,9 +32,6 @@ module.exports = async () => {
         }
     } catch (error) {
         logger.error(error);
-        logger.end();
-        jobComplete();
-        return Promise.reject(error);
     }
 
     // Possibility to POST to a Discord webhook here with cron status details

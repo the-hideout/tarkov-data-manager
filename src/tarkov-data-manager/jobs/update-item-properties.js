@@ -143,21 +143,13 @@ module.exports = async () => {
         console.log('Running bsgData...');
         await bsgDataHelper();
         logger.log('Completed bsgData...');
-    } catch (updateError){
-        logger.error(updateError);
-    
-        logger.error('Failed to get bsgData, exiting...');
-        logger.end();
-        jobComplete();
-        return Promise.reject(updateError);
-    }
 
-    const allTTItems = await ttData();
+        const allTTItems = await ttData();
 
-    bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
+        const bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
 
-    const currentProperties = {};
-    try {
+        const currentProperties = {};
+
         const results = await query(`SELECT * FROM item_properties`);
 
         for(const result of results){
@@ -167,74 +159,71 @@ module.exports = async () => {
 
             currentProperties[result.item_id][result.property_key] = result.property_value;
         }
-    } catch(error) {
+
+        logger.log('Updating game data');
+        const ttItems = Object.values(allTTItems);
+
+        for(let i = 0; i < ttItems.length; i = i + 1){
+            const item = ttItems[i];
+
+            if(!bsgData[item.id]?._props){
+                continue;
+            }
+
+            for(const propertyKey in mappingProperties){
+                let propertyValue = objectPath.get(bsgData[item.id], propertyKey);
+
+                // Skip falsy strings
+                // Should be fixed for actual booleans
+                if(typeof propertyValue === 'string' && propertyValue === '') {
+                    continue;
+                }
+
+                if(typeof propertyValue === 'number' && currentProperties[item.id] && Number(currentProperties[item.id][mappingProperties[propertyKey]]) === propertyValue){
+                    continue;
+                }
+
+                if(typeof propertyValue === 'undefined'){
+                    continue;
+                }
+
+                if(typeof propertyValue === 'boolean' && currentProperties[item.id] && currentProperties[item.id][mappingProperties[propertyKey]] === propertyValue.toString()){
+                    continue;
+                }
+
+                // Skip values we already have
+                if(currentProperties[item.id] && currentProperties[item.id][mappingProperties[propertyKey]] === propertyValue){
+                    continue;
+                }
+
+                logger.log(`Updating ${item.name} ${mappingProperties[propertyKey]} to ${propertyValue}`);
+
+                // Store bools as string in db
+                if(typeof propertyValue === 'boolean'){
+                    propertyValue = propertyValue.toString();
+                }
+
+                await updateProperty(item.id, mappingProperties[propertyKey], propertyValue);
+            }
+
+            // const bsgCategoryId = itemCategory(bsgData[item.id]);
+            const bsgCategoryId = bsgData[item.id]._parent;
+
+            if(currentProperties[item.id] && currentProperties[item.id].bsgCategoryId === bsgCategoryId){
+                continue;
+            }
+
+            logger.log(`Updating ${item.name} bsgCategoryId to ${bsgCategoryId}`);
+            await updateProperty(item.id, 'bsgCategoryId', bsgCategoryId);
+        }
+
+        logger.succeed('Done with all item property updates')
+
+        
+        // Possibility to POST to a Discord webhook here with cron status details
+    } catch (error){
         logger.error(error);
-        logger.end();
-        jobComplete();
-        return Promise.reject(error);
     }
-
-    logger.log('Updating game data');
-    const ttItems = Object.values(allTTItems);
-
-    for(let i = 0; i < ttItems.length; i = i + 1){
-        const item = ttItems[i];
-
-        if(!bsgData[item.id]?._props){
-            continue;
-        }
-
-        for(const propertyKey in mappingProperties){
-            let propertyValue = objectPath.get(bsgData[item.id], propertyKey);
-
-            // Skip falsy strings
-            // Should be fixed for actual booleans
-            if(typeof propertyValue === 'string' && propertyValue === '') {
-                continue;
-            }
-
-            if(typeof propertyValue === 'number' && currentProperties[item.id] && Number(currentProperties[item.id][mappingProperties[propertyKey]]) === propertyValue){
-                continue;
-            }
-
-            if(typeof propertyValue === 'undefined'){
-                continue;
-            }
-
-            if(typeof propertyValue === 'boolean' && currentProperties[item.id] && currentProperties[item.id][mappingProperties[propertyKey]] === propertyValue.toString()){
-                continue;
-            }
-
-            // Skip values we already have
-            if(currentProperties[item.id] && currentProperties[item.id][mappingProperties[propertyKey]] === propertyValue){
-                continue;
-            }
-
-            logger.log(`Updating ${item.name} ${mappingProperties[propertyKey]} to ${propertyValue}`);
-
-            // Store bools as string in db
-            if(typeof propertyValue === 'boolean'){
-                propertyValue = propertyValue.toString();
-            }
-
-            await updateProperty(item.id, mappingProperties[propertyKey], propertyValue);
-        }
-
-        // const bsgCategoryId = itemCategory(bsgData[item.id]);
-        const bsgCategoryId = bsgData[item.id]._parent;
-
-        if(currentProperties[item.id] && currentProperties[item.id].bsgCategoryId === bsgCategoryId){
-            continue;
-        }
-
-        logger.log(`Updating ${item.name} bsgCategoryId to ${bsgCategoryId}`);
-        await updateProperty(item.id, 'bsgCategoryId', bsgCategoryId);
-    }
-
-    logger.succeed('Done with all item property updates')
-
-    
-    // Possibility to POST to a Discord webhook here with cron status details
     logger.end();
     await jobComplete();
 };

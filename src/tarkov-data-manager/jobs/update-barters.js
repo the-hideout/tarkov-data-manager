@@ -254,8 +254,8 @@ const parseTradeRow = (tradeElement) => {
 
 module.exports = async function() {
     logger = new JobLogger('update-barters');
-    logger.log('Retrieving barters data...');
     try {
+        logger.log('Retrieving barters data...');
         const itemsPromise = query('SELECT * FROM item_data ORDER BY id');
         const translationsPromise = query(`SELECT item_id, type, value FROM translations WHERE language_code = ?`, ['en']);
         const wikiPromise = got(TRADES_URL);
@@ -265,9 +265,9 @@ module.exports = async function() {
         const allResults = await Promise.all([itemsPromise, translationsPromise, wikiPromise, tasksPromise]);
         const results = allResults[0];
         const translationResults = allResults[1];
-        const response = allResults[2];
+        const wikiResponse = allResults[2];
         tasks = allResults[3].body;
-        $ = cheerio.load(response.body);
+        $ = cheerio.load(wikiResponse.body);
         trades = {
             updated: new Date(),
             data: [],
@@ -292,34 +292,33 @@ module.exports = async function() {
         }
 
         itemData = returnData;
-    } catch (error) {
-        logger.error(error);
-        logger.end();
-        jobComplete();
-        return Promise.reject(error);
-    }
-    logger.succeed('Barters data retrieved');
-    // itemData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'src', 'data', 'all-en.json')));
 
-    const traderRows = [];
+        logger.succeed('Barters data retrieved');
+        // itemData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'src', 'data', 'all-en.json')));
 
-    $('.wikitable').each((traderTableIndex, traderTableElement) => {
-        $(traderTableElement)
-            .find('tr')
-            .each((tradeIndex, tradeElement) => {
-                if(tradeIndex === 0){
-                    return true;
-                }
+        const traderRows = [];
 
-                traderRows.push(tradeElement);
-            });
-    });
+        $('.wikitable').each((traderTableIndex, traderTableElement) => {
+            $(traderTableElement)
+                .find('tr')
+                .each((tradeIndex, tradeElement) => {
+                    if(tradeIndex === 0){
+                        return true;
+                    }
 
-    logger.log('Parsing barters table...');
-    traderRows.map(parseTradeRow);
-    logger.succeed('Finished parsing barters table');
-    try {
-        const response = await cloudflare(`/values/BARTER_DATA`, 'PUT', JSON.stringify(trades));
+                    traderRows.push(tradeElement);
+                });
+        });
+
+        logger.log('Parsing barters table...');
+        traderRows.map(parseTradeRow);
+        logger.succeed('Finished parsing barters table');
+
+        const response = await cloudflare(`/values/BARTER_DATA`, 'PUT', JSON.stringify(trades)).catch(error => {
+            logger.error('Error on cloudflare put for BARTER_DATA')
+            logger.error(requestError);
+            return {success: false, errors: [], messages: []};
+        });
         if (response.success) {
             logger.success('Successful Cloudflare put of BARTER_DATA');
         } else {
@@ -330,14 +329,13 @@ module.exports = async function() {
         for (let i = 0; i < response.messages.length; i++) {
             logger.error(response.messages[i]);
         }
-    } catch (requestError){
-        logger.error('Error on cloudflare put for BARTER_DATA')
-        logger.error(requestError);
+        
+        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'barters.json'), JSON.stringify(trades, null, 4));
+
+        logger.succeed('Barters updated');
+    } catch (error) {
+        logger.error(error);
     }
-
-    fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'barters.json'), JSON.stringify(trades, null, 4));
-
-    logger.succeed('Barters updated');
 
     // Possibility to POST to a Discord webhook here with cron status details
     logger.end();

@@ -101,20 +101,20 @@ const getItemData = function getItemData(html){
 
 module.exports = async function() {
     logger = new JobLogger('update-crafts');
-    const response = await got(CRAFTS_URL);
-    const $ = cheerio.load(response.body);
-    const crafts = {
-        updated: new Date(),
-        data: [],
-    };
+    try {
+        const wikiResponse = await got(CRAFTS_URL);
+        const $ = cheerio.load(wikiResponse.body);
+        const crafts = {
+            updated: new Date(),
+            data: [],
+        };
 
-    let beforeData = '{}';
-    try {
-        beforeData = fs.readFileSync(path.join(__dirname, '..', 'dumps', 'crafts.json'));
-    } catch (openError){
-        // Do nothing
-    }
-    try {
+        let beforeData = '{}';
+        try {
+            beforeData = fs.readFileSync(path.join(__dirname, '..', 'dumps', 'crafts.json'));
+        } catch (openError){
+            // Do nothing
+        }
         const results = await query('SELECT * FROM item_data ORDER BY id');
         const translationResults = await query(`SELECT item_id, type, value FROM translations WHERE language_code = ?`, ['en']);
         const returnData = {};
@@ -138,169 +138,166 @@ module.exports = async function() {
         }
 
         itemData =  returnData;
-    } catch(error) {
-        logger.error(error);
-        logger.end();
-        return Promise.reject(error);
-    }
 
-    $('.wikitable').each((traderTableIndex, traderTableElement) => {
-        $(traderTableElement)
-            .find('tr')
-            .each((tradeIndex, tradeElement) => {
-                if(tradeIndex === 0){
+        $('.wikitable').each((traderTableIndex, traderTableElement) => {
+            $(traderTableElement)
+                .find('tr')
+                .each((tradeIndex, tradeElement) => {
+                    if(tradeIndex === 0){
+                        return true;
+                    }
+    
+                    const $trade = $(tradeElement);
+                    const rewardItemName = fixName($trade.find('th').eq(-1).find('a').eq(0).prop('title'));
+                    const rewardItem = getItemByName(rewardItemName);
+    
+                    if(!rewardItem){
+                        logger.warn(`Found no item called "${rewardItemName}"`);
+    
+                        return true;
+                    }
+    
+                    const craftData = {
+                        id: `${traderTableIndex}-${tradeIndex}`,
+                        requiredItems: [],
+                        rewardItems: [{
+                            name: rewardItem.name,
+                            id: rewardItem.id,
+                        }],
+                        station: $trade.find('th').eq(2).find('big').text().trim(),
+                    };
+    
+                    // Set reward count
+                    $trade.find('th').eq(-1).find('a').remove();
+                    craftData.rewardItems[0].count = parseInt($trade.find('th').eq(-1).text().trim().replace('x', ''));
+    
+                    // Set craft time
+                    $trade.find('th').eq(2).find('big').remove();
+                    craftData.time = $trade.find('th').eq(2).text().trim();
+                    craftData.duration = parseDuration(craftData.time, 's');
+    
+                    let items = $trade.find('th').eq(0).html().split(/<br>\s?\+\s?<br>/);
+                    const itemCountMatches = $trade.find('th').eq(0).text().match(/\sx\d/gm) || ['x1'];
+    
+                    if(itemCountMatches.length > items.length){
+                        items = $trade.find('th').eq(0).html().split(/<br><br>/);
+                    }
+    
+                    if(itemCountMatches.length > items.length){
+                        items = $trade.find('th').eq(0).html().split(/\n.+?<\/a>/gm);
+                    }
+    
+                    if(itemCountMatches.length > items.length){
+                        // console.log($trade.find('th').eq(0).html());
+                        // console.log(items.length, itemCountMatches);
+                        // console.log();
+    
+                        return true;
+                    }
+    
+                    craftData.requiredItems = items.map(getItemData).filter(Boolean);
+    
+                    // if(craftData.id === '6-16'){
+                    //     console.log(items);
+                    //     console.log(craftData);
+                    // }
+    
+                    // Failed to map at least one item
+                    if(craftData.requiredItems.length !== items.length){
+                        logger.log(craftData);
+                        return true;
+                    }
+    
+                    // Tactical sword is not in the game?
+                    if(craftData.requiredItems.find((item) => {
+                        return item.name.toLowerCase().includes('m-2 tactical sword');
+                    })) {
+                        return true;
+                    }
+    
+                    // Special case for water collector
+                    if(craftData.station.toLowerCase().includes('water collector')){
+                        craftData.requiredItems[0].count = 0.66;
+                    }
+    
+                    crafts.data.push(craftData);
+    
                     return true;
-                }
+                });
+        });
+    
+        // crafts.data = crafts.data.concat(christmasTreeCrafts);
+    
+        // for(const trade of crafts.data){
+        //     console.log(trade);
+        //     await new Promise((resolve, reject) => {
+        //         connection.query(`INSERT IGNORE INTO crafts (id, type, source)
+        //             VALUES (
+        //                 '${trade.id}',
+        //                 'barter',
+        //                 '${trade.trader}'
+        //             )`, async (error, result, fields) => {
+        //                 if (error) {
+        //                     return reject(error);
+        //                 }
+    
+        //                 for(const requiredItem of trade.requiredItems){
+        //                     await new Promise((innerResolve, innerReject) => {
+        //                         connection.query(`INSERT IGNORE INTO trade_requirements (trade_id, item_id, count)
+        //                             VALUES (
+        //                                 '${trade.id}',
+        //                                 '${requiredItem.id}',
+        //                                 ${requiredItem.count}
+        //                             )`, (error, result, fields) => {
+        //                                 if (error) {
+        //                                     innerReject(error);
+        //                                 }
+    
+        //                                 innerResolve();
+        //                             }
+        //                         );
+        //                     });
+        //                 }
+    
+        //                 for(const rewardItem of trade.rewardItems){
+        //                     await new Promise((innerResolve, innerReject) => {
+        //                         connection.query(`INSERT IGNORE INTO trade_rewards (trade_id, item_id, count)
+        //                             VALUES (
+        //                                 '${trade.id}',
+        //                                 '${rewardItem.id}',
+        //                                 ${rewardItem.count}
+        //                             )`, (error, result, fields) => {
+        //                                 if (error) {
+        //                                     innerReject(error);
+        //                                 }
+    
+        //                                 innerResolve();
+        //                             }
+        //                         );
+        //                     });
+        //                 }
+    
+        //                 return resolve();
+        //             }
+        //         );
+        //     });
+        // }
+    
+        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'crafts.json'), JSON.stringify(crafts, null, 4));
+    
+        // console.log('DIFF');
+        // console.log(jsonDiff.diff(JSON.parse(beforeData), crafts));
+        // console.log();
+        // console.log('DIFFJSON');
+        // console.log(JSON.stringify(jsonDiff.diff(JSON.parse(beforeData), crafts), null, 4));
+        // console.log();
+        logger.log('DIFFString');
+        logger.log(jsonDiff.diffString(JSON.parse(beforeData), crafts));
 
-                const $trade = $(tradeElement);
-                const rewardItemName = fixName($trade.find('th').eq(-1).find('a').eq(0).prop('title'));
-                const rewardItem = getItemByName(rewardItemName);
-
-                if(!rewardItem){
-                    logger.warn(`Found no item called "${rewardItemName}"`);
-
-                    return true;
-                }
-
-                const craftData = {
-                    id: `${traderTableIndex}-${tradeIndex}`,
-                    requiredItems: [],
-                    rewardItems: [{
-                        name: rewardItem.name,
-                        id: rewardItem.id,
-                    }],
-                    station: $trade.find('th').eq(2).find('big').text().trim(),
-                };
-
-                // Set reward count
-                $trade.find('th').eq(-1).find('a').remove();
-                craftData.rewardItems[0].count = parseInt($trade.find('th').eq(-1).text().trim().replace('x', ''));
-
-                // Set craft time
-                $trade.find('th').eq(2).find('big').remove();
-                craftData.time = $trade.find('th').eq(2).text().trim();
-                craftData.duration = parseDuration(craftData.time, 's');
-
-                let items = $trade.find('th').eq(0).html().split(/<br>\s?\+\s?<br>/);
-                const itemCountMatches = $trade.find('th').eq(0).text().match(/\sx\d/gm) || ['x1'];
-
-                if(itemCountMatches.length > items.length){
-                    items = $trade.find('th').eq(0).html().split(/<br><br>/);
-                }
-
-                if(itemCountMatches.length > items.length){
-                    items = $trade.find('th').eq(0).html().split(/\n.+?<\/a>/gm);
-                }
-
-                if(itemCountMatches.length > items.length){
-                    // console.log($trade.find('th').eq(0).html());
-                    // console.log(items.length, itemCountMatches);
-                    // console.log();
-
-                    return true;
-                }
-
-                craftData.requiredItems = items.map(getItemData).filter(Boolean);
-
-                // if(craftData.id === '6-16'){
-                //     console.log(items);
-                //     console.log(craftData);
-                // }
-
-                // Failed to map at least one item
-                if(craftData.requiredItems.length !== items.length){
-                    logger.log(craftData);
-                    return true;
-                }
-
-                // Tactical sword is not in the game?
-                if(craftData.requiredItems.find((item) => {
-                    return item.name.toLowerCase().includes('m-2 tactical sword');
-                })) {
-                    return true;
-                }
-
-                // Special case for water collector
-                if(craftData.station.toLowerCase().includes('water collector')){
-                    craftData.requiredItems[0].count = 0.66;
-                }
-
-                crafts.data.push(craftData);
-
-                return true;
-            });
-    });
-
-    // crafts.data = crafts.data.concat(christmasTreeCrafts);
-
-    // for(const trade of crafts.data){
-    //     console.log(trade);
-    //     await new Promise((resolve, reject) => {
-    //         connection.query(`INSERT IGNORE INTO crafts (id, type, source)
-    //             VALUES (
-    //                 '${trade.id}',
-    //                 'barter',
-    //                 '${trade.trader}'
-    //             )`, async (error, result, fields) => {
-    //                 if (error) {
-    //                     return reject(error);
-    //                 }
-
-    //                 for(const requiredItem of trade.requiredItems){
-    //                     await new Promise((innerResolve, innerReject) => {
-    //                         connection.query(`INSERT IGNORE INTO trade_requirements (trade_id, item_id, count)
-    //                             VALUES (
-    //                                 '${trade.id}',
-    //                                 '${requiredItem.id}',
-    //                                 ${requiredItem.count}
-    //                             )`, (error, result, fields) => {
-    //                                 if (error) {
-    //                                     innerReject(error);
-    //                                 }
-
-    //                                 innerResolve();
-    //                             }
-    //                         );
-    //                     });
-    //                 }
-
-    //                 for(const rewardItem of trade.rewardItems){
-    //                     await new Promise((innerResolve, innerReject) => {
-    //                         connection.query(`INSERT IGNORE INTO trade_rewards (trade_id, item_id, count)
-    //                             VALUES (
-    //                                 '${trade.id}',
-    //                                 '${rewardItem.id}',
-    //                                 ${rewardItem.count}
-    //                             )`, (error, result, fields) => {
-    //                                 if (error) {
-    //                                     innerReject(error);
-    //                                 }
-
-    //                                 innerResolve();
-    //                             }
-    //                         );
-    //                     });
-    //                 }
-
-    //                 return resolve();
-    //             }
-    //         );
-    //     });
-    // }
-
-    fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'crafts.json'), JSON.stringify(crafts, null, 4));
-
-    // console.log('DIFF');
-    // console.log(jsonDiff.diff(JSON.parse(beforeData), crafts));
-    // console.log();
-    // console.log('DIFFJSON');
-    // console.log(JSON.stringify(jsonDiff.diff(JSON.parse(beforeData), crafts), null, 4));
-    // console.log();
-    logger.log('DIFFString');
-    logger.log(jsonDiff.diffString(JSON.parse(beforeData), crafts));
-
-    try {
-        const response = await cloudflare(`/values/CRAFT_DATA`, 'PUT', JSON.stringify(crafts));
+        const response = await cloudflare(`/values/CRAFT_DATA`, 'PUT', JSON.stringify(crafts)).catch(error => {
+            logger.error(error);
+            return {success: false, errors: [], messages: []};
+        });
         if (response.success) {
             logger.success('Successful Cloudflare put of CRAFT_DATA');
         } else {
@@ -311,11 +308,10 @@ module.exports = async function() {
                 logger.error(response.messages[i]);
             }
         }
-    } catch (requestError){
-        logger.error(requestError);
+        // Possibility to POST to a Discord webhook here with cron status details
+    } catch (error) {
+        logger.error(error);
     }
-
-    // Possibility to POST to a Discord webhook here with cron status details
     await jobComplete();
     logger.end();
 };

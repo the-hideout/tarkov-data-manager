@@ -4,8 +4,8 @@ const JobLogger = require('../modules/job-logger');
 
 module.exports = async () => {
     const logger = new JobLogger('update-reset-timers');
-    const resetTimes = {};
     try {
+        const resetTimes = {};
         const results = await query(`
             SELECT
                 trader.trader_name,
@@ -33,15 +33,11 @@ module.exports = async () => {
 
             resetTimes[result.trader_name] = resetTime;
         }
-    } catch (error){
-        logger.error(error);
-        logger.end();
-        jobComplete();
-        return Promise.reject(error);
-    }
 
-    try {
-        const response = await cloudflare(`/values/RESET_TIMES`, 'PUT', JSON.stringify(resetTimes));
+        const response = await cloudflare(`/values/RESET_TIMES`, 'PUT', JSON.stringify(resetTimes)).catch(error => {
+            logger.error(error);
+            return {success: false, errors: [], messages: []};
+        });
         if (response.success) {
             logger.success('Successful Cloudflare put of RESET_TIMES');
         } else {
@@ -52,13 +48,13 @@ module.exports = async () => {
                 logger.error(response.messages[i]);
             }
         }
-    } catch (requestError){
-        logger.error(requestError);
+
+        // fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'reset-times.json'), JSON.stringify(cloudflareData, null, 4));
+
+        // Possibility to POST to a Discord webhook here with cron status details
+    } catch (error){
+        logger.error(error);
     }
-
-    // fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'reset-times.json'), JSON.stringify(cloudflareData, null, 4));
-
-    // Possibility to POST to a Discord webhook here with cron status details
     logger.end();
     await jobComplete();
 };

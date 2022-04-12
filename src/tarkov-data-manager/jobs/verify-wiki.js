@@ -35,9 +35,9 @@ const postMessage = (item, foundNewLink) => {
 
 module.exports = async () => {
     let logger = new JobLogger('verify-wiki');
-    let missing = 0;
-    logger.log('Verifying wiki links');
     try {
+        let missing = 0;
+        logger.log('Verifying wiki links');
         const results = await query(`
             SELECT 
                 item_data.*, translations.value AS name 
@@ -114,16 +114,11 @@ module.exports = async () => {
                 await query(`UPDATE item_data SET wiki_link = ? WHERE id = ?`, [newWikiLink, result.id]);
             }
         }
-
+        // Possibility to POST to a Discord webhook here with cron status details
+        logger.log(`${missing} items still missing a valid wiki link`);
     } catch (error) {
         logger.error(error);
-        logger.end();
-        jobComplete();
-        return Promise.reject(error);
     }
-
-    // Possibility to POST to a Discord webhook here with cron status details
-    logger.log(`${missing} items still missing a valid wiki link`);
     logger.end();
     await jobComplete();
 };

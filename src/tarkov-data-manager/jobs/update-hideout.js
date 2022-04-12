@@ -3,26 +3,20 @@ const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 
 module.exports = async () => {
-    const logger = new JobLogger('update-hideout');
-    let data;
-
+    const logger = new JobLogger('update-hideout');    
     try {
-        data = await got('https://raw.githack.com/TarkovTracker/tarkovdata/master/hideout.json', {
+        const data = await got('https://raw.githack.com/TarkovTracker/tarkovdata/master/hideout.json', {
             responseType: 'json',
         });
-    } catch (dataError){
-        logger.error(dataError);
-        logger.end();
-        return false;
-    }
+        const hideoutData = {
+            updated: new Date(),
+            data: data.body.modules,
+        };
 
-    const hideoutData = {
-        updated: new Date(),
-        data: data.body.modules,
-    };
-
-    try {
-        const response = await cloudflare(`/values/HIDEOUT_DATA`, 'PUT', JSON.stringify(hideoutData));
+        const response = await cloudflare(`/values/HIDEOUT_DATA`, 'PUT', JSON.stringify(hideoutData)).catch(error => {
+            logger.error(error);
+            return {success: false, errors: [], messages: []};
+        });
         if (response.success) {
             logger.success('Successful Cloudflare put of HIDEOUT_DATA');
         } else {
@@ -33,8 +27,8 @@ module.exports = async () => {
                 logger.error(response.messages[i]);
             }
         }
-    } catch (requestError){
-        logger.error(requestError);
+    } catch (error){
+        logger.error(error);
     }
     logger.end();
 }
