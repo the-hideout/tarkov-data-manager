@@ -1,6 +1,7 @@
 const {query, jobComplete} = require('../modules/db-connection');
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 module.exports = async () => {
     const logger = new JobLogger('update-reset-timers');
@@ -54,6 +55,10 @@ module.exports = async () => {
         // Possibility to POST to a Discord webhook here with cron status details
     } catch (error){
         logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
     logger.end();
     await jobComplete();

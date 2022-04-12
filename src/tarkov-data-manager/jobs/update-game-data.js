@@ -9,6 +9,7 @@ const oldShortnames = require('../old-shortnames.json');
 
 const { connection, query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 let bsgData;
 
@@ -307,6 +308,10 @@ module.exports = async () => {
         logger.succeed('Game data update complete');
     } catch (error) {
         logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
     logger.end();
     await jobComplete();

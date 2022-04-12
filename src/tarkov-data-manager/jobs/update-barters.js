@@ -8,6 +8,7 @@ const cloudflare = require('../modules/cloudflare');
 const oldNames = require('../old-names.json');
 const fixName = require('../modules/wiki-replacements');
 const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 const { query, jobComplete } = require('../modules/db-connection');
 
@@ -332,9 +333,13 @@ module.exports = async function() {
         
         fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'barters.json'), JSON.stringify(trades, null, 4));
 
-        logger.succeed('Barters updated');
+        logger.succeed(`Finished processing ${trades.data.length} barters`);
     } catch (error) {
         logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
 
     // Possibility to POST to a Discord webhook here with cron status details

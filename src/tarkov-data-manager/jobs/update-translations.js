@@ -4,6 +4,7 @@ const path = require('path');
 const ttData = require('../modules/tt-data');
 const normalizeName = require('../modules/normalize-name');
 const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 const {query, jobComplete} = require('../modules/db-connection');
 
@@ -129,6 +130,10 @@ module.exports = async () => {
         logger.succeed('Finished updating translations');
     } catch (error) {
         logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
     logger.end();
     await jobComplete();

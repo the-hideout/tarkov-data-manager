@@ -1,12 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const jsonDiff = require('json-diff');
-
 const cloudflare = require('../modules/cloudflare');
 //const christmasTreeCrafts = require('../public/data/christmas-tree-crafts.json');
 
 const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 
 module.exports = async function() {
@@ -22,6 +21,7 @@ module.exports = async function() {
             updated: new Date(),
             data: [],
         };
+        logger.log('Processing crafts...');
         for (const id in json) {
             const craft = json[id];
             if (!en.templates[craft.endProduct]) {
@@ -67,33 +67,26 @@ module.exports = async function() {
                         logger.warn(`No requirement item with id ${req.templateId} found in locale_en.json`);
                         continue;
                     }
-                    craftData.requiredItems.push({
+                    const reqData = {
                         name: en.templates[req.templateId].Name,
                         id: req.templateId,
-                        count: req.count
-                    });
+                        count: req.count,
+                        attributes: []
+                    };
+                    if (req.isFunctional) {
+                        reqData.attributes.push({
+                            type: 'functional',
+                            value: String(req.isFunctional)
+                        })
+                    }
+                    craftData.requiredItems.push(reqData);
                 }
             }
             crafts.data.push(craftData);
         }
-
-        let beforeData = '{}';
-        try {
-            beforeData = fs.readFileSync(path.join(__dirname, '..', 'dumps', 'crafts.json'));
-        } catch (openError){
-            // Do nothing
-        }
+        logger.log(`Processed ${Object.keys(json).length} crafts`);
     
         fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'crafts.json'), JSON.stringify(crafts, null, 4));
-    
-        // console.log('DIFF');
-        // console.log(jsonDiff.diff(JSON.parse(beforeData), crafts));
-        // console.log();
-        // console.log('DIFFJSON');
-        // console.log(JSON.stringify(jsonDiff.diff(JSON.parse(beforeData), crafts), null, 4));
-        // console.log();
-        logger.log('DIFFString');
-        logger.log(jsonDiff.diffString(JSON.parse(beforeData), crafts));
 
         const response = await cloudflare(`/values/CRAFT_DATA`, 'PUT', JSON.stringify(crafts)).catch(error => {
             logger.error(error);
@@ -112,6 +105,10 @@ module.exports = async function() {
         // Possibility to POST to a Discord webhook here with cron status details
     } catch (error) {
         logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
     logger.end();
 };

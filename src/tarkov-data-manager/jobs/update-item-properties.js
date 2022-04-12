@@ -9,6 +9,7 @@ const {categories} = require('../modules/category-map');
 
 //const bsgDataHelper = require('./update-bsg-data');
 const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 let logger = false;
 
@@ -223,6 +224,10 @@ module.exports = async () => {
         // Possibility to POST to a Discord webhook here with cron status details
     } catch (error){
         logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
     logger.end();
     await jobComplete();

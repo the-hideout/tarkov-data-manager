@@ -13,6 +13,7 @@ const christmasTreeCrafts = require('../public/data/christmas-tree-crafts.json')
 
 const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 let itemData = false;
 let logger = false;
@@ -311,6 +312,10 @@ module.exports = async function() {
         // Possibility to POST to a Discord webhook here with cron status details
     } catch (error) {
         logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
     await jobComplete();
     logger.end();

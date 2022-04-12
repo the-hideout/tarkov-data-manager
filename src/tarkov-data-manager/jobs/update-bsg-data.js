@@ -4,6 +4,7 @@ const path = require('path');
 const bitcoinPrice = require('../modules/bitcoin-price');
 const tarkovChanges = require('../modules/tarkov-changes');
 const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 module.exports = async () => {
     const logger = new JobLogger('update-bsg-data');
@@ -66,7 +67,11 @@ module.exports = async () => {
 
         fs.writeFileSync(path.join(__dirname, '..', 'bsg-data.json'), JSON.stringify(writeData, null, 4));
     } catch (error) {
-        logger.error(gotError);
+        logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
     logger.end();
 }

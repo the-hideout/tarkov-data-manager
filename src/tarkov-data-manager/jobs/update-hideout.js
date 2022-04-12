@@ -1,6 +1,7 @@
 const got = require('got');
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 module.exports = async () => {
     const logger = new JobLogger('update-hideout');    
@@ -29,6 +30,10 @@ module.exports = async () => {
         }
     } catch (error){
         logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
     logger.end();
 }

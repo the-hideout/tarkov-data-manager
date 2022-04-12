@@ -1,10 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 
+const moment = require('moment');
+
 const cloudflare = require('../modules/cloudflare');
 const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
-const moment = require('moment');
+const {alert} = require('../modules/webhook');
 
 let logger = false;
 
@@ -189,6 +191,10 @@ module.exports = async () => {
         await outputPrices(outputData);
     } catch (error) {
         logger(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
         logger.end();
         jobComplete();
     }

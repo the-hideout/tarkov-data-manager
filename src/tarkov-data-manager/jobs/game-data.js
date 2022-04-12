@@ -4,6 +4,7 @@ const updateTranslations = require('./update-translations');
 const updateTypes = require('./update-types');
 const { connection, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 module.exports = async () => {
     const logger = new JobLogger('game-data');
@@ -12,21 +13,25 @@ module.exports = async () => {
     try {
         logger.log('Running bsgData...');
         await bsgData();
-        logger.log('Completed bsgData...');
+        logger.log('Completed bsgData');
 
         logger.log('Running updateGameData...');
         await updateGameData();
-        logger.log('Completed updateGameData...');
+        logger.log('Completed updateGameData');
 
         logger.log('Running updateTranslations...');
         await updateTranslations();
-        logger.log('Completed updateTranslations...');
+        logger.log('Completed updateTranslations');
 
         logger.log('Running updateTypes...');
         await updateTypes();
-        logger.log('Completed updateTypes...');
-    } catch (updateError){
-        logger.error(updateError);
+        logger.log('Completed updateTypes');
+    } catch (error){
+        logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
     connection.keepAlive = keepAlive;
 

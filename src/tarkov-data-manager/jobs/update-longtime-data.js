@@ -3,6 +3,7 @@ const path = require('path');
 
 const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 const keys = {
     interchange: {
@@ -178,6 +179,10 @@ module.exports = async () => {
         logger.timeEnd('write-all-file');
     } catch (error) {
         logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
     logger.end();
     await jobComplete();

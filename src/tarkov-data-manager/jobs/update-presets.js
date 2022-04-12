@@ -2,6 +2,7 @@ const got = require('got');
 
 const {query, jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 module.exports = async () => {
     const logger = new JobLogger('update-presets');
@@ -43,6 +44,10 @@ module.exports = async () => {
         }
     } catch (error){
         logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
     logger.end();
     await jobComplete();

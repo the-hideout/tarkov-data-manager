@@ -1,6 +1,7 @@
 const { query, jobComplete } = require('../modules/db-connection');
 const webhook = require('../modules/webhook');
 const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 const ignoreSources = [
     'DESKTOP-DA1IT79',
@@ -56,6 +57,10 @@ module.exports = async () => {
         // Possibility to POST to a Discord webhook here with cron status details
     } catch (error) {
         logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
     await jobComplete();
     logger.end();

@@ -3,6 +3,7 @@ const webhook = require('../modules/webhook');
 
 const {query, jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 let logger = false;
 
@@ -118,6 +119,10 @@ module.exports = async () => {
         logger.log(`${missing} items still missing a valid wiki link`);
     } catch (error) {
         logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
     logger.end();
     await jobComplete();
