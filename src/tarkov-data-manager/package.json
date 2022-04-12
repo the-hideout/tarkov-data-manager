@@ -36,8 +36,9 @@
     "nodemon": "^2.0.12",
     "object-path": "^0.11.8",
     "parse-duration": "^1.0.0",
-    "rollbar": "^2.24.0",
     "round-to": "^5.0.0",
+    "@sentry/node": "^6.19.6",
+    "@sentry/tracing": "^6.19.6",
     "unidecode": "^0.1.8"
   }
 }

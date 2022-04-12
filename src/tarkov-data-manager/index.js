@@ -9,14 +9,24 @@ const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const session = require('express-session');
 const formidable = require('formidable');
-const Rollbar = require('rollbar');
 const chalk = require('chalk');
+const Sentry = require("@sentry/node");
+const Tracing = require("@sentry/tracing");
 
 if (process.env.NODE_ENV !== 'production') {
     const dotenv = require("dotenv");
     dotenv.config({path : './config.env'});
     dotenv.config({path : './creds.env'});
     process.env.NODE_ENV = 'dev';
+} else {
+    Sentry.init({
+        dsn: "https://3728e31ab2d4455882f916fdea255a61@o1189140.ingest.sentry.io/6326844",
+      
+        // Set tracesSampleRate to 1.0 to capture 100%
+        // of transactions for performance monitoring.
+        // We recommend adjusting this value in production
+        tracesSampleRate: 1.0,
+      });
 }
 
 const remoteData = require('./modules/remote-data');
@@ -28,12 +38,6 @@ const scannerApi = require('./modules/scanner-api');
 const webhookApi = require('./modules/webhook-api');
 
 vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
-
-const rollbar = new Rollbar({
-    accessToken: process.env.ROLLBAR_TOKEN,
-    captureUncaught: true,
-    captureUnhandledRejections: true
-});
 
 const app = express();
 const port = process.env.PORT || 4000;
