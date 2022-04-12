@@ -93,7 +93,7 @@ function startListener(channel) {
         } else if (message.type === 'logHistory' && logMessages.length < 2) {
             logMessages = [];
             for (let i = 0; i < message.data.length; i++) {
-                logMessages.push(ansi_up.ansi_to_html(message.data[i]))
+                logMessages.push(ansi_up.ansi_to_html(message.data[i]));
             }
         }
 

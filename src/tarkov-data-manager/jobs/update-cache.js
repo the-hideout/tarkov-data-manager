@@ -5,14 +5,16 @@ const roundTo = require('round-to');
 
 const cloudflare = require('../modules/cloudflare');
 const remoteData = require('../modules/remote-data');
-const doQuery = require('../modules/do-query');
+const { query, jobComplete } = require('../modules/db-connection');
+const JobLogger = require('../modules/job-logger');
 
 module.exports = async () => {
-    const itemMap = await remoteData.get();
+    const logger = new JobLogger('update-cache');
+    const itemMap = await remoteData.get(true);
     const itemData = {};
 
-    console.time('price-yesterday-query');
-    const avgPriceYesterday = await doQuery(`SELECT
+    logger.time('price-yesterday-query');
+    const avgPriceYesterday = await query(`SELECT
         avg(price) AS priceYesterday,
         item_id
     FROM
@@ -23,10 +25,10 @@ module.exports = async () => {
         timestamp < DATE_SUB(NOW(), INTERVAL 1 DAY)
     GROUP BY
         item_id`);
-    console.timeEnd('price-yesterday-query');
+    logger.timeEnd('price-yesterday-query');
 
-    console.time('last-low-price-query');
-    const lastKnownPriceData = await doQuery(`SELECT
+    logger.time('last-low-price-query');
+    const lastKnownPriceData = await query(`SELECT
         price,
         a.timestamp,
         a.item_id
@@ -47,14 +49,14 @@ module.exports = async () => {
         a.timestamp = b.timestamp
     GROUP BY
         item_id, timestamp, price;`);
-    console.timeEnd('last-low-price-query');
+    logger.timeEnd('last-low-price-query');
 
-    console.time('contained-items-query');
-    const containedItems = await doQuery(`SELECT
+    logger.time('contained-items-query');
+    const containedItems = await query(`SELECT
         *
     FROM
         item_children;`);
-    console.timeEnd('contained-items-query');
+    logger.timeEnd('contained-items-query');
 
     let containedItemsMap = {};
 
@@ -108,10 +110,23 @@ module.exports = async () => {
 
     try {
         const response = await cloudflare(`/values/ITEM_CACHE`, 'PUT', JSON.stringify(itemData));
-        console.log(response);
+        if (response.success) {
+            logger.success('Successful Cloudflare put of ITEM_CACHE');
+        } else {
+            for (let i = 0; i < response.errors.length; i++) {
+                logger.error(response.errors[i]);
+            }
+            for (let i = 0; i < response.messages.length; i++) {
+                logger.error(response.messages[i]);
+            }
+        }
     } catch (requestError) {
-        console.error(requestError);
+        logger.error(requestError);
     }
 
     fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'item-cache.json'), JSON.stringify(itemData, null, 4));
+
+    // Possibility to POST to a Discord webhook here with cron status details
+    await jobComplete();
+    logger.end();
 };

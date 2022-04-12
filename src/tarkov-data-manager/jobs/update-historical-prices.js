@@ -2,17 +2,19 @@ const fs = require('fs');
 const path = require('path');
 
 const cloudflare = require('../modules/cloudflare');
-const doQuery = require('../modules/do-query');
+const { query, jobComplete } = require('../modules/db-connection');
+const JobLogger = require('../modules/job-logger');
 
 module.exports = async () => {
+    const logger = new JobLogger('update-historical-prices');
     const aWeekAgo = new Date();
     const allPriceData = {};
     const itemPriceData = {};
 
     aWeekAgo.setDate(aWeekAgo.getDate() - 7);
 
-    console.time(`historical-price-query-items`);
-    const historicalPriceDataItemIds = await doQuery(`SELECT
+    logger.time(`historical-price-query-items`);
+    const historicalPriceDataItemIds = await query(`SELECT
         item_id
     FROM
         price_data
@@ -20,17 +22,17 @@ module.exports = async () => {
         timestamp > ?
     GROUP BY
         item_id`, [aWeekAgo]);
-    console.timeEnd(`historical-price-query-items`);
+    logger.timeEnd(`historical-price-query-items`);
 
-    console.time('all-items-queries');
+    logger.time('all-items-queries');
     for (const itemIdRow of historicalPriceDataItemIds) {
         const itemId = itemIdRow.item_id;
         if(!allPriceData[itemId]){
             allPriceData[itemId] = [];
         }
 
-        console.time(`historical-price-query-${itemId}`);
-        const historicalPriceData = await doQuery(`SELECT
+        //console.time(`historical-price-query-${itemId}`);
+        const historicalPriceData = await query(`SELECT
             item_id, price, timestamp
         FROM
             price_data
@@ -38,7 +40,7 @@ module.exports = async () => {
             timestamp > ?
         AND
             item_id = ?`, [aWeekAgo, itemId]);
-        console.timeEnd(`historical-price-query-${itemId}`);
+        //console.timeEnd(`historical-price-query-${itemId}`);
         for (const row of historicalPriceData) {
             if(!allPriceData[row.item_id][row.timestamp.getTime()]){
                 allPriceData[row.item_id][row.timestamp.getTime()] = {
@@ -51,7 +53,7 @@ module.exports = async () => {
             allPriceData[row.item_id][row.timestamp.getTime()].count = allPriceData[row.item_id][row.timestamp.getTime()].count + 1;
         }
     }
-    console.timeEnd('all-items-queries');
+    logger.timeEnd('all-items-queries');
 
     let cloudflareData = [];
 
@@ -82,11 +84,24 @@ module.exports = async () => {
                 'content-type': 'application/json',
             }
         );
-        console.log(response);
+        if (response.success) {
+            logger.success('Successful Cloudflare put of /bulk');
+        } else {
+            for (let i = 0; i < response.errors.length; i++) {
+                logger.error(response.errors[i]);
+            }
+            for (let i = 0; i < response.messages.length; i++) {
+                logger.error(response.messages[i]);
+            }
+        }
         // console.log(itemPriceData[itemId]);
     } catch (requestError){
-        console.error(requestError);
+        logger.error(requestError);
     }
     fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'historical-prices.json'), JSON.stringify(cloudflareData, null, 4));
-    console.log('Done with historical prices');
+    logger.log('Done with historical prices');
+
+    // Possibility to POST to a Discord webhook here with cron status details
+    logger.end();
+    await jobComplete();
 };

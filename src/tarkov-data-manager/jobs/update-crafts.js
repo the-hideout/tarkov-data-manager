@@ -11,9 +11,11 @@ const cloudflare = require('../modules/cloudflare');
 const oldNames = require('../old-names.json');
 const christmasTreeCrafts = require('../public/data/christmas-tree-crafts.json');
 
-const {connection} = require('../modules/db-connection');
+const { query, jobComplete } = require('../modules/db-connection');
+const JobLogger = require('../modules/job-logger');
 
 let itemData = false;
+let logger = false;
 
 const CRAFTS_URL = 'https://escapefromtarkov.gamepedia.com/Crafts';
 
@@ -75,7 +77,7 @@ const getItemData = function getItemData(html){
     const item = getItemByName(name);
 
     if(!item){
-        console.log(`Found no item called "${name}"`);
+        logger.warn(`Found no item called "${name}"`);
 
         return false;
     }
@@ -98,6 +100,7 @@ const getItemData = function getItemData(html){
 };
 
 module.exports = async function() {
+    logger = new JobLogger('update-crafts');
     const response = await got(CRAFTS_URL);
     const $ = cheerio.load(response.body);
     const crafts = {
@@ -111,43 +114,35 @@ module.exports = async function() {
     } catch (openError){
         // Do nothing
     }
+    try {
+        const results = await query('SELECT * FROM item_data ORDER BY id');
+        const translationResults = await query(`SELECT item_id, type, value FROM translations WHERE language_code = ?`, ['en']);
+        const returnData = {};
 
-    const promise = new Promise((resolve, reject) => {
-        connection.query('SELECT * FROM item_data ORDER BY id', async (error, results) => {
-            if(error){
-                return reject(error);
+        for(const result of results){
+            Reflect.deleteProperty(result, 'item_id');
+
+            const preparedData = {
+                ...result,
             }
 
-            connection.query(`SELECT item_id, type, value FROM translations WHERE language_code = ?`, ['en'], (translationQueryError, translationResults) => {
-                if(translationQueryError){
-                    return reject(translationQueryError);
-                }
-                const returnData = {};
-
-                for(const result of results){
-                    Reflect.deleteProperty(result, 'item_id');
-
-                    const preparedData = {
-                        ...result,
-                    }
-
-                    for(const translationResult of translationResults){
-                        if(translationResult.item_id !== result.id){
-                            continue;
-                        }
-
-                        preparedData[translationResult.type] = translationResult.value;
-                    }
-
-                    returnData[result.id] = preparedData;
+            for(const translationResult of translationResults){
+                if(translationResult.item_id !== result.id){
+                    continue;
                 }
 
-                return resolve(returnData);
-            });
-        });
-    });
+                preparedData[translationResult.type] = translationResult.value;
+            }
 
-    itemData = await promise;
+            returnData[result.id] = preparedData;
+        }
+
+        itemData =  returnData;
+    } catch(error) {
+        logger.error(error);
+        logger.end();
+        return Promise.reject(error);
+    }
 
     $('.wikitable').each((traderTableIndex, traderTableElement) => {
         $(traderTableElement)
@@ -162,7 +157,7 @@ module.exports = async function() {
                 const rewardItem = getItemByName(rewardItemName);
 
                 if(!rewardItem){
-                    console.log(`Found no item called "${rewardItemName}"`);
+                    logger.warn(`Found no item called "${rewardItemName}"`);
 
                     return true;
                 }
@@ -214,7 +209,7 @@ module.exports = async function() {
 
                 // Failed to map at least one item
                 if(craftData.requiredItems.length !== items.length){
-                    console.log(craftData);
+                    logger.log(craftData);
                     return true;
                 }
 
@@ -301,14 +296,26 @@ module.exports = async function() {
     // console.log('DIFFJSON');
     // console.log(JSON.stringify(jsonDiff.diff(JSON.parse(beforeData), crafts), null, 4));
     // console.log();
-    console.log('DIFFString');
-    console.log(jsonDiff.diffString(JSON.parse(beforeData), crafts));
-    console.log();
+    logger.log('DIFFString');
+    logger.log(jsonDiff.diffString(JSON.parse(beforeData), crafts));
 
     try {
         const response = await cloudflare(`/values/CRAFT_DATA`, 'PUT', JSON.stringify(crafts));
-        console.log(response);
+        if (response.success) {
+            logger.success('Successful Cloudflare put of CRAFT_DATA');
+        } else {
+            for (let i = 0; i < response.errors.length; i++) {
+                logger.error(response.errors[i]);
+            }
+            for (let i = 0; i < response.messages.length; i++) {
+                logger.error(response.messages[i]);
+            }
+        }
     } catch (requestError){
-        console.error(requestError);
+        logger.error(requestError);
     }
+
+    // Possibility to POST to a Discord webhook here with cron status details
+    await jobComplete();
+    logger.end();
 };

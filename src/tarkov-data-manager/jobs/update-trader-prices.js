@@ -2,31 +2,66 @@ const fs = require('fs');
 const path = require('path');
 
 const cloudflare = require('../modules/cloudflare');
-const doQuery = require('../modules/do-query');
+const { query, jobComplete } = require('../modules/db-connection');
+const JobLogger = require('../modules/job-logger');
+const moment = require('moment');
+
+let logger = false;
+
+const outputPrices = async (prices) => {
+    fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'trader-inventory.json'), JSON.stringify(prices, null, 4));
+
+    try {
+        const response = await cloudflare(`/values/TRADER_ITEMS`, 'PUT', JSON.stringify(prices));
+        if (response.success) {
+            logger.success(`Successful Cloudflare put of ${Object.keys(prices).length} TRADER_ITEMS`);
+        } else {
+            for (let i = 0; i < response.errors.length; i++) {
+                logger.error(response.errors[i]);
+            }
+            for (let i = 0; i < response.messages.length; i++) {
+                logger.error(response.messages[i]);
+            }
+        }
+    } catch (requestError){
+        logger.error(requestError);
+    }
+
+    // Possibility to POST to a Discord webhook here with cron status details
+    logger.end();
+    await jobComplete();
+};
 
 module.exports = async () => {
-    const junkboxLastScan = await doQuery(`SELECT
-        *
-    FROM
-        trader_price_data
-    WHERE
-        trade_id = 799
-    ORDER BY
-        timestamp
-        desc
-    LIMIT 1`);
-    if (junkboxLastScan.lengh === 0) {
-        try {
-            const response = await cloudflare(`/values/TRADER_ITEMS`, 'PUT', JSON.stringify({}));
-            console.log(response);
-        } catch (requestError){
-            console.error(requestError);
-        }
+    logger = new JobLogger('update-trader-prices');
+    const outputData = {};
+    const junkboxLastScan = await query(`
+        SELECT
+            trader_price_data.*
+        FROM
+            trader_price_data
+        INNER JOIN
+            trader_items
+        ON
+            trader_items.id=trader_price_data.trade_id
+        WHERE
+            item_id = '5b7c710788a4506dec015957'
+        ORDER BY
+        trader_price_data.timestamp
+            desc
+        LIMIT 1
+    `);
+    if (junkboxLastScan.length === 0) {
+        await outputPrices(outputData);
         return;
     }
 
+    const scanOffsetTimestampMoment = moment(junkboxLastScan[0].timestamp).subtract(6, 'hours').format("YYYY-MM-DD HH:mm:ss");
     const scanOffsetTimestamp = new Date(junkboxLastScan[0].timestamp).setHours(junkboxLastScan[0].timestamp.getHours() - 6);
 
+    logger.log('Trader price cutoff:')
+    logger.log(scanOffsetTimestampMoment);
+    
     const currencyISO = {
         '5696686a4bdc2da3298b456a': 'USD',
         '569668774bdc2da2298b4568': 'EUR'
@@ -37,7 +72,7 @@ module.exports = async () => {
     const currenciesThen = {
         'RUB': 1
     };
-    const currenciesLastScan = await doQuery(`
+    const currenciesLastScan = await query(`
         SELECT
             item_id, trader_name, currency, min_level, quest_unlock_id,
             price, trader_items.timestamp as offer_timestamp, trader_price_data.timestamp as price_timestamp
@@ -63,7 +98,7 @@ module.exports = async () => {
     for (const curr of currenciesLastScan) {
         currenciesNow[currencyISO[curr.item_id]] = curr.price;
     }
-    const currenciesHistoricScan = await doQuery(`
+    const currenciesHistoricScan = await query(`
         SELECT
             item_id, trader_name, currency, min_level, quest_unlock_id,
             price, trader_items.timestamp as offer_timestamp, trader_price_data.timestamp as price_timestamp
@@ -90,17 +125,17 @@ module.exports = async () => {
         currenciesThen[currencyISO[curr.item_id]] = curr.price;
     }
 
-    const traderItems = await doQuery(`SELECT
+    const traderItems = await query(`SELECT
         *
     FROM
         trader_items;`);
 
-    const traderPriceData = await doQuery(`SELECT
+    const traderPriceData = await query(`SELECT
         *
     FROM
         trader_price_data
     WHERE
-        timestamp > ?;`, [scanOffsetTimestamp[0].timestamp]);
+        timestamp > ?;`, [scanOffsetTimestampMoment]);
 
     const latestTraderPrices = {};
 
@@ -123,8 +158,6 @@ module.exports = async () => {
             timestamp: traderPrice.timestamp,
         };
     }
-
-    const outputData = {};
 
     for(const traderItem of traderItems){
         if(!latestTraderPrices[traderItem.id]){
@@ -152,12 +185,5 @@ module.exports = async () => {
         });
     }
 
-    fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'trader-inventory.json'), JSON.stringify(outputData, null, 4));
-
-    try {
-        const response = await cloudflare(`/values/TRADER_ITEMS`, 'PUT', JSON.stringify(outputData));
-        console.log(response);
-    } catch (requestError){
-        console.error(requestError);
-    }
+    await outputPrices(outputData);
 };

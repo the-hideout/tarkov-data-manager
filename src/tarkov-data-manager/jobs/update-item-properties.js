@@ -1,20 +1,16 @@
 const fs = require('fs');
 const path = require('path');
 
-const ora = require('ora');
 const objectPath = require('object-path');
 
 const ttData = require('../modules/tt-data');
-const {connection} = require('../modules/db-connection');
+const {query, jobComplete} = require('../modules/db-connection');
 const {categories} = require('../modules/category-map');
 
-let bsgData;
+const bsgDataHelper = require('./update-bsg-data');
+const JobLogger = require('../modules/job-logger');
 
-const itemCategory = (item) => {
-    const itemCategory = getItemCategory(item);
-
-    return itemCategory?.id || item._parent;
-};
+let logger = false;
 
 const getItemCategory = (item) => {
     if(!item){
@@ -56,34 +52,27 @@ const getItemCategories = (item, previousCategories = []) => {
 const updateProperty = async (itemId, propertyKey, propertyValue) => {
     let shouldUpdate = true;
     try {
-        await new Promise((resolve, reject) => {
-            connection.query(`INSERT IGNORE INTO item_properties (item_id, property_key, property_value)
-                VALUES (?, ?, ?)`,
-                    [
-                        itemId,
-                        propertyKey,
-                        propertyValue,
-                        propertyKey,
-                        propertyValue
-                    ],
-                async (error, results) => {
-                    if (error) {
-                        reject(error)
-                    }
+        const results = await query(`
+            INSERT IGNORE INTO 
+                item_properties (item_id, property_key, property_value)
+            VALUES 
+                (?, ?, ?)
+            `, [
+                itemId,
+                propertyKey,
+                propertyValue,
+                propertyKey,
+                propertyValue
+            ]
+        );
+        if(results.insertId !== 0){
+            shouldUpdate = false;
+        }
+    } catch (error){
+        logger.error(error);
+        logger.end();
 
-                    // We added the row, no need to update
-                    if(results.insertId !== 0){
-                        shouldUpdate = false;
-                    }
-
-                    resolve();
-                }
-            );
-        });
-    } catch (upsertError){
-        console.error(upsertError);
-
-        throw upsertError;
+        return Promise.reject(error);
     }
 
     if(!shouldUpdate){
@@ -91,31 +80,25 @@ const updateProperty = async (itemId, propertyKey, propertyValue) => {
     }
 
     try {
-        await new Promise((resolve, reject) => {
-            connection.query(`UPDATE item_properties SET property_key = ?, property_value = ?
-                WHERE
-                    item_id = ?
-                AND
-                    property_key = ?`,
-                    [
-                        propertyKey,
-                        propertyValue,
-                        itemId,
-                        propertyKey,
-                    ],
-                async (error, results) => {
-                    if (error) {
-                        reject(error)
-                    }
-
-                    resolve();
-                }
-            );
-        });
-    } catch (upsertError){
-        console.error(upsertError);
-
-        throw upsertError;
+        const results = await query(`
+            UPDATE 
+                item_properties 
+            SET 
+                property_key = ?, property_value = ?
+            WHERE
+                item_id = ?
+            AND
+                property_key = ?
+        `, [
+            propertyKey,
+            propertyValue,
+            itemId,
+            propertyKey,
+        ]);
+    } catch (error){
+        logger.error(error);
+        logger.end();
+        return Promise.reject(error);
     }
 }
 
@@ -155,33 +138,43 @@ const mappingProperties = {
 };
 
 module.exports = async () => {
+    logger = new JobLogger('update-item-properties');
+    try {
+        console.log('Running bsgData...');
+        await bsgDataHelper();
+        logger.log('Completed bsgData...');
+    } catch (updateError){
+        logger.error(updateError);
+    
+        logger.error('Failed to get bsgData, exiting...');
+        logger.end();
+        jobComplete();
+        return Promise.reject(updateError);
+    }
+
     const allTTItems = await ttData();
 
     bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
 
-    const currentProperties = await new Promise((resolve, reject) => {
-        connection.query(`SELECT * FROM item_properties`,
-            async (error, results) => {
-                if (error) {
-                    reject(error)
-                }
+    const currentProperties = {};
+    try {
+        const results = await query(`SELECT * FROM item_properties`);
 
-                const currentPropertiesMap = {};
-
-                for(const result of results){
-                    if(!currentPropertiesMap[result.item_id]){
-                        currentPropertiesMap[result.item_id] = {};
-                    }
-
-                    currentPropertiesMap[result.item_id][result.property_key] = result.property_value;
-                }
-
-                resolve(currentPropertiesMap);
+        for(const result of results){
+            if(!currentProperties[result.item_id]){
+                currentProperties[result.item_id] = {};
             }
-        );
-    });
 
-    const spinner = ora('Updating game data').start();
+            currentProperties[result.item_id][result.property_key] = result.property_value;
+        }
+    } catch(error) {
+        logger.error(error);
+        logger.end();
+        jobComplete();
+        return Promise.reject(error);
+    }
+
+    logger.log('Updating game data');
     const ttItems = Object.values(allTTItems);
 
     for(let i = 0; i < ttItems.length; i = i + 1){
@@ -192,7 +185,6 @@ module.exports = async () => {
         }
 
         for(const propertyKey in mappingProperties){
-            spinner.start(`Updating ${i + 1}/${ttItems.length} ${item.id} ${item.shortName} ${mappingProperties[propertyKey]}`);
             let propertyValue = objectPath.get(bsgData[item.id], propertyKey);
 
             // Skip falsy strings
@@ -218,7 +210,7 @@ module.exports = async () => {
                 continue;
             }
 
-            spinner.info(`Updating ${item.name} ${mappingProperties[propertyKey]} to ${propertyValue}`);
+            logger.log(`Updating ${item.name} ${mappingProperties[propertyKey]} to ${propertyValue}`);
 
             // Store bools as string in db
             if(typeof propertyValue === 'boolean'){
@@ -235,11 +227,14 @@ module.exports = async () => {
             continue;
         }
 
-        spinner.info(`Updating ${item.name} bsgCategoryId to ${bsgCategoryId}`);
+        logger.log(`Updating ${item.name} bsgCategoryId to ${bsgCategoryId}`);
         await updateProperty(item.id, 'bsgCategoryId', bsgCategoryId);
     }
 
-    spinner.succeed('Done with all item property updates')
+    logger.succeed('Done with all item property updates')
 
-    spinner.stop();
+    
+    // Possibility to POST to a Discord webhook here with cron status details
+    logger.end();
+    await jobComplete();
 };

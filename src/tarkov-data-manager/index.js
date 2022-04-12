@@ -10,6 +10,7 @@ const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const session = require('express-session');
 const formidable = require('formidable');
 const Rollbar = require('rollbar');
+const chalk = require('chalk');
 
 if (process.env.NODE_ENV !== 'production') {
     const dotenv = require("dotenv");
@@ -248,6 +249,7 @@ const getHeader = (req, options) => {
                         <li class="${req.url === '/scanners' ? 'active' : ''}"><a href="/scanners">Scanners</a></li>
                         <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
                         <li class="${req.url === '/webhooks' ? 'active' : ''}"><a href="/webhooks">Webhooks</a></li>
+                        <li class="${req.url === '/crons' ? 'active' : ''}"><a href="/crons">Crons</a></li>
                         <!--li class="${req.url === '/trader-prices' ? 'active' : ''}"><a href="/trader-prices">Trader Prices</a></li-->
                     </ul>
                 </div>
@@ -257,6 +259,7 @@ const getHeader = (req, options) => {
                 <li class="${req.url === '/scanners' ? 'active' : ''}"><a href="/scanners">Scanners</a></li>
                 <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
                 <li class="${req.url === '/webhooks' ? 'active' : ''}"><a href="/webhooks">Webhooks</a></li>
+                <li class="${req.url === '/crons' ? 'active' : ''}"><a href="/crons">Crons</a></li>
                 <!--li class="${req.url === '/trader-prices' ? 'active' : ''}"><a href="/trader-prices">Trader Prices</a></li-->
             </ul>
         `;
@@ -1221,6 +1224,100 @@ app.delete('/webhooks/:id', async (req, res) => {
     res.json(response);
 });
 
+app.get('/crons', async (req, res) => {
+    res.send(`${getHeader(req, {include: 'datatables'})}
+        <script src="/ansi_up.js"></script>
+        <script src="/crons.js"></script>
+        <div class="row">
+            <div class="col s10 offset-s1">
+                <table class="highlight main">
+                    <thead>
+                        <tr>
+                            <th>
+                                Cron
+                            </th>
+                            <th>
+                                Schedule
+                            </th>
+                            <th>
+                                Last Run
+                            </th>
+                            <th>
+                                Next Run
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="modal-view-cron-log" class="modal modal-fixed-footer">
+            <div class="modal-content">
+                <h4></h4>
+                <div class="row">
+                    <div class="log-messages s12" style="height:400px;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+            </div>
+        </div>
+        <div id="modal-edit-cron" class="modal modal-fixed-footer">
+            <div class="modal-content">
+                <h4></h4>
+                <div class="row">
+                    <form class="col s12 post-url" method="post" action="/crons/set">
+                        <div class="row">
+                            <div class="input-field">
+                                <input value="" id="schedule" type="text" class="validate schedule" name="schedule">
+                                <label for="schedule">Schedule</label>
+                            </div>
+                        </div>
+                        <input value="" id="jobName" type="hidden" name="jobName" class="jobName">
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="waves-effect waves-green btn edit-cron-save">Save</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+            </div>
+        </div>
+    ${getFooter(req)}`);
+});
+
+app.get('/crons/get', async (req, res) => {
+    res.json(jobs.schedules());
+});
+
+app.get('/crons/get/:name', async (req, res) => {
+    try {
+        const logMessages = JSON.parse(fs.readFileSync(path.join(__dirname, 'logs', req.params.name+'.log')));
+        res.json(logMessages);
+        return;
+    } catch (error) {
+        console.log(chalk.red(`Error retrieving ${req.params.name} job log`), error);
+    }
+    res.json([]);
+});
+
+app.post('/crons/set', async (req, res) => {
+    const response = {
+        success: true,
+        message: `${req.body.jobName} job updated to ${req.body.schedule}`,
+        errors: []
+    };
+    try {
+        jobs.setSchedule(req.body.jobName, req.body.schedule);
+    } catch (error) {
+        console.log(chalk.red(`Error setting ${req.params.jobName} job schedule`), error);
+        response.success = false;
+        response.message = `Error setting ${req.params.jobName} job schedule`;
+        response.errors.push(error.toString());
+    }
+    res.json(response);
+});
+
 app.get('/trader-prices', async (req, res) => {
     const t = timer('getting-items');
     const priceData = await remoteData.getTraderPrices();
@@ -1250,7 +1347,8 @@ const server = app.listen(port, () => {
 });
 
 (async () => {
-    jobs();
+    connection.keepAlive = true;
+    jobs.start();
     
     const triggerShutdown = async () => {
         try {
@@ -1263,7 +1361,7 @@ const server = app.listen(port, () => {
                     resolve();
                 });
             });
-            await jobs(false).catch(error => {
+            await jobs.stop().catch(error => {
                 console.log('error stopping scheduled jobs');
                 console.log(error);
             });

@@ -1,6 +1,6 @@
-const got = require('got');
-
-const {connection} = require('../modules/db-connection');
+const { query, jobComplete } = require('../modules/db-connection');
+const webhook = require('../modules/webhook');
+const JobLogger = require('../modules/job-logger');
 
 const ignoreSources = [
     'DESKTOP-DA1IT79',
@@ -11,16 +11,20 @@ const ignoreSources = [
     'NUC-PC',
     'XETA',
     'Mats-HP',
+    'tt'
 ];
 
 module.exports = async () => {
-    connection.query('select max(timestamp) as timestamp, source from price_data group by source order by `timestamp` desc', (queryError, results) => {
-        for(const result of results){
-            if(ignoreSources.includes(result.source)){
+    const logger = new JobLogger('check-scans');
+    try {
+        const results = await query('select max(timestamp) as timestamp, source from price_data group by source order by `timestamp` desc');
+        for (const result of results) {
+            if (ignoreSources.includes(result.source)) {
+                logger.log(`Ignoring source: ${result.source}`);
                 continue;
             }
 
-            console.log(JSON.stringify(result));
+            logger.log(JSON.stringify(result));
             // Db timestamps are off so we add an hour
             const lastScan = new Date(result.timestamp.setTime(result.timestamp.getTime() + 3600000));
 
@@ -30,22 +34,29 @@ module.exports = async () => {
             // console.log(lastScan.getTimezoneOffset());
             // console.log(new Date().getTimezoneOffset());
 
-            const lastScanAge = Math.floor((new Date().getTime() - lastScan.getTime()) / 1000)
-            console.log(`${result.source}: ${lastScanAge}s`);
+            const lastScanAge = Math.floor((new Date().getTime() - lastScan.getTime()) / 1000);
+            logger.log(`${result.source}: ${lastScanAge}s`);
 
-            if(lastScanAge < 1800){
+            if (lastScanAge < 1800) {
                 continue;
-            }
+            } else if (lastScanAge < 14400 && result.source == 'tm') {
+                //TM prices only update every 3 hours.
+                continue;
+            }            
 
             const messageData = {
                 title: `Missing scans from ${encodeURIComponent(result.source)}`,
-                message: `The last scanned price was ${lastScanAge} seconds ago`,
-                users: 'QBfmptGTgQoOS2gGOobd5Olfp31hTKrG',
+                message: `The last scanned price was ${lastScanAge} seconds ago`
             };
 
-            got.post(`https://notifyy-mcnotifyface.herokuapp.com/out`, {
-                json: messageData,
-            });
+            logger.log('Sending alert');
+            webhook.alert(messageData);
         }
-    });
+
+        // Possibility to POST to a Discord webhook here with cron status details
+        await jobComplete();
+    } catch (error) {
+        return Promise.reject(error);
+    }
+    logger.end();
 };

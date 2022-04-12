@@ -1,6 +1,6 @@
 const https = require('https');
 
-const BTC_PER_ITEM = 0.085;
+const BTC_PER_ITEM = 0.662485 * 0.2;
 
 module.exports = () => {
     return new Promise((resolve, reject) => {

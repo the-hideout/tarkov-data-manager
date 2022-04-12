@@ -8,6 +8,7 @@ item-props.json
 scripts/local/
 *.pem
 !src/nginx/ssl-fake/*
+src/tarkov-data-manager/logs/*
 
 # Terraform
 terraform.auto.tfvars.json

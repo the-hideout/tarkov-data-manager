@@ -1,7 +1,9 @@
 const got = require('got');
 const cloudflare = require('../modules/cloudflare');
+const JobLogger = require('../modules/job-logger');
 
 module.exports = async () => {
+    const logger = new JobLogger('update-hideout');
     let data;
 
     try {
@@ -9,8 +11,8 @@ module.exports = async () => {
             responseType: 'json',
         });
     } catch (dataError){
-        console.error(dataError);
-
+        logger.error(dataError);
+        logger.end();
         return false;
     }
 
@@ -21,8 +23,18 @@ module.exports = async () => {
 
     try {
         const response = await cloudflare(`/values/HIDEOUT_DATA`, 'PUT', JSON.stringify(hideoutData));
-        console.log(response);
+        if (response.success) {
+            logger.success('Successful Cloudflare put of HIDEOUT_DATA');
+        } else {
+            for (let i = 0; i < response.errors.length; i++) {
+                logger.error(response.errors[i]);
+            }
+            for (let i = 0; i < response.messages.length; i++) {
+                logger.error(response.messages[i]);
+            }
+        }
     } catch (requestError){
-        console.error(requestError);
+        logger.error(requestError);
     }
+    logger.end();
 }

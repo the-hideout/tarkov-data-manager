@@ -3,7 +3,7 @@ const path = require('path');
 
 const got = require('got');
 const cloudflare = require('../modules/cloudflare');
-
+const JobLogger = require('../modules/job-logger');
 
 const traderMap = [
     'prapor',
@@ -17,15 +17,17 @@ const traderMap = [
 ];
 
 module.exports = async () => {
+    const logger = new JobLogger('update-quests');
     let data;
 
     try {
-        data = await got('https://raw.githack.com/TarkovTracker/tarkovdata/master/quests.json', {
+        data = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
             responseType: 'json',
         });
     } catch (dataError){
-        console.error(dataError);
-
+        logger.error('Error retrieving quests.json');
+        logger.error(dataError);
+        logger.end();
         return false;
     }
 
@@ -44,13 +46,24 @@ module.exports = async () => {
     try {
         fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'quests.json'), JSON.stringify(quests, null, 4));
     } catch (writeError){
-        console.error(writeError);
+        logger.error('Error writing quests.json dump');
+        logger.error(writeError);
     }
 
     try {
         const response = await cloudflare(`/values/QUEST_DATA`, 'PUT', JSON.stringify(quests));
-        console.log(response);
+        if (response.success) {
+            logger.success('Successful Cloudflare put of QUEST_DATA');
+        } else {
+            for (let i = 0; i < response.errors.length; i++) {
+                logger.error(response.errors[i]);
+            }
+        }
+        for (let i = 0; i < response.messages.length; i++) {
+            logger.error(response.messages[i]);
+        }
     } catch (requestError){
-        console.error(requestError);
+        logger.error(requestError);
     }
+    logger.end();
 }
