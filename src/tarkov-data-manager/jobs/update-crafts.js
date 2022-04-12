@@ -41,12 +41,18 @@ module.exports = async function() {
                     count: craft.count
                 }],
                 station: en.interface[`hideout_area_${craft.areaType}_name`],
-                duration: craft.productionTime
+                sourceName: en.interface[`hideout_area_${craft.areaType}_name`],
+                duration: craft.productionTime,
+                requirements: []
             };
             for (index in craft.requirements) {
                 const req = craft.requirements[index];
                 if (req.type === 'Area') {
                     craftData.station = craftData.station + ' level '+req.requiredLevel;
+                    craftData.requirements.push({
+                        type: 'stationLevel',
+                        value: req.requiredLevel
+                    });
                 } else if (req.type === 'Resource') {
                     if (!en.templates[req.templateId]) {
                         logger.warn(`No requirement resource with id ${req.templateId} found in locale_en.json`);
