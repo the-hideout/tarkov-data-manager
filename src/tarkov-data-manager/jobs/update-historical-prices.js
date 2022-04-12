@@ -26,6 +26,7 @@ module.exports = async () => {
         logger.timeEnd(`historical-price-query-items`);
 
         logger.time('all-items-queries');
+        const itemQueries = [];
         for (const itemIdRow of historicalPriceDataItemIds) {
             const itemId = itemIdRow.item_id;
             if(!allPriceData[itemId]){
@@ -33,27 +34,31 @@ module.exports = async () => {
             }
 
             //console.time(`historical-price-query-${itemId}`);
-            const historicalPriceData = await query(`SELECT
+            const historicalPriceDataPromise = query(`SELECT
                 item_id, price, timestamp
             FROM
                 price_data
             WHERE
                 timestamp > ?
             AND
-                item_id = ?`, [aWeekAgo, itemId]);
-            //console.timeEnd(`historical-price-query-${itemId}`);
-            for (const row of historicalPriceData) {
-                if(!allPriceData[row.item_id][row.timestamp.getTime()]){
-                    allPriceData[row.item_id][row.timestamp.getTime()] = {
-                        sum: 0,
-                        count: 0,
-                    };
-                }
+                item_id = ?`, [aWeekAgo, itemId]
+            ).then(historicalPriceData => {
+                //console.timeEnd(`historical-price-query-${itemId}`);
+                for (const row of historicalPriceData) {
+                    if(!allPriceData[row.item_id][row.timestamp.getTime()]){
+                        allPriceData[row.item_id][row.timestamp.getTime()] = {
+                            sum: 0,
+                            count: 0,
+                        };
+                    }
 
-                allPriceData[row.item_id][row.timestamp.getTime()].sum = allPriceData[row.item_id][row.timestamp.getTime()].sum + row.price;
-                allPriceData[row.item_id][row.timestamp.getTime()].count = allPriceData[row.item_id][row.timestamp.getTime()].count + 1;
-            }
+                    allPriceData[row.item_id][row.timestamp.getTime()].sum = allPriceData[row.item_id][row.timestamp.getTime()].sum + row.price;
+                    allPriceData[row.item_id][row.timestamp.getTime()].count = allPriceData[row.item_id][row.timestamp.getTime()].count + 1;
+                }
+            });
+            itemQueries.push(historicalPriceDataPromise);
         }
+        await Promise.all(itemQueries);
         logger.timeEnd('all-items-queries');
 
         let cloudflareData = [];
