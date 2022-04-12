@@ -35,8 +35,9 @@ $(document).ready( function () {
         },
         {
             data: 'nextRun',
-            render: (data, type, cron) => {
+            render: (data, type) => {
                 if (type === 'display') {
+                    if (!data) return 'N/A';
                     const date = new Date(data);
                     return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
                 }
