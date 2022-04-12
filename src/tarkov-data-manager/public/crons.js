@@ -27,7 +27,8 @@ $(document).ready( function () {
             render: (data, type, cron) => {
                 if (type === 'display') {
                     if (!data) return 'N/A';
-                    return `<a href="#" class="view-cron-log" data-cron="${cron.name}">${data}</a>`;
+                    const date = new Date(data);
+                    return `<a href="#" class="view-cron-log" data-cron="${cron.name}">${date.toLocaleDateString()} ${date.toLocaleTimeString()}</a>`;
                 }
                 return data;
             }
@@ -35,10 +36,10 @@ $(document).ready( function () {
         {
             data: 'nextRun',
             render: (data, type, cron) => {
-                /*if (type === 'display') {
-                    if (!data) return 'N/A';
-                    return `<a href="#" class="view-cron-log" data-cron="${cron.name}">${data}</a>`;
-                }*/
+                if (type === 'display') {
+                    const date = new Date(data);
+                    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+                }
                 return data;
             }
         }
