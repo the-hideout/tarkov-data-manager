@@ -7,7 +7,7 @@ const ttData = require('../modules/tt-data');
 const {query, jobComplete} = require('../modules/db-connection');
 const {categories} = require('../modules/category-map');
 
-const bsgDataHelper = require('./update-bsg-data');
+//const bsgDataHelper = require('./update-bsg-data');
 const JobLogger = require('../modules/job-logger');
 
 let logger = false;
@@ -140,9 +140,9 @@ const mappingProperties = {
 module.exports = async () => {
     logger = new JobLogger('update-item-properties');
     try {
-        console.log('Running bsgData...');
-        await bsgDataHelper();
-        logger.log('Completed bsgData...');
+        //console.log('Running bsgData...');
+        //await bsgDataHelper();
+        //logger.log('Completed bsgData...');
 
         const allTTItems = await ttData();
 
