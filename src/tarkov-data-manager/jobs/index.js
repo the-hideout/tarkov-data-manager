@@ -24,7 +24,7 @@ const runJob = function(name, cronSchedule) {
 const allJobs = {
     'check-scans': '20 * * * *',
     'update-cache': '*/5 * * * *',
-    'update-reset-timers': '* * * * *',
+    'update-reset-timers': '*/5 * * * *',
     'update-barters': '*/5 * * * *',
     'update-crafts': '1-59/5 * * * *',
     'update-hideout': '2-59/5 * * * *',
