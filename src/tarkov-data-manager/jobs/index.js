@@ -8,7 +8,7 @@ const runJob = function(name, cronSchedule) {
     console.log(`Setting up ${name} job to run ${cronSchedule}`);
 
     const job = schedule.scheduleJob(cronSchedule, async () => {
-        console.log(`Running ${name} job`);
+        //console.log(`Running ${name} job`);
         try {
             await jobModule();
         } catch (error) {
@@ -34,7 +34,7 @@ const allJobs = {
     'update-historical-prices': '5-59/15 * * * *',
     'update-item-properties': '15 * * * *',
     'update-trader-prices': '45 * * * *',
-    'update-currency-prices': '0 3,15 * * *',
+    'update-currency-prices': '50 * * * *',
     'clear-checkouts': '5,35 * * * *',
     'verify-wiki': '5 9 * * *'
     // Too much memory :'(
