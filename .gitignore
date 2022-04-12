@@ -9,6 +9,7 @@ scripts/local/
 *.pem
 !src/nginx/ssl-fake/*
 src/tarkov-data-manager/logs/*
+src/tarkov-data-manager/settings/*
 
 # Terraform
 terraform.auto.tfvars.json

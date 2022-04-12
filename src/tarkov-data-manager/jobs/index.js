@@ -21,7 +21,7 @@ const runJob = function(name, cronSchedule) {
     scheduledJobs[name] = job;
 }
 
-const allJobs = {
+const defaultJobs = {
     'check-scans': '20 * * * *',
     'update-cache': '*/5 * * * *',
     'update-reset-timers': '*/5 * * * *',
@@ -33,8 +33,8 @@ const allJobs = {
     'game-data': '*/5 * * * *',
     'update-historical-prices': '5-59/15 * * * *',
     'update-item-properties': '15 * * * *',
-    'update-trader-prices': '45 * * * *',
-    'update-currency-prices': '50 * * * *',
+    'update-trader-prices': '25 5,17 * * *',
+    //'update-currency-prices': '50 * * * *',
     'clear-checkouts': '5,35 * * * *',
     'verify-wiki': '5 9 * * *',
     'update-tc-data': '*/5 * * * *'
@@ -46,6 +46,19 @@ const startupJobs = [
     'update-existing-bases',
     'update-tc-data'
 ];
+
+let allJobs = {
+    ...defaultJobs
+};
+try {
+    const customJobs = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'settings', 'crons.json')));
+    allJobs = {
+        ...defaultJobs,
+        ...customJobs
+    };
+} catch (error) {
+    if (error.code !== 'ENOENT') console.log(`Error parsing custom cron jobs`, error);
+}
 
 const scheduledJobs = {};
 
@@ -105,5 +118,14 @@ module.exports = {
     setSchedule: (jobName, cronSchedule) => {
         runJob(jobName, cronSchedule);
         allJobs[jobName] = cronSchedule;
+        const customJobs = {};
+        for (jobName in allJobs) {
+            console.log(`${allJobs[jobName]} : ${defaultJobs[jobName]}`);
+            if (allJobs[jobName] !== defaultJobs[jobName]) {
+                customJobs[jobName] = allJobs[jobName];
+            }
+        }
+        console.log(customJobs);
+        fs.writeFileSync(path.join(__dirname, '..', 'settings', 'crons.json'), JSON.stringify(customJobs, null, 4));
     }
 };

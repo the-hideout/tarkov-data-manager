@@ -7,6 +7,7 @@ const cloudflare = require('../modules/cloudflare');
 const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
+const tarkovChanges = require('../modules/tarkov-changes');
 
 let logger = false;
 
@@ -69,13 +70,16 @@ module.exports = async () => {
             '5696686a4bdc2da3298b456a': 'USD',
             '569668774bdc2da2298b4568': 'EUR'
         }
+        const credits = tarkovChanges.credits();
         const currenciesNow = {
-            'RUB': 1
+            'RUB': 1,
+            'USD': Math.round(credits['5696686a4bdc2da3298b456a'] * 1.104271357),
+            'EUR': Math.round(credits['569668774bdc2da2298b4568'] * 1.152974504)
         };
         const currenciesThen = {
             'RUB': 1
         };
-        const currenciesLastScan = await query(`
+        /*const currenciesLastScan = await query(`
             SELECT
                 item_id, trader_name, currency, min_level, quest_unlock_id,
                 price, trader_items.timestamp as offer_timestamp, trader_price_data.timestamp as price_timestamp
@@ -100,7 +104,7 @@ module.exports = async () => {
         `);
         for (const curr of currenciesLastScan) {
             currenciesNow[currencyISO[curr.item_id]] = curr.price;
-        }
+        }*/
         const currenciesHistoricScan = await query(`
             SELECT
                 item_id, trader_name, currency, min_level, quest_unlock_id,
@@ -190,7 +194,7 @@ module.exports = async () => {
 
         await outputPrices(outputData);
     } catch (error) {
-        logger(error);
+        logger.error(error);
         alert({
             title: `Error running ${logger.jobName} job`,
             message: error.toString()
