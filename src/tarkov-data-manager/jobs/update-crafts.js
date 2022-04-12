@@ -38,7 +38,8 @@ module.exports = async function() {
                 rewardItems: [{
                     name: en.templates[craft.endProduct].Name,
                     id: craft.endProduct,
-                    count: craft.count
+                    count: craft.count,
+                    attributes: []
                 }],
                 station: en.interface[`hideout_area_${craft.areaType}_name`],
                 sourceName: en.interface[`hideout_area_${craft.areaType}_name`],
