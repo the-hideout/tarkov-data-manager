@@ -1234,7 +1234,7 @@ app.get('/crons', async (req, res) => {
                     <thead>
                         <tr>
                             <th>
-                                Cron
+                                Job
                             </th>
                             <th>
                                 Schedule
