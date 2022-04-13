@@ -13,8 +13,8 @@ const INSERT_KEYS = [
     'ShortName',
 ];
 
-module.exports = async () => {
-    const logger = new JobLogger('update-translations');
+module.exports = async (externalLogger) => {
+    const logger = externalLogger || new JobLogger('update-translations');
     try {
         const allTTItems = await ttData();
         const bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
@@ -135,6 +135,6 @@ module.exports = async () => {
             message: error.toString()
         });
     }
-    logger.end();
+    if (!externalLogger) logger.end();
     await jobComplete();
 };

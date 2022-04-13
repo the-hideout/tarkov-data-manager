@@ -27,7 +27,7 @@ const getItemByName = (searchName) => {
     }
 
     let returnItem = itemArray.find((item) => {
-        return item.name.toLowerCase().trim() === searchName.toLowerCase().trim();
+        return item.name.toLowerCase().trim().replace(/['""]/g, '') === searchName.toLowerCase().trim().replace(/['""]/g, '');
     });
 
     if(returnItem){
@@ -35,7 +35,7 @@ const getItemByName = (searchName) => {
     }
 
     returnItem = itemArray.find((item) => {
-        return item.shortname.toLowerCase().trim() === searchName.toLowerCase().trim();
+        return item.shortname.toLowerCase().trim().replace(/['""]/g, '') === searchName.toLowerCase().trim().replace(/['""]/g, '');
     });
 
     if(returnItem){
@@ -90,7 +90,7 @@ const getItemData = function getItemData(html){
     }
 
     if(!item){
-        logger.warn(`Found no item called "${name}"`);
+        logger.error(`Found no required item called "${name}"`);
 
         return false;
     }
@@ -134,7 +134,7 @@ const parseTradeRow = (tradeElement) => {
 
     if(!rewardItem){
         //console.log(`Found no item called "${rewardItemName}"`);
-        logger.error(`Found no item called "${rewardItemName}"`);
+        logger.error(`Found no reward item called "${rewardItemName}"`);
 
         return true;
     }
@@ -197,8 +197,6 @@ const parseTradeRow = (tradeElement) => {
 
     // Failed to map at least one item
     if(tradeData.requiredItems.length !== items.length){
-        console.log(tradeData);
-
         return true;
     }
 

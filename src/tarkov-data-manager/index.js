@@ -1234,6 +1234,9 @@ app.get('/crons', async (req, res) => {
         <script src="/crons.js"></script>
         <div class="row">
             <div class="col s10 offset-s1">
+                <div>
+                    Note: Jobs are scheduled in UTC. You local time is <span class="timeoffset"></span> hours UTC.
+                </div>
                 <table class="highlight main">
                     <thead>
                         <tr>
@@ -1270,6 +1273,9 @@ app.get('/crons', async (req, res) => {
         <div id="modal-edit-cron" class="modal modal-fixed-footer">
             <div class="modal-content">
                 <h4></h4>
+                <div>
+                    Note: Jobs are scheduled in UTC. You local time is <span class="timeoffset"></span> hours UTC.
+                </div>
                 <div class="row">
                     <form class="col s12 post-url" method="post" action="/crons/set">
                         <div class="row">
@@ -1317,6 +1323,23 @@ app.post('/crons/set', async (req, res) => {
         console.log(chalk.red(`Error setting ${req.params.jobName} job schedule`), error);
         response.success = false;
         response.message = `Error setting ${req.params.jobName} job schedule`;
+        response.errors.push(error.toString());
+    }
+    res.json(response);
+});
+
+app.get('/crons/run/:name', async (req, res) => {
+    const response = {
+        success: true,
+        message: `${req.params.name} job started`,
+        errors: []
+    };
+    try {
+        jobs.runJob(req.params.name);
+    } catch (error) {
+        console.log(chalk.red(`Error running ${req.params.name} job`), error);
+        response.success = false;
+        response.message = `Error running ${req.params.name} job`;
         response.errors.push(error.toString());
     }
     res.json(response);

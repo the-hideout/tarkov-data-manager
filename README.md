@@ -58,3 +58,16 @@ You now have two options to start the docker-compose stack (both do the exact sa
 - `docker-compose up --build`
 
 Browse to your web app when it starts up [localhost](https://localhost).
+
+### creds.env Variables
+
+The following variables should be configured in your creds.env file for the data manager to function properly:
+`AWS_SECRET_ACCESS_KEY`/`AWS_ACCESS_KEY_ID`: For interacting with the AWS bucket where images are stored.
+`AUTH_PASSWORD`: The password to log into the web interface.
+`AUTH_SECRET`: Used for secure cookies.
+`CLOUDFLARE_TOKEN`: Used for putting data in cloudflare for the API.
+`PSCALE_USER`/`PSCALE_PASS`: Username and password for the database.
+`TC_USERNAME`/`TC_PASSWORD`/`TC_URL`: Connect to tarkov-changes to get latest item information.
+`WS_PASSWORD`: Used to authenticate commands sent to price scanners.
+`WEBHOOK_URL`: The Discord webhook url for alerts.
+`WEBHOOK_USER`: The optional user name that should be used for any sent Discord webhook alerts.

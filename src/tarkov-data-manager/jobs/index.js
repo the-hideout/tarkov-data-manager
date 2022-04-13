@@ -33,7 +33,7 @@ const defaultJobs = {
     'game-data': '*/5 * * * *',
     'update-historical-prices': '5-59/15 * * * *',
     'update-item-properties': '15 * * * *',
-    'update-trader-prices': '25 5,17 * * *',
+    'update-trader-prices': '25 9,21 * * *',
     //'update-currency-prices': '50 * * * *',
     'clear-checkouts': '5,35 * * * *',
     'verify-wiki': '5 9 * * *',
@@ -127,5 +127,16 @@ module.exports = {
         }
         console.log(customJobs);
         fs.writeFileSync(path.join(__dirname, '..', 'settings', 'crons.json'), JSON.stringify(customJobs, null, 4));
+    },
+    runJob: jobName => {
+        if (!allJobs[jobName]) throw new Error(`${jobName} is not a valid job`);
+        const jobModule = require(`./${jobName}`);
+        if (scheduledJobs[jobName]) {
+            const job = scheduledJobs[jobName];
+            if (new Date() > job.nextInvocation()._date - (1000 * 60 * 5)) {
+                job.cancelNext(true);
+            }
+        }
+        jobModule();
     }
 };

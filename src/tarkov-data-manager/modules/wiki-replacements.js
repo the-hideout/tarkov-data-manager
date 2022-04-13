@@ -24,6 +24,12 @@ const REPLACEMENTS = {
     'Immobilizing splint (alu)': 'Aluminum splint',
     'Maska-1Shch bulletproof helmet': 'Maska-1SCh bulletproof helmet (Olive Drab)',
     'Maska-1Shch face shield': 'Maska-1SCh face shield (Olive Drab)',
+    'HighCom Trooper TFO armor (Multicam)': 'HighCom Trooper TFO body armor (Multicam)',
+    'Purified water canister': 'Canister with purified water',
+    '0.6 liter water bottle': 'Bottle of water (0.6L)',
+    'LOBAEV Arms DVL-10 Saboteur 7.62x51 bolt-action sniper rifle': 'Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle',
+    'Mosin Rifle 730mm regular barrel': 'Mosin Rifle 7.62x54R 730mm regular barrel',
+    'VPO-101 "Vepr-Hunter" 7.62x51 carbine': 'Molot VPO-101 "Vepr-Hunter" 7.62x51 carbine'
 };
 
 const PARTIAL_REPLACEMENTS = {

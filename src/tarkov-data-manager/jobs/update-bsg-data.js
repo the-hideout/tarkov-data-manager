@@ -6,8 +6,8 @@ const tarkovChanges = require('../modules/tarkov-changes');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 
-module.exports = async () => {
-    const logger = new JobLogger('update-bsg-data');
+module.exports = async (externalLogger) => {
+    const logger = externalLogger || new JobLogger('update-bsg-data');
     try {
         logger.log('Loading bsg data');
         logger.time('item-data');
@@ -73,5 +73,5 @@ module.exports = async () => {
             message: error.toString()
         });
     }
-    logger.end();
+    if (!externalLogger) logger.end();
 }

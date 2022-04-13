@@ -13,6 +13,7 @@ $(document).ready( function () {
                         <div><b>${data}</b></div>
                         <div>
                             <a href="#" class="waves-effect waves-light btn edit-cron tooltipped" data-tooltip="Edit" data-job="${data}" data-schedule="${cron.schedule}"><i class="material-icons">edit</i></a>
+                            <a href="#" class="waves-effect waves-light btn run-cron tooltipped" data-tooltip="Run" data-job="${data}"><i class="material-icons">play_arrow</i></a>
                         </div>
                     `;
                 }
@@ -70,6 +71,28 @@ $(document).ready( function () {
                 $('#modal-edit-cron .schedule').focus();
             });
 
+            $('.run-cron').off('click');
+            $('.run-cron').click(function (event) {
+                let target = $(event.target);
+                if (target[0].nodeName === 'I') target = target.parent();
+                target.addClass('disabled');
+                $.ajax({
+                    //method: ,
+                    dataType: "json",
+                    url: '/crons/run/'+target.data('job')
+                }).done(function (data) {
+                    M.toast({html: data.message});
+                    if (data.errors.length > 0) {
+                        for (let i = 0; i < data.errors.length; i++) {
+                            M.toast({html: data.errors[i]});
+                        }
+                        return;
+                    }
+                    target.removeClass('disabled');
+                    table.ajax.reload();
+                });
+            });
+
             $('.view-cron-log').off('click');
             $('.view-cron-log').click(function (event) {
                 let target = $(event.target);
@@ -113,4 +136,9 @@ $(document).ready( function () {
             table.ajax.reload();
         });
     });
+
+    const offset = new Date().getTimezoneOffset()*-1;
+    let sign = '';
+    if (offset >= 0) sign = '+';
+    $('.timeoffset').text(`${sign}${offset/60}`);
 } );

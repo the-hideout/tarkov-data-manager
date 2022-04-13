@@ -115,8 +115,8 @@ const getItemCategories = (item, previousCategories = []) => {
     return previousCategories.concat(getItemCategories(bsgData[item._parent], [bsgData[item._parent]]));
 };
 
-module.exports = async () => {
-    const logger = new JobLogger('update-game-data');
+module.exports = async (externalLogger) => {
+    const logger = externalLogger || new JobLogger('update-game-data');
     try {
         const allTTItems = await ttData();
 
@@ -313,6 +313,6 @@ module.exports = async () => {
             message: error.toString()
         });
     }
-    logger.end();
+    if (!externalLogger) logger.end();
     await jobComplete();
 };
