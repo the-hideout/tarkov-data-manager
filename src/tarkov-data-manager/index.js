@@ -1234,6 +1234,9 @@ app.get('/crons', async (req, res) => {
         <script src="/crons.js"></script>
         <div class="row">
             <div class="col s10 offset-s1">
+                <div>
+                    Note: Jobs are scheduled in UTC. You local time is <span class="timeoffset"></span> hours UTC.
+                </div>
                 <table class="highlight main">
                     <thead>
                         <tr>
@@ -1270,6 +1273,9 @@ app.get('/crons', async (req, res) => {
         <div id="modal-edit-cron" class="modal modal-fixed-footer">
             <div class="modal-content">
                 <h4></h4>
+                <div>
+                    Note: Jobs are scheduled in UTC. You local time is <span class="timeoffset"></span> hours UTC.
+                </div>
                 <div class="row">
                     <form class="col s12 post-url" method="post" action="/crons/set">
                         <div class="row">

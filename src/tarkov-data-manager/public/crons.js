@@ -136,4 +136,9 @@ $(document).ready( function () {
             table.ajax.reload();
         });
     });
+
+    const offset = new Date().getTimezoneOffset()*-1;
+    let sign = '';
+    if (offset >= 0) sign = '+';
+    $('.timeoffset').text(`${sign}${offset/60}`);
 } );

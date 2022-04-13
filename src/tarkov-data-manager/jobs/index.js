@@ -33,7 +33,7 @@ const defaultJobs = {
     'game-data': '*/5 * * * *',
     'update-historical-prices': '5-59/15 * * * *',
     'update-item-properties': '15 * * * *',
-    'update-trader-prices': '25 5,17 * * *',
+    'update-trader-prices': '25 9,21 * * *',
     //'update-currency-prices': '50 * * * *',
     'clear-checkouts': '5,35 * * * *',
     'verify-wiki': '5 9 * * *',
