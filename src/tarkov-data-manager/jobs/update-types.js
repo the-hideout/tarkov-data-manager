@@ -6,8 +6,8 @@ const {query, jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 
-module.exports = async () => {
-    const logger = new JobLogger('update-types');
+module.exports = async (externalLogger) => {
+    const logger = externalLogger || new JobLogger('update-types');
     try {
         const allTTItems = await ttData();
         const bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
@@ -56,6 +56,6 @@ module.exports = async () => {
             message: error.toString()
         });
     }
-    logger.end();
+    if (!externalLogger) logger.end();
     await jobComplete();
 };

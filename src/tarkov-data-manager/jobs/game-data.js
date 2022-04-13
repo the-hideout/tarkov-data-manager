@@ -12,19 +12,19 @@ module.exports = async () => {
     connection.keepAlive = true;
     try {
         logger.log('Running bsgData...');
-        await bsgData();
+        await bsgData(logger);
         logger.log('Completed bsgData');
 
         logger.log('Running updateGameData...');
-        await updateGameData();
+        await updateGameData(logger);
         logger.log('Completed updateGameData');
 
         logger.log('Running updateTranslations...');
-        await updateTranslations();
+        await updateTranslations(logger);
         logger.log('Completed updateTranslations');
 
         logger.log('Running updateTypes...');
-        await updateTypes();
+        await updateTypes(logger);
         logger.log('Completed updateTypes');
     } catch (error){
         logger.error(error);
