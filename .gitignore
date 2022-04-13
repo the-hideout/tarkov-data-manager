@@ -9,7 +9,7 @@ scripts/local/
 *.pem
 !src/nginx/ssl-fake/*
 src/tarkov-data-manager/logs/*
-src/tarkov-data-manager/settings/*
+src/tarkov-data-manager/settings/crons.json
 
 # Terraform
 terraform.auto.tfvars.json
