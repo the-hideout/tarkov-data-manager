@@ -9,10 +9,11 @@ class JobLogger {
         this.startTime = new Date();
         this.messages = [];
         this.timers = {};
+        this.verbose = process.env.VERBOSE_LOGS == 'true';
     }
 
     log(message) {
-        //console.log(message);
+        if (this.verbose) console.log(message);
         if (typeof message === 'object') {
             message = JSON.stringify(message, null, 4);
         }
@@ -25,7 +26,7 @@ class JobLogger {
         } else if (typeof message === 'object') {
             message = chalk.red(message.toString());
         }
-        //console.log(message);
+        if (this.verbose) console.log(message);
         this.messages.push(message);
     }
 
@@ -39,7 +40,7 @@ class JobLogger {
         } else if (typeof message === 'object') {
             message = JSON.stringify(message, null, 4);
         }
-        //console.log(message);
+        if (this.verbose) console.log(message);
         this.messages.push(message);
     }
 
@@ -49,7 +50,7 @@ class JobLogger {
         } else if (typeof message === 'object') {
             message = JSON.stringify(message, null, 4);
         }
-        //console.log(message);
+        if (this.verbose) console.log(message);
         this.messages.push(message);
     }
 
@@ -60,7 +61,7 @@ class JobLogger {
     end() {
         const endMessage = `${this.jobName} ended in ${new Date() - this.startTime}ms`;
         this.log(endMessage);
-        //console.log(endMessage);
+        if (this.verbose) console.log(endMessage);
         try {
             fs.mkdirSync(path.join(__dirname, '..', 'logs'));
         } catch (error) {
@@ -84,7 +85,7 @@ class JobLogger {
         if (!this.timers[label]) return;
         const endMessage = `${label} completed in ${new Date - this.timers[label]}ms`;
         this.log(endMessage);
-        //console.log(endMessage);
+        if (this.verbose) console.log(endMessage);
         delete this.timers[label];
     }
 }
