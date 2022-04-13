@@ -1322,6 +1322,23 @@ app.post('/crons/set', async (req, res) => {
     res.json(response);
 });
 
+app.get('/crons/run/:name', async (req, res) => {
+    const response = {
+        success: true,
+        message: `${req.params.name} job started`,
+        errors: []
+    };
+    try {
+        jobs.runJob(req.params.name);
+    } catch (error) {
+        console.log(chalk.red(`Error running ${req.params.name} job`), error);
+        response.success = false;
+        response.message = `Error running ${req.params.name} job`;
+        response.errors.push(error.toString());
+    }
+    res.json(response);
+});
+
 app.get('/trader-prices', async (req, res) => {
     const t = timer('getting-items');
     const priceData = await remoteData.getTraderPrices();

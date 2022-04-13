@@ -51,17 +51,24 @@ module.exports = {
         return module.exports.get('locale_en.json', download);
     },
     downloadAll: async () => {
-        const results = await Promise.all([
-            module.exports.items(true), 
-            module.exports.crafts(true),
-            module.exports.credits(true),
-            module.exports.en(true)
+        const results = await Promise.allSettled([
+            module.exports.items(true).then(data => {return {name: 'items', data: data}}), 
+            module.exports.crafts(true).then(data => {return {name: 'crafts', data: data}}),
+            module.exports.credits(true).then(data => {return {name: 'credits', data: data}}),
+            module.exports.en(true).then(data => {return {name: 'en', data: data}})
         ]);
-        return {
-            items: results[0],
-            crafts: results[1],
-            credits: results[2],
-            en: results[3]
-        };
+        const errors = [];
+        const values = {};
+        for (let i = 0; i < results.length; i++) {
+            if (results[i].status === 'fulfilled') {
+                values[results[i].value.name] = results[i].value.data;
+            } else {
+                errors.push(results[i].reason.message);
+            }
+        }
+        if (errors.length > 0) {
+            return Promise.reject(new Error(errors.join('; ')));
+        }
+        return values;
     }
 }

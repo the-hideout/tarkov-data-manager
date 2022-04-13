@@ -87,6 +87,24 @@ module.exports = async function() {
                         })
                     }
                     craftData.requiredItems.push(reqData);
+                } else if (req.type == 'Tool') {
+                    if (!en.templates[req.templateId]) {
+                        logger.warn(`No requirement tool with id ${req.templateId} found in locale_en.json`);
+                        continue;
+                    }
+                    const reqData = {
+                        name: en.templates[req.templateId].Name,
+                        id: req.templateId,
+                        count: 1,
+                        attributes: []
+                    };
+                    if (req.isFunctional) {
+                        reqData.attributes.push({
+                            type: 'tool',
+                            value: String(true)
+                        })
+                    }
+                    craftData.requiredItems.push(reqData);
                 }
             }
             crafts.data.push(craftData);

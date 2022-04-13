@@ -127,5 +127,10 @@ module.exports = {
         }
         console.log(customJobs);
         fs.writeFileSync(path.join(__dirname, '..', 'settings', 'crons.json'), JSON.stringify(customJobs, null, 4));
+    },
+    runJob: jobName => {
+        if (!allJobs[jobName]) throw new Error(`${jobName} is not a valid job`);
+        const jobModule = require(`./${jobName}`);
+        jobModule();
     }
 };
