@@ -133,7 +133,7 @@ module.exports = {
         const jobModule = require(`./${jobName}`);
         if (scheduledJobs[jobName]) {
             const job = scheduledJobs[jobName];
-            if (job.nextInvocation() - (1000 * 60 * 5) < new Date()) {
+            if (new Date() > job.nextInvocation()._date - (1000 * 60 * 5)) {
                 job.cancelNext(true);
             }
         }
