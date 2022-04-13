@@ -180,6 +180,9 @@ module.exports = async () => {
                 const rublesCost = currenciesThen[traderItem.currency]*itemPrice;
                 itemPrice = Math.ceil(rublesCost / currenciesNow[traderItem.currency]);
             }
+            if (currencyISO[traderItem.item_id]) {
+                itemPrice = currenciesNow[currencyISO[traderItem.item_id]];
+            }
             outputData[traderItem.item_id].push({
                 id: traderItem.item_id,
                 source: traderItem.trader_name,
