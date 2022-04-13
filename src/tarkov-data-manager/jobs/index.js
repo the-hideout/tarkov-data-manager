@@ -131,6 +131,12 @@ module.exports = {
     runJob: jobName => {
         if (!allJobs[jobName]) throw new Error(`${jobName} is not a valid job`);
         const jobModule = require(`./${jobName}`);
+        if (scheduledJobs[jobName]) {
+            const job = scheduledJobs[jobName];
+            if (job.nextInvocation() - (1000 * 60 * 5) < new Date()) {
+                job.cancelNext(true);
+            }
+        }
         jobModule();
     }
 };

@@ -89,6 +89,7 @@ $(document).ready( function () {
                         return;
                     }
                     target.removeClass('disabled');
+                    table.ajax.reload();
                 });
             });
 
