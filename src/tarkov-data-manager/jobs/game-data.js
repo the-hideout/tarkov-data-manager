@@ -2,33 +2,40 @@ const bsgData = require('./update-bsg-data');
 const updateGameData = require('./update-game-data');
 const updateTranslations = require('./update-translations');
 const updateTypes = require('./update-types');
+const { connection, jobComplete } = require('../modules/db-connection');
+const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 module.exports = async () => {
+    const logger = new JobLogger('game-data');
+    const keepAlive = connection.keepAlive;
+    connection.keepAlive = true;
     try {
+        logger.log('Running bsgData...');
         await bsgData();
-    } catch (updateError){
-        console.error(updateError);
+        logger.log('Completed bsgData');
 
-        return false;
-    }
-
-    try {
+        logger.log('Running updateGameData...');
         await updateGameData();
-    } catch (updateError){
-        console.error(updateError);
+        logger.log('Completed updateGameData');
 
-        return false;
-    }
-
-    try {
+        logger.log('Running updateTranslations...');
         await updateTranslations();
-    } catch (updateError){
-        console.error(updateError);
-    }
+        logger.log('Completed updateTranslations');
 
-    try {
+        logger.log('Running updateTypes...');
         await updateTypes();
-    } catch (updateError){
-        console.error(updateError);
+        logger.log('Completed updateTypes');
+    } catch (error){
+        logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
+    connection.keepAlive = keepAlive;
+
+    // Possibility to POST to a Discord webhook here with cron status details
+    await jobComplete();
+    logger.end();
 }

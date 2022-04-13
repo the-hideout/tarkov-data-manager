@@ -30,5 +30,19 @@ module.exports = {
     connection: pool,
     pool: pool,
     query: query,
-    format: mysql.format
+    format: mysql.format,
+    jobComplete: async () => {
+        if (pool.keepAlive) {
+            return Promise.resolve(false);
+        }
+        return new Promise((resolve, reject) => {
+            pool.end(error => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+                resolve(true);
+            });
+        });
+    }
 };

@@ -50,7 +50,7 @@ $(document).ready( function () {
                         <div>
                             <a href="${item.wiki_link}">Wiki</a>
                             |
-                            <a href="https://tarkov-tools.com/item/${item.normalized_name}">Tarkov Tools</a>
+                            <a href="https://tarkov.dev/item/${item.normalized_name}">Tarkov.dev</a>
                             <br>
                             <a class="waves-effect waves-light btn edit-item" data-item="${encodeURIComponent(JSON.stringify(item))}"><i class="material-icons">edit</i></a>
                         </div>

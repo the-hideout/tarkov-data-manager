@@ -1,20 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 
-const ora = require('ora');
 const objectPath = require('object-path');
 
 const ttData = require('../modules/tt-data');
-const {connection} = require('../modules/db-connection');
+const {query, jobComplete} = require('../modules/db-connection');
 const {categories} = require('../modules/category-map');
 
-let bsgData;
+//const bsgDataHelper = require('./update-bsg-data');
+const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
-const itemCategory = (item) => {
-    const itemCategory = getItemCategory(item);
-
-    return itemCategory?.id || item._parent;
-};
+let logger = false;
 
 const getItemCategory = (item) => {
     if(!item){
@@ -56,34 +53,27 @@ const getItemCategories = (item, previousCategories = []) => {
 const updateProperty = async (itemId, propertyKey, propertyValue) => {
     let shouldUpdate = true;
     try {
-        await new Promise((resolve, reject) => {
-            connection.query(`INSERT IGNORE INTO item_properties (item_id, property_key, property_value)
-                VALUES (?, ?, ?)`,
-                    [
-                        itemId,
-                        propertyKey,
-                        propertyValue,
-                        propertyKey,
-                        propertyValue
-                    ],
-                async (error, results) => {
-                    if (error) {
-                        reject(error)
-                    }
+        const results = await query(`
+            INSERT IGNORE INTO 
+                item_properties (item_id, property_key, property_value)
+            VALUES 
+                (?, ?, ?)
+            `, [
+                itemId,
+                propertyKey,
+                propertyValue,
+                propertyKey,
+                propertyValue
+            ]
+        );
+        if(results.insertId !== 0){
+            shouldUpdate = false;
+        }
+    } catch (error){
+        logger.error(error);
+        logger.end();
 
-                    // We added the row, no need to update
-                    if(results.insertId !== 0){
-                        shouldUpdate = false;
-                    }
-
-                    resolve();
-                }
-            );
-        });
-    } catch (upsertError){
-        console.error(upsertError);
-
-        throw upsertError;
+        return Promise.reject(error);
     }
 
     if(!shouldUpdate){
@@ -91,31 +81,25 @@ const updateProperty = async (itemId, propertyKey, propertyValue) => {
     }
 
     try {
-        await new Promise((resolve, reject) => {
-            connection.query(`UPDATE item_properties SET property_key = ?, property_value = ?
-                WHERE
-                    item_id = ?
-                AND
-                    property_key = ?`,
-                    [
-                        propertyKey,
-                        propertyValue,
-                        itemId,
-                        propertyKey,
-                    ],
-                async (error, results) => {
-                    if (error) {
-                        reject(error)
-                    }
-
-                    resolve();
-                }
-            );
-        });
-    } catch (upsertError){
-        console.error(upsertError);
-
-        throw upsertError;
+        const results = await query(`
+            UPDATE 
+                item_properties 
+            SET 
+                property_key = ?, property_value = ?
+            WHERE
+                item_id = ?
+            AND
+                property_key = ?
+        `, [
+            propertyKey,
+            propertyValue,
+            itemId,
+            propertyKey,
+        ]);
+    } catch (error){
+        logger.error(error);
+        logger.end();
+        return Promise.reject(error);
     }
 }
 
@@ -155,91 +139,96 @@ const mappingProperties = {
 };
 
 module.exports = async () => {
-    const allTTItems = await ttData();
+    logger = new JobLogger('update-item-properties');
+    try {
+        //console.log('Running bsgData...');
+        //await bsgDataHelper();
+        //logger.log('Completed bsgData...');
 
-    bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
+        const allTTItems = await ttData();
 
-    const currentProperties = await new Promise((resolve, reject) => {
-        connection.query(`SELECT * FROM item_properties`,
-            async (error, results) => {
-                if (error) {
-                    reject(error)
+        const bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
+
+        const currentProperties = {};
+
+        const results = await query(`SELECT * FROM item_properties`);
+
+        for(const result of results){
+            if(!currentProperties[result.item_id]){
+                currentProperties[result.item_id] = {};
+            }
+
+            currentProperties[result.item_id][result.property_key] = result.property_value;
+        }
+
+        logger.log('Updating game data');
+        const ttItems = Object.values(allTTItems);
+
+        for(let i = 0; i < ttItems.length; i = i + 1){
+            const item = ttItems[i];
+
+            if(!bsgData[item.id]?._props){
+                continue;
+            }
+
+            for(const propertyKey in mappingProperties){
+                let propertyValue = objectPath.get(bsgData[item.id], propertyKey);
+
+                // Skip falsy strings
+                // Should be fixed for actual booleans
+                if(typeof propertyValue === 'string' && propertyValue === '') {
+                    continue;
                 }
 
-                const currentPropertiesMap = {};
-
-                for(const result of results){
-                    if(!currentPropertiesMap[result.item_id]){
-                        currentPropertiesMap[result.item_id] = {};
-                    }
-
-                    currentPropertiesMap[result.item_id][result.property_key] = result.property_value;
+                if(typeof propertyValue === 'number' && currentProperties[item.id] && Number(currentProperties[item.id][mappingProperties[propertyKey]]) === propertyValue){
+                    continue;
                 }
 
-                resolve(currentPropertiesMap);
+                if(typeof propertyValue === 'undefined'){
+                    continue;
+                }
+
+                if(typeof propertyValue === 'boolean' && currentProperties[item.id] && currentProperties[item.id][mappingProperties[propertyKey]] === propertyValue.toString()){
+                    continue;
+                }
+
+                // Skip values we already have
+                if(currentProperties[item.id] && currentProperties[item.id][mappingProperties[propertyKey]] === propertyValue){
+                    continue;
+                }
+
+                logger.log(`Updating ${item.name} ${mappingProperties[propertyKey]} to ${propertyValue}`);
+
+                // Store bools as string in db
+                if(typeof propertyValue === 'boolean'){
+                    propertyValue = propertyValue.toString();
+                }
+
+                await updateProperty(item.id, mappingProperties[propertyKey], propertyValue);
             }
-        );
-    });
 
-    const spinner = ora('Updating game data').start();
-    const ttItems = Object.values(allTTItems);
+            // const bsgCategoryId = itemCategory(bsgData[item.id]);
+            const bsgCategoryId = bsgData[item.id]._parent;
 
-    for(let i = 0; i < ttItems.length; i = i + 1){
-        const item = ttItems[i];
+            if(currentProperties[item.id] && currentProperties[item.id].bsgCategoryId === bsgCategoryId){
+                continue;
+            }
 
-        if(!bsgData[item.id]?._props){
-            continue;
+            logger.log(`Updating ${item.name} bsgCategoryId to ${bsgCategoryId}`);
+            await updateProperty(item.id, 'bsgCategoryId', bsgCategoryId);
         }
 
-        for(const propertyKey in mappingProperties){
-            spinner.start(`Updating ${i + 1}/${ttItems.length} ${item.id} ${item.shortName} ${mappingProperties[propertyKey]}`);
-            let propertyValue = objectPath.get(bsgData[item.id], propertyKey);
+        logger.succeed('Done with all item property updates')
 
-            // Skip falsy strings
-            // Should be fixed for actual booleans
-            if(typeof propertyValue === 'string' && propertyValue === '') {
-                continue;
-            }
-
-            if(typeof propertyValue === 'number' && currentProperties[item.id] && Number(currentProperties[item.id][mappingProperties[propertyKey]]) === propertyValue){
-                continue;
-            }
-
-            if(typeof propertyValue === 'undefined'){
-                continue;
-            }
-
-            if(typeof propertyValue === 'boolean' && currentProperties[item.id] && currentProperties[item.id][mappingProperties[propertyKey]] === propertyValue.toString()){
-                continue;
-            }
-
-            // Skip values we already have
-            if(currentProperties[item.id] && currentProperties[item.id][mappingProperties[propertyKey]] === propertyValue){
-                continue;
-            }
-
-            spinner.info(`Updating ${item.name} ${mappingProperties[propertyKey]} to ${propertyValue}`);
-
-            // Store bools as string in db
-            if(typeof propertyValue === 'boolean'){
-                propertyValue = propertyValue.toString();
-            }
-
-            await updateProperty(item.id, mappingProperties[propertyKey], propertyValue);
-        }
-
-        // const bsgCategoryId = itemCategory(bsgData[item.id]);
-        const bsgCategoryId = bsgData[item.id]._parent;
-
-        if(currentProperties[item.id] && currentProperties[item.id].bsgCategoryId === bsgCategoryId){
-            continue;
-        }
-
-        spinner.info(`Updating ${item.name} bsgCategoryId to ${bsgCategoryId}`);
-        await updateProperty(item.id, 'bsgCategoryId', bsgCategoryId);
+        
+        // Possibility to POST to a Discord webhook here with cron status details
+    } catch (error){
+        logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
-
-    spinner.succeed('Done with all item property updates')
-
-    spinner.stop();
+    logger.end();
+    await jobComplete();
 };

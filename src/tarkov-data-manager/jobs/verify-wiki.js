@@ -1,7 +1,11 @@
 const got = require('got');
-const ora = require('ora');
+const webhook = require('../modules/webhook');
 
-const {connection} = require('../modules/db-connection');
+const {query, jobComplete} = require('../modules/db-connection');
+const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
+
+let logger = false;
 
 const nameToWikiLink = (name) => {
     const formattedName = name
@@ -12,48 +16,46 @@ const nameToWikiLink = (name) => {
     return `https://escapefromtarkov.fandom.com/wiki/${formattedName}`;
 };
 
-const postMessage = (spinner, id, name, link, type) => {
+const postMessage = (item, foundNewLink) => {
     const messageData = {
-        title: `Broken wiki link for ${name}`,
-        message: `Wiki link for ${name} does no longer work`,
-        users: 'QBfmptGTgQoOS2gGOobd5Olfp31hTKrG',
+        title: 'Broken wiki link',
+        message: item.name
     };
 
-    if(link){
-        messageData.url = link.replace( /_/g, '\\_' );
+    if (foundNewLink) {
+        logger.succeed(`${item.id} | ${foundNewLink} | ${item.name}`);
+
+        messageData.title = 'Updated wiki link';
+        messageData.message = item.name;
+    } else {
+        logger.fail(`${item.id} | ${foundNewLink} | ${item.name}`);
     }
 
-    switch (type) {
-        case 'new':
-            spinner.succeed(`${id} | ${link} | ${name}`);
-
-            messageData.title = `New wiki link for ${name}`;
-            messageData.message = `Updated wiki link for ${name}`;
-
-            break;
-        case 'broken':
-            spinner.fail(`${id} | ${link} | ${name}`);
-
-            break;
-    }
-
-    got.post(`https://notifyy-mcnotifyface.herokuapp.com/out`, {
-        json: messageData,
-    });
+    webhook.alert(messageData);
 };
 
 module.exports = async () => {
-    let missing = 0;
-    const spinner = ora('Verifying wiki links').start();
-    await new Promise((resolve, reject) => {
-        connection.query(`select item_data.*, translations.value AS name from item_data, translations where translations.item_id = item_data.id and translations.type = 'name'`, async (error, results) => {
-            if(error){
-                return reject(error);
+    let logger = new JobLogger('verify-wiki');
+    try {
+        let missing = 0;
+        const promises = [];
+        logger.log('Verifying wiki links');
+        const results = await query(`
+            SELECT 
+                item_data.*, translations.value AS name 
+            FROM 
+                item_data, translations 
+            WHERE 
+                translations.item_id = item_data.id AND translations.type = 'name'
+        `);
+        for(let i = 0; i < results.length; i++){
+            if (promises.length >= 10) {
+                await Promise.all(promises);
+                promises.length = 0;
             }
-
-            for(let i = 0; i < results.length; i = i + 1){
+            promises.push(new Promise(async (resolve) => {
                 const result = results[i];
-                spinner.start(`${i + 1}/${results.length} ${result.name}`);
+                //logger.log(`${i + 1}/${results.length} ${result.name}`);
 
                 let shouldRemoveCurrentLink = false;
                 let newWikiLink = false;
@@ -65,7 +67,7 @@ module.exports = async () => {
 
                         // We have the right link. Move on
                         if(matches.groups.canonical === result.wiki_link){
-                            continue;
+                            return resolve();
                         }
 
                         // We don't have the right link, but there's a redirect
@@ -98,47 +100,39 @@ module.exports = async () => {
                         await got.head(newWikiLink);
                     } catch (requestError){
                         // console.log(requestError);
-                        // postMessage(spinner, result.id, result.name, newWikiLink, 'broken');
+                        // postMessage(result.id, result.name, newWikiLink, 'broken');
 
                         missing = missing + 1;
                         newWikiLink = false;
+                        logger.warn(`${result.name} (${result.id}) missing wiki link`);
                     }
                 }
 
-                if(shouldRemoveCurrentLink && result.wiki_link){
-                    postMessage(spinner, result.id, result.name, newWikiLink, 'broken');
-                    await new Promise((resolveUpdate, rejectUpdate) => {
-                        connection.query(`UPDATE item_data SET wiki_link = ? WHERE id = ?`, ['', result.id], (error) => {
-                            if(error){
-                                console.log(error);
-                                return rejectUpdate(error);
-                            }
+                if (shouldRemoveCurrentLink && newWikiLink) {
+                    shouldRemoveCurrentLink = false;
+                }
 
-                            return resolveUpdate();
-                        });
-                    });
+                if(shouldRemoveCurrentLink && result.wiki_link){
+                    postMessage(result, newWikiLink);
+                    await query(`UPDATE item_data SET wiki_link = ? WHERE id = ?`, ['', result.id]);
                 }
 
                 if(newWikiLink){
-                    postMessage(spinner, result.id, result.name, newWikiLink, 'new');
-                    await new Promise((resolveUpdate, rejectUpdate) => {
-                        connection.query(`UPDATE item_data SET wiki_link = ? WHERE id = ?`, [newWikiLink, result.id], (error) => {
-                            if(error){
-                                console.log(error);
-                                return rejectUpdate(error);
-                            }
-
-                            return resolveUpdate();
-                        });
-                    });
+                    postMessage(result, newWikiLink);
+                    await query(`UPDATE item_data SET wiki_link = ? WHERE id = ?`, [newWikiLink, result.id]);
                 }
-            }
-
-            spinner.stop();
-
-            resolve();
+                return resolve();
+            }));
+        }
+        // Possibility to POST to a Discord webhook here with cron status details
+        logger.log(`${missing} items still missing a valid wiki link`);
+    } catch (error) {
+        logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
         });
-    });
-
-    console.log(`${missing} items still missing a valid wiki link`);
+    }
+    logger.end();
+    await jobComplete();
 };

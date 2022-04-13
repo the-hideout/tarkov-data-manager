@@ -29,15 +29,16 @@
     "got": "^11.8.2",
     "jimp": "^0.16.1",
     "json-diff": "^0.5.4",
+    "moment": "^2.29.2",
     "mysql": "^2.18.1",
     "mysql2": "^2.3.3",
     "node-schedule": "^2.0.0",
     "nodemon": "^2.0.12",
     "object-path": "^0.11.8",
-    "ora": "^5.4.1",
     "parse-duration": "^1.0.0",
-    "rollbar": "^2.24.0",
     "round-to": "^5.0.0",
+    "@sentry/node": "^6.19.6",
+    "@sentry/tracing": "^6.19.6",
     "unidecode": "^0.1.8"
   }
 }

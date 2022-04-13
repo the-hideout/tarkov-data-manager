@@ -3,7 +3,8 @@ const path = require('path');
 
 const got = require('got');
 const cloudflare = require('../modules/cloudflare');
-
+const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 const traderMap = [
     'prapor',
@@ -17,40 +18,48 @@ const traderMap = [
 ];
 
 module.exports = async () => {
-    let data;
-
+    const logger = new JobLogger('update-quests');
     try {
-        data = await got('https://raw.githack.com/TarkovTracker/tarkovdata/master/quests.json', {
+        logger.log('Retrieving TarkovTracker quests.json...');
+        const data = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
             responseType: 'json',
         });
-    } catch (dataError){
-        console.error(dataError);
 
-        return false;
-    }
+        const quests = data.body.map((quest) => {
+            return {
+                ...quest,
+                reputation: quest.reputation.map((questReputation) => {
+                    return {
+                        ...questReputation,
+                        trader: traderMap[questReputation.trader],
+                    };
+                }),
+            };
+        });
 
-    const quests = data.body.map((quest) => {
-        return {
-            ...quest,
-            reputation: quest.reputation.map((questReputation) => {
-                return {
-                    ...questReputation,
-                    trader: traderMap[questReputation.trader],
-                };
-            }),
-        };
-    });
-
-    try {
+        logger.log('Writing quests.json...');
         fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'quests.json'), JSON.stringify(quests, null, 4));
-    } catch (writeError){
-        console.error(writeError);
-    }
 
-    try {
-        const response = await cloudflare(`/values/QUEST_DATA`, 'PUT', JSON.stringify(quests));
-        console.log(response);
-    } catch (requestError){
-        console.error(requestError);
+        const response = await cloudflare(`/values/QUEST_DATA`, 'PUT', JSON.stringify(quests)).catch(error => {
+            logger.error(error);
+            return {success: false, errors: [], messages: []};
+        });
+        if (response.success) {
+            logger.success('Successful Cloudflare put of QUEST_DATA');
+        } else {
+            for (let i = 0; i < response.errors.length; i++) {
+                logger.error(response.errors[i]);
+            }
+        }
+        for (let i = 0; i < response.messages.length; i++) {
+            logger.error(response.messages[i]);
+        }
+    } catch (error){
+        logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
+    logger.end();
 }

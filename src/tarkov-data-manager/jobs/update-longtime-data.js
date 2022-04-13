@@ -1,7 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const doQuery = require('../modules/do-query');
+const { query, jobComplete } = require('../modules/db-connection');
+const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 const keys = {
     interchange: {
@@ -99,69 +101,89 @@ const keys = {
 };
 
 module.exports = async () => {
-    for(const map in keys){
-        console.time(`longtime-price-query-${map}`);
-        let historicalPriceData = await doQuery(`SELECT
-            item_id, price, timestamp
-        FROM
-            price_data
-        WHERE
-            timestamp > '2021-12-14'
-        AND
-            item_id
-        IN (?)`, [Object.values(keys[map])]);
-        console.timeEnd(`longtime-price-query-${map}`);
-
-        const fileHandle = fs.createWriteStream(path.join(__dirname, '..', 'public', 'data', `historical-prices-${map}.csv`), {
-            flags: 'a',
-        });
-
-        fileHandle.write('price,timestamp,name\n');
-
-        for (const row of historicalPriceData) {
-            let keyName = false;
-
-            for(const name in keys[map]){
-                if(keys[map][name] !== row.item_id){
-                    continue;
+    const logger = new JobLogger('update-longtime-data');
+    try {
+        for(const map in keys){
+            logger.time(`longtime-price-query-${map}`);
+            let historicalPriceData = await query(`SELECT
+                item_id, price, timestamp
+            FROM
+                price_data
+            WHERE
+                timestamp > '2021-12-14'
+            AND
+                item_id
+            IN (?)`, [Object.values(keys[map])]);
+            logger.timeEnd(`longtime-price-query-${map}`);
+    
+            const fileHandle = fs.createWriteStream(path.join(__dirname, '..', 'public', 'data', `historical-prices-${map}.csv`), {
+                flags: 'a',
+            });
+    
+            fileHandle.write('price,timestamp,name\n');
+    
+            for (const row of historicalPriceData) {
+                let keyName = false;
+    
+                for(const name in keys[map]){
+                    if(keys[map][name] !== row.item_id){
+                        continue;
+                    }
+    
+                    keyName = name;
+                    break;
                 }
-
-                keyName = name;
-                break;
+    
+                fileHandle.write(`${row.price},${row.timestamp.toISOString()},${keyName}\n`);
             }
-
-            fileHandle.write(`${row.price},${row.timestamp.toISOString()},${keyName}\n`);
+    
+            fileHandle.end();
         }
-
-        fileHandle.end();
-
-        historicalPriceData = null;
-        mapPriceData = null;
-    }
-
-        console.time(`longtime-price-query-all`);
-        let historicalPriceData = await doQuery(`SELECT
-            item_id, price, timestamp
-        FROM
-            price_data
-        WHERE
-            timestamp > '2021-12-14'`);
-        console.timeEnd(`longtime-price-query-all`);
-
+    
+        logger.time(`longtime-price-query-all`);
+        const batchSize = 100000;
+        let offset = 0;
+        const priceSql = `
+            SELECT
+                item_id, price, timestamp
+            FROM
+                price_data
+            WHERE
+                timestamp > '2021-12-14'
+            LIMIT ?, 100000
+        `;
+        const historicalPriceData = await query(priceSql, [offset]);
+        let moreResults = historicalPriceData.length === 100000;
+        while (moreResults) {
+            offset += batchSize;
+            const moreData = await query(priceSql, [offset]);
+            historicalPriceData.push(...moreData);
+            if (moreData.length < batchSize) {
+                moreResults = false;
+            }
+        }
+        logger.timeEnd(`longtime-price-query-all`);
+    
         const fileHandle = fs.createWriteStream(path.join(__dirname, '..', 'public', 'data', `historical-prices-all.csv`), {
             flags: 'a',
         });
-
+    
         fileHandle.write('price,timestamp,item_id\n');
-
-        console.time('write-all-file');
+    
+        logger.time('write-all-file');
         for (const row of historicalPriceData) {
             fileHandle.write(`${row.price},${row.timestamp.toISOString()},${row.item_id}\n`);
         }
-
+    
         fileHandle.end();
-        console.timeEnd('write-all-file');
-
-        historicalPriceData = null;
-        mapPriceData = null;
+        logger.timeEnd('write-all-file');
+    } catch (error) {
+        logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
+    }
+    logger.end();
+    await jobComplete();
 };

@@ -4,6 +4,9 @@ const path = require('path');
 const { S3Client, ListObjectsV2Command } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
 
+const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
+
 const s3 = new S3Client({
     region: 'us-east-1',
     credentials: fromEnv(),
@@ -35,9 +38,11 @@ const getBucketContents = async (continuationToken = false) => {
 }
 
 module.exports = async () => {
+    const logger = new JobLogger('update-existing-bases');
     try {
         if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-            console.log('aws variables not configured; skipping update-existing-bases job');
+            logger.log('aws variables not configured; skipping update-existing-bases job');
+            logger.end();
             return;
         }
         const allKeys = await getBucketContents();
@@ -45,7 +50,12 @@ module.exports = async () => {
         const baseKeys = allKeys.filter(key => key.includes('-base')).map(key => key.split('-')[0]);
 
         fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json'), JSON.stringify(baseKeys, null, 4));
-    } catch (err) {
-        console.log("Error", err);
+    } catch (error) {
+        logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
+    logger.end();
 }

@@ -1,15 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 
-const ora = require('ora');
-
 const normalizeName = require('../modules/normalize-name');
 const {categories} = require('../modules/category-map');
 const presetSize = require('../modules/preset-size');
 const ttData = require('../modules/tt-data');
 const oldShortnames = require('../old-shortnames.json');
 
-const {connection} = require('../modules/db-connection');
+const { connection, query, jobComplete } = require('../modules/db-connection');
+const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 let bsgData;
 
@@ -116,217 +116,203 @@ const getItemCategories = (item, previousCategories = []) => {
 };
 
 module.exports = async () => {
-    const allTTItems = await ttData();
+    const logger = new JobLogger('update-game-data');
+    try {
+        const allTTItems = await ttData();
 
-    bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
+        bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
 
-    const spinner = ora('Updating game data').start();
+        logger.log('Updating game data');
 
-    const items = Object.values(bsgData).filter((bsgObject) => {
-        if(bsgObject._type !== 'Item'){
-            return false;
-        }
+        const items = Object.values(bsgData).filter((bsgObject) => {
+            if(bsgObject._type !== 'Item'){
+                return false;
+            }
 
-        if(bsgObject._props.QuestItem){
-            return false;
-        }
+            if(bsgObject._props.QuestItem){
+                return false;
+            }
 
-        if(bsgObject._id === '5732ee6a24597719ae0c0281'){
+            if(bsgObject._id === '5732ee6a24597719ae0c0281'){
+                return true;
+            }
+
+            if(ignoreMap.includes(bsgObject._id)){
+                return false;
+            }
+
+            // Parent is LootContainer
+            if(bsgObject._parent === '566965d44bdc2d814c8b4571'){
+                return false;
+            }
+
+            // Parent is MobContainer
+            // Removes all secure containers tho...
+            if(bsgObject._parent === '5448bf274bdc2dfc2f8b456a'){
+                return false;
+            }
+
+            // Parent is Stash
+            if(bsgObject._parent === '566abbb64bdc2d144c8b457d'){
+                return false;
+            }
+
+            // Parent is Pockets
+            if(bsgObject._parent === '557596e64bdc2dc2118b4571'){
+                return false;
+            }
+
+            // Parent is Inventory
+            if(bsgObject._parent === '55d720f24bdc2d88028b456d'){
+                return false;
+            }
+
+            // Parent is Sorting table
+            if(bsgObject._parent === '6050cac987d3f925bf016837'){
+                return false;
+            }
+
+            // 5b9b9020e7ef6f5716480215 dogtagt
+
+            // Removes shrapnel etc
+            if(bsgObject._props.StackMinRandom === 0){
+                return false
+            }
+
             return true;
-        }
+        });
 
-        if(ignoreMap.includes(bsgObject._id)){
-            return false;
-        }
+        for(let i = 0; i < items.length; i = i + 1){
+            const item = items[i];
+            //logger.log(`Updating ${i + 1}/${items.length} ${item._id} ${item._props.ShortName}`);
+            const extraProperties = {};
+            for(const extraProp of mappingProperties){
 
-        // Parent is LootContainer
-        if(bsgObject._parent === '566965d44bdc2d814c8b4571'){
-            return false;
-        }
+                if(!item._props[extraProp]){
+                    continue;
+                }
 
-        // Parent is MobContainer
-        // Removes all secure containers tho...
-        if(bsgObject._parent === '5448bf274bdc2dfc2f8b456a'){
-            return false;
-        }
+                extraProperties[extraProp] = item._props[extraProp];
+            }
 
-        // Parent is Stash
-        if(bsgObject._parent === '566abbb64bdc2d144c8b457d'){
-            return false;
-        }
+            extraProperties.grid = getGrid(item);
 
-        // Parent is Pockets
-        if(bsgObject._parent === '557596e64bdc2dc2118b4571'){
-            return false;
-        }
+            const itemCategory = getItemCategory(item);
 
-        // Parent is Inventory
-        if(bsgObject._parent === '55d720f24bdc2d88028b456d'){
-            return false;
-        }
+            extraProperties.bsgCategoryId = itemCategory?.id || item._parent;
 
-        // Parent is Sorting table
-        if(bsgObject._parent === '6050cac987d3f925bf016837'){
-            return false;
-        }
+            item.name = item._props.Name.toString();
+            item.shortName = item._props.ShortName.toString();
+            item.description = item._props.Description.toString();
+            item.width = item._props.Width;
+            item.height = item._props.Height;
 
-        // 5b9b9020e7ef6f5716480215 dogtagt
+            let itemPresetSize = await presetSize(item._id);
 
-        // Removes shrapnel etc
-        if(bsgObject._props.StackMinRandom === 0){
-            return false
-        }
+            /*if(!itemPresetSize && oldShortnames[item._id]){
+                itemPresetSize = await presetSize(oldShortnames[item._id], item._id);
+            }*/
 
-        return true;
-    });
+            if(itemPresetSize){
+                item.width = itemPresetSize.width;
+                item.height = itemPresetSize.height;
+            }
 
-    for(let i = 0; i < items.length; i = i + 1){
-        const item = items[i];
-        spinner.start(`Updating ${i + 1}/${items.length} ${item._id} ${item._props.ShortName}`);
-        const extraProperties = {};
-        for(const extraProp of mappingProperties){
+            let shouldUpsert = false;
+            // Skip existing items to speed things up
+            if(allTTItems[item._id]){
+                shouldUpsert = false;
+            }
 
-            if(!item._props[extraProp]){
+            if(allTTItems[item._id] && allTTItems[item._id].basePrice !== item._props.CreditsPrice && typeof item._props.CreditsPrice !== 'undefined'){
+                logger.log(`${allTTItems[item._id].name} has the wrong basePrice. is ${allTTItems[item._id].basePrice} should be ${item._props.CreditsPrice}`);
+
+                shouldUpsert = true;
+            }
+
+            if(allTTItems[item._id] && allTTItems[item._id].width !== item.width){
+                logger.log(`${allTTItems[item._id].name} has a new width ${item.width}`);
+
+                shouldUpsert = true;
+            }
+
+            if(allTTItems[item._id] && allTTItems[item._id].height !== item.height){
+                logger.log(`${allTTItems[item._id].name} has a new height ${item.height}`);
+
+                shouldUpsert = true;
+            }
+
+            if(!shouldUpsert){
                 continue;
             }
 
-            extraProperties[extraProp] = item._props[extraProp];
-        }
+            if (item.name === "Roubles") {
+                continue;
+            }
 
-        extraProperties.grid = getGrid(item);
-
-        const itemCategory = getItemCategory(item);
-
-        extraProperties.bsgCategoryId = itemCategory?.id || item._parent;
-
-        item.name = item._props.Name.toString();
-        item.shortName = item._props.ShortName.toString();
-        item.description = item._props.Description.toString();
-        item.width = item._props.Width;
-        item.height = item._props.Height;
-
-        let itemPresetSize = await presetSize(item._id);
-
-        /*if(!itemPresetSize && oldShortnames[item._id]){
-            itemPresetSize = await presetSize(oldShortnames[item._id], item._id);
-        }*/
-
-        if(itemPresetSize){
-            item.width = itemPresetSize.width;
-            item.height = itemPresetSize.height;
-        }
-
-        let shouldUpsert = false;
-        // Skip existing items to speed things up
-        if(allTTItems[item._id]){
-            shouldUpsert = false;
-        }
-
-        if(allTTItems[item._id] && allTTItems[item._id].basePrice !== item._props.CreditsPrice){
-            spinner.warn(`${allTTItems[item._id].name} has the wrong basePrice. is ${allTTItems[item._id].basePrice} should be ${item._props.CreditsPrice}`);
-            spinner.start();
-
-            shouldUpsert = true;
-        }
-
-        if(allTTItems[item._id] && allTTItems[item._id].width !== item.width){
-            spinner.warn(`${allTTItems[item._id].name} has a new width ${item.width}`);
-            spinner.start();
-
-            shouldUpsert = true;
-        }
-
-        if(allTTItems[item._id] && allTTItems[item._id].height !== item.height){
-            spinner.warn(`${allTTItems[item._id].name} has a new height ${item.height}`);
-            spinner.start();
-
-            shouldUpsert = true;
-        }
-
-        if(!shouldUpsert){
-            continue;
-        }
-
-        spinner.succeed(`Upserting item: ${item.name}`);
-        const promise = new Promise((resolve, reject) => {
-            connection.query(`INSERT INTO item_data (id, normalized_name, base_price, width, height, properties)
-                VALUES (
-                    '${item._id}',
-                    ${connection.escape(normalizeName(item._props.Name))},
-                    ${item._props.CreditsPrice},
-                    ${item.width},
-                    ${item.height},
-                    ${connection.escape(JSON.stringify(extraProperties))}
-                )
-                ON DUPLICATE KEY UPDATE
-                    normalized_name=${connection.escape(normalizeName(item._props.Name))},
-                    base_price=${item._props.CreditsPrice},
-                    width=${item.width},
-                    height=${item.height},
-                    properties=${connection.escape(JSON.stringify(extraProperties))}`
-                , async (error, results) => {
-                    if (error) {
-                        reject(error)
-                    }
-
-                    if(results.changedRows > 0){
-                        console.log(`${item._props.Name} updated`);
-                    }
-
-                    if(results.insertId !== 0){
-                        console.log(`${item._props.Name} added`);
-                    }
-
-                    for(const insertKey of INSERT_KEYS){
-                        const promise = new Promise((translationResolve, translationReject) => {
-                            connection.query(`INSERT IGNORE INTO translations (item_id, type, language_code, value)
-                                VALUES (
-                                    ?,
-                                    ?,
-                                    ?,
-                                    ?
-                                )`, [item._id, insertKey.toLowerCase(), 'en', item[insertKey].trim()], (error) => {
-                                    if (error) {
-                                        translationReject(error);
-                                    }
-
-                                    translationResolve();
-                                }
-                            );
-                        });
-
-                        try {
-                            await promise;
-                        } catch (upsertError){
-                            console.error(upsertError);
-
-                            throw upsertError;
-                        }
-
-                    }
-
-                    resolve();
+            try {
+                let basePrice = item._props.CreditsPrice;
+                if (typeof basePrice === 'undefined') {
+                    basePrice = allTTItems[item._id].basePrice;
                 }
-            );
+                const results = await query(`
+                    INSERT INTO 
+                        item_data (id, normalized_name, base_price, width, height, properties)
+                    VALUES (
+                        '${item._id}',
+                        ${connection.escape(normalizeName(item._props.Name))},
+                        ${basePrice},
+                        ${item.width},
+                        ${item.height},
+                        ${connection.escape(JSON.stringify(extraProperties))}
+                    )
+                    ON DUPLICATE KEY UPDATE
+                        normalized_name=${connection.escape(normalizeName(item._props.Name))},
+                        base_price=${basePrice},
+                        width=${item.width},
+                        height=${item.height},
+                        properties=${connection.escape(JSON.stringify(extraProperties))}
+                `);
+                if(results.changedRows > 0){
+                    console.log(`${item._props.Name} updated`);
+                }
+
+                if(results.insertId !== 0){
+                    console.log(`${item._props.Name} added`);
+                }
+
+                for(const insertKey of INSERT_KEYS){
+                    await query(`
+                        INSERT IGNORE INTO 
+                            translations (item_id, type, language_code, value)
+                        VALUES (?, ?, ?, ?)
+                    `, [item._id, insertKey.toLowerCase(), 'en', item[insertKey].trim()]);
+                }
+            } catch (error){
+                logger.fail(`${allTTItems[item._id].name} error updating item`);
+                logger.error(error);
+                logger.end();
+                jobComplete();
+                return Promise.reject(error);
+            }
+        }
+
+        for(const ttItemId in allTTItems){
+            if(items.find(bsgItem => bsgItem._id === ttItemId)){
+                continue;
+            }
+
+            logger.warn(`${allTTItems[ttItemId].name} is no longer available in the game`);
+        }
+
+        logger.succeed('Game data update complete');
+    } catch (error) {
+        logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
         });
-
-        try {
-            await promise;
-        } catch (upsertError){
-            console.error(upsertError);
-
-            throw upsertError;
-        }
     }
-
-    for(const ttItemId in allTTItems){
-        if(items.find(bsgItem => bsgItem._id === ttItemId)){
-            continue;
-        }
-
-        spinner.warn(`${allTTItems[ttItemId].name} is no longer available in the game`);
-        spinner.start();
-    }
-
-    spinner.stop();
+    logger.end();
+    await jobComplete();
 };

@@ -78,7 +78,7 @@ const getGrid = (item) => {
     let currentProps;
 
     try {
-        const response = await got('https://raw.githack.com/kokarn/tarkov-tools/master/src/data/item-props.json');
+        const response = await got('https://raw.githubusercontent.com/the-hideout/tarkov-dev/main/src/data/item-props.json');
         currentProps = JSON.parse(response.body);
     } catch (someError){
         console.error(someError);

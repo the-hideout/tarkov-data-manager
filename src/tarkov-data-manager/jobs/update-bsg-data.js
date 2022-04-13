@@ -1,31 +1,22 @@
 const fs = require('fs');
 const path = require('path');
 
-const got = require('got');
+//const bitcoinPrice = require('../modules/bitcoin-price');
+const tarkovChanges = require('../modules/tarkov-changes');
+const JobLogger = require('../modules/job-logger');
+const {alert} = require('../modules/webhook');
 
 module.exports = async () => {
-    let itemData;
-
-    console.log('Loading bsg data');
-    console.time('bsg-data');
+    const logger = new JobLogger('update-bsg-data');
     try {
-        const response = await got(process.env.BSG_DATA_URL, {
-            responseType: 'json'
-        });
+        logger.log('Loading bsg data');
+        logger.time('item-data');
+        const itemData = await tarkovChanges.items();
+        logger.timeEnd('item-data');
 
-        itemData = response.body;
-        console.timeEnd('bsg-data');
-    } catch (gotError){
-        throw gotError;
-    }
-
-    console.time('bsg-translation-data');
-    try {
-        const response = await got(process.env.BSG_TRANSLATIONS_URL, {
-            responseType: 'json'
-        });
-
-        console.timeEnd('bsg-translation-data');
+        logger.time('bsg-translation-data');
+        const localeData = await tarkovChanges.en();
+        logger.timeEnd('bsg-translation-data');
 
         for(const key in itemData){
             if(!itemData[key]._props){
@@ -34,43 +25,53 @@ module.exports = async () => {
 
             itemData[key]._props = {
                 ...itemData[key]._props,
-                ...response.body.templates[key],
+                ...localeData.templates[key],
             };
         }
-    } catch (gotError){
-        throw gotError;
-    }
 
-    console.time('bsg-base-price-data');
-    try {
-        const response = await got(process.env.BSG_BASE_PRICE_URL, {
-            responseType: 'json'
-        });
-
-        console.timeEnd('bsg-base-price-data');
+        logger.time('bsg-base-price-data');
+        const creditsData = await tarkovChanges.credits();
+        logger.timeEnd('bsg-base-price-data');
 
         for(const key in itemData){
-            if(!itemData[key]._props){
+            /*if (key === '59faff1d86f7746c51718c9c') {
+                //bitcoin
+                try {
+                    itemData[key]._props = {
+                        ...itemData[key]._props,
+                        CreditsPrice: await bitcoinPrice()
+                    };
+                } catch (error) {
+                    logger.error('Error setting bitcoin price', error);
+                }
+                continue;
+            }*/
+            if (!itemData[key]._props){
                 continue;
             }
 
             itemData[key]._props = {
                 ...itemData[key]._props,
-                CreditsPrice: response.body[key],
+                CreditsPrice: creditsData[key],
             };
         }
-    } catch (gotError){
-        throw gotError;
+        
+        const writeData = {};
+        let allKeys = Object.keys(itemData);
+
+        allKeys.sort();
+
+        for(const key of allKeys){
+            writeData[key] = itemData[key];
+        }
+
+        fs.writeFileSync(path.join(__dirname, '..', 'bsg-data.json'), JSON.stringify(writeData, null, 4));
+    } catch (error) {
+        logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.toString()
+        });
     }
-
-    const writeData = {};
-    let allKeys = Object.keys(itemData);
-
-    allKeys.sort();
-
-    for(const key of allKeys){
-        writeData[key] = itemData[key];
-    }
-
-    fs.writeFileSync(path.join(__dirname, '..', 'bsg-data.json'), JSON.stringify(writeData, null, 4));
+    logger.end();
 }
