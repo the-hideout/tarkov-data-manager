@@ -98,12 +98,10 @@ module.exports = async function() {
                         count: 1,
                         attributes: []
                     };
-                    if (req.isFunctional) {
-                        reqData.attributes.push({
-                            type: 'tool',
-                            value: String(true)
-                        })
-                    }
+                    reqData.attributes.push({
+                        type: 'tool',
+                        value: String(true)
+                    });
                     craftData.requiredItems.push(reqData);
                 }
             }
