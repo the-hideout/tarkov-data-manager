@@ -46,6 +46,7 @@ module.exports = async function() {
                 duration: craft.productionTime,
                 requirements: []
             };
+            let level = false;
             for (index in craft.requirements) {
                 const req = craft.requirements[index];
                 if (req.type === 'Area') {
@@ -54,6 +55,7 @@ module.exports = async function() {
                         type: 'stationLevel',
                         value: req.requiredLevel
                     });
+                    level = req.requiredLevel;
                 } else if (req.type === 'Resource') {
                     if (!en.templates[req.templateId]) {
                         logger.warn(`No requirement resource with id ${req.templateId} found in locale_en.json`);
@@ -104,6 +106,13 @@ module.exports = async function() {
                     });
                     craftData.requiredItems.push(reqData);
                 }
+            }
+            if (!level) {
+                craftData.station = craftData.station + ' level 1';
+                craftData.requirements.push({
+                    type: 'stationLevel',
+                    value: 1
+                });
             }
             crafts.data.push(craftData);
         }
