@@ -7,7 +7,7 @@
     "node": "17.x"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node -r dotenv/config --trace-warnings  test.js",
     "dev": "node -r dotenv/config --trace-warnings  index.js",
     "start": "node --max-old-space-size=460 index.js",
     "job": "node -r dotenv/config --trace-warnings test-job.js"

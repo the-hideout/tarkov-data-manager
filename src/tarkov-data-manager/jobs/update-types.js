@@ -19,12 +19,22 @@ module.exports = async (externalLogger) => {
             i = i + 1;
             // console.log(`Updating ${i + 1}/${Object.keys(allTTItems).length} ${itemId} ${item.shortName}`);
 
-            if(!bsgData[itemId]?._props){
-                continue;
-            }
-
             //logger.log(`Checking ${itemId} ${item.name}`)
             try {
+                if (!bsgData[itemId]) {
+                    if (!item.types.includes('disabled')) {
+                        logger.warn(`${itemId} ${item.name} is no longer in the game, disabling`);
+                        await query(`INSERT IGNORE INTO types (item_id, type) VALUES(?, 'disabled')`, [itemId]).then(results => {
+                            if (results.affectedRows == 0) {
+                                logger.fail(`Already disabled ${itemId} ${item.name}`);
+                            }
+                        });
+                    }
+                    continue;
+                }
+                if(!bsgData[itemId]?._props){
+                    continue;
+                }
                 if(item.types.includes('noFlea') && bsgData[itemId]._props.CanSellOnRagfair){
                     logger.warn(`You can sell ${itemId} ${item.name} on flea, but it is marked as noFlea`);
 

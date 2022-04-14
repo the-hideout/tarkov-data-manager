@@ -17,6 +17,7 @@ services:
     volumes:
       - ./src/tarkov-data-manager/settings:/app/settings
       - ./src/tarkov-data-manager/cache:/app/cache
+      - ./src/tarkov-data-manager/logs:/app/logs
 
   caddy:
     container_name: caddy-service
@@ -42,3 +43,4 @@ volumes:
   caddy_config:
   settings:
   cache:
+  logs:

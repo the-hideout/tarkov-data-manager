@@ -51,6 +51,15 @@ const ignoreMap = [
     '5751961824597720a31c09ac', // (off)black keycard
 ];
 
+const secureContainers = [
+    '544a11ac4bdc2d470e8b456a', // alpha
+    '5857a8b324597729ab0a0e7d', // beta
+    '59db794186f77448bc595262', // epsilon
+    '5857a8bc2459772bad15db29', // gamma
+    '5c093ca986f7740a1867ab12', // kappa
+    '5732ee6a24597719ae0c0281', // waist pouch
+];
+
 const INSERT_KEYS = [
     'name',
     'shortName',
@@ -133,7 +142,7 @@ module.exports = async (externalLogger) => {
                 return false;
             }
 
-            if(bsgObject._id === '5732ee6a24597719ae0c0281'){
+            if(secureContainers.includes(bsgObject._id)){
                 return true;
             }
 
@@ -147,7 +156,7 @@ module.exports = async (externalLogger) => {
             }
 
             // Parent is MobContainer
-            // Removes all secure containers tho...
+            // Removes all secure containers, which is why we do the above check first
             if(bsgObject._parent === '5448bf274bdc2dfc2f8b456a'){
                 return false;
             }
@@ -242,6 +251,10 @@ module.exports = async (externalLogger) => {
                 shouldUpsert = true;
             }
 
+            if (!allTTItems[item._id]) {
+                shouldUpsert = true;
+            }
+
             if(!shouldUpsert){
                 continue;
             }
@@ -302,7 +315,7 @@ module.exports = async (externalLogger) => {
                 continue;
             }
 
-            logger.warn(`${allTTItems[ttItemId].name} is no longer available in the game`);
+            logger.warn(`${allTTItems[ttItemId].name} (${allTTItems[ttItemId].id}) is no longer available in the game`);
         }
 
         logger.succeed('Game data update complete');

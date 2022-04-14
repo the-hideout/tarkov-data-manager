@@ -1,4 +1,4 @@
-cache/
+#cache/
 creds.env
 node_modules
 *.sql
@@ -8,9 +8,9 @@ item-props.json
 scripts/local/
 *.pem
 !src/nginx/ssl-fake/*
-src/tarkov-data-manager/logs/*
+src/tarkov-data-manager/logs/*.log
 src/tarkov-data-manager/settings/crons.json
-src/tarkov-data-manager/cache/*
+src/tarkov-data-manager/cache/*.json
 
 # Terraform
 terraform.auto.tfvars.json
