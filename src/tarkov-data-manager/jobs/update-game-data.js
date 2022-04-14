@@ -259,9 +259,9 @@ module.exports = async (externalLogger) => {
                 continue;
             }
 
-            if (item.name === "Roubles") {
+            /*if (item.name === "Roubles") {
                 continue;
-            }
+            }*/
 
             try {
                 let basePrice = item._props.CreditsPrice;
@@ -314,7 +314,9 @@ module.exports = async (externalLogger) => {
             if(items.find(bsgItem => bsgItem._id === ttItemId)){
                 continue;
             }
-
+            if (allTTItems[ttItemId].types.includes('disabled')) {
+                continue;
+            }
             logger.warn(`${allTTItems[ttItemId].name} (${allTTItems[ttItemId].id}) is no longer available in the game`);
         }
 
