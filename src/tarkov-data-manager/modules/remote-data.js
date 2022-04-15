@@ -277,12 +277,12 @@ const methods = {
 
         if(updateObject.active === false){
             currentItemData.types.splice(currentItemData.types.indexOf(updateObject.type), 1);
-            remoteData.removeType(updateObject.id, updateObject.type);
+            methods.removeType(updateObject.id, updateObject.type);
         }
 
         if(updateObject.active === true){
             currentItemData.types.push(updateObject.type);
-            remoteData.addType(updateObject.id, updateObject.type);
+            methods.addType(updateObject.id, updateObject.type);
         }
 
         myData.set(updateObject.id, currentItemData);
