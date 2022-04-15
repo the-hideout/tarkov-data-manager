@@ -37,7 +37,8 @@ const defaultJobs = {
     //'update-currency-prices': '50 * * * *',
     'clear-checkouts': '5,35 * * * *',
     'verify-wiki': '5 9 * * *',
-    'update-tc-data': '*/10 * * * *'
+    'update-tc-data': '*/10 * * * *',
+    'update-ammo': '*/10 * * * *'
     // Too much memory :'(
     // 'update-longtime-data': '49 8 * * *'
 };
