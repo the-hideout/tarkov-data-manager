@@ -85,7 +85,6 @@ class JobLogger {
         if (!this.timers[label]) return;
         const endMessage = `${label} completed in ${new Date - this.timers[label]}ms`;
         this.log(endMessage);
-        if (this.verbose) console.log(endMessage);
         delete this.timers[label];
     }
 }
