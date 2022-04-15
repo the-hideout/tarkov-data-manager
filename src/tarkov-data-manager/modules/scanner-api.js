@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const {pool, query, format} = require('./db-connection');
 
 let users = {};
@@ -509,6 +511,24 @@ const insertTraderRestock = async (options) => {
     return response;
 };
 
+const getJson = (options) => {
+    const response = {errors: [], warnings: [], data: {}};
+    try {
+        let file = options.file;
+        file = file.split('/').pop();
+        file = file.split('\\').pop();
+        if (!file.endsWith('.json')) throw new Error(`${file} is not a valid json file`);
+        response.data = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', file)));
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            response.errors.push(`Error: ${options.file} not found`);
+        } else {
+            response.errors.push(String(error));
+        }
+    }
+    return response;
+};
+
 const refreshUsers = async () => {
     const results = await query('SELECT username, password from scanner_user WHERE disabled=0');
     users = {};
@@ -558,6 +578,9 @@ module.exports = {
             }
             if (resource === 'ping' && req.method === 'GET') {
                 response = {errors: [], warnings: [], data: 'ok'};
+            }
+            if (resource === 'json') {
+                response = getJson(options);
             }
             if (response) {
                 res.json(response);
