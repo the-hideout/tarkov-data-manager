@@ -70,7 +70,7 @@ module.exports = async () => {
             '5696686a4bdc2da3298b456a': 'USD',
             '569668774bdc2da2298b4568': 'EUR'
         }
-        const credits = tarkovChanges.credits();
+        const credits = await tarkovChanges.credits();
         const currenciesNow = {
             'RUB': 1,
             'USD': Math.round(credits['5696686a4bdc2da3298b456a'] * 1.104271357),
