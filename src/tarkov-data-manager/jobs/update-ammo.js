@@ -49,7 +49,7 @@ module.exports = async function() {
                 fragmentationChance: ammo._props.FragmentationChance,
                 ricochetChance: ammo._props.RicochetChance,
                 penetrationChance: ammo._props.PenetrationChance,
-                penetrationPower: ammo._props.penetrationPower,
+                penetrationPower: ammo._props.PenetrationPower,
                 accuracy: ammo._props.ammoAccr,
                 recoil: ammo._props.ammoRec,
                 initialSpeed: ammo._props.InitialSpeed,
