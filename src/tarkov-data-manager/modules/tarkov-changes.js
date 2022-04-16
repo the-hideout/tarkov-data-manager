@@ -17,6 +17,24 @@ const jsonRequest = async (path) => {
     return response.body;
 };
 
+const spt = async (fileName, path) => {
+    returnValue = await got(path, {
+        responseType: 'json',
+    });
+    fs.writeFileSync(cachePath(fileName), JSON.stringify(returnValue.body, null, 4));
+    return returnValue.body;
+};
+
+const availableFiles = [
+    //'areas.json',
+    'crafts.json',
+    'credits.json',
+    'items.json',
+    //'globals.json',
+    'locale_en.json',
+    //'quests.json'
+];
+
 const cachePath = (filename) => {
     return path.join(__dirname, '..', 'cache', filename);   
 }
@@ -47,16 +65,27 @@ module.exports = {
     credits: async (download = false) => {
         return module.exports.get('credits.json', download);
     },
-    en: async (download = false) => {
+    locale_en: async (download = false) => {
         return module.exports.get('locale_en.json', download);
     },
+    globals: async(download = false) => {
+        return spt('globals.json', 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/globals.json');
+        //return module.exports.get('globals.json', download);
+    },
+    areas: async(download = false) => {
+        return spt('areas.json', 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/hideout/areas.json');
+        //return module.exports.get('areas.json', download);
+    },
+    quests: async(download = false) => {
+        return spt('quests.json', 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/templates/quests.json');
+        //return module.exports.get('quests.json', download);
+    },
     downloadAll: async () => {
-        const results = await Promise.allSettled([
-            module.exports.items(true).then(data => {return {name: 'items', data: data}}), 
-            module.exports.crafts(true).then(data => {return {name: 'crafts', data: data}}),
-            module.exports.credits(true).then(data => {return {name: 'credits', data: data}}),
-            module.exports.en(true).then(data => {return {name: 'en', data: data}})
-        ]);
+        const promises = [];
+        for (const file of availableFiles) {
+            promises.push(module.exports.get(file, true).then(data => {return {name: file, data: data}}));
+        }
+        const results = await Promise.allSettled(promises);
         const errors = [];
         const values = {};
         for (let i = 0; i < results.length; i++) {

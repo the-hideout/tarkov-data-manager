@@ -61,7 +61,7 @@ class JobLogger {
     end() {
         const endMessage = `${this.jobName} ended in ${new Date() - this.startTime}ms`;
         this.log(endMessage);
-        if (this.verbose) console.log(endMessage);
+        //if (this.verbose) console.log(endMessage);
         try {
             fs.mkdirSync(path.join(__dirname, '..', 'logs'));
         } catch (error) {

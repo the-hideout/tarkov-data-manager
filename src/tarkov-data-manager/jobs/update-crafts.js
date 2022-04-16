@@ -16,7 +16,7 @@ module.exports = async function() {
         logger.log('Downloading crafts from Takov-Changes...');
         const json = await tarkovChanges.crafts();
         logger.log('Downloading en from Tarkov-Changes...');
-        const en = await tarkovChanges.en();
+        const en = await tarkovChanges.locale_en();
         const crafts = {
             updated: new Date(),
             data: [],

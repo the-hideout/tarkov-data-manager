@@ -12,7 +12,7 @@ module.exports = async function() {
     const logger = new JobLogger('update-ammo');
     try {
         const items = await tarkovChanges.items();
-        const en = (await tarkovChanges.en()).templates;
+        const en = (await tarkovChanges.locale_en()).templates;
         const ammunition = {
             updated: new Date(),
             data: [],

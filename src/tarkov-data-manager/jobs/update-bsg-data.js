@@ -15,7 +15,7 @@ module.exports = async (externalLogger) => {
         logger.timeEnd('item-data');
 
         logger.time('bsg-translation-data');
-        const localeData = await tarkovChanges.en();
+        const localeData = await tarkovChanges.locale_en();
         logger.timeEnd('bsg-translation-data');
 
         for(const key in itemData){
