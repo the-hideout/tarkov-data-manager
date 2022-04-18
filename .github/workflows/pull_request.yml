@@ -6,6 +6,8 @@ on:
 
 jobs:
   pull_request:
+    # Use prod env for access to secrets to test deployment
+    environment: production
     runs-on: ubuntu-latest
 
     steps:
