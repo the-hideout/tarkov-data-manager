@@ -28,7 +28,7 @@ const defaultJobs = {
     'update-barters': '*/5 * * * *',
     'update-crafts': '1-59/5 * * * *',
     'update-hideout-legacy': '40 * * * *',
-    'update-quests-legacy': '42 * * * *',
+    'update-quests': '42 * * * *',
     'update-existing-bases': '4-59/5 * * * *',
     'game-data': '*/5 * * * *',
     'update-historical-prices': '5-59/15 * * * *',
@@ -40,7 +40,7 @@ const defaultJobs = {
     'update-tc-data': '*/10 * * * *',
     'update-ammo': '*/10 * * * *',
     'update-hideout': '2-59/10 * * * *',
-    'update-quests': '3-59/10 * * * *',
+    'update-quests-new': '6-59/10 * * * *',
     'update-presets': '*/10 * * * *'
     // Too much memory :'(
     // 'update-longtime-data': '49 8 * * *'
@@ -90,6 +90,39 @@ const startJobs = async () => {
             console.log(`Error running ${jobName}: ${error}`);
         }
     }
+    let buildPresets = false;
+    let buildQuests = false;
+    try {
+        fs.accessSync(path.join(__dirname, '..', 'cache', 'presets.json'))
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            buildPresets = true;
+        } else {
+            console.log(error);
+        }
+    }
+    try {
+        fs.accessSync(path.join(__dirname, '..', 'cache', 'tasks.json'))
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            buildQuests = true;
+        }
+    }
+    const promise = new Promise((resolve, reject) => {
+        if (!buildPresets) return resolve(true);
+        console.log('Running build-presets job at startup');
+        const presetsModule = require('./update-presets');
+        presetsModule().finally(() => {
+            resolve(true);
+        })
+    }).then(() => {
+        if (!buildQuests) return resolve(true);
+        console.log('Running build-quests-new job at startup');
+        const tasksModule = require('./update-quests-new');
+        return tasksModule();
+    });
+    await Promise.allSettled([promise]);
+    console.log('Startup jobs complete');
 };
 
 module.exports = {

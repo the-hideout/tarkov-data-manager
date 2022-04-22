@@ -11,6 +11,7 @@ const tarkovChanges = require('../modules/tarkov-changes');
 const remoteData = require('../modules/remote-data');
 
 let logger = false;
+let gotSizes = false;
 
 const updateProperty = async (id, propertyKey, propertyValue) => {
     return query(`
@@ -46,8 +47,16 @@ const updateProperty = async (id, propertyKey, propertyValue) => {
     })
 };
 
-module.exports = async () => {
-    logger = new JobLogger('update-presets');
+const presetsFileExists = () => {
+    try {
+        fs.accessSync(path.join(__dirname, '..', 'cache', 'presets.json'))
+    } catch (error) {
+        return false;
+    }
+    return true;
+}
+
+const processPresets = async () => {
     try {
         logger.log('Updating presets');
         const presets = (await tarkovChanges.globals())['ItemPresets'];
@@ -116,10 +125,12 @@ module.exports = async () => {
                 presetData.default = false;
             } 
             presetData.normalized_name = normalizeName(presetData.name);
-            let itemPresetSize = await presetSize(presetId);
-            if(itemPresetSize){
-                presetData.width = itemPresetSize.width;
-                presetData.height = itemPresetSize.height;
+            if (gotSizes) {
+                let itemPresetSize = await presetSize(presetId, false);
+                if(itemPresetSize){
+                    presetData.width = itemPresetSize.width;
+                    presetData.height = itemPresetSize.height;
+                }
             }
             presetsData[presetId] = presetData;
             if (presetData.default && !defaults[firstItem.id]) {
@@ -134,7 +145,7 @@ module.exports = async () => {
         const queries = [];
         for (const presetId in presetsData) {
             const p = presetsData[presetId];
-            if (p.default) {
+            if (p.default && gotSizes) {
                 queries.push(query(`
                     DELETE IGNORE FROM 
                         item_children
@@ -162,7 +173,7 @@ module.exports = async () => {
                     logger.error(`Error updating default preset items for ${p.name} ${p.id}`);
                     logger.error(error);
                 }));
-            } else {
+            } else if (gotSizes) {
                 queries.push(query(`
                     INSERT INTO 
                         item_data (id, normalized_name, base_price, width, height)
@@ -220,27 +231,50 @@ module.exports = async () => {
                 }
                 queries.push(updateProperty(p.id, 'bsgCategoryId', p.bsgCategoryId));
                 queries.push(updateProperty(p.id, 'weight', p.weight));
-            }
+            } 
         }
-
-        const response = await cloudflare(`/values/PRESET_DATA`, 'PUT', JSON.stringify(presetsData)).catch(error => {
-            logger.error(error);
-            return {success: false, errors: [], messages: []};
-        });
-        if (response.success) {
-            logger.success('Successful Cloudflare put of PRESET_DATA');
+        if (gotSizes) {
+            const response = await cloudflare(`/values/PRESET_DATA`, 'PUT', JSON.stringify(presetsData)).catch(error => {
+                logger.error(error);
+                return {success: false, errors: [], messages: []};
+            });
+            if (response.success) {
+                logger.success('Successful Cloudflare put of PRESET_DATA');
+            } else {
+                for (let i = 0; i < response.errors.length; i++) {
+                    logger.error(response.errors[i]);
+                }
+                for (let i = 0; i < response.messages.length; i++) {
+                    logger.error(response.messages[i]);
+                }
+            }   
         } else {
-            for (let i = 0; i < response.errors.length; i++) {
-                logger.error(response.errors[i]);
-            }
-            for (let i = 0; i < response.messages.length; i++) {
-                logger.error(response.messages[i]);
-            }
+            logger.warn('presets.json file did not exist, so no values inserted into database or uploaded to cloudflare');
         }
 
         fs.writeFileSync(path.join(__dirname, '..', 'cache', 'presets.json'), JSON.stringify(presetsData, null, 4));
         await Promise.allSettled(queries);
     } catch (error){
+        logger.error(error);
+        alert({
+            title: `Error running ${logger.jobName} job`,
+            message: error.stack
+        });
+    }
+};
+
+module.exports = async () => {
+    logger = new JobLogger('update-presets');
+    try {
+        gotSizes = presetsFileExists();
+        await processPresets();
+        let gotSizesNow = presetsFileExists()
+        if (!gotSizes && gotSizesNow) {
+            gotSizes = gotSizesNow;
+            logger.warn('Re-running presets to get proper sizes');
+            await processPresets();
+        }
+    } catch (error) {
         logger.error(error);
         alert({
             title: `Error running ${logger.jobName} job`,

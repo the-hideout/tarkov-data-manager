@@ -6,7 +6,7 @@ const got = require('got');
 let presets = false;
 let itemData = false;
 
-module.exports = async(itemId) => {
+module.exports = async(itemId, verbose = true) => {
     if(!itemData){
         itemData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
     }
@@ -16,7 +16,7 @@ module.exports = async(itemId) => {
             //presets = JSON.parse((await got('https://raw.githack.com/TarkovTracker/tarkovdata/master/item_presets.json')).body);
             presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
         } catch (error) {
-            console.log(error);
+            if (verbose) console.log(error);
 
             return false;
         }
