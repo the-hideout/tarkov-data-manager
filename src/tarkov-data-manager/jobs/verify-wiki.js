@@ -4,8 +4,10 @@ const webhook = require('../modules/webhook');
 const {query, jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
+const tarkovChanges = require('../modules/tarkov-changes');
 
 let logger = false;
+let presets = {};
 
 const nameToWikiLink = (name) => {
     const formattedName = name
@@ -37,6 +39,12 @@ const postMessage = (item, foundNewLink) => {
 module.exports = async () => {
     let logger = new JobLogger('verify-wiki');
     try {
+        try {
+            presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
+        } catch (error) {
+            logger.error(error);
+        }
+        const en = await tarkovChanges.locale_en();
         let missing = 0;
         const promises = [];
         logger.log('Verifying wiki links');
@@ -79,7 +87,7 @@ module.exports = async () => {
                 }
 
                 // We don't have a wiki link, let's try retrieving from the id
-                if(!newWikiLink){
+                if(!newWikiLink && !presets[result.id]){
                     try {
                         const templatePage = await got(`https://escapefromtarkov.fandom.com/wiki/Template:${result.id}`);
                         const matches = templatePage.body.match(/<div class="mw-parser-output"><p><a href="(?<link>[^"]+)"/);
@@ -94,7 +102,11 @@ module.exports = async () => {
 
                 // We still don't have a wiki link, let's try to guess one
                 if(!newWikiLink){
-                    newWikiLink = nameToWikiLink(result.name);
+                    if (!presets[result.id]) {
+                        newWikiLink = nameToWikiLink(result.name);
+                    } else {
+                        newWikiLink = en.templates[presets[result.id].baseId].Name;
+                    }
 
                     try {
                         await got.head(newWikiLink);

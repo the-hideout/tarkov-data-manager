@@ -16,10 +16,11 @@ module.exports = async () => {
             data: [],
         };
         const areasByType = {};
-        for (const station of data) {
-            areasByType[station.type] = station._id;
+        for (const stationId in data) {
+            areasByType[data[stationId].type] = stationId;
         }
-        for (const station of data) {
+        for (const stationId in data) {
+            const station = data[stationId];
             if (!en.interface[`hideout_area_${station.type}_name`]) {
                 logger.warn(`No hideout station of type ${station.type} found in locale_en.json`);
                 continue;
@@ -27,7 +28,7 @@ module.exports = async () => {
             const stationData = {
                 id: station._id,
                 name: en.interface[`hideout_area_${station.type}_name`],
-                stages: []
+                levels: []
             };
             if (!station.enabled) {
                 logger.warn(`Hideout station ${stationData.name} is disabled`);
@@ -44,45 +45,55 @@ module.exports = async () => {
                 }
                 const stage = station.stages[String(i)];
                 const stageData = {
+                    id: `${stationData.id}-${i}`,
                     level: i,
                     constructionTime: stage.constructionTime,
                     description: en.interface[`hideout_area_${station.type}_stage_${i}_description`],
                     traderRequirements: [],
-                    moduleRequirements: [],
+                    stationLevelRequirements: [],
                     itemRequirements: [],
                     skillRequirements: []
                 };
-                for (const req of stage.requirements) {
+                for (let r = 0; r < stage.requirements.length; r++) {
+                    const req = stage.requirements[r];
                     if (req.type === 'Item') {
                         stageData.itemRequirements.push({
-                            id: req.templateId,
+                            id: `${stationData.id}-${i}-${r}`,
+                            item: req.templateId,
                             name: en.templates[req.templateId].Name,
                             count: req.count,
                             //functional: req.isFunctional
                         });
                     } else if (req.type === 'Skill') {
                         stageData.skillRequirements.push({
-                            name: req.skillname,
+                            id: `${stationData.id}-${i}-${r}`,
+                            name: req.skillName,
                             level: req.skillLevel
                         });
                     } else if (req.type === 'Area') {
-                        stageData.moduleRequirements.push({
-                            id: areasByType[req.areaType],
+                        if (req.requiredLevel < 1) {
+                            logger.warn(`Skipping ${en.interface[`hideout_area_${req.areaType}_name`]} level ${req.requiredLevel} requirement for ${en.interface[`hideout_area_${station.type}_name`]} level ${i}`);
+                            continue;
+                        }
+                        stageData.stationLevelRequirements.push({
+                            id: `${stationData.id}-${i}-${r}`,
+                            station_id: areasByType[req.areaType],
                             name: en.interface[`hideout_area_${req.areaType}_name`],
-                            level: req.requiredLevel
+                            stationLevel: req.requiredLevel
                         });
                     } else if (req.type === 'TraderLoyalty') {
                         stageData.traderRequirements.push({
-                            id: req.traderId,
+                            id: `${stationData.id}-${i}-${r}`,
+                            trader_id: req.traderId,
                             name: en.trading[req.traderId].Nickname,
-                            level: req.loyaltyLevel
+                            traderLevel: req.loyaltyLevel
                         });
                     } else {
                         logger.warn(`Unrecognized requirement type ${req.type} for ${stationData.name} ${i}`);
                         continue;
                     }
                 }
-                stationData.stages.push(stageData);
+                stationData.levels.push(stageData);
             }
             hideoutData.data.push(stationData);
         }
@@ -106,7 +117,7 @@ module.exports = async () => {
         logger.error(error);
         alert({
             title: `Error running ${logger.jobName} job`,
-            message: error.toString()
+            message: error
         });
     }
     logger.end();

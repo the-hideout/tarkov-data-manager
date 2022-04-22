@@ -12,6 +12,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 
 let bsgData;
+let presets = {};
 
 const mappingProperties = [
     'BlindnessProtection',
@@ -130,6 +131,12 @@ module.exports = async (externalLogger) => {
         const allTTItems = await ttData();
 
         bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
+
+        try {
+            presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
+        } catch (error) {
+            logger.error(error);
+        }
 
         logger.log('Updating game data');
 
@@ -315,6 +322,9 @@ module.exports = async (externalLogger) => {
                 continue;
             }
             if (allTTItems[ttItemId].types.includes('disabled')) {
+                continue;
+            }
+            if (presets[ttItemId] || allTTItems.types.includes('preset')) {
                 continue;
             }
             logger.warn(`${allTTItems[ttItemId].name} (${allTTItems[ttItemId].id}) is no longer available in the game`);

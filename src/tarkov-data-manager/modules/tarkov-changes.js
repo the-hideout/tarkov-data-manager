@@ -25,26 +25,27 @@ const spt = async (fileName, path) => {
     return returnValue.body;
 };
 
-const availableFiles = [
-    //'areas.json',
-    'crafts.json',
-    'credits.json',
-    'items.json',
-    //'globals.json',
-    'locale_en.json',
-    //'quests.json'
-];
+const availableFiles = {
+    'crafts.json': false,
+    'credits.json': false,
+    'items.json': false,
+    'globals.json': false,
+    'areas.json': false,
+    'locale_en.json':false,
+    'traders_clean.json': 'traders.json',
+    //'quests.json: false'
+};
 
 const cachePath = (filename) => {
     return path.join(__dirname, '..', 'cache', filename);   
 }
 
 module.exports = {
-    get: async (fileName, download = false) => {
+    get: async (fileName, download = false, saveFileName = false) => {
         let returnValue = false;
         if (download) {
             returnValue = await jsonRequest(fileName);
-            fs.writeFileSync(cachePath(fileName), JSON.stringify(returnValue, null, 4));
+            fs.writeFileSync(cachePath(saveFileName || fileName), JSON.stringify(returnValue, null, 4));
             return returnValue;
         }
         try {
@@ -69,21 +70,23 @@ module.exports = {
         return module.exports.get('locale_en.json', download);
     },
     globals: async(download = false) => {
-        return spt('globals.json', 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/globals.json');
-        //return module.exports.get('globals.json', download);
+        return module.exports.get('globals.json', download);
     },
     areas: async(download = false) => {
-        return spt('areas.json', 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/hideout/areas.json');
-        //return module.exports.get('areas.json', download);
+        return module.exports.get('areas.json', download);
     },
     quests: async(download = false) => {
         return spt('quests.json', 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/templates/quests.json');
         //return module.exports.get('quests.json', download);
     },
+    traders: async (download = false) => {
+        return module.exports.get('traders_clean.json', download, 'traders.json');
+    },
     downloadAll: async () => {
         const promises = [];
-        for (const file of availableFiles) {
-            promises.push(module.exports.get(file, true).then(data => {return {name: file, data: data}}));
+        for (const fileSource in availableFiles) {
+            console.log(fileSource);
+            promises.push(module.exports.get(fileSource, true, availableFiles[fileSource]).then(data => {return {name: availableFiles[fileSource] || fileSource, data: data}}));
         }
         const results = await Promise.allSettled(promises);
         const errors = [];

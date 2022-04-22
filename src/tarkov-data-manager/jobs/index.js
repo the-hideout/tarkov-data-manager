@@ -24,11 +24,11 @@ const runJob = function(name, cronSchedule) {
 const defaultJobs = {
     'check-scans': '20 * * * *',
     'update-cache': '*/5 * * * *',
-    'update-reset-timers': '*/5 * * * *',
+    'update-traders': '*/5 * * * *',
     'update-barters': '*/5 * * * *',
     'update-crafts': '1-59/5 * * * *',
-    'update-hideout': '2-59/5 * * * *',
-    'update-quests': '3-59/5 * * * *',
+    'update-hideout-legacy': '40 * * * *',
+    'update-quests-legacy': '42 * * * *',
     'update-existing-bases': '4-59/5 * * * *',
     'game-data': '*/5 * * * *',
     'update-historical-prices': '5-59/15 * * * *',
@@ -38,7 +38,10 @@ const defaultJobs = {
     'clear-checkouts': '5,35 * * * *',
     'verify-wiki': '5 9 * * *',
     'update-tc-data': '*/10 * * * *',
-    'update-ammo': '*/10 * * * *'
+    'update-ammo': '*/10 * * * *',
+    'update-hideout': '2-59/10 * * * *',
+    'update-quests': '3-59/10 * * * *',
+    'update-presets': '*/10 * * * *'
     // Too much memory :'(
     // 'update-longtime-data': '49 8 * * *'
 };

@@ -13,7 +13,8 @@ module.exports = async(itemId) => {
 
     if(!presets){
         try {
-            presets = JSON.parse((await got('https://raw.githack.com/TarkovTracker/tarkovdata/master/item_presets.json')).body);
+            //presets = JSON.parse((await got('https://raw.githack.com/TarkovTracker/tarkovdata/master/item_presets.json')).body);
+            presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
         } catch (error) {
             console.log(error);
 
@@ -38,8 +39,8 @@ module.exports = async(itemId) => {
             continue;
         }
 
-        for (let i = 0; i < preset.parts.length; i++) {
-            const part = itemData[preset.parts[i].id];
+        for (let i = 0; i < preset.containsItems.length; i++) {
+            const part = itemData[preset.containsItems[i].item.id];
 
             if(!part){
                 // console.log(preset.parts[i]);

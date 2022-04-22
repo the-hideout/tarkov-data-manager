@@ -17,6 +17,7 @@ module.exports = async function() {
         const json = await tarkovChanges.crafts();
         logger.log('Downloading en from Tarkov-Changes...');
         const en = await tarkovChanges.locale_en();
+        const areas = await tarkovChanges.areas();
         const crafts = {
             updated: new Date(),
             data: [],
@@ -24,6 +25,13 @@ module.exports = async function() {
         logger.log('Processing crafts...');
         for (const id in json) {
             const craft = json[id];
+            let station = false;
+            for (const areaId in areas) {
+                const area = areas[areaId];
+                if (area.type === craft.areaType) {
+                    station = area;
+                }
+            }
             if (!en.templates[craft.endProduct]) {
                 logger.warn(`No end product item with id ${craft.endProduct} found in locale_en.json`);
                 continue;
@@ -37,11 +45,12 @@ module.exports = async function() {
                 requiredItems: [],
                 rewardItems: [{
                     name: en.templates[craft.endProduct].Name,
-                    id: craft.endProduct,
+                    item: craft.endProduct,
                     count: craft.count,
                     attributes: []
                 }],
                 station: en.interface[`hideout_area_${craft.areaType}_name`],
+                station_id: station._id,
                 sourceName: en.interface[`hideout_area_${craft.areaType}_name`],
                 duration: craft.productionTime,
                 requirements: []
@@ -55,6 +64,7 @@ module.exports = async function() {
                         type: 'stationLevel',
                         value: req.requiredLevel
                     });
+                    craftData.stationLevel = req.requiredLevel;
                     level = req.requiredLevel;
                 } else if (req.type === 'Resource') {
                     if (!en.templates[req.templateId]) {
@@ -67,7 +77,7 @@ module.exports = async function() {
                     }
                     craftData.requiredItems.push({
                         name: en.templates[req.templateId].Name,
-                        id: req.templateId,
+                        item: req.templateId,
                         count: req.resource / items[req.templateId]._props.Resource,
                         attributes: []
                     });
@@ -78,7 +88,7 @@ module.exports = async function() {
                     }
                     const reqData = {
                         name: en.templates[req.templateId].Name,
-                        id: req.templateId,
+                        item: req.templateId,
                         count: req.count,
                         attributes: []
                     };
@@ -96,7 +106,7 @@ module.exports = async function() {
                     }
                     const reqData = {
                         name: en.templates[req.templateId].Name,
-                        id: req.templateId,
+                        item: req.templateId,
                         count: 1,
                         attributes: []
                     };
@@ -113,14 +123,16 @@ module.exports = async function() {
                     type: 'stationLevel',
                     value: 1
                 });
+                craftData.stationLevel = 1;
             }
+            craftData.source = `${en.interface[`hideout_area_${craft.areaType}_name`]} ${level}`;
             crafts.data.push(craftData);
         }
         logger.log(`Processed ${Object.keys(json).length} crafts`);
     
         fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'crafts.json'), JSON.stringify(crafts, null, 4));
 
-        const response = await cloudflare(`/values/CRAFT_DATA`, 'PUT', JSON.stringify(crafts)).catch(error => {
+        const response = await cloudflare(`/values/CRAFT_DATA_V2`, 'PUT', JSON.stringify(crafts)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

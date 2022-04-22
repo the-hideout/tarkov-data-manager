@@ -9,6 +9,7 @@ const oldNames = require('../old-names.json');
 const fixName = require('../modules/wiki-replacements');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
+const tarkovChanges = require('../modules/tarkov-changes');
 
 const { query, jobComplete } = require('../modules/db-connection');
 
@@ -16,8 +17,21 @@ let itemData = false;
 const TRADES_URL = 'https://escapefromtarkov.gamepedia.com/Barter_trades';
 let logger;
 let trades;
+let oldTasks;
 let tasks;
+let en;
 let $;
+
+const tradeMap = {
+    Fence: '579dc571d53a0658a154fbec',
+    Jaeger: '5c0647fdd443bc2504c2d371',
+    Mechanic: '5a7c2eca46aef81a7ca2145d',
+    Peacekeeper: '5935c25fb3acc3127c3d8cd9',
+    Prapor: '54cb50c76803fa8b248b4571',
+    Ragman: '5ac3b934156ae10c4430e83c',
+    Skier: '58330581ace78e27b8b10cee',
+    Therapist: '54cb57776803fa99248b456e'
+};
 
 const getItemByName = (searchName) => {
     const itemArray = Object.values(itemData);
@@ -120,7 +134,7 @@ const getItemData = function getItemData(html){
 
     return {
         name: item.name,
-        id: item.id,
+        item: item.id,
         count: count,
         attributes: item.attributes
     };
@@ -140,41 +154,70 @@ const parseTradeRow = (tradeElement) => {
     }
     //logger.log(`Parsing ${rewardItem.name} (${traderRequirement})`);
 
+    const traderName = fixName($trade.find('th').eq(2).find('a').eq(0).prop('title'));
     const tradeData = {
         requiredItems: [],
         rewardItems: [{
             name: rewardItem.name,
-            id: rewardItem.id,
+            item: rewardItem.id,
             count: 1,
         }],
         trader: traderRequirement,
         requirements: [],
-        sourceName: fixName($trade.find('th').eq(2).find('a').eq(0).prop('title')).toLowerCase()
+        sourceName: traderName.toLowerCase(),
+        trader_id: tradeMap[traderName],
+        trader_name: traderName,
+        traderLevel: 1,
+        taskUnlock: null
     };
     const loyaltyLevelMatch = traderRequirement.match(/ LL(\d)/);
     if (loyaltyLevelMatch) {
         tradeData.requirements.push({
             type: 'loyaltyLevel',
-            value: loyaltyLevelMatch[1]
+            value: parseInt(loyaltyLevelMatch[1])
         });
+        tradeData.traderLevel = parseInt(loyaltyLevelMatch[1]);
     }
     if ($trade.find('th').eq(2).find('a').length > 2 && $trade.find('th').eq(2).text().includes('task')) {
         const taskUrl = $trade.find('th').eq(2).find('a').eq(2).prop('href');
-        const taskName = $trade.find('th').eq(2).find('a').eq(2).prop('title');
-        for (const i in tasks) {
-            const task = tasks[i];
+        const taskName = $trade.find('th').eq(2).find('a').eq(-1).prop('title');
+        let foundMatch = false;
+        const questReq = {
+            type: 'questCompleted',
+            value: null,
+            stringValue: null
+        };
+        for (const task of oldTasks) {
             if (task.wiki.endsWith(taskUrl)) {
-                tradeData.requirements.push({
-                    type: 'questCompleted',
-                    value: task.id
-                });
-                //console.log(`Matched quest ${taskName}: ${task.title} (${task.id})`);
-                break;
+                questReq.value = task.id;
+                foundMatch = true;
+            } else if (taskName.toLowerCase() == task.title.toLowerCase()) {
+                questReq.value = task.id;
+                foundMatch = true;
             }
-            if (taskName == task.title) {
-                logger.warn(`Found potential quest match for ${taskName}: ${task.title} (${task.id})`);
-                logger.warn(`${taskUrl} != ${task.wiki}`);
+            if (foundMatch) break;
+        }
+        foundMatch = false;
+        for (const taskId in tasks) {
+            const task = tasks[taskId];
+            if (taskName.toLowerCase() == task.QuestName.toLowerCase()) {
+                questReq.stringValue = task._id;
+                tradeData.taskUnlock = task._id;
+                foundMatch = true;
+            } else if (taskName.toLowerCase() == en.quest[taskId].name.toLowerCase()) {
+                questReq.stringValue = task._id;
+                tradeData.taskUnlock = task._id;
+                foundMatch = true;
             }
+            if (foundMatch)  break;
+        }
+        tradeData.requirements.push(questReq);
+        if (typeof questReq.value === 'null' && typeof questReq.stringValue === 'null') {
+            logger.warn(`Found no quest match for ${taskName}`);
+        } else if (typeof questReq.value === 'null') {
+            logger.warn(`Found no tarkovdata quest id for ${taskName}`);
+        } else if (typeof questReq.stringValue === 'null') {
+            logger.warn(`Found no quest id for ${taskName}`);
         }
     }
 
@@ -258,14 +301,18 @@ module.exports = async function() {
         const itemsPromise = query('SELECT * FROM item_data ORDER BY id');
         const translationsPromise = query(`SELECT item_id, type, value FROM translations WHERE language_code = ?`, ['en']);
         const wikiPromise = got(TRADES_URL);
-        const tasksPromise = got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
+        const tasksPromise = tarkovChanges.quests();
+        const oldTasksPromise = got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
             responseType: 'json',
         });
-        const allResults = await Promise.all([itemsPromise, translationsPromise, wikiPromise, tasksPromise]);
+        const enPromise = tarkovChanges.locale_en();
+        const allResults = await Promise.all([itemsPromise, translationsPromise, wikiPromise, tasksPromise, enPromise, oldTasksPromise]);
         const results = allResults[0];
         const translationResults = allResults[1];
         const wikiResponse = allResults[2];
-        tasks = allResults[3].body;
+        tasks = allResults[3];
+        en = allResults[4];
+        oldTasks = allResults[5].body;
         $ = cheerio.load(wikiResponse.body);
         trades = {
             updated: new Date(),
@@ -313,7 +360,7 @@ module.exports = async function() {
         traderRows.map(parseTradeRow);
         logger.succeed('Finished parsing barters table');
 
-        const response = await cloudflare(`/values/BARTER_DATA`, 'PUT', JSON.stringify(trades)).catch(error => {
+        const response = await cloudflare(`/values/BARTER_DATA_V2`, 'PUT', JSON.stringify(trades)).catch(error => {
             logger.error('Error on cloudflare put for BARTER_DATA')
             logger.error(requestError);
             return {success: false, errors: [], messages: []};

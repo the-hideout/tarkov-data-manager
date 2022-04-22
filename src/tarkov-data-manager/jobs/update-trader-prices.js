@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
+const got = require('got');
 const moment = require('moment');
 
 const cloudflare = require('../modules/cloudflare');
@@ -15,7 +16,7 @@ const outputPrices = async (prices) => {
     fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'trader-inventory.json'), JSON.stringify(prices, null, 4));
 
     try {
-        const response = await cloudflare(`/values/TRADER_ITEMS`, 'PUT', JSON.stringify(prices));
+        const response = await cloudflare(`/values/TRADER_ITEMS_V2`, 'PUT', JSON.stringify(prices));
         if (response.success) {
             logger.success(`Successful Cloudflare put of ${Object.keys(prices).length} TRADER_ITEMS`);
         } else {
@@ -38,6 +39,16 @@ const outputPrices = async (prices) => {
 module.exports = async () => {
     logger = new JobLogger('update-trader-prices');
     try {
+        let tdQuests = {};
+        try {
+            const response = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
+                responseType: 'json',
+            });
+            tdQuests = response.body;
+        } catch (error) {
+            logger.error('Error downloading TarkovData quests');
+            logger.error(error);
+        }
         const outputData = {};
         const junkboxLastScan = await query(`
             SELECT
@@ -183,14 +194,27 @@ module.exports = async () => {
             if (currencyISO[traderItem.item_id]) {
                 itemPrice = currenciesNow[currencyISO[traderItem.item_id]];
             }
+            let questBsgId = null;
+            if (!isNaN(parseInt(traderItem.quest_unlock_id))) {
+                for (const quest of tdQuests) {
+                    if (quest.id == traderItem.quest_unlock_id) {
+                        questBsgId = quest.gameId;
+                        break;
+                    }
+                }
+                if (!questBsgId) {
+                    logger.warn(`Could not find bsg id for quest ${traderItem.quest_unlock_id}`);
+                }
+            }
             outputData[traderItem.item_id].push({
                 id: traderItem.item_id,
                 source: traderItem.trader_name,
-                min_level: traderItem.min_level,
+                minLevel: traderItem.min_level,
                 price: itemPrice,
                 updated: latestTraderPrices[traderItem.id].timestamp,
-                quest_unlock: Boolean(traderItem.quest_unlock_id),
+                quest_unlock: !isNaN(parseInt(traderItem.quest_unlock_id)),
                 quest_unlock_id: traderItem.quest_unlock_id,
+                taskUnlock: questBsgId,
                 currency: traderItem.currency,
             });
         }
