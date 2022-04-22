@@ -31,7 +31,7 @@ const availableFiles = {
     'items.json': false,
     'globals.json': false,
     'areas.json': false,
-    'locale_en.json':false,
+    'locale_en_td.json': 'locale_en.json',
     'traders_clean.json': 'traders.json',
     //'quests.json: false'
 };
@@ -67,7 +67,7 @@ module.exports = {
         return module.exports.get('credits.json', download);
     },
     locale_en: async (download = false) => {
-        return module.exports.get('locale_en.json', download);
+        return module.exports.get('locale_en_td.json', download, 'locale_en.json');
     },
     globals: async(download = false) => {
         return module.exports.get('globals.json', download);
