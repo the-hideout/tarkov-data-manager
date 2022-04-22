@@ -10,6 +10,25 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 
+const traderMap = {
+    'prapor': '54cb50c76803fa8b248b4571',
+    'Prapor': '54cb50c76803fa8b248b4571',
+    'therapist': '54cb57776803fa99248b456e',
+    'Therapist': '54cb57776803fa99248b456e',
+    'fence': '579dc571d53a0658a154fbec',
+    'Fence': '579dc571d53a0658a154fbec',
+    'skier': '58330581ace78e27b8b10cee',
+    'Skier': '58330581ace78e27b8b10cee',
+    'peacekeeper': '5935c25fb3acc3127c3d8cd9',
+    'Peacekeeper': '5935c25fb3acc3127c3d8cd9',
+    'mechanic': '5a7c2eca46aef81a7ca2145d',
+    'Mechanic': '5a7c2eca46aef81a7ca2145d',
+    'ragman': '5ac3b934156ae10c4430e83c',
+    'Ragman': '5ac3b934156ae10c4430e83c',
+    'jaeger': '5c0647fdd443bc2504c2d371',
+    'Jaeger': '5c0647fdd443bc2504c2d371',
+};
+
 let logger = false;
 
 const outputPrices = async (prices) => {
@@ -206,17 +225,34 @@ module.exports = async () => {
                     logger.warn(`Could not find bsg id for quest ${traderItem.quest_unlock_id}`);
                 }
             }
-            outputData[traderItem.item_id].push({
+            const offer = {
                 id: traderItem.item_id,
+                vendor: {
+                    trader: traderMap[traderItem.trader_name],
+                    trader_id: traderMap[traderItem.trader_name],
+                    traderLevel: traderItem.min_level,
+                    minTraderLevel: traderItem.min_level,
+                    taskUnlock: questBsgId
+                },
                 source: traderItem.trader_name,
-                minLevel: traderItem.min_level,
                 price: itemPrice,
                 updated: latestTraderPrices[traderItem.id].timestamp,
                 quest_unlock: !isNaN(parseInt(traderItem.quest_unlock_id)),
                 quest_unlock_id: traderItem.quest_unlock_id,
-                taskUnlock: questBsgId,
                 currency: traderItem.currency,
-            });
+                requirements: [{
+                    type: 'loyaltyLevel',
+                    value: traderItem.minLevel,
+                }]
+            };
+            if (offer.quest_unlock) {
+                offer.requirements.push({
+                    type: 'questComplete',
+                    value: Number(offer.quest_unlock_id) || 1,
+                    stringValue: questBsgId
+                });
+            }
+            outputData[traderItem.item_id].push(offer);
         }
 
         await outputPrices(outputData);

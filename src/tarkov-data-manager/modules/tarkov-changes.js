@@ -49,7 +49,7 @@ module.exports = {
             return returnValue;
         }
         try {
-            return JSON.parse(fs.readFileSync(cachePath(saveFileName)));
+            return JSON.parse(fs.readFileSync(cachePath(saveFileName || fileName)));
         } catch (error) {
             if (error.code === 'ENOENT') {
                 return module.exports.get(fileName, true, saveFileName);
