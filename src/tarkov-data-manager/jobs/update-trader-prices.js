@@ -188,6 +188,7 @@ module.exports = async () => {
                 source: traderItem.trader_name,
                 min_level: traderItem.min_level,
                 price: itemPrice,
+                priceRUB: Math.round(itemPrice / currenciesNow[traderItem.currency]),
                 updated: latestTraderPrices[traderItem.id].timestamp,
                 quest_unlock: Boolean(traderItem.quest_unlock_id),
                 quest_unlock_id: traderItem.quest_unlock_id,

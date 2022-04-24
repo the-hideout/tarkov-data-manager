@@ -219,6 +219,7 @@ const methods = {
                         preparedData.traderPrices.push({
                             name: trader.name,
                             price: Math.floor(trader.multiplier * preparedData.base_price),
+                            priceRUB: Math.floor(trader.multiplier * preparedData.base_price)
                         });
                     }
                 } else {
@@ -234,6 +235,7 @@ const methods = {
                         preparedData.traderPrices.push({
                             name: trader.name,
                             price: Math.floor(trader.multiplier * preparedData.base_price),
+                            priceRUB: Math.floor(trader.multiplier * preparedData.base_price)
                         });
                     }
                 }
@@ -246,6 +248,7 @@ const methods = {
                         preparedData.traderPrices.push({
                             name: trader.name,
                             price: Math.floor(trader.multiplier * preparedData.base_price),
+                            priceRUB: Math.floor(trader.multiplier * preparedData.base_price)
                         });
                     }
                 }
