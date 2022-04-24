@@ -59,7 +59,7 @@ You now have two options to start the docker-compose stack (both do the exact sa
 
 Browse to your web app when it starts up [localhost](https://localhost).
 
-### creds.env Variables
+### creds.env variables
 
 The following variables should be configured in your creds.env file for the data manager to function properly:
 `AWS_SECRET_ACCESS_KEY`/`AWS_ACCESS_KEY_ID`: For interacting with the AWS bucket where images are stored.
