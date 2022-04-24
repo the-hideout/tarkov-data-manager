@@ -247,7 +247,7 @@ module.exports = async () => {
             };
             if (offer.quest_unlock) {
                 offer.requirements.push({
-                    type: 'questComplete',
+                    type: 'questCompleted',
                     value: Number(offer.quest_unlock_id) || 1,
                     stringValue: questBsgId
                 });
