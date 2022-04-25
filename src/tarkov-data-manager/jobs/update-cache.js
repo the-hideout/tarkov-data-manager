@@ -109,7 +109,7 @@ module.exports = async () => {
 
             // itemData[key].changeLast48h = itemPriceYesterday.priceYesterday || 0;
         }
-        const response = await cloudflare(`/values/ITEM_CACHE`, 'PUT', JSON.stringify(itemData)).catch(error => {
+        const response = await cloudflare(`/values/ITEM_CACHE_V2`, 'PUT', JSON.stringify(itemData)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

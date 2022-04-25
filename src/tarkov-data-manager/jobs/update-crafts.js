@@ -30,8 +30,11 @@ module.exports = async function() {
                 const area = areas[areaId];
                 if (area.type === craft.areaType) {
                     station = area;
+                    break;
                 }
             }
+            // skip christmas tree
+            if (station._id === '5df8a81f8f77747fcf5f5702') continue;
             if (!en.templates[craft.endProduct]) {
                 logger.warn(`No end product item with id ${craft.endProduct} found in locale_en.json`);
                 continue;

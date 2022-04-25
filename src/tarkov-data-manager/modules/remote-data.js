@@ -4,6 +4,7 @@ const {categories, items, distinctList} = require('../modules/category-map');
 const timer = require('./console-timer');
 
 const {query} = require('./db-connection');
+const tarkovChanges = require('../modules/tarkov-changes');
 
 let myData = false;
 let lastRefresh = new Date(0);
@@ -213,12 +214,28 @@ const methods = {
                 }
 
                 // Add trader prices
+                const credits = await tarkovChanges.credits();
+                const currenciesNow = {
+                    'RUB': 1,
+                    'USD': Math.round(credits['5696686a4bdc2da3298b456a'] * 1.104271357),
+                    'EUR': Math.round(credits['569668774bdc2da2298b4568'] * 1.152974504)
+                };
+                const currencyId = {
+                    'RUB': '5449016a4bdc2d6f028b456f',
+                    'USD': '5696686a4bdc2da3298b456a',
+                    'EUR': '569668774bdc2da2298b4568'
+                };
                 if(itemProperties && categories[itemProperties.bsgCategoryId]){
                     for(const trader of categories[itemProperties.bsgCategoryId].traders){
                         // console.log(`Suggested price for ${preparedData.name} at ${trader.name}: ${Math.floor(trader.multiplier * preparedData.base_price)}`);
+                        let currency = 'RUB';
+                        if (trader.name === 'Peacekeeper') currency = 'USD';
                         preparedData.traderPrices.push({
                             name: trader.name,
-                            price: Math.floor(trader.multiplier * preparedData.base_price),
+                            price: Math.round((trader.multiplier * preparedData.base_price) / currenciesNow[currency]),
+                            currency: currency,
+                            currencyItem: currencyId[currency],
+                            priceRUB: Math.floor(trader.multiplier * preparedData.base_price)
                         });
                     }
                 } else {
@@ -231,9 +248,14 @@ const methods = {
                 if(itemProperties && items[result.id]){
                     for(const trader of items[result.id].traders){
                         // console.log(`Suggested price for ${preparedData.name} at ${trader.name}: ${Math.floor(trader.multiplier * preparedData.base_price)}`);
+                        let currency = 'RUB';
+                        if (trader.name === 'Peacekeeper') currency = 'USD';
                         preparedData.traderPrices.push({
                             name: trader.name,
-                            price: Math.floor(trader.multiplier * preparedData.base_price),
+                            price: Math.round((trader.multiplier * preparedData.base_price) / currenciesNow[currency]),
+                            currency: currency,
+                            currencyItem: currencyId[currency],
+                            priceRUB: Math.floor(trader.multiplier * preparedData.base_price)
                         });
                     }
                 }
@@ -243,9 +265,14 @@ const methods = {
 
                     for(const trader of distinctList[result.id].traders){
                         // console.log(`Suggested price for ${preparedData.name} at ${trader.name}: ${Math.floor(trader.multiplier * preparedData.base_price)}`);
+                        let currency = 'RUB';
+                        if (trader.name === 'Peacekeeper') currency = 'USD';
                         preparedData.traderPrices.push({
                             name: trader.name,
-                            price: Math.floor(trader.multiplier * preparedData.base_price),
+                            price: Math.round((trader.multiplier * preparedData.base_price) / currenciesNow[currency]),
+                            currency: currency,
+                            currencyItem: currencyId[currency],
+                            priceRUB: Math.floor(trader.multiplier * preparedData.base_price)
                         });
                     }
                 }

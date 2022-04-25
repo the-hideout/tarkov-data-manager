@@ -20,6 +20,9 @@ module.exports = async () => {
             areasByType[data[stationId].type] = stationId;
         }
         for (const stationId in data) {
+            // skip christmas tree
+            if (stationId === '5df8a81f8f77747fcf5f5702') continue;
+            
             const station = data[stationId];
             if (!en.interface[`hideout_area_${station.type}_name`]) {
                 logger.warn(`No hideout station of type ${station.type} found in locale_en.json`);

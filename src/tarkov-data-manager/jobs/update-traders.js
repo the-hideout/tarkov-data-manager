@@ -7,7 +7,7 @@ const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
-const {query, jobComplete} = require('../modules/db-connection');
+//const {query, jobComplete} = require('../modules/db-connection');
 
 module.exports = async function() {
     const logger = new JobLogger('update-traders');
@@ -17,7 +17,7 @@ module.exports = async function() {
         logger.log('Downloading en from Tarkov-Changes...');
         const en = await tarkovChanges.locale_en();
         logger.log('Querying reset times...');
-        const resetTimes = {};
+        /*const resetTimes = {};
         const results = await query(`
             SELECT
                 trader.trader_name,
@@ -44,7 +44,7 @@ module.exports = async function() {
             resetTime.setSeconds(resetTime.getSeconds() + seconds);
 
             resetTimes[result.trader_name] = resetTime;
-        }
+        }*/
         const traders = {
             updated: new Date(),
             data: [],
@@ -52,16 +52,18 @@ module.exports = async function() {
         logger.log('Processing traders...');
         for (const traderId in tradersData) {
             const trader = tradersData[traderId];
+            const date = new Date(trader.nextResupply*1000);
+            date.setHours(date.getHours() +5);
             const traderData = {
                 id: trader._id,
                 name: en.trading[trader._id].Nickname,
                 currency: trader.currency,
-                resetTime: null,
+                resetTime: date,
                 levels: []
             };
-            if (resetTimes[traderData.name.toLowerCase()]) {
+            /*if (resetTimes[traderData.name.toLowerCase()]) {
                 traderData.resetTime = resetTimes[traderData.name.toLowerCase()];
-            }
+            }*/
             if (!en.trading[trader._id]) {
                 logger.warn(`No trader id ${trader._id} found in locale_en.json`);
                 trader.name = trader.nickname;
@@ -120,5 +122,5 @@ module.exports = async function() {
         });
     }
     logger.end();
-    await jobComplete();
+    //await jobComplete();
 };

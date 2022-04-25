@@ -100,6 +100,11 @@ module.exports = async () => {
             '5696686a4bdc2da3298b456a': 'USD',
             '569668774bdc2da2298b4568': 'EUR'
         }
+        const currencyId = {
+            'RUB': '5449016a4bdc2d6f028b456f',
+            'USD': '5696686a4bdc2da3298b456a',
+            'EUR': '569668774bdc2da2298b4568'
+        };
         const credits = await tarkovChanges.credits();
         const currenciesNow = {
             'RUB': 1,
@@ -236,10 +241,12 @@ module.exports = async () => {
                 },
                 source: traderItem.trader_name,
                 price: itemPrice,
+                priceRUB: Math.round(itemPrice * currenciesNow[traderItem.currency]),
                 updated: latestTraderPrices[traderItem.id].timestamp,
                 quest_unlock: !isNaN(parseInt(traderItem.quest_unlock_id)),
                 quest_unlock_id: traderItem.quest_unlock_id,
                 currency: traderItem.currency,
+                currencyItem: currencyId[traderItem.currency],
                 requirements: [{
                     type: 'loyaltyLevel',
                     value: traderItem.minLevel,
