@@ -217,14 +217,17 @@ const methods = {
                 const credits = await tarkovChanges.credits();
                 const currenciesNow = {
                     'RUB': 1,
-                    'USD': Math.round(credits['5696686a4bdc2da3298b456a'] * 1.104271357),
-                    'EUR': Math.round(credits['569668774bdc2da2298b4568'] * 1.152974504)
+                    'USD': credits['5696686a4bdc2da3298b456a'],
+                    'EUR': credits['569668774bdc2da2298b4568']
+                    //'USD': Math.round(credits['5696686a4bdc2da3298b456a'] * 1.1045104510451),
+                    //'EUR': Math.round(credits['569668774bdc2da2298b4568'] * 1.1530984204131)
                 };
                 const currencyId = {
                     'RUB': '5449016a4bdc2d6f028b456f',
                     'USD': '5696686a4bdc2da3298b456a',
                     'EUR': '569668774bdc2da2298b4568'
                 };
+                const traders = tarkovChanges.traders();
                 if(itemProperties && categories[itemProperties.bsgCategoryId]){
                     for(const trader of categories[itemProperties.bsgCategoryId].traders){
                         // console.log(`Suggested price for ${preparedData.name} at ${trader.name}: ${Math.floor(trader.multiplier * preparedData.base_price)}`);
