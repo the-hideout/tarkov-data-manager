@@ -80,16 +80,16 @@ module.exports = async () => {
                         }
                         stageData.stationLevelRequirements.push({
                             id: `${stationData.id}-${i}-${r}`,
-                            station_id: areasByType[req.areaType],
+                            station: areasByType[req.areaType],
                             name: en.interface[`hideout_area_${req.areaType}_name`],
-                            stationLevel: req.requiredLevel
+                            level: req.requiredLevel
                         });
                     } else if (req.type === 'TraderLoyalty') {
                         stageData.traderRequirements.push({
                             id: `${stationData.id}-${i}-${r}`,
                             trader_id: req.traderId,
                             name: en.trading[req.traderId].Nickname,
-                            traderLevel: req.loyaltyLevel
+                            level: req.loyaltyLevel
                         });
                     } else {
                         logger.warn(`Unrecognized requirement type ${req.type} for ${stationData.name} ${i}`);

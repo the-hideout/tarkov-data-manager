@@ -52,7 +52,7 @@ module.exports = async function() {
                     count: craft.count,
                     attributes: []
                 }],
-                station: en.interface[`hideout_area_${craft.areaType}_name`],
+                station: station._id,
                 station_id: station._id,
                 sourceName: en.interface[`hideout_area_${craft.areaType}_name`],
                 duration: craft.productionTime,
@@ -62,12 +62,12 @@ module.exports = async function() {
             for (index in craft.requirements) {
                 const req = craft.requirements[index];
                 if (req.type === 'Area') {
-                    craftData.station = craftData.station + ' level '+req.requiredLevel;
+                    //craftData.station = craftData.station + ' level '+req.requiredLevel;
                     craftData.requirements.push({
                         type: 'stationLevel',
                         value: req.requiredLevel
                     });
-                    craftData.stationLevel = req.requiredLevel;
+                    craftData.level = req.requiredLevel;
                     level = req.requiredLevel;
                 } else if (req.type === 'Resource') {
                     if (!en.templates[req.templateId]) {
@@ -121,14 +121,14 @@ module.exports = async function() {
                 }
             }
             if (!level) {
-                craftData.station = craftData.station + ' level 1';
+                //craftData.station = craftData.station + ' level 1';
                 craftData.requirements.push({
                     type: 'stationLevel',
                     value: 1
                 });
-                craftData.stationLevel = 1;
+                craftData.level = 1;
             }
-            craftData.source = `${en.interface[`hideout_area_${craft.areaType}_name`]} ${level}`;
+            craftData.source = `${en.interface[`hideout_area_${craft.areaType}_name`]} ${craftData.level}`;
             crafts.data.push(craftData);
         }
         logger.log(`Processed ${Object.keys(json).length} crafts`);

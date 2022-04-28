@@ -167,7 +167,7 @@ const parseTradeRow = (tradeElement) => {
         sourceName: traderName.toLowerCase(),
         trader_id: tradeMap[traderName],
         trader_name: traderName,
-        traderLevel: 1,
+        level: 1,
         taskUnlock: null
     };
     const loyaltyLevelMatch = traderRequirement.match(/ LL(\d)/);
@@ -176,7 +176,7 @@ const parseTradeRow = (tradeElement) => {
             type: 'loyaltyLevel',
             value: parseInt(loyaltyLevelMatch[1])
         });
-        tradeData.traderLevel = parseInt(loyaltyLevelMatch[1]);
+        tradeData.level = parseInt(loyaltyLevelMatch[1]);
     }
     if ($trade.find('th').eq(2).find('a').length > 2 && $trade.find('th').eq(2).text().includes('task')) {
         const taskUrl = $trade.find('th').eq(2).find('a').eq(2).prop('href');

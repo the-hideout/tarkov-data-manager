@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const got = require('got');
+
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
@@ -48,12 +50,22 @@ const zoneMap = {
     lijnik_storage_area_1: 'Underground Warehouse'
 };
 
+const factionMap = {
+    '5e381b0286f77420e3417a74': 'USEC',
+    '5e4d4ac186f774264f758336': 'USEC',
+    '6179b5eabca27a099552e052': 'USEC',
+    '5e383a6386f77465910ce1f3': 'BEAR',
+    '5e4d515e86f77438b2195244': 'BEAR',
+    '6179b5b06e9dd54ac275e409': 'BEAR'
+};
+
 const getRewardItems = (reward) => {
     const rewardData = {
         item: reward.items[0]._tpl,
         item_name: en.templates[reward.items[0]._tpl].Name,
         count: 1,
-        contains: []
+        contains: [],
+        attributes: []
     };
     if (reward.items[0].upd) {
         rewardData.count = reward.items[0].upd.StackObjectsCount;
@@ -110,22 +122,22 @@ const loadRewards = (questData, rewardsType, sourceRewards) => {
             questData.experience = parseInt(reward.value);
         } else if (reward.type === 'TraderStanding') {
             questData[rewardsType].traderStanding.push({
-                trader: reward.target,
+                trader_id: reward.target,
                 name: en.trading[reward.target].Nickname,
                 standing: parseFloat(reward.value)
             });
         } else if (reward.type === 'Item') {
-            questData[rewardsType].item.push(getRewardItems(reward));
+            questData[rewardsType].items.push(getRewardItems(reward));
         } else if (reward.type === 'AssortmentUnlock') {
             if (!en.templates[reward.items[0]._tpl]) {
                 logger.warn(`No name found for unlock item "${reward.items[0]._tpl}" for completion reward ${reward.id} of ${questData.name}`);
                 continue;
             }
             let unlock = {
-                offer_id: reward.id,
+                id: reward.id,
                 trader_id: reward.traderId,
                 trader_name: en.trading[reward.traderId].Nickname,
-                min_level: reward.loyaltyLevel,
+                level: reward.loyaltyLevel,
                 /*item_id: reward.items[0]._tpl,
                 item_name: en.templates[reward.items[0]._tpl].Name,
                 item_contains: []*/
@@ -144,13 +156,13 @@ const loadRewards = (questData, rewardsType, sourceRewards) => {
             };
             questData[rewardsType].offerUnlock.push(unlock);
         } else if (reward.type === 'Skill') {
-            questData[rewardsType].skill.push({
+            questData[rewardsType].skillLevelReward.push({
                 name: reward.target,
                 level: parseInt(reward.value) / 100
             });
         } else if (reward.type === 'TraderUnlock') {
             questData[rewardsType].traderUnlock.push({
-                trader: reward.target,
+                trader_id: reward.target,
                 trader_name: en.trading[reward.target].Nickname
             });
         } else {
@@ -163,6 +175,10 @@ module.exports = async () => {
     logger = new JobLogger('update-quests-new');
     try {
         logger.log('Processing quests...');
+        logger.log('Retrieving TarkovTracker quests.json...');
+        const tdQuests = (await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
+            responseType: 'json',
+        })).body;
         const data = await tarkovChanges.quests();
         items = await tarkovChanges.items();
         en = await tarkovChanges.locale_en();
@@ -217,19 +233,21 @@ module.exports = async () => {
                 },*/
                 startRewards: {
                     traderStanding: [],
-                    item: [],
+                    items: [],
                     offerUnlock: [],
-                    skill: [],
+                    skillLevelReward: [],
                     traderUnlock: []
                 },
                 finishRewards: {
                     traderStanding: [],
-                    item: [],
+                    items: [],
                     offerUnlock: [],
-                    skill: [],
+                    skillLevelReward: [],
                     traderUnlock: []
                 },
-                experience: 0
+                experience: 0,
+                tarkovDataId: undefined,
+                factionName: 'Any'
             }
             for (const objective of quest.conditions.AvailableForFinish) {
                 let optional = false;
@@ -511,7 +529,7 @@ module.exports = async () => {
                     obj.type = 'traderLevel';
                     obj.trader_id = objective._props.target;
                     obj.trader_name = en.trading[objective._props.target].Nickname;
-                    obj.traderLevel = objective._props.value;
+                    obj.level = objective._props.value;
                 } else if (objective._parent === 'VisitPlace') {
                     obj.type = 'visit';
                 } else if (objective._parent === 'Quest') {
@@ -565,6 +583,23 @@ module.exports = async () => {
             }
             loadRewards(questData, 'finishRewards', quest.rewards.Success);
             loadRewards(questData, 'startRewards', quest.rewards.Started);
+            let nameMatch = undefined;
+            for (const tdQuest of tdQuests) {
+                if (questData.id == tdQuest.gameId) {
+                    questData.tarkovDataId = tdQuest.id;
+                    break;
+                }
+                if (questData.name == tdQuest.title) {
+                    nameMatch = tdQuest.id;
+                    //logger.warn(`Found possible TarkovData name match for ${questData.name} ${questData.id}`)
+                }
+            }
+            if (typeof nameMatch !== 'undefined') questData.tarkovDataId = nameMatch;
+            if (typeof questData.tarkovDataId === 'undefined') {
+                questData.tarkovDataId = null;
+                logger.warn(`Could not find TarkovData quest id for ${questData.name} ${questData.id}`);
+            }
+            if (factionMap[questData.id]) questData.factionName = factionMap[questData.id];
             quests.data.push(questData);
         }
 

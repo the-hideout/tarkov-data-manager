@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const got = require('got');
 const webhook = require('../modules/webhook');
 
@@ -33,11 +36,11 @@ const postMessage = (item, foundNewLink) => {
         logger.fail(`${item.id} | ${foundNewLink} | ${item.name}`);
     }
 
-    webhook.alert(messageData);
+    return webhook.alert(messageData);
 };
 
 module.exports = async () => {
-    let logger = new JobLogger('verify-wiki');
+    logger = new JobLogger('verify-wiki');
     try {
         try {
             presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
@@ -52,9 +55,15 @@ module.exports = async () => {
             SELECT 
                 item_data.*, translations.value AS name 
             FROM 
-                item_data, translations 
-            WHERE 
-                translations.item_id = item_data.id AND translations.type = 'name'
+                item_data
+            LEFT JOIN translations ON
+                translations.item_id = item_data.id AND 
+                translations.type = 'name' AND
+                translations.language_code = 'en'
+            LEFT JOIN types ON
+                types.item_id = item_data.id
+            WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset')
+            GROUP BY item_data.id
         `);
         for(let i = 0; i < results.length; i++){
             if (promises.length >= 10) {

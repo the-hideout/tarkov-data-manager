@@ -249,7 +249,7 @@ module.exports = async () => {
                 currencyItem: currencyId[traderItem.currency],
                 requirements: [{
                     type: 'loyaltyLevel',
-                    value: traderItem.minLevel,
+                    value: traderItem.min_level,
                 }]
             };
             if (offer.quest_unlock) {
