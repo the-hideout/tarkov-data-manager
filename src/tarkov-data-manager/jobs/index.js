@@ -41,7 +41,8 @@ const defaultJobs = {
     'update-ammo': '*/10 * * * *',
     'update-hideout': '2-59/10 * * * *',
     'update-quests-new': '6-59/10 * * * *',
-    'update-presets': '*/10 * * * *'
+    'update-presets': '*/10 * * * *',
+    'update-maps': '*/20 * * * *'
     // Too much memory :'(
     // 'update-longtime-data': '49 8 * * *'
 };

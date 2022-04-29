@@ -59,6 +59,40 @@ const factionMap = {
     '6179b5b06e9dd54ac275e409': 'BEAR'
 };
 
+let tdQuests = false;
+let tdTraders = false;
+let tdMaps = false;
+
+const traderIdMap = {
+    0: '54cb50c76803fa8b248b4571',
+    1: '54cb57776803fa99248b456e',
+    2: '58330581ace78e27b8b10cee',
+    3: '5935c25fb3acc3127c3d8cd9',
+    4: '5a7c2eca46aef81a7ca2145d',
+    5: '5ac3b934156ae10c4430e83c',
+    6: '5c0647fdd443bc2504c2d371',
+    7: '579dc571d53a0658a154fbec',
+};
+
+const mapIdByName = {
+    'Night Factory': '59fc81d786f774390775787e',
+    'Factory': '55f2d3fd4bdc2d5f408b4567',
+    'Lighthouse': '5704e4dad2720bb55b8b4567',
+    'Customs': '56f40101d2720b2a4d8b45d6',
+    'Reserve': '5704e5fad2720bc05b8b4567',
+    'Interchange': '5714dbc024597771384a510d',
+    'Shoreline': '5704e554d2720bac5b8b456e',
+    'Woods': '5704e3c2d2720bac5b8b4567',
+    'The Lab': '5b0fc42d86f7744a585f9105'
+};
+
+const getTdLocation = id => {
+    for (const name in tdMaps) {
+        const map = tdMaps[name];
+        if (map.id === id) return map.locale.en;
+    }
+};
+
 const getRewardItems = (reward) => {
     const rewardData = {
         item: reward.items[0]._tpl,
@@ -171,12 +205,211 @@ const loadRewards = (questData, rewardsType, sourceRewards) => {
     }
 };
 
+const mergeTdQuest = (questData) => {
+    let tdQuest = false;
+    for (const q of tdQuests) {
+        if (q.id === questData.tarkovDataId) {
+            tdQuest = q;
+            break;
+        }
+    }
+    for (const tdObj of tdQuest.objectives) {
+        if (tdObj.type === 'key') {
+            key = {
+                key_ids: [tdObj.target]
+            };
+            if (Array.isArray(tdObj.target)) key.key_ids = tdObj.target;
+            key.locationName = null;
+            key.map_id = null;
+            if (tdObj.location > -1) {
+                key.locationName = getTdLocation(tdObj.location);
+                key.map_id = tdObj.location;
+            }
+            questData.neededKeys.push(key);
+        }
+    }
+};
+
+const formatTdQuest = (quest) => {
+    const questData = {
+        id: quest.gameId,
+        name: quest.title,
+        trader: traderIdMap[quest.giver],
+        //traderName: traderIdMap[quest.giver],
+        location_id: null,
+        locationName: null,
+        wikiLink: quest.wiki,
+        minPlayerLevel: quest.require.level,
+        taskRequirements: [],
+        traderLevelRequirements: [],
+        objectives: [],
+        startRewards: {
+            traderStanding: [],
+            items: [],
+            offerUnlock: [],
+            skillLevelReward: [],
+            traderUnlock: []
+        },
+        finishRewards: {
+            traderStanding: [],
+            items: [],
+            offerUnlock: [],
+            skillLevelReward: [],
+            traderUnlock: []
+        },
+        experience: quest.exp,
+        tarkovDataId: quest.id,
+        factionName: 'Any',
+        neededKeys: []
+    };
+    for (const tdId of quest.require.quests) {
+        for (const preQuest of tdQuests) {
+            if (preQuest.id === tdId) {
+                if (preQuest.gameId) {
+                    questData.taskRequirements.push({
+                        task: preQuest.gameId,
+                        name: en.quest[preQuest.gameId].name,
+                        status: ['complete']
+                    });
+                } else {
+                    logger.warn(`No gameId found for prerequisite quest ${preQuest.title} ${tdId}`);
+                }
+                break;
+            }
+        }
+    }
+    for (const id of quest.unlocks) {
+        questData.finishRewards.traderUnlock.push({
+            id: id,
+            trader_id: traderIdMap[quest.giver],
+            //trader_name: en.trading[reward.traderId].Nickname,
+            level: null
+        })
+    }
+    for (const rep of quest.reputation) {
+        questData.finishRewards.traderStanding.push({
+            trader_id: traderIdMap[rep.trader],
+            //name: en.trading[reward.target].Nickname,
+            standing: rep.rep
+        });
+    }
+    for (const objective of quest.objectives) {
+        const obj = {
+            id: objective.id,
+            type: null,
+            optional: false,
+            description: '',
+            locationNames: [],
+            map_ids: []
+        };
+        const idPattern = /^[a-z0-9]{24}$/
+        if (objective.location > -1) {
+            obj.locationNames.push(getTdLocation(objective.location))
+            obj.map_ids.push(objective.location);
+        }
+        if (objective.type === 'find' || objective.type === 'collect' || objective.type === 'pickup') {
+            // find is find in raid, collect is not FIR
+            // pickup is quest item
+            obj.count = objective.number;
+            if (objective.type === 'pickup') {
+                obj.type = `findQuestItem`;
+                obj.questItem = {
+                    id: null,
+                    name: objective.target
+                }
+                obj.description = `Obtain ${objective.target}`;
+            } else {
+                obj.type = `findItem`;
+                obj.item_id = objective.target;
+                obj.item_name = en.templates[objective.target].Name;
+                obj.item = objective.target;
+                obj.dogTagLevel = 0;
+                obj.maxDurability = 0;
+                obj.minDurability = 100;
+                obj.foundInRaid = objective.type === 'find';
+                obj.description = `Find ${en.templates[objective.target].Name}`;
+            }
+            if (objective.hint) obj.description += ` ${objective.hint}`;
+        } else if (objective.type === 'kill') {
+            obj.type = 'shoot';
+            obj.description = `Kill ${objective.target}`;
+            if (objective.with) {
+                obj.description += ` with ${objective.with.join(', ')}`;
+            }
+            obj.target = objective.target;
+            obj.count = parseInt(objective.number);
+            obj.shotType = 'kill';
+            obj.bodyParts = [];
+            obj.usingWeapon = [];
+            obj.usingWeaponMods = [];
+            obj.zoneNames = [];
+            obj.distance = null;
+            obj.wearing = [];
+            obj.notWearing = [];
+            obj.healthEffect = null;
+            obj.enemyHealthEffect = null;
+        } else if (objective.type === 'locate') {
+            obj.type = 'visit';
+            obj.description = `Locate ${objective.target}`;
+        } else if (objective.type === 'place') {
+            obj.count = parseInt(objective.number);
+            if (!objective.target.match(idPattern)) {
+                obj.type = 'plantQuestItem';
+                obj.questItem = {
+                    id: null,
+                    name: objective.target
+                };
+            } else {
+                obj.type = 'plantItem';
+                obj.item = objective.target;
+                obj.item_name = en.templates[objective.target].Name;
+                obj.dogTagLevel = 0;
+                obj.maxDurability = 100;
+                obj.minDurability = 0;
+                obj.foundInRaid = false;
+            }
+            obj.description = `Place ${en.templates[objective.target].Name}`;
+            if (objective.hint) obj.description += ` at ${objective.hint}`;
+        } else if (objective.type === 'mark') {
+            obj.type = 'mark';
+            obj.item = objective.target;
+            obj.item_id = objective.target;
+            obj.item_name = en.templates[objective.target].Name;
+        } else if (objective.type === 'skill') {
+            obj.type = 'skill';
+            obj.skillLevel = {
+                name: objective.target,
+                level: objective.number
+            };
+        } else if (objective.type === 'reputation') {
+            obj.type = 'traderLevel';
+            obj.trader_id = traderIdMap[objective.target];
+            //obj.trader_name = en.trading[objective._props.target].Nickname;
+            obj.level = objective.number;
+        } else if (objective.type === 'key') {
+            key = {
+                key_ids: [objective.target]
+            };
+            if (Array.isArray(objective.target)) key.key_ids = objective.target;
+            key.locationName = null;
+            key.map_id = null;
+            if (objective.location > -1) {
+                key.locationName = getTdLocation(objective.location);
+                key.map_id = objective.location;
+            }
+            questData.neededKeys.push(key);
+        }
+        questData.objectives.push(obj);
+    }
+    return questData;
+};
+
 module.exports = async () => {
     logger = new JobLogger('update-quests-new');
     try {
         logger.log('Processing quests...');
         logger.log('Retrieving TarkovTracker quests.json...');
-        const tdQuests = (await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
+        tdQuests = (await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
             responseType: 'json',
         })).body;
         const data = await tarkovChanges.quests();
@@ -187,6 +420,7 @@ module.exports = async () => {
         } catch (error) {
             logger.error(error);
         }
+        const tdMatched = [];
         const quests = {
             updated: new Date(),
             data: [],
@@ -206,7 +440,7 @@ module.exports = async () => {
                 id: questId,
                 name: en.quest[questId].name,
                 trader: quest.traderId,
-                trderName: en.trading[quest.traderId].Nickname,
+                traderName: en.trading[quest.traderId].Nickname,
                 location_id: quest.location,
                 locationName: locationName,
                 wikiLink: `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(en.quest[questId].name.replaceAll(' ', '_'))}`,
@@ -247,8 +481,9 @@ module.exports = async () => {
                 },
                 experience: 0,
                 tarkovDataId: undefined,
-                factionName: 'Any'
-            }
+                factionName: 'Any',
+                neededKeys: []
+            };
             for (const objective of quest.conditions.AvailableForFinish) {
                 let optional = false;
                 if (objective._props.parentId) {
@@ -259,7 +494,8 @@ module.exports = async () => {
                     type: null,
                     optional: optional,
                     description: en.quest[questId].conditions[objective._props.id],
-                    locationNames: []
+                    locationNames: [],
+                    map_ids: []
                 };
                 if (objective._parent === 'FindItem' || objective._parent === 'HandoverItem') {
                     const targetItem = items[objective._props.target[0]];
@@ -345,14 +581,20 @@ module.exports = async () => {
                             }
                             if (mobMap[obj.target]) obj.target = mobMap[obj.target];
                         } else if (cond._parent === 'Location') {
-                            if (!obj.locationNames) obj.locationNames = [];
                             for (const loc of cond._props.target) {
                                 if (loc === 'develop') continue;
                                 if (!en.interface[loc]) {
                                     logger.warn(`Unrecognized location ${loc} for objective ${obj.id} of ${questData.name} ${questData.id}`);
                                     continue;
                                 }
-                                obj.locationNames.push(en.interface[loc]);
+                                let mapName = en.interface[loc];
+                                obj.locationNames.push(mapName);
+                                if (mapName === 'Laboratory') mapName = 'The Lab';
+                                if (mapIdByName[mapName]) {
+                                    obj.map_ids.push(mapIdByName[mapName]);
+                                } else {
+                                    logger.warn(`Unrecognized map name ${mapName} for objective ${obj.id} of ${questData.name} ${questData.id}`);
+                                }
                             }
                         } else if (cond._parent === 'ExitStatus') {
                             obj.exitStatus = cond._props.status;
@@ -587,6 +829,7 @@ module.exports = async () => {
             for (const tdQuest of tdQuests) {
                 if (questData.id == tdQuest.gameId) {
                     questData.tarkovDataId = tdQuest.id;
+                    tdMatched.push(tdQuest.id)
                     break;
                 }
                 if (questData.name == tdQuest.title) {
@@ -594,13 +837,39 @@ module.exports = async () => {
                     //logger.warn(`Found possible TarkovData name match for ${questData.name} ${questData.id}`)
                 }
             }
-            if (typeof nameMatch !== 'undefined') questData.tarkovDataId = nameMatch;
+            if (typeof nameMatch !== 'undefined') {
+                questData.tarkovDataId = nameMatch;
+                tdMatched.push(nameMatch);
+            }
             if (typeof questData.tarkovDataId === 'undefined') {
                 questData.tarkovDataId = null;
                 logger.warn(`Could not find TarkovData quest id for ${questData.name} ${questData.id}`);
+            } else {
+                mergeTdQuest(questData);
             }
             if (factionMap[questData.id]) questData.factionName = factionMap[questData.id];
             quests.data.push(questData);
+        }
+        for (const tdQuest of tdQuests) {
+            try {
+                if (!tdMatched.includes(tdQuest.id)) {
+                    logger.warn(`Adding TarkovData quest ${tdQuest.title} ${tdQuest.id}...`)
+                    if (!tdTraders) {
+                        logger.log('Retrieving TarkovTracker traders.json...');
+                        tdTraders = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
+                            responseType: 'json',
+                        })).body;
+                        logger.log('Retrieving TarkovTracker maps.json...');
+                        tdMaps = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/maps.json', {
+                            responseType: 'json',
+                        })).body;
+                    }
+                    quests.data.push(formatTdQuest(tdQuest));
+                }
+            } catch (error) {
+                logger.error('Error processing missing TarkovData quests');
+                logger.error(error);
+            }
         }
 
         logger.log('Writing quests.json...');
