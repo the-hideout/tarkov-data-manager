@@ -872,6 +872,18 @@ module.exports = async () => {
             }
         }
 
+        for (const questId in en.quest) {
+            let found = false;
+            for (const quest of quests.data) {
+                if (questId === quest.id) {
+                    found = true;
+                    break;
+                };
+            }
+            if (found || !en.quest[questId].name) continue;
+            logger.warn(`No quest data found for ${en.quest[questId].name} ${questId}`);
+        }
+
         logger.log('Writing quests.json...');
         fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'tasks.json'), JSON.stringify(quests, null, 4));
         fs.writeFileSync(path.join(__dirname, '..', 'cache', 'tasks.json'), JSON.stringify(quests.data, null, 4));
