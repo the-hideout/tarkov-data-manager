@@ -871,7 +871,21 @@ module.exports = async () => {
                 logger.error(error);
             }
         }
+        logger.log('Finished processing TarkovData quests');
 
+        const ignoreQuests = [
+            '5d25dae186f77443e55d2f78',
+            '61bb475467f83663e155e26a',
+            '61bb468b8d7cac1532300ccc',
+            '61bb47481908c67d4249a205',
+            '61bb474b1ab5304c3817a53a',
+            '61bb474f8b8d2a79d012cd6e',
+            '61bb474dce7374453b45dfd2',
+            '61bb47516b70332c062ca7b9',
+            '61bb47578d7cac1532300ccd',
+            '61bb4756883b2c16a163870a',
+            '61bfa784f4378605ca5598e1',
+        ];
         for (const questId in en.quest) {
             let found = false;
             for (const quest of quests.data) {
@@ -880,7 +894,7 @@ module.exports = async () => {
                     break;
                 };
             }
-            if (found || !en.quest[questId].name) continue;
+            if (found || !en.quest[questId].name || ignoreQuests.includes(questId)) continue;
             logger.warn(`No quest data found for ${en.quest[questId].name} ${questId}`);
         }
 
