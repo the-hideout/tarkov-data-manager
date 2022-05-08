@@ -8,10 +8,42 @@ const remoteData = require('../modules/remote-data');
 const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
+const tarkovChanges = require('../modules/tarkov-changes');
+
+let bsgItems = false;
+let en = false;
+const bsgCategories = {};
+
+const ignoreCategories = [
+    '54009119af1c881c07000029', // Item
+    '566162e44bdc2d3f298b4573', // Compound item
+    '5661632d4bdc2d903d8b456b', // Stackable item
+    '566168634bdc2d144c8b456c', // Searchable item
+];
+
+const addCategory = id => {
+    if (!id || bsgCategories[id]) return;
+    bsgCategories[id] = {
+        id: id,
+        parent_id: null
+    };
+    if (en.templates[id]) {
+        bsgCategories[id].name = en.templates[id].Name
+    } else {
+        bsgCategories[id].name = bsgItems[id]._name;
+    }
+    const parentId = bsgItems[id]._parent;
+    if (!ignoreCategories.includes(parentId)) {
+        bsgCategories[id].parent_id = parentId;
+        addCategory(parentId);
+    }
+};
 
 module.exports = async () => {
     const logger = new JobLogger('update-cache');
     try {
+        bsgItems = await tarkovChanges.items();
+        en = await tarkovChanges.locale_en();
         const itemMap = await remoteData.get(true);
         const itemData = {};
 
@@ -108,8 +140,17 @@ module.exports = async () => {
             itemData[key].containsItems = containedItemsMap[key];
 
             // itemData[key].changeLast48h = itemPriceYesterday.priceYesterday || 0;
+
+            if (itemData[key].properties) {
+                addCategory(itemData[key].properties.bsgCategoryId);
+            }
         }
-        const response = await cloudflare(`/values/ITEM_CACHE_V2`, 'PUT', JSON.stringify(itemData)).catch(error => {
+        const items = {
+            updated: new Date(),
+            data: itemData,
+            categories: bsgCategories
+        };
+        const response = await cloudflare(`/values/ITEM_CACHE_V2`, 'PUT', JSON.stringify(items)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
@@ -123,7 +164,7 @@ module.exports = async () => {
                 logger.error(response.messages[i]);
             }
         }
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'item-cache.json'), JSON.stringify(itemData, null, 4));
+        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'item-cache.json'), JSON.stringify(items, null, 4));
 
         // Possibility to POST to a Discord webhook here with cron status details
     } catch (error) {
