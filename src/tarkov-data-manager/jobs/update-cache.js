@@ -144,6 +144,11 @@ module.exports = async () => {
             if (itemData[key].properties) {
                 addCategory(itemData[key].properties.bsgCategoryId);
             }
+
+            itemData[key].discardLimit = -1;
+            if (bsgItems[key]) {
+                itemData[key].discardLimit = bsgItems[key]._props.DiscardLimit;
+            }
         }
         const items = {
             updated: new Date(),

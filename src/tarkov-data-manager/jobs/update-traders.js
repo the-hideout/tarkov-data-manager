@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
+const got = require('got');
 const cloudflare = require('../modules/cloudflare');
 //const christmasTreeCrafts = require('../public/data/christmas-tree-crafts.json');
 
@@ -16,8 +17,11 @@ module.exports = async function() {
         const tradersData = await tarkovChanges.traders();
         logger.log('Downloading en from Tarkov-Changes...');
         const en = await tarkovChanges.locale_en();
-        logger.log('Querying reset times...');
-        /*const resetTimes = {};
+        const tdTraders = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
+            responseType: 'json',
+        })).body;
+        /*logger.log('Querying reset times...');
+        const resetTimes = {};
         const results = await query(`
             SELECT
                 trader.trader_name,
@@ -92,6 +96,9 @@ module.exports = async function() {
                     levelData.repairCostMultiplier = 1 + (parseInt(level.repair_price_coef) / 100);
                 }
                 traderData.levels.push(levelData);
+            }
+            if (tdTraders[traderData.name.toLowerCase()]) {
+                traderData.tarkovDataId = tdTraders[traderData.name.toLowerCase()].id;
             }
             traders.data.push(traderData);
         }
