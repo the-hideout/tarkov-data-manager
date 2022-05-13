@@ -44,6 +44,7 @@ module.exports = async () => {
     try {
         bsgItems = await tarkovChanges.items();
         en = await tarkovChanges.locale_en();
+        const globals = await tarkovChanges.globals();
         const itemMap = await remoteData.get(true);
         const itemData = {};
 
@@ -150,10 +151,28 @@ module.exports = async () => {
                 itemData[key].discardLimit = bsgItems[key]._props.DiscardLimit;
             }
         }
+
+        const fleaData = {
+            name: 'Flea Market',
+            minPlayerLevel: globals.config.RagFair.minUserLevel,
+            enabled: globals.config.RagFair.enabled,
+            sellOfferFeeRate: (globals.config.RagFair.communityItemTax / 100),
+            sellRequirementFeeRate: (globals.config.RagFair.communityRequirementTax / 100),
+            reputationLevels: []
+        };
+        for (const offerCount of globals.config.RagFair.maxActiveOfferCount) {
+            fleaData.reputationLevels.push({
+                offers: offerCount.count,
+                minRep: offerCount.from,
+                maxRep: offerCount.to
+            });
+        }
+
         const items = {
             updated: new Date(),
             data: itemData,
-            categories: bsgCategories
+            categories: bsgCategories,
+            flea: fleaData
         };
         const response = await cloudflare(`/values/ITEM_CACHE_V2`, 'PUT', JSON.stringify(items)).catch(error => {
             logger.error(error);

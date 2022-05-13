@@ -13,10 +13,11 @@ const tarkovChanges = require('../modules/tarkov-changes');
 module.exports = async function() {
     const logger = new JobLogger('update-traders');
     try {
-        logger.log('Downloading trader data from Tarkov-Changes...');
+        logger.log('Loading trader data from Tarkov-Changes...');
         const tradersData = await tarkovChanges.traders();
-        logger.log('Downloading en from Tarkov-Changes...');
+        logger.log('Loading en from Tarkov-Changes...');
         const en = await tarkovChanges.locale_en();
+        logger.log('Loading TarkovData traders.json...');
         const tdTraders = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
             responseType: 'json',
         })).body;
