@@ -161,6 +161,10 @@ module.exports = async () => {
             reputationLevels: []
         };
         for (const offerCount of globals.config.RagFair.maxActiveOfferCount) {
+            if (fleaData.reputationLevels.length > 0 && fleaData.reputationLevels[fleaData.reputationLevels.length-1].offers == offerCount.count) {
+                fleaData.reputationLevels[fleaData.reputationLevels.length-1].maxRep = offerCount.to;
+                continue;
+            }
             fleaData.reputationLevels.push({
                 offers: offerCount.count,
                 minRep: offerCount.from,

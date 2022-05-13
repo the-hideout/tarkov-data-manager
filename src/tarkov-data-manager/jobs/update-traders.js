@@ -64,6 +64,7 @@ module.exports = async function() {
                 name: en.trading[trader._id].Nickname,
                 currency: trader.currency,
                 resetTime: date,
+                discount: parseInt(trader.discount) / 100,
                 levels: []
             };
             /*if (resetTimes[traderData.name.toLowerCase()]) {
