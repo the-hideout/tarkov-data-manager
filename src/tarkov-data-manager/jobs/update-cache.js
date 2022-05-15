@@ -146,6 +146,15 @@ module.exports = async () => {
                 addCategory(itemData[key].properties.bsgCategoryId);
             }
 
+            itemData[key].iconLink = itemData[key].icon_link;
+            itemData[key].gridImageLink = itemData[key].grid_image_link;
+            itemData[key].imageLink = itemData[key].image_link;
+            itemData[key].basePrice = itemData[key].base_price;
+            itemData[key].shortName = itemData[key].shortname;
+            itemData[key].wikiLink = itemData[key].wiki_link;
+            itemData[key].normalizedName = itemData[key].normalized_name;
+            itemData[key].link = `https://tarkov.dev/item/${itemData[key].normalizedName}`;
+
             itemData[key].discardLimit = -1;
             if (bsgItems[key]) {
                 itemData[key].discardLimit = bsgItems[key]._props.DiscardLimit;
