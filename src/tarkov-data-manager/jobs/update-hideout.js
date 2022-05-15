@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const got = require('got');
+
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
@@ -11,6 +13,9 @@ module.exports = async () => {
     try {
         const data = await tarkovChanges.areas();
         const en = await tarkovChanges.locale_en();
+        const tdHideout = (await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/hideout.json', {
+            responseType: 'json',
+        })).body;
         const hideoutData = {
             updated: new Date(),
             data: [],
@@ -37,7 +42,16 @@ module.exports = async () => {
                 logger.warn(`Hideout station ${stationData.name} is disabled`);
                 continue;
             }
-            logger.log(`Processing ${stationData.name}`)
+            logger.log(`Processing ${stationData.name}`);
+            for (const tdStation of tdHideout.stations) {
+                if (tdStation.locales.en.toLowerCase() === stationData.name.toLowerCase()) {
+                    stationData.tarkovDataId = tdStation.id;
+                    break;
+                }
+            }
+            if (typeof stationData.tarkovDataId === 'undefined') {
+                logger.warn(`Could not find TarkovData id for ${stationData.name}`);
+            }
             for (let i = 1; i < Object.keys(station.stages).length; i++) {
                 if (!station.stages[String(i)]) {
                     logger.warn(`No stage found for ${stationData.name} level ${i}`);
@@ -57,6 +71,15 @@ module.exports = async () => {
                     itemRequirements: [],
                     skillRequirements: []
                 };
+                for (const tdModule of tdHideout.modules) {
+                    if (tdModule.stationId === stationData.tarkovDataId && tdModule.level === stageData.level) {
+                        stageData.tarkovDataId = tdModule.id;
+                        break;
+                    }
+                }
+                if (typeof stageData.tarkovDataId === 'undefined') {
+                    logger.warn(`Could not find tarkovData id for ${stationData.name} level ${stageData.level}`);
+                }
                 for (let r = 0; r < stage.requirements.length; r++) {
                     const req = stage.requirements[r];
                     if (req.type === 'Item') {
