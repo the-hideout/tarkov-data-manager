@@ -76,13 +76,13 @@ module.exports = async () => {
                 });
             }
 
-            cloudflareData.push({
+            /*cloudflareData.push({
                 key: `historical-prices-${itemId}`,
                 value: JSON.stringify(itemPriceData[itemId]),
-            });
+            });*/
         }
 
-        const response = await cloudflare(
+        /*const response = await cloudflare(
             `/bulk`,
             'PUT',
             JSON.stringify(cloudflareData),
@@ -92,6 +92,10 @@ module.exports = async () => {
         ).catch(error => {
             logger.error(error);
             return {success: false, messages: [], errors: []};
+        });*/
+        const response = await cloudflare(`/values/HISTORICAL_PRICES`, 'PUT', JSON.stringify(itemPriceData)).catch(error => {
+            logger.error(error);
+            return {success: false, errors: [], messages: []};
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of /bulk');
@@ -104,7 +108,8 @@ module.exports = async () => {
             }
         }
 
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'historical-prices.json'), JSON.stringify(cloudflareData, null, 4));
+        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'historical-prices.json'), JSON.stringify(cloudflareData, null, 4));
+        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'historical-prices.json'), JSON.stringify(itemPriceData, null, 4));
         logger.success('Done with historical prices');
         // Possibility to POST to a Discord webhook here with cron status details
     } catch (error) {
