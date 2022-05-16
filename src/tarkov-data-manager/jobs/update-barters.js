@@ -263,7 +263,7 @@ const parseTradeRow = (tradeElement) => {
 
             return {
                 name: 'Dogtag USEC',
-                id: dogtagUSEC.id,
+                item: dogtagUSEC.id,
                 count: requiredItem.count,
                 attributes: requiredItem.attributes
             };
@@ -280,7 +280,7 @@ const parseTradeRow = (tradeElement) => {
 
             return {
                 name: 'Dogtag BEAR',
-                id: dogtagBEAR.id,
+                item: dogtagBEAR.id,
                 count: requiredItem.count,
                 attributes: requiredItem.attributes
             };
