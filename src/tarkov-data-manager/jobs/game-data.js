@@ -1,4 +1,4 @@
-const bsgData = require('./update-bsg-data');
+const tcData = require('./update-tc-data');
 const updateGameData = require('./update-game-data');
 const updateTranslations = require('./update-translations');
 const updateTypes = require('./update-types');
@@ -11,9 +11,9 @@ module.exports = async () => {
     const keepAlive = connection.keepAlive;
     connection.keepAlive = true;
     try {
-        logger.log('Running bsgData...');
-        await bsgData(logger);
-        logger.log('Completed bsgData');
+        logger.log('Running update-tc-data...');
+        await tcData(logger);
+        logger.log('Completed update-tc-data');
 
         logger.log('Running updateGameData...');
         await updateGameData(logger);

@@ -1,15 +1,12 @@
-const fs = require('fs');
-const path = require('path');
-
 const objectPath = require('object-path');
 
 const ttData = require('../modules/tt-data');
 const {query, jobComplete} = require('../modules/db-connection');
 const {categories} = require('../modules/category-map');
 
-//const bsgDataHelper = require('./update-bsg-data');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
+const tarkovChanges = require('../modules/tarkov-changes');
 
 let logger = false;
 
@@ -147,7 +144,7 @@ module.exports = async () => {
 
         const allTTItems = await ttData();
 
-        const bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
+        const bsgData = await tarkovChanges.items();
 
         const currentProperties = {};
 

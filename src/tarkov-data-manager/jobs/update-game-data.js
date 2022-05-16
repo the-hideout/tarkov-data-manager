@@ -5,11 +5,12 @@ const normalizeName = require('../modules/normalize-name');
 const {categories} = require('../modules/category-map');
 const presetSize = require('../modules/preset-size');
 const ttData = require('../modules/tt-data');
-const oldShortnames = require('../old-shortnames.json');
+//const oldShortnames = require('../old-shortnames.json');
 
 const { connection, query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
+const tarkovChanges = require('../modules/tarkov-changes');
 
 let bsgData;
 let presets = {};
@@ -130,7 +131,7 @@ module.exports = async (externalLogger) => {
     try {
         const allTTItems = await ttData();
 
-        bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
+        bsgData = await tarkovChanges.items();
 
         try {
             presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
@@ -141,6 +142,10 @@ module.exports = async (externalLogger) => {
         logger.log('Updating game data');
 
         const items = Object.values(bsgData).filter((bsgObject) => {
+            if(!bsgObject._props){
+                return false;
+            }
+
             if(bsgObject._type !== 'Item'){
                 return false;
             }

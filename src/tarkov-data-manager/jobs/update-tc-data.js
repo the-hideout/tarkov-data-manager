@@ -2,8 +2,8 @@ const tarkovChanges = require('../modules/tarkov-changes');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 
-module.exports = async () => {
-    const logger = new JobLogger('update-tc-data');
+module.exports = async (externalLogger) => {
+    const logger = externalLogger || new JobLogger('update-tc-data');
     try {
         logger.log('Downloading data from Tarkov-Changes...');
         logger.time('tc-download');

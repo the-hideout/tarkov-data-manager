@@ -1,14 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 
-const got = require('got');
+const tarkovChanges = require('../modules/tarkov-changes');
 
 let presets = false;
 let itemData = false;
 
 module.exports = async(itemId, verbose = true) => {
     if(!itemData){
-        itemData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
+        itemData = await tarkovChanges.items();
     }
 
     if(!presets){

@@ -21,6 +21,12 @@ const ignoreCategories = [
     '566168634bdc2d144c8b456c', // Searchable item
 ];
 
+const availableProperties = [
+    'weight',
+    'velocity',
+    'loudness',
+];
+
 const addCategory = id => {
     if (!id || bsgCategories[id]) return;
     bsgCategories[id] = {
@@ -101,8 +107,9 @@ module.exports = async () => {
             }
 
             containedItemsMap[result.container_item_id].push({
-                itemId: result.child_item_id,
+                item: result.child_item_id,
                 count: result.count,
+                attributes: []
             });
         }
 
@@ -144,6 +151,36 @@ module.exports = async () => {
 
             if (itemData[key].properties) {
                 addCategory(itemData[key].properties.bsgCategoryId);
+
+                if(itemData[key].properties.accuracy){
+                    itemData[key].accuracyModifier = Number(itemData[key].properties.accuracy);
+                }
+    
+                if(itemData[key].properties.recoil){
+                    itemData[key].recoilModifier = Number(itemData[key].properties.recoil);
+                }
+    
+                if(itemData[key].properties.ergonomics){
+                    itemData[key].ergonomicsModifier = Number(itemData[key].properties.ergonomics);
+                }
+    
+                if(itemData[key].properties.grid && itemData[key].properties.grid.totalSize > 0){
+                    itemData[key].hasGrid = true;
+                }
+    
+                if(itemData[key].properties.blocksEarpiece){
+                    itemData[key].blocksHeadphones = true;
+                }
+    
+                if(itemData[key].properties.bsgCategoryId){
+                    itemData[key].bsgCategoryId = itemData[key].properties.bsgCategoryId;
+                }
+
+                for(const availableProperty of availableProperties){
+                    if(typeof itemData[key].properties[availableProperty] !== 'undefined'){
+                        itemData[key][availableProperty] = Number(itemData[key].properties[availableProperty]);
+                    }
+                }
             }
 
             itemData[key].iconLink = itemData[key].icon_link;
@@ -157,6 +194,7 @@ module.exports = async () => {
 
             itemData[key].discardLimit = -1;
             if (bsgItems[key]) {
+                itemData[key].bsgCategoryId = bsgItems[key]._parent;
                 itemData[key].discardLimit = bsgItems[key]._props.DiscardLimit;
             }
         }

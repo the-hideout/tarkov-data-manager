@@ -227,7 +227,7 @@ const methods = {
                     'USD': '5696686a4bdc2da3298b456a',
                     'EUR': '569668774bdc2da2298b4568'
                 };
-                const traders = tarkovChanges.traders();
+                
                 if(itemProperties && categories[itemProperties.bsgCategoryId]){
                     for(const trader of categories[itemProperties.bsgCategoryId].traders){
                         // console.log(`Suggested price for ${preparedData.name} at ${trader.name}: ${Math.floor(trader.multiplier * preparedData.base_price)}`);
