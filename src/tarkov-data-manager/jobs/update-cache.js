@@ -197,6 +197,15 @@ module.exports = async () => {
                 itemData[key].bsgCategoryId = bsgItems[key]._parent;
                 itemData[key].discardLimit = bsgItems[key]._props.DiscardLimit;
             }
+
+            // Fallback images
+            itemData[key].imageLinkFallback = itemData[key].imageLink || 'https://assets.tarkov.dev/unknown-item-image.jpg';
+            itemData[key].iconLinkFallback = itemData[key].iconLink || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
+            itemData[key].gridImageLinkFallback = itemData[key].gridImageLink || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
+
+            itemData[key].imageLink = itemData[key].imageLink || itemData[key].imageLinkFallback;
+            itemData[key].iconLink = itemData[key].iconLink || itemData[key].iconLinkFallback;
+            itemData[key].gridImageLink = itemData[key].gridImageLink || itemData[key].gridImageLinkFallback;
         }
 
         const fleaData = {
