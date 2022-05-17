@@ -45,6 +45,12 @@ const addCategory = id => {
     }
 };
 
+const camelCase = input => {
+    return input.toLowerCase().replace(/-(.)/g, function(match, group1) {
+        return group1.toUpperCase();
+    });
+};
+
 module.exports = async () => {
     const logger = new JobLogger('update-cache');
     try {
@@ -144,6 +150,8 @@ module.exports = async () => {
                     }
                 }
             }
+
+            itemData[key].types = itemData[key].types.map(type => camelCase(type));
 
             itemData[key].containsItems = containedItemsMap[key];
 
