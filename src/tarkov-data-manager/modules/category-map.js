@@ -42,7 +42,7 @@ const TRADERS = {
 };
 
 module.exports = {
-    traders: TRADERS,
+    traders: TRADERS, // no longer used
     categories: {
         '5448ecbe4bdc2d60728b4568': {
             id: '5448ecbe4bdc2d60728b4568',
@@ -807,7 +807,7 @@ module.exports = {
             ],
         },
     },
-    distinctList: {
+    /*distinctList: {
         '59faff1d86f7746c51718c9c': {
             id: '59faff1d86f7746c51718c9c',
             name: 'Physical bitcoin',
@@ -815,5 +815,5 @@ module.exports = {
                 TRADERS.therapist,
             ],
         },
-    },
+    },*/
 };

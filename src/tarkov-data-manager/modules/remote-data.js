@@ -1,6 +1,6 @@
 const midmean = require('compute-midmean');
 
-const {categories, items, distinctList} = require('../modules/category-map');
+const {categories, items} = require('../modules/category-map');
 const timer = require('./console-timer');
 
 const {query} = require('./db-connection');
@@ -263,7 +263,7 @@ const methods = {
                     }
                 }
 
-                if(itemProperties && distinctList[result.id]){
+                /*if(itemProperties && distinctList[result.id]){
                     preparedData.traderPrices = [];
 
                     for(const trader of distinctList[result.id].traders){
@@ -279,7 +279,7 @@ const methods = {
                             trader: traderId[trader.name]
                         });
                     }
-                }
+                }*/
 
                 // if(result.id === '59faff1d86f7746c51718c9c'){
                 //     preparedData.traderPrices = [{
