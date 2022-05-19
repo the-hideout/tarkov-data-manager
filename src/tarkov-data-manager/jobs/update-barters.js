@@ -178,6 +178,7 @@ const parseTradeRow = (tradeElement) => {
         });
         tradeData.level = parseInt(loyaltyLevelMatch[1]);
     }
+    tradeData.source = `${traderName} LL${tradeData.level}`;
     if ($trade.find('th').eq(2).find('a').length > 2 && $trade.find('th').eq(2).text().includes('task')) {
         const taskUrl = $trade.find('th').eq(2).find('a').eq(2).prop('href');
         const taskName = $trade.find('th').eq(2).find('a').eq(-1).prop('title');
