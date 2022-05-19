@@ -58,7 +58,7 @@ module.exports = async function() {
         for (const traderId in tradersData) {
             const trader = tradersData[traderId];
             const date = new Date(trader.nextResupply*1000);
-            date.setHours(date.getHours() +5);
+            //date.setHours(date.getHours() +5);
             const traderData = {
                 id: trader._id,
                 name: en.trading[trader._id].Nickname,
