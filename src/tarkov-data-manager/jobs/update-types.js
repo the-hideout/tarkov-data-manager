@@ -5,13 +5,12 @@ const ttData = require('../modules/tt-data');
 const {query, jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
 
 module.exports = async (externalLogger) => {
     const logger = externalLogger || new JobLogger('update-types');
     try {
         const allTTItems = await ttData();
-        const bsgData = await tarkovChanges.items();
+        const bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
 
         logger.log(`Updating types`);
         let i = 0;

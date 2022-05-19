@@ -8,55 +8,10 @@ const remoteData = require('../modules/remote-data');
 const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
-
-let bsgItems = false;
-let en = false;
-const bsgCategories = {};
-
-const ignoreCategories = [
-    '54009119af1c881c07000029', // Item
-    '566162e44bdc2d3f298b4573', // Compound item
-    '5661632d4bdc2d903d8b456b', // Stackable item
-    '566168634bdc2d144c8b456c', // Searchable item
-];
-
-const availableProperties = [
-    'weight',
-    'velocity',
-    'loudness',
-];
-
-const addCategory = id => {
-    if (!id || bsgCategories[id]) return;
-    bsgCategories[id] = {
-        id: id,
-        parent_id: null
-    };
-    if (en.templates[id]) {
-        bsgCategories[id].name = en.templates[id].Name
-    } else {
-        bsgCategories[id].name = bsgItems[id]._name;
-    }
-    const parentId = bsgItems[id]._parent;
-    if (!ignoreCategories.includes(parentId)) {
-        bsgCategories[id].parent_id = parentId;
-        addCategory(parentId);
-    }
-};
-
-const camelCase = input => {
-    return input.toLowerCase().replace(/-(.)/g, function(match, group1) {
-        return group1.toUpperCase();
-    });
-};
 
 module.exports = async () => {
     const logger = new JobLogger('update-cache');
     try {
-        bsgItems = await tarkovChanges.items();
-        en = await tarkovChanges.locale_en();
-        const globals = await tarkovChanges.globals();
         const itemMap = await remoteData.get(true);
         const itemData = {};
 
@@ -113,9 +68,8 @@ module.exports = async () => {
             }
 
             containedItemsMap[result.container_item_id].push({
-                item: result.child_item_id,
+                itemId: result.child_item_id,
                 count: result.count,
-                attributes: []
             });
         }
 
@@ -151,98 +105,11 @@ module.exports = async () => {
                 }
             }
 
-            itemData[key].types = itemData[key].types.map(type => camelCase(type));
-
             itemData[key].containsItems = containedItemsMap[key];
 
             // itemData[key].changeLast48h = itemPriceYesterday.priceYesterday || 0;
-
-            if (itemData[key].properties) {
-                addCategory(itemData[key].properties.bsgCategoryId);
-
-                if(itemData[key].properties.accuracy){
-                    itemData[key].accuracyModifier = Number(itemData[key].properties.accuracy);
-                }
-    
-                if(itemData[key].properties.recoil){
-                    itemData[key].recoilModifier = Number(itemData[key].properties.recoil);
-                }
-    
-                if(itemData[key].properties.ergonomics){
-                    itemData[key].ergonomicsModifier = Number(itemData[key].properties.ergonomics);
-                }
-    
-                if(itemData[key].properties.grid && itemData[key].properties.grid.totalSize > 0){
-                    itemData[key].hasGrid = true;
-                }
-    
-                if(itemData[key].properties.blocksEarpiece){
-                    itemData[key].blocksHeadphones = true;
-                }
-    
-                if(itemData[key].properties.bsgCategoryId){
-                    itemData[key].bsgCategoryId = itemData[key].properties.bsgCategoryId;
-                }
-
-                for(const availableProperty of availableProperties){
-                    if(typeof itemData[key].properties[availableProperty] !== 'undefined'){
-                        itemData[key][availableProperty] = Number(itemData[key].properties[availableProperty]);
-                    }
-                }
-            }
-
-            itemData[key].iconLink = itemData[key].icon_link;
-            itemData[key].gridImageLink = itemData[key].grid_image_link;
-            itemData[key].imageLink = itemData[key].image_link;
-            itemData[key].basePrice = itemData[key].base_price;
-            itemData[key].shortName = itemData[key].shortname;
-            itemData[key].wikiLink = itemData[key].wiki_link;
-            itemData[key].normalizedName = itemData[key].normalized_name;
-            itemData[key].link = `https://tarkov.dev/item/${itemData[key].normalizedName}`;
-
-            itemData[key].discardLimit = -1;
-            if (bsgItems[key]) {
-                itemData[key].bsgCategoryId = bsgItems[key]._parent;
-                itemData[key].discardLimit = bsgItems[key]._props.DiscardLimit;
-            }
-
-            // Fallback images
-            itemData[key].imageLinkFallback = itemData[key].imageLink || 'https://assets.tarkov.dev/unknown-item-image.jpg';
-            itemData[key].iconLinkFallback = itemData[key].iconLink || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
-            itemData[key].gridImageLinkFallback = itemData[key].gridImageLink || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
-
-            itemData[key].imageLink = itemData[key].imageLink || itemData[key].imageLinkFallback;
-            itemData[key].iconLink = itemData[key].iconLink || itemData[key].iconLinkFallback;
-            itemData[key].gridImageLink = itemData[key].gridImageLink || itemData[key].gridImageLinkFallback;
         }
-
-        const fleaData = {
-            name: 'Flea Market',
-            minPlayerLevel: globals.config.RagFair.minUserLevel,
-            enabled: globals.config.RagFair.enabled,
-            sellOfferFeeRate: (globals.config.RagFair.communityItemTax / 100),
-            sellRequirementFeeRate: (globals.config.RagFair.communityRequirementTax / 100),
-            reputationLevels: []
-        };
-        for (const offerCount of globals.config.RagFair.maxActiveOfferCount) {
-            if (fleaData.reputationLevels.length > 0 && fleaData.reputationLevels[fleaData.reputationLevels.length-1].offers == offerCount.count) {
-                fleaData.reputationLevels[fleaData.reputationLevels.length-1].maxRep = offerCount.to;
-                continue;
-            }
-            fleaData.reputationLevels.push({
-                offers: offerCount.count,
-                minRep: offerCount.from,
-                maxRep: offerCount.to
-            });
-        }
-
-        const items = {
-            updated: new Date(),
-            data: itemData,
-            categories: bsgCategories,
-            flea: fleaData
-        };
-        const response = await cloudflare(`/values/ITEM_CACHE_V2`, 'PUT', JSON.stringify(items)).catch(error => {
+        const response = await cloudflare(`/values/ITEM_CACHE`, 'PUT', JSON.stringify(itemData)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
@@ -256,7 +123,7 @@ module.exports = async () => {
                 logger.error(response.messages[i]);
             }
         }
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'item-cache.json'), JSON.stringify(items, null, 4));
+        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'item-cache.json'), JSON.stringify(itemData, null, 4));
 
         // Possibility to POST to a Discord webhook here with cron status details
     } catch (error) {

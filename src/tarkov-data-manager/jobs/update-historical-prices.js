@@ -62,6 +62,8 @@ module.exports = async () => {
         await Promise.all(itemQueries);
         logger.timeEnd('all-items-queries');
 
+        let cloudflareData = [];
+
         for(const itemId in allPriceData){
             if(!itemPriceData[itemId]){
                 itemPriceData[itemId] = [];
@@ -73,11 +75,23 @@ module.exports = async () => {
                     timestamp: new Date().setTime(timestamp),
                 });
             }
+
+            cloudflareData.push({
+                key: `historical-prices-${itemId}`,
+                value: JSON.stringify(itemPriceData[itemId]),
+            });
         }
 
-        const response = await cloudflare(`/values/HISTORICAL_PRICES`, 'PUT', JSON.stringify(itemPriceData)).catch(error => {
+        const response = await cloudflare(
+            `/bulk`,
+            'PUT',
+            JSON.stringify(cloudflareData),
+            {
+                'content-type': 'application/json',
+            }
+        ).catch(error => {
             logger.error(error);
-            return {success: false, errors: [], messages: []};
+            return {success: false, messages: [], errors: []};
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of /bulk');
@@ -90,7 +104,7 @@ module.exports = async () => {
             }
         }
 
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'historical-prices.json'), JSON.stringify(itemPriceData, null, 4));
+        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'historical-prices.json'), JSON.stringify(cloudflareData, null, 4));
         logger.success('Done with historical prices');
         // Possibility to POST to a Discord webhook here with cron status details
     } catch (error) {

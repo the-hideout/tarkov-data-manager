@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const got = require('got');
 const moment = require('moment');
 
 const cloudflare = require('../modules/cloudflare');
@@ -10,32 +9,13 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 
-const traderMap = {
-    'prapor': '54cb50c76803fa8b248b4571',
-    'Prapor': '54cb50c76803fa8b248b4571',
-    'therapist': '54cb57776803fa99248b456e',
-    'Therapist': '54cb57776803fa99248b456e',
-    'fence': '579dc571d53a0658a154fbec',
-    'Fence': '579dc571d53a0658a154fbec',
-    'skier': '58330581ace78e27b8b10cee',
-    'Skier': '58330581ace78e27b8b10cee',
-    'peacekeeper': '5935c25fb3acc3127c3d8cd9',
-    'Peacekeeper': '5935c25fb3acc3127c3d8cd9',
-    'mechanic': '5a7c2eca46aef81a7ca2145d',
-    'Mechanic': '5a7c2eca46aef81a7ca2145d',
-    'ragman': '5ac3b934156ae10c4430e83c',
-    'Ragman': '5ac3b934156ae10c4430e83c',
-    'jaeger': '5c0647fdd443bc2504c2d371',
-    'Jaeger': '5c0647fdd443bc2504c2d371',
-};
-
 let logger = false;
 
 const outputPrices = async (prices) => {
     fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'trader-inventory.json'), JSON.stringify(prices, null, 4));
 
     try {
-        const response = await cloudflare(`/values/TRADER_ITEMS_V2`, 'PUT', JSON.stringify(prices));
+        const response = await cloudflare(`/values/TRADER_ITEMS`, 'PUT', JSON.stringify(prices));
         if (response.success) {
             logger.success(`Successful Cloudflare put of ${Object.keys(prices).length} TRADER_ITEMS`);
         } else {
@@ -58,16 +38,6 @@ const outputPrices = async (prices) => {
 module.exports = async () => {
     logger = new JobLogger('update-trader-prices');
     try {
-        let tdQuests = {};
-        try {
-            const response = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
-                responseType: 'json',
-            });
-            tdQuests = response.body;
-        } catch (error) {
-            logger.error('Error downloading TarkovData quests');
-            logger.error(error);
-        }
         const outputData = {};
         const junkboxLastScan = await query(`
             SELECT
@@ -100,11 +70,6 @@ module.exports = async () => {
             '5696686a4bdc2da3298b456a': 'USD',
             '569668774bdc2da2298b4568': 'EUR'
         }
-        const currencyId = {
-            'RUB': '5449016a4bdc2d6f028b456f',
-            'USD': '5696686a4bdc2da3298b456a',
-            'EUR': '569668774bdc2da2298b4568'
-        };
         const credits = await tarkovChanges.credits();
         const currenciesNow = {
             'RUB': 1,
@@ -218,48 +183,17 @@ module.exports = async () => {
             if (currencyISO[traderItem.item_id]) {
                 itemPrice = currenciesNow[currencyISO[traderItem.item_id]];
             }
-            let questBsgId = null;
-            if (!isNaN(parseInt(traderItem.quest_unlock_id))) {
-                for (const quest of tdQuests) {
-                    if (quest.id == traderItem.quest_unlock_id) {
-                        questBsgId = quest.gameId;
-                        break;
-                    }
-                }
-                if (!questBsgId) {
-                    logger.warn(`Could not find bsg id for quest ${traderItem.quest_unlock_id}`);
-                }
-            }
-            const offer = {
+            outputData[traderItem.item_id].push({
                 id: traderItem.item_id,
-                vendor: {
-                    trader: traderMap[traderItem.trader_name],
-                    trader_id: traderMap[traderItem.trader_name],
-                    traderLevel: traderItem.min_level,
-                    minTraderLevel: traderItem.min_level,
-                    taskUnlock: questBsgId
-                },
                 source: traderItem.trader_name,
+                min_level: traderItem.min_level,
                 price: itemPrice,
-                priceRUB: Math.round(itemPrice * currenciesNow[traderItem.currency]),
+                priceRUB: Math.round(itemPrice / currenciesNow[traderItem.currency]),
                 updated: latestTraderPrices[traderItem.id].timestamp,
-                quest_unlock: !isNaN(parseInt(traderItem.quest_unlock_id)),
+                quest_unlock: Boolean(traderItem.quest_unlock_id),
                 quest_unlock_id: traderItem.quest_unlock_id,
                 currency: traderItem.currency,
-                currencyItem: currencyId[traderItem.currency],
-                requirements: [{
-                    type: 'loyaltyLevel',
-                    value: traderItem.min_level,
-                }]
-            };
-            if (offer.quest_unlock) {
-                offer.requirements.push({
-                    type: 'questCompleted',
-                    value: Number(offer.quest_unlock_id) || 1,
-                    stringValue: questBsgId
-                });
-            }
-            outputData[traderItem.item_id].push(offer);
+            });
         }
 
         await outputPrices(outputData);

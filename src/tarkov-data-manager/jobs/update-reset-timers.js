@@ -2,22 +2,11 @@ const {query, jobComplete} = require('../modules/db-connection');
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
 
 module.exports = async () => {
     const logger = new JobLogger('update-reset-timers');
     try {
-        const traders = await tarkovChanges.traders();
-        const en = await tarkovChanges.locale_en();
-
         const resetTimes = {};
-        for (const id in traders) {
-            const trader = traders[id];
-            const date = new Date(trader.nextResupply*1000);
-            date.setHours(date.getHours() +5);
-            resetTimes[en.trading[id].Nickname.toLowerCase()] = date;
-        }
-        /*const resetTimes = {};
         const results = await query(`
             SELECT
                 trader.trader_name,
@@ -44,7 +33,7 @@ module.exports = async () => {
             resetTime.setSeconds(resetTime.getSeconds() + seconds);
 
             resetTimes[result.trader_name] = resetTime;
-        }*/
+        }
 
         const response = await cloudflare(`/values/RESET_TIMES`, 'PUT', JSON.stringify(resetTimes)).catch(error => {
             logger.error(error);

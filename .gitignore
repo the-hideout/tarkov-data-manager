@@ -11,7 +11,6 @@ scripts/local/
 src/tarkov-data-manager/logs/*.log
 src/tarkov-data-manager/settings/crons.json
 src/tarkov-data-manager/cache/*.json
-src/tarkov-data-manager/public/data/*.json
 
 # Terraform
 terraform.auto.tfvars.json

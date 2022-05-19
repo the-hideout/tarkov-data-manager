@@ -12,7 +12,7 @@ module.exports = async function() {
     const logger = new JobLogger('update-ammo');
     try {
         const items = await tarkovChanges.items();
-        const en = (await tarkovChanges.locale_en()).templates;
+        const en = (await tarkovChanges.en()).templates;
         const ammunition = {
             updated: new Date(),
             data: [],
@@ -53,10 +53,8 @@ module.exports = async function() {
                 accuracy: ammo._props.ammoAccr,
                 recoil: ammo._props.ammoRec,
                 initialSpeed: ammo._props.InitialSpeed,
-                heavyBleedModifier: ammo._props.HeavyBleedingDelta,
                 heavyBleed: ammo._props.HeavyBleedingDelta,
-                lightBleedModifier: ammo._props.LightBleedingDelta,
-                lightBleed: ammo._props.LightBleedingDelta,
+                lightBleed: ammo._props.LightBleedingDelta
             });
             if (typeof caliberCounts[ammo._props.Caliber] === 'undefined') caliberCounts[ammo._props.Caliber] = 0;
             caliberCounts[ammo._props.Caliber]++;

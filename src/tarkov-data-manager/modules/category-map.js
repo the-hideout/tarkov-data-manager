@@ -22,7 +22,7 @@ const TRADERS = {
     peacekeeper: {
         id: '5935c25fb3acc3127c3d8cd9',
         name: 'Peacekeeper',
-        multiplier: 0.45, // Still is a bit off using the base value of USD
+        multiplier: 0.495, // 0.50 was a little off; is this better?
     },
     mechanic: {
         id: '5a7c2eca46aef81a7ca2145d',
@@ -42,7 +42,7 @@ const TRADERS = {
 };
 
 module.exports = {
-    traders: TRADERS, // no longer used
+    traders: TRADERS,
     categories: {
         '5448ecbe4bdc2d60728b4568': {
             id: '5448ecbe4bdc2d60728b4568',
@@ -807,7 +807,7 @@ module.exports = {
             ],
         },
     },
-    /*distinctList: {
+    distinctList: {
         '59faff1d86f7746c51718c9c': {
             id: '59faff1d86f7746c51718c9c',
             name: 'Physical bitcoin',
@@ -815,5 +815,5 @@ module.exports = {
                 TRADERS.therapist,
             ],
         },
-    },*/
+    },
 };

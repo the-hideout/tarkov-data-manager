@@ -18,7 +18,7 @@ const traderMap = [
 ];
 
 module.exports = async () => {
-    const logger = new JobLogger('update-quests-legacy');
+    const logger = new JobLogger('update-quests');
     try {
         logger.log('Retrieving TarkovTracker quests.json...');
         const data = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
@@ -38,7 +38,7 @@ module.exports = async () => {
         });
 
         logger.log('Writing quests.json...');
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'quests-legacy.json'), JSON.stringify(quests, null, 4));
+        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'quests.json'), JSON.stringify(quests, null, 4));
 
         const response = await cloudflare(`/values/QUEST_DATA`, 'PUT', JSON.stringify(quests)).catch(error => {
             logger.error(error);
