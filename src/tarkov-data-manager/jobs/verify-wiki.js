@@ -145,6 +145,7 @@ module.exports = async () => {
                 return resolve();
             }));
         }
+        await Promise.all(promises);
         // Possibility to POST to a Discord webhook here with cron status details
         logger.log(`${missing} items still missing a valid wiki link`);
     } catch (error) {
