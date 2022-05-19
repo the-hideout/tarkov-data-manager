@@ -16,7 +16,8 @@ module.exports = async function() {
         logger.log('Downloading crafts from Takov-Changes...');
         const json = await tarkovChanges.crafts();
         logger.log('Downloading en from Tarkov-Changes...');
-        const en = await tarkovChanges.en();
+        const en = await tarkovChanges.locale_en();
+        const areas = await tarkovChanges.areas();
         const crafts = {
             updated: new Date(),
             data: [],
@@ -24,6 +25,16 @@ module.exports = async function() {
         logger.log('Processing crafts...');
         for (const id in json) {
             const craft = json[id];
+            let station = false;
+            for (const areaId in areas) {
+                const area = areas[areaId];
+                if (area.type === craft.areaType) {
+                    station = area;
+                    break;
+                }
+            }
+            // skip christmas tree
+            if (station._id === '5df8a81f8f77747fcf5f5702') continue;
             if (!en.templates[craft.endProduct]) {
                 logger.warn(`No end product item with id ${craft.endProduct} found in locale_en.json`);
                 continue;
@@ -37,11 +48,12 @@ module.exports = async function() {
                 requiredItems: [],
                 rewardItems: [{
                     name: en.templates[craft.endProduct].Name,
-                    id: craft.endProduct,
+                    item: craft.endProduct,
                     count: craft.count,
                     attributes: []
                 }],
-                station: en.interface[`hideout_area_${craft.areaType}_name`],
+                station: station._id,
+                station_id: station._id,
                 sourceName: en.interface[`hideout_area_${craft.areaType}_name`],
                 duration: craft.productionTime,
                 requirements: []
@@ -50,11 +62,12 @@ module.exports = async function() {
             for (index in craft.requirements) {
                 const req = craft.requirements[index];
                 if (req.type === 'Area') {
-                    craftData.station = craftData.station + ' level '+req.requiredLevel;
+                    //craftData.station = craftData.station + ' level '+req.requiredLevel;
                     craftData.requirements.push({
                         type: 'stationLevel',
                         value: req.requiredLevel
                     });
+                    craftData.level = req.requiredLevel;
                     level = req.requiredLevel;
                 } else if (req.type === 'Resource') {
                     if (!en.templates[req.templateId]) {
@@ -67,7 +80,7 @@ module.exports = async function() {
                     }
                     craftData.requiredItems.push({
                         name: en.templates[req.templateId].Name,
-                        id: req.templateId,
+                        item: req.templateId,
                         count: req.resource / items[req.templateId]._props.Resource,
                         attributes: []
                     });
@@ -78,7 +91,7 @@ module.exports = async function() {
                     }
                     const reqData = {
                         name: en.templates[req.templateId].Name,
-                        id: req.templateId,
+                        item: req.templateId,
                         count: req.count,
                         attributes: []
                     };
@@ -96,7 +109,7 @@ module.exports = async function() {
                     }
                     const reqData = {
                         name: en.templates[req.templateId].Name,
-                        id: req.templateId,
+                        item: req.templateId,
                         count: 1,
                         attributes: []
                     };
@@ -108,19 +121,21 @@ module.exports = async function() {
                 }
             }
             if (!level) {
-                craftData.station = craftData.station + ' level 1';
+                //craftData.station = craftData.station + ' level 1';
                 craftData.requirements.push({
                     type: 'stationLevel',
                     value: 1
                 });
+                craftData.level = 1;
             }
+            craftData.source = `${en.interface[`hideout_area_${craft.areaType}_name`]} ${craftData.level}`;
             crafts.data.push(craftData);
         }
         logger.log(`Processed ${Object.keys(json).length} crafts`);
     
         fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'crafts.json'), JSON.stringify(crafts, null, 4));
 
-        const response = await cloudflare(`/values/CRAFT_DATA`, 'PUT', JSON.stringify(crafts)).catch(error => {
+        const response = await cloudflare(`/values/CRAFT_DATA_V2`, 'PUT', JSON.stringify(crafts)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

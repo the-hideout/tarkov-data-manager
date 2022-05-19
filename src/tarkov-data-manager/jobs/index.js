@@ -24,21 +24,24 @@ const runJob = function(name, cronSchedule) {
 const defaultJobs = {
     'check-scans': '20 * * * *',
     'update-cache': '*/5 * * * *',
-    'update-reset-timers': '*/5 * * * *',
+    'update-traders': '*/5 * * * *',
     'update-barters': '*/5 * * * *',
     'update-crafts': '1-59/5 * * * *',
-    'update-hideout': '2-59/5 * * * *',
-    'update-quests': '3-59/5 * * * *',
+    'update-hideout-legacy': '40 * * * *',
+    'update-quests': '42 * * * *',
     'update-existing-bases': '4-59/5 * * * *',
-    'game-data': '*/5 * * * *',
+    'game-data': '*/10 * * * *',
     'update-historical-prices': '5-59/15 * * * *',
     'update-item-properties': '15 * * * *',
     'update-trader-prices': '25 9,21 * * *',
     //'update-currency-prices': '50 * * * *',
     'clear-checkouts': '5,35 * * * *',
     'verify-wiki': '5 9 * * *',
-    'update-tc-data': '*/10 * * * *',
-    'update-ammo': '*/10 * * * *'
+    'update-ammo': '*/10 * * * *',
+    'update-hideout': '2-59/10 * * * *',
+    'update-quests-new': '6-59/10 * * * *',
+    'update-presets': '*/10 * * * *',
+    'update-maps': '*/20 * * * *'
     // Too much memory :'(
     // 'update-longtime-data': '49 8 * * *'
 };
@@ -87,6 +90,39 @@ const startJobs = async () => {
             console.log(`Error running ${jobName}: ${error}`);
         }
     }
+    let buildPresets = false;
+    let buildQuests = false;
+    try {
+        fs.accessSync(path.join(__dirname, '..', 'cache', 'presets.json'))
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            buildPresets = true;
+        } else {
+            console.log(error);
+        }
+    }
+    try {
+        fs.accessSync(path.join(__dirname, '..', 'cache', 'tasks.json'))
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            buildQuests = true;
+        }
+    }
+    const promise = new Promise((resolve, reject) => {
+        if (!buildPresets) return resolve(true);
+        console.log('Running build-presets job at startup');
+        const presetsModule = require('./update-presets');
+        presetsModule().finally(() => {
+            resolve(true);
+        })
+    }).then(() => {
+        if (!buildQuests) return resolve(true);
+        console.log('Running build-quests-new job at startup');
+        const tasksModule = require('./update-quests-new');
+        return tasksModule();
+    });
+    await Promise.allSettled([promise]);
+    console.log('Startup jobs complete');
 };
 
 module.exports = {

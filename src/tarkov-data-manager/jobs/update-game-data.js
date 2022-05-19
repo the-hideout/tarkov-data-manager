@@ -5,13 +5,15 @@ const normalizeName = require('../modules/normalize-name');
 const {categories} = require('../modules/category-map');
 const presetSize = require('../modules/preset-size');
 const ttData = require('../modules/tt-data');
-const oldShortnames = require('../old-shortnames.json');
+//const oldShortnames = require('../old-shortnames.json');
 
 const { connection, query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
+const tarkovChanges = require('../modules/tarkov-changes');
 
 let bsgData;
+let presets = {};
 
 const mappingProperties = [
     'BlindnessProtection',
@@ -129,11 +131,21 @@ module.exports = async (externalLogger) => {
     try {
         const allTTItems = await ttData();
 
-        bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
+        bsgData = await tarkovChanges.items();
+
+        try {
+            presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
+        } catch (error) {
+            logger.error(error);
+        }
 
         logger.log('Updating game data');
 
         const items = Object.values(bsgData).filter((bsgObject) => {
+            if(!bsgObject._props){
+                return false;
+            }
+
             if(bsgObject._type !== 'Item'){
                 return false;
             }
@@ -315,6 +327,9 @@ module.exports = async (externalLogger) => {
                 continue;
             }
             if (allTTItems[ttItemId].types.includes('disabled')) {
+                continue;
+            }
+            if (presets[ttItemId] || allTTItems.types.includes('preset')) {
                 continue;
             }
             logger.warn(`${allTTItems[ttItemId].name} (${allTTItems[ttItemId].id}) is no longer available in the game`);

@@ -38,7 +38,11 @@ const sendWebhook = async (message) => {
             if (typeof message.message !== 'object') {
                 message.message = message.message.toString();
             } else {
-                message.message = '`'+JSON.stringify(message.message, null, 4)+'`';
+                if (message.stack) {
+                    message.message = message.stack;
+                } else {
+                    message.message = '`'+JSON.stringify(message.message, null, 4)+'`';
+                }
             }
         }
         embed.setDescription(message.message);

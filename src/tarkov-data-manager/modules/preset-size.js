@@ -1,21 +1,22 @@
 const fs = require('fs');
 const path = require('path');
 
-const got = require('got');
+const tarkovChanges = require('../modules/tarkov-changes');
 
 let presets = false;
 let itemData = false;
 
-module.exports = async(itemId) => {
+module.exports = async(itemId, verbose = true) => {
     if(!itemData){
-        itemData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
+        itemData = await tarkovChanges.items();
     }
 
     if(!presets){
         try {
-            presets = JSON.parse((await got('https://raw.githack.com/TarkovTracker/tarkovdata/master/item_presets.json')).body);
+            //presets = JSON.parse((await got('https://raw.githack.com/TarkovTracker/tarkovdata/master/item_presets.json')).body);
+            presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
         } catch (error) {
-            console.log(error);
+            if (verbose) console.log(error);
 
             return false;
         }
@@ -38,8 +39,8 @@ module.exports = async(itemId) => {
             continue;
         }
 
-        for (let i = 0; i < preset.parts.length; i++) {
-            const part = itemData[preset.parts[i].id];
+        for (let i = 0; i < preset.containsItems.length; i++) {
+            const part = itemData[preset.containsItems[i].item.id];
 
             if(!part){
                 // console.log(preset.parts[i]);

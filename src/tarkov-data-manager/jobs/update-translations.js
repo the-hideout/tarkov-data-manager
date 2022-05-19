@@ -7,6 +7,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 
 const {query, jobComplete} = require('../modules/db-connection');
+const tarkovChanges = require('../modules/tarkov-changes');
 
 const INSERT_KEYS = [
     'Name',
@@ -17,7 +18,8 @@ module.exports = async (externalLogger) => {
     const logger = externalLogger || new JobLogger('update-translations');
     try {
         const allTTItems = await ttData();
-        const bsgData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'bsg-data.json')));
+        const bsgData = await tarkovChanges.items();
+        const en = await tarkovChanges.locale_en();
         const allKeys = Object.keys(bsgData);
         const currentDestinations = [];
 
@@ -31,8 +33,9 @@ module.exports = async (externalLogger) => {
             }
         }
 
-        for(let i = 0; i < allKeys.length; i = i + 1){
-            const item = bsgData[allKeys[i]];
+        for (let i = 0; i < allKeys.length; i = i + 1){
+            const itemId = allKeys[i];
+            const item = bsgData[itemId];
             if(!item._props){
                 continue;
             }
@@ -43,18 +46,18 @@ module.exports = async (externalLogger) => {
 
             //logger.log(`Updating ${i + 1}/${allKeys.length} ${item._id} ${item._props.ShortName}`);
             for(const insertKey of INSERT_KEYS){
-                if(!item._props[insertKey]){
+                if(!en.templates[itemId][insertKey]){
                     logger.warn(`Item ${item._id} is missing ${insertKey}`);
                     continue;
                 }
 
-                if(item._props[insertKey].toString().trim() === allTTItems[item._id][insertKey.toLowerCase()]){
+                if(en.templates[itemId][insertKey].toString().trim() === allTTItems[item._id][insertKey.toLowerCase()]){
                     continue;
                 }
 
                 if(insertKey === 'Name'){
                     const oldKey = normalizeName(allTTItems[item._id][insertKey.toLowerCase()]);
-                    const newKey = normalizeName(item._props[insertKey].toString().trim());
+                    const newKey = normalizeName(en.templates[itemId][insertKey].toString().trim());
 
                     if(oldKey !== newKey && currentDestinations.includes(newKey)){
                         try {
@@ -72,7 +75,7 @@ module.exports = async (externalLogger) => {
 
                 logger.log(`New ${insertKey} for ${item._id}`);
                 logger.log(`OLD: ${allTTItems[item._id][insertKey.toLowerCase()]}`);
-                logger.log(`NEW: ${item._props[insertKey].toString().trim()}`);
+                logger.log(`NEW: ${en.templates[itemId][insertKey].toString().trim()}`);
 
                 await query(`
                     UPDATE
@@ -85,9 +88,9 @@ module.exports = async (externalLogger) => {
                         language_code = ?
                     AND
                         type = ?
-                `, [item._props[insertKey].toString().trim(), item._id, 'en', insertKey.toLowerCase()]);
+                `, [en.templates[itemId][insertKey].toString().trim(), item._id, 'en', insertKey.toLowerCase()]);
             }
-            logger.succeed(`Updated ${i + 1}/${allKeys.length} ${item._id} ${item._props.ShortName}`);
+            logger.succeed(`Updated ${i + 1}/${allKeys.length} ${item._id} ${en.templates[itemId].ShortName}`);
         }
 
         logger.log('Checking redirects');

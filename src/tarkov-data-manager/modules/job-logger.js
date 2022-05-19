@@ -24,7 +24,11 @@ class JobLogger {
         if (typeof message === 'string') {
             message = chalk.red(message);
         } else if (typeof message === 'object') {
-            message = chalk.red(message.toString());
+            if (message.stack) {
+                message = chalk.red(`${new Date()}`)+'\n'+message.stack;
+            } else {
+                message = chalk.red(`${new Date()}\n${message.toString()}`);
+            }
         }
         if (this.verbose) console.log(message);
         this.messages.push(message);
@@ -61,7 +65,7 @@ class JobLogger {
     end() {
         const endMessage = `${this.jobName} ended in ${new Date() - this.startTime}ms`;
         this.log(endMessage);
-        if (this.verbose) console.log(endMessage);
+        //if (this.verbose) console.log(endMessage);
         try {
             fs.mkdirSync(path.join(__dirname, '..', 'logs'));
         } catch (error) {
