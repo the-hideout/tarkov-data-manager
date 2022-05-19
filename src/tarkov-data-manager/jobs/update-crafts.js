@@ -128,7 +128,7 @@ module.exports = async function() {
                 });
                 craftData.level = 1;
             }
-            craftData.source = `${en.interface[`hideout_area_${craft.areaType}_name`]} ${craftData.level}`;
+            craftData.source = `${en.interface[`hideout_area_${craft.areaType}_name`]} level ${craftData.level}`;
             crafts.data.push(craftData);
         }
         logger.log(`Processed ${Object.keys(json).length} crafts`);
