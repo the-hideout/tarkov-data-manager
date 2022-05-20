@@ -2,12 +2,12 @@ const fs = require('fs');
 const path = require('path');
 
 const got = require('got');
+const cheerio = require('cheerio');
 
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
-//const {query, jobComplete} = require('../modules/db-connection');
 
 const mapNames = {
     '59fc81d786f774390775787e': 'Night Factory',
@@ -32,6 +32,18 @@ const idMap = {
     7: '5704e4dad2720bb55b8b4567',
 };
 
+const getWikiInfo = async (url) => {
+    const info = {};
+    const response = await got(url);
+    const $ = cheerio.load(response.body);
+    const group = $('table.va-infobox-group td').each((index, element) => {
+        if ($(element).text() === 'Players') {
+            info.players = $('table.va-infobox-group td').eq(index+2).text();
+        }
+    });
+    return info;
+};
+
 module.exports = async function() {
     const logger = new JobLogger('update-maps');
     try {
@@ -51,9 +63,12 @@ module.exports = async function() {
                 ...tdMaps[index]
             };
             mapData.tarkovDataId = mapData.id;
+            mapData.id = idMap[mapData.id];
             mapData.name = mapData.locale.en;
             const dayDuration = mapData.raidDuration.day;
             const nightDuration = mapData.raidDuration.night;
+            const wikiInfo = await getWikiInfo(mapData.wiki);
+            mapData.players = wikiInfo.players;
             if (mapData.id === 0) {
                 const nfData = {
                     ...mapData
@@ -64,7 +79,9 @@ module.exports = async function() {
                 nfData.id = '59fc81d786f774390775787e';
                 maps.data.push(nfData);
             }
-            mapData.id = idMap[mapData.id];
+            mapData.enemies = mapData.enemies.filter(enemy => {
+                return enemy !== 'Cultists';
+            });
             mapData.raidDuration = dayDuration;
             maps.data.push(mapData);
         }
