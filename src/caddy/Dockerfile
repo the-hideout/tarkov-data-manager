@@ -1,8 +1,13 @@
 FROM caddy/caddy:2.4.6-alpine
 
-RUN mkdir /app
-COPY start.sh /app/start.sh
+RUN adduser -D nonroot -u 10001
 
-COPY Caddyfile /etc/caddy/Caddyfile
+RUN mkdir /app
+
+COPY --chown=nonroot:nonroot start.sh /app/start.sh
+COPY --chown=nonroot:nonroot Caddyfile /etc/caddy/Caddyfile
+RUN chown -R nonroot:nonroot /app
+
+USER nonroot
 
 CMD ["sh", "/app/start.sh"]
