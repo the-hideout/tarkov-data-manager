@@ -41,14 +41,16 @@ const defaultJobs = {
     'update-hideout': '2-59/10 * * * *',
     'update-quests-new': '6-59/10 * * * *',
     'update-presets': '*/10 * * * *',
-    'update-maps': '*/20 * * * *'
+    'update-maps': '*/20 * * * *',
+    'update-lang': '*/61 * * * *'
     // Too much memory :'(
     // 'update-longtime-data': '49 8 * * *'
 };
 
 const startupJobs = [
     'update-existing-bases',
-    'update-tc-data'
+    'update-tc-data',
+    'update-lang'
 ];
 
 let allJobs = {

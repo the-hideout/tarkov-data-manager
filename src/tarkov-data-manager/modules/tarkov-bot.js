@@ -10,7 +10,7 @@ const dataTypes = {
 };
 
 const langs = {
-    'en': 'en',
+    //'en': 'en',
     'es': 'es',
     'ru': 'ru',
     'de': 'ge',
@@ -71,5 +71,17 @@ module.exports = {
     },
     dictionary: async (download = false, saveFileName = false, lang = 'en') => {
         return module.exports.get('dictionary', download, saveFileName, {lang: langs[lang]});
-    }
+    },
+    locales: async (download = false) => {
+        const promises = [];
+        for (const lang in langs) {
+            promises.push(module.exports.dictionary(download, `locale_${lang}.json`, langs[lang]).then(data => {return {lang: lang, data: data}}))
+        }
+        const results = await Promise.all(promises);
+        returnVal = {};
+        for (const lang of results) {
+            returnVal[lang.lang] = lang.data;
+        }
+        return returnVal;
+    },
 }

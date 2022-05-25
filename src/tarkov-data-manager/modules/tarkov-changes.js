@@ -53,35 +53,43 @@ const availableFiles = {
     },
     locale_ru: {
         requestName: 'locale_ru_td.json',
-        fileName: 'locale_ru.json'
+        fileName: 'locale_ru.json',
+        skip: true
     },
     locale_de: {
         requestName: 'locale_ge_td.json',
-        fileName: 'locale_de.json'
+        fileName: 'locale_de.json',
+        skip: true
     },
     locale_fr: {
         requestName: 'locale_fr_td.json',
-        fileName: 'locale_fr.json'
+        fileName: 'locale_fr.json',
+        skip: true
     },
     locale_cz: {
         requestName: 'locale_cz_td.json',
-        fileName: 'locale_cz.json'
+        fileName: 'locale_cz.json',
+        skip: true
     },
     locale_hu: {
         requestName: 'locale_hu_td.json',
-        fileName: 'locale_hu.json'
+        fileName: 'locale_hu.json',
+        skip: true
     },
     locale_tr: {
         requestName: 'locale_tr_td.json',
-        fileName: 'locale_tr.json'
+        fileName: 'locale_tr.json',
+        skip: true
     },
     locale_zh: {
         requestName: 'locale_zh_td.json',
-        fileName: 'locale_zh.json'
+        fileName: 'locale_zh.json',
+        skip: true
     },
     locale_es: {
         requestName: 'locale_es_td.json',
-        fileName: 'locale_es.json'
+        fileName: 'locale_es.json',
+        skip: true
     }
 };
 
@@ -116,8 +124,8 @@ module.exports = {
         return module.exports.get('credits.json', download);
     },
     locale_en: async (download = false) => {
-        return tarkovBot.locale_en(download, 'locale_en.json');
-        //return module.exports.get('locale_en_td.json', download, 'locale_en.json');
+        //return tarkovBot.locale_en(download, 'locale_en.json');
+        return module.exports.get('locale_en_td.json', download, 'locale_en.json');
     },
     locale: async (download = false, lang = 'en') => {
         return tarkovBot.dictionary(download, `locale_${lang}.json`, lang);
@@ -147,22 +155,10 @@ module.exports = {
         return module.exports.locale(download, 'zh');
     },
     locales: async (download = false) => {
-        const langs = await Promise.all([
-            module.exports.locale_en().then(data => {return {lang: 'en', data: data}}),
-            module.exports.locale_es().then(data => {return {lang: 'es', data: data}}),
-            module.exports.locale_ru().then(data => {return {lang: 'ru', data: data}}),
-            module.exports.locale_de().then(data => {return {lang: 'de', data: data}}),
-            module.exports.locale_fr().then(data => {return {lang: 'fr', data: data}}),
-            module.exports.locale_cz().then(data => {return {lang: 'cz', data: data}}),
-            module.exports.locale_hu().then(data => {return {lang: 'hu', data: data}}),
-            module.exports.locale_tr().then(data => {return {lang: 'tr', data: data}}),
-            module.exports.locale_zh().then(data => {return {lang: 'zh', data: data}})
-        ]);
-        returnVal = {};
-        for (const lang of langs) {
-            returnVal[lang.lang] = lang.data;
+        return {
+            en: await module.exports.locale_en(download),
+            ...await tarkovBot.locales(download)
         }
-        return returnVal;
     },
     globals: async(download = false) => {
         return module.exports.get('globals.json', download);
@@ -180,6 +176,7 @@ module.exports = {
     downloadAll: async () => {
         const promises = [];
         for (const file in availableFiles) {
+            if (availableFiles[file].skip) continue;
             const fileSource = availableFiles[file].requestName;
             console.log(fileSource);
             //promises.push(module.exports.get(fileSource, true, availableFiles[file]).then(data => {return {name: availableFiles[fileSource] || fileSource, data: data}}));
