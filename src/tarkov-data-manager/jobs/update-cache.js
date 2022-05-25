@@ -12,6 +12,7 @@ const tarkovChanges = require('../modules/tarkov-changes');
 
 let bsgItems = false;
 let en = false;
+let locales = false;
 const bsgCategories = {};
 
 const ignoreCategories = [
@@ -56,6 +57,8 @@ module.exports = async () => {
     try {
         bsgItems = await tarkovChanges.items();
         en = await tarkovChanges.locale_en();
+        locales = await tarkovChanges.locales();
+        const presets = fs.readFileSync('./cache/presets.json');
         const globals = await tarkovChanges.globals();
         const itemMap = await remoteData.get(true);
         const itemData = {};
@@ -214,6 +217,20 @@ module.exports = async () => {
             itemData[key].imageLink = itemData[key].imageLink || itemData[key].imageLinkFallback;
             itemData[key].iconLink = itemData[key].iconLink || itemData[key].iconLinkFallback;
             itemData[key].gridImageLink = itemData[key].gridImageLink || itemData[key].gridImageLinkFallback;
+
+            // translations
+            itemData[key].locale = {};
+            for (const code in locales) {
+                const lang = locales[code];
+                if (lang.templates[key]) {
+                    itemData[key].locale[code] = {
+                        name: lang.templates[key].Name,
+                        shortName: lang.templates[key].ShortName
+                    };
+                } else if (presets[key]) {
+                    itemData[key].local[code] = presets[key].locale[code];
+                }
+            }
         }
 
         const fleaData = {
@@ -242,7 +259,7 @@ module.exports = async () => {
             categories: bsgCategories,
             flea: fleaData
         };
-        const response = await cloudflare(`/values/ITEM_CACHE_V2`, 'PUT', JSON.stringify(items)).catch(error => {
+        const response = await cloudflare(`/values/ITEM_CACHE_V3`, 'PUT', JSON.stringify(items)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

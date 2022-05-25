@@ -17,6 +17,7 @@ module.exports = async function() {
         const tradersData = await tarkovChanges.traders();
         logger.log('Loading en from Tarkov-Changes...');
         const en = await tarkovChanges.locale_en();
+        const locales = await tarkovChanges.locales();
         logger.log('Loading TarkovData traders.json...');
         const tdTraders = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
             responseType: 'json',
@@ -65,14 +66,24 @@ module.exports = async function() {
                 currency: trader.currency,
                 resetTime: date,
                 discount: parseInt(trader.discount) / 100,
-                levels: []
+                levels: [],
+                locale: {}
             };
             /*if (resetTimes[traderData.name.toLowerCase()]) {
                 traderData.resetTime = resetTimes[traderData.name.toLowerCase()];
             }*/
             if (!en.trading[trader._id]) {
                 logger.warn(`No trader id ${trader._id} found in locale_en.json`);
-                trader.name = trader.nickname;
+                traderData.name = trader.nickname;
+            }
+            for (const code in locales) {
+                const lang = locales[code];
+                if (!lang.trading[trader._id]) {
+                    logger.warn(`No trader id ${trader._id} found in ${code} translation`);
+                    traderData.name = trader.nickname;
+                } else {
+                    traderData.locale[code] = {name: lang.trading[trader._id].Nickname};
+                }
             }
             logger.log(`${traderData.name} ${trader._id}`);
             for (let i = 0; i < trader.loyaltyLevels.length; i++) {
@@ -108,7 +119,7 @@ module.exports = async function() {
     
         fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'traders.json'), JSON.stringify(traders, null, 4));
 
-        const response = await cloudflare(`/values/TRADER_DATA`, 'PUT', JSON.stringify(traders)).catch(error => {
+        const response = await cloudflare(`/values/TRADER_DATA_V2`, 'PUT', JSON.stringify(traders)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

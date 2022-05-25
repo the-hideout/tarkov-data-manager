@@ -62,6 +62,7 @@ const processPresets = async () => {
         const presets = (await tarkovChanges.globals())['ItemPresets'];
         const items = await tarkovChanges.items();
         const en = await tarkovChanges.locale_en();
+        const locales = await tarkovChanges.locales();
         const credits = await tarkovChanges.credits();
 
         const presetsData = {};
@@ -101,7 +102,15 @@ const processPresets = async () => {
                 containsItems: [{
                     item: firstItem,
                     count: 1
-                }]
+                }],
+                locale: {}
+            }
+            for (const code in locales) {
+                lang = locales[code];
+                presetData.locale[code] = {
+                    name: lang.templates[baseItem._id].Name,
+                    shortName: lang.templates[baseItem._id].ShortName
+                }
             }
             for (let i = 1; i < preset._items.length; i++) {
                 const part = preset._items[i];
@@ -124,6 +133,13 @@ const processPresets = async () => {
                 presetData.shortName += ' '+en.preset[presetId].Name;
                 presetData.default = false;
             } 
+            for (const code in locales) {
+                lang = locales[code];
+                if (preset._changeWeaponName && lang.preset[presetId] && lang.preset[presetId].Name) {
+                    presetData.locale[code].name += ' '+lang.preset[presetId].Name;
+                    presetData.locale[code].shortName += ' '+lang.preset[presetId].Name;
+                }
+            }
             presetData.normalized_name = normalizeName(presetData.name);
             if (gotSizes) {
                 let itemPresetSize = await presetSize(presetId, false);
