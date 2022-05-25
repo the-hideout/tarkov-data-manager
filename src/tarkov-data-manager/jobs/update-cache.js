@@ -32,12 +32,25 @@ const addCategory = id => {
     if (!id || bsgCategories[id]) return;
     bsgCategories[id] = {
         id: id,
-        parent_id: null
+        parent_id: null,
+        locale: {}
     };
     if (en.templates[id]) {
         bsgCategories[id].name = en.templates[id].Name
     } else {
         bsgCategories[id].name = bsgItems[id]._name;
+    }
+    for (const code in locales) {
+        const lang = locales[code];
+        if (lang.templates[id]) {
+            bsgCategories[id].locale[code] = {
+                name: lang.templates[id].Name
+            };
+        } else {
+            bsgCategories[id].locale[code] = {
+                name: bsgItems[id]._name
+            };
+        }
     }
     const parentId = bsgItems[id]._parent;
     if (!ignoreCategories.includes(parentId)) {
@@ -58,7 +71,7 @@ module.exports = async () => {
         bsgItems = await tarkovChanges.items();
         en = await tarkovChanges.locale_en();
         locales = await tarkovChanges.locales();
-        const presets = fs.readFileSync('./cache/presets.json');
+        const presets = JSON.parse(fs.readFileSync('./cache/presets.json'));
         const globals = await tarkovChanges.globals();
         const itemMap = await remoteData.get(true);
         const itemData = {};
@@ -228,8 +241,8 @@ module.exports = async () => {
                         shortName: lang.templates[key].ShortName
                     };
                 } else if (presets[key]) {
-                    itemData[key].local[code] = presets[key].locale[code];
-                }
+                    itemData[key].locale[code] = presets[key].locale[code];
+                } 
             }
         }
 
