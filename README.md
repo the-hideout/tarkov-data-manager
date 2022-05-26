@@ -69,6 +69,7 @@ The following variables should be configured in your creds.env file for the data
 - `CLOUDFLARE_TOKEN`: Used for putting data in cloudflare for the API.
 - `PSCALE_USER`/`PSCALE_PASS`: Username and password for the database.
 - `TC_USERNAME`/`TC_PASSWORD`/`TC_URL`: Connect to tarkov-changes to get latest item information.
+- `TB_KEY`/`TB_URL`: Connect to tarkov-bot to get latest translation information.
 - `WS_PASSWORD`: Used to authenticate commands sent to price scanners.
 - `WEBHOOK_URL`: The Discord webhook url for alerts.
 - `WEBHOOK_USER`: The optional user name that should be used for any sent Discord webhook alerts.
