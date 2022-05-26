@@ -13,6 +13,7 @@ const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 
 let bsgData;
+let credits;
 let presets = {};
 
 const mappingProperties = [
@@ -132,6 +133,7 @@ module.exports = async (externalLogger) => {
         const allTTItems = await ttData();
 
         bsgData = await tarkovChanges.items();
+        credits = await tarkovChagnes.credits();
 
         try {
             presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
@@ -205,6 +207,10 @@ module.exports = async (externalLogger) => {
 
         for(let i = 0; i < items.length; i = i + 1){
             const item = items[i];
+            let basePrice = credits[item._id];
+            if (typeof basePrice === 'undefined') {
+                basePrice = allTTItems[item._id].basePrice;
+            }
             //logger.log(`Updating ${i + 1}/${items.length} ${item._id} ${item._props.ShortName}`);
             const extraProperties = {};
             for(const extraProp of mappingProperties){
@@ -245,8 +251,8 @@ module.exports = async (externalLogger) => {
                 shouldUpsert = false;
             }
 
-            if(allTTItems[item._id] && allTTItems[item._id].basePrice !== item._props.CreditsPrice && typeof item._props.CreditsPrice !== 'undefined'){
-                logger.log(`${allTTItems[item._id].name} has the wrong basePrice. is ${allTTItems[item._id].basePrice} should be ${item._props.CreditsPrice}`);
+            if(allTTItems[item._id] && allTTItems[item._id].basePrice !== basePrice && typeof basePrice !== 'undefined'){
+                logger.log(`${allTTItems[item._id].name} has the wrong basePrice. is ${allTTItems[item._id].basePrice} should be ${basePrice}`);
 
                 shouldUpsert = true;
             }
@@ -276,10 +282,6 @@ module.exports = async (externalLogger) => {
             }*/
 
             try {
-                let basePrice = item._props.CreditsPrice;
-                if (typeof basePrice === 'undefined') {
-                    basePrice = allTTItems[item._id].basePrice;
-                }
                 const results = await query(`
                     INSERT INTO 
                         item_data (id, normalized_name, base_price, width, height, properties)
