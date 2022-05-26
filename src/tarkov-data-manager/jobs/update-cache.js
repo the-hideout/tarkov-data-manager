@@ -136,6 +136,7 @@ module.exports = async () => {
         }
 
         for (const [key, value] of itemMap.entries()) {
+            if (value.types.includes('disabled')) continue;
             itemData[key] = value;
 
             Reflect.deleteProperty(itemData[key], 'last_update');
