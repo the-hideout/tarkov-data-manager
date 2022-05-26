@@ -128,6 +128,7 @@ module.exports = {
         return module.exports.get('locale_en_td.json', download, 'locale_en.json');
     },
     locale: async (download = false, lang = 'en') => {
+        if (lang == 'en') return module.exports.locale_en(download);
         return tarkovBot.dictionary(download, `locale_${lang}.json`, lang);
     },
     locale_es: async (download = false) => {
