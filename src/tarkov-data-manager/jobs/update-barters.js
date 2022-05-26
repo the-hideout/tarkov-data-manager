@@ -14,7 +14,7 @@ const tarkovChanges = require('../modules/tarkov-changes');
 const { query, jobComplete } = require('../modules/db-connection');
 
 let itemData = false;
-const TRADES_URL = 'https://escapefromtarkov.gamepedia.com/Barter_trades';
+const TRADES_URL = 'https://escapefromtarkov.fandom.com/wiki/Barter_trades';
 let logger;
 let trades;
 let oldTasks;

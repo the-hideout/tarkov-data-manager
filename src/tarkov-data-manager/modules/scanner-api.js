@@ -122,7 +122,10 @@ const getItems = async(options) => {
             `, itemIds);
         try {
             items = await query(sql);
-            response.data = items;
+            response.data = items.filter(item => {
+                if (!item.name) return false;
+                return true;
+            });
         } catch (error) {
             response.errors.push(String(error));
         }
@@ -161,7 +164,10 @@ const getItems = async(options) => {
             ORDER BY translations.value
         `;
         try {
-            response.data = await query(sql);
+            response.data = (await query(sql)).filter(item => {
+                if (!item.name) return false;
+                return true;
+            });
         } catch (error) {
             response.errors.push(String(error));
         }
@@ -243,7 +249,10 @@ const getItems = async(options) => {
         ORDER BY item_data.last_scan
     `, [options.scannerName]);
     try {
-        response.data = await query(sql);
+        response.data = (await query(sql)).filter(item => {
+            if (!item.name) return false;
+            return true;
+        });
         //console.log('retrieved items', response.data);
     } catch (error) {
         response.errors.push(String(error));
