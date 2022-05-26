@@ -333,7 +333,7 @@ insertPrices = async (options) => {
             const tPrice = traderPrices[i];
             let offerId = false;
             const testOfferSql = format(`
-                SELECT id, currency, min_level, quest_unlock_id FROM trader_items
+                SELECT id, currency, min_level, quest_unlock_id, quest_unlock_bsg_id FROM trader_items
                 WHERE item_id=? AND trader_name=?
             `, [itemId, tPrice.seller.toLowerCase()]);
             const offerTest = await query(testOfferSql);
@@ -375,12 +375,27 @@ insertPrices = async (options) => {
                             offerUpdateVars.push(`min_level = ?`);
                             offerUpdateValues.push(tPrice.minLevel);
                         }
-                        if (offer.quest_unlock_id != tPrice.quest) {
-                            if (tPrice.quest) {
-                                offerUpdateVars.push(`quest_unlock_id = ?`);
-                                offerUpdateValues.push(tPrice.quest);
-                            } else {
-                                offerUpdateVars.push('quest_unlock_id = NULL');
+                        if (isNaN(tPrice.quest)) {
+                            //bsg id
+                            if (offer.quest_unlock_bsg_id != tPrice.quest) {
+                                if (tPrice.quest) {
+                                    offerUpdateVars.push(`quest_unlock_bsg_id = ?`);
+                                    offerUpdateValues.push(tPrice.quest);
+                                } else {
+                                    offerUpdateVars.push('quest_unlock_id = NULL');
+                                    offerUpdateVars.push('quest_unlock_bsg_id = NULL');
+                                }
+                            }
+                        } else {
+                            //tarkovdata id
+                            if (offer.quest_unlock_id != tPrice.quest) {
+                                if (tPrice.quest) {
+                                    offerUpdateVars.push(`quest_unlock_id = ?`);
+                                    offerUpdateValues.push(tPrice.quest);
+                                } else {
+                                    offerUpdateVars.push('quest_unlock_id = NULL');
+                                    offerUpdateVars.push('quest_unlock_bsg_id = NULL');
+                                }
                             }
                         }
                     }
@@ -408,9 +423,13 @@ insertPrices = async (options) => {
                     minLevel = '?';
                     offerValues.push(tPrice.minLevel);
                 }
+                let questIdField = 'quest_unlock_id';
+                if (isNaN(tPrice.quest)) {
+                    questIdField = 'quest_unlock_bsg_id';
+                }
                 const createOfferSql = format(`
                     INSERT INTO trader_items
-                    (item_id, trader_name, currency, min_level, quest_unlock_id, timestamp) VALUES
+                    (item_id, trader_name, currency, min_level, ${questIdField}, timestamp) VALUES
                     (?, ?, ?, ${minLevel}, ${quest}, CURRENT_TIMESTAMP())
                 `, offerValues);
                 try {
