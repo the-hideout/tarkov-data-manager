@@ -36,7 +36,7 @@ const getItemByName = (searchName) => {
     }
 
     returnItem = itemArray.find((item) => {
-        return item.shortname.toLowerCase().trim() === searchName.toLowerCase().trim();
+        return item.short_name.toLowerCase().trim() === searchName.toLowerCase().trim();
     });
 
     if(returnItem){
@@ -101,6 +101,7 @@ const getItemData = function getItemData(html){
 };
 
 module.exports = async function() {
+    if (logger) return;
     logger = new JobLogger('update-crafts-wiki');
     try {
         const wikiResponse = await got(CRAFTS_URL);
@@ -117,7 +118,6 @@ module.exports = async function() {
             // Do nothing
         }
         const results = await query('SELECT * FROM item_data ORDER BY id');
-        const translationResults = await query(`SELECT item_id, type, value FROM translations WHERE language_code = ?`, ['en']);
         const returnData = {};
 
         for(const result of results){
@@ -125,14 +125,6 @@ module.exports = async function() {
 
             const preparedData = {
                 ...result,
-            }
-
-            for(const translationResult of translationResults){
-                if(translationResult.item_id !== result.id){
-                    continue;
-                }
-
-                preparedData[translationResult.type] = translationResult.value;
             }
 
             returnData[result.id] = preparedData;
@@ -319,4 +311,5 @@ module.exports = async function() {
     }
     await jobComplete();
     logger.end();
+    itemData = logger = false;
 };

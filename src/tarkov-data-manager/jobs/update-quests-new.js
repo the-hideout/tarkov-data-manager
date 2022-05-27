@@ -13,6 +13,10 @@ let en = {};
 let locales = {};
 let items = {};
 let presets = {};
+let tdQuests = false;
+let tdTraders = false;
+let tdMaps = false;
+
 const questStatusMap = {
     2: 'active',
     4: 'complete',
@@ -58,10 +62,6 @@ const factionMap = {
     '5e4d515e86f77438b2195244': 'BEAR',
     '6179b5b06e9dd54ac275e409': 'BEAR'
 };
-
-let tdQuests = false;
-let tdTraders = false;
-let tdMaps = false;
 
 const traderIdMap = {
     0: '54cb50c76803fa8b248b4571',
@@ -984,4 +984,5 @@ module.exports = async () => {
         });
     }
     logger.end();
+    logger = en = locales = items = presets = tdQuests = tdTraders = tdMaps = false;
 }

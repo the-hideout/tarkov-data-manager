@@ -77,9 +77,11 @@ module.exports = {
         for (const lang in langs) {
             promises.push(module.exports.dictionary(download, `locale_${lang}.json`, langs[lang]).then(data => {return {lang: lang, data: data}}))
         }
-        const results = await Promise.all(promises);
+        const results = await Promise.allSettled(promises);
         returnVal = {};
-        for (const lang of results) {
+        for (const result of results) {
+            if (result.status === 'rejected') continue;
+            const lang = result.value;
             returnVal[lang.lang] = lang.data;
         }
         return returnVal;

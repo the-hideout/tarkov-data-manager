@@ -49,7 +49,7 @@ const getItemByName = (searchName) => {
     }
 
     returnItem = itemArray.find((item) => {
-        return item.shortname.toLowerCase().trim().replace(/['""]/g, '') === searchName.toLowerCase().trim().replace(/['""]/g, '');
+        return item.short_name.toLowerCase().trim().replace(/['""]/g, '') === searchName.toLowerCase().trim().replace(/['""]/g, '');
     });
 
     if(returnItem){
@@ -296,24 +296,23 @@ const parseTradeRow = (tradeElement) => {
 }
 
 module.exports = async function() {
+    if (logger) return;
     logger = new JobLogger('update-barters');
     try {
         logger.log('Retrieving barters data...');
         const itemsPromise = query('SELECT * FROM item_data ORDER BY id');
-        const translationsPromise = query(`SELECT item_id, type, value FROM translations WHERE language_code = ?`, ['en']);
         const wikiPromise = got(TRADES_URL);
         const tasksPromise = tarkovChanges.quests();
         const oldTasksPromise = got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
             responseType: 'json',
         });
         const enPromise = tarkovChanges.locale_en();
-        const allResults = await Promise.all([itemsPromise, translationsPromise, wikiPromise, tasksPromise, enPromise, oldTasksPromise]);
+        const allResults = await Promise.all([itemsPromise, wikiPromise, tasksPromise, enPromise, oldTasksPromise]);
         const results = allResults[0];
-        const translationResults = allResults[1];
-        const wikiResponse = allResults[2];
-        tasks = allResults[3];
-        en = allResults[4];
-        oldTasks = allResults[5].body;
+        const wikiResponse = allResults[1];
+        tasks = allResults[2];
+        en = allResults[3];
+        oldTasks = allResults[4].body;
         $ = cheerio.load(wikiResponse.body);
         trades = {
             updated: new Date(),
@@ -325,14 +324,6 @@ module.exports = async function() {
 
             const preparedData = {
                 ...result,
-            }
-
-            for(const translationResult of translationResults){
-                if(translationResult.item_id !== result.id){
-                    continue;
-                }
-
-                preparedData[translationResult.type] = translationResult.value;
             }
 
             returnData[result.id] = preparedData;
@@ -391,4 +382,5 @@ module.exports = async function() {
     // Possibility to POST to a Discord webhook here with cron status details
     logger.end();
     await jobComplete();
+    itemData = trades = oldTasks = tasks = en = $ = logger = false;
 };

@@ -1,6 +1,6 @@
 const tcData = require('./update-tc-data');
-const updateGameData = require('./update-game-data');
-const updateTranslations = require('./update-translations');
+const updateNewItems = require('./update-new-items');
+const updateItemNames = require('./update-item-names');
 const updateTypes = require('./update-types');
 const { connection, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
@@ -15,13 +15,13 @@ module.exports = async () => {
         await tcData(logger);
         logger.log('Completed update-tc-data');
 
-        logger.log('Running updateGameData...');
-        await updateGameData(logger);
-        logger.log('Completed updateGameData');
+        logger.log('Running updateNewItems...');
+        await updateNewItems(logger);
+        logger.log('Completed updateNewItems');
 
-        logger.log('Running updateTranslations...');
-        await updateTranslations(logger);
-        logger.log('Completed updateTranslations');
+        logger.log('Running updateItemNames...');
+        await updateItemNames(logger);
+        logger.log('Completed updateItemNames');
 
         logger.log('Running updateTypes...');
         await updateTypes(logger);

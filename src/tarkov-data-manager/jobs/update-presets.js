@@ -1,51 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 
-const cloudflare = require('../modules/cloudflare');
 const normalizeName = require('../modules/normalize-name');
 const presetSize = require('../modules/preset-size');
 const {connection, query, jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
-const remoteData = require('../modules/remote-data');
 
 let logger = false;
 let gotSizes = false;
-
-const updateProperty = async (id, propertyKey, propertyValue) => {
-    return query(`
-        INSERT IGNORE INTO 
-            item_properties (item_id, property_key, property_value)
-        VALUES 
-            (?, ?, ?)
-        `, [
-            id,
-            propertyKey,
-            propertyValue
-        ]
-    ).then(results => {
-        if (results.insertId) return;
-        return query(`
-            UPDATE 
-                item_properties 
-            SET 
-                property_key = ?, property_value = ?
-            WHERE
-                item_id = ?
-            AND
-                property_key = ?
-        `, [
-            propertyKey,
-            propertyValue,
-            id,
-            propertyKey,
-        ]);
-    }).catch (error => {
-        logger.error(`Error updating bsg category id for ${id}`);
-        logger.error(error);
-    })
-};
 
 const presetsFileExists = () => {
     try {
@@ -192,19 +156,17 @@ const processPresets = async () => {
             } else if (gotSizes) {
                 queries.push(query(`
                     INSERT INTO 
-                        item_data (id, normalized_name, base_price, width, height)
+                        item_data (id, name, short_name, normalized_name)
                     VALUES (
                         '${p.id}',
-                        ${connection.escape(p.normalized_name)},
-                        ${p.baseValue},
-                        ${p.width},
-                        ${p.height}
+                        ${connection.escape(p.name)},
+                        ${connection.escape(p.shortName)},
+                        ${connection.escape(p.normalized_name)}
                     )
                     ON DUPLICATE KEY UPDATE
-                        normalized_name=${connection.escape(p.normalized_name)},
-                        base_price=${p.baseValue},
-                        width=${p.width},
-                        height=${p.height}
+                        name=${connection.escape(p.name)},
+                        short_name=${connection.escape(p.shortName)},
+                        normalized_name=${connection.escape(p.normalized_name)}
                 `).then(results => {
                     if(results.changedRows > 0){
                         logger.log(`${p.name} updated`);
@@ -217,23 +179,6 @@ const processPresets = async () => {
                     logger.error(`Error inerting preset type for ${p.name} ${p.id}`);
                     logger.error(error);
                 }));
-                const INSERT_KEYS = [
-                    'name',
-                    'shortName',
-                ];
-                for(const insertKey of INSERT_KEYS){
-                    queries.push(query(`
-                        INSERT INTO
-                            translations (item_id, language_code, type, value)
-                        VALUES (?, 'en', ?, ?)
-                        ON DUPLICATE KEY UPDATE
-                            value=?
-                    `, [p.id, insertKey.toLowerCase(), p[insertKey].toString().trim(), p[insertKey].toString().trim()])
-                    .catch(error => {
-                        logger.error(`Error updating translations for ${p.name} ${p.id}`);
-                        logger.error(error);
-                    }));
-                }
                 for (const part of p.containsItems) {
                     queries.push(query(`
                         INSERT IGNORE INTO 
@@ -245,27 +190,10 @@ const processPresets = async () => {
                         logger.error(error);
                     }));
                 }
-                queries.push(updateProperty(p.id, 'bsgCategoryId', p.bsgCategoryId));
-                queries.push(updateProperty(p.id, 'weight', p.weight));
             } 
         }
-        if (gotSizes) {
-            const response = await cloudflare(`/values/PRESET_DATA`, 'PUT', JSON.stringify(presetsData)).catch(error => {
-                logger.error(error);
-                return {success: false, errors: [], messages: []};
-            });
-            if (response.success) {
-                logger.success('Successful Cloudflare put of PRESET_DATA');
-            } else {
-                for (let i = 0; i < response.errors.length; i++) {
-                    logger.error(response.errors[i]);
-                }
-                for (let i = 0; i < response.messages.length; i++) {
-                    logger.error(response.messages[i]);
-                }
-            }   
-        } else {
-            logger.warn('presets.json file did not exist, so no values inserted into database or uploaded to cloudflare');
+        if (!gotSizes) {
+            logger.warn('presets.json file did not exist, so no values inserted into database');
         }
 
         fs.writeFileSync(path.join(__dirname, '..', 'cache', 'presets.json'), JSON.stringify(presetsData, null, 4));
@@ -299,4 +227,5 @@ module.exports = async () => {
     }
     logger.end();
     await jobComplete();
+    logger = gotSizes = false;
 };

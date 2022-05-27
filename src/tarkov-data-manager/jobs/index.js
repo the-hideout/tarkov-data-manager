@@ -23,7 +23,7 @@ const runJob = function(name, cronSchedule) {
 
 const defaultJobs = {
     'check-scans': '20 * * * *',
-    'update-cache': '*/5 * * * *',
+    'update-item-cache': '*/5 * * * *',
     'update-traders': '*/5 * * * *',
     'update-barters': '*/5 * * * *',
     'update-crafts': '1-59/5 * * * *',
@@ -32,9 +32,7 @@ const defaultJobs = {
     'update-existing-bases': '4-59/5 * * * *',
     'game-data': '*/10 * * * *',
     'update-historical-prices': '5-59/15 * * * *',
-    'update-item-properties': '15 * * * *',
     'update-trader-prices': '25 9,21 * * *',
-    //'update-currency-prices': '50 * * * *',
     'clear-checkouts': '5,35 * * * *',
     'verify-wiki': '5 9 * * *',
     'update-ammo': '*/10 * * * *',

@@ -3,12 +3,10 @@ const path = require('path');
 
 const got = require('got');
 const cloudflare = require('../modules/cloudflare');
-//const christmasTreeCrafts = require('../public/data/christmas-tree-crafts.json');
 
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
-//const {query, jobComplete} = require('../modules/db-connection');
 
 module.exports = async function() {
     const logger = new JobLogger('update-traders');
@@ -22,35 +20,6 @@ module.exports = async function() {
         const tdTraders = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
             responseType: 'json',
         })).body;
-        /*logger.log('Querying reset times...');
-        const resetTimes = {};
-        const results = await query(`
-            SELECT
-                trader.trader_name,
-                trader.reset_time,
-                trader.created
-            FROM
-                trader_reset AS trader
-            INNER JOIN (
-            SELECT id, trader_name, MAX(created) AS timestamp
-            FROM trader_reset
-            GROUP BY trader_name, id, created
-            ) AS max_time
-            ON
-                trader.created = max_time.timestamp
-            AND
-                trader.trader_name = max_time.trader_name;
-        `);
-        for(const result of results){
-            const [hours, minutes, seconds] = result.reset_time.split(':').map(Number);
-            const resetTime = result.created;
-
-            resetTime.setHours(resetTime.getHours() + hours);
-            resetTime.setMinutes(resetTime.getMinutes() + minutes);
-            resetTime.setSeconds(resetTime.getSeconds() + seconds);
-
-            resetTimes[result.trader_name] = resetTime;
-        }*/
         const traders = {
             updated: new Date(),
             data: [],
@@ -69,9 +38,6 @@ module.exports = async function() {
                 levels: [],
                 locale: {}
             };
-            /*if (resetTimes[traderData.name.toLowerCase()]) {
-                traderData.resetTime = resetTimes[traderData.name.toLowerCase()];
-            }*/
             if (!en.trading[trader._id]) {
                 logger.warn(`No trader id ${trader._id} found in locale_en.json`);
                 traderData.name = trader.nickname;
@@ -142,5 +108,4 @@ module.exports = async function() {
         });
     }
     logger.end();
-    //await jobComplete();
 };

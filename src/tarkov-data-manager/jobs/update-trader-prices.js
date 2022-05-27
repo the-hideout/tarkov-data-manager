@@ -53,6 +53,7 @@ const outputPrices = async (prices) => {
     // Possibility to POST to a Discord webhook here with cron status details
     logger.end();
     await jobComplete();
+    logger = false;
 };
 
 module.exports = async () => {
@@ -271,5 +272,6 @@ module.exports = async () => {
         });
         logger.end();
         jobComplete();
+        logger = false;
     }
 };

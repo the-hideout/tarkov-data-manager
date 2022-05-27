@@ -96,27 +96,15 @@ const getItems = async(options) => {
         }
         const sql = format(`
             SELECT
-                item_data.id,
-                translations.value AS name,
-                tran2.value AS shortName,
-                item_data.match_index,
-                item_data.image_link IS NULL OR item_data.image_link = '' AS needs_image,
-                item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' AS needs_grid_image,
-                item_data.icon_link IS NULL OR item_data.icon_link = '' AS needs_icon_image
+                id,
+                name,
+                short_name as shortName
+                match_index,
+                image_link IS NULL OR image_link = '' AS needs_image,
+                grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
+                icon_link IS NULL OR icon_link = '' AS needs_icon_image
             FROM
                 item_data
-            LEFT JOIN translations ON
-                translations.item_id = item_data.id
-                AND
-                    translations.type = 'name'
-                AND
-                    translations.language_code = 'en'
-            LEFT JOIN translations tran2 ON
-                tran2.item_id = item_data.id
-                AND
-                    tran2.type = 'shortname'
-                AND
-                    tran2.language_code = 'en'
             WHERE 
                 item_data.id IN (${placeholders.join(',')})
             `, itemIds);
@@ -134,34 +122,22 @@ const getItems = async(options) => {
     if (options.imageOnly) {
         const sql = `
             SELECT
-                item_data.id,
-                translations.value AS name,
-                tran2.value AS shortName,
-                item_data.match_index,
-                item_data.image_link IS NULL OR item_data.image_link = '' AS needs_image,
-                item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' AS needs_grid_image,
-                item_data.icon_link IS NULL OR item_data.icon_link = '' AS needs_icon_image
+                id,
+                name,
+                short_name AS shortName,
+                match_index,
+                image_link IS NULL OR image_link = '' AS needs_image,
+                grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
+                icon_link IS NULL OR icon_link = '' AS needs_icon_image
             FROM
                 item_data
-            LEFT JOIN translations ON
-                translations.item_id = item_data.id
-                AND
-                    translations.type = 'name'
-                AND
-                    translations.language_code = 'en'
-            LEFT JOIN translations tran2 ON
-                tran2.item_id = item_data.id
-                AND
-                    tran2.type = 'shortname'
-                AND
-                    tran2.language_code = 'en'
             LEFT JOIN types ON
                 types.item_id = item_data.id
             WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                 (item_data.image_link IS NULL OR item_data.image_link = '' OR item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' OR item_data.icon_link IS NULL OR item_data.icon_link = '')
             GROUP BY item_data.id
-            ORDER BY translations.value
+            ORDER BY item_data.name
         `;
         try {
             response.data = (await query(sql)).filter(item => {
@@ -221,27 +197,15 @@ const getItems = async(options) => {
     }
     const sql = format(`
         SELECT
-            item_data.id,
-            translations.value AS name,
-            tran2.value AS shortName,
-            item_data.match_index,
-            item_data.image_link IS NULL OR item_data.image_link = '' AS needs_image,
-            item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' AS needs_grid_image,
-            item_data.icon_link IS NULL OR item_data.icon_link = '' AS needs_icon_image
+            id,
+            name,
+            short_name AS shortName,
+            match_index,
+            image_link IS NULL OR image_link = '' AS needs_image,
+            grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
+            icon_link IS NULL OR icon_link = '' AS needs_icon_image
         FROM
             item_data
-        LEFT JOIN translations ON
-            translations.item_id = item_data.id
-            AND
-                translations.type = 'name'
-            AND
-                translations.language_code = 'en'
-        LEFT JOIN translations tran2 ON
-            tran2.item_id = item_data.id
-            AND
-                tran2.type = 'shortname'
-            AND
-                tran2.language_code = 'en'
         LEFT JOIN types ON
             types.item_id = item_data.id
         ${where}
