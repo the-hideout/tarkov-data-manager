@@ -96,33 +96,24 @@ const getItems = async(options) => {
         }
         const sql = format(`
             SELECT
-                item_data.id,
-                translations.value AS name,
-                tran2.value AS shortName,
-                item_data.match_index,
-                item_data.image_link IS NULL OR item_data.image_link = '' AS needs_image,
-                item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' AS needs_grid_image,
-                item_data.icon_link IS NULL OR item_data.icon_link = '' AS needs_icon_image
+                id,
+                name,
+                short_name as shortName
+                match_index,
+                image_link IS NULL OR image_link = '' AS needs_image,
+                grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
+                icon_link IS NULL OR icon_link = '' AS needs_icon_image
             FROM
                 item_data
-            LEFT JOIN translations ON
-                translations.item_id = item_data.id
-                AND
-                    translations.type = 'name'
-                AND
-                    translations.language_code = 'en'
-            LEFT JOIN translations tran2 ON
-                tran2.item_id = item_data.id
-                AND
-                    tran2.type = 'shortname'
-                AND
-                    tran2.language_code = 'en'
             WHERE 
                 item_data.id IN (${placeholders.join(',')})
             `, itemIds);
         try {
             items = await query(sql);
-            response.data = items;
+            response.data = items.filter(item => {
+                if (!item.name) return false;
+                return true;
+            });
         } catch (error) {
             response.errors.push(String(error));
         }
@@ -131,37 +122,28 @@ const getItems = async(options) => {
     if (options.imageOnly) {
         const sql = `
             SELECT
-                item_data.id,
-                translations.value AS name,
-                tran2.value AS shortName,
-                item_data.match_index,
-                item_data.image_link IS NULL OR item_data.image_link = '' AS needs_image,
-                item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' AS needs_grid_image,
-                item_data.icon_link IS NULL OR item_data.icon_link = '' AS needs_icon_image
+                id,
+                name,
+                short_name AS shortName,
+                match_index,
+                image_link IS NULL OR image_link = '' AS needs_image,
+                grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
+                icon_link IS NULL OR icon_link = '' AS needs_icon_image
             FROM
                 item_data
-            LEFT JOIN translations ON
-                translations.item_id = item_data.id
-                AND
-                    translations.type = 'name'
-                AND
-                    translations.language_code = 'en'
-            LEFT JOIN translations tran2 ON
-                tran2.item_id = item_data.id
-                AND
-                    tran2.type = 'shortname'
-                AND
-                    tran2.language_code = 'en'
             LEFT JOIN types ON
                 types.item_id = item_data.id
             WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                 (item_data.image_link IS NULL OR item_data.image_link = '' OR item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' OR item_data.icon_link IS NULL OR item_data.icon_link = '')
             GROUP BY item_data.id
-            ORDER BY translations.value
+            ORDER BY item_data.name
         `;
         try {
-            response.data = await query(sql);
+            response.data = (await query(sql)).filter(item => {
+                if (!item.name) return false;
+                return true;
+            });
         } catch (error) {
             response.errors.push(String(error));
         }
@@ -215,27 +197,15 @@ const getItems = async(options) => {
     }
     const sql = format(`
         SELECT
-            item_data.id,
-            translations.value AS name,
-            tran2.value AS shortName,
-            item_data.match_index,
-            item_data.image_link IS NULL OR item_data.image_link = '' AS needs_image,
-            item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' AS needs_grid_image,
-            item_data.icon_link IS NULL OR item_data.icon_link = '' AS needs_icon_image
+            id,
+            name,
+            short_name AS shortName,
+            match_index,
+            image_link IS NULL OR image_link = '' AS needs_image,
+            grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
+            icon_link IS NULL OR icon_link = '' AS needs_icon_image
         FROM
             item_data
-        LEFT JOIN translations ON
-            translations.item_id = item_data.id
-            AND
-                translations.type = 'name'
-            AND
-                translations.language_code = 'en'
-        LEFT JOIN translations tran2 ON
-            tran2.item_id = item_data.id
-            AND
-                tran2.type = 'shortname'
-            AND
-                tran2.language_code = 'en'
         LEFT JOIN types ON
             types.item_id = item_data.id
         ${where}
@@ -243,7 +213,10 @@ const getItems = async(options) => {
         ORDER BY item_data.last_scan
     `, [options.scannerName]);
     try {
-        response.data = await query(sql);
+        response.data = (await query(sql)).filter(item => {
+            if (!item.name) return false;
+            return true;
+        });
         //console.log('retrieved items', response.data);
     } catch (error) {
         response.errors.push(String(error));
@@ -333,7 +306,7 @@ insertPrices = async (options) => {
             const tPrice = traderPrices[i];
             let offerId = false;
             const testOfferSql = format(`
-                SELECT id, currency, min_level, quest_unlock_id FROM trader_items
+                SELECT id, currency, min_level, quest_unlock_id, quest_unlock_bsg_id FROM trader_items
                 WHERE item_id=? AND trader_name=?
             `, [itemId, tPrice.seller.toLowerCase()]);
             const offerTest = await query(testOfferSql);
@@ -375,12 +348,27 @@ insertPrices = async (options) => {
                             offerUpdateVars.push(`min_level = ?`);
                             offerUpdateValues.push(tPrice.minLevel);
                         }
-                        if (offer.quest_unlock_id != tPrice.quest) {
-                            if (tPrice.quest) {
-                                offerUpdateVars.push(`quest_unlock_id = ?`);
-                                offerUpdateValues.push(tPrice.quest);
-                            } else {
-                                offerUpdateVars.push('quest_unlock_id = NULL');
+                        if (isNaN(tPrice.quest)) {
+                            //bsg id
+                            if (offer.quest_unlock_bsg_id != tPrice.quest) {
+                                if (tPrice.quest) {
+                                    offerUpdateVars.push(`quest_unlock_bsg_id = ?`);
+                                    offerUpdateValues.push(tPrice.quest);
+                                } else {
+                                    offerUpdateVars.push('quest_unlock_id = NULL');
+                                    offerUpdateVars.push('quest_unlock_bsg_id = NULL');
+                                }
+                            }
+                        } else {
+                            //tarkovdata id
+                            if (offer.quest_unlock_id != tPrice.quest) {
+                                if (tPrice.quest) {
+                                    offerUpdateVars.push(`quest_unlock_id = ?`);
+                                    offerUpdateValues.push(tPrice.quest);
+                                } else {
+                                    offerUpdateVars.push('quest_unlock_id = NULL');
+                                    offerUpdateVars.push('quest_unlock_bsg_id = NULL');
+                                }
                             }
                         }
                     }
@@ -408,9 +396,13 @@ insertPrices = async (options) => {
                     minLevel = '?';
                     offerValues.push(tPrice.minLevel);
                 }
+                let questIdField = 'quest_unlock_id';
+                if (isNaN(tPrice.quest)) {
+                    questIdField = 'quest_unlock_bsg_id';
+                }
                 const createOfferSql = format(`
                     INSERT INTO trader_items
-                    (item_id, trader_name, currency, min_level, quest_unlock_id, timestamp) VALUES
+                    (item_id, trader_name, currency, min_level, ${questIdField}, timestamp) VALUES
                     (?, ?, ?, ${minLevel}, ${quest}, CURRENT_TIMESTAMP())
                 `, offerValues);
                 try {

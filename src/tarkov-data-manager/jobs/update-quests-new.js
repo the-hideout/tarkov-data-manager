@@ -10,20 +10,24 @@ const tarkovChanges = require('../modules/tarkov-changes');
 
 let logger = false;
 let en = {};
+let locales = {};
 let items = {};
 let presets = {};
+let tdQuests = false;
+let tdTraders = false;
+let tdMaps = false;
+
 const questStatusMap = {
     2: 'active',
     4: 'complete',
     5: 'failed'
 };
 
-const mobMap = {
-    AnyPmc: 'PMC',
-    pmcBot: 'Raider',
-    marksman: 'Sniper Scav',
-    followerBully: 'Reshala Guard',
-    exUsec: 'Rogue'
+const targetKeyMap = {
+    AnyPmc: 'AnyPMC',
+    pmcBot: 'PmcBot',
+    marksman: 'Marksman',
+    exUsec: 'ExUsec'
 };
 
 const zoneMap = {
@@ -59,10 +63,6 @@ const factionMap = {
     '6179b5b06e9dd54ac275e409': 'BEAR'
 };
 
-let tdQuests = false;
-let tdTraders = false;
-let tdMaps = false;
-
 const traderIdMap = {
     0: '54cb50c76803fa8b248b4571',
     1: '54cb57776803fa99248b456e',
@@ -84,6 +84,22 @@ const mapIdByName = {
     'Shoreline': '5704e554d2720bac5b8b456e',
     'Woods': '5704e3c2d2720bac5b8b4567',
     'The Lab': '5b0fc42d86f7744a585f9105'
+};
+
+const getTarget = (cond, langCode) => {
+    let targetCode = cond._props.target;
+    if (cond._props.savageRole) {
+        targetCode = cond._props.savageRole[0];
+    }
+    const lang = locales[langCode];
+    if (targetCode == 'followerBully') {
+        return `${lang.interface['QuestCondition/Elimination/Kill/BotRole/bossBully']} ${lang.interface['ScavRole/Follower']}`;
+    }
+    if (targetKeyMap[targetCode]) targetCode = targetKeyMap[targetCode];
+    return lang.interface[`QuestCondition/Elimination/Kill/BotRole/${targetCode}`] 
+        || lang.interface[`QuestCondition/Elimination/Kill/Target/${targetCode}`] 
+        || lang.interface[`ScavRole/${targetCode}`] 
+        || targetCode;
 };
 
 const getTdLocation = id => {
@@ -190,10 +206,17 @@ const loadRewards = (questData, rewardsType, sourceRewards) => {
             };
             questData[rewardsType].offerUnlock.push(unlock);
         } else if (reward.type === 'Skill') {
-            questData[rewardsType].skillLevelReward.push({
-                name: reward.target,
-                level: parseInt(reward.value) / 100
-            });
+            const skillLevel = {
+                name: en.interface[reward.target],
+                level: parseInt(reward.value) / 100,
+                locale: {}
+            };
+            for (const code in locales) {
+                skillLevel.locale[code] = {
+                    name: locales[code].interface[reward.target] || reward.target
+                };
+            }
+            questData[rewardsType].skillLevelReward.push(skillLevel);
         } else if (reward.type === 'TraderUnlock') {
             questData[rewardsType].traderUnlock.push({
                 trader_id: reward.target,
@@ -415,6 +438,7 @@ module.exports = async () => {
         const data = await tarkovChanges.quests();
         items = await tarkovChanges.items();
         en = await tarkovChanges.locale_en();
+        locales = await tarkovChanges.locales();
         try {
             presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
         } catch (error) {
@@ -482,8 +506,15 @@ module.exports = async () => {
                 experience: 0,
                 tarkovDataId: undefined,
                 factionName: 'Any',
-                neededKeys: []
+                neededKeys: [],
+                locale: {}
             };
+            for (const code in locales) {
+                const lang = locales[code];
+                questData.locale[code] = {
+                    name: lang.quest[questId].name
+                };
+            }
             for (const objective of quest.conditions.AvailableForFinish) {
                 let optional = false;
                 if (objective._props.parentId) {
@@ -495,8 +526,15 @@ module.exports = async () => {
                     optional: optional,
                     description: en.quest[questId].conditions[objective._props.id],
                     locationNames: [],
-                    map_ids: []
+                    map_ids: [],
+                    locale: {}
                 };
+                for (const code in locales) {
+                    const lang = locales[code];
+                    obj.locale[code] = {
+                        description: lang.quest[questId].conditions[objective._props.id]
+                    };
+                }
                 if (objective._parent === 'FindItem' || objective._parent === 'HandoverItem') {
                     const targetItem = items[objective._props.target[0]];
                     let verb = 'give';
@@ -510,7 +548,14 @@ module.exports = async () => {
                         obj.type = `${verb}QuestItem`;
                         obj.questItem = {
                             id: objective._props.target[0],
-                            name: en.templates[objective._props.target[0]].Name
+                            name: en.templates[objective._props.target[0]].Name,
+                            locale: {}
+                        }
+                        for (const code in locales) {
+                            const lang = locales[code];
+                            obj.questItem.locale[code] = {
+                                name: lang.templates[objective._props.target[0]].Name
+                            };
                         }
                     } else {
                         obj.type = `${verb}Item`;
@@ -576,10 +621,11 @@ module.exports = async () => {
                                     time: null
                                 };
                             }
-                            if (cond._props.savageRole) {
-                                obj.target = en.interface[`QuestCondition/Elimination/Kill/BotRole/${cond._props.savageRole[0]}`] || cond._props.savageRole[0];
+                            obj.target = getTarget(cond, 'en');
+                            for (const code in locales) {
+                                //const lang = locales[code];
+                                obj.locale[code].target = getTarget(cond, code);
                             }
-                            if (mobMap[obj.target]) obj.target = mobMap[obj.target];
                         } else if (cond._parent === 'Location') {
                             for (const loc of cond._props.target) {
                                 if (loc === 'develop') continue;
@@ -639,7 +685,7 @@ module.exports = async () => {
                             logger.warn(`Unrecognized counter condition type "${cond._parent}" for objective ${objective._props.id} of ${questData.name}`);
                         }
                     }
-                    if (obj.target) {
+                    if (obj.shotType) {
                         obj.type = 'shoot';
                         obj.playerHealthEffect = obj.healthEffect;
                     } else if (obj.exitStatus) {
@@ -669,8 +715,15 @@ module.exports = async () => {
                         obj.type = 'plantQuestItem';
                         obj.questItem = {
                             id: objective._props.target[0],
-                            name: en.templates[objective._props.target[0]].Name
+                            name: en.templates[objective._props.target[0]].Name,
+                            locale: {}
                         };
+                        for (const code in locales) {
+                            const lang = locales[code];
+                            obj.questItem.locale[code] = {
+                                name: lang.templates[objective._props.target[0]].Name
+                            };
+                        }
                     } else {
                         obj.type = 'plantItem';
                         obj.item = objective._props.target[0];
@@ -683,9 +736,15 @@ module.exports = async () => {
                 } else if (objective._parent === 'Skill') {
                     obj.type = 'skill';
                     obj.skillLevel = {
-                        name: objective._props.target,
-                        level: objective._props.value
+                        name: en.interface[objective._props.target],
+                        level: objective._props.value,
+                        locale: {}
                     };
+                    for (const code in locales) {
+                        obj.skillLevel.locale[code] = {
+                            name: locales[code].interface[objective._props.target]
+                        }
+                    }
                 } else if (objective._parent === 'WeaponAssembly') {
                     obj.type = 'buildWeapon';
                     obj.item = objective._props.target[0];
@@ -902,7 +961,7 @@ module.exports = async () => {
         fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'tasks.json'), JSON.stringify(quests, null, 4));
         fs.writeFileSync(path.join(__dirname, '..', 'cache', 'tasks.json'), JSON.stringify(quests.data, null, 4));
 
-        const response = await cloudflare(`/values/TASK_DATA`, 'PUT', JSON.stringify(quests)).catch(error => {
+        const response = await cloudflare(`/values/TASK_DATA_V2`, 'PUT', JSON.stringify(quests)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
@@ -925,4 +984,5 @@ module.exports = async () => {
         });
     }
     logger.end();
+    logger = en = locales = items = presets = tdQuests = tdTraders = tdMaps = false;
 }

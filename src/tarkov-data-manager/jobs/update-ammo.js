@@ -54,9 +54,7 @@ module.exports = async function() {
                 recoil: ammo._props.ammoRec,
                 initialSpeed: ammo._props.InitialSpeed,
                 heavyBleedModifier: ammo._props.HeavyBleedingDelta,
-                heavyBleed: ammo._props.HeavyBleedingDelta,
                 lightBleedModifier: ammo._props.LightBleedingDelta,
-                lightBleed: ammo._props.LightBleedingDelta,
             });
             if (typeof caliberCounts[ammo._props.Caliber] === 'undefined') caliberCounts[ammo._props.Caliber] = 0;
             caliberCounts[ammo._props.Caliber]++;

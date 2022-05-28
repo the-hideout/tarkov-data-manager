@@ -3,12 +3,10 @@ const path = require('path');
 
 const got = require('got');
 const cloudflare = require('../modules/cloudflare');
-//const christmasTreeCrafts = require('../public/data/christmas-tree-crafts.json');
 
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
-//const {query, jobComplete} = require('../modules/db-connection');
 
 module.exports = async function() {
     const logger = new JobLogger('update-traders');
@@ -17,39 +15,11 @@ module.exports = async function() {
         const tradersData = await tarkovChanges.traders();
         logger.log('Loading en from Tarkov-Changes...');
         const en = await tarkovChanges.locale_en();
+        const locales = await tarkovChanges.locales();
         logger.log('Loading TarkovData traders.json...');
         const tdTraders = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
             responseType: 'json',
         })).body;
-        /*logger.log('Querying reset times...');
-        const resetTimes = {};
-        const results = await query(`
-            SELECT
-                trader.trader_name,
-                trader.reset_time,
-                trader.created
-            FROM
-                trader_reset AS trader
-            INNER JOIN (
-            SELECT id, trader_name, MAX(created) AS timestamp
-            FROM trader_reset
-            GROUP BY trader_name, id, created
-            ) AS max_time
-            ON
-                trader.created = max_time.timestamp
-            AND
-                trader.trader_name = max_time.trader_name;
-        `);
-        for(const result of results){
-            const [hours, minutes, seconds] = result.reset_time.split(':').map(Number);
-            const resetTime = result.created;
-
-            resetTime.setHours(resetTime.getHours() + hours);
-            resetTime.setMinutes(resetTime.getMinutes() + minutes);
-            resetTime.setSeconds(resetTime.getSeconds() + seconds);
-
-            resetTimes[result.trader_name] = resetTime;
-        }*/
         const traders = {
             updated: new Date(),
             data: [],
@@ -65,14 +35,21 @@ module.exports = async function() {
                 currency: trader.currency,
                 resetTime: date,
                 discount: parseInt(trader.discount) / 100,
-                levels: []
+                levels: [],
+                locale: {}
             };
-            /*if (resetTimes[traderData.name.toLowerCase()]) {
-                traderData.resetTime = resetTimes[traderData.name.toLowerCase()];
-            }*/
             if (!en.trading[trader._id]) {
                 logger.warn(`No trader id ${trader._id} found in locale_en.json`);
-                trader.name = trader.nickname;
+                traderData.name = trader.nickname;
+            }
+            for (const code in locales) {
+                const lang = locales[code];
+                if (!lang.trading[trader._id]) {
+                    logger.warn(`No trader id ${trader._id} found in ${code} translation`);
+                    traderData.name = trader.nickname;
+                } else {
+                    traderData.locale[code] = {name: lang.trading[trader._id].Nickname};
+                }
             }
             logger.log(`${traderData.name} ${trader._id}`);
             for (let i = 0; i < trader.loyaltyLevels.length; i++) {
@@ -108,7 +85,7 @@ module.exports = async function() {
     
         fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'traders.json'), JSON.stringify(traders, null, 4));
 
-        const response = await cloudflare(`/values/TRADER_DATA`, 'PUT', JSON.stringify(traders)).catch(error => {
+        const response = await cloudflare(`/values/TRADER_DATA_V2`, 'PUT', JSON.stringify(traders)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
@@ -131,5 +108,4 @@ module.exports = async function() {
         });
     }
     logger.end();
-    //await jobComplete();
 };

@@ -251,21 +251,22 @@ jQuery.fn.dataTableExt.afnFiltering.push(
         let requireSelected = jQuery('input.filter-types-require-selected:checked').length > 0; 
         let typePassed = requireSelected;
         let typeChecked = jQuery('input.filter-type:checked');
+        let typeCount = jQuery('input.filter-type').length;
         if (typeof typeChecked == 'undefined') return false;
         for (let i=0; i< typeChecked.length; i++) {
             if (requireSelected) {
                 if (!item.types.includes(jQuery(typeChecked[i]).val())) {
                     return false;
-                } else {
-                    continue;
-                }
+                } 
+                continue;
             }
             if (item.types.includes(jQuery(typeChecked[i]).val())) {
                 typePassed = true;
                 break;
             }
         }
-        if (item.types.length == 0 && allItems) typePassed = true;
+        if (typeChecked.length == 0 && item.types.length > 0) return false;
+        if (item.types.length == 0 && allItems && (typeChecked.length == 0 || typeChecked.length == typeCount)) return true;
         return typePassed;
     }
 );

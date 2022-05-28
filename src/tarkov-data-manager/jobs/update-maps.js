@@ -32,6 +32,23 @@ const idMap = {
     7: '5704e4dad2720bb55b8b4567',
 };
 
+const enemyMap = {
+    'Cultists': 'ScavRole/Sectant',
+    'Glukhar': 'QuestCondition/Elimination/Kill/BotRole/bossGluhar',
+    'Killa': 'QuestCondition/Elimination/Kill/BotRole/bossKilla',
+    'Raiders': 'ScavRole/PmcBot',
+    'Reshala': 'QuestCondition/Elimination/Kill/BotRole/bossBully',
+    'Rogues': 'ScavRole/ExUsec',
+    'Sanitar': 'QuestCondition/Elimination/Kill/BotRole/bossSanitar',
+    'Scavs': 'QuestCondition/Elimination/Kill/Target/Savage',
+    'Shturman': 'QuestCondition/Elimination/Kill/BotRole/bossKojaniy',
+    'Tagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla'
+};
+
+const enemySubs = {
+    '???': 'Cultists'
+}
+
 const getWikiInfo = async (url) => {
     const info = {};
     const response = await got(url);
@@ -49,6 +66,7 @@ module.exports = async function() {
     try {
         logger.log('Getting en from Tarkov-Changes...');
         const en = await tarkovChanges.locale_en();
+        const locales = await tarkovChanges.locales();
         const maps = {
             updated: new Date(),
             data: [],
@@ -60,36 +78,54 @@ module.exports = async function() {
         logger.log('Processing maps...');
         for (const index in tdMaps) {
             const mapData = {
-                ...tdMaps[index]
+                ...tdMaps[index],
+                locale: {}
             };
             mapData.tarkovDataId = mapData.id;
             mapData.id = idMap[mapData.id];
-            mapData.name = mapData.locale.en;
+            mapData.name = locales.en.locations[mapData.id].Name;//mapData.locale.en;
             const dayDuration = mapData.raidDuration.day;
             const nightDuration = mapData.raidDuration.night;
             const wikiInfo = await getWikiInfo(mapData.wiki);
             mapData.players = wikiInfo.players;
-            if (mapData.id === 0) {
+            if (mapData.id === '55f2d3fd4bdc2d5f408b4567') {
                 const nfData = {
-                    ...mapData
+                    ...mapData,
+                    locale: {}
                 };
-                nfData.name = 'Night Factory';
-                nfData.locale.en = 'Night Factory';
-                nfData.raidDuration = nightDuration;
                 nfData.id = '59fc81d786f774390775787e';
+                nfData.name = 'Night Factory';
+                //nfData.name = locales.en.locations[nfData.id].Name;
+                //nfData.locale.en = 'Night Factory';
+                nfData.raidDuration = nightDuration;
                 maps.data.push(nfData);
+                mapData.enemies = mapData.enemies.filter(enemy => {
+                    return enemy !== 'Cultists';
+                });
             }
-            mapData.enemies = mapData.enemies.filter(enemy => {
-                return enemy !== 'Cultists';
-            });
             mapData.raidDuration = dayDuration;
             maps.data.push(mapData);
+        }
+        for (const map of maps.data) {
+            for (const code in locales) {
+                const lang = locales[code];
+                const enemies = map.enemies.map(enemy => {
+                    if (!lang.interface[enemyMap[enemy]]) return enemy;
+                    let newName = lang.interface[enemyMap[enemy]];
+                    if (enemySubs[newName]) return enemySubs[newName];
+                    return newName;
+                });
+                map.locale[code] = {
+                    name: lang.locations[map.id].Name,
+                    enemies: enemies
+                };
+            }
         }
         logger.log(`Processed ${maps.data.length} maps`);
     
         fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'maps.json'), JSON.stringify(maps, null, 4));
 
-        const response = await cloudflare(`/values/MAP_DATA`, 'PUT', JSON.stringify(maps)).catch(error => {
+        const response = await cloudflare(`/values/MAP_DATA_V2`, 'PUT', JSON.stringify(maps)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

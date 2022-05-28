@@ -18,6 +18,7 @@ const AVAILABLE_TYPES = [
     'mods',
     'no-flea',
     'pistol-grip',
+    'preset',
     'provisions',
     'rig',
     'suppressor',

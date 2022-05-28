@@ -53,13 +53,9 @@ module.exports = async () => {
         logger.log('Verifying wiki links');
         const results = await query(`
             SELECT 
-                item_data.*, translations.value AS name 
+                item_data.*
             FROM 
                 item_data
-            LEFT JOIN translations ON
-                translations.item_id = item_data.id AND 
-                translations.type = 'name' AND
-                translations.language_code = 'en'
             LEFT JOIN types ON
                 types.item_id = item_data.id
             WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset')
@@ -114,7 +110,7 @@ module.exports = async () => {
                     if (!presets[result.id]) {
                         newWikiLink = nameToWikiLink(result.name);
                     } else {
-                        newWikiLink = en.templates[presets[result.id].baseId].Name;
+                        newWikiLink = nameToWikiLink(en.templates[presets[result.id].baseId].Name);
                     }
 
                     try {

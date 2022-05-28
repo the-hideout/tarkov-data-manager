@@ -1345,22 +1345,6 @@ app.get('/crons/run/:name', async (req, res) => {
     res.json(response);
 });
 
-app.get('/trader-prices', async (req, res) => {
-    const t = timer('getting-items');
-    const priceData = await remoteData.getTraderPrices();
-    const items = [];
-    for (const [key, item] of priceData) {
-        items.push(item);
-    }
-    t.end();
-    res.send(`${getHeader(req)}
-        <script>
-            const all_items = ${JSON.stringify(items, null, 4)};
-        </script>
-        <div>hello world</div>
-    ${getFooter(req)}`);
-});
-
 app.all('/api/scanner/:resource', async (req, res) => {
     scannerApi.request(req, res, req.params.resource);
 });

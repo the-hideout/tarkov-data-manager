@@ -13,6 +13,7 @@ module.exports = async () => {
     try {
         const data = await tarkovChanges.areas();
         const en = await tarkovChanges.locale_en();
+        const locales = await tarkovChanges.locales();
         const tdHideout = (await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/hideout.json', {
             responseType: 'json',
         })).body;
@@ -36,13 +37,18 @@ module.exports = async () => {
             const stationData = {
                 id: station._id,
                 name: en.interface[`hideout_area_${station.type}_name`],
-                levels: []
+                levels: [],
+                locale: {}
             };
             if (!station.enabled) {
                 logger.warn(`Hideout station ${stationData.name} is disabled`);
                 continue;
             }
             logger.log(`Processing ${stationData.name}`);
+            for (const code in locales) {
+                const lang = locales[code];
+                stationData.locale[code] = {name: lang.interface[`hideout_area_${station.type}_name`]};
+            }
             for (const tdStation of tdHideout.stations) {
                 if (tdStation.locales.en.toLowerCase() === stationData.name.toLowerCase()) {
                     stationData.tarkovDataId = tdStation.id;
@@ -69,8 +75,13 @@ module.exports = async () => {
                     traderRequirements: [],
                     stationLevelRequirements: [],
                     itemRequirements: [],
-                    skillRequirements: []
+                    skillRequirements: [],
+                    locale: {}
                 };
+                for (const code in locales) {
+                    const lang = locales[code];
+                    stageData.locale[code] = {description: lang.interface[`hideout_area_${station.type}_stage_${i}_description`]};
+                }
                 for (const tdModule of tdHideout.modules) {
                     if (tdModule.stationId === stationData.tarkovDataId && tdModule.level === stageData.level) {
                         stageData.tarkovDataId = tdModule.id;
@@ -91,11 +102,18 @@ module.exports = async () => {
                             //functional: req.isFunctional
                         });
                     } else if (req.type === 'Skill') {
-                        stageData.skillRequirements.push({
+                        const skillReq = {
                             id: `${stationData.id}-${i}-${r}`,
-                            name: req.skillName,
-                            level: req.skillLevel
-                        });
+                            name: en.interface[req.skillName] || req.skillName,
+                            level: req.skillLevel,
+                            locale: {}
+                        };
+                        for (const code in locales) {
+                            skillReq.locale[code] = {
+                                name: locales[code].interface[req.skillName] || req.skillName
+                            };
+                        }
+                        stageData.skillRequirements.push(skillReq);
                     } else if (req.type === 'Area') {
                         if (req.requiredLevel < 1) {
                             logger.warn(`Skipping ${en.interface[`hideout_area_${req.areaType}_name`]} level ${req.requiredLevel} requirement for ${en.interface[`hideout_area_${station.type}_name`]} level ${i}`);
@@ -124,7 +142,7 @@ module.exports = async () => {
             hideoutData.data.push(stationData);
         }
         fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'hideout.json'), JSON.stringify(hideoutData, null, 4));
-        const response = await cloudflare(`/values/HIDEOUT_DATA_V2`, 'PUT', JSON.stringify(hideoutData)).catch(error => {
+        const response = await cloudflare(`/values/HIDEOUT_DATA_V3`, 'PUT', JSON.stringify(hideoutData)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

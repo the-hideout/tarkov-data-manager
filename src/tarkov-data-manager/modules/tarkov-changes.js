@@ -3,6 +3,8 @@ const path = require('path');
 
 const got = require('got');
 
+const tarkovBot = require('../modules/tarkov-bot');
+
 const jsonRequest = async (path) => {
     const response = await got(process.env.TC_URL+path, {
         method: 'post',
@@ -26,14 +28,69 @@ const spt = async (fileName, path) => {
 };
 
 const availableFiles = {
-    'crafts.json': false,
-    'credits.json': false,
-    'items.json': false,
-    'globals.json': false,
-    'areas.json': false,
-    'locale_en_td.json': 'locale_en.json',
-    'traders_clean.json': 'traders.json',
-    //'quests.json: false'
+    crafts: {
+        requestName: 'crafts.json'
+    },
+    credits: {
+        requestName: 'credits.json'
+    },
+    items: {
+        requestName: 'items.json'
+    },
+    globals: {
+        requestName: 'globals.json'
+    },
+    areas: {
+        requestName: 'areas.json'
+    },
+    traders: {
+        requestName: 'traders_clean.json',
+        fileName: 'traders.json'
+    },
+    locale_en: {
+        requestName: 'locale_en_td.json',
+        fileName: 'locale_en.json'
+    },
+    locale_ru: {
+        requestName: 'locale_ru_td.json',
+        fileName: 'locale_ru.json',
+        skip: true
+    },
+    locale_de: {
+        requestName: 'locale_ge_td.json',
+        fileName: 'locale_de.json',
+        skip: true
+    },
+    locale_fr: {
+        requestName: 'locale_fr_td.json',
+        fileName: 'locale_fr.json',
+        skip: true
+    },
+    locale_cz: {
+        requestName: 'locale_cz_td.json',
+        fileName: 'locale_cz.json',
+        skip: true
+    },
+    locale_hu: {
+        requestName: 'locale_hu_td.json',
+        fileName: 'locale_hu.json',
+        skip: true
+    },
+    locale_tr: {
+        requestName: 'locale_tr_td.json',
+        fileName: 'locale_tr.json',
+        skip: true
+    },
+    locale_zh: {
+        requestName: 'locale_zh_td.json',
+        fileName: 'locale_zh.json',
+        skip: true
+    },
+    locale_es: {
+        requestName: 'locale_es_td.json',
+        fileName: 'locale_es.json',
+        skip: true
+    }
 };
 
 const cachePath = (filename) => {
@@ -67,7 +124,42 @@ module.exports = {
         return module.exports.get('credits.json', download);
     },
     locale_en: async (download = false) => {
+        //return tarkovBot.locale_en(download, 'locale_en.json');
         return module.exports.get('locale_en_td.json', download, 'locale_en.json');
+    },
+    locale: async (download = false, lang = 'en') => {
+        if (lang == 'en') return module.exports.locale_en(download);
+        return tarkovBot.dictionary(download, `locale_${lang}.json`, lang);
+    },
+    locale_es: async (download = false) => {
+        return module.exports.locale(download, 'es');
+    },
+    locale_ru: async (download = false) => {
+        return module.exports.locale(download, 'ru');
+    },
+    locale_de: async (download = false) => {
+        return module.exports.locale(download, 'de');
+    },
+    locale_fr: async (download = false) => {
+        return module.exports.locale(download, 'fr');
+    },
+    locale_cz: async (download = false) => {
+        return module.exports.locale(download, 'cz');
+    },
+    locale_hu: async (download = false) => {
+        return module.exports.locale(download, 'hu');
+    },
+    locale_tr: async (download = false) => {
+        return module.exports.locale(download, 'tr');
+    },
+    locale_zh: async (download = false) => {
+        return module.exports.locale(download, 'zh');
+    },
+    locales: async (download = false) => {
+        return {
+            en: await module.exports.locale_en(download),
+            ...await tarkovBot.locales(download)
+        }
     },
     globals: async(download = false) => {
         return module.exports.get('globals.json', download);
@@ -84,9 +176,12 @@ module.exports = {
     },
     downloadAll: async () => {
         const promises = [];
-        for (const fileSource in availableFiles) {
+        for (const file in availableFiles) {
+            if (availableFiles[file].skip) continue;
+            const fileSource = availableFiles[file].requestName;
             console.log(fileSource);
-            promises.push(module.exports.get(fileSource, true, availableFiles[fileSource]).then(data => {return {name: availableFiles[fileSource] || fileSource, data: data}}));
+            //promises.push(module.exports.get(fileSource, true, availableFiles[file]).then(data => {return {name: availableFiles[fileSource] || fileSource, data: data}}));
+            promises.push(module.exports[file](true, availableFiles[file]).then(data => {return {name: availableFiles[fileSource] || fileSource, data: data}}));
         }
         const results = await Promise.allSettled(promises);
         const errors = [];
