@@ -49,7 +49,7 @@ const getItemByName = (searchName) => {
     }
 
     returnItem = itemArray.find((item) => {
-        return item.short_name.toLowerCase().trim().replace(/['""]/g, '') === searchName.toLowerCase().trim().replace(/['""]/g, '');
+        return item.short_name && item.short_name.toLowerCase().trim().replace(/['""]/g, '') === searchName.toLowerCase().trim().replace(/['""]/g, '');
     });
 
     if(returnItem){
