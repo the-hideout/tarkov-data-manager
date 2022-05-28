@@ -72,15 +72,27 @@ module.exports = {
     dictionary: async (download = false, saveFileName = false, lang = 'en') => {
         return module.exports.get('dictionary', download, saveFileName, {lang: langs[lang]});
     },
-    locales: async (download = false) => {
+    locales: async (download = false, logger = false) => {
         const promises = [];
         for (const lang in langs) {
-            promises.push(module.exports.dictionary(download, `locale_${lang}.json`, langs[lang]).then(data => {return {lang: lang, data: data}}))
+            promises.push(module.exports.dictionary(download, `locale_${lang}.json`, langs[lang]).then(data => {
+                return {lang: lang, data: data}
+            })).catch(error => {
+                return Promise.reject({lang: lang, error: error});
+            });
         }
         const results = await Promise.allSettled(promises);
         returnVal = {};
         for (const result of results) {
-            if (result.status === 'rejected') continue;
+            if (result.status === 'rejected') {
+                const message = `Error updating ${result.reason.lang} locale: ${result.reason.error}`;
+                if (logger) {
+                    logger.error(message);
+                } else {
+                    console.log(error);
+                }
+                continue;
+            }
             const lang = result.value;
             returnVal[lang.lang] = lang.data;
         }

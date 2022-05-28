@@ -7,7 +7,7 @@ module.exports = async (externalLogger) => {
     try {
         logger.log('Downloading language data from Tarkov-Bot...');
         logger.time('tb-download');
-        await tarkovBot.locales(true);
+        await tarkovBot.locales(true, logger);
         logger.timeEnd('tb-download');
         logger.success('Successfully downloaded data from Tarkov-Bot');
     } catch (error) {
