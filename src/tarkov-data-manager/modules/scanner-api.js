@@ -122,7 +122,7 @@ const getItems = async(options) => {
     if (options.imageOnly) {
         const sql = `
             SELECT
-                id,
+                item_data.id,
                 name,
                 short_name AS shortName,
                 match_index,
@@ -197,7 +197,7 @@ const getItems = async(options) => {
     }
     const sql = format(`
         SELECT
-            id,
+            item_data.id,
             name,
             short_name AS shortName,
             match_index,
