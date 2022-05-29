@@ -7,6 +7,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const { query, jobComplete } = require('../modules/db-connection');
+const getItemProperties = require('../modules/get-item-properties');
 
 module.exports = async function() {
     const logger = new JobLogger('update-ammo');
@@ -38,23 +39,7 @@ module.exports = async function() {
                 name: en[id].Name,
                 shortName: en[id].ShortName,
                 weight: ammo._props.Weight,
-                caliber: ammo._props.Caliber,
-                stackMaxSize: ammo._props.StackMaxSize,
-                tracer: ammo._props.Tracer,
-                tracerColor: ammo._props.TracerColor,
-                ammoType: ammo._props.ammoType,
-                projectileCount: ammo._props.ProjectileCount,
-                damage: ammo._props.Damage,
-                armorDamage: ammo._props.ArmorDamage,
-                fragmentationChance: ammo._props.FragmentationChance,
-                ricochetChance: ammo._props.RicochetChance,
-                penetrationChance: ammo._props.PenetrationChance,
-                penetrationPower: ammo._props.PenetrationPower,
-                accuracy: ammo._props.ammoAccr,
-                recoil: ammo._props.ammoRec,
-                initialSpeed: ammo._props.InitialSpeed,
-                heavyBleedModifier: ammo._props.HeavyBleedingDelta,
-                lightBleedModifier: ammo._props.LightBleedingDelta,
+                ...await getItemProperties(ammo)
             });
             if (typeof caliberCounts[ammo._props.Caliber] === 'undefined') caliberCounts[ammo._props.Caliber] = 0;
             caliberCounts[ammo._props.Caliber]++;

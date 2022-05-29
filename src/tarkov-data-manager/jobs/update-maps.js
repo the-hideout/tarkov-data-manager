@@ -109,14 +109,19 @@ module.exports = async function() {
         for (const map of maps.data) {
             for (const code in locales) {
                 const lang = locales[code];
+                let mapName = lang.locations[map.id].Name;
+                if (map.id === '59fc81d786f774390775787e' && lang.interface.factory4_night) {
+                    mapName = lang.interface.factory4_night;
+                }
                 const enemies = map.enemies.map(enemy => {
                     if (!lang.interface[enemyMap[enemy]]) return enemy;
                     let newName = lang.interface[enemyMap[enemy]];
                     if (enemySubs[newName]) return enemySubs[newName];
                     return newName;
                 });
+                factory4_night
                 map.locale[code] = {
-                    name: lang.locations[map.id].Name,
+                    name: mapName,
                     enemies: enemies
                 };
             }

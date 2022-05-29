@@ -56,6 +56,25 @@ module.exports = async (externalLogger) => {
                         }
                     });
                 }
+                if (bsgData[itemId]._parent === '543be5cb4bdc2deb348b4568') {
+                    if (!item.types.includes('ammo-box')) {
+                        logger.warn(`Assigning ${itemId} ${item.name} ammoBox category`);
+        
+                        await query(`INSERT IGNORE INTO types (item_id, type) VALUES(?, 'ammo-box')`, [itemId]).then(results => {
+                            if (results.affectedRows == 0) {
+                                logger.fail(`Already marked as ammo-box ${itemId} ${item.name}`);
+                            }
+                        });
+                    }
+                    const ammoContents = bsgData[itemId]._props.StackSlots[0];
+                    const count = ammoContents._max_count;
+                    const round = ammoContents._props.filters[0].Filter[0]
+                    await query(`
+                        INSERT IGNORE INTO 
+                            item_children (container_item_id, child_item_id, count)
+                        VALUES (?, ?, ?)
+                    `, [itemId, round, count]);
+                }
             } catch (error){
                 logger.error(error);
                 logger.end();
