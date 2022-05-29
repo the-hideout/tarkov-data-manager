@@ -11,6 +11,7 @@ const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
+const getItemProperties = require('../modules/get-item-properties');
 
 let bsgItems = false;
 let credits = false;
@@ -416,6 +417,27 @@ module.exports = async () => {
                 minRep: offerCount.from,
                 maxRep: offerCount.to
             });
+        }
+
+        const armorData = {};
+        for (const armorTypeId in globals.config.ArmorMaterials) {
+            const armorType = globals.config.ArmorMaterials[armorTypeId];
+            armorData[armorTypeId] = {
+                name: locales.en.interface['Mat'+armorTypeId],
+                locale: {}
+            };
+            for (const key in armorType) {
+                armorData[armorTypeId][key.charAt(0).toLocaleLowerCase()+key.slice(1)] = armorType[key];
+            }
+            armorData[armorTypeId].name = locales.en.interface['Mat'+armorTypeId];
+            for (const code in locales) {
+                const lang = locales[code];
+                if (lang.interface['Mat'+armorTypeId]) {
+                    armorData[armorTypeId].locale[code] = {
+                        name: lang.interface['Mat'+armorTypeId]
+                    };
+                }
+            }
         }
 
         const itemsData = {
