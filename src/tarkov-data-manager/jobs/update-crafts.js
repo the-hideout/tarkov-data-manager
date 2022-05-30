@@ -133,7 +133,7 @@ module.exports = async function() {
         }
         logger.log(`Processed ${Object.keys(json).length} crafts`);
     
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'crafts.json'), JSON.stringify(crafts, null, 4));
+        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'crafts.json'), JSON.stringify(crafts, null, 4));
 
         const response = await cloudflare(`/values/CRAFT_DATA_V2`, 'PUT', JSON.stringify(crafts)).catch(error => {
             logger.error(error);

@@ -83,7 +83,7 @@ module.exports = async function() {
         }
         logger.log(`Processed ${traders.data.length} traders`);
     
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'traders.json'), JSON.stringify(traders, null, 4));
+        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'traders.json'), JSON.stringify(traders, null, 4));
 
         const response = await cloudflare(`/values/TRADER_DATA_V2`, 'PUT', JSON.stringify(traders)).catch(error => {
             logger.error(error);

@@ -101,13 +101,13 @@ const startJobs = async () => {
             console.log(error);
         }
     }
-    try {
+    /*try {
         fs.accessSync(path.join(__dirname, '..', 'cache', 'tasks.json'))
     } catch (error) {
         if (error.code === 'ENOENT') {
             buildQuests = true;
         }
-    }
+    }*/
     const promise = new Promise((resolve, reject) => {
         if (!buildPresets) return resolve(true);
         console.log('Running build-presets job at startup');

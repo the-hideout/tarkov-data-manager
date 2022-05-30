@@ -368,7 +368,7 @@ module.exports = async function() {
             logger.error(response.messages[i]);
         }
         
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'barters.json'), JSON.stringify(trades, null, 4));
+        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'barters.json'), JSON.stringify(trades, null, 4));
 
         logger.succeed(`Finished processing ${trades.data.length} barters`);
     } catch (error) {

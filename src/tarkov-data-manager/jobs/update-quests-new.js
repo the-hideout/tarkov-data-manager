@@ -958,8 +958,8 @@ module.exports = async () => {
         }
 
         logger.log('Writing quests.json...');
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'tasks.json'), JSON.stringify(quests, null, 4));
-        fs.writeFileSync(path.join(__dirname, '..', 'cache', 'tasks.json'), JSON.stringify(quests.data, null, 4));
+        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'tasks.json'), JSON.stringify(quests, null, 4));
+        //fs.writeFileSync(path.join(__dirname, '..', 'cache', 'tasks.json'), JSON.stringify(quests.data, null, 4));
 
         const response = await cloudflare(`/values/TASK_DATA_V2`, 'PUT', JSON.stringify(quests)).catch(error => {
             logger.error(error);

@@ -38,7 +38,7 @@ module.exports = async () => {
         });
 
         logger.log('Writing quests.json...');
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'quests-legacy.json'), JSON.stringify(quests, null, 4));
+        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'quests-legacy.json'), JSON.stringify(quests, null, 4));
 
         const response = await cloudflare(`/values/QUEST_DATA`, 'PUT', JSON.stringify(quests)).catch(error => {
             logger.error(error);
