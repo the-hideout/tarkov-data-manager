@@ -119,7 +119,6 @@ module.exports = async function() {
                     if (enemySubs[newName]) return enemySubs[newName];
                     return newName;
                 });
-                factory4_night
                 map.locale[code] = {
                     name: mapName,
                     enemies: enemies

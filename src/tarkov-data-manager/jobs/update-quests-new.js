@@ -302,11 +302,14 @@ const formatTdQuest = (quest) => {
         }
     }
     for (const id of quest.unlocks) {
-        questData.finishRewards.traderUnlock.push({
-            id: id,
+        questData.finishRewards.offerUnlock.push({
+            id: `${id}-unlock`,
             trader_id: traderIdMap[quest.giver],
-            //trader_name: en.trading[reward.traderId].Nickname,
-            level: null
+            level: null,
+            item: id,
+            count: 1,
+            contains: [],
+            attributes: []
         })
     }
     for (const rep of quest.reputation) {
