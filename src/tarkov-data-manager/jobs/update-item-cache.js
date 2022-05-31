@@ -415,7 +415,8 @@ module.exports = async () => {
             enabled: globals.config.RagFair.enabled,
             sellOfferFeeRate: (globals.config.RagFair.communityItemTax / 100),
             sellRequirementFeeRate: (globals.config.RagFair.communityRequirementTax / 100),
-            reputationLevels: []
+            reputationLevels: [],
+            locale: {}
         };
         for (const offerCount of globals.config.RagFair.maxActiveOfferCount) {
             if (fleaData.reputationLevels.length > 0 && fleaData.reputationLevels[fleaData.reputationLevels.length-1].offers == offerCount.count) {
@@ -428,11 +429,22 @@ module.exports = async () => {
                 maxRep: offerCount.to
             });
         }
+        for (const code in locales) {
+            const lang = locales[code];
+            if (lang.interface['RAG FAIR']) {
+                fleaData.locale[code] = {
+                    name: lang.interface['RAG FAIR'].replace(/(?<!\b)([A-Z])/g, substr => {
+                        return substr.toLowerCase();
+                    })
+                };
+            }
+        }
 
         const armorData = {};
         for (const armorTypeId in globals.config.ArmorMaterials) {
             const armorType = globals.config.ArmorMaterials[armorTypeId];
             armorData[armorTypeId] = {
+                id: armorTypeId,
                 name: locales.en.interface['Mat'+armorTypeId],
                 locale: {}
             };
