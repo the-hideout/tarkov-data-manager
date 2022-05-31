@@ -117,7 +117,7 @@ const getRewardItems = (reward) => {
         contains: [],
         attributes: []
     };
-    if (reward.items[0].upd) {
+    if (reward.items[0].upd && reward.items[0].upd.StackObjectsCount) {
         rewardData.count = reward.items[0].upd.StackObjectsCount;
     }
     for (let i = 1; i < reward.items.length; i++) {
@@ -457,15 +457,17 @@ module.exports = async () => {
                 continue;
             }*/
             let locationName = 'any';
+            let locationId = null;
             if (quest.location !== 'any') {
                 locationName = en.locations[quest.location].Name;
+                locationId = quest.location;
             }
             const questData = {
                 id: questId,
                 name: en.quest[questId].name,
                 trader: quest.traderId,
                 traderName: en.trading[quest.traderId].Nickname,
-                location_id: quest.location,
+                location_id: locationId,
                 locationName: locationName,
                 wikiLink: `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(en.quest[questId].name.replaceAll(' ', '_'))}`,
                 minPlayerLevel: 0,
@@ -544,7 +546,7 @@ module.exports = async () => {
                     obj.item_id = objective._props.target[0];
                     obj.item_name = en.templates[objective._props.target[0]].Name;
                     obj.count = parseInt(objective._props.value);
-                    if (targetItem._props.QuestItem) {
+                    if (!targetItem || targetItem._props.QuestItem) {
                         obj.type = `${verb}QuestItem`;
                         obj.questItem = {
                             id: objective._props.target[0],
@@ -711,7 +713,7 @@ module.exports = async () => {
                     obj.item_name = en.templates[objective._props.target[0]].Name;
                 } else if (objective._parent === 'LeaveItemAtLocation') {
                     obj.count = parseInt(objective._props.value);
-                    if (items[objective._props.target[0]].QuestItem) {
+                    if (items[objective._props.target[0]]._props.QuestItem) {
                         obj.type = 'plantQuestItem';
                         obj.questItem = {
                             id: objective._props.target[0],
