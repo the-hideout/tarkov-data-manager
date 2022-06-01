@@ -325,11 +325,15 @@ insertPrices = async (options) => {
                         const matchedOffer = matchedOffers[0];
                         offerId = matchedOffer;
                         if (matchedOffer.min_level === null && tPrice.minLevel !== null) {
-                            query(`
-                                UPDATE trader_items
-                                SET min_level = ?
-                                WHERE id = ${matchedOffer.id}
-                            `, [tPrice.minLevel]);
+                            try {
+                                await query(`
+                                    UPDATE trader_items
+                                    SET min_level = ?
+                                    WHERE id = ${matchedOffer.id}
+                                `, [tPrice.minLevel]);
+                            } catch (error) {
+                                response.warnings.push(`Failed updating minimum level for trader offer ${matchedOffer.id} to ${tPrice.minLevel}: ${error}`);
+                            }
                         }
                     } else if (matchedOffers.length > 1) {
                         response.warnings.push(`${tPrice.seller} had ${matchedOffers.length} matching offers for ${itemId}, skipping price insert`);
