@@ -316,9 +316,9 @@ insertPrices = async (options) => {
                     // can trust scanner min level & quest
                     // attempt to match
                     const matchedOffers = [];
-                    for (let oi = 0; oi < offerTest.length; oi++) {
-                        if ((tPrice.minLevel === null || offerTest[oi].min_level == tPrice.minLevel) && offerTest[oi].quest_unlock_id == tPrice.quest) {
-                            matchedOffers.push(offerTest[oi].id);
+                    for (const offer of offerTest) {
+                        if ((tPrice.minLevel === null || offer.min_level == tPrice.minLevel) && (offer.quest_unlock_id == tPrice.quest || offer.quest_unlock_bsg_id == tPrice.quest)) {
+                            matchedOffers.push(offer.id);
                         }
                     }
                     if (matchedOffers.length == 1) {
