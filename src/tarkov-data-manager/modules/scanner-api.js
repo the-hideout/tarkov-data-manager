@@ -317,12 +317,20 @@ insertPrices = async (options) => {
                     // attempt to match
                     const matchedOffers = [];
                     for (const offer of offerTest) {
-                        if ((tPrice.minLevel === null || offer.min_level == tPrice.minLevel) && (offer.quest_unlock_id == tPrice.quest || offer.quest_unlock_bsg_id == tPrice.quest)) {
+                        if ((tPrice.minLevel === null || offer.min_level === null || offer.min_level == tPrice.minLevel) && (offer.quest_unlock_id == tPrice.quest || offer.quest_unlock_bsg_id == tPrice.quest)) {
                             matchedOffers.push(offer.id);
                         }
                     }
                     if (matchedOffers.length == 1) {
-                        offerId = matchedOffers[0];
+                        const matchedOffer = matchedOffers[0];
+                        offerId = matchedOffer;
+                        if (matchedOffer.min_level === null && tPrice.minLevel !== null) {
+                            query(`
+                                UPDATE trader_items
+                                SET min_level = ?
+                                WHERE id = ${matchedOffer.id}
+                            `, [tPrice.minLevel]);
+                        }
                     } else if (matchedOffers.length > 1) {
                         response.warnings.push(`${tPrice.seller} had ${matchedOffers.length} matching offers for ${itemId}, skipping price insert`);
                     }
