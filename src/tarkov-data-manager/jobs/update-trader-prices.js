@@ -32,7 +32,7 @@ const traderMap = {
 let logger = false;
 
 const outputPrices = async (prices) => {
-    fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'trader-inventory.json'), JSON.stringify(prices, null, 4));
+    //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'trader-inventory.json'), JSON.stringify(prices, null, 4));
 
     try {
         const response = await cloudflare(`/values/TRADER_ITEMS_V2`, 'PUT', JSON.stringify(prices));

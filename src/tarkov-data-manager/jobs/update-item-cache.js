@@ -11,7 +11,7 @@ const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
-const getItemProperties = require('../modules/get-item-properties');
+const {setItemPropertiesLocales, getSpecialItemProperties} = require('../modules/get-item-properties');
 
 let bsgItems = false;
 let credits = false;
@@ -28,6 +28,16 @@ const ignoreCategories = [
     '566168634bdc2d144c8b456c', // Searchable item
 ];
 
+const catNameToEnum = (sentence) => {
+    return sentence.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g,
+    function(word, i) {
+       if (+word === 0)
+          return '';
+       return i === 0 ? word :
+       word.toUpperCase();
+    }).replace(/\.+/g, '');
+};
+
 const addCategory = id => {
     if (!id || bsgCategories[id]) return;
     bsgCategories[id] = {
@@ -40,6 +50,7 @@ const addCategory = id => {
     } else {
         bsgCategories[id].name = bsgItems[id]._name;
     }
+    bsgCategories[id].enumName = catNameToEnum(bsgCategories[id].name);
     for (const code in locales) {
         const lang = locales[code];
         if (lang.templates[id]) {
@@ -248,6 +259,7 @@ module.exports = async () => {
             });
         }
 
+        await setItemPropertiesLocales(locales);
         for (const [key, value] of itemMap.entries()) {
             if (value.types.includes('disabled')) continue;
             itemData[key] = {
@@ -289,10 +301,14 @@ module.exports = async () => {
 
             // itemData[key].changeLast48h = itemPriceYesterday.priceYesterday || 0;
 
+            // add item properties
+            itemData[key].discardLimit = -1;
             if (bsgItems[key]) {
                 addPropertiesToItem(itemData[key]);
                 itemData[key].basePrice = credits[key];
                 itemData[key].bsgCategoryId = bsgItems[key]._parent;
+                itemData[key].discardLimit = bsgItems[key]._props.DiscardLimit;
+                itemData[key].properties = await getSpecialItemProperties(bsgItems[key], bsgItems[bsgItems[key]._parent]);
             } else if (presets[key]) {
                 const preset = presets[key];
                 itemData[key].width = preset.width;
@@ -313,12 +329,6 @@ module.exports = async () => {
             itemData[key].wikiLink = itemData[key].wiki_link;
             //itemData[key].normalizedName = itemData[key].normalized_name;
             itemData[key].link = `https://tarkov.dev/item/${itemData[key].normalizedName}`;
-
-            itemData[key].discardLimit = -1;
-            if (bsgItems[key]) {
-                itemData[key].bsgCategoryId = bsgItems[key]._parent;
-                itemData[key].discardLimit = bsgItems[key]._props.DiscardLimit;
-            }
 
             // Fallback images
             itemData[key].imageLinkFallback = itemData[key].imageLink || 'https://assets.tarkov.dev/unknown-item-image.jpg';
@@ -405,7 +415,8 @@ module.exports = async () => {
             enabled: globals.config.RagFair.enabled,
             sellOfferFeeRate: (globals.config.RagFair.communityItemTax / 100),
             sellRequirementFeeRate: (globals.config.RagFair.communityRequirementTax / 100),
-            reputationLevels: []
+            reputationLevels: [],
+            locale: {}
         };
         for (const offerCount of globals.config.RagFair.maxActiveOfferCount) {
             if (fleaData.reputationLevels.length > 0 && fleaData.reputationLevels[fleaData.reputationLevels.length-1].offers == offerCount.count) {
@@ -418,11 +429,22 @@ module.exports = async () => {
                 maxRep: offerCount.to
             });
         }
+        for (const code in locales) {
+            const lang = locales[code];
+            if (lang.interface['RAG FAIR']) {
+                fleaData.locale[code] = {
+                    name: lang.interface['RAG FAIR'].replace(/(?<!\b)([A-Z])/g, substr => {
+                        return substr.toLowerCase();
+                    })
+                };
+            }
+        }
 
         const armorData = {};
         for (const armorTypeId in globals.config.ArmorMaterials) {
             const armorType = globals.config.ArmorMaterials[armorTypeId];
             armorData[armorTypeId] = {
+                id: armorTypeId,
                 name: locales.en.interface['Mat'+armorTypeId],
                 locale: {}
             };
@@ -444,9 +466,10 @@ module.exports = async () => {
             updated: new Date(),
             data: itemData,
             categories: bsgCategories,
-            flea: fleaData
+            flea: fleaData,
+            armorMats: armorData
         };
-        const response = await cloudflare(`/values/ITEM_CACHE_V3`, 'PUT', JSON.stringify(itemsData)).catch(error => {
+        const response = await cloudflare(`/values/ITEM_CACHE_V4`, 'PUT', JSON.stringify(itemsData)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
@@ -460,7 +483,7 @@ module.exports = async () => {
                 logger.error(response.messages[i]);
             }
         }
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'item-cache.json'), JSON.stringify(itemsData, null, 4));
+        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'item-cache.json'), JSON.stringify(itemsData, null, 4));
 
         // Possibility to POST to a Discord webhook here with cron status details
     } catch (error) {

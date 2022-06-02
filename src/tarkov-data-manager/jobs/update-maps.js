@@ -119,7 +119,6 @@ module.exports = async function() {
                     if (enemySubs[newName]) return enemySubs[newName];
                     return newName;
                 });
-                factory4_night
                 map.locale[code] = {
                     name: mapName,
                     enemies: enemies
@@ -128,7 +127,7 @@ module.exports = async function() {
         }
         logger.log(`Processed ${maps.data.length} maps`);
     
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'maps.json'), JSON.stringify(maps, null, 4));
+        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'maps.json'), JSON.stringify(maps, null, 4));
 
         const response = await cloudflare(`/values/MAP_DATA_V2`, 'PUT', JSON.stringify(maps)).catch(error => {
             logger.error(error);

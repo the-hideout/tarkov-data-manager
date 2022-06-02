@@ -7,6 +7,7 @@ const BASE_URL = 'https://api.cloudflare.com/client/v4/';
 
 const doRequest = async (cloudflarePath, method = 'GET', value, extraHeaders) => {
     if (!process.env.CLOUDFLARE_TOKEN) {
+        fs.writeFileSync(path.join(__dirname, '..', 'dumps', `${cloudflarePath.split("/").pop().toLowerCase()}.json`), JSON.stringify(JSON.parse(value), null, 4));
         return {
            result: null,
            success: false,
