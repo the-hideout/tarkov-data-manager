@@ -316,13 +316,25 @@ insertPrices = async (options) => {
                     // can trust scanner min level & quest
                     // attempt to match
                     const matchedOffers = [];
-                    for (let oi = 0; oi < offerTest.length; oi++) {
-                        if ((tPrice.minLevel === null || offerTest[oi].min_level == tPrice.minLevel) && offerTest[oi].quest_unlock_id == tPrice.quest) {
-                            matchedOffers.push(offerTest[oi].id);
+                    for (const offer of offerTest) {
+                        if ((tPrice.minLevel === null || offer.min_level === null || offer.min_level == tPrice.minLevel) && (offer.quest_unlock_id == tPrice.quest || offer.quest_unlock_bsg_id == tPrice.quest)) {
+                            matchedOffers.push(offer.id);
                         }
                     }
                     if (matchedOffers.length == 1) {
-                        offerId = matchedOffers[0];
+                        const matchedOffer = matchedOffers[0];
+                        offerId = matchedOffer;
+                        if (matchedOffer.min_level === null && tPrice.minLevel !== null) {
+                            try {
+                                await query(`
+                                    UPDATE trader_items
+                                    SET min_level = ?
+                                    WHERE id = ${matchedOffer.id}
+                                `, [tPrice.minLevel]);
+                            } catch (error) {
+                                response.warnings.push(`Failed updating minimum level for trader offer ${matchedOffer.id} to ${tPrice.minLevel}: ${error}`);
+                            }
+                        }
                     } else if (matchedOffers.length > 1) {
                         response.warnings.push(`${tPrice.seller} had ${matchedOffers.length} matching offers for ${itemId}, skipping price insert`);
                     }
