@@ -228,14 +228,16 @@ const loadRewards = (questData, rewardsType, sourceRewards) => {
     }
 };
 
-const mergeTdQuest = (questData) => {
-    let tdQuest = false;
-    for (const q of tdQuests) {
-        if (q.id === questData.tarkovDataId) {
-            tdQuest = q;
-            break;
+const mergeTdQuest = (questData, tdQuest) => {
+    if (!tdQuest) {
+        for (const q of tdQuests) {
+            if (q.id === questData.tarkovDataId) {
+                tdQuest = q;
+                break;
+            }
         }
     }
+    if (!tdQuest) return;
     for (const tdObj of tdQuest.objectives) {
         if (tdObj.type === 'key') {
             key = {
@@ -439,6 +441,7 @@ module.exports = async () => {
         items = await tarkovChanges.items();
         en = await tarkovChanges.locale_en();
         locales = await tarkovChanges.locales();
+        const missingQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'missing_quests.json')));
         try {
             presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
         } catch (error) {
@@ -890,7 +893,7 @@ module.exports = async () => {
             for (const tdQuest of tdQuests) {
                 if (questData.id == tdQuest.gameId) {
                     questData.tarkovDataId = tdQuest.id;
-                    tdMatched.push(tdQuest.id)
+                    tdMatched.push(tdQuest.id);
                     break;
                 }
                 if (questData.name == tdQuest.title) {
@@ -909,12 +912,57 @@ module.exports = async () => {
                 mergeTdQuest(questData);
             }
             if (factionMap[questData.id]) questData.factionName = factionMap[questData.id];
+            if (missingQuests[questData.id]) delete missingQuests[questData.id];
             quests.data.push(questData);
+        }
+        
+        for (const questId in missingQuests) {
+            const quest = missingQuests[questId];
+            for (const q of quests.data) {
+                if (q.id === quest.id) {
+                    continue;
+                }
+            }
+            logger.warn(`Adding missing quest ${quest.name} ${quest.id}...`);
+            quest.locale = {};
+            for (const code in locales) {
+                const lang = locales[code];
+                quest.locale[code] = {
+                    name: lang.quest[questId].name
+                };
+            }
+            for (const obj of quest.objectives) {
+                obj.locale = {};
+                for (const code in locales) {
+                    const lang = locales[code];
+                    obj.locale[code] = {
+                        description: lang.quest[questId].conditions[obj.id]
+                    };
+                }
+                if (obj.type.endsWith('QuestItem')) {
+                    obj.questItem.locale = {};
+                    for (const code in locales) {
+                        const lang = locales[code];
+                        obj.questItem.locale[code] = {
+                            name: lang.templates[obj.questItem.id].Name
+                        };
+                    }
+                }
+            }
+            for (const tdQuest of tdQuests) {
+                if (quest.id == tdQuest.gameId) {
+                    quest.tarkovDataId = tdQuest.id;
+                    tdMatched.push(tdQuest.id);
+                    mergeTdQuest(quest, tdQuest);
+                    break;
+                }
+            }
+            quests.data.push(quest);
         }
         for (const tdQuest of tdQuests) {
             try {
                 if (!tdMatched.includes(tdQuest.id)) {
-                    logger.warn(`Adding TarkovData quest ${tdQuest.title} ${tdQuest.id}...`)
+                    logger.warn(`Adding TarkovData quest ${tdQuest.title} ${tdQuest.id}...`);
                     if (!tdTraders) {
                         logger.log('Retrieving TarkovTracker traders.json...');
                         tdTraders = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {

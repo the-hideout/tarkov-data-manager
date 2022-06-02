@@ -1,0 +1,485 @@
+{
+    "60e71d6d7fcf9c556f325055": {
+        "id": "60e71d6d7fcf9c556f325055",
+        "name": "The Courier",
+        "trader": "5a7c2eca46aef81a7ca2145d",
+        "location_id": null,
+        "locationName": null,
+        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/The_Courier",
+        "minPlayerLevel": 55,
+        "taskRequirements": [
+            {
+                "task": "60e71d23c1bfa3050473b8e6",
+                "name": "Calibration",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderLevelRequirements": [],
+        "objectives": [
+            {
+                "id": "60e84ba726b88043510e0ad8",
+                "type": "plantItem",
+                "optional": false,
+                "description": "Place Trijicon REAP-IR thermal scope at yellow crane at construction",
+                "locationNames": [
+                    "Customs"
+                ],
+                "map_ids": [
+                    "56f40101d2720b2a4d8b45d6"
+                ],
+                "count": 1,
+                "item": "5a1eaa87fcdbcb001865f75e",
+                "item_name": "Trijicon REAP-IR thermal scope",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "60e85b2a26b88043510e0ada",
+                "type": "plantItem",
+                "optional": false,
+                "description": "Place Trijicon REAP-IR thermal scope at trash containers gas gtation",
+                "locationNames": [
+                    "Customs"
+                ],
+                "map_ids": [
+                    "56f40101d2720b2a4d8b45d6"
+                ],
+                "count": 1,
+                "item": "5a1eaa87fcdbcb001865f75e",
+                "item_name": "Trijicon REAP-IR thermal scope",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "5fc22d7c187fea44d52eda44",
+                    "item_name": "SWORD International Mk-18 .338 LM marksman rifle",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [
+                {
+                    "name": "Crafting",
+                    "level": 1
+                },
+                {
+                    "name": "Intellect",
+                    "level": 1
+                }
+            ],
+            "traderUnlock": []
+        },
+        "experience": 137000,
+        "factionName": "Any",
+        "neededKeys": []
+    },
+    "60e71ce009d7c801eb0c0ec6": {
+        "id": "60e71ce009d7c801eb0c0ec6",
+        "name": "Special Equipment",
+        "trader": "5935c25fb3acc3127c3d8cd9",
+        "location_id": null,
+        "locationName": null,
+        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Special_Equipment",
+        "minPlayerLevel": 60,
+        "taskRequirements": [
+            {
+                "task": "60e71ccb5688f6424c7bfec4",
+                "name": "Trophies",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderLevelRequirements": [],
+        "objectives": [
+            {
+                "id": "60e7434ed1a062318d3d2260",
+                "type": "findItem",
+                "optional": false,
+                "description": "Find VPX Flash Storage Module",
+                "locationNames": [],
+                "map_ids": [],
+                "count": 5,
+                "item": "5c05300686f7746dce784e5d",
+                "item_name": "VPX Flash Storage Module",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 100,
+                "foundInRaid": true
+            },
+            {
+                "id": "60e7436675131b4e61703b7b",
+                "type": "findItem",
+                "optional": false,
+                "description": "Find UHF RFID Reader",
+                "locationNames": [],
+                "map_ids": [],
+                "count": 5,
+                "item": "5c052fb986f7746b2101e909",
+                "item_name": "UHF RFID Reader",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 100,
+                "foundInRaid": true
+            },
+            {
+                "id": "60e7439975131b4e61703b7c",
+                "type": "findItem",
+                "optional": false,
+                "description": "Find Virtex programmable processor",
+                "locationNames": [],
+                "map_ids": [],
+                "count": 5,
+                "item": "5c05308086f7746b2101e90b",
+                "item_name": "Virtex programmable processor",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 100,
+                "foundInRaid": true
+            },
+            {
+                "id": "60e743cd0367e10a450f780e",
+                "type": "findItem",
+                "optional": false,
+                "description": "Find Military COFDM Wireless Signal Transmitter",
+                "locationNames": [],
+                "map_ids": [],
+                "count": 5,
+                "item": "5c052f6886f7746b1e3db148",
+                "item_name": "Military COFDM Wireless Signal Transmitter",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 100,
+                "foundInRaid": true
+            },
+            {
+                "id": "60e74302d1a062318d3d225f",
+                "type": "giveItem",
+                "optional": false,
+                "description": "Hand over the flash storage modules",
+                "locationNames": [],
+                "map_ids": [],
+                "item": "5c05300686f7746dce784e5d",
+                "item_name": "VPX Flash Storage Module",
+                "count": 5,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "60e7432875131b4e61703b7a",
+                "type": "giveItem",
+                "optional": false,
+                "description": "Hand over the RFID readers",
+                "locationNames": [],
+                "map_ids": [],
+                "item": "5c052fb986f7746b2101e909",
+                "item_name": "UHF RFID Reader",
+                "count": 5,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "60e7449875131b4e61703b7e",
+                "type": "giveItem",
+                "optional": false,
+                "description": "Hand over the programmable processors",
+                "locationNames": [],
+                "map_ids": [],
+                "item": "5c05308086f7746b2101e90b",
+                "item_name": "Virtex programmable processor",
+                "count": 5,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "60e744c9d1a062318d3d2262",
+                "type": "giveItem",
+                "optional": false,
+                "description": "Hand over the signal transmitters",
+                "locationNames": [],
+                "map_ids": [],
+                "item": "5c052f6886f7746b1e3db148",
+                "item_name": "Military COFDM Wireless Signal Transmitter",
+                "count": 5,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "5c94bbff86f7747ee735c08f",
+                    "item_name": "TerraGroup Labs access keycard",
+                    "count": 7,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5d0377ce86f774186372f689",
+                    "item_name": "Iridium military thermal vision module",
+                    "count": 4,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "59fb023c86f7746d0d4b423c",
+                    "item_name": "Weapon case",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 177000,
+        "factionName": "Any",
+        "neededKeys": []
+    },
+    "6179b5b06e9dd54ac275e409": {
+        "id": "6179b5b06e9dd54ac275e409",
+        "name": "Our Own Land",
+        "trader": "54cb50c76803fa8b248b4571",
+        "location_id": null,
+        "locationName": null,
+        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Our_Own_Land",
+        "minPlayerLevel": null,
+        "taskRequirements": [
+            {
+                "task": "59ca264786f77445a80ed044",
+                "name": "The Punisher - Part 4",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderLevelRequirements": [],
+        "objectives": [
+            {
+                "id": "6193dc1e6623e330c82e0be9",
+                "type": "shoot",
+                "optional": false,
+                "description": "Eliminate USEC PMC operatives all over the Lighthouse territory",
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "target": "PMCs",
+                "count": 20,
+                "shotType": "kill",
+                "bodyParts": [],
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null
+            },
+            {
+                "id": "6194fbf785a6d62c481a7aee",
+                "type": "giveItem",
+                "optional": false,
+                "description": "Hand over the USEC PMC dogtags",
+                "locationNames": [],
+                "map_ids": [],
+                "count": 20,
+                "item": "59f32c3b86f77472a31742f0",
+                "item_name": "Dogtag USEC",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 300000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5e848cc2988a8701445df1e8",
+                    "item_name": "TOZ KS-23M 23x75mm pump-action shotgun",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                }],
+            "offerUnlock": [
+                {
+                    "id": "5e85a9f4add9fe03027d9bf1",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 3,
+                    "item": "55d482194bdc2d1d4e8b456b",
+                    "item_name": "23x75mm \"Zvezda\" flashbang round",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 22000,
+        "factionName": "Any",
+        "neededKeys": []
+    },
+    "60e71ccb5688f6424c7bfec4": {
+        "id": "60e71ccb5688f6424c7bfec4",
+        "name": "Trophies",
+        "trader": "5935c25fb3acc3127c3d8cd9",
+        "location_id": null,
+        "locationName": null,
+        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Trophies",
+        "minPlayerLevel": 55,
+        "taskRequirements": [
+            {
+                "task": "60e71c9ad54b755a3b53eb66",
+                "name": "The Cleaner",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderLevelRequirements": [],
+        "objectives": [
+            {
+                "id": "60e81795479eef59b01b0bdf",
+                "type": "giveItem",
+                "optional": false,
+                "description": "Find in raid and hand over USEC PMC dogtags of level 50+",
+                "locationNames": [],
+                "map_ids": [],
+                "count": 20,
+                "item": "59f32c3b86f77472a31742f0",
+                "item_name": "Dogtag USEC",
+                "dogTagLevel": 50,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "60e8174d0367e10a450f7818",
+                "type": "giveItem",
+                "optional": false,
+                "description": "Find in raid and hand over BEAR PMC dogtags of level 50+",
+                "locationNames": [],
+                "map_ids": [],
+                "count": 20,
+                "item": "59f32bb586f774757e1e8442",
+                "item_name": "Dogtag BEAR",
+                "dogTagLevel": 50,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5aafbde786f774389d0cbc0f",
+                    "item_name": "Ammunition case",
+                    "count": 4,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "619bdf9cc9546643a67df6f8",
+                    "item_name": "\"UNTAR\" armband",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5e81ebcd8e146c7080625e15",
+                    "item_name": "FN40GL Mk2 grenade launcher",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5f0c892565703e5c461894e9",
+                    "item_name": "40x46mm M433 (HEDP) grenade",
+                    "count": 10,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 137000,
+        "factionName": "Any",
+        "neededKeys": []
+    }
+}
