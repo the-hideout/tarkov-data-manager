@@ -28,7 +28,7 @@ let users = {};
 // trustTraderUnlocks = true means the information provided about trader minimum levels and quests will be used
 //      to create missing trader offers.
 // scanned is a toggle to indicate whether to set an item as scanned or release it
-const getOptions = (options) => {
+const getOptions = (options, user) => {
     const defaultOptions = {
         limitItem: false,
         imageOnly: false,
@@ -40,7 +40,8 @@ const getOptions = (options) => {
     }
     mergedOptions = {
         ...defaultOptions,
-        ...options
+        ...options,
+        user: user
     };
     if (mergedOptions.batchSize > 200) {
         mergedOptions.batchSize = 200;
@@ -221,6 +222,9 @@ const getItems = async(options) => {
     } catch (error) {
         response.errors.push(String(error));
     }
+    if (userFlags.skipPriceInsert & user.flags) {
+        releaseItem({...options, itemId: false, scanned: false});
+    }
     return response;
 };
 
@@ -256,6 +260,7 @@ quest and minLevel are only used for trader prices.
 If the trader price is locked and neither of these values is known, they should be null
 */
 insertPrices = async (options) => {
+    const user = options.user;
     const response = {errors: [], warnings: [], data: [0, 0]};
     const itemId = options.itemId;
     let itemPrices = options.itemPrices;
@@ -287,17 +292,23 @@ insertPrices = async (options) => {
     let playerInsert = Promise.resolve({affectedRows: 0});
     let traderInsert = Promise.resolve({affectedRows: 0});
     const dateTime = new Date();
-    if (playerPrices.length > 0) {
+    if (playerPrices.length > 0 && userFlags.insertPlayerPrices & user.flags) {
         // player prices
         const placeholders = [];
         const values = [];
         for (let i = 0; i < playerPrices.length; i++) {
             placeholders.push('(?, ?, ?, ?)');
             values.push(itemId, playerPrices[i].price, options.scannerName, dateToMysqlFormat(dateTime))
-        }    
-        playerInsert = query(format(`INSERT INTO price_data (item_id, price, source, timestamp) VALUES ${placeholders.join(', ')}`, values));
+        }
+        if (userFlags.skipPriceInsert & user.flags) {
+            response.warnings.push(`Skipped insert of ${playerPrices.length} player prices`);
+        } else {
+            playerInsert = query(format(`INSERT INTO price_data (item_id, price, source, timestamp) VALUES ${placeholders.join(', ')}`, values));
+        }
+    } else if (playerPrices.length > 0) {
+        playerInsert = Promise.reject(new Error('User not authorized to insert player prices'));
     }
-    if (traderPrices.length > 0) { 
+    if (traderPrices.length > 0 && userFlags.insertTraderPrices & user.flags) { 
         // trader prices
         //const traderPriceInserts = [];
         const placeholders = [];
@@ -312,7 +323,7 @@ insertPrices = async (options) => {
             const offerTest = await query(testOfferSql);
             if (offerTest.length > 0) {
                 // offer exists
-                if (options.trustTraderUnlocks) {
+                if (options.trustTraderUnlocks && userFlags.trustTraderUnlocks & user.flags) {
                     // can trust scanner min level & quest
                     // attempt to match
                     const matchedOffers = [];
@@ -354,7 +365,7 @@ insertPrices = async (options) => {
                         offerUpdateVars.push(`currency = ?`);
                         offerUpdateValues.push(tPrice.currency)
                     }
-                    if (options.trustTraderUnlocks) {
+                    if (options.trustTraderUnlocks && userFlags.trustTraderUnlocks & user.flags) {
                         // only update if we can trust scanner info
                         if (tPrice.minLevel !== null && offer.min_level != tPrice.minLevel) {
                             offerUpdateVars.push(`min_level = ?`);
@@ -394,7 +405,7 @@ insertPrices = async (options) => {
                     }
                 }
             }
-            if (!offerId && options.trustTraderUnlocks) {
+            if (!offerId && options.trustTraderUnlocks && userFlags.trustTraderUnlocks & user.flags) {
                 // offer does not exist, so we create it
                 // but only if our trader data is reliable
                 const offerValues = [itemId, tPrice.seller.toLowerCase(), tPrice.currency];
@@ -430,10 +441,16 @@ insertPrices = async (options) => {
             }
         }
         if (traderValues.length > 0) {
-            traderInsert = query(format(`INSERT INTO trader_price_data (trade_id, price, source, timestamp) VALUES ${placeholders.join(', ')}`, traderValues));
+            if (userFlags.skipPriceInsert & user.flags) {
+                response.warnings.push(`Skipped insert of ${traderValues.length} trader prices`);
+            } else {
+                traderInsert = query(format(`INSERT INTO trader_price_data (trade_id, price, source, timestamp) VALUES ${placeholders.join(', ')}`, traderValues));
+            }
         } else {
             traderInsert = Promise.reject(new Error(`Could not find any matching offers for ${itemId}`));
         }
+    } else if (traderPrices.length > 0) {
+        traderInsert = Promise.reject(new Error('User not authorized to insert trader prices'));
     }
     const results = await Promise.allSettled([playerInsert, traderInsert]);
     for (let i = 0; i < results.length; i++) {
@@ -533,11 +550,20 @@ const getJson = (options) => {
     return response;
 };
 
+const userFlags = {
+    disabled: 0,
+    insertPlayerPrices: 1,
+    insertTraderPrices: 2,
+    trustTraderUnlocks: 4,
+    skipPriceInsert: 8,
+    jsonDownload: 16
+};
+
 const refreshUsers = async () => {
-    const results = await query('SELECT username, password from scanner_user WHERE disabled=0');
+    const results = await query('SELECT username, password, flags from scanner_user WHERE disabled=0');
     users = {};
     for (let i = 0; i < results.length; i++) {
-        users[results[i].username] = results[i].password;
+        users[results[i].username] = results[i];
     }
 };
 
@@ -547,7 +573,7 @@ module.exports = {
     request: async (req, res, resource) => {
         const username = req.headers.username;
         const password = req.headers.password;
-        if ((!username || !password) || !users[username] || (users[username] !== password)) {
+        if ((!username || !password) || !users[username].password || (users[username].password !== password)) {
             res.json({errors: ['access denied'], warnings: [], data: {}});
             return;
         }
@@ -561,7 +587,7 @@ module.exports = {
             options = {};
         }
         options.scannerName = scannerName;
-        options = getOptions(options);
+        options = getOptions(options, users[username]);
         let response = false;
         try {
             if (resource === 'items') {
@@ -575,16 +601,20 @@ module.exports = {
                     response = await releaseItem(options);
                 }
             }
-            if (resource === 'traders') {
+            /*if (resource === 'traders') {
                 if (req.method === 'POST') {
                     response = await insertTraderRestock(options);
                 }
-            }
+            }*/
             if (resource === 'ping' && req.method === 'GET') {
                 response = {errors: [], warnings: [], data: 'ok'};
             }
             if (resource === 'json') {
-                response = getJson(options);
+                if (options.user.flags & userFlags.jsonDownload) {
+                    response = getJson(options);
+                } else {
+                    return res.json({errors: ['You are not authorized to perform that action'], warnings: [], data: {}});
+                }
             }
             if (response) {
                 res.json(response);
@@ -596,5 +626,10 @@ module.exports = {
             res.json({errors: [String(error)], warnings: [], data: {}});
         }
     },
-    refreshUsers: refreshUsers
+    refreshUsers: refreshUsers,
+    getUserFlags: () => {
+        return {
+            ...userFlags
+        }
+    }
 };

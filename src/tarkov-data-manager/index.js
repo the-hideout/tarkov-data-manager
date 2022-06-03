@@ -754,6 +754,7 @@ app.get('/scanners', async (req, res) => {
     const activeScanners = [];
     const inactiveScanners = [];
     const users = await query('SELECT * FROM scanner_user');
+    const userFlags = scannerApi.getUserFlags();
     latestScanResults.map(latestScan => {
         if (new Date - latestScan.timestamp > 1000 * 60 * 60 * 2) {
             inactiveScanners.push(latestScan);
@@ -801,6 +802,7 @@ app.get('/scanners', async (req, res) => {
         <script>
             const WS_PASSWORD = '${process.env.WS_PASSWORD}';
             const users = ${JSON.stringify(users, null, 4)};
+            const userFlags = ${JSON.stringify(userFlags)};
         </script>
         <script src="/ansi_up.js"></script>
         <script src="/scanners.js"></script>
@@ -838,6 +840,9 @@ app.get('/scanners', async (req, res) => {
                                     </th>
                                     <th>
                                         Password
+                                    </th>
+                                    <th>
+                                        Flags
                                     </th>
                                     <th>
                                         Disabled
@@ -1040,6 +1045,18 @@ app.post('/scanners/delete-user', urlencodedParser, async (req, res) => {
         } else {
             response.errors.push(`User ${req.body.username} not found`);
         }
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.send(response);
+});
+
+app.post('/scanners/user-flags', urlencodedParser, async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        await query(format('UPDATE scanner_user SET flags=? WHERE username=?', [req.body.flags, req.body.user]));
+        response.message = `Set ${req.body.user} flags to ${req.body.flags}`;
+        scannerApi.refreshUsers();
     } catch (error) {
         response.errors.push(error.message);
     }

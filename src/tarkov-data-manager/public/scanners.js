@@ -318,7 +318,45 @@ $(document).ready( function () {
             }
         },
         {
-            data: 'password'
+            data: 'password',
+            render: (data, type, user) => {
+                if (type === 'display') {
+                    return `
+                        <div>
+                            <div class="password-holder hidden">${data.replace(/./g, '*')}</div>
+                            <div>
+                                <a href="#" class="waves-effect waves-light btn show-password tooltipped" data-tooltip="Show" data-password="${data}"><i class="material-icons">remove_red_eye</i></a>
+                                <a href="#" class="waves-effect waves-light btn copy-password tooltipped" data-tooltip="Copy" data-password="${data}"><i class="material-icons">content_copy</i></a>
+                            </div>
+                        </div>
+                    `;
+                }
+                return data;
+            }
+        },
+        {
+            data: 'flags',
+            render: (data, type, user) => {
+                if (type === 'display') {
+                    let markupString = '<div class="row">';
+                    for(const flagName in userFlags){
+                        if (flagName === 'disabled') continue;
+                        const flagValue = userFlags[flagName];
+                        const flagLabel = flagName.replace(/[A-Z]/g, capLetter => {
+                            return ' '+capLetter.toLowerCase();
+                        });
+                        markupString = `${markupString}
+                        <div class="col s12 l6 xl4 xxl3">
+                            <label for="${user.username}-${[flagName]}">
+                                <input type="checkbox" class="user-flag" id="${user.username}-${[flagName]}" value="${flagValue}" data-user-name="${user.username}" ${data & flagValue ? 'checked' : ''} />
+                                <span>${flagLabel}</span>
+                            </label>
+                        </div>`;
+                    }
+                    return `${markupString}</div>`;
+                }
+                return data;
+            }
         },
         {
             data: 'disabled',
@@ -411,6 +449,59 @@ $(document).ready( function () {
                     table.draw();
                 });
             });
+
+            $('.show-password').off('click');
+            $('.show-password').click(function (event) {
+                let target = $(event.target);
+                if (target[0].nodeName === 'I') target = target.parent();
+                const pw = target.data('password');
+                const holder = target.parent().parent().find('.password-holder').first();
+                if (holder.hasClass('hidden')) {
+                    holder.text(pw);
+                    holder.removeClass('hidden');
+                } else {
+                    holder.text(pw.replace(/./g, '*'));
+                    holder.addClass('hidden');
+                }
+            });
+
+            $('.copy-password').off('click');
+            $('.copy-password').click(function (event) {
+                let target = $(event.target);
+                if (target[0].nodeName === 'I') target = target.parent();
+                const pw = target.data('password');
+                navigator.clipboard.writeText(pw);
+            });
+
+            $('input.user-flag').off('change');
+            $('input.user-flag').change((event) => {
+                if(event.target.getAttribute('type') !== 'checkbox'){
+                    return true;
+                }
+                const checkedFlags = $(event.target).closest('td').find('input.user-flag:checked');
+                let flags = 0;
+                for (const check of checkedFlags) {
+                    flags |= Number($(check).val());
+                }
+            
+                const username = $(event.target).data('userName');
+                const dataUpdate = {
+                    user: username,
+                    flags: flags
+                }
+            
+                postData('/scanners/user-flags', dataUpdate).then(data => {
+                    if (data.errors.length > 0) {
+                        console.log('Error setting user flags', ...data.errors);
+                    }
+                    for (const user of table.rows().data().toArray()) {
+                        if (user.username === username) {
+                            user.flags = flags;
+                            break;
+                        }
+                    }
+                });
+            });
         }
     });
 
@@ -433,6 +524,7 @@ $(document).ready( function () {
                 const user = {
                     username: $('#modal-edit-user .username').val(),
                     password: $('#modal-edit-user .password').val(),
+                    flags: 3,
                     disabled: $('#modal-edit-user .user_disabled').prop('checked') ? 1 : 0
                 };
                 if (form.attr('action') === '/scanners/add-user') {
