@@ -293,8 +293,6 @@ insertPrices = async (options) => {
     let traderInsert = Promise.resolve({affectedRows: 0});
     const dateTime = new Date();
     if (playerPrices.length > 0 && userFlags.insertPlayerPrices & user.flags) {
-        console.log('passed insertPlayerPrices check');
-        console.log(userFlags.insertPlayerPrices & user.flags);
         // player prices
         const placeholders = [];
         const values = [];
