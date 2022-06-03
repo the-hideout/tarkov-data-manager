@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const {pool, query, format} = require('./db-connection');
+const {dashToCamelCase} = require('../modules/string-functions');
 
 let users = {};
 
@@ -98,23 +99,38 @@ const getItems = async(options) => {
         }
         const sql = format(`
             SELECT
-                id,
+                item_data.id,
                 name,
                 short_name as shortName
                 match_index,
                 image_link IS NULL OR image_link = '' AS needs_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
-                icon_link IS NULL OR icon_link = '' AS needs_icon_image
+                icon_link IS NULL OR icon_link = '' AS needs_icon_image,
+                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types,
+                GROUP_CONCAT(distinct item_children.child_item_id SEPARATOR ',') as contains
             FROM
                 item_data
+            LEFT JOIN types ON
+                types.item_id = item_data.id
+            LEFT JOIN item_children ON
+                item_children.container_item_id = item_data.id
             WHERE 
                 item_data.id IN (${placeholders.join(',')})
+            GROUP BY
+                item_data.id
             `, itemIds);
         try {
             items = await query(sql);
             response.data = items.filter(item => {
-                if (!item.name) return false;
                 return true;
+            }).map(item => {
+                const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
+                const contains = item.contains ? item.contains.split(',') : [];
+                return {
+                    ...item,
+                    types: types,
+                    contains: contains
+                };
             });
         } catch (error) {
             response.errors.push(String(error));
@@ -130,11 +146,15 @@ const getItems = async(options) => {
                 match_index,
                 image_link IS NULL OR image_link = '' AS needs_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
-                icon_link IS NULL OR icon_link = '' AS needs_icon_image
+                icon_link IS NULL OR icon_link = '' AS needs_icon_image,
+                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types,
+                GROUP_CONCAT(distinct item_children.child_item_id SEPARATOR ',') as contains
             FROM
                 item_data
             LEFT JOIN types ON
                 types.item_id = item_data.id
+            LEFT JOIN item_children ON
+                item_children.container_item_id = item_data.id
             WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                 (item_data.image_link IS NULL OR item_data.image_link = '' OR item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' OR item_data.icon_link IS NULL OR item_data.icon_link = '')
@@ -145,6 +165,14 @@ const getItems = async(options) => {
             response.data = (await query(sql)).filter(item => {
                 if (!item.name) return false;
                 return true;
+            }).map(item => {
+                const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
+                const contains = item.contains ? item.contains.split(',') : [];
+                return {
+                    ...item,
+                    types: types,
+                    contains: contains
+                };
             });
         } catch (error) {
             response.errors.push(String(error));
@@ -205,11 +233,15 @@ const getItems = async(options) => {
             match_index,
             image_link IS NULL OR image_link = '' AS needs_image,
             grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
-            icon_link IS NULL OR icon_link = '' AS needs_icon_image
+            icon_link IS NULL OR icon_link = '' AS needs_icon_image,
+            GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types,
+            GROUP_CONCAT(distinct item_children.child_item_id SEPARATOR ',') as contains
         FROM
             item_data
         LEFT JOIN types ON
             types.item_id = item_data.id
+        LEFT JOIN item_children ON
+            item_children.container_item_id = item_data.id
         ${where}
         GROUP BY item_data.id
         ORDER BY item_data.last_scan
@@ -218,6 +250,14 @@ const getItems = async(options) => {
         response.data = (await query(sql)).filter(item => {
             if (!item.name) return false;
             return true;
+        }).map(item => {
+            const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
+            const contains = item.contains ? item.contains.split(',') : [];
+            return {
+                ...item,
+                types: types,
+                contains: contains
+            };
         });
         //console.log('retrieved items', response.data);
     } catch (error) {

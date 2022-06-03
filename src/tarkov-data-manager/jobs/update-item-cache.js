@@ -11,6 +11,7 @@ const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
+const {dashToCamelCase} = require('../modules/string-functions');
 const {setItemPropertiesLocales, getSpecialItemProperties} = require('../modules/get-item-properties');
 
 let bsgItems = false;
@@ -68,12 +69,6 @@ const addCategory = id => {
         bsgCategories[id].parent_id = parentId;
         addCategory(parentId);
     }
-};
-
-const camelCase = input => {
-    return input.toLowerCase().replace(/-(.)/g, function(match, group1) {
-        return group1.toUpperCase();
-    });
 };
 
 const getTraderMultiplier = (traderId) => {
@@ -295,7 +290,7 @@ module.exports = async () => {
                 }
             }
 
-            itemData[key].types = itemData[key].types.map(type => camelCase(type));
+            itemData[key].types = itemData[key].types.map(type => dashToCamelCase(type));
 
             itemData[key].containsItems = containedItemsMap[key];
 

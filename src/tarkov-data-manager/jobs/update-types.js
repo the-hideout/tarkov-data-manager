@@ -75,6 +75,17 @@ module.exports = async (externalLogger) => {
                         VALUES (?, ?, ?)
                     `, [itemId, round, count]);
                 }
+                if (bsgData[bsgData[itemId._parent]] && bsgData[bsgData[itemId._parent]]._parent === '5422acb9af1c889c16000029') {
+                    if (!item.types.includes('gun')) {
+                        logger.warn(`Assigning ${itemId} ${item.name} gun category`);
+        
+                        await query(`INSERT IGNORE INTO types (item_id, type) VALUES(?, 'gun')`, [itemId]).then(results => {
+                            if (results.affectedRows == 0) {
+                                logger.fail(`Already marked as gun ${itemId} ${item.name}`);
+                            }
+                        });
+                    }
+                }
             } catch (error){
                 logger.error(error);
                 logger.end();
