@@ -84,6 +84,7 @@ const dateToMysqlFormat = (dateTime) => {
 // on success, response.data is an array of items
 // relevant options: limitItem, imageOnly, batchSize, offersFrom, limitTraderScan
 const getItems = async(options) => {
+    const user = options.user;
     const response = {errors: [], warnings: [], data: []};
     let items = false;
     if (options.limitItem) {
