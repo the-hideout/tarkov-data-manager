@@ -7,7 +7,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const { query, jobComplete } = require('../modules/db-connection');
-const getItemProperties = require('../modules/get-item-properties');
+const {getSpecialItemProperties} = require('../modules/get-item-properties');
 
 module.exports = async function() {
     const logger = new JobLogger('update-ammo');
@@ -39,7 +39,7 @@ module.exports = async function() {
                 name: en[id].Name,
                 shortName: en[id].ShortName,
                 weight: ammo._props.Weight,
-                ...await getItemProperties(ammo)
+                ...await getSpecialItemProperties(ammo)
             });
             if (typeof caliberCounts[ammo._props.Caliber] === 'undefined') caliberCounts[ammo._props.Caliber] = 0;
             caliberCounts[ammo._props.Caliber]++;
