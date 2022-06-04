@@ -129,7 +129,10 @@ const getItems = async(options) => {
                 return {
                     ...item,
                     types: types,
-                    contains: contains
+                    contains: contains,
+                    needs_image: item.needs_image ? true : false,
+                    needs_grid_image: item.needs_grid_image ? true : false,
+                    needs_icon_image: item.needs_icon_image ? true : false
                 };
             });
         } catch (error) {
@@ -171,7 +174,10 @@ const getItems = async(options) => {
                 return {
                     ...item,
                     types: types,
-                    contains: contains
+                    contains: contains,
+                    needs_image: item.needs_image ? true : false,
+                    needs_grid_image: item.needs_grid_image ? true : false,
+                    needs_icon_image: item.needs_icon_image ? true : false
                 };
             });
         } catch (error) {
@@ -256,7 +262,10 @@ const getItems = async(options) => {
             return {
                 ...item,
                 types: types,
-                contains: contains
+                contains: contains,
+                needs_image: item.needs_image ? true : false,
+                needs_grid_image: item.needs_grid_image ? true : false,
+                needs_icon_image: item.needs_icon_image ? true : false
             };
         });
         //console.log('retrieved items', response.data);
