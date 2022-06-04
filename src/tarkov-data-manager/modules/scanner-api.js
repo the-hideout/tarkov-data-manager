@@ -4,6 +4,7 @@ const {pool, query, format} = require('./db-connection');
 const {dashToCamelCase} = require('../modules/string-functions');
 
 let users = {};
+let existingBaseImages = [];
 
 /*const isConnected = async () => {
     if (!pool) return false;
@@ -88,6 +89,7 @@ const dateToMysqlFormat = (dateTime) => {
     name: 'Kalashnikov AKS-74U 5.45x39 assault rifle',
     short_name: 'AKS-74U',
     match_index: 0,
+    needs_base_image: false,
     needs_image: false,
     needs_grid_image: false,
     needs_icon_image: false,
@@ -149,6 +151,7 @@ const getItems = async(options) => {
                     ...item,
                     types: types,
                     contains: contains,
+                    needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
                     needs_image: item.needs_image ? true : false,
                     needs_grid_image: item.needs_grid_image ? true : false,
                     needs_icon_image: item.needs_icon_image ? true : false
@@ -194,6 +197,7 @@ const getItems = async(options) => {
                     ...item,
                     types: types,
                     contains: contains,
+                    needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
                     needs_image: item.needs_image ? true : false,
                     needs_grid_image: item.needs_grid_image ? true : false,
                     needs_icon_image: item.needs_icon_image ? true : false
@@ -282,6 +286,7 @@ const getItems = async(options) => {
                 ...item,
                 types: types,
                 contains: contains,
+                needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
                 needs_image: item.needs_image ? true : false,
                 needs_grid_image: item.needs_grid_image ? true : false,
                 needs_icon_image: item.needs_icon_image ? true : false
@@ -637,6 +642,15 @@ const refreshUsers = async () => {
 };
 
 refreshUsers();
+fs.watch(path.join(__dirname, '..', 'public', 'data'), {persistent: false}, (eventType, filename) => {
+    if (filename === 'existing-bases.json') {
+        try {
+            existingBaseImages = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json')));
+        } catch (error) {
+            console.log('Error reading exist-bases.json', error);
+        }
+    }
+});
 
 module.exports = {
     request: async (req, res, resource) => {
