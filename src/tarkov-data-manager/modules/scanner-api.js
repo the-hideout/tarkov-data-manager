@@ -82,7 +82,26 @@ const dateToMysqlFormat = (dateTime) => {
     return dateTime.getUTCFullYear() + '-' + twoDigits(1 + dateTime.getUTCMonth()) + '-' + twoDigits(dateTime.getUTCDate()) + ' ' + twoDigits(dateTime.getUTCHours()) + ':' + twoDigits(dateTime.getUTCMinutes()) + ':' + twoDigits(dateTime.getUTCSeconds());
 };
 
-// on success, response.data is an array of items
+/* on success, response.data is an array of items with the following format:
+{
+    id: '57dc2fa62459775949412633',
+    name: 'Kalashnikov AKS-74U 5.45x39 assault rifle',
+    short_name: 'AKS-74U',
+    match_index: 0,
+    needs_image: false,
+    needs_grid_image: false,
+    needs_icon_image: false,
+    types: [ 'gun', 'wearable' ],
+    contains: [
+        '564ca99c4bdc2d16268b4589',
+        '57dc324a24597759501edc20',
+        '57dc32dc245977596d4ef3d3',
+        '57dc334d245977597164366f',
+        '57dc347d245977596754e7a1',
+        '57e3dba62459770f0c32322b',
+        '59d36a0086f7747e673f3946'
+    ]
+} */
 // relevant options: limitItem, imageOnly, batchSize, offersFrom, limitTraderScan
 const getItems = async(options) => {
     const user = options.user;
