@@ -101,7 +101,7 @@ const getItems = async(options) => {
             SELECT
                 item_data.id,
                 name,
-                short_name as shortName
+                short_name,
                 match_index,
                 image_link IS NULL OR image_link = '' AS needs_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
@@ -142,7 +142,7 @@ const getItems = async(options) => {
             SELECT
                 item_data.id,
                 name,
-                short_name AS shortName,
+                short_name,
                 match_index,
                 image_link IS NULL OR image_link = '' AS needs_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
@@ -229,7 +229,7 @@ const getItems = async(options) => {
         SELECT
             item_data.id,
             name,
-            short_name AS shortName,
+            short_name,
             match_index,
             image_link IS NULL OR image_link = '' AS needs_image,
             grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
