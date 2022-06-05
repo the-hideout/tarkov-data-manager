@@ -1,8 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const {pool, query, format} = require('./db-connection');
+const {dashToCamelCase} = require('../modules/string-functions');
 
 let users = {};
+let existingBaseImages = [];
 
 /*const isConnected = async () => {
     if (!pool) return false;
@@ -81,7 +83,27 @@ const dateToMysqlFormat = (dateTime) => {
     return dateTime.getUTCFullYear() + '-' + twoDigits(1 + dateTime.getUTCMonth()) + '-' + twoDigits(dateTime.getUTCDate()) + ' ' + twoDigits(dateTime.getUTCHours()) + ':' + twoDigits(dateTime.getUTCMinutes()) + ':' + twoDigits(dateTime.getUTCSeconds());
 };
 
-// on success, response.data is an array of items
+/* on success, response.data is an array of items with the following format:
+{
+    id: '57dc2fa62459775949412633',
+    name: 'Kalashnikov AKS-74U 5.45x39 assault rifle',
+    short_name: 'AKS-74U',
+    match_index: 0,
+    needs_base_image: false,
+    needs_image: false,
+    needs_grid_image: false,
+    needs_icon_image: false,
+    types: [ 'gun', 'wearable' ],
+    contains: [
+        '564ca99c4bdc2d16268b4589',
+        '57dc324a24597759501edc20',
+        '57dc32dc245977596d4ef3d3',
+        '57dc334d245977597164366f',
+        '57dc347d245977596754e7a1',
+        '57e3dba62459770f0c32322b',
+        '59d36a0086f7747e673f3946'
+    ]
+} */
 // relevant options: limitItem, imageOnly, batchSize, offersFrom, limitTraderScan
 const getItems = async(options) => {
     const user = options.user;
@@ -98,23 +120,44 @@ const getItems = async(options) => {
         }
         const sql = format(`
             SELECT
-                id,
+                item_data.id,
                 name,
-                short_name as shortName
+                short_name,
                 match_index,
                 image_link IS NULL OR image_link = '' AS needs_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
-                icon_link IS NULL OR icon_link = '' AS needs_icon_image
+                icon_link IS NULL OR icon_link = '' AS needs_icon_image,
+                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types,
+                GROUP_CONCAT(distinct item_children.child_item_id SEPARATOR ',') as contains
             FROM
                 item_data
+            LEFT JOIN types ON
+                types.item_id = item_data.id
+            LEFT JOIN item_children ON
+                item_children.container_item_id = item_data.id
             WHERE 
                 item_data.id IN (${placeholders.join(',')})
+            GROUP BY
+                item_data.id
             `, itemIds);
         try {
             items = await query(sql);
             response.data = items.filter(item => {
-                if (!item.name) return false;
                 return true;
+            }).map(item => {
+                const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
+                const contains = item.contains ? item.contains.split(',') : [];
+                return {
+                    ...item,
+                    name: String(item.name),
+                    short_name: String(item.short_name),
+                    types: types,
+                    contains: contains,
+                    needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
+                    needs_image: item.needs_image ? true : false,
+                    needs_grid_image: item.needs_grid_image ? true : false,
+                    needs_icon_image: item.needs_icon_image ? true : false
+                };
             });
         } catch (error) {
             response.errors.push(String(error));
@@ -126,15 +169,19 @@ const getItems = async(options) => {
             SELECT
                 item_data.id,
                 name,
-                short_name AS shortName,
+                short_name,
                 match_index,
                 image_link IS NULL OR image_link = '' AS needs_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
-                icon_link IS NULL OR icon_link = '' AS needs_icon_image
+                icon_link IS NULL OR icon_link = '' AS needs_icon_image,
+                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types,
+                GROUP_CONCAT(distinct item_children.child_item_id SEPARATOR ',') as contains
             FROM
                 item_data
             LEFT JOIN types ON
                 types.item_id = item_data.id
+            LEFT JOIN item_children ON
+                item_children.container_item_id = item_data.id
             WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                 (item_data.image_link IS NULL OR item_data.image_link = '' OR item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' OR item_data.icon_link IS NULL OR item_data.icon_link = '')
@@ -145,6 +192,20 @@ const getItems = async(options) => {
             response.data = (await query(sql)).filter(item => {
                 if (!item.name) return false;
                 return true;
+            }).map(item => {
+                const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
+                const contains = item.contains ? item.contains.split(',') : [];
+                return {
+                    ...item,
+                    name: String(item.name),
+                    short_name: String(item.short_name),
+                    types: types,
+                    contains: contains,
+                    needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
+                    needs_image: item.needs_image ? true : false,
+                    needs_grid_image: item.needs_grid_image ? true : false,
+                    needs_icon_image: item.needs_icon_image ? true : false
+                };
             });
         } catch (error) {
             response.errors.push(String(error));
@@ -201,15 +262,19 @@ const getItems = async(options) => {
         SELECT
             item_data.id,
             name,
-            short_name AS shortName,
+            short_name,
             match_index,
             image_link IS NULL OR image_link = '' AS needs_image,
             grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
-            icon_link IS NULL OR icon_link = '' AS needs_icon_image
+            icon_link IS NULL OR icon_link = '' AS needs_icon_image,
+            GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types,
+            GROUP_CONCAT(distinct item_children.child_item_id SEPARATOR ',') as contains
         FROM
             item_data
         LEFT JOIN types ON
             types.item_id = item_data.id
+        LEFT JOIN item_children ON
+            item_children.container_item_id = item_data.id
         ${where}
         GROUP BY item_data.id
         ORDER BY item_data.last_scan
@@ -218,6 +283,20 @@ const getItems = async(options) => {
         response.data = (await query(sql)).filter(item => {
             if (!item.name) return false;
             return true;
+        }).map(item => {
+            const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
+            const contains = item.contains ? item.contains.split(',') : [];
+            return {
+                ...item,
+                name: String(item.name),
+                short_name: String(item.short_name),
+                types: types,
+                contains: contains,
+                needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
+                needs_image: item.needs_image ? true : false,
+                needs_grid_image: item.needs_grid_image ? true : false,
+                needs_icon_image: item.needs_icon_image ? true : false
+            };
         });
         //console.log('retrieved items', response.data);
     } catch (error) {
@@ -569,6 +648,15 @@ const refreshUsers = async () => {
 };
 
 refreshUsers();
+fs.watch(path.join(__dirname, '..', 'public', 'data'), {persistent: false}, (eventType, filename) => {
+    if (filename === 'existing-bases.json') {
+        try {
+            existingBaseImages = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json')));
+        } catch (error) {
+            console.log('Error reading exist-bases.json', error);
+        }
+    }
+});
 
 module.exports = {
     request: async (req, res, resource) => {
