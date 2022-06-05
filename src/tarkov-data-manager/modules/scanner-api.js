@@ -149,6 +149,8 @@ const getItems = async(options) => {
                 const contains = item.contains ? item.contains.split(',') : [];
                 return {
                     ...item,
+                    name: String(item.name),
+                    short_name: String(item.short_name),
                     types: types,
                     contains: contains,
                     needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
@@ -286,6 +288,8 @@ const getItems = async(options) => {
             const contains = item.contains ? item.contains.split(',') : [];
             return {
                 ...item,
+                name: String(item.name),
+                short_name: String(item.short_name),
                 types: types,
                 contains: contains,
                 needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
