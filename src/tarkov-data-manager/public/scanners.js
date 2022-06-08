@@ -309,7 +309,7 @@ $(document).ready( function () {
                     return `
                         <div>${data}</div>
                         <div>
-                            <a href="#" class="waves-effect waves-light btn edit-user tooltipped" data-tooltip="Edit" data-username="${data}" data-password="${user.password}"><i class="material-icons">edit</i></a>
+                            <a href="#" class="waves-effect waves-light btn edit-user tooltipped" data-tooltip="Edit" data-username="${data}" data-password="${user.password}" data-max_scanners=${user.max_scanners}><i class="material-icons">edit</i></a>
                             <a href="#" class="waves-effect waves-light btn delete-user tooltipped" data-tooltip="Delete" data-username="${data}"><i class="material-icons">delete</i></a>
                         </div>
                     `;
@@ -390,6 +390,7 @@ $(document).ready( function () {
                 $('#modal-edit-user .username').val(target.data('username'));
                 $('#modal-edit-user .old_username').val(target.data('username'));
                 $('#modal-edit-user .password').val(target.data('password'));
+                $('#modal-edit-user .max_scanners').val(target.data('max_scanners'));
                 $('#modal-edit-user .user_disabled').prop('checked', target.closest('tr').find('.user-disabled').first().prop('checked'));
                 const form = $('#modal-edit-user').find('form').first();
                 form.attr('action', '/scanners/edit-user');
@@ -524,10 +525,11 @@ $(document).ready( function () {
                 const user = {
                     username: $('#modal-edit-user .username').val(),
                     password: $('#modal-edit-user .password').val(),
-                    flags: 3,
+                    max_scanners: $('#modal-edit-user .max_scanners').val(),
                     disabled: $('#modal-edit-user .user_disabled').prop('checked') ? 1 : 0
                 };
                 if (form.attr('action') === '/scanners/add-user') {
+                    user.flags = 3;
                     users.push(user);
                 } else {
                     // edit user
