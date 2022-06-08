@@ -565,7 +565,6 @@ insertPrices = async (options) => {
 //To release all items, include the attribtue offersFrom
 // on success, response.data is the number of items released
 const releaseItem = async (options) => {
-    //console.log('offerCount at releaseItem', options.offerCount);
     const response = {errors: [], warnings: [], data: 0};
     if (options.imageOnly) {
         return response;
@@ -597,7 +596,6 @@ const releaseItem = async (options) => {
         SET ${trader}checkout_scanner_id = NULL${scanned}
         WHERE ${where.join(' AND ')}
     `;
-    console.log(sql, escapedValues);
     try {
         const result = await query(format(sql, escapedValues));
         response.data = result.affectedRows;
@@ -690,7 +688,6 @@ const createScanner = async (user, scannerName) => {
     if (scannerName.match(/[^a-zA-Z0-9_-]/g)) {
         throw new Error('Scanner names can only contain letters, numbers, dashes (-) and underscores (_)');
     }
-    console.log('creating scanner', user.id, scannerName);
     const result = await query('INSERT INTO scanner (scanner_user_id, name) VALUES (?, ?)', [user.id, scannerName]);
     const newScanner = {id: result.insertId, name: scannerName, scanner_user_id: user.id};
     users[user.username].scanners.push(newScanner);
