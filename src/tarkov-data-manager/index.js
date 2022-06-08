@@ -754,13 +754,25 @@ app.get('/scanners', async (req, res) => {
     const activeScanners = [];
     const inactiveScanners = [];
     const users = await query('SELECT * FROM scanner_user');
+    const scanners = await query(`
+        SELECT scanner.*, COALESCE(scanner_user.flags, 0) as flags, COALESCE(scanner_user.disabled, 1) as disabled FROM scanner
+        LEFT JOIN scanner_user on scanner_user.id = scanner.scanner_user_id
+    `);
     const userFlags = scannerApi.getUserFlags();
-    latestScanResults.map(latestScan => {
-        if (new Date - latestScan.timestamp > 1000 * 60 * 60 * 2) {
-            inactiveScanners.push(latestScan);
-        } else {
-            activeScanners.push(latestScan);
+    scanners.forEach(scanner => {
+        if (scanner.disabled) return;
+        if (!(scanner.flags & userFlags.insertPlayerPrices) && !(scanner.flags & userFlags.insertTraderPrices)) return;
+        for (const latestScan of latestScanResults) {
+            if (latestScan.scanner_id === scanner.id) {
+                if (new Date - latestScan.timestamp < 1000 * 60 * 60 * 2) {
+                    activeScanners.push({...scanner, timestamp: latestScan.timestamp});
+                } else {
+                    inactiveScanners.push({...scanner, timestamp: latestScan.timestamp});
+                }
+                return;
+            }
         }
+        inactiveScanners.push({...scanner, timestamp: 0})
     });
     const getScannerStuff = (scanner, active) => {
         let activeClass = '';
@@ -773,25 +785,25 @@ app.get('/scanners', async (req, res) => {
                 <li class="${activeClass}">
                     <div class="collapsible-header">
                         <span class="tooltipped" data-tooltip="${scanner.timestamp}" data-position="right" style="vertical-align: middle">
-                            <!--button class="waves-effect waves-light btn-small shutdown-scanner" type="button" data-scanner-name="${encodeURIComponent(scanner.source)}"><i class="material-icons left">power_settings_new</i>${scanner.source}</button-->
-                            <a class="dropdown-trigger btn scanner-dropdown" href="#" data-target="dropdown-${scanner.source}"><i class="material-icons left">arrow_drop_down</i>${scanner.source}</a>
-                            <ul id="dropdown-${scanner.source}" class="dropdown-content">
-                                <li class="pause-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="pause-scanner"><i class="material-icons left">pause</i>Pause</a></li>
-                                <li class="resume-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}" style="display:none;"><a href="#!" class="resume-scanner"><i class="material-icons left">play_arrow</i>Resume</a></li>
-                                <!--li class="screenshot-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="screenshot-scanner"><i class="material-icons left">camera_alt</i>Screenshot</a></li-->
-                                <li class="click-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="click-scanner"><i class="material-icons left">mouse</i>Click</a></li>
-                                <li class="update-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="update-scanner"><i class="material-icons left">system_update_alt</i>Update</a></li>
-                                <!--li class="log-repeat-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="log-repeat-scanner"><i class="material-icons left">event_note</i>Repeat log</a></li-->
-                                <li class="generate-images-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="generate-images-scanner"><i class="material-icons left">image</i>Generate Images</a></li>
-                                <li class="set-trader-scan-day" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="set-trader-scan-day"><i class="material-icons left">schedule</i>Set Trader Scan Day</a></li>
-                                <li class="restart-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="restart-scanner"><i class="material-icons left">refresh</i>Restart</a></li>
-                                <li class="shutdown-scanner" data-scanner-name="${encodeURIComponent(scanner.source)}"><a href="#!" class="shutdown-scanner"><i class="material-icons left">power_settings_new</i>Shutdown</a></li>
+                            <!--button class="waves-effect waves-light btn-small shutdown-scanner" type="button" data-scanner-name="${encodeURIComponent(scanner.name)}"><i class="material-icons left">power_settings_new</i>${scanner.name}</button-->
+                            <a class="dropdown-trigger btn scanner-dropdown" href="#" data-target="dropdown-${scanner.name}"><i class="material-icons left">arrow_drop_down</i>${scanner.name}</a>
+                            <ul id="dropdown-${scanner.name}" class="dropdown-content">
+                                <li class="pause-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="pause-scanner"><i class="material-icons left">pause</i>Pause</a></li>
+                                <li class="resume-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}" style="display:none;"><a href="#!" class="resume-scanner"><i class="material-icons left">play_arrow</i>Resume</a></li>
+                                <!--li class="screenshot-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="screenshot-scanner"><i class="material-icons left">camera_alt</i>Screenshot</a></li-->
+                                <li class="click-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="click-scanner"><i class="material-icons left">mouse</i>Click</a></li>
+                                <li class="update-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="update-scanner"><i class="material-icons left">system_update_alt</i>Update</a></li>
+                                <!--li class="log-repeat-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="log-repeat-scanner"><i class="material-icons left">event_note</i>Repeat log</a></li-->
+                                <li class="generate-images-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="generate-images-scanner"><i class="material-icons left">image</i>Generate Images</a></li>
+                                <li class="set-trader-scan-day" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="set-trader-scan-day"><i class="material-icons left">schedule</i>Set Trader Scan Day</a></li>
+                                <li class="restart-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="restart-scanner"><i class="material-icons left">refresh</i>Restart</a></li>
+                                <li class="shutdown-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="shutdown-scanner"><i class="material-icons left">power_settings_new</i>Shutdown</a></li>
                             </ul>
                         </span>
                     </div>
-                    <div class="collapsible-body log-messages log-messages-${scanner.source}"></div>
+                    <div class="collapsible-body log-messages log-messages-${scanner.name}"></div>
                     <script>
-                        startListener('${scanner.source}');
+                        startListener('${scanner.name}');
                     </script>
                 </li>
             </ul>
@@ -938,6 +950,12 @@ app.get('/scanners', async (req, res) => {
                             <div class="input-field">
                                 <input value="" id="password" type="text" class="validate password" name="password">
                                 <label for="password">Password</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field">
+                                <input value="" id="max_scanners" type="text" class="validate max_scanners" name="max_scanners">
+                                <label for="max_scanners">Max Scanners</label>
                             </div>
                         </div>
                         <div class="row">

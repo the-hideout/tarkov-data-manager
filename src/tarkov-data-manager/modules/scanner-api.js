@@ -38,7 +38,8 @@ const getOptions = (options, user) => {
         offersFrom: 2,
         limitTraderScan: true,
         trustTraderUnlocks: false,
-        scanned: false
+        scanned: false,
+        offerCount: 0
     }
     mergedOptions = {
         ...defaultOptions,
@@ -224,16 +225,16 @@ const getItems = async(options) => {
         // works if we include trader prices too
         const checkoutSql = format(`
             UPDATE item_data
-            SET checked_out_by = ?
-            WHERE (checked_out_by IS NULL OR checked_out_by = ?) AND
+            SET checkout_scanner_id = ?
+            WHERE (checkout_scanner_id IS NULL OR checkout_scanner_id = ?) AND
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') ${nofleaCondition} 
             ORDER BY last_scan, id
             LIMIT ?
-        `, [options.scannerName,options.scannerName,options.batchSize]);
+        `, [options.scannerId,options.scannerId,options.batchSize]);
         await query(checkoutSql);
 
-        conditions.push('item_data.checked_out_by = ?');
+        conditions.push('item_data.checkout_scanner_id = ?');
     } else {
         // trader-only price checkout
         let lastScanCondition = '';
@@ -242,16 +243,16 @@ const getItems = async(options) => {
         }
         const checkoutSql = format(`
             UPDATE item_data
-            SET trader_checked_out_by = ?
-            WHERE ((trader_checked_out_by IS NULL OR trader_checked_out_by = ?) AND 
+            SET trader_checkout_scanner_id = ?
+            WHERE ((trader_checkout_scanner_id IS NULL OR trader_checkout_scanner_id = ?) AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') ${lastScanCondition} )
             ORDER BY trader_last_scan, id
             LIMIT ?
-        `, [options.scannerName,options.scannerName,options.batchSize]);
+        `, [options.scannerId,options.scannerId,options.batchSize]);
         await query(checkoutSql);
 
-        conditions.push('item_data.trader_checked_out_by = ?');
+        conditions.push('item_data.trader_checkout_scanner_id = ?');
     }
 
     let where = '';
@@ -278,7 +279,7 @@ const getItems = async(options) => {
         ${where}
         GROUP BY item_data.id
         ORDER BY item_data.last_scan
-    `, [options.scannerName]);
+    `, [options.scannerId]);
     try {
         response.data = (await query(sql)).filter(item => {
             if (!item.name) return false;
@@ -378,12 +379,12 @@ insertPrices = async (options) => {
         const values = [];
         for (let i = 0; i < playerPrices.length; i++) {
             placeholders.push('(?, ?, ?, ?)');
-            values.push(itemId, playerPrices[i].price, options.scannerName, dateToMysqlFormat(dateTime))
+            values.push(itemId, playerPrices[i].price, options.scannerId, dateToMysqlFormat(dateTime))
         }
         if (userFlags.skipPriceInsert & user.flags) {
             response.warnings.push(`Skipped insert of ${playerPrices.length} player prices`);
         } else {
-            playerInsert = query(format(`INSERT INTO price_data (item_id, price, source, timestamp) VALUES ${placeholders.join(', ')}`, values));
+            playerInsert = query(format(`INSERT INTO price_data (item_id, price, scanner_id, timestamp) VALUES ${placeholders.join(', ')}`, values));
         }
     } else if (playerPrices.length > 0) {
         playerInsert = Promise.reject(new Error('User not authorized to insert player prices'));
@@ -517,14 +518,14 @@ insertPrices = async (options) => {
             }
             if (offerId) {
                 placeholders.push(`(?, ?, ?, ?)`);
-                traderValues.push(offerId, tPrice.price, options.scannerName, dateToMysqlFormat(dateTime));
+                traderValues.push(offerId, tPrice.price, options.scannerId, dateToMysqlFormat(dateTime));
             }
         }
         if (traderValues.length > 0) {
             if (userFlags.skipPriceInsert & user.flags) {
                 response.warnings.push(`Skipped insert of ${traderValues.length} trader prices`);
             } else {
-                traderInsert = query(format(`INSERT INTO trader_price_data (trade_id, price, source, timestamp) VALUES ${placeholders.join(', ')}`, traderValues));
+                traderInsert = query(format(`INSERT INTO trader_price_data (trade_id, price, scanner_id, timestamp) VALUES ${placeholders.join(', ')}`, traderValues));
             }
         } else {
             traderInsert = Promise.reject(new Error(`Could not find any matching offers for ${itemId}`));
@@ -540,6 +541,13 @@ insertPrices = async (options) => {
         } else {
             response.data[i] = results[i].value.affectedRows
         }
+    }
+    try {
+        if (response.errors.length < 1) {
+            await releaseItem({...options, scanned: true});
+        }
+    } catch (error) {
+        response.errors.push(String(error));
     }
     return response;
 };
@@ -559,7 +567,7 @@ const releaseItem = async (options) => {
         return response;
     }
     const itemId = options.itemId;
-    const updateValues = [];
+    const escapedValues = [];
     let where = [];
     let scanned = '';
     let trader = '';
@@ -568,21 +576,25 @@ const releaseItem = async (options) => {
     }
     if (itemId) {
         where.push('item_data.id = ?');
-        updateValues.push(itemId);
+        escapedValues.push(itemId);
     }
-    if (options.scanned && itemId) {
+    if ((options.scanned || options.offerCount) && itemId) {
         scanned = `, ${trader}last_scan = CURRENT_TIMESTAMP()`;
-    } else if (!options.scanned) {
-        where.push(`item_data.${trader}checked_out_by = ?`);
-        updateValues.push(options.scannerName);
+        if (options.offerCount) {
+            scanned += `, last_offer_count = ?`;
+            escapedValues.push(options.offerCount);
+        }
+    } else if (!options.scanned && !options.offerCount) {
+        where.push(`item_data.${trader}checkout_scanner_id = ?`);
+        escapedValues.push(options.scannerId);
     }
     let sql = `
         UPDATE item_data
-        SET ${trader}checked_out_by = NULL${scanned}
+        SET ${trader}checkout_scanner_id = NULL${scanned}
         WHERE ${where.join(' AND ')}
     `;
     try {
-        const result = await query(format(sql, updateValues));
+        const result = await query(format(sql, escapedValues));
         response.data = result.affectedRows;
     } catch (error) {
         response.errors.push(String(error));
@@ -640,11 +652,16 @@ const userFlags = {
 };
 
 const refreshUsers = async () => {
-    const results = await query('SELECT username, password, flags from scanner_user WHERE disabled=0');
+    const results = await query('SELECT * from scanner_user WHERE disabled=0');
     users = {};
-    for (let i = 0; i < results.length; i++) {
-        users[results[i].username] = results[i];
+    const scannerQueries = [];
+    for (const user of results) {
+        users[user.username] = user;
+        scannerQueries.push(query('SELECT * from scanner WHERE scanner_user_id = ?', user.id).then(scanners => {
+            users[user.username].scanners = scanners;
+        }));
     }
+    await Promise.all(scannerQueries);
 };
 
 refreshUsers();
@@ -657,6 +674,114 @@ fs.watch(path.join(__dirname, '..', 'public', 'data'), {persistent: false}, (eve
         }
     }
 });
+
+const createScanner = async (user, scannerName) => {
+    if (!(userFlags.insertPlayerPrices & user.flags) && !(userFlags.insertTraderPrices & user.flags)) {
+        throw new Error('User not authorized to insert prices');
+    }
+    if (user.scanners.length >= user.max_scanners) {
+        throw new Error(`Could not find scanner with name ${scannerName} and user already ad maximum scanners (${options.user.max_scanners})`);
+    }
+    if (scannerName.match(/[^a-zA-Z0-9_-]/g)) {
+        throw new Error('Scanner names can only contain letters, numbers, dashes (-) and underscores (_)');
+    }
+    console.log('creating scanner', user.id, scannerName);
+    const result = await query('INSERT INTO scanner (scanner_user_id, name) VALUES (?, ?)', [user.id, scannerName]);
+    const newScanner = {id: result.insertId, name: scannerName, scanner_user_id: user.id};
+    users[user.username].scanners.push(newScanner);
+    return newScanner;
+};
+
+const getScannerId = async (options, createMissing) => {
+    for (const scanner of options.user.scanners) {
+        if (scanner.name === options.scannerName) {
+            return scanner.id;
+        }
+    }
+    if (!createMissing) {
+        throw new Error(`Scanner with name ${options.scannerName} not found`);
+    }
+    const newScanner = await createScanner(options.user, options.scannerName);
+    return newScanner.id;
+};
+
+const deleteScanner = async (options) => {
+    const response = {errors: [], warnings: [], data: {}};
+    // check if scanner has records in price_data, trader_items, trader_price_data before deleting
+    try {
+        let deleteScannerName = options.deleteScannerName;
+        if (!deleteScannerName) {
+            deleteScannerName = options.scannerName;
+        }
+        const scannerId = await getScannerId({user: options.user, scannerName: deleteScannerName}, false);
+        const result = await query(`
+            SELECT scanner.id, COALESCE(price_count, 0) as price_count, COALESCE(trader_offer_count, 0) as trader_offer_count, COALESCE(trader_price_count, 0) as trader_price_count
+            FROM scanner
+            LEFT JOIN (
+                SELECT scanner_id, COUNT(id) as price_count
+                FROM price_data
+                WHERE scanner_id=?
+                GROUP BY scanner_id
+            ) prices ON scanner.id = prices.scanner_id
+            LEFT JOIN (
+                SELECT scanner_id, COUNT(id) as trader_offer_count
+                FROM trader_items
+                WHERE scanner_id=?
+                GROUP BY scanner_id
+            ) offers ON scanner.id = offers.scanner_id
+            LEFT JOIN (
+                SELECT scanner_id, COUNT(id) as trader_price_count
+                FROM trader_price_data
+                WHERE scanner_id=?
+                GROUP BY scanner_id
+            ) trader_prices ON scanner.id = trader_prices.scanner_id
+            WHERE scanner.id=?
+        `, [scannerId, scannerId, scannerId, scannerId]);
+        if (result.price_count > 0 || result.trader_offer_count > 0 || result.trader_price_count > 0) {
+            throw new Error('Cannot delete scanner with linked prices or trader offers.');
+        }
+        await query('DELETE FROM scanner WHERE id=?', [scannerId]);
+        users[options.user.username].scanners = options.user.scanners.filter(scanner => {
+            return scanner.id != scannerId;
+        });
+    } catch (error) {
+        response.errors.push(String(error));
+    }
+    return response;
+};
+
+const renameScanner = async (options) => {
+    const response = {errors: [], warnings: [], data: {}};
+    try {
+        let oldScannerName = options.scannerName;
+        if (options.oldScannerName) {
+            oldScannerName = options.oldScannerName;
+        }
+        const scannerId = await getScannerId({user: options.user, scannerName: oldScannerName}, false);
+        if (options.newScannerName === oldScannerName) {
+            throw new Error('newScannerName matches existing scanner name');
+        }
+        if (!options.newScannerName) {
+            throw new Error('newScannerName cannot be blank');
+        }
+        if (options.newScannerName.match(/[^a-zA-Z0-9_-]/g)) {
+            throw new Error('Scanner names can only contain letters, numbers, dashes (-) and underscores (_)');
+        }
+        await query(
+            'UPDATE scanner SET name=? WHERE id=?', 
+            [options.newScannerName, scannerId]
+        );
+        users[options.user.username].scanners.forEach(scanner => {
+            if (scanner.id === scannerId) {
+                scanner.name = options.newScannerName;
+            }
+        });
+        response.data = 'ok';
+    } catch (error) {
+        response.errors.push(String(error));
+    }
+    return response;
+};
 
 module.exports = {
     request: async (req, res, resource) => {
@@ -680,6 +805,7 @@ module.exports = {
         let response = false;
         try {
             if (resource === 'items') {
+                options.scannerId = await getScannerId(options, true);
                 if (req.method === 'GET') {
                     response = await getItems(options);
                 }
@@ -688,6 +814,15 @@ module.exports = {
                 }
                 if (req.method === 'DELETE') {
                     response = await releaseItem(options);
+                }
+            }
+            if (resource === 'scanner') {
+                options.scannerId = await getScannerId(options, false);
+                if (req.method === 'DELETE') {
+                    response = await deleteScanner(options);
+                }
+                if (req.method === 'POST') {
+                    response = await renameScanner(options);
                 }
             }
             /*if (resource === 'traders') {
