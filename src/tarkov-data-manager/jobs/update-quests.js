@@ -18,7 +18,7 @@ const traderMap = [
 ];
 
 module.exports = async () => {
-    const logger = new JobLogger('update-quests-legacy');
+    const logger = new JobLogger('update-quests');
     try {
         logger.log('Retrieving TarkovTracker quests.json...');
         const data = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
