@@ -163,7 +163,7 @@ const methods = {
                     updated: itemPrices[result.id]?.lastUpdated || result.last_update,
                     types: result.types?.split(',') || [],
                     lastLowPrice: itemPrices[result.id]?.lastLowPrice,
-                    lastOfferCount: result.offer_count
+                    lastOfferCount: result.last_offer_count
                 };
                 /*if (en.templates[result.id]) {
                     preparedData.name = en.templates[result.id].Name;
