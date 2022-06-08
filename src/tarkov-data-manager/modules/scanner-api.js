@@ -313,6 +313,7 @@ const getItems = async(options) => {
 //and the second element being the number of trader prices inserted
 // requires options itemId, itemPrices, and offersFrom
 // also uses trustTraderUnlocks optionally
+// if offerCount is set, that will also be used for setting the item as scanned
 /*the itemPrices option is an array of objects with the following structure:
 [
     {
@@ -342,6 +343,7 @@ If the trader price is locked and neither of these values is known, they should 
 */
 insertPrices = async (options) => {
     const user = options.user;
+    const skipInsert = userFlags.skipPriceInsert & user.flags;
     const response = {errors: [], warnings: [], data: [0, 0]};
     const itemId = options.itemId;
     let itemPrices = options.itemPrices;
@@ -381,7 +383,7 @@ insertPrices = async (options) => {
             placeholders.push('(?, ?, ?, ?)');
             values.push(itemId, playerPrices[i].price, options.scannerId, dateToMysqlFormat(dateTime))
         }
-        if (userFlags.skipPriceInsert & user.flags) {
+        if (skipInsert) {
             response.warnings.push(`Skipped insert of ${playerPrices.length} player prices`);
         } else {
             playerInsert = query(format(`INSERT INTO price_data (item_id, price, scanner_id, timestamp) VALUES ${placeholders.join(', ')}`, values));
@@ -525,7 +527,7 @@ insertPrices = async (options) => {
             }
         }
         if (traderValues.length > 0) {
-            if (userFlags.skipPriceInsert & user.flags) {
+            if (skipInsert) {
                 response.warnings.push(`Skipped insert of ${traderValues.length} trader prices`);
             } else {
                 traderInsert = query(format(`INSERT INTO trader_price_data (trade_id, price, scanner_id, timestamp) VALUES ${placeholders.join(', ')}`, traderValues));
@@ -570,6 +572,8 @@ const releaseItem = async (options) => {
         return response;
     }
     const itemId = options.itemId;
+    const itemScanned = options.scanned || typeof options.offerCount !== 'undefined';
+    const skipInsert = userFlags.skipPriceInsert & options.user.flags;
     const escapedValues = [];
     let where = [];
     let scanned = '';
@@ -577,13 +581,13 @@ const releaseItem = async (options) => {
     if (options.offersFrom === 1) {
         trader = 'trader_'
     }
-    if ((options.scanned || typeof options.offerCount !== 'undefined') && itemId) {
+    if (itemScanned && itemId && !skipInsert) {
         scanned = `, ${trader}last_scan = CURRENT_TIMESTAMP()`;
         if (options.offerCount) {
             scanned += `, last_offer_count = ?`;
             escapedValues.push(options.offerCount);
         }
-    } else if (!options.scanned && !options.offerCount) {
+    } else if (!itemScanned || skipInsert) {
         where.push(`item_data.${trader}checkout_scanner_id = ?`);
         escapedValues.push(options.scannerId);
     }
