@@ -420,9 +420,9 @@ insertPrices = async (options) => {
                             try {
                                 await query(`
                                     UPDATE trader_items
-                                    SET min_level = ?
+                                    SET min_level = ?, scanner_id = ?
                                     WHERE id = ${matchedOffer.id}
-                                `, [tPrice.minLevel]);
+                                `, [tPrice.minLevel, options.scannerId]);
                             } catch (error) {
                                 response.warnings.push(`Failed updating minimum level for trader offer ${matchedOffer.id} to ${tPrice.minLevel}: ${error}`);
                             }
@@ -478,6 +478,8 @@ insertPrices = async (options) => {
                     }
                     if (offerUpdateVars.length > 0) {
                         // update this offer
+                        offerUpdateVars.push(`scanner_id = ?`);
+                        offerUpdateValues.push(options.scannerId);
                         const sql = format(`UPDATE trader_items
                             SET ${offerUpdateVars.join(', ')}
                             WHERE id = '${offerId}'
@@ -504,10 +506,11 @@ insertPrices = async (options) => {
                 if (isNaN(tPrice.quest)) {
                     questIdField = 'quest_unlock_bsg_id';
                 }
+                offerValues.push(options.scannerId);
                 const createOfferSql = format(`
                     INSERT INTO trader_items
-                    (item_id, trader_name, currency, min_level, ${questIdField}, timestamp) VALUES
-                    (?, ?, ?, ${minLevel}, ${quest}, CURRENT_TIMESTAMP())
+                    (item_id, trader_name, currency, min_level, ${questIdField}, timestamp, scanner_id) VALUES
+                    (?, ?, ?, ${minLevel}, ${quest}, CURRENT_TIMESTAMP(), ?)
                 `, offerValues);
                 try {
                     const result = await query(createOfferSql);
