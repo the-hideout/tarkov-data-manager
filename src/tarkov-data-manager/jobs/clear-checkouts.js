@@ -51,7 +51,7 @@ module.exports = async () => {
                 if((scannerResult.last_scan.getTime() / 1000) > scanCutoff){
                     continue;
                 }
-                logger.log(`${scanners[scannerResult.scanner_id].name} hasn't worked since ${scannerResult.last_scan}; releasing any batches`);
+                logger.log(`${scanners[scannerResult.scanner_id].name} hasn't worked since ${scannerResult.last_scan}; releasing any trader batches`);
                 return query(`
                     UPDATE
                         item_data

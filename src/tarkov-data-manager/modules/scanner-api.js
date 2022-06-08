@@ -39,7 +39,7 @@ const getOptions = (options, user) => {
         limitTraderScan: true,
         trustTraderUnlocks: false,
         scanned: false,
-        offerCount: 0
+        offerCount: undefined
     }
     mergedOptions = {
         ...defaultOptions,
@@ -311,8 +311,8 @@ const getItems = async(options) => {
 
 //on success, response.data is an array with the first element being the number of player prices inserted
 //and the second element being the number of trader prices inserted
-// requires options itemId and itemPrices
-// also uses trustTraderUnlocks
+// requires options itemId, itemPrices, and offersFrom
+// also uses trustTraderUnlocks optionally
 /*the itemPrices option is an array of objects with the following structure:
 [
     {
@@ -565,6 +565,7 @@ insertPrices = async (options) => {
 //To release all items, include the attribtue offersFrom
 // on success, response.data is the number of items released
 const releaseItem = async (options) => {
+    //console.log('offerCount at releaseItem', options.offerCount);
     const response = {errors: [], warnings: [], data: 0};
     if (options.imageOnly) {
         return response;
@@ -577,11 +578,7 @@ const releaseItem = async (options) => {
     if (options.offersFrom === 1) {
         trader = 'trader_'
     }
-    if (itemId) {
-        where.push('item_data.id = ?');
-        escapedValues.push(itemId);
-    }
-    if ((options.scanned || options.offerCount) && itemId) {
+    if ((options.scanned || typeof options.offerCount !== 'undefined') && itemId) {
         scanned = `, ${trader}last_scan = CURRENT_TIMESTAMP()`;
         if (options.offerCount) {
             scanned += `, last_offer_count = ?`;
@@ -591,11 +588,16 @@ const releaseItem = async (options) => {
         where.push(`item_data.${trader}checkout_scanner_id = ?`);
         escapedValues.push(options.scannerId);
     }
+    if (itemId) {
+        where.push('item_data.id = ?');
+        escapedValues.push(itemId);
+    }
     let sql = `
         UPDATE item_data
         SET ${trader}checkout_scanner_id = NULL${scanned}
         WHERE ${where.join(' AND ')}
     `;
+    console.log(sql, escapedValues);
     try {
         const result = await query(format(sql, escapedValues));
         response.data = result.affectedRows;
