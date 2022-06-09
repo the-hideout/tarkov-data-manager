@@ -88,12 +88,12 @@ const dateToMysqlFormat = (dateTime) => {
 {
     id: '57dc2fa62459775949412633',
     name: 'Kalashnikov AKS-74U 5.45x39 assault rifle',
-    short_name: 'AKS-74U',
-    match_index: 0,
-    needs_base_image: false,
-    needs_image: false,
-    needs_grid_image: false,
-    needs_icon_image: false,
+    shortName: 'AKS-74U',
+    matchIndex: 0,
+    needsBaseImage: false,
+    needsImage: false,
+    needsGridImage: false,
+    needsIconImage: false,
     types: [ 'gun', 'wearable' ],
     contains: [
         '564ca99c4bdc2d16268b4589',
@@ -151,9 +151,17 @@ const getItems = async(options) => {
                 return {
                     ...item,
                     name: String(item.name),
-                    short_name: String(item.short_name),
+                    shortName: String(item.short_name),
                     types: types,
                     contains: contains,
+                    needsBaseImage: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
+                    needsImage: item.needs_image ? true : false,
+                    needsGridImage: item.needs_grid_image ? true : false,
+                    needsIconImage: item.needs_icon_image ? true : false,
+
+                    // Backwards compatibility
+                    short_name: String(item.short_name),
+                    needs_icon_image: item.needs_icon_image ? true : false,
                     needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
                     needs_image: item.needs_image ? true : false,
                     needs_grid_image: item.needs_grid_image ? true : false,
@@ -199,9 +207,16 @@ const getItems = async(options) => {
                 return {
                     ...item,
                     name: String(item.name),
-                    short_name: String(item.short_name),
+                    shortName: String(item.short_name),
                     types: types,
                     contains: contains,
+                    needsBaseImage: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
+                    needsImage: item.needs_image ? true : false,
+                    needsGridImage: item.needs_grid_image ? true : false,
+                    needsIconImage: item.needs_icon_image ? true : false,
+
+                    // Backwards compatibility
+                    short_name: String(item.short_name),
                     needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
                     needs_image: item.needs_image ? true : false,
                     needs_grid_image: item.needs_grid_image ? true : false,
@@ -290,9 +305,16 @@ const getItems = async(options) => {
             return {
                 ...item,
                 name: String(item.name),
-                short_name: String(item.short_name),
+                shortName: String(item.short_name),
                 types: types,
                 contains: contains,
+                needsBaseImage: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
+                needsImage: item.needs_image ? true : false,
+                needsGridImage: item.needs_grid_image ? true : false,
+                needsIconImage: item.needs_icon_image ? true : false,
+
+                // Backwards compatibility
+                short_name: String(item.short_name),
                 needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
                 needs_image: item.needs_image ? true : false,
                 needs_grid_image: item.needs_grid_image ? true : false,
