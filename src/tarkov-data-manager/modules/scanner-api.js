@@ -84,6 +84,30 @@ const dateToMysqlFormat = (dateTime) => {
     return dateTime.getUTCFullYear() + '-' + twoDigits(1 + dateTime.getUTCMonth()) + '-' + twoDigits(dateTime.getUTCDate()) + ' ' + twoDigits(dateTime.getUTCHours()) + ':' + twoDigits(dateTime.getUTCMinutes()) + ':' + twoDigits(dateTime.getUTCSeconds());
 };
 
+const queryResultToBatchItem = item => {
+    const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
+    const contains = item.contains ? item.contains.split(',') : [];
+    return {
+        ...item,
+        name: String(item.name),
+        shortName: String(item.short_name),
+        types: types,
+        contains: contains,
+        matchIndex: item.match_index,
+        needsBaseImage: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
+        needsImage: item.needs_image ? true : false,
+        needsGridImage: item.needs_grid_image ? true : false,
+        needsIconImage: item.needs_icon_image ? true : false,
+
+        // Backwards compatibility
+        short_name: String(item.short_name),
+        needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
+        needs_image: item.needs_image ? true : false,
+        needs_grid_image: item.needs_grid_image ? true : false,
+        needs_icon_image: item.needs_icon_image ? true : false
+    };
+};
+
 /* on success, response.data is an array of items with the following format:
 {
     id: '57dc2fa62459775949412633',
@@ -143,30 +167,7 @@ const getItems = async(options) => {
             `, itemIds);
         try {
             items = await query(sql);
-            response.data = items.filter(item => {
-                return true;
-            }).map(item => {
-                const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
-                const contains = item.contains ? item.contains.split(',') : [];
-                return {
-                    ...item,
-                    name: String(item.name),
-                    shortName: String(item.short_name),
-                    types: types,
-                    contains: contains,
-                    needsBaseImage: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
-                    needsImage: item.needs_image ? true : false,
-                    needsGridImage: item.needs_grid_image ? true : false,
-                    needsIconImage: item.needs_icon_image ? true : false,
-
-                    // Backwards compatibility
-                    short_name: String(item.short_name),
-                    needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
-                    needs_image: item.needs_image ? true : false,
-                    needs_grid_image: item.needs_grid_image ? true : false,
-                    needs_icon_image: item.needs_icon_image ? true : false
-                };
-            });
+            response.data = items.map(queryResultToBatchItem);
         } catch (error) {
             response.errors.push(String(error));
         }
@@ -200,28 +201,7 @@ const getItems = async(options) => {
             response.data = (await query(sql)).filter(item => {
                 if (!item.name) return false;
                 return true;
-            }).map(item => {
-                const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
-                const contains = item.contains ? item.contains.split(',') : [];
-                return {
-                    ...item,
-                    name: String(item.name),
-                    shortName: String(item.short_name),
-                    types: types,
-                    contains: contains,
-                    needsBaseImage: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
-                    needsImage: item.needs_image ? true : false,
-                    needsGridImage: item.needs_grid_image ? true : false,
-                    needsIconImage: item.needs_icon_image ? true : false,
-
-                    // Backwards compatibility
-                    short_name: String(item.short_name),
-                    needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
-                    needs_image: item.needs_image ? true : false,
-                    needs_grid_image: item.needs_grid_image ? true : false,
-                    needs_icon_image: item.needs_icon_image ? true : false
-                };
-            });
+            }).map(queryResultToBatchItem);
         } catch (error) {
             response.errors.push(String(error));
         }
@@ -298,28 +278,7 @@ const getItems = async(options) => {
         response.data = (await query(sql)).filter(item => {
             if (!item.name) return false;
             return true;
-        }).map(item => {
-            const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
-            const contains = item.contains ? item.contains.split(',') : [];
-            return {
-                ...item,
-                name: String(item.name),
-                shortName: String(item.short_name),
-                types: types,
-                contains: contains,
-                needsBaseImage: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
-                needsImage: item.needs_image ? true : false,
-                needsGridImage: item.needs_grid_image ? true : false,
-                needsIconImage: item.needs_icon_image ? true : false,
-
-                // Backwards compatibility
-                short_name: String(item.short_name),
-                needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
-                needs_image: item.needs_image ? true : false,
-                needs_grid_image: item.needs_grid_image ? true : false,
-                needs_icon_image: item.needs_icon_image ? true : false
-            };
-        });
+        }).map(queryResultToBatchItem);
         //console.log('retrieved items', response.data);
     } catch (error) {
         response.errors.push(String(error));
