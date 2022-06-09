@@ -40,14 +40,20 @@ const defaultJobs = {
     'update-quests-new': '6-59/10 * * * *',
     'update-presets': '*/10 * * * *',
     'update-maps': '*/20 * * * *',
-    'update-lang': '*/61 * * * *'
     // Too much memory :'(
     // 'update-longtime-data': '49 8 * * *'
+};
+
+const nonDevJobs = {
+    'update-lang': '*/61 * * * *'
 };
 
 const startupJobs = [
     'update-existing-bases',
     'update-tc-data',
+];
+
+const nonDevStartupJobs = [
     'update-lang'
 ];
 
@@ -62,6 +68,12 @@ try {
     };
 } catch (error) {
     if (error.code !== 'ENOENT') console.log(`Error parsing custom cron jobs`, error);
+}
+if (process.env.NODE_ENV !== 'dev') {
+    allJobs = {
+        ...allJobs,
+        ...nonDevJobs
+    };
 }
 
 const scheduledJobs = {};
@@ -80,8 +92,15 @@ const startJobs = async () => {
         }
     }
 
-    for (let i = 0; i < startupJobs.length; i++) {
-        const jobName = startupJobs[i];
+    let allStartupJobs = [...startupJobs];
+    if (process.env.NODE_ENV !== 'dev') {
+        allStartupJobs = [
+            ...startupJobs,
+            ...nonDevStartupJobs
+        ];
+    }
+    for (let i = 0; i < allStartupJobs.length; i++) {
+        const jobName = allStartupJobs[i];
         const jobModule = require(`./${jobName}`);
         console.log(`Running ${jobName} job at startup`);
         try {
