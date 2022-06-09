@@ -161,7 +161,6 @@ const getItems = async(options) => {
 
                     // Backwards compatibility
                     short_name: String(item.short_name),
-                    needs_icon_image: item.needs_icon_image ? true : false,
                     needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
                     needs_image: item.needs_image ? true : false,
                     needs_grid_image: item.needs_grid_image ? true : false,
