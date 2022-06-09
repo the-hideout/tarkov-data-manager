@@ -258,7 +258,10 @@ module.exports = async () => {
         for (const [key, value] of itemMap.entries()) {
             if (value.types.includes('disabled')) continue;
             itemData[key] = {
-                ...value
+                ...value,
+                shortName: value.short_name,
+                normalizedName: value.normalized_name,
+                lastOfferCount: value.last_offer_count
             };
 
             Reflect.deleteProperty(itemData[key], 'last_update');
@@ -272,6 +275,7 @@ module.exports = async () => {
             Reflect.deleteProperty(itemData[key], 'short_name');
             Reflect.deleteProperty(itemData[key], 'disabled');
             Reflect.deleteProperty(itemData[key], 'last_offer_count');
+
 
             // Only add these if it's allowed on the flea market
             if (!itemData[key].types.includes('no-flea')) {
@@ -302,6 +306,7 @@ module.exports = async () => {
 
             // add item properties
             itemData[key].discardLimit = -1;
+            itemData[key].basePrice = 0;
             if (bsgItems[key]) {
                 addPropertiesToItem(itemData[key]);
                 //itemData[key].basePrice = credits[key];
@@ -319,6 +324,11 @@ module.exports = async () => {
                 logger.log(`No category found for ${itemData[key].name} (${key})`);
             }
             addCategory(itemData[key].bsgCategoryId);
+            if (credits[key]) {
+                itemData[key].basePrice = credits[key];
+            } else if (presets[key]) {
+                itemData[key].basePrice = presets[key].baseValue;
+            } 
 
             itemData[key].iconLink = itemData[key].icon_link;
             itemData[key].gridImageLink = itemData[key].grid_image_link;

@@ -1,11 +1,6 @@
-const fs = require('fs');
-
 const midmean = require('compute-midmean');
-
 const timer = require('./console-timer');
-
 const {query} = require('./db-connection');
-const tarkovChanges = require('../modules/tarkov-changes');
 
 let myData = false;
 let lastRefresh = new Date(0);
@@ -61,16 +56,6 @@ const methods = {
 
         const start = new Date();
         try {
-            bsgData = await tarkovChanges.items();
-            const en = await tarkovChanges.locale_en();
-            const credits = await tarkovChanges.credits();
-            let presets = {};
-            try {
-                presets = JSON.parse(fs.readFileSync('./cache/presets.json'));
-            } catch (error) {
-                throw error;
-                // do nothing if no presets
-            }
             const allDataTimer = timer('item-data-query');
             const resultsPromise = query(`
                 SELECT
@@ -157,32 +142,13 @@ const methods = {
 
                 const preparedData = {
                     ...result,
-                    shortName: result.short_name,
-                    normalizedName: result.normalized_name,
+                    types: result.types?.split(',') || [],
                     avg24hPrice: getPercentile(itemPrices[result.id]?.prices || []),
                     low24hPrice: itemPrices[result.id]?.prices[0],
                     high24hPrice: itemPrices[result.id]?.prices[itemPrices[result.id]?.prices.length - 1],
                     updated: itemPrices[result.id]?.lastUpdated || result.last_update,
-                    types: result.types?.split(',') || [],
                     lastLowPrice: itemPrices[result.id]?.lastLowPrice,
-                    lastOfferCount: result.last_offer_count
                 };
-                if (credits[result.id]) {
-                    preparedData.basePrice = credits[result.id];
-                } else if (presets[result.id]) {
-                    preparedData.basePrice = presets[result.id].baseValue;
-                    preparedData.width = presets[result.id].width;
-                    preparedData.height = presets[result.id].height;
-                } else {
-                    preparedData.basePrice = 0;
-                }
-                /*if (en.templates[result.id]) {
-                    preparedData.name = en.templates[result.id].Name;
-                    preparedData.shortName = en.templates[result.id].ShortName;
-                } else if (presets[result.id]) {
-                    preparedData.name = presets[result.id].name;
-                    preparedData.shortName = presets[result.id].shortName;
-                }*/
 
                 returnData.set(result.id, preparedData);
             }
