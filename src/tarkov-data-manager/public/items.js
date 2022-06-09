@@ -126,7 +126,10 @@ $(document).ready( function () {
     table = $('table.main').DataTable({
         pageLength: 25,
         order: [[0, 'asc']],
-        data: all_items || [],
+        ajax: {
+            url: '/items/get',
+            dataSrc: ''
+        },
         columns: columns,
         autoWidth: false,
         drawCallback: (settings) => {
@@ -148,8 +151,8 @@ $(document).ready( function () {
                 }
             
                 postData('/update', dataUpdate).then(data => {
-                    for (let i = 0; i < all_items.length; i++) {
-                        const item = all_items[i];
+                    for (let i = 0; i < table.data().length; i++) {
+                        const item = table.data()[i];
                         if (item.id !== event.target.dataset.itemId) continue;
                         if (event.target.checked) {
                             item.types.push(event.target.value)
@@ -230,7 +233,7 @@ $(document).ready( function () {
 
 jQuery.fn.dataTableExt.afnFiltering.push(
     function( oSettings, aData, iDataIndex ) {
-        const item = all_items[iDataIndex];
+        const item = table.data()[iDataIndex];
         let specialPassed = false;
         let allItems = false;
         let specialChecked = jQuery('input.filter-special:checked');

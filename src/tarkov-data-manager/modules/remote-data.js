@@ -63,6 +63,7 @@ const methods = {
         try {
             bsgData = await tarkovChanges.items();
             const en = await tarkovChanges.locale_en();
+            const credits = await tarkovChanges.credits();
             let presets = {};
             try {
                 presets = JSON.parse(fs.readFileSync('./cache/presets.json'));
@@ -151,6 +152,7 @@ const methods = {
 
             for(const result of results){
                 Reflect.deleteProperty(result, 'item_id');
+                Reflect.deleteProperty(result, 'base_price');
                 itemPrices[result.id]?.prices.sort();
 
                 const preparedData = {
@@ -165,6 +167,15 @@ const methods = {
                     lastLowPrice: itemPrices[result.id]?.lastLowPrice,
                     lastOfferCount: result.last_offer_count
                 };
+                if (credits[result.id]) {
+                    preparedData.basePrice = credits[result.id];
+                } else if (presets[result.id]) {
+                    preparedData.basePrice = presets[result.id].baseValue;
+                    preparedData.width = presets[result.id].width;
+                    preparedData.height = presets[result.id].height;
+                } else {
+                    preparedData.basePrice = 0;
+                }
                 /*if (en.templates[result.id]) {
                     preparedData.name = en.templates[result.id].Name;
                     preparedData.shortName = en.templates[result.id].ShortName;

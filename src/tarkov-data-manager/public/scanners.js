@@ -76,11 +76,9 @@ function startListener(channel) {
             return;
         } else if (message.type === 'scannerValue') {
             console.log(`Setting scanner values for ${ws.sessionID}`);
-            console.log(message);
             ws.settings[message.data.name] = message.data.value;
         } else if (message.type === 'scannerValues') {
             console.log(`Setting scanner values for ${ws.sessionID}`);
-            console.log(message.data);
             ws.settings = {
                 ...ws.settings,
                 ...message.data
@@ -309,7 +307,7 @@ $(document).ready( function () {
                     return `
                         <div>${data}</div>
                         <div>
-                            <a href="#" class="waves-effect waves-light btn edit-user tooltipped" data-tooltip="Edit" data-username="${data}" data-password="${user.password}" data-max_scanners=${user.max_scanners}><i class="material-icons">edit</i></a>
+                            <a href="#" class="waves-effect waves-light btn edit-user tooltipped" data-tooltip="Edit" data-username="${data}" data-password="${user.password}" data-id="${user.id}" data-max_scanners="${user.max_scanners}"><i class="material-icons">edit</i></a>
                             <a href="#" class="waves-effect waves-light btn delete-user tooltipped" data-tooltip="Delete" data-username="${data}"><i class="material-icons">delete</i></a>
                         </div>
                     `;
@@ -347,8 +345,8 @@ $(document).ready( function () {
                         });
                         markupString = `${markupString}
                         <div class="col s12 l6 xl4 xxl3">
-                            <label for="${user.username}-${[flagName]}">
-                                <input type="checkbox" class="user-flag" id="${user.username}-${[flagName]}" value="${flagValue}" data-user-name="${user.username}" ${data & flagValue ? 'checked' : ''} />
+                            <label for="${user.id}-${[flagName]}">
+                                <input type="checkbox" class="user-flag" id="${user.id}-${[flagName]}" value="${flagValue}" data-id="${user.id}" ${data & flagValue ? 'checked' : ''} />
                                 <span>${flagLabel}</span>
                             </label>
                         </div>`;
@@ -360,11 +358,11 @@ $(document).ready( function () {
         },
         {
             data: 'disabled',
-            render: (data, type, item) => {
+            render: (data, type, user) => {
                 if (type === 'display') {
                     return `
-                    <label for="${item.username}-disabled">
-                        <input type="checkbox" class="user-disabled" id="${item.username}-disabled" value="1" data-username="${item.username}" ${data ? 'checked' : ''} />
+                    <label for="${user.id}-disabled">
+                        <input type="checkbox" class="user-disabled" id="${user.id}-disabled" value="1" data-id="${user.id}" ${data ? 'checked' : ''} />
                         <span></span>
                     </label>
                     `;
@@ -377,7 +375,10 @@ $(document).ready( function () {
     table = $('table.main').DataTable({
         pageLength: 25,
         order: [[0, 'asc']],
-        data: users || [],
+        ajax: {
+            url: '/scanners/get-users',
+            dataSrc: ''
+        },
         columns: columns,
         autoWidth: false,
         drawCallback: (settings) => {
@@ -388,7 +389,7 @@ $(document).ready( function () {
                 let target = $(event.target);
                 if (target[0].nodeName === 'I') target = target.parent();
                 $('#modal-edit-user .username').val(target.data('username'));
-                $('#modal-edit-user .old_username').val(target.data('username'));
+                $('#modal-edit-user .user_id').val(target.data('id'));
                 $('#modal-edit-user .password').val(target.data('password'));
                 $('#modal-edit-user .max_scanners').val(target.data('max_scanners'));
                 $('#modal-edit-user .user_disabled').prop('checked', target.closest('tr').find('.user-disabled').first().prop('checked'));
@@ -409,15 +410,7 @@ $(document).ready( function () {
                         }
                         return;
                     }
-                    for (let i = 0; i < users.length; i++) {
-                        const item = users[i];
-                        if (item.username !== target.data('username')) continue;
-                        users.splice(i, 1);
-                        break;
-                    }
-                    table.clear();
-                    table.rows.add(users);
-                    table.draw();
+                    table.ajax.reload();
                 });
             });
 
@@ -428,7 +421,7 @@ $(document).ready( function () {
                 }
             
                 const dataUpdate = {
-                    username: event.target.dataset.username,
+                    user_id: event.target.dataset.id,
                     user_disabled: event.target.checked,
                 }
             
@@ -439,15 +432,6 @@ $(document).ready( function () {
                         }
                         return;
                     }
-                    for (let i = 0; i < users.length; i++) {
-                        const item = users[i];
-                        if (item.username !== event.target.dataset.username) continue;
-                        item.disabled = event.target.checked;
-                        break;
-                    }
-                    table.clear();
-                    table.rows.add(users);
-                    table.draw();
                 });
             });
 
@@ -485,20 +469,16 @@ $(document).ready( function () {
                     flags |= Number($(check).val());
                 }
             
-                const username = $(event.target).data('userName');
+                const id = $(event.target).data('id');
                 const dataUpdate = {
-                    user: username,
+                    id: id,
                     flags: flags
                 }
             
                 postData('/scanners/user-flags', dataUpdate).then(data => {
                     if (data.errors.length > 0) {
-                        console.log('Error setting user flags', ...data.errors);
-                    }
-                    for (const user of table.rows().data().toArray()) {
-                        if (user.username === username) {
-                            user.flags = flags;
-                            break;
+                        for (let i = 0; i < data.errors.length; i++) {
+                            M.toast({html: data.errors[i]});
                         }
                     }
                 });
@@ -522,27 +502,7 @@ $(document).ready( function () {
                 }
             } else {
                 M.Modal.getInstance(document.getElementById('modal-edit-user')).close();
-                const user = {
-                    username: $('#modal-edit-user .username').val(),
-                    password: $('#modal-edit-user .password').val(),
-                    max_scanners: $('#modal-edit-user .max_scanners').val(),
-                    disabled: $('#modal-edit-user .user_disabled').prop('checked') ? 1 : 0
-                };
-                if (form.attr('action') === '/scanners/add-user') {
-                    user.flags = 3;
-                    users.push(user);
-                } else {
-                    // edit user
-                    for (let i = 0; i < users.length; i++) {
-                        const item = users[i];
-                        if (item.username !== $('#modal-edit-user .old_username').val()) continue;
-                        users[i] = user;
-                        break;
-                    }
-                }
-                table.clear();
-                table.rows.add(users);
-                table.draw();
+                table.ajax.reload();
             }
         });
     });
