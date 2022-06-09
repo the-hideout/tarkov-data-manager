@@ -258,16 +258,24 @@ module.exports = async () => {
         for (const [key, value] of itemMap.entries()) {
             if (value.types.includes('disabled')) continue;
             itemData[key] = {
-                ...value
+                ...value,
+                shortName: value.short_name,
+                normalizedName: value.normalized_name,
+                lastOfferCount: value.last_offer_count
             };
 
             Reflect.deleteProperty(itemData[key], 'last_update');
             Reflect.deleteProperty(itemData[key], 'last_scan');
-            Reflect.deleteProperty(itemData[key], 'checked_out_by');
             Reflect.deleteProperty(itemData[key], 'trader_last_scan');
-            Reflect.deleteProperty(itemData[key], 'trader_checked_out_by');
+            Reflect.deleteProperty(itemData[key], 'checkout_scanner_id');
+            Reflect.deleteProperty(itemData[key], 'trader_checkout_scanner_id');
             Reflect.deleteProperty(itemData[key], 'scan_position');
             Reflect.deleteProperty(itemData[key], 'match_index');
+            Reflect.deleteProperty(itemData[key], 'normalized_name');
+            Reflect.deleteProperty(itemData[key], 'short_name');
+            Reflect.deleteProperty(itemData[key], 'disabled');
+            Reflect.deleteProperty(itemData[key], 'last_offer_count');
+
 
             // Only add these if it's allowed on the flea market
             if (!itemData[key].types.includes('no-flea')) {
@@ -298,9 +306,10 @@ module.exports = async () => {
 
             // add item properties
             itemData[key].discardLimit = -1;
+            itemData[key].basePrice = 0;
             if (bsgItems[key]) {
                 addPropertiesToItem(itemData[key]);
-                itemData[key].basePrice = credits[key];
+                //itemData[key].basePrice = credits[key];
                 itemData[key].bsgCategoryId = bsgItems[key]._parent;
                 itemData[key].discardLimit = bsgItems[key]._props.DiscardLimit;
                 itemData[key].properties = await getSpecialItemProperties(bsgItems[key], bsgItems[bsgItems[key]._parent]);
@@ -309,21 +318,28 @@ module.exports = async () => {
                 itemData[key].width = preset.width;
                 itemData[key].height = preset.height;
                 itemData[key].weight = preset.weight;
-                itemData[key].basePrice = preset.baseValue;
+                //itemData[key].basePrice = preset.baseValue;
                 itemData[key].bsgCategoryId = preset.bsgCategoryId;
             } else if (!itemData[key].types.includes('disabled')) {
                 logger.log(`No category found for ${itemData[key].name} (${key})`);
             }
             addCategory(itemData[key].bsgCategoryId);
+            if (credits[key]) {
+                itemData[key].basePrice = credits[key];
+            } else if (presets[key]) {
+                itemData[key].basePrice = presets[key].baseValue;
+            } 
 
             itemData[key].iconLink = itemData[key].icon_link;
             itemData[key].gridImageLink = itemData[key].grid_image_link;
             itemData[key].imageLink = itemData[key].image_link;
-            itemData[key].basePrice = itemData[key].base_price;
-            itemData[key].shortName = itemData[key].shortname;
+            //itemData[key].shortName = itemData[key].shortname;
             itemData[key].wikiLink = itemData[key].wiki_link;
-            //itemData[key].normalizedName = itemData[key].normalized_name;
             itemData[key].link = `https://tarkov.dev/item/${itemData[key].normalizedName}`;
+            Reflect.deleteProperty(itemData[key], 'icon_link');
+            Reflect.deleteProperty(itemData[key], 'grid_image_link');
+            Reflect.deleteProperty(itemData[key], 'image_link');
+            Reflect.deleteProperty(itemData[key], 'wiki_link');
 
             // Fallback images
             itemData[key].imageLinkFallback = itemData[key].imageLink || 'https://assets.tarkov.dev/unknown-item-image.jpg';

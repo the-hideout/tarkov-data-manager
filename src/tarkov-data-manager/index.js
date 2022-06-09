@@ -589,32 +589,6 @@ app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
 });
 
 app.get('/items', async (req, res) => {
-    const t = timer('getting-items');
-    const myData = await remoteData.get();
-    const items = [];
-    const attributes = [
-        'id', 
-        'name', 
-        'shortname', 
-        'types', 
-        'normalized_name',
-        'wiki_link',
-        'icon_link',
-        'grid_image_link',
-        'image_link',
-        'match_index',
-        'avg24hPrice',
-        'lastLowPrice'
-    ];
-    for (const [key, item] of myData) {
-        const newItem = {};
-        for (let i = 0; i < attributes.length; i++) {
-            const attribute = attributes[i];
-            newItem[attribute] = item[attribute];
-        }
-        items.push(newItem);
-    }
-    t.end();
     let typeFilters = '';
     for(const type of AVAILABLE_TYPES){
         typeFilters = `${typeFilters}
@@ -637,9 +611,6 @@ app.get('/items', async (req, res) => {
     }
     res.send(`${getHeader(req, {include: 'datatables'})}
         <script src="/items.js"></script>
-        <script>
-        const all_items = ${JSON.stringify(items, null, 4)};
-        </script>
         <div class="row">
             <div class="col s12">
                 <ul class="collapsible">
@@ -749,11 +720,40 @@ app.get('/items', async (req, res) => {
     ${getFooter(req)}`);
 });
 
+app.get('/items/get', async (req, res) => {
+    const t = timer('getting-items');
+    const myData = await remoteData.get();
+    const items = [];
+    const attributes = [
+        'id', 
+        'name', 
+        'shortname', 
+        'types', 
+        'normalized_name',
+        'wiki_link',
+        'icon_link',
+        'grid_image_link',
+        'image_link',
+        'match_index',
+        'avg24hPrice',
+        'lastLowPrice'
+    ];
+    for (const [key, item] of myData) {
+        const newItem = {};
+        for (let i = 0; i < attributes.length; i++) {
+            const attribute = attributes[i];
+            newItem[attribute] = item[attribute];
+        }
+        items.push(newItem);
+    }
+    t.end();
+    res.json(items);
+});
+
 app.get('/scanners', async (req, res) => {
     const latestScanResults = await getLatestScanResults();
     const activeScanners = [];
     const inactiveScanners = [];
-    const users = await query('SELECT * FROM scanner_user');
     const scanners = await query(`
         SELECT scanner.*, COALESCE(scanner_user.flags, 0) as flags, COALESCE(scanner_user.disabled, 1) as disabled FROM scanner
         LEFT JOIN scanner_user on scanner_user.id = scanner.scanner_user_id
@@ -813,7 +813,6 @@ app.get('/scanners', async (req, res) => {
     res.send(`${getHeader(req, {include: 'datatables'})}
         <script>
             const WS_PASSWORD = '${process.env.WS_PASSWORD}';
-            const users = ${JSON.stringify(users, null, 4)};
             const userFlags = ${JSON.stringify(userFlags)};
         </script>
         <script src="/ansi_up.js"></script>
@@ -939,7 +938,7 @@ app.get('/scanners', async (req, res) => {
             <div class="modal-content">
                 <div class="row">
                     <form class="col s12 post-url" method="post" action="">
-                        <input id="old_username" name="old_username" class="old_username" type="hidden">
+                        <input id="user_id" name="user_id" class="user_id" type="hidden">
                         <div class="row">
                             <div class="input-field">
                                 <input value="" id="username" type="text" class="validate username" name="username">
@@ -973,6 +972,21 @@ app.get('/scanners', async (req, res) => {
             </div>
         </div>
     ${getFooter(req)}`);
+});
+
+app.get('/scanners/get-users', async (req, res) => {
+    const results = await Promise.all([query(`SELECT * FROM scanner_user`), query(`SELECT * FROM scanner`)]);
+    const users = results[0].map(user => {
+        const scanners = [];
+        for (const scanner of results[1]) {
+            if (scanner.scanner_user_id === user.id) scanners.push(scanner);
+        }
+        return {
+            ...user,
+            scanners: scanners
+        }
+    });
+    res.json(users);
 });
 
 app.post('/scanners/add-user', urlencodedParser, async (req, res) => {
@@ -1015,10 +1029,10 @@ app.post('/scanners/add-user', urlencodedParser, async (req, res) => {
 app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        let name = req.body.old_username || req.body.username;
-        let userCheck = await query(format('SELECT * from scanner_user WHERE username=?', [name]));
+        let id = req.body.user_id;
+        let userCheck = await query(format('SELECT * from scanner_user WHERE id=?', [id]));
         if (userCheck.length == 0) {
-            response.errors.push(`User ${name} not found`);
+            response.errors.push(`User not found`);
             res.send(response);
             return;
         }
@@ -1043,7 +1057,7 @@ app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
         if (updateFields.length > 0) {
             await query(format(`UPDATE scanner_user SET ${updateFields.map(field => {
                 return `${field} = ?`;
-            }).join(', ')} WHERE username='${userCheck.username}'`, updateValues));
+            }).join(', ')} WHERE id='${userCheck.id}'`, updateValues));
             scannerApi.refreshUsers();
             response.message = `Updated ${updateFields.join(', ')}`;
         }
@@ -1072,8 +1086,8 @@ app.post('/scanners/delete-user', urlencodedParser, async (req, res) => {
 app.post('/scanners/user-flags', urlencodedParser, async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        await query(format('UPDATE scanner_user SET flags=? WHERE username=?', [req.body.flags, req.body.user]));
-        response.message = `Set ${req.body.user} flags to ${req.body.flags}`;
+        await query(format('UPDATE scanner_user SET flags=? WHERE id=?', [req.body.flags, req.body.id]));
+        response.message = `Set flags to ${req.body.flags}`;
         scannerApi.refreshUsers();
     } catch (error) {
         response.errors.push(error.message);
