@@ -333,6 +333,26 @@ $(document).ready( function () {
             }
         },
         {
+            data: 'scanners',
+            render: (data, type, user) => {
+                if (type === 'display') {
+                    const scannerDivs = [];
+                    for (const scanner of data) {
+                        //scannerDivs.push(`<div<a href="#" class="waves-effect waves-light tooltipped" data-tooltip="Edit ${scanner.name}" data-id="${scanner.id}">${scanner.name}</a></div>`);
+                        scannerDivs.push(`<div>${scanner.name}</div>`);
+                    }
+                    return `
+                        <div>
+                            ${scannerDivs.join('\n                            ')}
+                        </div>
+                    `;
+                }
+                return data.map(scanner => {
+                    return scanner.id+'_'+scanner.name;
+                }).join(',');
+            }
+        },
+        {
             data: 'flags',
             render: (data, type, user) => {
                 if (type === 'display') {

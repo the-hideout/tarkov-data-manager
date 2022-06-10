@@ -1,24 +1,10 @@
 const fs = require('fs');
 const path = require('path');
-const {pool, query, format} = require('./db-connection');
+const {query, format} = require('./db-connection');
 const {dashToCamelCase} = require('../modules/string-functions');
 
 let users = {};
 let existingBaseImages = [];
-
-/*const isConnected = async () => {
-    if (!pool) return false;
-    return new Promise((resolve) => {
-        pool.getConnection((err, connection) => {
-            if (err) {
-                resolve(false);
-                return;
-            }
-            connection.release();
-            resolve(true);
-        });
-    });
-};*/
 
 // sets defaults for various options used by API calls
 // limitItem is a single item or array of items to specifically retrieve (generally for testing)
@@ -672,10 +658,17 @@ const createScanner = async (user, scannerName) => {
     if (scannerName.match(/[^a-zA-Z0-9_-]/g)) {
         throw new Error('Scanner names can only contain letters, numbers, dashes (-) and underscores (_)');
     }
-    const result = await query('INSERT INTO scanner (scanner_user_id, name) VALUES (?, ?)', [user.id, scannerName]);
-    const newScanner = {id: result.insertId, name: scannerName, scanner_user_id: user.id};
-    users[user.username].scanners.push(newScanner);
-    return newScanner;
+    try {
+        const result = await query('INSERT INTO scanner (scanner_user_id, name) VALUES (?, ?)', [user.id, scannerName]);
+        const newScanner = {id: result.insertId, name: scannerName, scanner_user_id: user.id};
+        users[user.username].scanners.push(newScanner);
+        return newScanner;
+    } catch (error) {
+        if (error.toString().includes('Duplicate entry')) {
+            throw new Error(`Scanner ${scannerName} already exists`);
+        }
+        throw error;
+    }
 };
 
 const getScannerId = async (options, createMissing) => {
