@@ -11,7 +11,6 @@ const session = require('express-session');
 const formidable = require('formidable');
 const chalk = require('chalk');
 const Sentry = require("@sentry/node");
-const Tracing = require("@sentry/tracing");
 
 if (process.env.NODE_ENV !== 'production') {
     const dotenv = require("dotenv");
@@ -856,6 +855,9 @@ app.get('/scanners', async (req, res) => {
                                         Password
                                     </th>
                                     <th>
+                                        Scanners
+                                    </th>
+                                    <th>
                                         Flags
                                     </th>
                                     <th>
@@ -965,6 +967,25 @@ app.get('/scanners', async (req, res) => {
                                 <input type="checkbox" class="user_disabled" id="user_disabled" name="user_disabled" value="1"/>
                                 <span>disabled</span>
                             </label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="waves-effect waves-green btn edit-user-save">Save</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat edit-user-cancel">Cancel</a>
+            </div>
+        </div>
+        <div id="modal-edit-scanner" class="modal modal-fixed-footer">
+            <div class="modal-content">
+                <div class="row">
+                    <form class="col s12 post-url" method="post" action="">
+                        <input id="scanner_id" name="scanner_id" class="scanner_id" type="hidden">
+                        <div class="row">
+                            <div class="input-field">
+                                <input value="" id="scanner_name" type="text" class="validate name" name="name">
+                                <label for="scanner_name">Name</label>
+                            </div>
                         </div>
                     </form>
                 </div>
