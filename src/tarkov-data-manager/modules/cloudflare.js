@@ -30,7 +30,8 @@ const doRequest = async (key, method = 'GET', value, extraHeaders) => {
         };
     }
 
-    const namespace = process.env.NODE_ENV !== 'dev' ? '2e6feba88a9e4097b6d2209191ed4ae5' : '17fd725f04984e408d4a70b37c817171';
+    let namespace = process.env.NODE_ENV !== 'dev' ? '2e6feba88a9e4097b6d2209191ed4ae5' : '17fd725f04984e408d4a70b37c817171';
+    //namespace = '2e6feba88a9e4097b6d2209191ed4ae5'; // force production
 
     const fullCloudflarePath = `accounts/424ad63426a1ae47d559873f929eb9fc/storage/kv/namespaces/${namespace}/values/${key}`;
 
