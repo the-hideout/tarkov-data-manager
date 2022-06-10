@@ -323,6 +323,9 @@ app.get('/', async (req, res) => {
                     <li>Missing wiki link: ${missingWiki.length}</li>
                 </ul>
             </div>
+            <div class="section col s12">
+                Running in ${process.env.NODE_ENV} mode.
+            </div>
         </div>
     ${getFooter(req)}`);
 });

@@ -1011,15 +1011,14 @@ module.exports = async () => {
         }
 
         logger.log('Writing quests.json...');
-        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'tasks.json'), JSON.stringify(quests, null, 4));
         //fs.writeFileSync(path.join(__dirname, '..', 'cache', 'tasks.json'), JSON.stringify(quests.data, null, 4));
 
-        const response = await cloudflare(`/values/TASK_DATA_V2`, 'PUT', JSON.stringify(quests)).catch(error => {
+        const response = await cloudflare('task_data', 'PUT', JSON.stringify(quests)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
-            logger.success('Successful Cloudflare put of TASK_DATA');
+            logger.success('Successful Cloudflare put of task_data');
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

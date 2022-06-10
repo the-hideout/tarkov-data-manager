@@ -1,8 +1,4 @@
-const fs = require('fs');
-const path = require('path');
-
 const cloudflare = require('../modules/cloudflare');
-
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
@@ -58,14 +54,13 @@ module.exports = async function() {
         for (const cal in caliberCounts) {
             logger.log(`${cal}: ${caliberCounts[cal]}`);
         }
-        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'ammo.json'), JSON.stringify(ammunition, null, 4));
 
-        const response = await cloudflare(`/values/AMMO_DATA`, 'PUT', JSON.stringify(ammunition)).catch(error => {
+        const response = await cloudflare('ammo_data', 'PUT', JSON.stringify(ammunition)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
-            logger.success('Successful Cloudflare put of AMMO_DATA');
+            logger.success('Successful Cloudflare put of ammo_data');
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

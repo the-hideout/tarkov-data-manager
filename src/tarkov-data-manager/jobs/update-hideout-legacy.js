@@ -14,12 +14,12 @@ module.exports = async () => {
             data: data.body.modules,
         };
 
-        const response = await cloudflare(`/values/HIDEOUT_DATA`, 'PUT', JSON.stringify(hideoutData)).catch(error => {
+        const response = await cloudflare('hideout_legacy_data', 'PUT', JSON.stringify(hideoutData)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
-            logger.success('Successful Cloudflare put of HIDEOUT_DATA');
+            logger.success('Successful Cloudflare put of legacy hideout_legacy_data');
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

@@ -1,4 +1,4 @@
-const {query, jobComplete} = require('../modules/db-connection');
+const {jobComplete} = require('../modules/db-connection');
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
@@ -46,12 +46,12 @@ module.exports = async () => {
             resetTimes[result.trader_name] = resetTime;
         }*/
 
-        const response = await cloudflare(`/values/RESET_TIMES`, 'PUT', JSON.stringify(resetTimes)).catch(error => {
+        const response = await cloudflare('reset_time_data', 'PUT', JSON.stringify(resetTimes)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
-            logger.success('Successful Cloudflare put of RESET_TIMES');
+            logger.success('Successful Cloudflare put of reset_time_data');
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

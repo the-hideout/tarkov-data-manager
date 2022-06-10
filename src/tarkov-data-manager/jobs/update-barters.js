@@ -1,6 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
 const got = require('got');
 const cheerio = require('cheerio');
 
@@ -352,13 +349,13 @@ module.exports = async function() {
         traderRows.map(parseTradeRow);
         logger.succeed('Finished parsing barters table');
 
-        const response = await cloudflare(`/values/BARTER_DATA_V2`, 'PUT', JSON.stringify(trades)).catch(error => {
-            logger.error('Error on cloudflare put for BARTER_DATA')
+        const response = await cloudflare('barter_data', 'PUT', JSON.stringify(trades)).catch(error => {
+            logger.error('Error on cloudflare put for barter_data')
             logger.error(requestError);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
-            logger.success('Successful Cloudflare put of BARTER_DATA');
+            logger.success('Successful Cloudflare put of barter data');
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);
@@ -367,8 +364,6 @@ module.exports = async function() {
         for (let i = 0; i < response.messages.length; i++) {
             logger.error(response.messages[i]);
         }
-        
-        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'barters.json'), JSON.stringify(trades, null, 4));
 
         logger.succeed(`Finished processing ${trades.data.length} barters`);
     } catch (error) {

@@ -1,7 +1,5 @@
-const fs = require('fs');
-const path = require('path');
-
 const got = require('got');
+
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
@@ -37,15 +35,15 @@ module.exports = async () => {
             };
         });
 
-        logger.log('Writing quests.json...');
-        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'quests-legacy.json'), JSON.stringify(quests, null, 4));
-
-        const response = await cloudflare(`/values/QUEST_DATA`, 'PUT', JSON.stringify(quests)).catch(error => {
+        const response = await cloudflare('quest_data', 'PUT', JSON.stringify({
+            updated: new Date(),
+            data: quests,
+        })).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
-            logger.success('Successful Cloudflare put of QUEST_DATA');
+            logger.success('Successful Cloudflare put of quest_data');
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

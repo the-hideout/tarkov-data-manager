@@ -1,6 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
 const cloudflare = require('../modules/cloudflare');
 //const christmasTreeCrafts = require('../public/data/christmas-tree-crafts.json');
 
@@ -132,15 +129,13 @@ module.exports = async function() {
             crafts.data.push(craftData);
         }
         logger.log(`Processed ${Object.keys(json).length} crafts`);
-    
-        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'crafts.json'), JSON.stringify(crafts, null, 4));
 
-        const response = await cloudflare(`/values/CRAFT_DATA_V2`, 'PUT', JSON.stringify(crafts)).catch(error => {
+        const response = await cloudflare('craft_data', 'PUT', JSON.stringify(crafts)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
-            logger.success('Successful Cloudflare put of CRAFT_DATA');
+            logger.success('Successful Cloudflare put of craft_data');
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

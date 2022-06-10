@@ -1,6 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
 const got = require('got');
 
 const cloudflare = require('../modules/cloudflare');
@@ -141,13 +138,13 @@ module.exports = async () => {
             }
             hideoutData.data.push(stationData);
         }
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'hideout.json'), JSON.stringify(hideoutData, null, 4));
-        const response = await cloudflare(`/values/HIDEOUT_DATA_V3`, 'PUT', JSON.stringify(hideoutData)).catch(error => {
+
+        const response = await cloudflare('hideout_data', 'PUT', JSON.stringify(hideoutData)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
-            logger.success('Successful Cloudflare put of HIDEOUT_DATA_V2');
+            logger.success('Successful Cloudflare put of hideout_data');
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

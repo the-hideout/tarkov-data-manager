@@ -5,13 +5,13 @@ const got = require('got');
 
 const BASE_URL = 'https://api.cloudflare.com/client/v4/';
 
-const doRequest = async (cloudflarePath, method = 'GET', value, extraHeaders) => {
+const doRequest = async (key, method = 'GET', value, extraHeaders) => {
     if (!process.env.CLOUDFLARE_TOKEN) {
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', `${cloudflarePath.split("/").pop().toLowerCase()}.json`), JSON.stringify(JSON.parse(value), null, 4));
+        fs.writeFileSync(path.join(__dirname, '..', 'dumps', `${key.split("/").pop().toLowerCase()}.json`), JSON.stringify(JSON.parse(value), null, 4));
         return {
            result: null,
            success: false,
-           errors: [`Cloudflare token not set; skipping ${method} ${cloudflarePath}`],
+           errors: [`Cloudflare token not set; skipping ${method} ${key}`],
            messages: []
         };
     }
@@ -30,11 +30,13 @@ const doRequest = async (cloudflarePath, method = 'GET', value, extraHeaders) =>
         };
     }
 
-    const fullCloudflarePath = `accounts/424ad63426a1ae47d559873f929eb9fc/storage/kv/namespaces/2973a2dd070e4a348d87084171efe11a${cloudflarePath}`;
+    const namespace = process.env.NODE_ENV !== 'dev' ? '2e6feba88a9e4097b6d2209191ed4ae5' : '17fd725f04984e408d4a70b37c817171';
+
+    const fullCloudflarePath = `accounts/424ad63426a1ae47d559873f929eb9fc/storage/kv/namespaces/${namespace}/values/${key}`;
 
     const objectData = JSON.parse(value);
 
-    fs.writeFileSync(path.join(__dirname, '..', 'dumps', `${fullCloudflarePath.split("/").pop().toLowerCase()}.json`), JSON.stringify(objectData, null, 4));
+    fs.writeFileSync(path.join(__dirname, '..', 'dumps', `${key.split("/").pop().toLowerCase()}.json`), JSON.stringify(objectData, null, 4));
 
     if(value){
         requestOptions.body = value;

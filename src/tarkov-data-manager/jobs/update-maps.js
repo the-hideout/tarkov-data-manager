@@ -1,6 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
 const got = require('got');
 const cheerio = require('cheerio');
 
@@ -126,15 +123,13 @@ module.exports = async function() {
             }
         }
         logger.log(`Processed ${maps.data.length} maps`);
-    
-        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'maps.json'), JSON.stringify(maps, null, 4));
 
-        const response = await cloudflare(`/values/MAP_DATA_V2`, 'PUT', JSON.stringify(maps)).catch(error => {
+        const response = await cloudflare('map_data', 'PUT', JSON.stringify(maps)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
-            logger.success('Successful Cloudflare put of MAP_DATA');
+            logger.success('Successful Cloudflare put of map_data');
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

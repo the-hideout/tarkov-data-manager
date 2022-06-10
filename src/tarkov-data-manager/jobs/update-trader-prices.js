@@ -1,6 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
 const got = require('got');
 const moment = require('moment');
 
@@ -32,12 +29,13 @@ const traderMap = {
 let logger = false;
 
 const outputPrices = async (prices) => {
-    //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'trader-inventory.json'), JSON.stringify(prices, null, 4));
-
     try {
-        const response = await cloudflare(`/values/TRADER_ITEMS_V2`, 'PUT', JSON.stringify(prices));
+        const response = await cloudflare('trader_price_data', 'PUT', JSON.stringify({
+            updated: new Date(),
+            data: prices,
+        }));
         if (response.success) {
-            logger.success(`Successful Cloudflare put of ${Object.keys(prices).length} TRADER_ITEMS`);
+            logger.success(`Successful Cloudflare put of ${Object.keys(prices).length} trader prices`);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

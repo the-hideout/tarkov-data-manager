@@ -1,9 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-
 const got = require('got');
-const cloudflare = require('../modules/cloudflare');
 
+const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
@@ -82,15 +79,13 @@ module.exports = async function() {
             traders.data.push(traderData);
         }
         logger.log(`Processed ${traders.data.length} traders`);
-    
-        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'traders.json'), JSON.stringify(traders, null, 4));
 
-        const response = await cloudflare(`/values/TRADER_DATA_V2`, 'PUT', JSON.stringify(traders)).catch(error => {
+        const response = await cloudflare('trader_data', 'PUT', JSON.stringify(traders)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
-            logger.success('Successful Cloudflare put of TRADER_DATA');
+            logger.success('Successful Cloudflare put of trader_data');
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);
