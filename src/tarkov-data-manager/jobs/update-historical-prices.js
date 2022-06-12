@@ -72,7 +72,7 @@ module.exports = async () => {
             }
         }
 
-        const response = await cloudflare('historical_price_data', 'PUT', JSON.stringify({
+        const response = await cloudflare.put('historical_price_data', JSON.stringify({
             updated: new Date(),
             data: itemPriceData,
         })).catch(error => {

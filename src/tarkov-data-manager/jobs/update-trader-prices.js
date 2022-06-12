@@ -30,7 +30,7 @@ let logger = false;
 
 const outputPrices = async (prices) => {
     try {
-        const response = await cloudflare('trader_price_data', 'PUT', JSON.stringify({
+        const response = await cloudflare.put('trader_price_data', JSON.stringify({
             updated: new Date(),
             data: prices,
         }));

@@ -46,7 +46,7 @@ module.exports = async () => {
             resetTimes[result.trader_name] = resetTime;
         }*/
 
-        const response = await cloudflare('reset_time_data', 'PUT', JSON.stringify(resetTimes)).catch(error => {
+        const response = await cloudflare.put('reset_time_data', JSON.stringify(resetTimes)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

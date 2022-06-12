@@ -479,7 +479,7 @@ module.exports = async () => {
             flea: fleaData,
             armorMats: armorData
         };
-        const response = await cloudflare('item_data', 'PUT', JSON.stringify(itemsData)).catch(error => {
+        let response = await cloudflare.put('item_data', JSON.stringify(itemsData)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

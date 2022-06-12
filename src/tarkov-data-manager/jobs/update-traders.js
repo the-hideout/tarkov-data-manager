@@ -80,7 +80,7 @@ module.exports = async function() {
         }
         logger.log(`Processed ${traders.data.length} traders`);
 
-        const response = await cloudflare('trader_data', 'PUT', JSON.stringify(traders)).catch(error => {
+        const response = await cloudflare.put('trader_data', JSON.stringify(traders)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

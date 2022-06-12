@@ -9,16 +9,13 @@ if (process.env.NODE_ENV !== 'production') {
 const { connection, jobComplete } = require('./modules/db-connection');
 
 const kvJobs = [
-    'update-ammo',
     'update-barters',
     'update-crafts',
-    'update-hideout-legacy',
     'update-hideout',
     'update-historical-prices',
     'update-item-cache',
     'update-maps',
     'update-quests',
-    'update-quests-new',
     'update-trader-prices',
     'update-traders'
 ];

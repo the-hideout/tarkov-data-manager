@@ -4,6 +4,7 @@ const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
+const hideoutLegacy = require('./update-hideout-legacy');
 
 module.exports = async () => {
     const logger = new JobLogger('update-hideout');    
@@ -139,7 +140,9 @@ module.exports = async () => {
             hideoutData.data.push(stationData);
         }
 
-        const response = await cloudflare('hideout_data', 'PUT', JSON.stringify(hideoutData)).catch(error => {
+        hideoutData.legacy = await hideoutLegacy(tdHideout, logger);
+
+        const response = await cloudflare.put('hideout_data', JSON.stringify(hideoutData)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

@@ -55,7 +55,7 @@ module.exports = async function() {
             logger.log(`${cal}: ${caliberCounts[cal]}`);
         }
 
-        const response = await cloudflare('ammo_data', 'PUT', JSON.stringify(ammunition)).catch(error => {
+        const response = await cloudflare.put('ammo_data', JSON.stringify(ammunition)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

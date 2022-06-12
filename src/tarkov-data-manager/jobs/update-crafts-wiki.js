@@ -287,7 +287,7 @@ module.exports = async function() {
         logger.log('DIFFString');
         logger.log(jsonDiff.diffString(JSON.parse(beforeData), crafts));
 
-        const response = await cloudflare('craft_data', 'PUT', JSON.stringify(crafts)).catch(error => {
+        const response = await cloudflare.put('craft_data', JSON.stringify(crafts)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

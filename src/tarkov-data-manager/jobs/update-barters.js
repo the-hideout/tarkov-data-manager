@@ -349,7 +349,7 @@ module.exports = async function() {
         traderRows.map(parseTradeRow);
         logger.succeed('Finished parsing barters table');
 
-        const response = await cloudflare('barter_data', 'PUT', JSON.stringify(trades)).catch(error => {
+        const response = await cloudflare.put('barter_data', JSON.stringify(trades)).catch(error => {
             logger.error('Error on cloudflare put for barter_data')
             logger.error(requestError);
             return {success: false, errors: [], messages: []};

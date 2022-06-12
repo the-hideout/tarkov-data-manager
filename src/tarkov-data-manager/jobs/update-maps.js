@@ -124,7 +124,7 @@ module.exports = async function() {
         }
         logger.log(`Processed ${maps.data.length} maps`);
 
-        const response = await cloudflare('map_data', 'PUT', JSON.stringify(maps)).catch(error => {
+        const response = await cloudflare.put('map_data', JSON.stringify(maps)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
