@@ -1,11 +1,13 @@
 const fs = require('fs');
 const path = require('path');
+const zlib = require('zlib');
 
 const got = require('got');
+const FormData = require('form-data');
 
 const BASE_URL = 'https://api.cloudflare.com/client/v4/';
 
-const doRequest = async (method = 'GET', operation, key, value, extraHeaders) => {
+const doRequest = async (method = 'GET', operation, key, value, extraHeaders, metadata) => {
     if (!process.env.CLOUDFLARE_TOKEN) {
         return {
            result: null,
@@ -38,7 +40,14 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders) =>
     const fullCloudflarePath = `accounts/424ad63426a1ae47d559873f929eb9fc/storage/kv/namespaces/${namespace}/${operation}${keyPath}`;
 
     if(value){
-        requestOptions.body = value;
+        if (metadata) {
+            const form = new FormData();
+            form.append('value', value);
+            form.append('metadata', JSON.stringify(metadata));
+            requestOptions.body = form;
+        } else {
+            requestOptions.body = value;
+        }
     }
 
     let response;
@@ -53,7 +62,8 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders) =>
 };
 
 const putValue = async (key, value) => {
-    return doRequest('PUT', 'values', key, value).then(response => {
+    const encoding = 'base64';
+    return doRequest('PUT', 'values', key, zlib.gzipSync(value).toString(encoding), false, {compression: 'gzip', encoding: encoding}).then(response => {
         fs.writeFileSync(path.join(__dirname, '..', 'dumps', `${key.split("/").pop().toLowerCase()}.json`), JSON.stringify(JSON.parse(value), null, 4));
         return response;
     });
