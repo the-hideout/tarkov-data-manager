@@ -44,4 +44,4 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script_stop: true
-          script: DOMAIN=manager.tarkov.dev ~/tarkov-data-manager/script/deploy
+          script: ~/tarkov-data-manager/script/deploy main
