@@ -3,6 +3,12 @@
 cd ~/tarkov-data-manager
 
 git fetch --all
-git reset --hard origin/main
+git reset --hard origin/$1
 
-sudo -E bash -c 'make run'
+echo "[-] Killing old docker processes"
+sudo -E bash -c 'source ~/.profile && docker-compose down -v -t 1'
+
+echo "[i] Building docker containers"
+sudo -E bash -c 'source ~/.profile && docker-compose up --build -d'
+
+echo "[+] Containers are now running!"

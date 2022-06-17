@@ -44,4 +44,15 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script_stop: true
-          script: DOMAIN=manager.tarkov.dev ~/tarkov-data-manager/script/deploy
+          script: ~/tarkov-data-manager/script/deploy main
+
+      - uses: actions/setup-python@98f2ad02fd48d057ee3b4d4f66525b231c3e52b6 # pin@v3
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: health
+        working-directory: script/health
+        run: |
+          pip install -r requirements.txt
+          python health.py
