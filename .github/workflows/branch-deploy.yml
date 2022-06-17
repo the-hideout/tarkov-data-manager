@@ -8,7 +8,7 @@ on:
 permissions:
   pull-requests: write
   deployments: write
-  contents: read
+  contents: write
 
 jobs:
   deploy:
@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: GrantBirki/branch-deploy@35cce77afd4fafcda2d28c861fc85cddbcec67f0 # pin@v1.5.0
+      - uses: github/branch-deploy@fb5baec9eccc077f582d8850521b8bc3043f550f # pin@v2.0.0
         id: branch-deploy
 
       - name: Checkout
