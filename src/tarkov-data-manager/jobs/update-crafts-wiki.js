@@ -94,13 +94,22 @@ const getItemData = function getItemData(html){
     if(numberMatch){
         count = Number(numberMatch[0]);
     }
-
-    return {
+    
+    const itemData = {
         name: item.name,
         id: item.id,
         count: count,
-        isTool: isTool,
+        attributes: []
     };
+    
+    if (isTool) {
+        itemData.attributes.push({
+            type: 'tool',
+            value: String(true)
+        });
+    }
+
+    return itemData
 };
 
 module.exports = async function() {
