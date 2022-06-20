@@ -9,12 +9,19 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const remoteData = require('./modules/remote-data');
+const cloudflare = require('./modules/cloudflare');
 const {jobComplete, query} = require('./modules/db-connection');
 
 (async () => {
     try {
-        const result = await query(`select * from item_data where id='61a6446f4b5f8b70f451b166'`);
-        console.log(result);
+        /*const response = await cloudflare.getOldKeys();
+        badkeys = [];
+        for (const kv of response.result) {
+            if (kv.name.indexOf('historical-prices-') === 0) {
+                badkeys.push(kv.name);
+            }
+        }
+        console.log(badkeys);*/
     } catch (error) {
         console.log(error);
     }

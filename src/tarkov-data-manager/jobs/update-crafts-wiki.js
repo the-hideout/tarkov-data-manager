@@ -287,12 +287,12 @@ module.exports = async function() {
         logger.log('DIFFString');
         logger.log(jsonDiff.diffString(JSON.parse(beforeData), crafts));
 
-        const response = await cloudflare(`/values/CRAFT_DATA`, 'PUT', JSON.stringify(crafts)).catch(error => {
+        const response = await cloudflare.put('craft_data', JSON.stringify(crafts)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
-            logger.success('Successful Cloudflare put of CRAFT_DATA');
+            logger.success('Successful Cloudflare put of craft_data');
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

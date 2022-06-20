@@ -1,5 +1,4 @@
 const fs = require('fs');
-const path = require('path');
 
 const roundTo = require('round-to');
 
@@ -282,12 +281,13 @@ module.exports = async () => {
                 let itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === key);
 
                 if (!itemPriceYesterday || itemData[key].avg24hPrice === 0) {
+                    itemData[key].changeLast48h = 0;
                     itemData[key].changeLast48hPercent = 0;
                 } else {
-                    const percentOfDayBefore = itemData[key].avg24hPrice / itemPriceYesterday.priceYesterday
+                    itemData[key].changeLast48h = Math.round(itemData[key].avg24hPrice - itemPriceYesterday.priceYesterday);
+                    const percentOfDayBefore = itemData[key].avg24hPrice / itemPriceYesterday.priceYesterday;
                     itemData[key].changeLast48hPercent = roundTo((percentOfDayBefore - 1) * 100, 2);
                 }
-                itemData[key].changeLast48h = itemData[key].changeLast48hPercent
 
                 if (!itemData[key].lastLowPrice) {
                     let lastKnownPrice = lastKnownPriceData.find(row => row.item_id === key);
@@ -480,12 +480,12 @@ module.exports = async () => {
             flea: fleaData,
             armorMats: armorData
         };
-        const response = await cloudflare(`/values/ITEM_CACHE_V4`, 'PUT', JSON.stringify(itemsData)).catch(error => {
+        let response = await cloudflare.put('item_data', JSON.stringify(itemsData)).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
-            logger.success('Successful Cloudflare put of ITEM_CACHE');
+            logger.success('Successful Cloudflare put of item_data');
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);
@@ -494,7 +494,6 @@ module.exports = async () => {
                 logger.error(response.messages[i]);
             }
         }
-        //fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'item-cache.json'), JSON.stringify(itemsData, null, 4));
 
         // Possibility to POST to a Discord webhook here with cron status details
     } catch (error) {
