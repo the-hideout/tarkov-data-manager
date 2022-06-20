@@ -18,7 +18,7 @@ const {alert} = require('../modules/webhook');
 let itemData = false;
 let logger = false;
 
-const CRAFTS_URL = 'https://escapefromtarkov.gamepedia.com/Crafts';
+const CRAFTS_URL = 'https://escapefromtarkov.fandom.com/wiki/Crafts';
 
 const getItemByName = (searchName) => {
     const itemArray = Object.values(itemData);
@@ -83,6 +83,8 @@ const getItemData = function getItemData(html){
         return false;
     }
 
+    let isTool = ($('img').prop('alt').match(/ tool\.png/gm) != null);
+
     let count = 1;
 
     // Strip the links
@@ -97,6 +99,7 @@ const getItemData = function getItemData(html){
         name: item.name,
         id: item.id,
         count: count,
+        isTool: isTool,
     };
 };
 
