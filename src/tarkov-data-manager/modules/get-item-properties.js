@@ -1,6 +1,7 @@
 const tarkovChanges = require('../modules/tarkov-changes');
 
 let locales = false;
+let globals = false;
 
 const setLocales = async (loc = false) => {
     if (loc) {
@@ -8,6 +9,18 @@ const setLocales = async (loc = false) => {
     } else {
         locales = await tarkovChanges.locales();
     }
+};
+
+const setGlobals = async (glob = false) => {
+    if (glob) {
+        globals = glob;
+    } else {
+        globals = await tarkovChanges.globals();
+    }
+};
+
+const setAll = async (loc = false, glob = false) => {
+    return Promise.all([setLocales(loc), setGlobals(glob)]);
 };
 
 const grenadeMap = {
@@ -239,14 +252,54 @@ const getItemProperties = async (item, parent = false) => {
             properties.hydrationImpact = item._props.effects_health.Hydration.value;
         }
     } else if (item._parent === '5448f3a64bdc2d60728b456a') {
-        /*properties = {
+        const effectMap = {
+            RemoveAllBloodLosses: 'Removeallbloodlosses'
+        };
+        properties = {
             propertiesType: 'ItemPropertiesStim',
-        };*/
+            useTime: item._props.medUseTime,
+            cures: Object.keys(item._props.effects_damage).filter(status => {
+                return status !== 'RadExposure';
+            }),
+            stimEffects: [],
+        };
+        if (item._props.StimulatorBuffs && globals.config.Health.Effects.Stimulator.Buffs[item._props.StimulatorBuffs]) {
+            const buffs = globals.config.Health.Effects.Stimulator.Buffs[item._props.StimulatorBuffs];
+            for (const buff of buffs) {
+                let effectKey = effectMap[buff.BuffType] || buff.BuffType;
+                const effect = {
+                    type: locales.en.interface[effectKey],
+                    chance: buff.Chance,
+                    delay: buff.Delay,
+                    duration: buff.Duration,
+                    value: buff.Value,
+                    percent: !buff.AbsoluteValue,
+                    locale: {}
+                };
+                if (buff.SkillName) {
+                    effect.type = locales.en.interface.Skill;
+                    effect.skillName = locales.en.interface[buff.SkillName];
+                }
+                for (const code in locales) {
+                    effect.locale[code] = {
+                        type: locales[code].interface[effectKey],
+                    };
+                    if (buff.SkillName) {
+                        effect.locale[code].type = locales[code].interface.Skill;
+                        effect.locale[code].skillName = locales[code].interface[buff.SkillName];
+                    }
+                    if (!effect.locale[code].type) return Promise.reject(new Error(`No ${code} translation found for stim buff type ${buff.BuffType}`));
+                }
+                properties.stimEffects.push(effect);
+            }
+        }
     }
     return properties;
 };
 
 module.exports = {
     setItemPropertiesLocales: setLocales,
+    setItemPropertiesGlobals: setGlobals,
+    setItemPropertiesLocalesGlobals: setAll,
     getSpecialItemProperties: getItemProperties
 };

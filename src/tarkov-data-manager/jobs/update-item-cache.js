@@ -11,7 +11,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const {dashToCamelCase} = require('../modules/string-functions');
-const {setItemPropertiesLocales, getSpecialItemProperties} = require('../modules/get-item-properties');
+const {setItemPropertiesLocalesGlobals, getSpecialItemProperties} = require('../modules/get-item-properties');
 
 let bsgItems = false;
 let credits = false;
@@ -253,7 +253,7 @@ module.exports = async () => {
             });
         }
 
-        await setItemPropertiesLocales(locales);
+        await setItemPropertiesLocalesGlobals(locales, globals);
         for (const [key, value] of itemMap.entries()) {
             if (value.types.includes('disabled')) continue;
             itemData[key] = {
