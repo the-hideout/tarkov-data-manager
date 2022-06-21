@@ -18,10 +18,17 @@ const ignoreSources = [
 module.exports = async () => {
     const logger = new JobLogger('check-scans');
     try {
-        const results = await query('select max(timestamp) as timestamp, source from price_data group by source order by `timestamp` desc');
+        const results = await query(`
+            select max(timestamp) as timestamp, scanner_id, name, username 
+            from price_data 
+            left join scanner on scanner.id = price_data.scanner_id
+            left join scanner_user on scanner_user.id = scanner.scanner_user_id
+            group by scanner_id 
+            order by \`timestamp\` desc
+        `);
         for (const result of results) {
-            if (ignoreSources.includes(result.source)) {
-                logger.log(`Ignoring source: ${result.source}`);
+            if (ignoreSources.includes(result.name)) {
+                logger.log(`Ignoring source: ${result.name}`);
                 continue;
             }
 
@@ -40,13 +47,10 @@ module.exports = async () => {
 
             if (lastScanAge < 1800) {
                 continue;
-            } else if (lastScanAge < 14400 && result.source == 'tm') {
-                //TM prices only update every 3 hours.
-                continue;
-            }            
+            }           
 
             const messageData = {
-                title: `Missing scans from ${encodeURIComponent(result.source)}`,
+                title: `Missing scans from ${encodeURIComponent(result.name)} (${result.username})`,
                 message: `The last scanned price was ${lastScanAge} seconds ago`
             };
 
