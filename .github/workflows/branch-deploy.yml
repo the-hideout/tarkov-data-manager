@@ -25,6 +25,7 @@ jobs:
         uses: actions/checkout@7884fcad6b5d53d10323aee724dc68d8b9096a2e # pin@v2
         with:
           ref: ${{ steps.branch-deploy.outputs.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
 
       - uses: azure/login@ec3c14589bd3e9312b3cc8c41e6860e258df9010 # pin@v1
         if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
