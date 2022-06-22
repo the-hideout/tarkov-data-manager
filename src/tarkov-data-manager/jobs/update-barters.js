@@ -106,9 +106,9 @@ const getItemData = function getItemData(html){
         return false;
     }
 
-    if (!item.attributes) item.attributes = [];
+    item.attributes = [];
 
-    if (item.name === 'Dogtag') {
+    if (name === 'Dogtag') {
         let dogtagName = fixName($local('a').eq(-1).text());
         let minLevelMatch = dogtagName.match(/ ≥ Lvl (\d+)/);
         if (minLevelMatch) {
