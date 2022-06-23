@@ -44,7 +44,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script_stop: true
-          script: ~/tarkov-data-manager/script/deploy main
+          script: ~/tarkov-data-manager/script/deploy -r="main" -d="tarkov-data-manager"
 
       - uses: actions/setup-python@98f2ad02fd48d057ee3b4d4f66525b231c3e52b6 # pin@v3
         with:
