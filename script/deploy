@@ -45,7 +45,7 @@ done
 
 # If a deployment dir is specified, enter it
 if [[ -n $dir ]]; then
-  cd "~/$dir"
+  cd ~/$dir
 fi
 
 # If a fork deployment is requested use the fork branch
