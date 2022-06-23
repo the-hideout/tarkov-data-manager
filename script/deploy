@@ -59,7 +59,7 @@ if [[ -n $fork ]]; then
 else
   echo "branch deployment requested"
   git fetch --all
-  git reset --hard origin/$1
+  git reset --hard origin/$ref
 fi
 
 echo "[-] Killing old docker processes"
