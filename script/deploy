@@ -52,7 +52,7 @@ fi
 if [[ -n $fork ]]; then
   echo "fork deployment requested"
   forkarray=($fork)
-  git checkout -b $fork
+  git checkout -b $fork || git branch -D $fork && git checkout -b $fork
   git pull "https://github.com/$fork_full_name.git" ${forkarray[1]}
 else
   echo "branch deployment requested"
