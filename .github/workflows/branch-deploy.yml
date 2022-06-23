@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: github/branch-deploy@cdbf8ae41662bdfde14a1c9a848a1f611b45bd3b # pin@v2.0.1
+      - uses: github/branch-deploy@main
         id: branch-deploy
 
       - name: Checkout
@@ -125,7 +125,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script_stop: true
-          script: ~/tarkov-data-manager/script/deploy ${{ steps.branch-deploy.outputs.ref }}
+          script: ~/tarkov-data-manager/script/deploy -r="${{ steps.branch-deploy.outputs.ref }}" -f="${{ steps.branch-deploy.outputs.fork_checkout }}" -d="tarkov-data-manager" -n="${{ steps.branch-deploy.outputs.fork_full_name }}"
 
       - uses: actions/setup-python@98f2ad02fd48d057ee3b4d4f66525b231c3e52b6 # pin@v3
         if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}

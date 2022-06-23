@@ -1,9 +1,64 @@
 #!/bin/bash
 
-cd ~/tarkov-data-manager
+# run script/deploy -h for help
 
-git fetch --all
-git reset --hard origin/$1
+set -e
+
+function usage()
+{
+    echo -e "\t ============================== script/deploy usage =============================="
+    echo -e "\t-h --help               : displays help message"
+    echo -e "\t-f --fork               : the checkout command to use if a fork"
+    echo -e "\t-n --fork-full-name     : the full name of the fork source in 'org/repo' format"
+    echo -e "\t-d --dir                : the directory to enter for the deployment"
+    echo -e "\t-r --ref                : ref to deploy"
+}
+
+while [ "$1" != "" ]; do
+    PARAM=`echo $1 | awk -F= '{print $1}'`
+    VALUE=`echo $1 | awk -F= '{print $2}'`
+    case $PARAM in
+      -h | --help)
+        usage
+        exit
+        ;;
+      -f | --fork)
+        fork=$VALUE
+        ;;
+      -n | --fork-full-name)
+        fork_full_name=$VALUE
+        ;;
+      -d | --dir)
+        dir=$VALUE
+        ;;
+      -r | --ref)
+        ref=$VALUE
+        ;;
+      *)
+      echo "ERROR: unknown parameter \"$PARAM\""
+      usage
+      exit 1
+      ;;
+    esac
+    shift
+done
+
+# If a deployment dir is specified, enter it
+if [[ -n $dir ]]; then
+  cd "~/$dir"
+fi
+
+# If a fork deployment is requested use the fork branch
+if [[ -n $fork ]]; then
+  echo "fork deployment requested"
+  forkarray=($fork)
+  git checkout -b $fork
+  git pull "https://github.com/$fork_full_name.git" ${forkarray[1]}
+else
+  echo "branch deployment requested"
+  git fetch --all
+  git reset --hard origin/$1
+fi
 
 echo "[-] Killing old docker processes"
 sudo -E bash -c 'source ~/.profile && docker-compose down -v -t 1'
