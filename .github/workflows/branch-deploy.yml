@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: github/branch-deploy@fb5baec9eccc077f582d8850521b8bc3043f550f # pin@v2.0.0
+      - uses: github/branch-deploy@main
         id: branch-deploy
 
       - name: Checkout
