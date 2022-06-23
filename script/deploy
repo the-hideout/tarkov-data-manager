@@ -45,14 +45,14 @@ done
 
 # If a deployment dir is specified, enter it
 if [[ -n $dir ]]; then
-  cd "~/$dir"
+  cd ~/$dir
 fi
 
 # If a fork deployment is requested use the fork branch
 if [[ -n $fork ]]; then
   echo "fork deployment requested"
   forkarray=($fork)
-  git checkout -b $fork
+  git checkout -b $fork || git branch -D $fork && git checkout -b $fork
   git pull "https://github.com/$fork_full_name.git" ${forkarray[1]}
 else
   echo "branch deployment requested"
