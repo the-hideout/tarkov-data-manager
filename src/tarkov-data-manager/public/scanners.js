@@ -26,7 +26,7 @@ getScannerValue = (sessionID, settingName) => {
 };
 
 function startListener(channel) {
-    const WEBSOCKET_SERVER = 'wss://hideout-socket-server.herokuapp.com';
+    const WEBSOCKET_SERVER = process.env.WEBSOCKET_SERVER;
     //const WEBSOCKET_SERVER = 'ws://localhost:8080';
     let logMessages = [];
 
