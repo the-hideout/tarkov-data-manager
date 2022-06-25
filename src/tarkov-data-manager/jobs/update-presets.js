@@ -36,7 +36,7 @@ const processPresets = async () => {
         const ignorePresets = [
             '5a32808386f774764a3226d9'
         ];
-        for(const presetId in presets){
+        for (const presetId in presets) {
             if (ignorePresets.includes(presetId)) continue;
             const preset = presets[presetId];
             const baseItem = items[preset._items[0]._tpl];
@@ -120,6 +120,49 @@ const processPresets = async () => {
                 logger.warn(`Preset ${presetData.name} ${presetId} cannot replace ${existingDefault.name} ${existingDefault.id} as default preset`);
             }
             logger.succeed(`Completed ${presetData.name} preset (${presetData.containsItems.length+1} parts)`);
+        }
+        // add dog tag preset
+        const bearTag = items['59f32bb586f774757e1e8442'];
+        const getDogTagName = lang => {
+            return locales[lang].templates[bearTag._id].Name.replace(locales[lang].templates['59f32bb586f774757e1e8442'].ShortName, '').trim();
+        };
+        presetsData['5b9b9020e7ef6f5716480215'] = {
+            id: '5b9b9020e7ef6f5716480215',
+            name: getDogTagName('en'),
+            shortName: getDogTagName('en'),
+            //description: en.templates[baseItem._id].Description,
+            normalized_name: normalizeName(getDogTagName('en')),
+            baseId: bearTag._id,
+            width: bearTag._props.Width,
+            height: bearTag._props.Height,
+            weight: bearTag._props.Weight,
+            baseValue: credits[bearTag._id],
+            backgroundColor: bearTag._props.BackgroundColor,
+            bsgCategoryId: bearTag._parent,
+            types: ['preset', 'no-flea'],
+            default: false,
+            containsItems: [
+                {
+                    item: {
+                        id: bearTag._id
+                    },
+                    count: 1
+                },
+                {
+                    item: {
+                        id: '59f32c3b86f77472a31742f0'
+                    },
+                    count: 1
+                }
+            ],
+            locale: {}
+        };
+        for (const code in locales) {
+            lang = locales[code];
+            presetsData['5b9b9020e7ef6f5716480215'].locale[code] = {
+                name: getDogTagName(code),
+                shortName: getDogTagName(code)
+            }
         }
         logger.log('Loading default presets...');
         const queries = [];
