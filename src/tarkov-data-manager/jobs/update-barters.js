@@ -87,36 +87,30 @@ const getItemData = function getItemData(html){
 
     let item = getItemByName(name);
 
-    if(!item && name === 'Dogtag'){
-        let dogtagName = fixName($local('a').eq(-1).text());
-        dogtagName = dogtagName.replace(/ ≥ Lvl \d+,?/, '');
+    if(!item || name === 'Dogtag'){
+        let dogtagText = fixName($local('a').eq(-1).text());
+        let dogTagParts = dogtagText.match(/Dogtag( ≥ Lvl (\d+),?)?( [\S]+)?/);
+        const dogtagName = 'Dogtag'+(dogTagParts[3] ? dogTagParts[3] : '');
         item = getItemByName(dogtagName);
-    }
+        if (item) {
+            let minLevelMatch = dogTagParts[2];
+            item.attributes = [];
+            if (minLevelMatch) {
+                item.attributes.push({
+                    type: 'minLevel',
+                    value: minLevelMatch
+                });
+            }
+        } else {
+            logger.error(`Could not match dogtag for ${dogtagText}`);
 
-    if(!item && name === 'Dogtag'){
-        item = {
-            name: 'Dogtag',
-            id: 'N/A',
-        };
+        }
     }
 
     if(!item){
         logger.error(`Found no required item called "${name}"`);
 
         return false;
-    }
-
-    item.attributes = [];
-
-    if (name === 'Dogtag') {
-        let dogtagName = fixName($local('a').eq(-1).text());
-        let minLevelMatch = dogtagName.match(/ ≥ Lvl (\d+)/);
-        if (minLevelMatch) {
-            item.attributes.push({
-                type: 'minLevel',
-                value: minLevelMatch[1]
-            });
-        }
     }
 
     let count = 1;
@@ -241,53 +235,7 @@ const parseTradeRow = (tradeElement) => {
         return true;
     }
 
-    // If there's an item called just "Dogtag" we want 2 different trades
-    // This is not 100% correct as you can use either/or
-    if(tradeData.requiredItems.find(requiredItem => requiredItem.name === 'Dogtag')){
-        const usecTrade = {
-            ...tradeData,
-        };
-
-        const bearTrade = {
-            ...tradeData,
-        };
-
-        usecTrade.requiredItems = usecTrade.requiredItems.map(requiredItem => {
-            if(requiredItem.name !== 'Dogtag'){
-                return requiredItem;
-            }
-
-            const dogtagUSEC = getItemByName('Dogtag USEC');
-
-            return {
-                name: 'Dogtag USEC',
-                item: dogtagUSEC.id,
-                count: requiredItem.count,
-                attributes: requiredItem.attributes
-            };
-        });
-
-        trades.data.push(usecTrade);
-
-        bearTrade.requiredItems = bearTrade.requiredItems.map(requiredItem => {
-            if(requiredItem.name !== 'Dogtag'){
-                return requiredItem;
-            }
-
-            const dogtagBEAR = getItemByName('Dogtag BEAR');
-
-            return {
-                name: 'Dogtag BEAR',
-                item: dogtagBEAR.id,
-                count: requiredItem.count,
-                attributes: requiredItem.attributes
-            };
-        });
-
-        trades.data.push(bearTrade);
-    } else {
-        trades.data.push(tradeData);
-    }
+    trades.data.push(tradeData);
 
     return true;
 }
