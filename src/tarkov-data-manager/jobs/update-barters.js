@@ -87,6 +87,8 @@ const getItemData = function getItemData(html){
 
     let item = getItemByName(name);
 
+    const attributes = [];
+
     if(!item || name === 'Dogtag'){
         let dogtagText = fixName($local('a').eq(-1).text());
         let dogTagParts = dogtagText.match(/Dogtag( ≥ Lvl (\d+),?)?( [\S]+)?/);
@@ -94,9 +96,8 @@ const getItemData = function getItemData(html){
         item = getItemByName(dogtagName);
         if (item) {
             let minLevelMatch = dogTagParts[2];
-            item.attributes = [];
             if (minLevelMatch) {
-                item.attributes.push({
+                attributes.push({
                     type: 'minLevel',
                     value: minLevelMatch
                 });
@@ -127,7 +128,7 @@ const getItemData = function getItemData(html){
         name: item.name,
         item: item.id,
         count: count,
-        attributes: item.attributes
+        attributes: attributes
     };
 };
 
