@@ -324,10 +324,10 @@ module.exports = async () => {
                 logger.log(`No category found for ${itemData[key].name} (${key})`);
             }
             addCategory(itemData[key].bsgCategoryId);
-            if (credits[key]) {
-                itemData[key].basePrice = credits[key];
-            } else if (presets[key]) {
+            if (presets[key]) {
                 itemData[key].basePrice = presets[key].baseValue;
+            } else if (credits[key]) {
+                itemData[key].basePrice = credits[key];
             } 
 
             itemData[key].iconLink = itemData[key].icon_link;
