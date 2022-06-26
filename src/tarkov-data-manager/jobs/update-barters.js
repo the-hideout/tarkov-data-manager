@@ -357,6 +357,10 @@ module.exports = async function() {
 
         logger.log('Parsing barters table...');
         await Promise.all(traderRows.map(parseTradeRow));
+        let barterId = 1;
+        for (const trade of trades.data) {
+            trade.id = barterId++;
+        }
         logger.succeed('Finished parsing barters table');
 
         const response = await cloudflare.put('barter_data', JSON.stringify(trades)).catch(error => {
