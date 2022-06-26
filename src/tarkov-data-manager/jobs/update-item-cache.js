@@ -473,12 +473,22 @@ module.exports = async () => {
             }
         }
 
+        const levelData = [];
+        let currentLevel = 1;
+        for (const level of globals.config.exp.level.exp_table) {
+            levelData.push({
+                level: currentLevel++,
+                exp: level.exp
+            });
+        }
+
         const itemsData = {
             updated: new Date(),
             data: itemData,
             categories: bsgCategories,
             flea: fleaData,
-            armorMats: armorData
+            armorMats: armorData,
+            playerLevels: levelData
         };
         let response = await cloudflare.put('item_data', JSON.stringify(itemsData)).catch(error => {
             logger.error(error);
