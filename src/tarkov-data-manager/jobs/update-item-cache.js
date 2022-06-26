@@ -309,17 +309,21 @@ module.exports = async () => {
             itemData[key].basePrice = 0;
             if (bsgItems[key]) {
                 addPropertiesToItem(itemData[key]);
-                //itemData[key].basePrice = credits[key];
                 itemData[key].bsgCategoryId = bsgItems[key]._parent;
                 itemData[key].discardLimit = bsgItems[key]._props.DiscardLimit;
+                itemData[key].backgroundColor = bsgItems[key]._props.BackgroundColor;
                 itemData[key].properties = await getSpecialItemProperties(bsgItems[key], bsgItems[bsgItems[key]._parent]);
             } else if (presets[key]) {
                 const preset = presets[key];
                 itemData[key].width = preset.width;
                 itemData[key].height = preset.height;
                 itemData[key].weight = preset.weight;
-                //itemData[key].basePrice = preset.baseValue;
                 itemData[key].bsgCategoryId = preset.bsgCategoryId;
+                itemData[key].backgroundColor = preset.backgroundColor;
+                itemData[key].properties = {
+                    propertiesType: 'ItemPropertiesPreset',
+                    base_item_id: preset.baseId
+                };
             } else if (!itemData[key].types.includes('disabled')) {
                 logger.log(`No category found for ${itemData[key].name} (${key})`);
             }
