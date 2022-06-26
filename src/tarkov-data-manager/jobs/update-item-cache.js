@@ -320,6 +320,10 @@ module.exports = async () => {
                 itemData[key].weight = preset.weight;
                 itemData[key].bsgCategoryId = preset.bsgCategoryId;
                 itemData[key].backgroundColor = preset.backgroundColor;
+                itemData[key].properties = {
+                    propertiesType: 'ItemPropertiesPreset',
+                    base_item_id: preset.baseId
+                };
             } else if (!itemData[key].types.includes('disabled')) {
                 logger.log(`No category found for ${itemData[key].name} (${key})`);
             }
