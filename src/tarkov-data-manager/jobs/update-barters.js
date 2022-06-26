@@ -149,7 +149,6 @@ const parseTradeRow = async (tradeElement) => {
     let rewardItem = getItemByName(rewardItemName);
 
     if(!rewardItem){
-        //console.log(`Found no item called "${rewardItemName}"`);
         logger.error(`Found no reward item called "${rewardItemName}"`);
 
         return true;
@@ -162,12 +161,12 @@ const parseTradeRow = async (tradeElement) => {
         }
         const gunLink = $trade.find('th').eq(-1).find('a').eq(0).prop('href');
         let $gunPage = cheerio.load((await got(WIKI_URL+gunLink)).body);
-        //const variantTable = $gunPage('#Weapon_variants').closest('h2').next();
-        //const variantTable = $gunPage('h2:contains(variants)').next();
         const variantRows = [];
-        $gunPage('.wikitable').each(table => {
-            console.log($(table).find('th').eq(1).text().toLowerCase());
-            if (!$(table).find('th').eq(1).text().toLowerCase().includes('variant')) return;
+        $gunPage('.wikitable').each((tableIndex, tableElement) => {
+            table = $(tableElement);
+            if (!table.find('th').eq(1).text().toLowerCase().includes('variant')) {
+                return;
+            }
             const variantTable = $(table);
             variantTable.each((variantTableIndex, variantTableElement) => {
                 $(variantTableElement).find('tr').each((variantIndex, variantRow) => {
@@ -192,7 +191,7 @@ const parseTradeRow = async (tradeElement) => {
             }
         }
         if (baseId === rewardItem.id) {
-            logger.warn(`Could not find matching preset for ${gunImage}`);
+            //logger.warn(`Could not find matching preset for ${gunImage}`);
         }
     }
     //logger.log(`Parsing ${rewardItem.name} (${traderRequirement})`);
