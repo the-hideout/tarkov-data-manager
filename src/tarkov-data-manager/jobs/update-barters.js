@@ -11,7 +11,9 @@ const tarkovChanges = require('../modules/tarkov-changes');
 const { query, jobComplete } = require('../modules/db-connection');
 
 let itemData = false;
-const TRADES_URL = 'https://escapefromtarkov.fandom.com/wiki/Barter_trades';
+const presetData = [];
+const WIKI_URL = 'https://escapefromtarkov.fandom.com'
+const TRADES_URL = `${WIKI_URL}/wiki/Barter_trades`;
 let logger;
 let trades;
 let oldTasks;
@@ -70,6 +72,14 @@ const getItemByName = (searchName) => {
 
         return match[1].trim() === searchName.toLowerCase().trim();
     });
+};
+
+const getPresetbyShortName = shortName => {
+    for (const preset of presetData) {
+        if (preset.short_name === shortName) return preset;
+    }
+    logger.warn('Found no preset for '+shortName);
+    return false;
 };
 
 const getItemData = function getItemData(html){
@@ -132,17 +142,58 @@ const getItemData = function getItemData(html){
     };
 };
 
-const parseTradeRow = (tradeElement) => {
+const parseTradeRow = async (tradeElement) => {
     const $trade = $(tradeElement);
     const rewardItemName = fixName($trade.find('th').eq(-1).find('a').eq(0).prop('title'));
     const traderRequirement = fixName($trade.find('th').eq(2).find('a').eq(1).text());
-    const rewardItem = getItemByName(rewardItemName);
+    let rewardItem = getItemByName(rewardItemName);
 
     if(!rewardItem){
         //console.log(`Found no item called "${rewardItemName}"`);
         logger.error(`Found no reward item called "${rewardItemName}"`);
 
         return true;
+    }
+    const baseId = rewardItem.id;
+    if (rewardItem.types.includes('gun')) {
+        let gunImage = $trade.find('th').eq(-1).find('img').eq(0).data('src');
+        if (gunImage && gunImage.indexOf('/revision/') > -1) {
+            gunImage = gunImage.substring(0, gunImage.indexOf('/revision/'));
+        }
+        const gunLink = $trade.find('th').eq(-1).find('a').eq(0).prop('href');
+        let $gunPage = cheerio.load((await got(WIKI_URL+gunLink)).body);
+        //const variantTable = $gunPage('#Weapon_variants').closest('h2').next();
+        //const variantTable = $gunPage('h2:contains(variants)').next();
+        const variantRows = [];
+        $gunPage('.wikitable').each(table => {
+            console.log($(table).find('th').eq(1).text().toLowerCase());
+            if (!$(table).find('th').eq(1).text().toLowerCase().includes('variant')) return;
+            const variantTable = $(table);
+            variantTable.each((variantTableIndex, variantTableElement) => {
+                $(variantTableElement).find('tr').each((variantIndex, variantRow) => {
+                    if (variantIndex === 0) return;
+                    variantRows.push(variantRow);
+                });
+            });
+        });
+        for (const row of variantRows) {
+            $variant = $(row);
+            let img = $variant.find('td').eq(0).find('img').eq(0).data('src');
+            if (img && img.indexOf('/revision') > -1) {
+                img = img.substring(0, img.indexOf('/revision/'));
+            }
+            if (img !== gunImage) continue;
+            const variantName = $variant.find('td').eq(1).text().trim();
+            if (!variantName) continue;
+            const preset = getPresetbyShortName(variantName);
+            if (preset) {
+                rewardItem = preset;
+                break;
+            }
+        }
+        if (baseId === rewardItem.id) {
+            logger.warn(`Could not find matching preset for ${gunImage}`);
+        }
     }
     //logger.log(`Parsing ${rewardItem.name} (${traderRequirement})`);
 
@@ -152,6 +203,7 @@ const parseTradeRow = (tradeElement) => {
         rewardItems: [{
             name: rewardItem.name,
             item: rewardItem.id,
+            baseId: baseId,
             count: 1,
         }],
         trader: traderRequirement,
@@ -246,7 +298,15 @@ module.exports = async function() {
     logger = new JobLogger('update-barters');
     try {
         logger.log('Retrieving barters data...');
-        const itemsPromise = query('SELECT * FROM item_data ORDER BY id');
+        const itemsPromise = query(`
+            SELECT item_data.*, GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
+            FROM item_data
+            LEFT JOIN types ON
+                types.item_id = item_data.id
+            GROUP BY
+                item_data.id
+            ORDER BY item_data.id
+        `);
         const wikiPromise = got(TRADES_URL);
         const tasksPromise = tarkovChanges.quests();
         const oldTasksPromise = got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
@@ -270,9 +330,11 @@ module.exports = async function() {
 
             const preparedData = {
                 ...result,
+                types: result.types ? result.types.split(',') : []
             }
 
             returnData[result.id] = preparedData;
+            if (preparedData.types.includes('preset')) presetData.push(preparedData);
         }
 
         itemData = returnData;
@@ -295,7 +357,7 @@ module.exports = async function() {
         });
 
         logger.log('Parsing barters table...');
-        traderRows.map(parseTradeRow);
+        await Promise.all(traderRows.map(parseTradeRow));
         logger.succeed('Finished parsing barters table');
 
         const response = await cloudflare.put('barter_data', JSON.stringify(trades)).catch(error => {
