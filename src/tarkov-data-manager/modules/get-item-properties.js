@@ -288,7 +288,7 @@ const getItemProperties = async (item, parent = false) => {
                         effect.locale[code].type = locales[code].interface.Skill;
                         effect.locale[code].skillName = locales[code].interface[buff.SkillName];
                     }
-                    if (!effect.locale[code].type) return Promise.reject(new Error(`No ${code} translation found for stim buff type ${buff.BuffType}`));
+                    if (!effect.locale[code].type) effect.locale[code].type = locales.en.interface[effectKey];//return Promise.reject(new Error(`No ${code} translation found for stim buff type ${buff.BuffType}`));
                 }
                 properties.stimEffects.push(effect);
             }
