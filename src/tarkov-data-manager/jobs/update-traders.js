@@ -61,7 +61,7 @@ module.exports = async function() {
                     requiredPlayerLevel: parseInt(level.minLevel),
                     requiredReputation: parseInt(level.minStanding),
                     requiredCommerce: parseInt(level.minSalesSum),
-                    payRate: (100 - level.buy_price_coef) / 100,
+                    payRate: level.buy_price_coef ? (100 - level.buy_price_coef) / 100 : 0.0001,
                     insuranceRate: null,
                     repairCostMultiplier: null
                 };
