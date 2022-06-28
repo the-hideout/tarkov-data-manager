@@ -54,6 +54,7 @@ module.exports = async function() {
                 if (trader._id == '579dc571d53a0658a154fbec' &&traderData.levels.length === 0) {
                     i--;
                 }
+                const buyCoef = parseInt(level.buy_price_coef);
                 const levelData = {
                     id: `${trader._id}-${i+1}`,
                     name: traderData.name,
@@ -61,7 +62,7 @@ module.exports = async function() {
                     requiredPlayerLevel: parseInt(level.minLevel),
                     requiredReputation: parseInt(level.minStanding),
                     requiredCommerce: parseInt(level.minSalesSum),
-                    payRate: (100 - level.buy_price_coef) / 100,
+                    payRate: buyCoef ? (100 - buyCoef) / 100 : 0.0001,
                     insuranceRate: null,
                     repairCostMultiplier: null
                 };
