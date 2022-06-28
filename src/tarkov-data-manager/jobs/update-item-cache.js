@@ -74,7 +74,7 @@ const getTraderMultiplier = (traderId) => {
     const trader = traderData[traderId];
     if (!trader) throw error (`Trader with id ${traderId} not found in traders data`);
     const coeff = Number(trader.loyaltyLevels[0].buy_price_coef);
-    return (100-coeff) / 100;
+    return coeff ? (100-coeff) / 100 : 0.0001;
 };
 
 const getItemCategory = (id, original) => {
@@ -392,12 +392,15 @@ module.exports = async () => {
                 for(const trader of categories[sellCategory].traders){
                     let currency = 'RUB';
                     if (trader.name === 'Peacekeeper') currency = 'USD';
+                    let priceRUB = Math.floor(getTraderMultiplier(trader.id) * itemData[key].basePrice);
+                    const priceCUR = Math.round(priceRUB / currenciesNow[currency]);
+                    if (priceCUR === 0) priceRUB = 0;
                     itemData[key].traderPrices.push({
                         name: trader.name,
-                        price: Math.round((getTraderMultiplier(trader.id) * itemData[key].basePrice) / currenciesNow[currency]),
+                        price: priceCUR,
                         currency: currency,
                         currencyItem: currencyId[currency],
-                        priceRUB: Math.floor(getTraderMultiplier(trader.id) * itemData[key].basePrice),
+                        priceRUB: priceRUB,
                         trader: traderId[trader.name]
                     });
                 }
