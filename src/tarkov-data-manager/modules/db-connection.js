@@ -35,7 +35,6 @@ module.exports = {
         if (pool.keepAlive) {
             return Promise.resolve(false);
         }
-        if (pool._closed) return false;
         return new Promise((resolve, reject) => {
             pool.end(error => {
                 if (error) {
