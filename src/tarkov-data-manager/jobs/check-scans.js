@@ -12,7 +12,7 @@ const ignoreSources = [
     'NUC-PC',
     'XETA',
     'Mats-HP',
-    'tt'
+    'TARKOV-TOOLS-PULL'
 ];
 
 module.exports = async () => {
@@ -43,7 +43,7 @@ module.exports = async () => {
             // console.log(new Date().getTimezoneOffset());
 
             const lastScanAge = Math.floor((new Date().getTime() - lastScan.getTime()) / 1000);
-            logger.log(`${result.source}: ${lastScanAge}s`);
+            logger.log(`${result.name}: ${lastScanAge}s`);
 
             if (lastScanAge < 1800) {
                 continue;
