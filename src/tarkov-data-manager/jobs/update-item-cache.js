@@ -192,6 +192,7 @@ module.exports = async () => {
         const globals = await tarkovChanges.globals();
         const itemMap = await remoteData.get(true);
         const itemData = {};
+        const itemTypesSet = new Set();
         bsgCategories = {};
 
         logger.time('price-yesterday-query');
@@ -425,6 +426,10 @@ module.exports = async () => {
                     });
                 }
             }
+
+            itemData[key].types.forEach(itemType => {
+                itemTypesSet.add(itemType);
+            });
         }
 
         const fleaData = {
@@ -493,9 +498,11 @@ module.exports = async () => {
             updated: new Date(),
             data: itemData,
             categories: bsgCategories,
+            types: ['any', ...itemTypesSet].sort(),
             flea: fleaData,
             armorMats: armorData,
-            playerLevels: levelData
+            playerLevels: levelData,
+            languageCodes: Object.keys(locales).sort()
         };
         let response = await cloudflare.put('item_data', JSON.stringify(itemsData)).catch(error => {
             logger.error(error);
