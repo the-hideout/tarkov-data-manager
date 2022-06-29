@@ -110,6 +110,7 @@ module.exports = async (externalLogger) => {
             return true;
         });
 
+        const doNotUse = /DO[ _]NOT[ _]USE/;
         for (const item of items) {
             // Skip existing items to speed things up
             if (currentItems.has(item._id)){
@@ -122,6 +123,7 @@ module.exports = async (externalLogger) => {
                 name = en.templates[item._id].Name.trim();
                 shortname = en.templates[item._id].ShortName.trim();
             }
+            if (name.match(doNotUse)) continue;
             const normalized = normalizeName(name);
 
             try {

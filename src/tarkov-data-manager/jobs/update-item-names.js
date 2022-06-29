@@ -32,6 +32,7 @@ module.exports = async (externalLogger) => {
             }
         }
 
+        const doNotUse = /DO[ _]NOT[ _]USE/;
         let i = 0;
         for (const [itemId, localItem] of localItems.entries()) {
             i++;
@@ -61,6 +62,9 @@ module.exports = async (externalLogger) => {
             
 
             if (name !== localItem.name || shortname !== localItem.short_name || normalized !== localItem.normalized_name) {
+                if (localItem.name.match(doNotUse) && !name.match(doNotUse)) {
+                    query(`DELETE FROM types WHERE item_id = ? AND type = 'disabled'`, [itemId]);
+                }
                 try {
                     await query(`
                         UPDATE item_data 
