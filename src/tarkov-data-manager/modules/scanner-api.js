@@ -3,6 +3,7 @@ const path = require('path');
 const {query, format} = require('./db-connection');
 const {dashToCamelCase} = require('../modules/string-functions');
 
+let refreshingUsers = false;
 let users = {};
 let existingBaseImages = [];
 
@@ -544,6 +545,7 @@ const releaseItem = async (options) => {
     let where = [];
     let scanned = '';
     let trader = '';
+    let setLastScan = false;
     if (options.offersFrom === 1) {
         trader = 'trader_'
     }
@@ -553,6 +555,7 @@ const releaseItem = async (options) => {
             scanned += `, last_offer_count = ?`;
             escapedValues.push(options.offerCount);
         }
+        setLastScan = true;
     } else if (!itemScanned || skipInsert) {
         where.push(`item_data.${trader}checkout_scanner_id = ?`);
         escapedValues.push(options.scannerId);
@@ -567,7 +570,16 @@ const releaseItem = async (options) => {
         WHERE ${where.join(' AND ')}
     `;
     try {
-        const result = await query(format(sql, escapedValues));
+        const result = await query(format(sql, escapedValues)).then(result => {
+            if (setLastScan) {
+                query(`
+                    UPDATE scanner
+                    SET last_scan = NOW()
+                    WHERE id = ?
+                `, [options.scannerId]);
+            }
+            return result;
+        });
         response.data = result.affectedRows;
     } catch (error) {
         response.errors.push(String(error));
@@ -625,16 +637,27 @@ const userFlags = {
 };
 
 const refreshUsers = async () => {
-    const results = await query('SELECT * from scanner_user WHERE disabled=0');
-    users = {};
-    const scannerQueries = [];
-    for (const user of results) {
-        users[user.username] = user;
-        scannerQueries.push(query('SELECT * from scanner WHERE scanner_user_id = ?', user.id).then(scanners => {
-            users[user.username].scanners = scanners;
-        }));
-    }
-    await Promise.all(scannerQueries);
+    if (refreshingUsers) return refreshingUsers;
+    refreshingUsers = new Promise((resolve, reject) => {
+        query('SELECT * from scanner_user WHERE disabled=0').then(results => {
+            users = {};
+            const scannerQueries = [];
+            for (const user of results) {
+                users[user.username] = user;
+                scannerQueries.push(query('SELECT * from scanner WHERE scanner_user_id = ?', user.id).then(scanners => {
+                    users[user.username].scanners = scanners;
+                }));
+            }
+            Promise.all(scannerQueries).then(() => {
+                resolve();
+            }).catch(error => {
+                reject(error);
+            });
+        });
+    }).finally(() => {
+        refreshingUsers = false;
+    });
+    return refreshingUsers;
 };
 
 refreshUsers();
@@ -834,5 +857,9 @@ module.exports = {
         return {
             ...userFlags
         }
+    },
+    waitForActions: async () => {
+        if (refreshingUsers) return refreshingUsers;
+        return Promise.resolve();
     }
 };

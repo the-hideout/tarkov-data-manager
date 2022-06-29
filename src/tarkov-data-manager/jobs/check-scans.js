@@ -2,39 +2,39 @@ const { query, jobComplete } = require('../modules/db-connection');
 const webhook = require('../modules/webhook');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
+const scannerApi = require('../modules/scanner-api');
 
 const ignoreSources = [
-    'DESKTOP-DA1IT79',
-    'DanBox2018',
     'DESKTOP-RAZZ',
-    'LAPTOP-RAZZ',
-    'DESKTOP-BKCSP2S',
-    'NUC-PC',
-    'XETA',
-    'Mats-HP',
     'TARKOV-TOOLS-PULL'
 ];
 
 module.exports = async () => {
     const logger = new JobLogger('check-scans');
     try {
-        const results = await query(`
-            select max(timestamp) as timestamp, scanner_id, name, username 
-            from price_data 
-            left join scanner on scanner.id = price_data.scanner_id
+        const scanners = await query(`
+            select scanner.id, name, last_scan, username, scanner_user.flags, disabled 
+            from scanner 
             left join scanner_user on scanner_user.id = scanner.scanner_user_id
-            group by scanner_id 
-            order by \`timestamp\` desc
         `);
-        for (const result of results) {
+        const userFlags = scannerApi.getUserFlags();
+        for (const scanner of scanners) {
+            if (!scanner.last_scan || scanner.disabled || userFlags.skipPriceInsert & scanner.flags) {
+                // ignore scanners that have never inserted a price
+                continue;
+            }
             if (ignoreSources.includes(result.name)) {
-                logger.log(`Ignoring source: ${result.name}`);
+                logger.log(`Ignoring source: ${scanner.name}`);
+                continue;
+            }
+            if (!(userFlags.insertPlayerPrices & scanner.flags) && !(userFlags.insertTraderPrices & scanner.flags)) {
+                logger.log(`Skipping scanner without insert flags: ${scanner.name}`);
                 continue;
             }
 
-            logger.log(JSON.stringify(result));
+            logger.log(JSON.stringify(scanner));
             // Db timestamps are off so we add an hour
-            const lastScan = new Date(result.timestamp.setTime(result.timestamp.getTime() + 3600000));
+            const lastScan = new Date(scanner.last_scan.setTime(scanner.last_scan.getTime() + 3600000));
 
             // console.log(lastScan);
             // console.log(new Date());
@@ -43,14 +43,14 @@ module.exports = async () => {
             // console.log(new Date().getTimezoneOffset());
 
             const lastScanAge = Math.floor((new Date().getTime() - lastScan.getTime()) / 1000);
-            logger.log(`${result.name}: ${lastScanAge}s`);
+            logger.log(`${scanner.name}: ${lastScanAge}s`);
 
             if (lastScanAge < 1800) {
                 continue;
             }           
 
             const messageData = {
-                title: `Missing scans from ${encodeURIComponent(result.name)} (${result.username})`,
+                title: `Missing scans from ${encodeURIComponent(scanner.name)} (${scanner.username})`,
                 message: `The last scanned price was ${lastScanAge} seconds ago`
             };
 
@@ -66,6 +66,7 @@ module.exports = async () => {
             message: error.toString()
         });
     }
+    await scannerApi.waitForActions();
     await jobComplete();
     logger.end();
 };
