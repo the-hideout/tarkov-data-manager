@@ -512,7 +512,7 @@ module.exports = async () => {
             }
         }
 
-        // Possibility to POST to a Discord webhook here with cron status details
+        // Possibility to POST to a Discord webhook here with cron status details.
     } catch (error) {
         logger.error(error);
         alert({
