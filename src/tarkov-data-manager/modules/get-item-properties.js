@@ -170,8 +170,23 @@ const getItemProperties = async (item, parent = false) => {
             recoilVertical: item._props.RecoilForceUp,
             recoilHorizontal: item._props.RecoilForceBack,
             repairCost: item._props.RepairCost,
-            default_ammo_id: item._props.defAmmo
+            default_ammo_id: item._props.defAmmo,
+            fireRate: item._props.bFirerate,
+            effectiveDistance: item._props.bEffDist,
+            sightingRange: item._props.SightingRange,
+            maxDurability: item._props.MaxDurability,
+            fireModes: item._props.weapFireType.map(mode => {
+                return locales.en.interface[mode];
+            }),
+            locale: {}
         };
+        for (const code in locales) {
+            properties.locale[code] = {
+                fireModes: item._props.weapFireType.map(mode => {
+                    return locales[code].interface[mode];
+                }),
+            };
+        }
     } else if (item._parent === '5a2c3a9486f774688b05e574') {
         // night vision
         properties = {
