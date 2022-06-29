@@ -498,7 +498,7 @@ module.exports = async () => {
             updated: new Date(),
             data: itemData,
             categories: bsgCategories,
-            types: [...itemTypesSet].sort(),
+            types: ['any', ...itemTypesSet].sort(),
             flea: fleaData,
             armorMats: armorData,
             playerLevels: levelData,
