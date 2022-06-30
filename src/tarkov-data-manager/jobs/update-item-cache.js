@@ -403,7 +403,6 @@ module.exports = async () => {
                 }
             } else {
                 if (itemData[key].types && !itemData[key].types.includes('disabled')) {
-                    console.log(itemData[key]);
                     logger.log(`No category for trader prices mapped for ${itemData[key].name} (${itemData[key].id}) with category id ${itemData[key].bsgCategoryId}`);
                 }
             }
