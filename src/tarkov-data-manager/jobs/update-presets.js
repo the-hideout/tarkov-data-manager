@@ -7,6 +7,7 @@ const {connection, query, jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
+const getTranslation = require('../modules/get-translation');
 
 let logger = false;
 let gotSizes = false;
@@ -70,11 +71,17 @@ const processPresets = async () => {
                 locale: {}
             }
             for (const code in locales) {
-                lang = locales[code];
+                getTranslation(locales, code, lang => {
+                    presetData.locale[code] = {
+                        name: lang.templates[baseItem._id].Name,
+                        shortName: lang.templates[baseItem._id].ShortName
+                    };
+                }, logger);
+                /*lang = locales[code];
                 presetData.locale[code] = {
                     name: lang.templates[baseItem._id].Name,
                     shortName: lang.templates[baseItem._id].ShortName
-                }
+                }*/
             }
             for (let i = 1; i < preset._items.length; i++) {
                 const part = preset._items[i];
@@ -126,8 +133,8 @@ const processPresets = async () => {
         const getDogTagName = lang => {
             return locales[lang].templates[bearTag._id].Name.replace(locales[lang].templates['59f32bb586f774757e1e8442'].ShortName, '').trim();
         };
-        presetsData['5b9b9020e7ef6f5716480215'] = {
-            id: '5b9b9020e7ef6f5716480215',
+        presetsData['custom-dogtags'] = {
+            id: 'custom-dogtags',
             name: getDogTagName('en'),
             shortName: getDogTagName('en'),
             //description: en.templates[baseItem._id].Description,
@@ -159,7 +166,7 @@ const processPresets = async () => {
         };
         for (const code in locales) {
             lang = locales[code];
-            presetsData['5b9b9020e7ef6f5716480215'].locale[code] = {
+            presetsData['custom-dogtags'].locale[code] = {
                 name: getDogTagName(code),
                 shortName: getDogTagName(code)
             }
