@@ -133,8 +133,8 @@ const processPresets = async () => {
         const getDogTagName = lang => {
             return locales[lang].templates[bearTag._id].Name.replace(locales[lang].templates['59f32bb586f774757e1e8442'].ShortName, '').trim();
         };
-        presetsData['custom-dogtags'] = {
-            id: 'custom-dogtags',
+        presetsData['customdogtags'] = {
+            id: 'customdogtags',
             name: getDogTagName('en'),
             shortName: getDogTagName('en'),
             //description: en.templates[baseItem._id].Description,
@@ -166,7 +166,7 @@ const processPresets = async () => {
         };
         for (const code in locales) {
             lang = locales[code];
-            presetsData['custom-dogtags'].locale[code] = {
+            presetsData['customdogtags'].locale[code] = {
                 name: getDogTagName(code),
                 shortName: getDogTagName(code)
             }
