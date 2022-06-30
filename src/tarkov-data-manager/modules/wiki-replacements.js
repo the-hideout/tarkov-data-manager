@@ -29,7 +29,10 @@ const REPLACEMENTS = {
     '0.6 liter water bottle': 'Bottle of water (0.6L)',
     'LOBAEV Arms DVL-10 Saboteur 7.62x51 bolt-action sniper rifle': 'Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle',
     'Mosin Rifle 730mm regular barrel': 'Mosin Rifle 7.62x54R 730mm regular barrel',
-    'VPO-101 "Vepr-Hunter" 7.62x51 carbine': 'Molot VPO-101 "Vepr-Hunter" 7.62x51 carbine'
+    'VPO-101 "Vepr-Hunter" 7.62x51 carbine': 'Molot VPO-101 "Vepr-Hunter" 7.62x51 carbine',
+    '12/70 RIP 5 pcs. ammo box': '12/70 RIP ammo pack (5 pcs)',
+    '9x19mm RIP 20 pcs. ammo box': '9x19mm RIP ammo pack (20 pcs)',
+    'Plexiglass piece': 'Piece of plexiglass'
 };
 
 const PARTIAL_REPLACEMENTS = {

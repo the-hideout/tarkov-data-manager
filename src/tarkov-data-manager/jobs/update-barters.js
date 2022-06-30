@@ -99,13 +99,13 @@ const getItemData = function getItemData(html){
 
     const attributes = [];
 
-    if(!item || name === 'Dogtag'){
+    if (name === 'Dogtag'){
         let dogtagText = fixName($local('a').eq(-1).text());
-        let dogTagParts = dogtagText.match(/Dogtag( ≥ Lvl (\d+),?)?( [\S]+)?/);
-        const dogtagName = 'Dogtag'+(dogTagParts[3] ? dogTagParts[3] : '');
+        let dogTagParts = dogtagText.match(/Dogtag(?: ≥ Lvl (?<level>\d+),?)?(?<faction> [\S]+)?/);
+        const dogtagName = 'Dogtag'+(dogTagParts.groups.faction > 3 ? dogTagParts.groups.faction : '');
         item = getItemByName(dogtagName);
         if (item) {
-            let minLevelMatch = dogTagParts[2];
+            let minLevelMatch = dogTagParts.groups.level;
             if (minLevelMatch) {
                 attributes.push({
                     type: 'minLevel',
