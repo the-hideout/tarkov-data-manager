@@ -33,7 +33,7 @@ const tradeMap = {
 };
 
 const getItemByName = (searchName) => {
-    const itemArray = Object.values(itemData).filter(item => !item.type.includes('disabled'));
+    const itemArray = Object.values(itemData).filter(item => !item.types.includes('disabled'));
 
     if(!searchName){
         return false;
