@@ -381,12 +381,8 @@ module.exports = async () => {
             const currencyId = dataMaps.currencyIsoId;
             const traderId = dataMaps.traderNameId;
             
-            let sellCategory = false;
-            if (bsgItems[key]) {
-                sellCategory = getItemCategory(bsgItems[key]._parent);
-            }else if (presets[key]) {
-                sellCategory = getItemCategory(presets[key].bsgCategoryId)
-            } else if (!itemData[key].types.includes('disabled')) {
+            let sellCategory = getItemCategory(itemData[key].bsgCategoryId);
+            if (!sellCategory && !itemData[key].types.includes('disabled')) {
                 logger.log(`No category found for ${itemData[key].name} (${key})`);
             }
             if (sellCategory && categories[sellCategory]){
@@ -407,7 +403,8 @@ module.exports = async () => {
                 }
             } else {
                 if (itemData[key].types && !itemData[key].types.includes('disabled')) {
-                    logger.log(`No category for trader prices mapped for ${itemData[key].name} with category id ${bsgItems[key]._parent}`);
+                    console.log(itemData[key]);
+                    logger.log(`No category for trader prices mapped for ${itemData[key].name} (${itemData[key].id}) with category id ${itemData[key].bsgCategoryId}`);
                 }
             }
 
