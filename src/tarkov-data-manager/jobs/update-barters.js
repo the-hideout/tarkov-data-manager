@@ -101,11 +101,11 @@ const getItemData = function getItemData(html){
 
     if (name === 'Dogtag'){
         let dogtagText = fixName($local('a').eq(-1).text());
-        let dogTagParts = dogtagText.match(/Dogtag(?: ≥ Lvl (?<level>\d+),?)?(?<faction> [\S]+)?/);
-        const dogtagName = 'Dogtag'+(dogTagParts.groups.faction > 3 ? dogTagParts.groups.faction : '');
+        let dogtagParts = dogtagText.match(/Dogtag(?: ≥ Lvl (?<level>\d+),?)?(?<faction> [\S]+)?/);
+        const dogtagName = 'Dogtag'+(dogtagParts.groups.faction ? dogtagParts.groups.faction : '');
         item = getItemByName(dogtagName);
         if (item) {
-            let minLevelMatch = dogTagParts.groups.level;
+            let minLevelMatch = dogtagParts.groups.level;
             if (minLevelMatch) {
                 attributes.push({
                     type: 'minLevel',
