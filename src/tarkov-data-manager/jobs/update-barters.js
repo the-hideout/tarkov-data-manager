@@ -33,7 +33,7 @@ const tradeMap = {
 };
 
 const getItemByName = (searchName) => {
-    const itemArray = Object.values(itemData);
+    const itemArray = Object.values(itemData).filter(item => !item.types.includes('disabled'));
 
     if(!searchName){
         return false;
@@ -99,13 +99,13 @@ const getItemData = function getItemData(html){
 
     const attributes = [];
 
-    if(!item || name === 'Dogtag'){
+    if (name === 'Dogtag'){
         let dogtagText = fixName($local('a').eq(-1).text());
-        let dogTagParts = dogtagText.match(/Dogtag( ≥ Lvl (\d+),?)?( [\S]+)?/);
-        const dogtagName = 'Dogtag'+(dogTagParts[3] ? dogTagParts[3] : '');
+        let dogtagParts = dogtagText.match(/Dogtag(?: ≥ Lvl (?<level>\d+),?)?(?<faction> [\S]+)?/);
+        const dogtagName = 'Dogtag'+(dogtagParts.groups.faction ? dogtagParts.groups.faction : '');
         item = getItemByName(dogtagName);
         if (item) {
-            let minLevelMatch = dogTagParts[2];
+            let minLevelMatch = dogtagParts.groups.level;
             if (minLevelMatch) {
                 attributes.push({
                     type: 'minLevel',
