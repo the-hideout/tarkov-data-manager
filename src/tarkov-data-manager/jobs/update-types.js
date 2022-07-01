@@ -75,7 +75,7 @@ module.exports = async (externalLogger) => {
                         VALUES (?, ?, ?)
                     `, [itemId, round, count]);
                 }
-                if (bsgData[bsgData[itemId._parent]] && bsgData[bsgData[itemId._parent]]._parent === '5422acb9af1c889c16000029') {
+                if (bsgData[bsgData[itemId]._parent] && bsgData[bsgData[itemId]._parent]._parent === '5422acb9af1c889c16000029') {
                     if (!item.types.includes('gun')) {
                         logger.warn(`Assigning ${itemId} ${item.name} gun category`);
         
