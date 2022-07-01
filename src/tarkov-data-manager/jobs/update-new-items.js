@@ -129,16 +129,18 @@ module.exports = async (externalLogger) => {
             try {
                 const results = await query(`
                     INSERT INTO 
-                        item_data (id, name, short_name, normalized_name)
+                        item_data (id, name, short_name, normalized_name, properties)
                     VALUES (
                         '${item._id}',
                         ${connection.escape(name)},
                         ${connection.escape(shortname)},
-                        ${connection.escape(normalized)}
+                        ${connection.escape(normalized)},
+                        ${connection.escape(JSON.stringify({backgroundColor: item._props.BackgroundColor}))}
                     )
                     ON DUPLICATE KEY UPDATE
                         name=${connection.escape(name)},
-                        short_name=${connection.escape(name)}
+                        short_name=${connection.escape(name)},
+                        properties=${connection.escape(JSON.stringify({backgroundColor: item._props.BackgroundColor}))}
                 `);
                 if(results.changedRows > 0){
                     console.log(`${name} updated`);

@@ -101,6 +101,9 @@ const queryResultToBatchItem = item => {
     name: 'Kalashnikov AKS-74U 5.45x39 assault rifle',
     shortName: 'AKS-74U',
     matchIndex: 0,
+    properties: {
+        backgroundColor: 'black'
+    },
     needsBaseImage: false,
     needsImage: false,
     needsGridImage: false,
@@ -136,6 +139,7 @@ const getItems = async(options) => {
                 name,
                 short_name,
                 match_index,
+                properties,
                 image_link IS NULL OR image_link = '' AS needs_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
                 icon_link IS NULL OR icon_link = '' AS needs_icon_image,
@@ -167,6 +171,7 @@ const getItems = async(options) => {
                 name,
                 short_name,
                 match_index,
+                properties,
                 image_link IS NULL OR image_link = '' AS needs_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
                 icon_link IS NULL OR icon_link = '' AS needs_icon_image,
@@ -246,6 +251,7 @@ const getItems = async(options) => {
             name,
             short_name,
             match_index,
+            properties,
             image_link IS NULL OR image_link = '' AS needs_image,
             grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
             icon_link IS NULL OR icon_link = '' AS needs_icon_image,

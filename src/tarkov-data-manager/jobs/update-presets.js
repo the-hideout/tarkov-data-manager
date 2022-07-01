@@ -206,17 +206,19 @@ const processPresets = async () => {
             } else if (gotSizes) {
                 queries.push(query(`
                     INSERT INTO 
-                        item_data (id, name, short_name, normalized_name)
+                        item_data (id, name, short_name, normalized_name, properties)
                     VALUES (
                         '${p.id}',
                         ${connection.escape(p.name)},
                         ${connection.escape(p.shortName)},
-                        ${connection.escape(p.normalized_name)}
+                        ${connection.escape(p.normalized_name)},
+                        ${connection.escape(JSON.stringify({backgroundColor: p.backgroundColor}))}
                     )
                     ON DUPLICATE KEY UPDATE
                         name=${connection.escape(p.name)},
                         short_name=${connection.escape(p.shortName)},
-                        normalized_name=${connection.escape(p.normalized_name)}
+                        normalized_name=${connection.escape(p.normalized_name)},
+                        properties=${connection.escape(JSON.stringify({backgroundColor: p.backgroundColor}))}
                 `).then(results => {
                     if(results.changedRows > 0){
                         logger.log(`${p.name} updated`);
