@@ -288,7 +288,7 @@ app.get('/', async (req, res) => {
     const scanners = await query('SELECT id, last_scan FROM scanner');
     let activeScanners = 0;
     scanners.forEach(scanner => {
-        if (new Date() - scanner.last_scan < 1000 * 60 * 60 * 2) {
+        if (new Date() - scanner.last_scan < 1000 * 60 * 5) {
             activeScanners++;
         } 
     });
@@ -762,7 +762,7 @@ app.get('/scanners', async (req, res) => {
     scanners.forEach(scanner => {
         if (scanner.disabled) return;
         if (!(scanner.flags & userFlags.insertPlayerPrices) && !(scanner.flags & userFlags.insertTraderPrices)) return;
-        if (new Date() - scanner.last_scan < 1000 * 60 * 60 * 2) {
+        if (new Date() - scanner.last_scan < 1000 * 60 * 5) {
             activeScanners.push({...scanner, timestamp: scanner.last_scan});
         } else {
             inactiveScanners.push({...scanner, timestamp: scanner.last_scan});
