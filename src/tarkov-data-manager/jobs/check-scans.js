@@ -23,7 +23,7 @@ module.exports = async () => {
                 // ignore scanners that have never inserted a price
                 continue;
             }
-            if (ignoreSources.includes(result.name)) {
+            if (ignoreSources.includes(scanner.name)) {
                 logger.log(`Ignoring source: ${scanner.name}`);
                 continue;
             }
