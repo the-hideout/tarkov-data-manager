@@ -223,7 +223,7 @@ module.exports = async () => {
             FROM
                 price_data
             WHERE
-                timestamp > '2021-12-12 01:00:00'
+                timestamp > '2022-06-29 01:00:00'
             GROUP BY
                 item_id
         ) b
