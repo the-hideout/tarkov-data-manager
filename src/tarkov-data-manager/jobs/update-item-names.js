@@ -44,24 +44,26 @@ module.exports = async (externalLogger) => {
             let name = localItem.name;
             let shortname = localItem.short_name;
             let normalized = localItem.normalized_name;
+            let bgColor = localItem.properties.backgroundColor;
             if (item) {
                 name = item._props.Name.toString().trim();
                 if (en.templates[itemId]) {
                     name = en.templates[itemId].Name.toString().trim();
                     shortname = en.templates[itemId].ShortName.toString().trim();
                 }
+                bgColor = item._props.BackgroundColor;
             } else if (presets[itemId]) {
                 name = presets[itemId].name;
                 shortname = presets[itemId].shortName;
+                bgColor = presets[itemId].backgroundColor;
             }
             if ((!name || name == null) && normalized) {
                 name = normalized;
             } else if (name && !normalized) {
                 normalized = normalizeName(name);
             }
-            
 
-            if (name !== localItem.name || shortname !== localItem.short_name || normalized !== localItem.normalized_name) {
+            if (name !== localItem.name || shortname !== localItem.short_name || normalized !== localItem.normalized_name || bgColor !== localItem.properties.backgroundColor) {
                 if (localItem.name.match(doNotUse) && !name.match(doNotUse)) {
                     query(`DELETE FROM types WHERE item_id = ? AND type = 'disabled'`, [itemId]);
                 }
@@ -71,7 +73,8 @@ module.exports = async (externalLogger) => {
                         SET
                             name = ${connection.escape(name)},
                             short_name = ${connection.escape(shortname)},
-                            normalized_name = ${connection.escape(normalized)}
+                            normalized_name = ${connection.escape(normalized)},
+                            properties = ${connection.escape(JSON.stringify({backgroundColor: bgColor}))}
                         WHERE
                             id = '${itemId}'
                     `);

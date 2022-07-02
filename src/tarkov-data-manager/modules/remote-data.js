@@ -149,7 +149,7 @@ const methods = {
                     updated: itemPrices[result.id]?.lastUpdated || result.last_update,
                     lastLowPrice: itemPrices[result.id]?.lastLowPrice,
                 };
-
+                if (!preparedData.properties) preparedData.properties = {};
                 returnData.set(result.id, preparedData);
             }
 

@@ -74,11 +74,13 @@ const dateToMysqlFormat = (dateTime) => {
 const queryResultToBatchItem = item => {
     const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
     const contains = item.contains ? item.contains.split(',') : [];
+    const backgroundColor = item.properties?.backgroundColor ? item.properties.backgroundColor : 'default';
     return {
-        ...item,
+        id: item.id,
         name: String(item.name),
         shortName: String(item.short_name),
         types: types,
+        backgroundColor: backgroundColor,
         contains: contains,
         matchIndex: item.match_index,
         needsBaseImage: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
@@ -87,11 +89,11 @@ const queryResultToBatchItem = item => {
         needsIconImage: item.needs_icon_image ? true : false,
 
         // Backwards compatibility
-        short_name: String(item.short_name),
+        /*short_name: String(item.short_name),
         needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
         needs_image: item.needs_image ? true : false,
         needs_grid_image: item.needs_grid_image ? true : false,
-        needs_icon_image: item.needs_icon_image ? true : false
+        needs_icon_image: item.needs_icon_image ? true : false*/
     };
 };
 
@@ -101,6 +103,7 @@ const queryResultToBatchItem = item => {
     name: 'Kalashnikov AKS-74U 5.45x39 assault rifle',
     shortName: 'AKS-74U',
     matchIndex: 0,
+    backgroundColor: 'black',
     needsBaseImage: false,
     needsImage: false,
     needsGridImage: false,
@@ -136,6 +139,7 @@ const getItems = async(options) => {
                 name,
                 short_name,
                 match_index,
+                properties,
                 image_link IS NULL OR image_link = '' AS needs_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
                 icon_link IS NULL OR icon_link = '' AS needs_icon_image,
@@ -167,6 +171,7 @@ const getItems = async(options) => {
                 name,
                 short_name,
                 match_index,
+                properties,
                 image_link IS NULL OR image_link = '' AS needs_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
                 icon_link IS NULL OR icon_link = '' AS needs_icon_image,
@@ -246,6 +251,7 @@ const getItems = async(options) => {
             name,
             short_name,
             match_index,
+            properties,
             image_link IS NULL OR image_link = '' AS needs_image,
             grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
             icon_link IS NULL OR icon_link = '' AS needs_icon_image,

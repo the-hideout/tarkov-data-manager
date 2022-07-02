@@ -29,7 +29,6 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const remoteData = require('./modules/remote-data');
-const getLatestScanResults = require('./modules/get-latest-scan-results');
 const jobs = require('./jobs');
 const {connection, query, format} = require('./modules/db-connection');
 const timer = require('./modules/console-timer');
@@ -286,10 +285,10 @@ const getFooter = (req) => {
 };
 
 app.get('/', async (req, res) => {
-    const latestScanResults = await getLatestScanResults();
+    const scanners = await query('SELECT id, last_scan FROM scanner');
     let activeScanners = 0;
-    latestScanResults.map(latestScan => {
-        if (new Date - latestScan.timestamp < 1000 * 60 * 60 * 2) {
+    scanners.forEach(scanner => {
+        if (new Date() - scanner.last_scan < 1000 * 60 * 5) {
             activeScanners++;
         } 
     });
@@ -753,7 +752,6 @@ app.get('/items/get', async (req, res) => {
 });
 
 app.get('/scanners', async (req, res) => {
-    const latestScanResults = await getLatestScanResults();
     const activeScanners = [];
     const inactiveScanners = [];
     const scanners = await query(`
@@ -764,17 +762,11 @@ app.get('/scanners', async (req, res) => {
     scanners.forEach(scanner => {
         if (scanner.disabled) return;
         if (!(scanner.flags & userFlags.insertPlayerPrices) && !(scanner.flags & userFlags.insertTraderPrices)) return;
-        for (const latestScan of latestScanResults) {
-            if (latestScan.scanner_id === scanner.id) {
-                if (new Date - latestScan.timestamp < 1000 * 60 * 60 * 2) {
-                    activeScanners.push({...scanner, timestamp: latestScan.timestamp});
-                } else {
-                    inactiveScanners.push({...scanner, timestamp: latestScan.timestamp});
-                }
-                return;
-            }
+        if (new Date() - scanner.last_scan < 1000 * 60 * 5) {
+            activeScanners.push({...scanner, timestamp: scanner.last_scan});
+        } else {
+            inactiveScanners.push({...scanner, timestamp: scanner.last_scan});
         }
-        inactiveScanners.push({...scanner, timestamp: 0})
     });
     const getScannerStuff = (scanner, active) => {
         let activeClass = '';
