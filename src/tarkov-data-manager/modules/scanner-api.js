@@ -384,7 +384,10 @@ insertPrices = async (options) => {
                     // attempt to match
                     const matchedOffers = [];
                     for (const offer of offerTest) {
-                        if ((tPrice.minLevel === null || offer.min_level === null || offer.min_level == tPrice.minLevel) && (offer.quest_unlock_id == tPrice.quest || offer.quest_unlock_bsg_id == tPrice.quest)) {
+                        if (
+                            (tPrice.minLevel === null || offer.min_level === null || offer.min_level == tPrice.minLevel) && 
+                            (tPrice.quest === null || (offer.quest_unlock_id === null && offer.quest_unlock_bsg_id === null) || offer.quest_unlock_id == tPrice.quest || offer.quest_unlock_bsg_id == tPrice.quest)
+                        ) {
                             matchedOffers.push(offer.id);
                         }
                     }
@@ -467,19 +470,22 @@ insertPrices = async (options) => {
                 // offer does not exist, so we create it
                 // but only if our trader data is reliable
                 const offerValues = [itemId, tPrice.seller.toLowerCase(), tPrice.currency];
-                let quest = 'NULL';
-                if (tPrice.quest !== null) {
-                    quest = '?';
-                    offerValues.push(tPrice.quest);
-                }
                 let minLevel = 'NULL';
                 if (tPrice.minLevel !== null) {
                     minLevel = '?';
                     offerValues.push(tPrice.minLevel);
                 }
+                let quest = 'NULL';
                 let questIdField = 'quest_unlock_id';
-                if (isNaN(tPrice.quest)) {
-                    questIdField = 'quest_unlock_bsg_id';
+                if (tPrice.quest !== null) {
+                    quest = '?';
+                    let questId = tPrice.quest;
+                    if (isNaN(tPrice.quest)) {
+                        questIdField = 'quest_unlock_bsg_id';
+                    } else {
+                        questId = parseInt(questId);
+                    }
+                    offerValues.push(questId);
                 }
                 offerValues.push(options.scannerId);
                 const createOfferSql = format(`
@@ -690,7 +696,7 @@ const createScanner = async (user, scannerName) => {
     try {
         const result = await query('INSERT INTO scanner (scanner_user_id, name) VALUES (?, ?)', [user.id, scannerName]);
         const newScanner = {id: result.insertId, name: scannerName, scanner_user_id: user.id};
-        users[user.username].scanners.push(newScanner);
+        user.scanners.push(newScanner);
         return newScanner;
     } catch (error) {
         if (error.toString().includes('Duplicate entry')) {
@@ -698,6 +704,11 @@ const createScanner = async (user, scannerName) => {
         }
         throw error;
     }
+};
+
+const getUser = async (username) => {
+    if (refreshingUsers) await refreshingUsers;
+    return users[username];
 };
 
 const getScannerId = async (options, createMissing) => {
@@ -749,7 +760,7 @@ const deleteScanner = async (options) => {
             throw new Error('Cannot delete scanner with linked prices or trader offers.');
         }
         await query('DELETE FROM scanner WHERE id=?', [scannerId]);
-        users[options.user.username].scanners = options.user.scanners.filter(scanner => {
+        options.user.scanners = options.user.scanners.filter(scanner => {
             return scanner.id != scannerId;
         });
     } catch (error) {
@@ -779,7 +790,7 @@ const renameScanner = async (options) => {
             'UPDATE scanner SET name=? WHERE id=?', 
             [options.newScannerName, scannerId]
         );
-        users[options.user.username].scanners.forEach(scanner => {
+        options.user.scanners.forEach(scanner => {
             if (scanner.id === scannerId) {
                 scanner.name = options.newScannerName;
             }
@@ -795,7 +806,8 @@ module.exports = {
     request: async (req, res, resource) => {
         const username = req.headers.username;
         const password = req.headers.password;
-        if ((!username || !password) || !users[username].password || (users[username].password !== password)) {
+        const user = await getUser(username);
+        if ((!username || !password) || !user || !user.password || (user.password !== password)) {
             res.json({errors: ['access denied'], warnings: [], data: {}});
             return;
         }
@@ -809,7 +821,7 @@ module.exports = {
             options = {};
         }
         options.scannerName = scannerName;
-        options = getOptions(options, users[username]);
+        options = getOptions(options, user);
         let response = false;
         try {
             if (resource === 'items') {
