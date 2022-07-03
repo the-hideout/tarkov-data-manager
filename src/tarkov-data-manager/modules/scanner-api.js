@@ -384,7 +384,10 @@ insertPrices = async (options) => {
                     // attempt to match
                     const matchedOffers = [];
                     for (const offer of offerTest) {
-                        if ((tPrice.minLevel === null || offer.min_level === null || offer.min_level == tPrice.minLevel) && (offer.quest_unlock_id == tPrice.quest || offer.quest_unlock_bsg_id == tPrice.quest)) {
+                        if (
+                            (tPrice.minLevel === null || offer.min_level === null || offer.min_level == tPrice.minLevel) && 
+                            (tPrice.quest === null || (offer.quest_unlock_id === null && offer.quest_unlock_bsg_id === null) || offer.quest_unlock_id == tPrice.quest || offer.quest_unlock_bsg_id == tPrice.quest)
+                        ) {
                             matchedOffers.push(offer.id);
                         }
                     }
@@ -467,19 +470,22 @@ insertPrices = async (options) => {
                 // offer does not exist, so we create it
                 // but only if our trader data is reliable
                 const offerValues = [itemId, tPrice.seller.toLowerCase(), tPrice.currency];
-                let quest = 'NULL';
-                if (tPrice.quest !== null) {
-                    quest = '?';
-                    offerValues.push(tPrice.quest);
-                }
                 let minLevel = 'NULL';
                 if (tPrice.minLevel !== null) {
                     minLevel = '?';
                     offerValues.push(tPrice.minLevel);
                 }
+                let quest = 'NULL';
                 let questIdField = 'quest_unlock_id';
-                if (isNaN(tPrice.quest)) {
-                    questIdField = 'quest_unlock_bsg_id';
+                if (tPrice.quest !== null) {
+                    quest = '?';
+                    let questId = tPrice.quest;
+                    if (isNaN(tPrice.quest)) {
+                        questIdField = 'quest_unlock_bsg_id';
+                    } else {
+                        questId = parseInt(questId);
+                    }
+                    offerValues.push(questId);
                 }
                 offerValues.push(options.scannerId);
                 const createOfferSql = format(`
