@@ -447,6 +447,7 @@ module.exports = async () => {
         en = await tarkovChanges.locale_en();
         locales = await tarkovChanges.locales();
         const missingQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'missing_quests.json')));
+        const changedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'changed_quests.json')));
         try {
             presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
         } catch (error) {
@@ -862,7 +863,17 @@ module.exports = async () => {
                     logger.warn(`Unrecognized type "${objective._parent}" for objective ${objective._props.id} of ${questData.name}`);
                     continue;
                 }
+                if (changedQuests[questData.id]?.objectivesChanged && changedQuests[questData.id]?.objectivesChanged[obj.id]) {
+                    for (const key of Object.keys(changedQuests[questData.id].objectivesChanged[obj.id])) {
+                        obj[key] = changedQuests[questData.id].objectivesChanged[obj.id][key];
+                    }
+                }
                 questData.objectives.push(obj);
+            }
+            if (changedQuests[questData.id] && changedQuests[questData.id].objectivesAdded) {
+                for (const newObj of changedQuests[questData.id].objectivesAdded) {
+                    questData.objectives.push(newObj);
+                }
             }
             for (const req of quest.conditions.AvailableForStart) {
                 if (req._parent === 'Level') {
@@ -918,6 +929,12 @@ module.exports = async () => {
             }
             if (factionMap[questData.id]) questData.factionName = factionMap[questData.id];
             if (missingQuests[questData.id]) delete missingQuests[questData.id];
+
+            if (changedQuests[questData.id]?.propertiesChanged) {
+                for (const key of Object.keys(changedQuests[questData.id].propertiesChanged)) {
+                    questData[key] = changedQuests[questData.id].propertiesChanged[key];
+                }
+            }
             quests.data.push(questData);
         }
         

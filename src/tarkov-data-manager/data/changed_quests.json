@@ -1,0 +1,114 @@
+{
+    "5936d90786f7742b1420ba5b": {
+        "name": "Debut",
+        "propertiesChanged": {
+            "location_id": null,
+            "locationName": "any"
+        },
+        "objectivesChanged": {
+            "5967379186f77463860dadd6" : {
+                "locationNames": [],
+                "map_ids": []
+            }
+        }
+    },
+    "5c0bde0986f77479cf22c2f8": {
+        "name": "A Shooter Born in Heaven",
+        "objectivesChanged": {
+            "5c0bdf2c86f7746f016734a8": {
+                "distance": {
+                    "compareMethod": ">=",
+                    "value": 125
+                }
+            },
+            "5c137b8886f7747ae3220ff4": {
+                "distance": {
+                    "compareMethod": ">=",
+                    "value": 125
+                }
+            },
+            "5c137ef386f7747ae10a821e": {
+                "distance": {
+                    "compareMethod": ">=",
+                    "value": 125
+                }
+            },
+            "5c137f5286f7747ae267d8a3": {
+                "distance": {
+                    "compareMethod": ">=",
+                    "value": 125
+                }
+            }
+        },
+        "objectivesAdded": [
+            {
+                "id": "629f10b114061f3074380298",
+                "type": "shoot",
+                    "optional": false,
+                    "description": "Eliminate PMC operatives with headshots from over 125 meters away on Lighthouse",
+                    "locationNames": [
+                        "Lighthouse"
+                    ],
+                    "map_ids": [
+                        "5704e4dad2720bb55b8b4567"
+                    ],
+                    "locale": {
+                        "en": {
+                            "description": "Eliminate PMC operatives with headshots from over 125 meters away on Lighthouse",
+                            "target": "any PMC operatives"
+                        },
+                        "es": {
+                            "description": "Eliminate PMC operatives with headshots from over 125 meters away on Lighthouse",
+                            "target": "cualquier operador PMC"
+                        },
+                        "ru": {
+                            "description": "Убить бойцов ЧВК выстрелом в голову с расстояния не меньше 125 метров на Маяк",
+                            "target": "любых бойцов ЧВК"
+                        },
+                        "de": {
+                            "description": "Eliminate PMC operatives with headshots from over 125 meters away on Lighthouse",
+                            "target": "any PMC operatives"
+                        },
+                        "fr": {
+                            "description": "Tuez des opérateurs d'une SMP dans les phare avec un tir à la tête à plus de 125 mètres",
+                            "target": "n'importe quels opérateurs d'une SMP"
+                        },
+                        "cz": {
+                            "description": "Eliminovat na Lighthouse PMC do hlavy na vzdálenost vyšší než 125m",
+                            "target": "jakékoliv operátory PMC"
+                        },
+                        "hu": {
+                            "description": "Eliminate PMC operatives with headshots from over 125 meters away on Lighthouse",
+                            "target": "any PMC operatives"
+                        },
+                        "tr": {
+                            "description": "Eliminate PMC operatives with headshots from over 125 meters away on Lighthouse",
+                            "target": "any PMC operatives"
+                        },
+                        "zh": {
+                            "description": "Eliminate PMC operatives with headshots from over 125 meters away on Lighthouse",
+                            "target": "any PMC operatives"
+                        }
+                    },
+                    "target": "any PMC operatives",
+                    "count": 3,
+                    "shotType": "kill",
+                    "bodyParts": [
+                        "Head"
+                    ],
+                    "usingWeapon": [],
+                    "usingWeaponMods": [],
+                    "zoneNames": [],
+                    "distance": {
+                        "compareMethod": ">=",
+                        "value": 125
+                    },
+                    "wearing": [],
+                    "notWearing": [],
+                    "healthEffect": null,
+                    "enemyHealthEffect": null,
+                    "playerHealthEffect": null
+            }
+        ]
+    }
+}
