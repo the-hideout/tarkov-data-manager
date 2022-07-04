@@ -202,7 +202,6 @@ module.exports = {
                 TRADERS.prapor,
                 TRADERS.therapist,
                 TRADERS.fence,
-                TRADERS.skier,
             ],
         },
         '57864ee62459775490116fc1': {
@@ -219,10 +218,8 @@ module.exports = {
             name: 'Lubricant',
             id: '57864e4c24597754843f8723',
             traders: [
-                TRADERS.prapor,
                 TRADERS.therapist,
                 TRADERS.fence,
-                TRADERS.skier,
             ],
         },
         '5d650c3e815116009f6201d2': {
