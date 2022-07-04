@@ -45,7 +45,7 @@ resource "azurerm_public_ip" "tdm_public_ip" {
   name                = "${var.PROJECT_NAME}_public_ip"
   location            = var.CLOUD_LOCATION
   resource_group_name = azurerm_resource_group.tdm_rg.name
-  allocation_method   = "Dynamic"
+  allocation_method   = "Static"
 
   tags = {
     managed_by = "terraform"
@@ -147,6 +147,7 @@ resource "azurerm_linux_virtual_machine" "tdm_vm" {
   size                  = "Standard_B1ms"
 
   os_disk {
+    disk_size_gb         = 64
     name                 = "${var.PROJECT_NAME}_os_disk"
     caching              = "ReadWrite"
     storage_account_type = "StandardSSD_LRS"
