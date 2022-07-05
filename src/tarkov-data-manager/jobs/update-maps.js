@@ -19,108 +19,211 @@ const mapNames = {
 };
 
 const idMap = {
-    0: '55f2d3fd4bdc2d5f408b4567',
-    1: '56f40101d2720b2a4d8b45d6',
-    2: '5704e3c2d2720bac5b8b4567',
-    3: '5704e554d2720bac5b8b456e',
-    4: '5714dbc024597771384a510d',
-    5: '5b0fc42d86f7744a585f9105',
-    6: '5704e5fad2720bc05b8b4567',
-    7: '5704e4dad2720bb55b8b4567',
+    '55f2d3fd4bdc2d5f408b4567': 0,
+    '56f40101d2720b2a4d8b45d6': 1,
+    '5704e3c2d2720bac5b8b4567': 2,
+    '5704e554d2720bac5b8b456e': 3,
+    '5714dbc024597771384a510d': 4,
+    '5b0fc42d86f7744a585f9105': 5,
+    '5704e5fad2720bc05b8b4567': 6,
+    '5704e4dad2720bb55b8b4567': 7,
 };
 
 const enemyMap = {
-    'Cultists': 'ScavRole/Sectant',
-    'Glukhar': 'QuestCondition/Elimination/Kill/BotRole/bossGluhar',
-    'Killa': 'QuestCondition/Elimination/Kill/BotRole/bossKilla',
-    'Raiders': 'ScavRole/PmcBot',
-    'Reshala': 'QuestCondition/Elimination/Kill/BotRole/bossBully',
-    'Rogues': 'ScavRole/ExUsec',
-    'Sanitar': 'QuestCondition/Elimination/Kill/BotRole/bossSanitar',
-    'Scavs': 'QuestCondition/Elimination/Kill/Target/Savage',
-    'Shturman': 'QuestCondition/Elimination/Kill/BotRole/bossKojaniy',
-    'Tagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla'
+    'bossGluhar': 'QuestCondition/Elimination/Kill/BotRole/bossGluhar',
+    'followerGluharScout': 'ScavRole/Follower',
+    'followerGluharAssault': 'ScavRole/Follower',
+    'followerGluharSecurity': 'ScavRole/Follower',
+    'bossKilla': 'QuestCondition/Elimination/Kill/BotRole/bossKilla',
+    'pmcBot': 'ScavRole/PmcBot',
+    'bossBully': 'QuestCondition/Elimination/Kill/BotRole/bossBully',
+    'followerBully': 'ScavRole/Follower',
+    'exUsec': 'ScavRole/ExUsec',
+    'bossSanitar': 'QuestCondition/Elimination/Kill/BotRole/bossSanitar',
+    'followerSanitar': 'ScavRole/Follower',
+    'scavs': 'QuestCondition/Elimination/Kill/Target/Savage',
+    'sectantPriest': 'QuestCondition/Elimination/Kill/BotRole/sectantPriest',
+    'sectantWarrior': 'QuestCondition/Elimination/Kill/BotRole/cursedAssault',
+    'bossKojaniy': 'QuestCondition/Elimination/Kill/BotRole/bossKojaniy',
+    'followerKojaniy': 'ScavRole/Follower',
+    'bossTagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla',
+    'followerTagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla'
 };
 
-const enemySubs = {
-    '???': 'Cultists'
-}
+const manualNames = {
+    'bossKnight': 'Death Knight',
+    'followerBigPipe': 'Big Pipe',
+    'followerBirdEye': 'Birdeye'
+};
 
-const getWikiInfo = async (url) => {
-    const info = {};
-    const response = await got(url);
-    const $ = cheerio.load(response.body);
-    const group = $('table.va-infobox-group td').each((index, element) => {
-        if ($(element).text() === 'Players') {
-            info.players = $('table.va-infobox-group td').eq(index+2).text();
+const triggers = {
+    '5704e5fad2720bc05b8b4567' : {
+        'autoId_00000_D2_LEVER': 'D-2 Power Switch',
+        'autoId_00632_EXFIL': 'Bunker Hermetic Door Power Switch'
+    }
+};
+
+let locales;
+
+const getEnemyName = (enemy, code = 'en') => {
+    const lang = locales[code];
+    if (enemyMap[enemy]) {
+        if (lang.interface[enemyMap[enemy]]) {
+            return lang.interface[enemyMap[enemy]];
         }
-    });
-    return info;
+        return locales.en.interface[enemyMap[enemy]];
+    } else if (manualNames[enemy]) {
+        return manualNames[enemy];
+    }
+    return enemy;
 };
+
+const getChances = (input, nameLabel = 'name', labelInt = false) => {
+    const optionCount = {};
+    const options = input.split(',').map(option => {
+        if (labelInt) option = parseInt(option);
+        if (typeof optionCount[option] === 'undefined') optionCount[option] = 0;
+        optionCount[option]++;
+        return option;
+    });
+    const chances = [];
+    for (const option in optionCount) {
+        const chance = {
+            chance: Math.round((optionCount[option] / options.length) * 100) / 100
+        };
+        chance[nameLabel] = labelInt ? parseInt(option) : option;
+        chances.push(chance);
+    }
+    return chances;
+}
 
 module.exports = async function() {
     const logger = new JobLogger('update-maps');
     try {
         logger.log('Getting en from Tarkov-Changes...');
-        const en = await tarkovChanges.locale_en();
-        const locales = await tarkovChanges.locales();
+        locales = await tarkovChanges.locales();
+        const locations = await tarkovChanges.locations();
         const maps = {
             updated: new Date(),
             data: [],
         };
         logger.log('Downloading TarkovData maps.json')
-        const tdMaps = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/maps.json', {
+        const tdMaps = await got('https://github.com/TarkovTracker/tarkovdata/raw/master/maps.json', {
             responseType: 'json',
-        })).body;
+            resolveBodyOnly: true
+        });
         logger.log('Processing maps...');
-        for (const index in tdMaps) {
+        for (const id in locations.locations) {
+            const map = locations.locations[id];
+            if (id !== '59fc81d786f774390775787e' && (!map.Enabled || map.Locked)) continue;
             const mapData = {
-                ...tdMaps[index],
+                id: id,
+                tarkovDataId: null,
+                name: locales.en.locations[id].Name,
+                description: locales.en.locations[id].Description,
+                wiki: 'https://escapefromtarkov.fandom.com/wiki/'+locales.en.locations[id].Name.replace(/ /g, '_'),
+                enemies: [],
+                raidDuration: map.EscapeTimeLimit,
+                players: map.MinPlayers+'-'+map.MaxPlayers,
+                bosses: [],
                 locale: {}
             };
-            mapData.tarkovDataId = mapData.id;
-            mapData.id = idMap[mapData.id];
-            mapData.name = locales.en.locations[mapData.id].Name;//mapData.locale.en;
-            const dayDuration = mapData.raidDuration.day;
-            const nightDuration = mapData.raidDuration.night;
-            const wikiInfo = await getWikiInfo(mapData.wiki);
-            mapData.players = wikiInfo.players;
-            if (mapData.id === '55f2d3fd4bdc2d5f408b4567') {
-                const nfData = {
-                    ...mapData,
+            if (idMap[id]) mapData.tarkovDataId = idMap[id];
+            const enemySet = new Set();
+            if (id !== '5b0fc42d86f7744a585f9105') enemySet.add('scavs');
+            for (const spawn of map.BossLocationSpawn) {
+                enemySet.add(spawn.BossName);
+                const bossData = {
+                    name: spawn.BossName,
+                    spawnChance: parseInt(spawn.BossChance) / 100,
+                    spawnLocations: [],
+                    escort: null,
+                    supports: [],
+                    spawnTime: spawn.Time,
+                    spawnTimeRandom: spawn.RandomTimeSpawn,
+                    spawnTrigger: null,
                     locale: {}
                 };
-                nfData.id = '59fc81d786f774390775787e';
-                nfData.name = 'Night Factory';
-                //nfData.name = locales.en.locations[nfData.id].Name;
-                //nfData.locale.en = 'Night Factory';
-                nfData.raidDuration = nightDuration;
-                maps.data.push(nfData);
-                mapData.enemies = mapData.enemies.filter(enemy => {
-                    return enemy !== 'Cultists';
+                const locationCount = {};
+                const locations = spawn.BossZone.split(',').map(zone => {
+                    let locationName = zone.replace(/Zone_?/, '').replace(/Bot/, '');
+                    if (!locationName) locationName = 'Anywhere';
+                    if (typeof locationCount[locationName] === 'undefined') locationCount[locationName] = 0;
+                    locationCount[locationName]++;
+                    return locationName;
                 });
+                for (const locationName in locationCount) {
+                    bossData.spawnLocations.push({
+                        name: locationName,
+                        chance: Math.round((locationCount[locationName] / locations.length) * 100) / 100
+                    });
+                }
+                if (spawn.BossEscortAmount !== '0') {
+                    if (enemyMap[spawn.BossEscortType] || manualNames[spawn.BossEscortType]) {
+                        enemySet.add(spawn.BossEscortType);
+                        bossData.escort = {
+                            name: spawn.BossEscortType,
+                            amount: getChances(spawn.BossEscortAmount, 'count', true), //spawn.BossEscortAmount.split(',').map(num => parseInt(num)),
+                            locale: {}
+                        };
+                    }
+                }
+                if (spawn.Supports) {
+                    for (const support of spawn.Supports) {
+                        if (support.BossEscortAmount === '0') continue;
+                        if (enemyMap[support.BossEscortType] || manualNames[support.BossEscortType]) {
+                            enemySet.add(support.BossEscortType);
+                            bossData.supports.push({
+                                name: support.BossEscortType,
+                                amount: getChances(support.BossEscortAmount, 'count', true), //support.BossEscortAmount.split(',').map(num => parseInt(num)),
+                                locale: {}
+                            });
+                        }
+                    }
+                }
+
+                if (spawn.TriggerId && triggers[id]) {
+                    if (triggers[id][spawn.TriggerId]) {
+                        bossData.spawnTrigger = triggers[id][spawn.TriggerId];
+                    } else if (spawn.TriggerId.includes('EXFIL')) {
+                        bossData.spawnTrigger = 'Exfil Activation';
+                    }
+                }
+
+                for (const code in locales) {
+                    bossData.locale[code] = {
+                        name: getEnemyName(bossData.name, code)
+                    };
+                    if (bossData.escort) {
+                        bossData.escort.locale[code] = {
+                            name: getEnemyName(bossData.escort.name, code)
+                        };
+                    }
+                    for (const support of bossData.supports) {
+                        support.locale[code] = {
+                            name: getEnemyName(support.name, code)
+                        };
+                    }
+                }
+                mapData.bosses.push(bossData);
             }
-            mapData.raidDuration = dayDuration;
-            maps.data.push(mapData);
-        }
-        for (const map of maps.data) {
+            mapData.enemies = [...enemySet];
             for (const code in locales) {
                 const lang = locales[code];
-                let mapName = lang.locations[map.id].Name;
-                if (map.id === '59fc81d786f774390775787e' && lang.interface.factory4_night) {
+                let mapName = lang.locations[id].Name;
+                if (id === '59fc81d786f774390775787e' && lang.interface.factory4_night) {
                     mapName = lang.interface.factory4_night;
                 }
-                const enemies = map.enemies.map(enemy => {
-                    if (!lang.interface[enemyMap[enemy]]) return enemy;
-                    let newName = lang.interface[enemyMap[enemy]];
-                    if (enemySubs[newName]) return enemySubs[newName];
-                    return newName;
-                });
-                map.locale[code] = {
+                const enemies = new Set(mapData.enemies.map(enemy => {
+                    return getEnemyName(enemy, code);
+                }));
+                mapData.locale[code] = {
                     name: mapName,
-                    enemies: enemies
+                    description: lang.locations[id].Description,
+                    enemies: [...enemies]
                 };
             }
+            maps.data.push(mapData);
         }
         logger.log(`Processed ${maps.data.length} maps`);
 
