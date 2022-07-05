@@ -308,6 +308,11 @@ const getItemProperties = async (item, parent = false) => {
                 properties.stimEffects.push(effect);
             }
         }
+    } else if (item._parent === '5c99f98d86f7745c314214b3' || item._parent === '5c164d2286f774194c5e69fa') {
+        properties = {
+            propertiesType: 'ItemPropertiesKey',
+            uses: item._props.MaximumNumberOfUsage
+        };
     }
     return properties;
 };
