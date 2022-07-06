@@ -217,7 +217,7 @@ const getItems = async(options) => {
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') ${nofleaCondition} 
             ORDER BY last_scan, id
             LIMIT ?
-        `, [options.scannerId,options.scannerId,options.batchSize]);
+        `, [options.scanner.id,options.scanner.id,options.batchSize]);
         await query(checkoutSql);
 
         conditions.push('item_data.checkout_scanner_id = ?');
@@ -235,7 +235,7 @@ const getItems = async(options) => {
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') ${lastScanCondition} )
             ORDER BY trader_last_scan, id
             LIMIT ?
-        `, [options.scannerId,options.scannerId,options.batchSize]);
+        `, [options.scanner.id,options.scanner.id,options.batchSize]);
         await query(checkoutSql);
 
         conditions.push('item_data.trader_checkout_scanner_id = ?');
@@ -266,7 +266,7 @@ const getItems = async(options) => {
         ${where}
         GROUP BY item_data.id
         ORDER BY item_data.last_scan
-    `, [options.scannerId]);
+    `, [options.scanner.id]);
     try {
         response.data = (await query(sql)).filter(item => {
             if (!item.name) return false;
@@ -276,7 +276,7 @@ const getItems = async(options) => {
     } catch (error) {
         response.errors.push(String(error));
     }
-    if (userFlags.skipPriceInsert & user.flags) {
+    if (userFlags.skipPriceInsert & user.flags || scannerFlags.skipPriceInsert & options.scanner.flags) {
         releaseItem({...options, itemId: false, scanned: false});
     }
     return response;
@@ -316,7 +316,8 @@ If the trader price is locked and neither of these values is known, they should 
 */
 insertPrices = async (options) => {
     const user = options.user;
-    const skipInsert = userFlags.skipPriceInsert & user.flags;
+    let scanFlags = options.scanner.flags;
+    const skipInsert = userFlags.skipPriceInsert & user.flags || scannerFlags.skipPriceInsert & scanFlags;
     const response = {errors: [], warnings: [], data: [0, 0]};
     const itemId = options.itemId;
     let itemPrices = options.itemPrices;
@@ -354,7 +355,7 @@ insertPrices = async (options) => {
         const values = [];
         for (let i = 0; i < playerPrices.length; i++) {
             placeholders.push('(?, ?, ?, ?)');
-            values.push(itemId, playerPrices[i].price, options.scannerId, dateToMysqlFormat(dateTime))
+            values.push(itemId, playerPrices[i].price, options.scanner.id, dateToMysqlFormat(dateTime))
         }
         if (skipInsert) {
             response.warnings.push(`Skipped insert of ${playerPrices.length} player prices`);
@@ -400,7 +401,7 @@ insertPrices = async (options) => {
                                     UPDATE trader_items
                                     SET min_level = ?, scanner_id = ?
                                     WHERE id = ${matchedOffer.id}
-                                `, [tPrice.minLevel, options.scannerId]);
+                                `, [tPrice.minLevel, options.scanner.id]);
                             } catch (error) {
                                 response.warnings.push(`Failed updating minimum level for trader offer ${matchedOffer.id} to ${tPrice.minLevel}: ${error}`);
                             }
@@ -457,7 +458,7 @@ insertPrices = async (options) => {
                     if (offerUpdateVars.length > 0) {
                         // update this offer
                         offerUpdateVars.push(`scanner_id = ?`);
-                        offerUpdateValues.push(options.scannerId);
+                        offerUpdateValues.push(options.scanner.id);
                         const sql = format(`UPDATE trader_items
                             SET ${offerUpdateVars.join(', ')}
                             WHERE id = '${offerId}'
@@ -487,7 +488,7 @@ insertPrices = async (options) => {
                     }
                     offerValues.push(questId);
                 }
-                offerValues.push(options.scannerId);
+                offerValues.push(options.scanner.id);
                 const createOfferSql = format(`
                     INSERT INTO trader_items
                     (item_id, trader_name, currency, min_level, ${questIdField}, timestamp, scanner_id) VALUES
@@ -502,7 +503,7 @@ insertPrices = async (options) => {
             }
             if (offerId) {
                 placeholders.push(`(?, ?, ?, ?)`);
-                traderValues.push(offerId, tPrice.price, options.scannerId, dateToMysqlFormat(dateTime));
+                traderValues.push(offerId, tPrice.price, options.scanner.id, dateToMysqlFormat(dateTime));
             }
         }
         if (traderValues.length > 0) {
@@ -552,7 +553,7 @@ const releaseItem = async (options) => {
     }
     const itemId = options.itemId;
     const itemScanned = options.scanned || typeof options.offerCount !== 'undefined';
-    const skipInsert = userFlags.skipPriceInsert & options.user.flags;
+    const skipInsert = userFlags.skipPriceInsert & options.user.flags || scannerFlags.skipPriceInsert & options.scanner.flags;
     const escapedValues = [];
     let where = [];
     let scanned = '';
@@ -570,7 +571,7 @@ const releaseItem = async (options) => {
         setLastScan = true;
     } else if (!itemScanned || skipInsert) {
         where.push(`item_data.${trader}checkout_scanner_id = ?`);
-        escapedValues.push(options.scannerId);
+        escapedValues.push(options.scanner.id);
     }
     if (itemId) {
         where.push('item_data.id = ?');
@@ -588,7 +589,7 @@ const releaseItem = async (options) => {
                     UPDATE scanner
                     SET last_scan = NOW()
                     WHERE id = ?
-                `, [options.scannerId]);
+                `, [options.scanner.id]);
             }
             return result;
         });
@@ -701,7 +702,7 @@ const createScanner = async (user, scannerName) => {
     }
     try {
         const result = await query('INSERT INTO scanner (scanner_user_id, name) VALUES (?, ?)', [user.id, scannerName]);
-        const newScanner = {id: result.insertId, name: scannerName, scanner_user_id: user.id};
+        const newScanner = {id: result.insertId, name: scannerName, scanner_user_id: user.id, flags: 0};
         user.scanners.push(newScanner);
         return newScanner;
     } catch (error) {
@@ -717,17 +718,22 @@ const getUser = async (username) => {
     return users[username];
 };
 
-const getScannerId = async (options, createMissing) => {
+const getScanner = async (options, createMissing) => {
     for (const scanner of options.user.scanners) {
         if (scanner.name === options.scannerName) {
-            return scanner.id;
+            return scanner;
         }
     }
     if (!createMissing) {
         throw new Error(`Scanner with name ${options.scannerName} not found`);
     }
     const newScanner = await createScanner(options.user, options.scannerName);
-    return newScanner.id;
+    return newScanner;
+};
+
+const getScannerId = async (options, createMissing) => {
+    const scanner = await getScanner(options. createMissing);
+    return scanner.id;
 };
 
 const deleteScanner = async (options) => {
@@ -831,7 +837,7 @@ module.exports = {
         let response = false;
         try {
             if (resource === 'items') {
-                options.scannerId = await getScannerId(options, true);
+                options.scanner = await getScanner(options, true);
                 if (req.method === 'GET') {
                     response = await getItems(options);
                 }
@@ -843,7 +849,7 @@ module.exports = {
                 }
             }
             if (resource === 'scanner') {
-                options.scannerId = await getScannerId(options, false);
+                options.scanner = await getScanner(options, false);
                 if (req.method === 'DELETE') {
                     response = await deleteScanner(options);
                 }
