@@ -26,7 +26,7 @@ module.exports = async (data, logger) => {
     try {
         if (!data) {
             logger.log('Retrieving tarkovdata quests.json...');
-            const data = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
+            data = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
                 responseType: 'json',
                 resolveBodyOnly: true
             });
@@ -52,17 +52,17 @@ module.exports = async (data, logger) => {
                     if(objectiveData.type === 'collect' || objectiveData.type === 'find' || objectiveData.type === 'place'){
                         formattedObjective.targetItem = formattedObjective.target;
 
-                        if(!formattedObjective.targetItem.id){
+                        /*if(!formattedObjective.targetItem.id){
                             //console.log(`${quest.id} - ${formattedObjective.target}`);
                             formattedObjective.targetItem = null;
-                        }
+                        }*/
                     } else if (objectiveData.type === 'mark') {
                         formattedObjective.targetItem = formattedObjective.tool;
 
-                        if(!formattedObjective.targetItem.id){
+                        /*if(!formattedObjective.targetItem.id){
                             //console.log(`${quest.id} - ${formattedObjective.tool}`);
                             formattedObjective.targetItem = null;
-                        }
+                        }*/
                     }
 
                     if(!Array.isArray(formattedObjective.target)){
