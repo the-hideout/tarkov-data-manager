@@ -326,7 +326,9 @@ module.exports = async () => {
                     base_item_id: preset.baseId
                 };
             } else if (!itemData[key].types.includes('disabled')) {
-                logger.log(`No category found for ${itemData[key].name} (${key})`);
+                logger.log(`Item ${itemData[key].name} (${key}) is neither an item nor a preset`);
+                delete itemData[key];
+                continue;
             }
             addCategory(itemData[key].bsgCategoryId);
             if (presets[key]) {
