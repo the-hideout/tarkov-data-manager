@@ -100,18 +100,13 @@ const getChances = (input, nameLabel = 'name', labelInt = false) => {
 module.exports = async function() {
     const logger = new JobLogger('update-maps');
     try {
-        logger.log('Getting en from Tarkov-Changes...');
+        logger.log('Getting data from Tarkov-Changes...');
         locales = await tarkovChanges.locales();
         const locations = await tarkovChanges.locations();
         const maps = {
             updated: new Date(),
             data: [],
         };
-        logger.log('Downloading TarkovData maps.json')
-        const tdMaps = await got('https://github.com/TarkovTracker/tarkovdata/raw/master/maps.json', {
-            responseType: 'json',
-            resolveBodyOnly: true
-        });
         logger.log('Processing maps...');
         for (const id in locations.locations) {
             const map = locations.locations[id];
