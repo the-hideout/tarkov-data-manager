@@ -227,6 +227,7 @@ module.exports = async function() {
             }
             maps.data.push(mapData);
         }
+        maps.data = maps.data.sort((a, b) => a.name.localeCompare(b.name));
         logger.log(`Processed ${maps.data.length} maps`);
 
         const response = await cloudflare.put('map_data', JSON.stringify(maps)).catch(error => {
