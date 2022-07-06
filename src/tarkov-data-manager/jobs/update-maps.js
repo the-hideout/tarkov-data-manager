@@ -124,7 +124,7 @@ module.exports = async function() {
                 bosses: [],
                 locale: {}
             };
-            if (idMap[id]) mapData.tarkovDataId = idMap[id];
+            if (typeof idMap[id] !== 'undefined') mapData.tarkovDataId = idMap[id];
             const enemySet = new Set();
             for (const wave of map.waves) {
                 if (wave.WildSpawnType === 'assault') {
