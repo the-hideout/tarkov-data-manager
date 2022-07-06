@@ -257,6 +257,7 @@ module.exports = async () => {
         await setItemPropertiesLocalesGlobals(locales, globals);
         for (const [key, value] of itemMap.entries()) {
             if (value.types.includes('disabled')) continue;
+            if (!bsgItems[key] && !presets[key]) continue;
             itemData[key] = {
                 ...value,
                 shortName: value.short_name,
