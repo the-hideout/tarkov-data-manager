@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const got = require('got');
 const cheerio = require('cheerio');
 
@@ -9,9 +11,10 @@ const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 
 const { query, jobComplete } = require('../modules/db-connection');
+const { match } = require('assert');
 
 let itemData = false;
-const presetData = [];
+let presetData;
 const WIKI_URL = 'https://escapefromtarkov.fandom.com'
 const TRADES_URL = `${WIKI_URL}/wiki/Barter_trades`;
 let logger;
@@ -74,9 +77,44 @@ const getItemByName = (searchName) => {
     });
 };
 
+const getPresetByRow = (baseItem, row) => {
+    $variant = $(row);
+    const variantName = $variant.find('td').eq(1).text().trim();
+    if (variantName) {
+        const preset = getPresetbyShortName(variantName);
+        if (preset) {
+            return preset;
+        }
+    }
+    const attachments = $variant.find('td').eq(2).find('a');
+    for (const presetId in presetData) {
+        const preset = presetData[presetId];
+        if (preset.baseId !== baseItem.id) continue;
+        if (preset.containsItems.length - 1 !== attachments.length) continue;
+        const presetParts = preset.containsItems.filter(contained => contained.item.id !== baseItem.id);
+        let matchedPartCount = 0;
+        for (const part of presetParts) {
+            let matchedPart = false;
+            for (const attachmentLink of attachments) {
+                const attachment = getItemByName($(attachmentLink).attr('title'));
+                //console.log(attachment);
+                if (attachment.id === part.item.id) {
+                    matchedPart = true;
+                    matchedPartCount++;
+                    break;
+                }
+            }
+            if (!matchedPart) break;
+        }
+        if (matchedPartCount === attachments.length) return preset;
+    }
+    return false;
+};
+
 const getPresetbyShortName = shortName => {
-    for (const preset of presetData) {
-        if (preset.short_name === shortName) return preset;
+    for (const presetId in presetData) {
+        const preset = presetData[presetId];
+        if (preset.shortName === shortName) return preset;
     }
     logger.warn('Found no preset for '+shortName);
     return false;
@@ -154,7 +192,7 @@ const parseTradeRow = async (tradeElement) => {
         return true;
     }
     const baseId = rewardItem.id;
-    if (rewardItem.types.includes('gun')) {
+    if (rewardItem.types.includes('gun') || rewardItem.id === '5a16bb52fcdbcb001a3b00dc') {
         let gunImage = $trade.find('th').eq(-1).find('img').eq(0).data('src');
         if (gunImage && gunImage.indexOf('/revision/') > -1) {
             gunImage = gunImage.substring(0, gunImage.indexOf('/revision/'));
@@ -182,12 +220,12 @@ const parseTradeRow = async (tradeElement) => {
                 img = img.substring(0, img.indexOf('/revision/'));
             }
             if (img !== gunImage) continue;
-            const variantName = $variant.find('td').eq(1).text().trim();
-            if (!variantName) continue;
-            const preset = getPresetbyShortName(variantName);
+            const preset = getPresetByRow(rewardItem, row);
             if (preset) {
                 rewardItem = preset;
                 break;
+            } else {
+                logger.warn(`Matched ${img} for ${rewardItem.name}, but could not match preset`);
             }
         }
         if (baseId === rewardItem.id) {
@@ -318,6 +356,7 @@ module.exports = async function() {
         tasks = allResults[2];
         en = allResults[3];
         oldTasks = allResults[4].body;
+        presetData = JSON.parse(fs.readFileSync('./cache/presets.json'));
         $ = cheerio.load(wikiResponse.body);
         trades = {
             updated: new Date(),
@@ -333,7 +372,7 @@ module.exports = async function() {
             }
 
             returnData[result.id] = preparedData;
-            if (preparedData.types.includes('preset')) presetData.push(preparedData);
+            //if (preparedData.types.includes('preset')) presetData.push(preparedData);
         }
 
         itemData = returnData;

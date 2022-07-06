@@ -30,6 +30,8 @@ const processPresets = async () => {
         const locales = await tarkovChanges.locales();
         const credits = await tarkovChanges.credits();
 
+        const manualPresets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'manual_presets.json')));
+
         const presetsData = {};
 
         const defaults = {};
@@ -77,11 +79,6 @@ const processPresets = async () => {
                         shortName: lang.templates[baseItem._id].ShortName
                     };
                 }, logger);
-                /*lang = locales[code];
-                presetData.locale[code] = {
-                    name: lang.templates[baseItem._id].Name,
-                    shortName: lang.templates[baseItem._id].ShortName
-                }*/
             }
             for (let i = 1; i < preset._items.length; i++) {
                 const part = preset._items[i];
@@ -114,7 +111,7 @@ const processPresets = async () => {
             presetData.normalized_name = normalizeName(presetData.name);
             if (gotSizes) {
                 let itemPresetSize = await presetSize(presetId, false);
-                if(itemPresetSize){
+                if (itemPresetSize) {
                     presetData.width = itemPresetSize.width;
                     presetData.height = itemPresetSize.height;
                 }
@@ -127,6 +124,40 @@ const processPresets = async () => {
                 logger.warn(`Preset ${presetData.name} ${presetId} cannot replace ${existingDefault.name} ${existingDefault.id} as default preset`);
             }
             logger.succeed(`Completed ${presetData.name} preset (${presetData.containsItems.length+1} parts)`);
+        }
+        // add manual presets
+        for (const presetData of manualPresets) {
+            const baseItem = items[presetData.baseId];
+            presetData.name = en.templates[baseItem._id].Name + ' ' + presetData.appendName;
+            presetData.shortName = en.templates[baseItem._id].ShortName + ' ' + presetData.appendName;
+            presetData.normalized_name = normalizeName(presetData.name);
+            if (gotSizes) {
+                let itemPresetSize = await presetSize(presetData.id, false);
+                if (itemPresetSize) {
+                    presetData.width = itemPresetSize.width;
+                    presetData.height = itemPresetSize.height;
+                }
+            }
+            presetData.weight = 0;
+            presetData.baseValue = 0;
+            for (const contained of presetData.containsItems) {
+                const part = items[contained.item.id];
+                presetData.weight += (part._props.Weight * contained.count);
+                presetData.baseValue += (credits[contained.item.id] * contained.count);
+            }
+            presetData.backgroundColor = baseItem._props.BackgroundColor;
+            presetData.bsgCategoryId = baseItem._parent;
+            presetData.types = ['preset'];
+            presetData.locale = {};
+            for (const code in locales) {
+                getTranslation(locales, code, lang => {
+                    presetData.locale[code] = {
+                        name: lang.templates[baseItem._id].Name + ' ' + presetData.appendName,
+                        shortName: lang.templates[baseItem._id].ShortName + ' ' + presetData.appendName
+                    };
+                }, logger);
+            }
+            presetsData[presetData.id] = presetData;
         }
         // add dog tag preset
         const bearTag = items['59f32bb586f774757e1e8442'];

@@ -1,0 +1,130 @@
+[
+    {
+        "id": "mosinscopedbarter0000001",
+        "appendName": "PU",
+        "baseId": "5ae08f0a5acfc408fb1398a1",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "5ae08f0a5acfc408fb1398a1",
+                    "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5ae0973a5acfc4001562206c",
+                    "name": "Mosin Rifle 7.62x54R 5-round magazine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5ae096d95acfc400185c2c81",
+                    "name": "Mosin Rifle standard stock"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5ae09bff5acfc4001562219d",
+                    "name": "Mosin Rifle 7.62x54R 730mm regular barrel"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5ae099875acfc4001714e593",
+                    "name": "Mosin Rifle front sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5ae099925acfc4001a5fc7b3",
+                    "name": "Mosin Rifle rear sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b3f7bf05acfc433000ecf6b",
+                    "name": "Mosin Rifle Kochetov mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b3f7c005acfc4704b4a1de8",
+                    "name": "PU 3.5x ring scope mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b3f7c1c5acfc40dc5296b1d",
+                    "name": "PU 3.5x riflescope"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "glock17ps900000000000001",
+        "appendName": "PS9",
+        "baseId": "5a7ae0c351dfba0017554310",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "5a7ae0c351dfba0017554310",
+                    "name": "Glock 17 9x19 pistol"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5a6b5e468dc32e001207faf5",
+                    "name": "Glock 9x19 Double Diamond threaded barrel"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5a7afa25e899ef00135e31b0",
+                    "name": "Glock Polymer80 PS9 pistol slide"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5a7ad55551dfba0015068f42",
+                    "name": "Glock Aimtech Tiger Shark sight mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5a70366c8dc32e001207fb06",
+                    "name": "Glock 9x19 Double Diamond flash hider"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5a33b2c9c4a282000c5a9511",
+                    "name": "Trijicon RMR low profile mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5a32aa8bc4a2826c6e06d737",
+                    "name": "Trijicon RMR reflex sight"
+                },
+                "count": 1
+            }
+        ]
+    }
+]
