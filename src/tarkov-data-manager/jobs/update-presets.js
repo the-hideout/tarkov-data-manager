@@ -136,6 +136,9 @@ const processPresets = async () => {
                 if (itemPresetSize) {
                     presetData.width = itemPresetSize.width;
                     presetData.height = itemPresetSize.height;
+                } else {
+                    presetData.width = baseItem._props.Width;
+                    presetData.height = baseItem._props.Height;
                 }
             }
             presetData.weight = 0;
