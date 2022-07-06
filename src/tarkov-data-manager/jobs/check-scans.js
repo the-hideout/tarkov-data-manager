@@ -4,30 +4,26 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const scannerApi = require('../modules/scanner-api');
 
-const ignoreSources = [
-    'DESKTOP-RAZZ',
-    'TARKOV-TOOLS-PULL'
-];
-
 module.exports = async () => {
     const logger = new JobLogger('check-scans');
     try {
         const scanners = await query(`
-            select scanner.id, name, last_scan, username, scanner_user.flags, disabled 
+            select scanner.id, name, last_scan, username, scanner.flags, scanner_user.flags as user_flags, disabled 
             from scanner 
             left join scanner_user on scanner_user.id = scanner.scanner_user_id
         `);
         const userFlags = scannerApi.getUserFlags();
+        const scannerFlags = scannerApi.getScannerFlags();
         for (const scanner of scanners) {
-            if (!scanner.last_scan || scanner.disabled || userFlags.skipPriceInsert & scanner.flags) {
+            if (!scanner.last_scan || scanner.disabled || userFlags.skipPriceInsert & scanner.user_flags) {
                 // ignore scanners that have never inserted a price
                 continue;
             }
-            if (ignoreSources.includes(scanner.name)) {
+            if (scannerFlags.ignoreMissingScans & scanner.flags) {
                 logger.log(`Ignoring source: ${scanner.name}`);
                 continue;
             }
-            if (!(userFlags.insertPlayerPrices & scanner.flags) && !(userFlags.insertTraderPrices & scanner.flags)) {
+            if (!(userFlags.insertPlayerPrices & scanner.user_flags) && !(userFlags.insertTraderPrices & scanner.user_flags)) {
                 logger.log(`Skipping scanner without insert flags: ${scanner.name}`);
                 continue;
             }

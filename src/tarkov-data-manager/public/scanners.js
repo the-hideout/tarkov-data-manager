@@ -338,8 +338,8 @@ $(document).ready( function () {
                 if (type === 'display') {
                     const scannerDivs = [];
                     for (const scanner of data) {
-                        //scannerDivs.push(`<div<a href="#" class="waves-effect waves-light tooltipped" data-tooltip="Edit ${scanner.name}" data-id="${scanner.id}">${scanner.name}</a></div>`);
-                        scannerDivs.push(`<div>${scanner.name}</div>`);
+                        scannerDivs.push(`<div><a href="#" class="waves-effect waves-light tooltipped edit-scanner" data-tooltip="Edit ${scanner.name}" data-id="${scanner.id}" data-flags="${scanner.flags}">${scanner.name}</a></div>`);
+                        //scannerDivs.push(`<div>${scanner.name}</div>`);
                     }
                     return `
                         <div>
@@ -476,6 +476,45 @@ $(document).ready( function () {
                 if (target[0].nodeName === 'I') target = target.parent();
                 const pw = target.data('password');
                 navigator.clipboard.writeText(pw);
+            });
+
+            $('.edit-scanner').off('click');
+            $('.edit-scanner').click(function (event) {
+                let target = $(event.target);
+                //if (target[0].nodeName === 'I') target = target.parent();
+                const flagChecks = $('#modal-edit-scanner input.scanner-flag');
+                const scannerFlags = parseInt(target.data('flags'));
+                for (const check of flagChecks) {
+                    checkValue = parseInt(check.value);
+                    $(check).prop('checked', scannerFlags & checkValue);
+                }
+                const id = $(event.target).data('id');
+                $('#modal-edit-scanner input.scanner-flag').off('change');
+                $('#modal-edit-scanner input.scanner-flag').change((changedEvent) => {
+                    if(changedEvent.target.getAttribute('type') !== 'checkbox'){
+                        return true;
+                    }
+                    const checkedFlags = $(changedEvent.target).closest('form').find('input.scanner-flag:checked');
+                    let flags = 0;
+                    for (const check of checkedFlags) {
+                        flags |= Number($(check).val());
+                    }
+                
+                    const dataUpdate = {
+                        id: id,
+                        flags: flags
+                    }
+                
+                    postData('/scanners/scanner-flags', dataUpdate).then(data => {
+                        if (data.errors.length > 0) {
+                            for (let i = 0; i < data.errors.length; i++) {
+                                M.toast({html: data.errors[i]});
+                            }
+                        }
+                    });
+                });
+                $('#modal-edit-scanner .scanner-name').text(target.text());
+                M.Modal.getInstance(document.getElementById('modal-edit-scanner')).open();
             });
 
             $('input.user-flag').off('change');

@@ -759,6 +759,7 @@ app.get('/scanners', async (req, res) => {
         LEFT JOIN scanner_user on scanner_user.id = scanner.scanner_user_id
     `);
     const userFlags = scannerApi.getUserFlags();
+    const scannerFlags = scannerApi.getScannerFlags();
     scanners.forEach(scanner => {
         if (scanner.disabled) return;
         if (!(scanner.flags & userFlags.insertPlayerPrices) && !(scanner.flags & userFlags.insertTraderPrices)) return;
@@ -768,6 +769,22 @@ app.get('/scanners', async (req, res) => {
             inactiveScanners.push({...scanner, timestamp: scanner.last_scan});
         }
     });
+    let scannerFlagsString = '';
+    for (const flagName in scannerFlags) {
+        const flagValue = scannerFlags[flagName];
+        if (!flagValue) continue;
+        const flagLabel = flagName.replace(/[A-Z]/g, capLetter => {
+            return ' '+capLetter.toLowerCase();
+        });
+        scannerFlagsString = `${scannerFlagsString}
+        <div class="col s12 l6 xl4 xxl3">
+            <label for="scanner-flag-${[flagName]}">
+                <input type="checkbox" class="scanner-flag" id="scanner-flag-${[flagName]}" value="${flagValue}" />
+                <span>${flagLabel}</span>
+            </label>
+        </div>
+        `;
+    }
     const getScannerStuff = (scanner, active) => {
         let activeClass = '';
         if (active) {
@@ -970,21 +987,18 @@ app.get('/scanners', async (req, res) => {
         </div>
         <div id="modal-edit-scanner" class="modal modal-fixed-footer">
             <div class="modal-content">
+                <h4 class="scanner-name"></h4>
                 <div class="row">
                     <form class="col s12 post-url" method="post" action="">
                         <input id="scanner_id" name="scanner_id" class="scanner_id" type="hidden">
                         <div class="row">
-                            <div class="input-field">
-                                <input value="" id="scanner_name" type="text" class="validate name" name="name">
-                                <label for="scanner_name">Name</label>
-                            </div>
+                            ${scannerFlagsString}
                         </div>
                     </form>
                 </div>
             </div>
             <div class="modal-footer">
-                <a href="#!" class="waves-effect waves-green btn edit-user-save">Save</a>
-                <a href="#!" class="modal-close waves-effect waves-green btn-flat edit-user-cancel">Cancel</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat edit-scanner-cancel">Close</a>
             </div>
         </div>
     ${getFooter(req)}`);
@@ -1105,6 +1119,18 @@ app.post('/scanners/user-flags', urlencodedParser, async (req, res) => {
         await query(format('UPDATE scanner_user SET flags=? WHERE id=?', [req.body.flags, req.body.id]));
         response.message = `Set flags to ${req.body.flags}`;
         scannerApi.refreshUsers();
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.send(response);
+});
+
+app.post('/scanners/scanner-flags', urlencodedParser, async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        await query(format('UPDATE scanner SET flags=? WHERE id=?', [req.body.flags, req.body.id]));
+        response.message = `Set flags to ${req.body.flags}`;
+        //scannerApi.refreshUsers();
     } catch (error) {
         response.errors.push(error.message);
     }
