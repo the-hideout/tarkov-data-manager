@@ -648,6 +648,12 @@ const userFlags = {
     jsonDownload: 16
 };
 
+const scannerFlags = {
+    none: 0,
+    ignoreMissingScans: 1,
+    skipPriceInsert: 2
+};
+
 const refreshUsers = async () => {
     if (refreshingUsers) return refreshingUsers;
     refreshingUsers = new Promise((resolve, reject) => {
@@ -874,6 +880,11 @@ module.exports = {
     getUserFlags: () => {
         return {
             ...userFlags
+        }
+    },
+    getScannerFlags: () => {
+        return {
+            ...scannerFlags
         }
     },
     waitForActions: async () => {
