@@ -5,11 +5,11 @@ const {alert} = require('../modules/webhook');
 
 module.exports = async (data, logger) => {
     let hideout = [];
-    let closeLogger = true;
+    let closeLogger = false;
     if (!logger) {
         logger = new JobLogger('update-hideout-legacy');
         logger.log('Running update-hideout-legacy...');
-        closeLogger = false;
+        closeLogger = true;
     }
     try {
         if (!data) {
