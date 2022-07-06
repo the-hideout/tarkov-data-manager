@@ -96,6 +96,7 @@ const processPresets = async () => {
                 presetData.weight += (items[part._tpl]._props.Weight * partData.count);
                 presetData.baseValue += (credits[part._tpl] * partData.count);
             }
+            presetData.weight = Math.round(presetData.weight * 100) / 100;
             if (preset._changeWeaponName && en.preset[presetId] && en.preset[presetId].Name) {
                 presetData.name += ' '+en.preset[presetId].Name;
                 presetData.shortName += ' '+en.preset[presetId].Name;
@@ -145,9 +146,10 @@ const processPresets = async () => {
             presetData.baseValue = 0;
             for (const contained of presetData.containsItems) {
                 const part = items[contained.item.id];
-                presetData.weight += (part._props.Weight * contained.count);
+                presetData.weight += Math.round(part._props.Weight * contained.count) * 100;
                 presetData.baseValue += (credits[contained.item.id] * contained.count);
             }
+            presetData.weight = Math.round(presetData.weight * 100) / 100;
             presetData.backgroundColor = baseItem._props.BackgroundColor;
             presetData.bsgCategoryId = baseItem._parent;
             presetData.types = ['preset'];
