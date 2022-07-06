@@ -47,6 +47,9 @@ const availableFiles = {
         requestName: 'traders_clean.json',
         fileName: 'traders.json'
     },
+    locations: {
+        requestName: 'locations.json'
+    },
     locale_en: {
         requestName: 'locale_en_td.json',
         fileName: 'locale_en.json'
@@ -160,6 +163,9 @@ module.exports = {
             en: await module.exports.locale_en(download),
             ...await tarkovBot.locales(download)
         }
+    },
+    locations: async (download = false) => {
+        return module.exports.get('locations.json', download);
     },
     globals: async(download = false) => {
         return module.exports.get('globals.json', download);
