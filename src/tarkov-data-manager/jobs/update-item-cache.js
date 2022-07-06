@@ -257,6 +257,7 @@ module.exports = async () => {
         await setItemPropertiesLocalesGlobals(locales, globals);
         for (const [key, value] of itemMap.entries()) {
             if (value.types.includes('disabled')) continue;
+            if (!bsgItems[key] && !presets[key]) continue;
             itemData[key] = {
                 ...value,
                 shortName: value.short_name,
@@ -326,7 +327,9 @@ module.exports = async () => {
                     base_item_id: preset.baseId
                 };
             } else if (!itemData[key].types.includes('disabled')) {
-                logger.log(`No category found for ${itemData[key].name} (${key})`);
+                logger.log(`Item ${itemData[key].name} (${key}) is neither an item nor a preset`);
+                delete itemData[key];
+                continue;
             }
             addCategory(itemData[key].bsgCategoryId);
             if (presets[key]) {
