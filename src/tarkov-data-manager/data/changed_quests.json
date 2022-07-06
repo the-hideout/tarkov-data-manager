@@ -12,6 +12,167 @@
             }
         }
     },
+    "5c1234c286f77406fa13baeb": {
+        "name": "Setup",
+        "finishRewardsAdded": {
+            "offerUnlock": [
+                {
+                    "id": "unknown",
+                    "trader_id": "5c0647fdd443bc2504c2d371",
+                    "trader_name": "Jaeger",
+                    "level": 4,
+                    "item": "5d6e68a8a4b9360b6c0d54e2",
+                    "item_name": "12/70 AP-20 armor-piercing slug",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "5d25e2cc86f77443e47ae019": {
+        "name": "The Huntsman Path - Forest Cleaning",
+        "finishRewardsAdded": {
+            "offerUnlock": [
+                {
+                    "id": "unknown",
+                    "trader_id": "5c0647fdd443bc2504c2d371",
+                    "trader_name": "Jaeger",
+                    "level": 3,
+                    "item": "5d6e6911a4b9361bd5780d52",
+                    "item_name": "12/70 flechette",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "5c0bc91486f7746ab41857a2": {
+        "name": "Silent Caliber",
+        "finishRewardsAdded": {
+            "offerUnlock": [
+                {
+                    "id": "unknown",
+                    "trader_id": "5c0647fdd443bc2504c2d371",
+                    "trader_name": "Jaeger",
+                    "level": 3,
+                    "item": "5d6e68c4a4b9361b93413f79",
+                    "item_name": "12/70 makeshift .50 BMG slug",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "6179b5eabca27a099552e052": {
+        "name": "Counteraction",
+        "finishRewardsAdded": {
+            "offerUnlock": [
+                {
+                    "id": "unknown",
+                    "trader_id": "58330581ace78e27b8b10cee",
+                    "trader_name": "Skier",
+                    "level": 4,
+                    "item": "5e85a9f4add9fe03027d9bf1",
+                    "item_name": "23x75mm \"Zvezda\" flashbang round",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "5d25e2ee86f77443e35162ea": {
+        "name": "The Huntsman Path - Woods Keeper",
+        "finishRewardsAdded": {
+            "offerUnlock": [
+                {
+                    "id": "unknown",
+                    "trader_id": "5c0647fdd443bc2504c2d371",
+                    "trader_name": "Jaeger",
+                    "level": 4,
+                    "item": "627e14b21713922ded6f2c15",
+                    "item_name": "Accuracy International AXMC .338 LM bolt-action sniper rifle",
+                    "count": 1,
+                    "contains": [
+                        {
+                            "item": "628120fd5631d45211793c9f",
+                            "name": "AI AXMC .338 LM 10-round magazine",
+                            "count": 1
+                        },
+                        {
+                            "item": "62811e2510e26c1f344e6554",
+                            "name": "AI AXMC pistol grip",
+                            "count": 1
+                        },
+                        {
+                            "item": "62811f828193841aca4a45c3",
+                            "name": "AI AXMC AX buttstock",
+                            "count": 1
+                        },
+                        {
+                            "item": "6281209662cba23f6c4d7a19",
+                            "name": "AI AXMC AX KeySlot 16 inch handguard",
+                            "count": 1
+                        },
+                        {
+                            "item": "628120d309427b40ab14e76d",
+                            "name": "AI AXMC Adapter Kit short length rail",
+                            "count": 1
+                        },
+                        {
+                            "item": "628120c21d5df4475f46a337",
+                            "name": "AI AXMC AT X Top Rail",
+                            "count": 1
+                        },
+                        {
+                            "item": "6281204f308cb521f87a8f9b",
+                            "name": "AI AXMC .338 LM chassis",
+                            "count": 1
+                        },
+                        {
+                            "item": "628120dd308cb521f87a8fa1",
+                            "name": "AI AXMC Adapter Kit medium length rail",
+                            "count": 1
+                        },
+                        {
+                            "item": "6281212a09427b40ab14e770",
+                            "name": "AI AXMC padded handguard grip",
+                            "count": 1
+                        },
+                        {
+                            "item": "62811fbf09427b40ab14e767",
+                            "name": "AI AXMC upper receiver",
+                            "count": 1
+                        },
+                        {
+                            "item": "62812081d23f207deb0ab216",
+                            "name": "AI .338 LM Tactical Muzzle Brake",
+                            "count": 1
+                        },
+                        {
+                            "item": "62811cd7308cb521f87a8f99",
+                            "name": "AI AXMC .338 LM bolt assembly",
+                            "count": 1
+                        },
+                        {
+                            "item": "628121434fa03b6b6c35dc6a",
+                            "name": "AI AXMC .338 LM 28 inch barrel",
+                            "count": 1
+                        },
+                        {
+                            "item": "628120621d5df4475f46a335",
+                            "name": "RAI AXMC thread protection cap",
+                            "count": 1
+                        }
+                    ],
+                    "attributes": []
+                }
+            ]
+        }
+    },
     "5c0bde0986f77479cf22c2f8": {
         "name": "A Shooter Born in Heaven",
         "objectivesChanged": {
