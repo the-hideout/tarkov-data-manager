@@ -16,12 +16,12 @@ const traderMap = [
 ];
 
 module.exports = async (data, logger) => {
-    let closeLogger = true;
+    let closeLogger = false;
     let quests = [];
     if (!logger) {
         logger = new JobLogger('update-quests-legacy');
         logger.log('Running update-quests-legacy...');
-        closeLogger = false;
+        closeLogger = true;
     }
     try {
         if (!data) {
