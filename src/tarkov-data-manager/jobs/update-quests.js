@@ -3,11 +3,13 @@ const path = require('path');
 
 const got = require('got');
 
+const { jobComplete } = require('../modules/db-connection');
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const legacyQuests = require('./update-quests-legacy');
+const remoteData = require('../modules/remote-data');
 
 let logger = false;
 let en = {};
@@ -446,6 +448,7 @@ module.exports = async () => {
         items = await tarkovChanges.items();
         en = await tarkovChanges.locale_en();
         locales = await tarkovChanges.locales();
+        const itemMap = await remoteData.get();
         const missingQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'missing_quests.json')));
         const changedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'changed_quests.json')));
         try {
@@ -616,6 +619,9 @@ module.exports = async () => {
                                     for (const itemId of modArray) {
                                         if (!en.templates[itemId]) {
                                             logger.warn(`Unrecognized weapon mod ${itemId} for objective ${obj.id} of ${questData.name}`);
+                                            continue;
+                                        }
+                                        if (!itemMap.has(itemId) || itemMap.get(itemId).types.includes('disabled')) {
                                             continue;
                                         }
                                         modSet.push({
@@ -829,6 +835,9 @@ module.exports = async () => {
                     }
                     for (const itemId of objective._props.hasItemFromCategory) {
                         for (const partId in items) {
+                            if (!itemMap.has(itemId) || itemMap.get(itemId).types.includes('disabled')) {
+                                continue;
+                            }
                             if (items[partId]._parent === itemId) {
                                 obj.containsOne.push({
                                     id: partId,
@@ -873,6 +882,13 @@ module.exports = async () => {
             if (changedQuests[questData.id] && changedQuests[questData.id].objectivesAdded) {
                 for (const newObj of changedQuests[questData.id].objectivesAdded) {
                     questData.objectives.push(newObj);
+                }
+            }
+            if (changedQuests[questData.id] && changedQuests[questData.id].finishRewardsAdded) {
+                for (const rewardType in changedQuests[questData.id].finishRewardsAdded) {
+                    for (const reward of changedQuests[questData.id].finishRewardsAdded[rewardType]) {
+                        questData.finishRewards[rewardType].push(reward);
+                    }
                 }
             }
             for (const req of quest.conditions.AvailableForStart) {
@@ -1056,6 +1072,7 @@ module.exports = async () => {
             message: error.toString()
         });
     }
+    await jobComplete();
     logger.end();
     logger = en = locales = items = presets = tdQuests = tdTraders = tdMaps = false;
 }
