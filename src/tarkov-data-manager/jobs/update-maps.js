@@ -42,6 +42,7 @@ const enemyMap = {
     'bossSanitar': 'QuestCondition/Elimination/Kill/BotRole/bossSanitar',
     'followerSanitar': 'ScavRole/Follower',
     'scavs': 'QuestCondition/Elimination/Kill/Target/Savage',
+    'sniper': 'ScavRole/Marksman',
     'sectantPriest': 'QuestCondition/Elimination/Kill/BotRole/sectantPriest',
     'sectantWarrior': 'QuestCondition/Elimination/Kill/BotRole/cursedAssault',
     'bossKojaniy': 'QuestCondition/Elimination/Kill/BotRole/bossKojaniy',
@@ -125,14 +126,20 @@ module.exports = async function() {
             };
             if (idMap[id]) mapData.tarkovDataId = idMap[id];
             const enemySet = new Set();
-            if (id !== '5b0fc42d86f7744a585f9105') enemySet.add('scavs');
+            for (const wave of map.waves) {
+                if (wave.WildSpawnType === 'assault') {
+                    enemySet.add('scavs');
+                } else if (wave.WildSpawnType === 'marksman') {
+                    enemySet.add('sniper');
+                }
+            }
             for (const spawn of map.BossLocationSpawn) {
                 enemySet.add(spawn.BossName);
                 const bossData = {
                     name: spawn.BossName,
                     spawnChance: parseInt(spawn.BossChance) / 100,
                     spawnLocations: [],
-                    escort: null,
+                    escorts: [],
                     supports: [],
                     spawnTime: spawn.Time,
                     spawnTimeRandom: spawn.RandomTimeSpawn,
@@ -156,11 +163,11 @@ module.exports = async function() {
                 if (spawn.BossEscortAmount !== '0') {
                     if (enemyMap[spawn.BossEscortType] || manualNames[spawn.BossEscortType]) {
                         enemySet.add(spawn.BossEscortType);
-                        bossData.escort = {
+                        bossData.escorts.push({
                             name: spawn.BossEscortType,
-                            amount: getChances(spawn.BossEscortAmount, 'count', true), //spawn.BossEscortAmount.split(',').map(num => parseInt(num)),
+                            amount: getChances(spawn.BossEscortAmount, 'count', true), 
                             locale: {}
-                        };
+                        });
                     }
                 }
                 if (spawn.Supports) {
@@ -168,9 +175,9 @@ module.exports = async function() {
                         if (support.BossEscortAmount === '0') continue;
                         if (enemyMap[support.BossEscortType] || manualNames[support.BossEscortType]) {
                             enemySet.add(support.BossEscortType);
-                            bossData.supports.push({
+                            bossData.escorts.push({
                                 name: support.BossEscortType,
-                                amount: getChances(support.BossEscortAmount, 'count', true), //support.BossEscortAmount.split(',').map(num => parseInt(num)),
+                                amount: getChances(support.BossEscortAmount, 'count', true), 
                                 locale: {}
                             });
                         }
@@ -189,14 +196,14 @@ module.exports = async function() {
                     bossData.locale[code] = {
                         name: getEnemyName(bossData.name, code)
                     };
-                    if (bossData.escort) {
+                    /*if (bossData.escort) {
                         bossData.escort.locale[code] = {
                             name: getEnemyName(bossData.escort.name, code)
                         };
-                    }
-                    for (const support of bossData.supports) {
-                        support.locale[code] = {
-                            name: getEnemyName(support.name, code)
+                    }*/
+                    for (const escort of bossData.escorts) {
+                        escort.locale[code] = {
+                            name: getEnemyName(escort.name, code)
                         };
                     }
                 }
