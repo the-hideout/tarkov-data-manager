@@ -37,8 +37,7 @@ const getPresetSize = async (item, logger = false) => {
         }
         if (part._id === baseItem._id) continue;
 
-        for (const di in directions) {
-            const dir = directions[di];
+        for (const dir of directions) {
             if (part._props.ExtraSizeForceAdd) {
                 hardSizes[dir] += part._props[`ExtraSize${dir}`];
             } else {
