@@ -28,11 +28,18 @@ const getPresetSize = async (item, logger = false) => {
 
     let weight = baseItem._props.Weight;
     let baseValue = credits[baseItem._id];
+    let ergo = baseItem._props.Ergonomics;
+    const baseVerticalRecoil = baseItem._props.RecoilForceUp;
+    const baseHorizontalRecoil = baseItem._props.RecoilForceBack;
+    let vRecoil = baseVerticalRecoil;
+    let hRecoil = baseHorizontalRecoil;
     for (const contained of item.containsItems) {
-        const part = itemData[contained.item.id];
+        let partId = contained.item;
+        if (typeof partId === 'object') partId = partId.id;
+        const part = itemData[partId];
 
         if(!part){
-            if (logger) logger.warn(`Could not find part ${contained.item.id} of preset ${item.id}`);
+            if (logger) logger.warn(`Could not find part ${partId} of preset ${item.id}`);
             continue;
         }
         if (part._id === baseItem._id) continue;
@@ -50,15 +57,21 @@ const getPresetSize = async (item, logger = false) => {
         if (credits[part._id]) {
             baseValue += (credits[part._id] * contained.count);
         } else {
-            if (logger) logger.warn(`Could not find base value for part ${contained.item.id} of preset ${item.id}`);
+            if (logger) logger.warn(`Could not find base value for part ${partId} of preset ${item.id}`);
         }
+        ergo += part._props.Ergonomics;
+        vRecoil += (baseVerticalRecoil * (part._props.Recoil / 100));
+        hRecoil += (baseHorizontalRecoil * (part._props.Recoil / 100));
     }
 
     return {
         width: baseItem._props.Width + softSizes.Left + softSizes.Right + hardSizes.Left + hardSizes.Right,
         height: baseItem._props.Height + softSizes.Up + softSizes.Down + hardSizes.Up + hardSizes.Down,
-        weight : Math.round(weight * 100) / 100,
-        baseValue: baseValue
+        weight : Math.round(weight * 1000) / 1000,
+        baseValue: baseValue,
+        ergonomics: ergo,
+        verticalRecoil: Math.round(vRecoil),
+        horizontalRecoil: Math.round(hRecoil)
     };
 };
 

@@ -12,6 +12,7 @@ const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const {dashToCamelCase} = require('../modules/string-functions');
 const {setItemPropertiesLocalesGlobals, getSpecialItemProperties} = require('../modules/get-item-properties');
+const { initPresetSize, getPresetSize } = require('../modules/preset-size');
 
 let bsgItems = false;
 let credits = false;
@@ -194,6 +195,7 @@ module.exports = async () => {
         const itemData = {};
         const itemTypesSet = new Set();
         bsgCategories = {};
+        initPresetSize(bsgItems, credits);
 
         logger.time('price-yesterday-query');
         const avgPriceYesterday = await query(`SELECT
@@ -302,7 +304,7 @@ module.exports = async () => {
 
             itemData[key].types = itemData[key].types.map(type => dashToCamelCase(type));
 
-            itemData[key].containsItems = containedItemsMap[key];
+            itemData[key].containsItems = containedItemsMap[key] || [];
 
             // itemData[key].changeLast48h = itemPriceYesterday.priceYesterday || 0;
 
@@ -315,6 +317,15 @@ module.exports = async () => {
                 itemData[key].discardLimit = bsgItems[key]._props.DiscardLimit;
                 itemData[key].backgroundColor = bsgItems[key]._props.BackgroundColor;
                 itemData[key].properties = await getSpecialItemProperties(bsgItems[key], bsgItems[bsgItems[key]._parent]);
+                if (value.types.includes('gun')) {
+                    const defaultSize = await getPresetSize(itemData[key], logger);
+                    itemData[key].properties.defaultWidth = defaultSize.width;
+                    itemData[key].properties.defaultHeight = defaultSize.height;
+                    itemData[key].properties.defaultErgonomics = defaultSize.ergonomics;
+                    itemData[key].properties.defaultRecoilVertical = defaultSize.verticalRecoil;
+                    itemData[key].properties.defaultRecoilHorizontal = defaultSize.horizontalRecoil;
+                    itemData[key].properties.defaultWeight = defaultSize.weight;
+                }
             } else if (presets[key]) {
                 const preset = presets[key];
                 itemData[key].width = preset.width;
@@ -324,7 +335,10 @@ module.exports = async () => {
                 itemData[key].backgroundColor = preset.backgroundColor;
                 itemData[key].properties = {
                     propertiesType: 'ItemPropertiesPreset',
-                    base_item_id: preset.baseId
+                    base_item_id: preset.baseId,
+                    ergonomics: preset.ergonomics,
+                    recoilVertical: preset.verticalRecoil,
+                    recoilHorizontal: preset.horizontalRecoil
                 };
             } else if (!itemData[key].types.includes('disabled')) {
                 logger.log(`Item ${itemData[key].name} (${key}) is neither an item nor a preset`);

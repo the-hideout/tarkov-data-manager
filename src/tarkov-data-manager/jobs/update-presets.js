@@ -107,6 +107,9 @@ module.exports = async () => {
                 presetData.height = itemPresetSize.height;
                 presetData.weight = itemPresetSize.weight;
                 presetData.baseValue = credits[baseItem._id];
+                presetData.ergonomics = itemPresetSize.ergonomics;
+                presetData.verticalRecoil = itemPresetSize.verticalRecoil;
+                presetData.horizontalRecoil = itemPresetSize.horizontalRecoil;
             }
             presetsData[presetId] = presetData;
             if (presetData.default && !defaults[firstItem.id]) {
@@ -133,11 +136,17 @@ module.exports = async () => {
                 presetData.height = itemPresetSize.height;
                 presetData.weight = itemPresetSize.weight;
                 presetData.baseValue = itemPresetSize.baseValue;
+                presetData.ergonomics = itemPresetSize.ergonomics;
+                presetData.verticalRecoil = itemPresetSize.verticalRecoil;
+                presetData.horizontalRecoil = itemPresetSize.horizontalRecoil;
             } else {
                 presetData.width = baseItem._props.Width;
                 presetData.height = baseItem._props.Height;
                 presetData.weight = baseItem._props.Weight;
                 presetData.baseValue = credits[baseItem._id];
+                presetData.ergonomics = baseItem._props.Ergonomics;
+                presetData.verticalRecoil = baseItem._props.RecoilForceUp;
+                presetData.horizontalRecoil = baseItem._props.RecoilForceBack;
             }
 
             presetData.locale = {};
