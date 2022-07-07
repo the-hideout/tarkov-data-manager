@@ -35,7 +35,7 @@ const getPresetSize = async (item, logger = false) => {
             if (logger) logger.warn(`Could not find part ${contained.item.id} of preset ${item.id}`);
             continue;
         }
-        if (part._id === item.id || part._id === baseItem._id) continue;
+        if (part._id === baseItem._id) continue;
 
         for (const di in directions) {
             const dir = directions[di];
