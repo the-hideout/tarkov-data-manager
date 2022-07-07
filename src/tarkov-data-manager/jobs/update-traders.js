@@ -4,6 +4,7 @@ const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
+const normalizeName = require('../modules/normalize-name');
 
 module.exports = async function() {
     const logger = new JobLogger('update-traders');
@@ -29,6 +30,7 @@ module.exports = async function() {
             const traderData = {
                 id: trader._id,
                 name: en.trading[trader._id].Nickname,
+                normalizedName: normalizeName(en.trading[trader._id].Nickname),
                 currency: trader.currency,
                 resetTime: date,
                 discount: parseInt(trader.discount) / 100,
