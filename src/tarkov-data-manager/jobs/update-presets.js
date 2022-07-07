@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const normalizeName = require('../modules/normalize-name');
-const presetSize = require('../modules/preset-size');
+const { initPresetSize, getPresetSize } = require('../modules/preset-size');
 const {connection, query, jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
@@ -10,18 +10,9 @@ const tarkovChanges = require('../modules/tarkov-changes');
 const getTranslation = require('../modules/get-translation');
 
 let logger = false;
-let gotSizes = false;
 
-const presetsFileExists = () => {
-    try {
-        fs.accessSync(path.join(__dirname, '..', 'cache', 'presets.json'))
-    } catch (error) {
-        return false;
-    }
-    return true;
-}
-
-const processPresets = async () => {
+module.exports = async () => {
+    logger = new JobLogger('update-presets');
     try {
         logger.log('Updating presets');
         const presets = (await tarkovChanges.globals())['ItemPresets'];
@@ -29,6 +20,8 @@ const processPresets = async () => {
         const en = await tarkovChanges.locale_en();
         const locales = await tarkovChanges.locales();
         const credits = await tarkovChanges.credits();
+
+        initPresetSize(items, credits);
 
         const manualPresets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'manual_presets.json')));
 
@@ -93,8 +86,6 @@ const processPresets = async () => {
                     partData.count = part.upd.StackObjectsCount;
                 }
                 presetData.containsItems.push(partData);
-                presetData.weight += (items[part._tpl]._props.Weight * partData.count);
-                presetData.baseValue += (credits[part._tpl] * partData.count);
             }
             presetData.weight = Math.round(presetData.weight * 100) / 100;
             if (preset._changeWeaponName && en.preset[presetId] && en.preset[presetId].Name) {
@@ -110,12 +101,15 @@ const processPresets = async () => {
                 }
             }
             presetData.normalized_name = normalizeName(presetData.name);
-            if (gotSizes) {
-                let itemPresetSize = await presetSize(presetId, false);
-                if (itemPresetSize) {
-                    presetData.width = itemPresetSize.width;
-                    presetData.height = itemPresetSize.height;
-                }
+            let itemPresetSize = await getPresetSize(presetData, logger);
+            if (itemPresetSize) {
+                presetData.width = itemPresetSize.width;
+                presetData.height = itemPresetSize.height;
+                presetData.weight = itemPresetSize.weight;
+                presetData.baseValue = credits[baseItem._id];
+                presetData.ergonomics = itemPresetSize.ergonomics;
+                presetData.verticalRecoil = itemPresetSize.verticalRecoil;
+                presetData.horizontalRecoil = itemPresetSize.horizontalRecoil;
             }
             presetsData[presetId] = presetData;
             if (presetData.default && !defaults[firstItem.id]) {
@@ -132,27 +126,29 @@ const processPresets = async () => {
             presetData.name = en.templates[baseItem._id].Name + ' ' + presetData.appendName;
             presetData.shortName = en.templates[baseItem._id].ShortName + ' ' + presetData.appendName;
             presetData.normalized_name = normalizeName(presetData.name);
-            if (gotSizes) {
-                let itemPresetSize = await presetSize(presetData.id, false);
-                if (itemPresetSize) {
-                    presetData.width = itemPresetSize.width;
-                    presetData.height = itemPresetSize.height;
-                } else {
-                    presetData.width = baseItem._props.Width;
-                    presetData.height = baseItem._props.Height;
-                }
-            }
-            presetData.weight = 0;
-            presetData.baseValue = 0;
-            for (const contained of presetData.containsItems) {
-                const part = items[contained.item.id];
-                presetData.weight += Math.round(part._props.Weight * contained.count) * 100;
-                presetData.baseValue += (credits[contained.item.id] * contained.count);
-            }
-            presetData.weight = Math.round(presetData.weight * 100) / 100;
             presetData.backgroundColor = baseItem._props.BackgroundColor;
             presetData.bsgCategoryId = baseItem._parent;
             presetData.types = ['preset'];
+
+            let itemPresetSize = await getPresetSize(presetData, logger);
+            if (itemPresetSize) {
+                presetData.width = itemPresetSize.width;
+                presetData.height = itemPresetSize.height;
+                presetData.weight = itemPresetSize.weight;
+                presetData.baseValue = itemPresetSize.baseValue;
+                presetData.ergonomics = itemPresetSize.ergonomics;
+                presetData.verticalRecoil = itemPresetSize.verticalRecoil;
+                presetData.horizontalRecoil = itemPresetSize.horizontalRecoil;
+            } else {
+                presetData.width = baseItem._props.Width;
+                presetData.height = baseItem._props.Height;
+                presetData.weight = baseItem._props.Weight;
+                presetData.baseValue = credits[baseItem._id];
+                presetData.ergonomics = baseItem._props.Ergonomics;
+                presetData.verticalRecoil = baseItem._props.RecoilForceUp;
+                presetData.horizontalRecoil = baseItem._props.RecoilForceBack;
+            }
+
             presetData.locale = {};
             for (const code in locales) {
                 getTranslation(locales, code, lang => {
@@ -211,7 +207,7 @@ const processPresets = async () => {
         const queries = [];
         for (const presetId in presetsData) {
             const p = presetsData[presetId];
-            if (p.default && gotSizes) {
+            if (p.default) {
                 queries.push(query(`
                     DELETE IGNORE FROM 
                         item_children
@@ -239,7 +235,7 @@ const processPresets = async () => {
                     logger.error(`Error updating default preset items for ${p.name} ${p.id}`);
                     logger.error(error);
                 }));
-            } else if (gotSizes) {
+            } else {
                 queries.push(query(`
                     INSERT INTO 
                         item_data (id, name, short_name, normalized_name, properties)
@@ -280,32 +276,9 @@ const processPresets = async () => {
                 }
             } 
         }
-        if (!gotSizes) {
-            logger.warn('presets.json file did not exist, so no values inserted into database');
-        }
 
         fs.writeFileSync(path.join(__dirname, '..', 'cache', 'presets.json'), JSON.stringify(presetsData, null, 4));
         await Promise.allSettled(queries);
-    } catch (error){
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.stack
-        });
-    }
-};
-
-module.exports = async () => {
-    logger = new JobLogger('update-presets');
-    try {
-        gotSizes = presetsFileExists();
-        await processPresets();
-        let gotSizesNow = presetsFileExists()
-        if (!gotSizes && gotSizesNow) {
-            gotSizes = gotSizesNow;
-            logger.warn('Re-running presets to get proper sizes');
-            await processPresets();
-        }
     } catch (error) {
         logger.error(error);
         alert({
@@ -315,5 +288,5 @@ module.exports = async () => {
     }
     logger.end();
     await jobComplete();
-    logger = gotSizes = false;
+    logger = false;
 };

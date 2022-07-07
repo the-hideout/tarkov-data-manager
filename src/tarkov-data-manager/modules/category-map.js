@@ -787,6 +787,14 @@ module.exports = {
             name: "Revolver",
             traders: [],
         },
+        '616eb7aea207f41933308f46': {
+            name: 'RepairKits',
+            id: '616eb7aea207f41933308f46',
+            traders: [
+                TRADERS.prapor,
+                TRADERS.mechanic,
+            ],
+        },
     },
     items: {
         '5d1b376e86f774252519444e': {
