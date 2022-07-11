@@ -447,6 +447,7 @@ module.exports = async () => {
 
         const fleaData = {
             name: 'Flea Market',
+            normalizedName: 'flea-market',
             minPlayerLevel: globals.config.RagFair.minUserLevel,
             enabled: globals.config.RagFair.enabled,
             sellOfferFeeRate: (globals.config.RagFair.communityItemTax / 100),
@@ -469,7 +470,7 @@ module.exports = async () => {
             const lang = locales[code];
             if (lang.interface['RAG FAIR']) {
                 fleaData.locale[code] = {
-                    name: lang.interface['RAG FAIR'].replace(/(?<!\b)([A-Z])/g, substr => {
+                    name: lang.interface['RAG FAIR'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
                         return substr.toLowerCase();
                     })
                 };
