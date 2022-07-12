@@ -445,6 +445,20 @@ module.exports = async () => {
             });
         }
 
+        for (const id in itemData) {
+            const item = itemData[id];
+            item.categories = [];
+            const cat = bsgCategories[item.bsgCategoryId];
+            if (!cat) continue;
+            item.categories.push(item.bsgCategoryId);
+            if (!bsgCategories[cat.parent_id]) continue;
+            let parent = bsgCategories[cat.parent_id];
+            while (parent) {
+                item.categories.push(parent.id);
+                parent = bsgCategories[parent.parent_id];
+            }
+        }
+
         const fleaData = {
             name: 'Flea Market',
             normalizedName: 'flea-market',
