@@ -404,7 +404,7 @@ module.exports = async function() {
 
         const response = await cloudflare.put('barter_data', JSON.stringify(trades)).catch(error => {
             logger.error('Error on cloudflare put for barter_data')
-            logger.error(requestError);
+            logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
