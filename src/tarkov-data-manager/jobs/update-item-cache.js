@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('fs/promises');
 
 const roundTo = require('round-to');
 
@@ -16,7 +16,6 @@ const { initPresetSize, getPresetSize } = require('../modules/preset-size');
 
 let bsgItems = false;
 let credits = false;
-let en = false;
 let locales = false;
 let traderData = false;
 let logger = false;
@@ -46,8 +45,8 @@ const addCategory = id => {
         parent_id: null,
         locale: {}
     };
-    if (en.templates[id]) {
-        bsgCategories[id].name = en.templates[id].Name
+    if (locales.en.templates[id]) {
+        bsgCategories[id].name = locales.en.templates[id].Name
     } else {
         bsgCategories[id].name = bsgItems[id]._name;
     }
@@ -184,63 +183,93 @@ const addPropertiesToItem = (item) => {
 module.exports = async () => {
     logger = new JobLogger('update-item-cache');
     try {
-        bsgItems = await tarkovChanges.items();
-        credits = await tarkovChanges.credits();
-        en = await tarkovChanges.locale_en();
-        locales = await tarkovChanges.locales();
-        traderData = await tarkovChanges.traders();
-        const presets = JSON.parse(fs.readFileSync('./cache/presets.json'));
-        const globals = await tarkovChanges.globals();
-        const itemMap = await remoteData.get(true);
-        const itemData = {};
-        const itemTypesSet = new Set();
-        bsgCategories = {};
-        initPresetSize(bsgItems, credits);
-
         logger.time('price-yesterday-query');
-        const avgPriceYesterday = await query(`SELECT
-            avg(price) AS priceYesterday,
-            item_id
-        FROM
-            price_data
-        WHERE
-            timestamp > DATE_SUB(NOW(), INTERVAL 2 DAY)
-        AND
-            timestamp < DATE_SUB(NOW(), INTERVAL 1 DAY)
-        GROUP BY
-            item_id`);
-        logger.timeEnd('price-yesterday-query');
-
-        logger.time('last-low-price-query');
-        const lastKnownPriceData = await query(`SELECT
-            price,
-            a.timestamp,
-            a.item_id
-        FROM
-            price_data a
-        INNER JOIN (
+        const avgPriceYesterdayPromise = query(`
             SELECT
-                max(timestamp) as timestamp,
+                avg(price) AS priceYesterday,
                 item_id
             FROM
                 price_data
             WHERE
-                timestamp > '2022-06-29 01:00:00'
+                timestamp > DATE_SUB(NOW(), INTERVAL 2 DAY)
+            AND
+                timestamp < DATE_SUB(NOW(), INTERVAL 1 DAY)
             GROUP BY
                 item_id
-        ) b
-        ON
-            a.timestamp = b.timestamp
-        GROUP BY
-            item_id, timestamp, price;`);
-        logger.timeEnd('last-low-price-query');
+        `).then(results => {
+            logger.timeEnd('price-yesterday-query');
+            return results;
+        });
+
+        logger.time('last-low-price-query');
+        const lastKnownPriceDataPromise = query(`
+            SELECT
+                price,
+                a.timestamp,
+                a.item_id
+            FROM
+                price_data a
+            INNER JOIN (
+                SELECT
+                    max(timestamp) as timestamp,
+                    item_id
+                FROM
+                    price_data
+                WHERE
+                    timestamp > '2022-06-29 01:00:00'
+                GROUP BY
+                    item_id
+            ) b
+            ON
+                a.timestamp = b.timestamp
+            GROUP BY
+                item_id, timestamp, price;
+        `).then(results => {
+            logger.timeEnd('last-low-price-query');
+            return results;
+        });
 
         logger.time('contained-items-query');
-        const containedItems = await query(`SELECT
-            *
-        FROM
-            item_children;`);
-        logger.timeEnd('contained-items-query');
+        const containedItemsPromise = query(`
+            SELECT
+                *
+            FROM
+                item_children;
+        `).then (results => {
+            logger.timeEnd('contained-items-query');
+            return results;
+        });
+
+        let presets, globals, avgPriceYesterday, lastKnownPriceData, containedItems, itemMap;
+        [
+            bsgItems, 
+            credits, 
+            locales, 
+            traderData, 
+            globals, 
+            presets,
+            avgPriceYesterday, 
+            lastKnownPriceData, 
+            containedItems, 
+            itemMap
+        ] = await Promise.all([
+            tarkovChanges.items(), 
+            tarkovChanges.credits(),
+            tarkovChanges.locales(),
+            tarkovChanges.traders(),
+            tarkovChanges.globals(),
+            fs.readFile('./cache/presets.json').then(text => {
+                return JSON.parse(text);
+            }),
+            avgPriceYesterdayPromise,
+            lastKnownPriceDataPromise,
+            containedItemsPromise,
+            remoteData.get(true)
+        ]);
+        const itemData = {};
+        const itemTypesSet = new Set();
+        bsgCategories = {};
+        initPresetSize(bsgItems, credits);
 
         let containedItemsMap = {};
 
@@ -557,5 +586,5 @@ module.exports = async () => {
     }
     await jobComplete();
     logger.end();
-    bsgItems = credits = en = locales = traderData = bsgCategories = logger = false;
+    bsgItems = credits = locales = traderData = bsgCategories = logger = false;
 };
