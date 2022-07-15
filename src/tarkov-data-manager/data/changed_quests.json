@@ -84,6 +84,53 @@
             ]
         }
     },
+    "59ca29fb86f77445ab465c87" : {
+        "name": "The Punisher - Part 5",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "60b8ec424266f973a214d864",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 4,
+                    "item": "5cadf6eeae921500134b2799",
+                    "item_name": "12.7x55mm PS12B",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "5c0d190cd09282029f5390d8" : {
+        "name": "Grenadier",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "5c17c40786f77430a41a095e",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 4,
+                    "item": "5c1260dc86f7746b106e8748",
+                    "item_name": "9x39mm BP gs ammo pack (8 pcs)",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "id": "60b8ec424266f973a214d864",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 3,
+                    "item": "59e0d99486f7744a32234762",
+                    "item_name": "7.62x39mm BP gzh",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
     "5d25e2ee86f77443e35162ea": {
         "name": "The Huntsman Path - Woods Keeper",
         "finishRewardsAdded": {
@@ -173,6 +220,112 @@
             ]
         }
     },
+    "5b47891f86f7744d1b23c571" : {
+        "name": "Living High is Not a Crime - Part 1",
+        "objectivesAdded": [
+            {
+                "id": "62a7004c1c307729c3264f9a",
+                "type": "findItem",
+                "optional": false,
+                "description": "Find Golden egg in raid",
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a09cfe4f842e1bd12da3e4",
+                "item_name": "Golden egg",
+                "count": 1,
+                "item": "62a09cfe4f842e1bd12da3e4",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a70058ec21e50cad3b6709",
+                "type": "giveItem",
+                "optional": false,
+                "description": "Hand over the Golden egg",
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a09cfe4f842e1bd12da3e4",
+                "item_name": "Golden egg",
+                "count": 1,
+                "item": "62a09cfe4f842e1bd12da3e4",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ]
+    },
+    "5c1141f386f77430ff393792" : {
+        "name": "Living High is Not a Crime - Part 2",
+        "objectivesAdded": [
+            {
+                "id": "62a700893e015d7ce1151d90",
+                "type": "findItem",
+                "optional": false,
+                "description": "Find Axel parrot figurine in raid",
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a091170b9d3c46de5b6cf2",
+                "item_name": "Axel parrot figurine",
+                "count": 1,
+                "item": "62a091170b9d3c46de5b6cf2",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a70094ec21e50cad3b670b",
+                "type": "giveItem",
+                "optional": false,
+                "description": "Hand over the Axel parrot figurine",
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a091170b9d3c46de5b6cf2",
+                "item_name": "Axel parrot figurine",
+                "count": 1,
+                "item": "62a091170b9d3c46de5b6cf2",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a700a37230237f257cac2d",
+                "type": "findItem",
+                "optional": false,
+                "description": "Find Raven figurine in raid",
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5e54f62086f774219b0f1937",
+                "item_name": "Raven figurine",
+                "count": 2,
+                "item": "5e54f62086f774219b0f1937",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a700c2ec21e50cad3b670c",
+                "type": "giveItem",
+                "optional": false,
+                "description": "Hand over the Raven figurine",
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5e54f62086f774219b0f1937",
+                "item_name": "Raven figurine",
+                "count": 2,
+                "item": "5e54f62086f774219b0f1937",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ]
+    },
     "5c0bde0986f77479cf22c2f8": {
         "name": "A Shooter Born in Heaven",
         "objectivesChanged": {
@@ -205,70 +358,225 @@
             {
                 "id": "629f10b114061f3074380298",
                 "type": "shoot",
-                    "optional": false,
-                    "description": "Eliminate PMC operatives with headshots from over 125 meters away on Lighthouse",
-                    "locationNames": [
-                        "Lighthouse"
-                    ],
-                    "map_ids": [
-                        "5704e4dad2720bb55b8b4567"
-                    ],
-                    "locale": {
-                        "en": {
-                            "description": "Eliminate PMC operatives with headshots from over 125 meters away on Lighthouse",
-                            "target": "any PMC operatives"
-                        },
-                        "es": {
-                            "description": "Eliminate PMC operatives with headshots from over 125 meters away on Lighthouse",
-                            "target": "cualquier operador PMC"
-                        },
-                        "ru": {
-                            "description": "Убить бойцов ЧВК выстрелом в голову с расстояния не меньше 125 метров на Маяк",
-                            "target": "любых бойцов ЧВК"
-                        },
-                        "de": {
-                            "description": "Eliminate PMC operatives with headshots from over 125 meters away on Lighthouse",
-                            "target": "any PMC operatives"
-                        },
-                        "fr": {
-                            "description": "Tuez des opérateurs d'une SMP dans les phare avec un tir à la tête à plus de 125 mètres",
-                            "target": "n'importe quels opérateurs d'une SMP"
-                        },
-                        "cz": {
-                            "description": "Eliminovat na Lighthouse PMC do hlavy na vzdálenost vyšší než 125m",
-                            "target": "jakékoliv operátory PMC"
-                        },
-                        "hu": {
-                            "description": "Eliminate PMC operatives with headshots from over 125 meters away on Lighthouse",
-                            "target": "any PMC operatives"
-                        },
-                        "tr": {
-                            "description": "Eliminate PMC operatives with headshots from over 125 meters away on Lighthouse",
-                            "target": "any PMC operatives"
-                        },
-                        "zh": {
-                            "description": "Eliminate PMC operatives with headshots from over 125 meters away on Lighthouse",
-                            "target": "any PMC operatives"
-                        }
-                    },
-                    "target": "any PMC operatives",
-                    "count": 3,
-                    "shotType": "kill",
-                    "bodyParts": [
-                        "Head"
-                    ],
-                    "usingWeapon": [],
-                    "usingWeaponMods": [],
-                    "zoneNames": [],
-                    "distance": {
-                        "compareMethod": ">=",
-                        "value": 125
-                    },
-                    "wearing": [],
-                    "notWearing": [],
-                    "healthEffect": null,
-                    "enemyHealthEffect": null,
-                    "playerHealthEffect": null
+                "optional": false,
+                "description": "Eliminate PMC operatives with headshots from over 125 meters away on Lighthouse",
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "locale_map": {
+                    "target": "QuestCondition/Elimination/Kill/Target/AnyPMC"
+                },
+                "target": "any PMC operatives",
+                "count": 3,
+                "shotType": "kill",
+                "bodyParts": [
+                    "Head"
+                ],
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": {
+                    "compareMethod": ">=",
+                    "value": 125
+                },
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            }
+        ]
+    },
+    "5c51aac186f77432ea65c552": {
+        "name": "Collector",
+        "objectivesChanged": {
+            "60d9d34e8a6f9a3731773f93": {
+                "playerLevel": 55
+            }
+        },
+        "objectivesAdded": [
+            {
+                "id": "62a6ff004de19a4c3422ea5d",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a09ec84f842e1bd12da3f2",
+                "item_name": "Missam forklift key",
+                "count": 1,
+                "item": "62a09ec84f842e1bd12da3f2",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a6ff141c307729c3264f96",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a09e974f842e1bd12da3f0",
+                "item_name": "Video cassette with the Cyborg Killer movie",
+                "count": 1,
+                "item": "62a09e974f842e1bd12da3f0",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a6ff203e015d7ce1151d8a",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a09e73af34e73a266d932a",
+                "item_name": "BakeEzy cook book",
+                "count": 1,
+                "item": "62a09e73af34e73a266d932a",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a6ff454de19a4c3422ea5e",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a09e410b9d3c46de5b6e78",
+                "item_name": "JohnB Liquid DNB glasses",
+                "count": 1,
+                "item": "62a09e410b9d3c46de5b6e78",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a6ff53b0c0eb73f7394741",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a09e08de7ac81993580532",
+                "item_name": "Glorious E lightweight armored mask",
+                "count": 1,
+                "item": "62a09e08de7ac81993580532",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a6ff633e015d7ce1151d8b",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a09dd4621468534a797ac7",
+                "item_name": "Baddies red beard",
+                "count": 1,
+                "item": "62a09dd4621468534a797ac7",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a6ff6b3e015d7ce1151d8c",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a09d79de7ac81993580530",
+                "item_name": "DRD body armor",
+                "count": 1,
+                "item": "62a09d79de7ac81993580530",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a6ff7f1c307729c3264f97",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a09d3bcf4a99369e262447",
+                "item_name": "Gingy keychain",
+                "count": 1,
+                "item": "62a09d3bcf4a99369e262447",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a6ff897230237f257cac2a",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a09cfe4f842e1bd12da3e4",
+                "item_name": "Golden egg",
+                "count": 1,
+                "item": "62a09cfe4f842e1bd12da3e4",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a6ffaa7230237f257cac2c",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a09cb7a04c0c5c6e0a84f8",
+                "item_name": "Press pass (issued for NoiceGuy)",
+                "count": 1,
+                "item": "62a09cb7a04c0c5c6e0a84f8",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a6ffb4a9a0ea77981b57d5",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a091170b9d3c46de5b6cf2",
+                "item_name": "Axel parrot figurine",
+                "count": 1,
+                "item": "62a091170b9d3c46de5b6cf2",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a6ffbcec21e50cad3b6708",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a08f4c4f842e1bd12d9d62",
+                "item_name": "BEAR Buddy plush toy",
+                "count": 1,
+                "item": "62a08f4c4f842e1bd12d9d62",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
             }
         ]
     }

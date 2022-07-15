@@ -11,8 +11,8 @@ const getTranslation = require('../modules/get-translation');
 
 let logger = false;
 
-module.exports = async () => {
-    logger = new JobLogger('update-presets');
+module.exports = async (externalLogger = false) => {
+    logger = externalLogger || new JobLogger('update-presets');
     try {
         logger.log('Updating presets');
         const presets = (await tarkovChanges.globals())['ItemPresets'];

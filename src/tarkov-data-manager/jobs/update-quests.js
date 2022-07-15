@@ -155,6 +155,7 @@ const getRewardItems = (reward) => {
             logger.success('successfully matched '+preset.name);
             rewardData.item = preset.id;
             rewardData.item_name = preset.name;
+            rewardData.base_item_id = preset.baseId;
             rewardData.contains = [];
             for (const part of preset.containsItems) {
                 rewardData.contains.push({
@@ -435,8 +436,8 @@ const formatTdQuest = (quest) => {
     return questData;
 };
 
-module.exports = async () => {
-    logger = new JobLogger('update-quests');
+module.exports = async (externalLogger = false) => {
+    logger = externalLogger || new JobLogger('update-quests');
     try {
         logger.log('Processing quests...');
         logger.log('Retrieving TarkovTracker quests.json...');
@@ -881,14 +882,18 @@ module.exports = async () => {
             }
             if (changedQuests[questData.id] && changedQuests[questData.id].objectivesAdded) {
                 for (const newObj of changedQuests[questData.id].objectivesAdded) {
-                    questData.objectives.push(newObj);
-                }
-            }
-            if (changedQuests[questData.id] && changedQuests[questData.id].finishRewardsAdded) {
-                for (const rewardType in changedQuests[questData.id].finishRewardsAdded) {
-                    for (const reward of changedQuests[questData.id].finishRewardsAdded[rewardType]) {
-                        questData.finishRewards[rewardType].push(reward);
+                    if (!newObj.locale) newObj.locale = {};
+                    for (const code in locales) {
+                        if (!newObj.locale[code]) newObj.locale[code] = {};
+                        const lang = locales[code];
+                        newObj.locale[code].description = lang.quest[questId].conditions[newObj.id];
+                        if (newObj.locale_map) {
+                            for (const key in newObj.locale_map) {
+                                newObj.locale[code][key] = lang.interface[newObj.locale_map[key]];
+                            }
+                        }
                     }
+                    questData.objectives.push(newObj);
                 }
             }
             for (const req of quest.conditions.AvailableForStart) {
@@ -921,6 +926,18 @@ module.exports = async () => {
             }
             loadRewards(questData, 'finishRewards', quest.rewards.Success);
             loadRewards(questData, 'startRewards', quest.rewards.Started);
+            if (changedQuests[questData.id] && changedQuests[questData.id].finishRewardsAdded) {
+                for (const rewardType in changedQuests[questData.id].finishRewardsAdded) {
+                    for (const reward of changedQuests[questData.id].finishRewardsAdded[rewardType]) {
+                        questData.finishRewards[rewardType].push(reward);
+                    }
+                }
+            }
+            if (changedQuests[questData.id] && changedQuests[questData.id].finishRewardsChanged) {
+                for (const rewardType in changedQuests[questData.id].finishRewardsChanged) {
+                    questData.finishRewards[rewardType] = changedQuests[questData.id].finishRewardsChanged[rewardType];
+                }
+            }
             let nameMatch = undefined;
             for (const tdQuest of tdQuests) {
                 if (questData.id == tdQuest.gameId) {
