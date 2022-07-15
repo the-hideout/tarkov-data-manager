@@ -155,6 +155,7 @@ const getRewardItems = (reward) => {
             logger.success('successfully matched '+preset.name);
             rewardData.item = preset.id;
             rewardData.item_name = preset.name;
+            rewardData.base_item_id = preset.baseId;
             rewardData.contains = [];
             for (const part of preset.containsItems) {
                 rewardData.contains.push({
@@ -435,8 +436,8 @@ const formatTdQuest = (quest) => {
     return questData;
 };
 
-module.exports = async () => {
-    logger = new JobLogger('update-quests');
+module.exports = async (externalLogger = false) => {
+    logger = externalLogger || new JobLogger('update-quests');
     try {
         logger.log('Processing quests...');
         logger.log('Retrieving TarkovTracker quests.json...');

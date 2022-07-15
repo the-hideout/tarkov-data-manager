@@ -6,7 +6,7 @@ const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
-const api = require('../modules/api-query');
+const jobOutput = require('../modules/job-output');
 
 const traderMap = {
     'prapor': '54cb50c76803fa8b248b4571',
@@ -77,12 +77,9 @@ const getQuestUnlock = (traderItem) => {
 const unlockMatches = (itemId, rewards, traderId) => {
     if (!rewards || !rewards.offerUnlock) return false;
     for (const unlock of rewards.offerUnlock) {
-        if (unlock.trader.id !== traderId) continue;
-        const item = unlock.item;
-        if (item.id === itemId) return unlock;
-        if (item.types.includes('preset') && item.properties.baseItem.id === itemId) {
-            return unlock;
-        }
+        if (unlock.trader_id !== traderId) continue;
+        if (unlock.item === itemId) return unlock;
+        if (unlock.base_item_id && unlock.base_item_id === itemId) return unlock;
     }
     return false;
 };
@@ -90,7 +87,7 @@ const unlockMatches = (itemId, rewards, traderId) => {
 module.exports = async () => {
     logger = new JobLogger('update-trader-prices');
     try {
-        const taskPromise = api.tasks();
+        tasks = await jobOutput('update-quests', './dumps/quest_data.json', logger);
         const outputData = {};
         const junkboxLastScan = await query(`
             SELECT
@@ -207,8 +204,6 @@ module.exports = async () => {
         `, [scanOffsetTimestampMoment]);
 
         const latestTraderPrices = {};
-
-        tasks = await taskPromise;
 
         for(const traderPrice of traderPriceData){
             if(!latestTraderPrices[traderPrice.trade_id]){
