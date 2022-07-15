@@ -10,6 +10,7 @@ const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
+const jobOutput = require('../modules/job-output');
 const {dashToCamelCase} = require('../modules/string-functions');
 const {setItemPropertiesLocalesGlobals, getSpecialItemProperties} = require('../modules/get-item-properties');
 const { initPresetSize, getPresetSize } = require('../modules/preset-size');
@@ -71,10 +72,12 @@ const addCategory = id => {
 };
 
 const getTraderMultiplier = (traderId) => {
-    const trader = traderData[traderId];
-    if (!trader) throw error (`Trader with id ${traderId} not found in traders data`);
-    const coeff = Number(trader.loyaltyLevels[0].buy_price_coef);
-    return coeff ? (100-coeff) / 100 : 0.0001;
+    for (const trader of traderData) {
+        if (trader.id === traderId) {
+            return trader.levels[0].payRate;
+        }
+    }
+    throw error (`Trader with id ${traderId} not found in traders data`);
 };
 
 const getItemCategory = (id, original) => {
@@ -245,8 +248,8 @@ module.exports = async () => {
             bsgItems, 
             credits, 
             locales, 
-            traderData, 
             globals, 
+            traderData, 
             presets,
             avgPriceYesterday, 
             lastKnownPriceData, 
@@ -256,11 +259,9 @@ module.exports = async () => {
             tarkovChanges.items(), 
             tarkovChanges.credits(),
             tarkovChanges.locales(),
-            tarkovChanges.traders(),
             tarkovChanges.globals(),
-            fs.readFile('./cache/presets.json').then(text => {
-                return JSON.parse(text);
-            }),
+            jobOutput('update-traders', './dumps/trader_data.json', logger),
+            jobOutput('update-presets', './cache/presets.json', logger),
             avgPriceYesterdayPromise,
             lastKnownPriceDataPromise,
             containedItemsPromise,
@@ -586,5 +587,5 @@ module.exports = async () => {
     }
     await jobComplete();
     logger.end();
-    bsgItems = credits = locales = traderData = bsgCategories = logger = false;
+    bsgItems = credits = locales = bsgCategories = logger = false;
 };

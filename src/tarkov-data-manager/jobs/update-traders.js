@@ -6,8 +6,8 @@ const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const normalizeName = require('../modules/normalize-name');
 
-module.exports = async function() {
-    const logger = new JobLogger('update-traders');
+module.exports = async function(externalLogger) {
+    const logger = externalLogger || new JobLogger('update-traders');
     try {
         logger.log('Loading trader data from Tarkov-Changes...');
         const tradersData = await tarkovChanges.traders();

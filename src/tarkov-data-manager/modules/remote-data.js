@@ -104,15 +104,14 @@ const methods = {
                     reject(error);
                 }
             });
-            const allResults = await Promise.all([resultsPromise, pricePromise]);
+            let results, priceResults;
+            [results, priceResults] = await Promise.all([resultsPromise, pricePromise]);
             console.log(`All queries completed in ${new Date() - start}ms`);
-            const results = allResults[0];
-            const priceResults = allResults[1];
 
             const returnData = new Map();
             const itemPrices = {};
 
-            priceResults.map((resultRow) => {
+            priceResults.forEach((resultRow) => {
                 if(!itemPrices[resultRow.item_id]){
                     itemPrices[resultRow.item_id] = {
                         lastUpdated: resultRow.timestamp,
@@ -125,7 +124,7 @@ const methods = {
                     itemPrices[resultRow.item_id].lastUpdated = resultRow.timestamp;
                     itemPrices[resultRow.item_id].lastLowPrice = resultRow.price;
 
-                    return true;
+                    return;
                 }
 
                 if(itemPrices[resultRow.item_id].lastUpdated.getTime() === resultRow.timestamp.getTime()){
