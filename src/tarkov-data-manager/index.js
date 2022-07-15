@@ -78,6 +78,12 @@ function maybe(fn) {
             return true;
         }
 
+        if (req.path.startsWith('/api/queue')) {
+            next();
+
+            return true;
+        }
+
         fn(req, res, next);
     }
 };
