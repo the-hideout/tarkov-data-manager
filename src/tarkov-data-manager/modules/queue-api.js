@@ -1,8 +1,48 @@
 const { query } = require('./db-connection');
 
+// Helper function to validate the request body
+// :param req: the request object
+// :param res: the response object
+// :return: an object containing the 'map', 'time', and 'type' fields - false if the request is invalid
+const validation = async (req, res) => {
+    // Do some basic validation
+    var map;
+    if (req.body.map === undefined || req.body.map === null || req.body.map === '') {
+        res.status(400).send("value 'map' is required");
+        return false;
+    } else {
+        map = req.body.map;
+    }
+    var time;
+    if (req.body.time === undefined || req.body.time === null || req.body.time === '') {
+        res.status(400).send("value 'time' is required");
+        return false;
+    } else {
+        time = parseInt(req.body.time);
+    }
+    var type;
+    if (req.body.type === undefined || req.body.type === null || req.body.type === '') {
+        type = 'unknown';
+    } else {
+        type = req.body.type;
+    }
+
+    return { map: map, time: time, type: type };
+}
+
 module.exports = {
     handle: async (req, res) => {
-        console.log(req, res);
-        res.json({status: "success"});
+
+        // Validate the request body
+        const data = await validation(req, res);
+
+        // If validation failed, return
+        if (data === false) {
+            return;
+        }
+
+        // Insert the data into the database
+
+        res.json({ status: "success" });
     }
 };
