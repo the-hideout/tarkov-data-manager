@@ -24,11 +24,6 @@ const setupMapArray = async (allMaps) => {
     // Create a dictionary of all in-game maps with their time set to zero and totalEntries set to 0
     var maps = {};
     for (const map of allMaps) {
-        // if the map contains the word 'night', skip it
-        if (map.name.toLowerCase().includes('night')) {
-            continue;
-        }
-
         // add the map to the maps object and set the time to 0 - make sure it is lowercase
         maps[map.name.toLowerCase()] = { time: 0, totalEntries: 0 };
     }
