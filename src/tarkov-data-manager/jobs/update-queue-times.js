@@ -71,7 +71,7 @@ module.exports = async () => {
             // Append the average queue time which is matched to the 'map' key to the queueData array
             var queueData = [];
             for (const map in maps) {
-                queueData.push({ map: map, time: maps[map].time / maps[map].totalEntries });
+                queueData.push({ map: map, time: Math.round(maps[map].time / maps[map].totalEntries) });
             }
 
             // Add the results to the queueTimes object
