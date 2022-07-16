@@ -85,7 +85,8 @@ module.exports = async () => {
 
         console.log(JSON.stringify(queueTimes));
 
-        // await cloudflare.set(`queue_times_${map}_${type}`, time);
+        // Somewhere around here, we need to PUT the queueTimes object to the cloudflare KV store
+        // await cloudflare.set(`queue_times_${map}_${type}`, queueTimes);
 
     } catch (error) {
         logger.error(error);
