@@ -37,11 +37,11 @@ module.exports = async () => {
     try {
         // Get times to filter by
         var timestamps = [];
-        timestamps.push(moment().subtract(1, 'hours').format('YYYY-MM-DD HH:mm:ss'));
-        timestamps.push(moment().subtract(6, 'hours').format('YYYY-MM-DD HH:mm:ss'));
-        timestamps.push(moment().subtract(12, 'hours').format('YYYY-MM-DD HH:mm:ss'));
-        timestamps.push(moment().subtract(1, 'days').format('YYYY-MM-DD HH:mm:ss'));
-        timestamps.push(moment().subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss'));
+        timestamps.push({ details: 'last 1 hour', timestamp: moment().subtract(1, 'hours').format('YYYY-MM-DD HH:mm:ss')});
+        timestamps.push({ details: 'last 6 hours', timestamp: moment().subtract(6, 'hours').format('YYYY-MM-DD HH:mm:ss')});
+        timestamps.push({ details: 'last 12 hours', timestamp: moment().subtract(12, 'hours').format('YYYY-MM-DD HH:mm:ss')});
+        timestamps.push({ details: 'last 1 day', timestamp: moment().subtract(1, 'days').format('YYYY-MM-DD HH:mm:ss')});
+        timestamps.push({ details: 'last 7 days', timestamp: moment().subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss')});
 
         // Fetch all current maps from the API
         const allMaps = await got('https://api.tarkov.dev/graphql?query={maps{name}}', {
@@ -54,7 +54,7 @@ module.exports = async () => {
             var maps = await setupMapArray(allMaps.body.data.maps)
 
             // Query the database for records with the given timestamp
-            const result = await queueQuery(timestamp);
+            const result = await queueQuery(timestamp.timestamp);
 
             // Loop through the results and add the queue times to the maps object
             for (const row of result) {
@@ -75,7 +75,7 @@ module.exports = async () => {
             }
 
             // Add the results to the queueTimes object
-            queueTimes[timestamp] = queueData;
+            queueTimes[timestamp.details] = {queueData: queueData, timestamp: timestamp.timestamp};
         }
 
         console.log(JSON.stringify(queueTimes));
