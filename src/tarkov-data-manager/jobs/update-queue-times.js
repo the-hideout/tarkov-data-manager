@@ -24,30 +24,18 @@ module.exports = async () => {
     logger = new JobLogger('update-queue-times');
     try {
         // Get times to filter by
-<<<<<<< HEAD
-        const timestamps = [];
-        timestamps.push(moment().subtract(1, 'hours').format('YYYY-MM-DD HH:mm:ss'));
-        timestamps.push(moment().subtract(6, 'hours').format('YYYY-MM-DD HH:mm:ss'));
-        timestamps.push(moment().subtract(12, 'hours').format('YYYY-MM-DD HH:mm:ss'));
-        timestamps.push(moment().subtract(1, 'days').format('YYYY-MM-DD HH:mm:ss'));
-        timestamps.push(moment().subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss'));
-=======
         var timestamps = [];
         timestamps.push({ details: 'last 1 hour', timestamp: moment().subtract(1, 'hours').format('YYYY-MM-DD HH:mm:ss')});
         timestamps.push({ details: 'last 6 hours', timestamp: moment().subtract(6, 'hours').format('YYYY-MM-DD HH:mm:ss')});
         timestamps.push({ details: 'last 12 hours', timestamp: moment().subtract(12, 'hours').format('YYYY-MM-DD HH:mm:ss')});
         timestamps.push({ details: 'last 1 day', timestamp: moment().subtract(1, 'days').format('YYYY-MM-DD HH:mm:ss')});
         timestamps.push({ details: 'last 7 days', timestamp: moment().subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss')});
->>>>>>> cd607192628d49a3770e1c7e6335ce1a284f26d7
 
         // Fetch all current maps
         const allMaps = await jobOutput('update-maps', './dumps/map_data.json', logger);
 
         const queueTimes = {};
         for (const timestamp of timestamps) {
-<<<<<<< HEAD
-            queueTimes[timestamp] = setupMapArray(allMaps);
-=======
             var maps = await setupMapArray(allMaps.body.data.maps)
 
             // Query the database for records with the given timestamp
@@ -73,7 +61,6 @@ module.exports = async () => {
 
             // Add the results to the queueTimes object
             queueTimes[timestamp.details] = {queueData: queueData, timestamp: timestamp.timestamp};
->>>>>>> cd607192628d49a3770e1c7e6335ce1a284f26d7
         }
 
         // Query all queue times from the longest possible time window
