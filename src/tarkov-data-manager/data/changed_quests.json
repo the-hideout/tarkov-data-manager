@@ -12,6 +12,24 @@
             }
         }
     },
+    "5a27d2af86f7744e1115b323": {
+        "name": "Friend from the West - Part 2",
+        "finishRewardsAdded": {
+            "offerUnlock": [
+                {
+                    "id": "unknown",
+                    "trader_id": "58330581ace78e27b8b10cee",
+                    "trader_name": "Skier",
+                    "level": 2,
+                    "item": "5fb64bc92b1b027b1f50bcf2",
+                    "item_name": "TDI KRISS Vector Gen.2 .45 ACP submachine gun",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
     "5c1234c286f77406fa13baeb": {
         "name": "Setup",
         "finishRewardsAdded": {
@@ -23,6 +41,24 @@
                     "level": 4,
                     "item": "5d6e68a8a4b9360b6c0d54e2",
                     "item_name": "12/70 AP-20 armor-piercing slug",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "5d25b6be86f77444001e1b89": {
+        "name": "The Huntsman Path - Thrifty",
+        "finishRewardsAdded": {
+            "offerUnlock": [
+                {
+                    "id": "unknown",
+                    "trader_id": "5c0647fdd443bc2504c2d371",
+                    "trader_name": "Jaeger",
+                    "level": 2,
+                    "item": "590c5d4b86f774784e1b9c45",
+                    "item_name": "Iskra ration pack",
                     "count": 1,
                     "contains": [],
                     "attributes": []
