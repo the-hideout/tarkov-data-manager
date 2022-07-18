@@ -117,6 +117,7 @@ module.exports = async function() {
                 id: id,
                 tarkovDataId: null,
                 name: locales.en.locations[id].Name,
+                internalName: map.Id,
                 description: locales.en.locations[id].Description,
                 wiki: 'https://escapefromtarkov.fandom.com/wiki/'+locales.en.locations[id].Name.replace(/ /g, '_'),
                 enemies: [],
