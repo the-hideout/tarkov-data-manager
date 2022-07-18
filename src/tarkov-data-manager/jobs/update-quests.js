@@ -3,7 +3,7 @@ const path = require('path');
 
 const got = require('got');
 
-const { jobComplete } = require('../modules/db-connection');
+const { query, jobComplete } = require('../modules/db-connection');
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
@@ -449,7 +449,30 @@ module.exports = async (externalLogger = false) => {
         items = await tarkovChanges.items();
         en = await tarkovChanges.locale_en();
         locales = await tarkovChanges.locales();
-        const itemMap = await remoteData.get();
+        //const itemMap = await remoteData.get();
+        const itemResults = await query(`
+            SELECT
+                item_data.*,
+                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
+            FROM
+                item_data
+            LEFT JOIN types ON
+                types.item_id = item_data.id
+            GROUP BY
+                item_data.id
+        `);
+        const itemMap = new Map();
+        for(const result of itemResults){
+            Reflect.deleteProperty(result, 'item_id');
+            Reflect.deleteProperty(result, 'base_price');
+
+            const preparedData = {
+                ...result,
+                types: result.types?.split(',') || []
+            };
+            if (!preparedData.properties) preparedData.properties = {};
+            itemMap.set(result.id, preparedData);
+        }
         const missingQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'missing_quests.json')));
         const changedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'changed_quests.json')));
         try {
@@ -1046,6 +1069,14 @@ module.exports = async (externalLogger = false) => {
             }
         }
         logger.log('Finished processing TarkovData quests');
+
+        // add start, success, and fail message ids
+
+        for (const quest of quests.data) {
+            quest.startMessageId = locales.en.quest[quest.id]?.startedMessageText;
+            quest.successMessageId = locales.en.quest[quest.id]?.successMessageText;
+            quest.failMessageId = locales.en.quest[quest.id]?.failMessageText;
+        }
 
         const ignoreQuests = [
             '5d25dae186f77443e55d2f78',
