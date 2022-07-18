@@ -929,6 +929,16 @@ module.exports = async (externalLogger = false) => {
             if (changedQuests[questData.id] && changedQuests[questData.id].finishRewardsAdded) {
                 for (const rewardType in changedQuests[questData.id].finishRewardsAdded) {
                     for (const reward of changedQuests[questData.id].finishRewardsAdded[rewardType]) {
+                        if (reward.locale_map) {
+                            reward.locale = {};
+                            for (const code in locales) {
+                                const lang = locales[code];
+                                if (!reward.locale[code]) reward.locale[code] = {};
+                                for (const key in reward.locale_map) {
+                                    reward.locale[code][key] = lang.interface[reward.locale_map[key]];
+                                }
+                            }
+                        }
                         questData.finishRewards[rewardType].push(reward);
                     }
                 }
@@ -983,7 +993,7 @@ module.exports = async (externalLogger = false) => {
             for (const code in locales) {
                 const lang = locales[code];
                 quest.locale[code] = {
-                    name: lang.quest[questId].name
+                    name: lang.quest[questId]?.name || locales.en.quest[questId].name
                 };
             }
             for (const obj of quest.objectives) {
@@ -991,7 +1001,7 @@ module.exports = async (externalLogger = false) => {
                 for (const code in locales) {
                     const lang = locales[code];
                     obj.locale[code] = {
-                        description: lang.quest[questId].conditions[obj.id]
+                        description: lang.quest[questId]?.conditions[obj.id] || locales.en.quest[questId].conditions[obj.id]
                     };
                 }
                 if (obj.type.endsWith('QuestItem')) {

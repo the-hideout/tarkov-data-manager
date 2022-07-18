@@ -1,16 +1,16 @@
 {
-    "60e71d6d7fcf9c556f325055": {
-        "id": "60e71d6d7fcf9c556f325055",
-        "name": "The Courier",
+    "626bd75e47ea7f506e5493c5": {
+        "id": "626bd75e47ea7f506e5493c5",
+        "name": "Broadcast",
         "trader": "5a7c2eca46aef81a7ca2145d",
-        "location_id": null,
-        "locationName": null,
-        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/The_Courier",
-        "minPlayerLevel": 55,
+        "location_id": "5704e4dad2720bb55b8b4567",
+        "locationName": "Lighthouse",
+        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Broadcast",
+        "minPlayerLevel": 0,
         "taskRequirements": [
             {
-                "task": "60e71d23c1bfa3050473b8e6",
-                "name": "Calibration",
+                "task": "5ac3460c86f7742880308185",
+                "name": "Farming - Part 2",
                 "status": [
                     "complete"
                 ]
@@ -19,38 +19,23 @@
         "traderLevelRequirements": [],
         "objectives": [
             {
-                "id": "60e84ba726b88043510e0ad8",
-                "type": "plantItem",
+                "id": "626c3115cca1461ed63c4f9a",
+                "type": "visit",
                 "optional": false,
-                "description": "Place Trijicon REAP-IR thermal scope at yellow crane at construction",
-                "locationNames": [
-                    "Customs"
-                ],
-                "map_ids": [
-                    "56f40101d2720b2a4d8b45d6"
-                ],
-                "count": 1,
-                "item": "5a1eaa87fcdbcb001865f75e",
-                "item_name": "Trijicon REAP-IR thermal scope",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": false
+                "description": "Locate the hidden recording studio on Lighthouse",
+                "locationNames": [],
+                "map_ids": []
             },
             {
-                "id": "60e85b2a26b88043510e0ada",
+                "id": "626c3158a371ee3a7a3514cc",
                 "type": "plantItem",
                 "optional": false,
-                "description": "Place Trijicon REAP-IR thermal scope at trash containers gas gtation",
-                "locationNames": [
-                    "Customs"
-                ],
-                "map_ids": [
-                    "56f40101d2720b2a4d8b45d6"
-                ],
+                "description": "Place a Signal Jammer inside the studio",
+                "locationNames": [],
+                "map_ids": [],
                 "count": 1,
-                "item": "5a1eaa87fcdbcb001865f75e",
-                "item_name": "Trijicon REAP-IR thermal scope",
+                "item": "5ac78a9b86f7741cca0bbd8d",
+                "item_name": "Signal Jammer",
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
@@ -65,30 +50,357 @@
             "traderUnlock": []
         },
         "finishRewards": {
-            "traderStanding": [],
+            "traderStanding": [
+                {
+                    "trader_id": "5a7c2eca46aef81a7ca2145d",
+                    "standing": 0.03
+                }
+            ],
             "items": [
                 {
-                    "item": "5fc22d7c187fea44d52eda44",
-                    "item_name": "SWORD International Mk-18 .338 LM marksman rifle",
+                    "item": "569668774bdc2da2298b4568",
+                    "item_name": "Euros",
+                    "count": 650,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "60391a8b3364dc22b04d0ce5",
+                    "item_name": "Can of thermite",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "590c31c586f774245e3141b2",
+                    "item_name": "Pack of nails",
                     "count": 1,
                     "contains": [],
                     "attributes": []
                 }
             ],
             "offerUnlock": [],
-            "skillLevelReward": [
-                {
-                    "name": "Crafting",
-                    "level": 1
-                },
-                {
-                    "name": "Intellect",
-                    "level": 1
-                }
-            ],
+            "skillLevelReward": [],
             "traderUnlock": []
         },
-        "experience": 137000,
+        "experience": 6700,
+        "factionName": "Any",
+        "neededKeys": [
+            {
+                "key_ids": [
+                    "62987da96188c076bc0d8c51"
+                ],
+                "map_id": 7
+            }
+        ]
+    },
+    "626bd75b05f287031503c7f6": {
+        "id": "626bd75b05f287031503c7f6",
+        "name": "Drug Trafficking",
+        "trader": "54cb57776803fa99248b456e",
+        "traderName": "Therapist",
+        "location_id": "5704e4dad2720bb55b8b4567",
+        "locationName": "Lighthouse",
+        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Drug_Trafficking",
+        "minPlayerLevel": null,
+        "taskRequirements": [
+            {
+                "task": "6179afd0bca27a099552e040",
+                "name": "Lost Contact",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderLevelRequirements": [],
+        "objectives": [
+            {
+                "id": "626c2fdfbbb2011b8952b9f5",
+                "type": "visit",
+                "optional": false,
+                "description": "Locate the hidden drug lab on Lighthouse",
+                "locationNames": [],
+                "map_ids": []
+            },
+            {
+                "id": "626c3010a371ee3a7a3514cb",
+                "type": "plantItem",
+                "optional": false,
+                "description": "Stash a WI-FI Camera in the drug lab",
+                "locationNames": [],
+                "map_ids": [],
+                "count": 1,
+                "item": "5b4391a586f7745321235ab2",
+                "item_name": "WI-FI Camera",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "54cb57776803fa99248b456e",
+                    "name": "Therapist",
+                    "standing": 0.03
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 45000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5c0e530286f7747fa1419862",
+                    "item_name": "Propital regenerative stimulant injector",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5c0e534186f7747fa1419867",
+                    "item_name": "eTG-change regenerative stimulant injector",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5c0e533786f7747fa23f4d47",
+                    "item_name": "Zagustin hemostatic drug injector",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 7500,
+        "factionName": "Any",
+        "neededKeys": []
+    },
+    "6179b5b06e9dd54ac275e409": {
+        "id": "6179b5b06e9dd54ac275e409",
+        "name": "Our Own Land",
+        "trader": "54cb50c76803fa8b248b4571",
+        "location_id": null,
+        "locationName": null,
+        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Our_Own_Land",
+        "minPlayerLevel": null,
+        "taskRequirements": [
+            {
+                "task": "59ca264786f77445a80ed044",
+                "name": "The Punisher - Part 4",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderLevelRequirements": [],
+        "objectives": [
+            {
+                "id": "6193dc1e6623e330c82e0be9",
+                "type": "shoot",
+                "optional": false,
+                "description": "Eliminate USEC PMC operatives all over the Lighthouse territory",
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "target": "PMCs",
+                "count": 20,
+                "shotType": "kill",
+                "bodyParts": [],
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null
+            },
+            {
+                "id": "6194fbf785a6d62c481a7aee",
+                "type": "giveItem",
+                "optional": false,
+                "description": "Hand over the USEC PMC dogtags",
+                "locationNames": [],
+                "map_ids": [],
+                "count": 20,
+                "item": "59f32c3b86f77472a31742f0",
+                "item_name": "Dogtag USEC",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 300000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5e848cc2988a8701445df1e8",
+                    "item_name": "TOZ KS-23M 23x75mm pump-action shotgun",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                }],
+            "offerUnlock": [
+                {
+                    "id": "5e85a9f4add9fe03027d9bf1",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 3,
+                    "item": "5e85a9f4add9fe03027d9bf1",
+                    "item_name": "23x75mm \"Zvezda\" flashbang round",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 22000,
+        "factionName": "Any",
+        "neededKeys": []
+    },
+    "626bd75c71bd851e971b82a5": {
+        "id": "626bd75c71bd851e971b82a5",
+        "name": "Reconnaissance",
+        "trader": "54cb50c76803fa8b248b4571",
+        "location_id": "5704e4dad2720bb55b8b4567",
+        "locationName": "Lighthouse",
+        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Reconnaissance",
+        "minPlayerLevel": null,
+        "taskRequirements": [],
+        "traderLevelRequirements": [],
+        "objectives": [
+            {
+                "id": "626c305d05f287031503c7fc",
+                "type": "visit",
+                "optional": false,
+                "description": "Recon the roof of the first office building on Lighthouse",
+                "locationNames": [],
+                "map_ids": []
+            },
+            {
+                "id": "626c306147ea7f506e5493c6",
+                "type": "visit",
+                "optional": false,
+                "description": "Recon the roof of the second office building on Lighthouse",
+                "locationNames": [],
+                "map_ids": []
+            },
+            {
+                "id": "626c3064af14a41d9a1f4ea5",
+                "type": "visit",
+                "optional": false,
+                "description": "Recon the roof of the third office building on Lighthouse",
+                "locationNames": [],
+                "map_ids": []
+            },
+            {
+                "id": "62987d43b7bd956bd62a09b3",
+                "type": "extract",
+                "optional": false,
+                "description": "Survive and extract from the location",
+                "locationNames": [],
+                "map_ids": [],
+                "exitStatus": [
+                    "Survived"
+                ],
+                "zoneNames": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "standing": 0.03
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 155000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5f5f41476bdad616ad46d631",
+                    "item_name": "NPP KlASS \"Korund-VM\" body armor",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "603409c80ca681766b6a0fb2",
+                    "item_name": "NPP KlASS Condor glasses",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [
+                {
+                    "id": "5e85a9f4add9fe03027d9bf1",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 3,
+                    "item": "5e85a9f4add9fe03027d9bf1",
+                    "item_name": "23x75mm \"Zvezda\" flashbang round",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 18000,
         "factionName": "Any",
         "neededKeys": []
     },
@@ -272,18 +584,18 @@
         "factionName": "Any",
         "neededKeys": []
     },
-    "6179b5b06e9dd54ac275e409": {
-        "id": "6179b5b06e9dd54ac275e409",
-        "name": "Our Own Land",
-        "trader": "54cb50c76803fa8b248b4571",
+    "626bdcc3a371ee3a7a3514c5": {
+        "id": "626bdcc3a371ee3a7a3514c5",
+        "name": "Stray Dogs",
+        "trader": "5c0647fdd443bc2504c2d371",
         "location_id": null,
         "locationName": null,
-        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Our_Own_Land",
+        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Stray_Dogs",
         "minPlayerLevel": null,
         "taskRequirements": [
             {
-                "task": "59ca264786f77445a80ed044",
-                "name": "The Punisher - Part 4",
+                "task": "6179ad0a6e9dd54ac275e3f2",
+                "name": "The Huntsman Path - Outcasts",
                 "status": [
                     "complete"
                 ]
@@ -292,18 +604,14 @@
         "traderLevelRequirements": [],
         "objectives": [
             {
-                "id": "6193dc1e6623e330c82e0be9",
+                "id": "626c317e05f287031503c7fd",
                 "type": "shoot",
                 "optional": false,
-                "description": "Eliminate USEC PMC operatives all over the Lighthouse territory",
-                "locationNames": [
-                    "Lighthouse"
-                ],
-                "map_ids": [
-                    "5704e4dad2720bb55b8b4567"
-                ],
-                "target": "PMCs",
-                "count": 20,
+                "description": "Locate and eliminate Death Knight",
+                "locationNames": [],
+                "map_ids": [],
+                "target": "Death Knight",
+                "count": 1,
                 "shotType": "kill",
                 "bodyParts": [],
                 "usingWeapon": [],
@@ -316,15 +624,225 @@
                 "enemyHealthEffect": null
             },
             {
-                "id": "6194fbf785a6d62c481a7aee",
-                "type": "giveItem",
+                "id": "626c318147ea7f506e5493c7",
+                "type": "shoot",
                 "optional": false,
-                "description": "Hand over the USEC PMC dogtags",
+                "description": "Locate and eliminate Big Pipe",
                 "locationNames": [],
                 "map_ids": [],
-                "count": 20,
-                "item": "59f32c3b86f77472a31742f0",
-                "item_name": "Dogtag USEC",
+                "target": "Big Pipe",
+                "count": 1,
+                "shotType": "kill",
+                "bodyParts": [],
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null
+            },
+            {
+                "id": "626c3183af14a41d9a1f4ea7",
+                "type": "shoot",
+                "optional": false,
+                "description": "Locate and eliminate Birdeye",
+                "locationNames": [],
+                "map_ids": [],
+                "target": "Birdeye",
+                "count": 1,
+                "shotType": "kill",
+                "bodyParts": [],
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "5c0647fdd443bc2504c2d371",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 125000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "629766c15c9e3c392f7c2db0",
+                    "item_name": "SV-98 7.62x54R bolt-action sniper rifle OV",
+                    "count": 1,
+                    "contains": [
+                        {
+                            "item": "55801eed4bdc2d89578b4588",
+                            "name": "SV-98 7.62x54R bolt-action sniper rifle",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "559ba5b34bdc2d1f1a8b4582",
+                            "name": "SV-98 7.62x54R 10-round magazine",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "623b2e9d11c3296b440d1638",
+                            "name": "SV-98 CNC Guns OV-SV98 chassis",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "56083e1b4bdc2dc8488b4572",
+                            "name": "SV-98 rear sight",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "560e620e4bdc2d724b8b456b",
+                            "name": "SV-98 7.62x54R muzzle device",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "623c3c1f37b4b31470357737",
+                            "name": "SV-98 CNC Guns OV-SV98 KeyMod handguard",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "623c2f4242aee3103f1c44b7",
+                            "name": "CNC Guns KeyMod 4 inch rail",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "623c2f652febb22c2777d8d7",
+                            "name": "CNC Guns KeyMod 2 inch rail",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "623c3be0484b5003161840dc",
+                            "name": "AK FAB Defense AGR-47 pistol grip",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "624c29ce09cd027dff2f8cd7",
+                            "name": "CNC Guns OV-SV98 M12B stock",
+                            "slot": "none",
+                            "count": 1
+                        }
+                    ],
+                    "attributes": []
+                },
+                {
+                    "item": "6171407e50224f204c1da3c5",
+                    "item_name": "Recknagel Era-Tac 30mm ring scope mount",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "617151c1d92c473c770214ab",
+                    "item_name": "Schmidt & Bender PM II 1-8x24 scope",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "559ba5b34bdc2d1f1a8b4582",
+                    "item_name": "SV-98 7.62x54R 10-round magazine",
+                    "count": 2,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "59e77a2386f7742ee578960a",
+                    "item_name": "7.62x54mm R PS gzh",
+                    "count": 30,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 12000,
+        "factionName": "Any",
+        "neededKeys": []
+    },
+    "60e71d6d7fcf9c556f325055": {
+        "id": "60e71d6d7fcf9c556f325055",
+        "name": "The Courier",
+        "trader": "5a7c2eca46aef81a7ca2145d",
+        "location_id": null,
+        "locationName": null,
+        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/The_Courier",
+        "minPlayerLevel": 55,
+        "taskRequirements": [
+            {
+                "task": "60e71d23c1bfa3050473b8e6",
+                "name": "Calibration",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderLevelRequirements": [],
+        "objectives": [
+            {
+                "id": "60e84ba726b88043510e0ad8",
+                "type": "plantItem",
+                "optional": false,
+                "description": "Place Trijicon REAP-IR thermal scope at yellow crane at construction",
+                "locationNames": [
+                    "Customs"
+                ],
+                "map_ids": [
+                    "56f40101d2720b2a4d8b45d6"
+                ],
+                "count": 1,
+                "item": "5a1eaa87fcdbcb001865f75e",
+                "item_name": "Trijicon REAP-IR thermal scope",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "60e85b2a26b88043510e0ada",
+                "type": "plantItem",
+                "optional": false,
+                "description": "Place Trijicon REAP-IR thermal scope at trash containers gas gtation",
+                "locationNames": [
+                    "Customs"
+                ],
+                "map_ids": [
+                    "56f40101d2720b2a4d8b45d6"
+                ],
+                "count": 1,
+                "item": "5a1eaa87fcdbcb001865f75e",
+                "item_name": "Trijicon REAP-IR thermal scope",
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
@@ -339,46 +857,207 @@
             "traderUnlock": []
         },
         "finishRewards": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "5fc22d7c187fea44d52eda44",
+                    "item_name": "SWORD International Mk-18 .338 LM marksman rifle",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [
+                {
+                    "name": "Crafting",
+                    "level": 1
+                },
+                {
+                    "name": "Intellect",
+                    "level": 1
+                }
+            ],
+            "traderUnlock": []
+        },
+        "experience": 137000,
+        "factionName": "Any",
+        "neededKeys": []
+    },
+    "626bd75d5bef5d7d590bd415": {
+        "id": "626bd75d5bef5d7d590bd415",
+        "name": "Top Secret",
+        "trader": "58330581ace78e27b8b10cee",
+        "traderName": "Skier",
+        "location_id": "5704e4dad2720bb55b8b4567",
+        "locationName": "Lighthouse",
+        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Top_Secret",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "5a27d2af86f7744e1115b323",
+                "name": "Friend from the West - Part 2",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderLevelRequirements": [],
+        "objectives": [
+            {
+                "id": "626c30aa71bd851e971b82a6",
+                "type": "visit",
+                "optional": false,
+                "description": "Locate the radar station commandants office on Lighthouse",
+                "locationNames": [],
+                "map_ids": []
+            },
+            {
+                "id": "62863b9ae5b4f5010e0d30c8",
+                "type": "findQuestItem",
+                "optional": false,
+                "description": "Obtain the military HDD with archived flight routes",
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5a29276886f77435ed1b117c",
+                "item_name": "Working hard drive",
+                "count": 1,
+                "questItem": {
+                    "id": "5a29276886f77435ed1b117c",
+                    "name": "Working hard drive"
+                }
+            },
+            {
+                "id": "626c30c55bef5d7d590bd41b",
+                "type": "giveQuestItem",
+                "optional": false,
+                "description": "Hand over the drive",
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5a29276886f77435ed1b117c",
+                "item_name": "Working hard drive",
+                "count": 1,
+                "questItem": {
+                    "id": "5a29276886f77435ed1b117c",
+                    "name": "Working hard drive"
+                }
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
             "traderStanding": [
                 {
-                    "trader_id": "54cb50c76803fa8b248b4571",
-                    "standing": 0.02
+                    "trader_id": "58330581ace78e27b8b10cee",
+                    "name": "Skier",
+                    "standing": 0.03
                 }
             ],
             "items": [
                 {
                     "item": "5449016a4bdc2d6f028b456f",
                     "item_name": "Roubles",
-                    "count": 300000,
+                    "count": 50000,
                     "contains": [],
                     "attributes": []
                 },
                 {
-                    "item": "5e848cc2988a8701445df1e8",
-                    "item_name": "TOZ KS-23M 23x75mm pump-action shotgun",
-                    "count": 3,
+                    "item": "628a60ae6b1d481ff772e9c8",
+                    "item_name": "Rifle Dynamics RD-704 7.62x39 assault rifle",
+                    "count": 1,
+                    "contains": [
+                        {
+                            "item": "628a66b41d5e41750e314f34",
+                            "name": "AR-10 Dead Air Keymount 7.62x51 muzzle brake",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "628a83c29179c324ed269508",
+                            "name": "RD-704 SLR ION Lite + Railed Gas Tube handguard & gas tube combo",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "628a664bccaab13006640e47",
+                            "name": "AK TangoDown Battle Grip pistol grip",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "628a7b23b0f75035732dd565",
+                            "name": "AK RD Enhanced V2 Rear Sight",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "628a6678ccaab13006640e49",
+                            "name": "AKM/AK-74 RD AK to M4 buffer tube adapter",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "628a665a86cbd9750d2ff5e5",
+                            "name": "RD-704 dust cover",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "5649be884bdc2d79388b4577",
+                            "name": "Colt Carbine buffer tube",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "628a85ee6b1d481ff772e9d5",
+                            "name": "SB Tactical SBA3 buttstock",
+                            "slot": "none",
+                            "count": 1
+                        },
+                        {
+                            "item": "59d625f086f774661516605d",
+                            "name": "AK 7.62x39 30-round magazine (issued 55 or later)",
+                            "slot": "none",
+                            "count": 1
+                        }
+                    ],
+                    "attributes": []
+                },
+                {
+                    "item": "59d625f086f774661516605d",
+                    "item_name": "AK 7.62x39 30-round magazine (issued '55 or later)",
+                    "count": 2,
                     "contains": [],
                     "attributes": []
-                }],
-            "offerUnlock": [
+                },
                 {
-                    "id": "5e85a9f4add9fe03027d9bf1",
-                    "trader_id": "54cb50c76803fa8b248b4571",
-                    "trader_name": "Prapor",
-                    "level": 3,
-                    "item": "5e85a9f4add9fe03027d9bf1",
-                    "item_name": "23x75mm \"Zvezda\" flashbang round",
-                    "count": 1,
+                    "item": "5656d7c34bdc2d9d198b4587",
+                    "item_name": "7.62x39mm PS gzh",
+                    "count": 90,
                     "contains": [],
                     "attributes": []
                 }
             ],
+            "offerUnlock": [],
             "skillLevelReward": [],
             "traderUnlock": []
         },
-        "experience": 22000,
+        "experience": 11700,
+        "tarkovDataId": null,
         "factionName": "Any",
-        "neededKeys": []
+        "neededKeys": [
+            {
+                "key_ids": [
+                    "62987c658081af308d7558c6"
+                ],
+                "map_id": 7
+            }
+        ]
     },
     "60e71ccb5688f6424c7bfec4": {
         "id": "60e71ccb5688f6424c7bfec4",
