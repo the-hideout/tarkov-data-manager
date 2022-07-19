@@ -1019,6 +1019,7 @@ module.exports = async (externalLogger = false) => {
                     name: lang.quest[questId]?.name || locales.en.quest[questId].name
                 };
             }
+            quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(en.quest[questId].name.replaceAll(' ', '_'))}`;
             for (const obj of quest.objectives) {
                 obj.locale = {};
                 for (const code in locales) {

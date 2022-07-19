@@ -5,7 +5,6 @@
         "trader": "5a7c2eca46aef81a7ca2145d",
         "location_id": "5704e4dad2720bb55b8b4567",
         "locationName": "Lighthouse",
-        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Broadcast",
         "minPlayerLevel": 0,
         "taskRequirements": [
             {
@@ -101,7 +100,6 @@
         "traderName": "Therapist",
         "location_id": "5704e4dad2720bb55b8b4567",
         "locationName": "Lighthouse",
-        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Drug_Trafficking",
         "minPlayerLevel": null,
         "taskRequirements": [
             {
@@ -197,7 +195,6 @@
         "trader": "54cb50c76803fa8b248b4571",
         "location_id": null,
         "locationName": null,
-        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Our_Own_Land",
         "minPlayerLevel": null,
         "taskRequirements": [
             {
@@ -305,7 +302,6 @@
         "trader": "54cb50c76803fa8b248b4571",
         "location_id": "5704e4dad2720bb55b8b4567",
         "locationName": "Lighthouse",
-        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Reconnaissance",
         "minPlayerLevel": null,
         "taskRequirements": [],
         "traderLevelRequirements": [],
@@ -410,7 +406,6 @@
         "trader": "5935c25fb3acc3127c3d8cd9",
         "location_id": null,
         "locationName": null,
-        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Special_Equipment",
         "minPlayerLevel": 60,
         "taskRequirements": [
             {
@@ -590,7 +585,6 @@
         "trader": "5c0647fdd443bc2504c2d371",
         "location_id": null,
         "locationName": null,
-        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Stray_Dogs",
         "minPlayerLevel": null,
         "taskRequirements": [
             {
@@ -797,7 +791,6 @@
         "trader": "5a7c2eca46aef81a7ca2145d",
         "location_id": null,
         "locationName": null,
-        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/The_Courier",
         "minPlayerLevel": 55,
         "taskRequirements": [
             {
@@ -891,7 +884,6 @@
         "traderName": "Skier",
         "location_id": "5704e4dad2720bb55b8b4567",
         "locationName": "Lighthouse",
-        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Top_Secret",
         "minPlayerLevel": 0,
         "taskRequirements": [
             {
@@ -1065,7 +1057,6 @@
         "trader": "5935c25fb3acc3127c3d8cd9",
         "location_id": null,
         "locationName": null,
-        "wikiLink": "https://escapefromtarkov.fandom.com/wiki/Trophies",
         "minPlayerLevel": 55,
         "taskRequirements": [
             {
