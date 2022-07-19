@@ -1039,7 +1039,7 @@ module.exports = async (externalLogger = false) => {
                 }
             }
             for (const tdQuest of tdQuests) {
-                if (quest.id == tdQuest.gameId) {
+                if (quest.id == tdQuest.gameId || quest.name === tdQuest.title) {
                     quest.tarkovDataId = tdQuest.id;
                     tdMatched.push(tdQuest.id);
                     mergeTdQuest(quest, tdQuest);
