@@ -105,6 +105,18 @@ const getItemProperties = async (item, parent = false) => {
                 };
             }
         }
+    } else if (item._parent === '5448e53e4bdc2d60728b4567') {
+        properties = {
+            propertiesType: 'ItemPropertiesBackpack',
+            capacity: 0
+        };
+        properties.pouches = item._props.Grids.map(grid => {
+            properties.capacity += (grid._props.cellsH * grid._props.cellsV);
+            return {
+                width: grid._props.cellsH,
+                height: grid._props.cellsV
+            };
+        });
     } else if (item._parent === '543be6564bdc2df4348b4568') {
         // grenades
         properties = {
