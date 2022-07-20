@@ -23,6 +23,10 @@ const setAll = async (loc = false, glob = false) => {
     return Promise.all([setLocales(loc), setGlobals(glob)]);
 };
 
+const hasCategory = (item, catId) => {
+
+};
+
 const grenadeMap = {
     'Grenade_new': 'Grenade',
     'Grenade_new2': 'Impact Grenade',
@@ -173,6 +177,30 @@ const getItemProperties = async (item, parent = false) => {
                 properties.propertiesType = 'ItemPropertiesArmorAttachment';
             }
         }
+    } else if (item._parent === '5448e5724bdc2ddf718b4568') {
+        properties = {
+            propertiesType: 'ItemPropertiesGlasses',
+            class: parseInt(item._props.armorClass),
+            durability: parseInt(item._props.Durability),
+            repairCost: parseInt(item._props.RepairCost),
+            blindnessProtection: item._props.BlindnessProtection,
+            speedPenalty: parseInt(item._props.speedPenaltyPercent) / 100,
+            turnPenalty: parseInt(item._props.mousePenalty) / 100,
+            ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
+            armor_material_id: item._props.ArmorMaterial,
+        };
+    } else if (item._parent === '5795f317245977243854e041' || item._parent === '5671435f4bdc2d96058b4569') {
+        properties = {
+            propertiesType: 'ItemPropertiesContainer',
+            capacity: 0
+        };
+        properties.grids = item._props.Grids.map(grid => {
+            properties.capacity += (grid._props.cellsH * grid._props.cellsV);
+            return {
+                width: grid._props.cellsH,
+                height: grid._props.cellsV
+            };
+        });
     } else if (parent && parent._parent === '5422acb9af1c889c16000029') {
         // weapons
         properties = {
