@@ -346,7 +346,6 @@ module.exports = {
             name: 'AssualtScopes',
             id: '55818add4bdc2d5b648b456f',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.skier,
                 TRADERS.peacekeeper,
@@ -357,7 +356,6 @@ module.exports = {
             name: 'Silencer',
             id: '550aa4cd4bdc2dd8348b456c',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.skier,
                 TRADERS.peacekeeper,
@@ -368,7 +366,6 @@ module.exports = {
             name: 'OpticScope',
             id: '55818ae44bdc2dde698b456c',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.skier,
                 TRADERS.peacekeeper,
@@ -423,7 +420,6 @@ module.exports = {
             name: 'Headphones',
             id: '5645bcb74bdc2ded0b8b4578',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.skier,
                 TRADERS.peacekeeper,
@@ -535,7 +531,6 @@ module.exports = {
             name: 'Magazine',
             id: '5448bc234bdc2d3c308b4569',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.peacekeeper,
                 TRADERS.mechanic,
@@ -545,7 +540,6 @@ module.exports = {
             name: 'CylinderMagazine',
             id: '610720f290b75a49ff2e5e25',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.peacekeeper,
                 TRADERS.mechanic,
@@ -555,7 +549,6 @@ module.exports = {
             name: 'TacticalCombo',
             id: '55818b164bdc2ddc698b456c',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.skier,
                 TRADERS.peacekeeper,
@@ -566,7 +559,6 @@ module.exports = {
             name: 'Flashlight',
             id: '55818b084bdc2d5b648b4571',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.skier,
                 TRADERS.peacekeeper,
@@ -577,7 +569,6 @@ module.exports = {
             name: 'Foregrip',
             id: '55818af64bdc2d5b648b4570',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.skier,
                 TRADERS.peacekeeper,
@@ -588,7 +579,6 @@ module.exports = {
             name: 'Stock',
             id: '55818a594bdc2db9688b456a',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.peacekeeper,
                 TRADERS.mechanic,
@@ -598,7 +588,6 @@ module.exports = {
             name: 'PistolGrip',
             id: '55818a684bdc2ddd698b456d',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.skier,
                 TRADERS.peacekeeper,
@@ -609,7 +598,6 @@ module.exports = {
             name: 'Mount',
             id: '55818b224bdc2dde698b456f',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.peacekeeper,
                 TRADERS.mechanic,
@@ -619,7 +607,6 @@ module.exports = {
             name: 'Receiver',
             id: '55818a304bdc2db5418b457d',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.skier,
                 TRADERS.peacekeeper,
@@ -630,7 +617,6 @@ module.exports = {
             name: 'Charge',
             id: '55818a6f4bdc2db9688b456b',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.peacekeeper,
                 TRADERS.mechanic,
@@ -640,7 +626,6 @@ module.exports = {
             name: 'Gasblock',
             id: '56ea9461d2720b67698b456f',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.skier,
                 TRADERS.peacekeeper,
@@ -651,7 +636,6 @@ module.exports = {
             name: 'FlashHider',
             id: '550aa4bf4bdc2dd6348b456b',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.skier,
                 TRADERS.peacekeeper,
@@ -662,7 +646,6 @@ module.exports = {
             name: 'MuzzleCombo',
             id: '550aa4dd4bdc2dc9348b4569',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.skier,
                 TRADERS.peacekeeper,
@@ -673,7 +656,6 @@ module.exports = {
             name: 'AuxiliaryMod',
             id: '5a74651486f7744e73386dd1',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.mechanic,
             ],
@@ -682,7 +664,6 @@ module.exports = {
             name: 'Handguard',
             id: '55818a104bdc2db9688b4569',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.skier,
                 TRADERS.peacekeeper,
@@ -693,7 +674,6 @@ module.exports = {
             name: 'Barrel',
             id: '555ef6e44bdc2de9068b457e',
             traders: [
-                TRADERS.prapor,
                 TRADERS.fence,
                 TRADERS.skier,
                 TRADERS.peacekeeper,
