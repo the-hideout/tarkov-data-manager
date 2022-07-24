@@ -3,7 +3,7 @@ const path = require('path');
 
 const got = require('got');
 
-const { jobComplete } = require('../modules/db-connection');
+const { query, jobComplete } = require('../modules/db-connection');
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
@@ -449,7 +449,30 @@ module.exports = async (externalLogger = false) => {
         items = await tarkovChanges.items();
         en = await tarkovChanges.locale_en();
         locales = await tarkovChanges.locales();
-        const itemMap = await remoteData.get();
+        //const itemMap = await remoteData.get();
+        const itemResults = await query(`
+            SELECT
+                item_data.*,
+                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
+            FROM
+                item_data
+            LEFT JOIN types ON
+                types.item_id = item_data.id
+            GROUP BY
+                item_data.id
+        `);
+        const itemMap = new Map();
+        for(const result of itemResults){
+            Reflect.deleteProperty(result, 'item_id');
+            Reflect.deleteProperty(result, 'base_price');
+
+            const preparedData = {
+                ...result,
+                types: result.types?.split(',') || []
+            };
+            if (!preparedData.properties) preparedData.properties = {};
+            itemMap.set(result.id, preparedData);
+        }
         const missingQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'missing_quests.json')));
         const changedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'changed_quests.json')));
         try {
@@ -929,6 +952,16 @@ module.exports = async (externalLogger = false) => {
             if (changedQuests[questData.id] && changedQuests[questData.id].finishRewardsAdded) {
                 for (const rewardType in changedQuests[questData.id].finishRewardsAdded) {
                     for (const reward of changedQuests[questData.id].finishRewardsAdded[rewardType]) {
+                        if (reward.locale_map) {
+                            reward.locale = {};
+                            for (const code in locales) {
+                                const lang = locales[code];
+                                if (!reward.locale[code]) reward.locale[code] = {};
+                                for (const key in reward.locale_map) {
+                                    reward.locale[code][key] = lang.interface[reward.locale_map[key]];
+                                }
+                            }
+                        }
                         questData.finishRewards[rewardType].push(reward);
                     }
                 }
@@ -983,15 +1016,16 @@ module.exports = async (externalLogger = false) => {
             for (const code in locales) {
                 const lang = locales[code];
                 quest.locale[code] = {
-                    name: lang.quest[questId].name
+                    name: lang.quest[questId]?.name || locales.en.quest[questId].name
                 };
             }
+            quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(en.quest[questId].name.replaceAll(' ', '_'))}`;
             for (const obj of quest.objectives) {
                 obj.locale = {};
                 for (const code in locales) {
                     const lang = locales[code];
                     obj.locale[code] = {
-                        description: lang.quest[questId].conditions[obj.id]
+                        description: lang.quest[questId]?.conditions[obj.id] || locales.en.quest[questId].conditions[obj.id]
                     };
                 }
                 if (obj.type.endsWith('QuestItem')) {
@@ -1005,7 +1039,7 @@ module.exports = async (externalLogger = false) => {
                 }
             }
             for (const tdQuest of tdQuests) {
-                if (quest.id == tdQuest.gameId) {
+                if (quest.id == tdQuest.gameId || quest.name === tdQuest.title) {
                     quest.tarkovDataId = tdQuest.id;
                     tdMatched.push(tdQuest.id);
                     mergeTdQuest(quest, tdQuest);
@@ -1036,6 +1070,14 @@ module.exports = async (externalLogger = false) => {
             }
         }
         logger.log('Finished processing TarkovData quests');
+
+        // add start, success, and fail message ids
+
+        for (const quest of quests.data) {
+            quest.startMessageId = locales.en.quest[quest.id]?.startedMessageText;
+            quest.successMessageId = locales.en.quest[quest.id]?.successMessageText;
+            quest.failMessageId = locales.en.quest[quest.id]?.failMessageText;
+        }
 
         const ignoreQuests = [
             '5d25dae186f77443e55d2f78',

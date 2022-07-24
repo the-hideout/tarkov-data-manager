@@ -9,9 +9,8 @@ const fixName = require('../modules/wiki-replacements');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
-
 const { query, jobComplete } = require('../modules/db-connection');
-const { match } = require('assert');
+const jobOutput = require('../modules/job-output');
 
 let itemData = false;
 let presetData;
@@ -280,17 +279,12 @@ const parseTradeRow = async (tradeElement) => {
             if (foundMatch) break;
         }
         foundMatch = false;
-        for (const taskId in tasks) {
-            const task = tasks[taskId];
-            if (taskName.toLowerCase() == task.QuestName.toLowerCase()) {
-                questReq.stringValue = task._id;
-                tradeData.taskUnlock = task._id;
+        for (const task of tasks) {
+            if (taskName.toLowerCase() == task.name.toLowerCase()) {
+                questReq.stringValue = task.id;
+                tradeData.taskUnlock = task.id;
                 foundMatch = true;
-            } else if (taskName.toLowerCase() == en.quest[taskId].name.toLowerCase()) {
-                questReq.stringValue = task._id;
-                tradeData.taskUnlock = task._id;
-                foundMatch = true;
-            }
+            } 
             if (foundMatch)  break;
         }
         tradeData.requirements.push(questReq);
@@ -345,7 +339,7 @@ module.exports = async function() {
             ORDER BY item_data.id
         `);
         const wikiPromise = got(TRADES_URL);
-        const tasksPromise = tarkovChanges.quests();
+        const tasksPromise = jobOutput('update-quests', './dumps/trader_data.json', logger);
         const oldTasksPromise = got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
             responseType: 'json',
         });
