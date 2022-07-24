@@ -1,9 +1,13 @@
-const { query, format } = require('./db-connection');
-const { alert } = require('./webhook');
-const got = require('got');
 const moment = require('moment');
 
-var allMaps = { timestamp: moment().format('YYYY-MM-DD HH:mm:ss'), maps: [] };
+const jobOutput = require('./job-output');
+const { query, format } = require('./db-connection');
+const { alert } = require('./webhook');
+
+const allMaps = { timestamp: moment().format('YYYY-MM-DD HH:mm:ss'), maps: [] };
+console.log(allMaps);
+
+const raidTypes = ['scav', 'pmc', 'unknown'];
 
 // Helper function to validate the request body
 // :param req: the request object
@@ -12,59 +16,53 @@ var allMaps = { timestamp: moment().format('YYYY-MM-DD HH:mm:ss'), maps: [] };
 const validation = async (req, res) => {
     try {
         // Check if allMaps has data and is from the last 1 hour cache time
-        if (allMaps.timestamp > moment().subtract(1, 'hours').format('YYYY-MM-DD HH:mm:ss') && allMaps.maps.length > 0) {
+        if (allMaps.timestamp > moment().subtract(15, 'minutes').format('YYYY-MM-DD HH:mm:ss') && allMaps.maps.length > 0) {
             // console.log('queue-api: using cached map data');
         } else {
-            // Fetch all current maps from the API
-            const allMapsRaw = await got('https://api.tarkov.dev/graphql?query={maps{name}}', {
-                responseType: 'json',
-            });
+            // Fetch all current maps
+            const allMapsRaw = await jobOutput('update-maps', './dumps/map_data.json');
 
             // Update the allMaps object in the memory cache
-            allMaps['timestamp'] = moment().format('YYYY-MM-DD HH:mm:ss');
-            allMaps['maps'] = allMapsRaw.body.data.maps;
+            allMaps.timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
+            allMaps.maps = allMapsRaw;
             // console.log('queue-api: using fresh map data');
         }
 
         // Do some basic validation
-        var map;
+        let map;
         if (req.body.map === undefined || req.body.map === null || req.body.map === '') {
             res.status(400).send("value 'map' is required");
             return false;
         } else {
             map = req.body.map;
+            // If the map is not valid, return an error
+            if (!allMaps.maps.some(mapItem => mapItem.nameId === map)) {
+                res.status(400).send(`value 'map' must be one of: ${allMaps.maps.map(map => map.nameId).join(', ')}`);
+                return false;
+            }
         }
-        var time;
+        let time;
         if (req.body.time === undefined || req.body.time === null || req.body.time === '') {
             res.status(400).send("value 'time' is required");
             return false;
         } else {
             time = parseInt(req.body.time);
         }
-        var type;
+        let type;
         if (req.body.type === undefined || req.body.type === null || req.body.type === '') {
             type = 'unknown';
         } else {
             type = req.body.type;
-        }
-
-        // Check if the map is valid
-        var validMapName = false;
-        for (const mapItem of allMaps.maps) {
-            // If the submitted map name is valid, exit
-            if (mapItem.name.toLowerCase() === map.toLowerCase()) {
-                validMapName = true;
-                break;
+            // If the raid type is not valid, return an error
+            if (!raidTypes.includes(type)) {
+                res.status(400).send(`value 'type' must be one of: ${raidTypes.join(', ')}`);
+                return false;
             }
-        }
-        // If the map is not valid, return an error
-        if (!validMapName) {
-            res.status(400).send(`value 'map' must be one of: ${allMaps.maps.map(map => map.name.toLowerCase()).join(', ')}`);
-            return false;
         }
 
         return { map: map, time: time, type: type };
     } catch (error) {
+        console.log(allMaps);
         alert({
             title: `Error during queue-api validation`,
             message: error.toString()
