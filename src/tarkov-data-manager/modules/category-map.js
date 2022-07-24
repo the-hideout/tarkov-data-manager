@@ -718,7 +718,9 @@ module.exports = {
             name: 'SpecItem',
             id: '5447e0e74bdc2d3c308b4567',
             traders: [
-                TRADERS.prapor,
+                TRADERS.fence,
+                TRADERS.peacekeeper,
+                TRADERS.mechanic,
             ],
         },
         '61605ddea09d851a0a0c1bbc': {
