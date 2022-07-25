@@ -5,7 +5,6 @@ const { query, format } = require('./db-connection');
 const { alert } = require('./webhook');
 
 const allMaps = { timestamp: moment().format('YYYY-MM-DD HH:mm:ss'), maps: [] };
-console.log(allMaps);
 
 const raidTypes = ['scav', 'pmc', 'unknown'];
 
