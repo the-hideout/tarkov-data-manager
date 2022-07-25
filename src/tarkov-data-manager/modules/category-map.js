@@ -718,7 +718,9 @@ module.exports = {
             name: 'SpecItem',
             id: '5447e0e74bdc2d3c308b4567',
             traders: [
-                TRADERS.prapor,
+                TRADERS.fence,
+                TRADERS.peacekeeper,
+                TRADERS.mechanic,
             ],
         },
         '61605ddea09d851a0a0c1bbc': {
@@ -766,14 +768,6 @@ module.exports = {
             id: "617f1ef5e8b54b0998387733",
             name: "Revolver",
             traders: [],
-        },
-        '616eb7aea207f41933308f46': {
-            name: 'RepairKits',
-            id: '616eb7aea207f41933308f46',
-            traders: [
-                TRADERS.prapor,
-                TRADERS.mechanic,
-            ],
         },
     },
     items: {
