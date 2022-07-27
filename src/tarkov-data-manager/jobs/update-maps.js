@@ -5,6 +5,7 @@ const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
+const mapQueueTimes = require('../modules/map-queue-times');
 
 const mapNames = {
     '59fc81d786f774390775787e': 'Night Factory',
@@ -218,6 +219,7 @@ module.exports = async function() {
                 if (id === '59fc81d786f774390775787e' && lang.interface.factory4_night) {
                     mapName = lang.interface.factory4_night;
                 }
+                mapData.name = mapName;
                 const enemies = new Set(mapData.enemies.map(enemy => {
                     return getEnemyName(enemy, code);
                 }));
@@ -229,7 +231,15 @@ module.exports = async function() {
             }
             maps.data.push(mapData);
         }
-        maps.data = maps.data.sort((a, b) => a.name.localeCompare(b.name));
+
+        //const queueTimes = await mapQueueTimes(maps.data, logger);
+        maps.data = maps.data.sort((a, b) => a.name.localeCompare(b.name)).map(map => {
+            return {
+                ...map,
+                //queueTimes: queueTimes[map.id]
+            };
+        });
+
         logger.log(`Processed ${maps.data.length} maps`);
 
         const response = await cloudflare.put('map_data', JSON.stringify(maps)).catch(error => {
