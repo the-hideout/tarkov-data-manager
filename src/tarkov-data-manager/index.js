@@ -34,6 +34,7 @@ const {connection, query, format} = require('./modules/db-connection');
 const timer = require('./modules/console-timer');
 const scannerApi = require('./modules/scanner-api');
 const webhookApi = require('./modules/webhook-api');
+const queueApi = require('./modules/queue-api');
 
 vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
 
@@ -72,6 +73,12 @@ function maybe(fn) {
         }
 
         if (req.path.startsWith('/api/webhooks')) {
+            next();
+
+            return true;
+        }
+
+        if (req.path.startsWith('/api/queue')) {
             next();
 
             return true;
@@ -1442,6 +1449,10 @@ app.all('/api/scanner/:resource', async (req, res) => {
 
 app.post('/api/webhooks/:hooksource/:webhookid/:webhookkey', async (req, res) => {
     webhookApi.handle(req, res, req.params.hooksource, req.params.webhookid+'/'+req.params.webhookkey);
+});
+
+app.post('/api/queue', async (req, res) => {
+    queueApi.handle(req, res);
 });
 
 const server = app.listen(port, () => {
