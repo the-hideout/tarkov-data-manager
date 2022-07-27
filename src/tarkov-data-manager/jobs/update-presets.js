@@ -7,7 +7,7 @@ const {connection, query, jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
-const getTranslation = require('../modules/get-translation');
+const { getTranslation } = require('../modules/get-translation');
 
 let logger = false;
 
