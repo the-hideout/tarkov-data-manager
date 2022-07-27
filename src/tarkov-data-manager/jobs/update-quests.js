@@ -9,8 +9,6 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const legacyQuests = require('./update-quests-legacy');
-const remoteData = require('../modules/remote-data');
-const { locale } = require('moment');
 
 let logger = false;
 let en = {};
