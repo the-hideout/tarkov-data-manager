@@ -232,11 +232,11 @@ module.exports = async function() {
             maps.data.push(mapData);
         }
 
-        const queueTimes = await mapQueueTimes(maps.data, logger);
+        //const queueTimes = await mapQueueTimes(maps.data, logger);
         maps.data = maps.data.sort((a, b) => a.name.localeCompare(b.name)).map(map => {
             return {
                 ...map,
-                queueTimes: queueTimes[map.id]
+                //queueTimes: queueTimes[map.id]
             };
         });
 
