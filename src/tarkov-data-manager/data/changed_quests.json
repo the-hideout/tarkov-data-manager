@@ -40,7 +40,7 @@
                     "5704e4dad2720bb55b8b4567"
                 ],
                 "locale_map": {
-                    "target": "QuestCondition/Elimination/Kill/Target/AnyPMC"
+                    "target": ["interface", "QuestCondition/Elimination/Kill/Target/AnyPMC"]
                 },
                 "target": "any PMC operatives",
                 "count": 3,
@@ -842,7 +842,7 @@
                 {
                     "name": "Sniper Rifles",
                     "locale_map" : {
-                        "name": "SniperRifle"
+                        "name": ["interface", "SniperRifle"]
                     },
                     "level": 1
                 }

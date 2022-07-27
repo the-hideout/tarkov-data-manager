@@ -917,7 +917,7 @@ module.exports = async (externalLogger = false) => {
                         newObj.locale[code].description = translatePath(code, ['quest', questId, 'conditions', newObj.id], logger);//lang.quest[questId].conditions[newObj.id];
                         if (newObj.locale_map) {
                             for (const key in newObj.locale_map) {
-                                newObj.locale[code][key] = translatePath(code, ['interface', newObj.locale_map[key]], logger);//lang.interface[newObj.locale_map[key]];
+                                newObj.locale[code][key] = translatePath(code, newObj.locale_map[key], logger);//lang.interface[newObj.locale_map[key]];
                             }
                         }
                     }
@@ -963,7 +963,7 @@ module.exports = async (externalLogger = false) => {
                                 const lang = locales[code];
                                 if (!reward.locale[code]) reward.locale[code] = {};
                                 for (const key in reward.locale_map) {
-                                    reward.locale[code][key] = translatePath(code, ['interface', reward.locale_map[key]], logger);//lang.interface[reward.locale_map[key]];
+                                    reward.locale[code][key] = translatePath(code, reward.locale_map[key], logger);//lang.interface[reward.locale_map[key]];
                                 }
                             }
                         }
