@@ -10,6 +10,7 @@ const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const legacyQuests = require('./update-quests-legacy');
 const remoteData = require('../modules/remote-data');
+const { locale } = require('moment');
 
 let logger = false;
 let en = {};
@@ -475,6 +476,7 @@ module.exports = async (externalLogger = false) => {
         }
         const missingQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'missing_quests.json')));
         const changedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'changed_quests.json')));
+        const removedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'removed_quests.json')));
         try {
             presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
         } catch (error) {
@@ -486,6 +488,7 @@ module.exports = async (externalLogger = false) => {
             data: [],
         };
         for (const questId in data) {
+            if (removedQuests[questId]) continue;
             const quest = data[questId];
             logger.log(`Processing ${en.quest[questId].name} ${questId}`);
             /*if (!en.locations[quest.location]) {
@@ -550,7 +553,7 @@ module.exports = async (externalLogger = false) => {
             for (const code in locales) {
                 const lang = locales[code];
                 questData.locale[code] = {
-                    name: lang.quest[questId].name
+                    name: lang.quest[questId]? lang.quest[questId].name : locales.en.quest[questId].name
                 };
             }
             for (const objective of quest.conditions.AvailableForFinish) {
@@ -570,7 +573,7 @@ module.exports = async (externalLogger = false) => {
                 for (const code in locales) {
                     const lang = locales[code];
                     obj.locale[code] = {
-                        description: lang.quest[questId].conditions[objective._props.id]
+                        description: lang.quest[questId] ? lang.quest[questId].conditions[objective._props.id] : locales.en.quest[questId].conditions[objective._props.id]
                     };
                 }
                 if (objective._parent === 'FindItem' || objective._parent === 'HandoverItem') {
@@ -592,7 +595,7 @@ module.exports = async (externalLogger = false) => {
                         for (const code in locales) {
                             const lang = locales[code];
                             obj.questItem.locale[code] = {
-                                name: lang.templates[objective._props.target[0]].Name
+                                name: lang.templates[objective._props.target[0]] ? lang.templates[objective._props.target[0]].Name : locales.en.templates[objective._props.target[0]]
                             };
                         }
                     } else {
@@ -1050,6 +1053,7 @@ module.exports = async (externalLogger = false) => {
         }
         for (const tdQuest of tdQuests) {
             try {
+                if (tdQuest.gameId && removedQuests[tdQuest.gameId]) continue;
                 if (!tdMatched.includes(tdQuest.id)) {
                     logger.warn(`Adding TarkovData quest ${tdQuest.title} ${tdQuest.id}...`);
                     if (!tdTraders) {
@@ -1101,6 +1105,10 @@ module.exports = async (externalLogger = false) => {
                 };
             }
             if (found || !en.quest[questId].name || ignoreQuests.includes(questId)) continue;
+            if (removedQuests[questId]) {
+                logger.warn(`Quest ${en.quest[questId].name} ${questId} has been removed`);
+                continue;
+            }
             logger.warn(`No quest data found for ${en.quest[questId].name} ${questId}`);
         }
 
