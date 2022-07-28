@@ -32,7 +32,12 @@ const REPLACEMENTS = {
     'VPO-101 "Vepr-Hunter" 7.62x51 carbine': 'Molot VPO-101 "Vepr-Hunter" 7.62x51 carbine',
     '12/70 RIP 5 pcs. ammo box': '12/70 RIP ammo pack (5 pcs)',
     '9x19mm RIP 20 pcs. ammo box': '9x19mm RIP ammo pack (20 pcs)',
-    'Plexiglass piece': 'Piece of plexiglass'
+    'Plexiglass piece': 'Piece of plexiglass',
+    'EOTech Vudu 1-6x24 riflescope': 'EOTech Vudu 1-6x24 30mm riflescope',
+    'Bottle of beer "Pevko Light"': 'Bottle of "Pevko Light" beer',
+    'Kolpak-1S visor': 'Kolpak-1S face shield',
+    'Burris FullField TAC30 1-4x24 riflescope': 'Burris FullField TAC30 1-4x24 30mm riflescope',
+    'Torrey Pines Logic T12W thermal reflex sight': 'Torrey Pines Logic T12W 30Hz thermal reflex sight',
 };
 
 const PARTIAL_REPLACEMENTS = {
