@@ -10,6 +10,7 @@ const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const legacyQuests = require('./update-quests-legacy');
 const { setLocales, translatePath, getTranslation } = require('../modules/get-translation');
+const jobOutput = require('../modules/job-output');
 
 let logger = false;
 let en = {};
@@ -19,6 +20,7 @@ let presets = {};
 let tdQuests = false;
 let tdTraders = false;
 let tdMaps = false;
+let maps = false;
 
 const questStatusMap = {
     2: 'active',
@@ -111,6 +113,35 @@ const getTdLocation = id => {
     for (const name in tdMaps) {
         const map = tdMaps[name];
         if (map.id === id) return map.locale.en;
+    }
+};
+
+const descriptionMentionsMap = desc => {
+    const onMapRegex = new RegExp(`on (?<mapName>${maps.map(m => m.name).join('|')})`);
+    //console.log(onMapRegex)
+    const match = desc.match(onMapRegex);
+    if (match) {
+        for(const map of maps) {
+            if (map.name === match.groups.mapName) {
+                return map;
+            }
+        }
+        logger.warn(`Map ${match.groups.mapName} not found in maps`);
+    }
+    return false;
+};
+
+const addMapFromDescription = obj => {
+    if (obj.locationNames.length > 0) return;
+    const foundMap = descriptionMentionsMap(obj.description);
+    if (!foundMap) return;
+    obj.locationNames.push(foundMap.name);
+    obj.map_ids.push(foundMap.id);
+};
+
+const addMapToObjectives = quest => {
+    for (const obj of quest.objectives) {
+        addMapFromDescription(obj);
     }
 };
 
@@ -451,6 +482,7 @@ module.exports = async (externalLogger = false) => {
         items = await tarkovChanges.items();
         en = await tarkovChanges.locale_en();
         locales = await tarkovChanges.locales();
+        maps = await jobOutput('update-maps', './dumps/map_data.json', logger);
         setLocales(locales);
         //const itemMap = await remoteData.get();
         const itemResults = await query(`
@@ -906,6 +938,7 @@ module.exports = async (externalLogger = false) => {
                         obj[key] = changedQuests[questData.id].objectivesChanged[obj.id][key];
                     }
                 }
+                addMapFromDescription(obj);
                 questData.objectives.push(obj);
             }
             if (changedQuests[questData.id] && changedQuests[questData.id].objectivesAdded) {
@@ -1042,6 +1075,7 @@ module.exports = async (externalLogger = false) => {
                         };
                     }
                 }
+                addMapFromDescription(obj);
             }
             for (const tdQuest of tdQuests) {
                 if (quest.id == tdQuest.gameId || quest.name === tdQuest.title) {
