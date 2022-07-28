@@ -139,12 +139,6 @@ const addMapFromDescription = obj => {
     obj.map_ids.push(foundMap.id);
 };
 
-const addMapToObjectives = quest => {
-    for (const obj of quest.objectives) {
-        addMapFromDescription(obj);
-    }
-};
-
 const getRewardItems = (reward) => {
     const rewardData = {
         item: reward.items[0]._tpl,
