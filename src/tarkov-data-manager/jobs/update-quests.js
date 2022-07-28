@@ -9,7 +9,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const legacyQuests = require('./update-quests-legacy');
-const remoteData = require('../modules/remote-data');
+const { setLocales, translatePath, getTranslation } = require('../modules/get-translation');
 
 let logger = false;
 let en = {};
@@ -94,10 +94,12 @@ const getTarget = (cond, langCode) => {
     if (cond._props.savageRole) {
         targetCode = cond._props.savageRole[0];
     }
-    const lang = locales[langCode];
     if (targetCode == 'followerBully') {
-        return `${lang.interface['QuestCondition/Elimination/Kill/BotRole/bossBully']} ${lang.interface['ScavRole/Follower']}`;
+        return getTranslation(locales, langCode, lang => {
+            return `${lang.interface['QuestCondition/Elimination/Kill/BotRole/bossBully']} ${lang.interface['ScavRole/Follower']}`;
+        }, logger);
     }
+    const lang = locales[langCode];
     if (targetKeyMap[targetCode]) targetCode = targetKeyMap[targetCode];
     return lang.interface[`QuestCondition/Elimination/Kill/BotRole/${targetCode}`] 
         || lang.interface[`QuestCondition/Elimination/Kill/Target/${targetCode}`] 
@@ -449,6 +451,7 @@ module.exports = async (externalLogger = false) => {
         items = await tarkovChanges.items();
         en = await tarkovChanges.locale_en();
         locales = await tarkovChanges.locales();
+        setLocales(locales);
         //const itemMap = await remoteData.get();
         const itemResults = await query(`
             SELECT
@@ -475,6 +478,7 @@ module.exports = async (externalLogger = false) => {
         }
         const missingQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'missing_quests.json')));
         const changedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'changed_quests.json')));
+        const removedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'removed_quests.json')));
         try {
             presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
         } catch (error) {
@@ -486,6 +490,7 @@ module.exports = async (externalLogger = false) => {
             data: [],
         };
         for (const questId in data) {
+            if (removedQuests[questId]) continue;
             const quest = data[questId];
             logger.log(`Processing ${en.quest[questId].name} ${questId}`);
             /*if (!en.locations[quest.location]) {
@@ -550,7 +555,7 @@ module.exports = async (externalLogger = false) => {
             for (const code in locales) {
                 const lang = locales[code];
                 questData.locale[code] = {
-                    name: lang.quest[questId].name
+                    name: translatePath(code, ['quest', questId, 'name'], logger)//lang.quest[questId]? lang.quest[questId].name : locales.en.quest[questId].name
                 };
             }
             for (const objective of quest.conditions.AvailableForFinish) {
@@ -570,7 +575,7 @@ module.exports = async (externalLogger = false) => {
                 for (const code in locales) {
                     const lang = locales[code];
                     obj.locale[code] = {
-                        description: lang.quest[questId].conditions[objective._props.id]
+                        description: translatePath(code, ['quest', questId, 'conditions', objective._props.id], logger)//lang.quest[questId] ? lang.quest[questId].conditions[objective._props.id] : locales.en.quest[questId].conditions[objective._props.id]
                     };
                 }
                 if (objective._parent === 'FindItem' || objective._parent === 'HandoverItem') {
@@ -592,7 +597,7 @@ module.exports = async (externalLogger = false) => {
                         for (const code in locales) {
                             const lang = locales[code];
                             obj.questItem.locale[code] = {
-                                name: lang.templates[objective._props.target[0]].Name
+                                name: translatePath(code, ['templates', objective._props.target[0], 'Name'], logger)//lang.templates[objective._props.target[0]] ? lang.templates[objective._props.target[0]].Name : locales.en.templates[objective._props.target[0]]
                             };
                         }
                     } else {
@@ -762,7 +767,7 @@ module.exports = async (externalLogger = false) => {
                         for (const code in locales) {
                             const lang = locales[code];
                             obj.questItem.locale[code] = {
-                                name: lang.templates[objective._props.target[0]].Name
+                                name: translatePath(code, ['templates', objective._props.target[0], 'Name'], logger)//lang.templates[objective._props.target[0]].Name
                             };
                         }
                     } else {
@@ -783,7 +788,7 @@ module.exports = async (externalLogger = false) => {
                     };
                     for (const code in locales) {
                         obj.skillLevel.locale[code] = {
-                            name: locales[code].interface[objective._props.target]
+                            name: translatePath(code, ['interface', objective._props.target], logger)//locales[code].interface[objective._props.target]
                         }
                     }
                 } else if (objective._parent === 'WeaponAssembly') {
@@ -909,10 +914,10 @@ module.exports = async (externalLogger = false) => {
                     for (const code in locales) {
                         if (!newObj.locale[code]) newObj.locale[code] = {};
                         const lang = locales[code];
-                        newObj.locale[code].description = lang.quest[questId].conditions[newObj.id];
+                        newObj.locale[code].description = translatePath(code, ['quest', questId, 'conditions', newObj.id], logger);//lang.quest[questId].conditions[newObj.id];
                         if (newObj.locale_map) {
                             for (const key in newObj.locale_map) {
-                                newObj.locale[code][key] = lang.interface[newObj.locale_map[key]];
+                                newObj.locale[code][key] = translatePath(code, newObj.locale_map[key], logger);//lang.interface[newObj.locale_map[key]];
                             }
                         }
                     }
@@ -958,7 +963,7 @@ module.exports = async (externalLogger = false) => {
                                 const lang = locales[code];
                                 if (!reward.locale[code]) reward.locale[code] = {};
                                 for (const key in reward.locale_map) {
-                                    reward.locale[code][key] = lang.interface[reward.locale_map[key]];
+                                    reward.locale[code][key] = translatePath(code, reward.locale_map[key], logger);//lang.interface[reward.locale_map[key]];
                                 }
                             }
                         }
@@ -1016,7 +1021,7 @@ module.exports = async (externalLogger = false) => {
             for (const code in locales) {
                 const lang = locales[code];
                 quest.locale[code] = {
-                    name: lang.quest[questId]?.name || locales.en.quest[questId].name
+                    name: translatePath(code, ['quest', questId, 'name'], logger)//lang.quest[questId]?.name || locales.en.quest[questId].name
                 };
             }
             quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(en.quest[questId].name.replaceAll(' ', '_'))}`;
@@ -1025,7 +1030,7 @@ module.exports = async (externalLogger = false) => {
                 for (const code in locales) {
                     const lang = locales[code];
                     obj.locale[code] = {
-                        description: lang.quest[questId]?.conditions[obj.id] || locales.en.quest[questId].conditions[obj.id]
+                        description: translatePath(code, ['quest', questId, 'conditions', obj.id], logger)//lang.quest[questId]?.conditions[obj.id] || locales.en.quest[questId].conditions[obj.id]
                     };
                 }
                 if (obj.type.endsWith('QuestItem')) {
@@ -1033,7 +1038,7 @@ module.exports = async (externalLogger = false) => {
                     for (const code in locales) {
                         const lang = locales[code];
                         obj.questItem.locale[code] = {
-                            name: lang.templates[obj.questItem.id].Name
+                            name: translatePath(code, ['templates', obj.questItem.id, 'Name'], logger)//lang.templates[obj.questItem.id].Name
                         };
                     }
                 }
@@ -1050,6 +1055,7 @@ module.exports = async (externalLogger = false) => {
         }
         for (const tdQuest of tdQuests) {
             try {
+                if (tdQuest.gameId && removedQuests[tdQuest.gameId]) continue;
                 if (!tdMatched.includes(tdQuest.id)) {
                     logger.warn(`Adding TarkovData quest ${tdQuest.title} ${tdQuest.id}...`);
                     if (!tdTraders) {
@@ -1074,6 +1080,7 @@ module.exports = async (externalLogger = false) => {
         // add start, success, and fail message ids
 
         for (const quest of quests.data) {
+            quest.descriptionMessageId = locales.en.quest[quest.id]?.description;
             quest.startMessageId = locales.en.quest[quest.id]?.startedMessageText;
             quest.successMessageId = locales.en.quest[quest.id]?.successMessageText;
             quest.failMessageId = locales.en.quest[quest.id]?.failMessageText;
@@ -1101,6 +1108,10 @@ module.exports = async (externalLogger = false) => {
                 };
             }
             if (found || !en.quest[questId].name || ignoreQuests.includes(questId)) continue;
+            if (removedQuests[questId]) {
+                logger.warn(`Quest ${en.quest[questId].name} ${questId} has been removed`);
+                continue;
+            }
             logger.warn(`No quest data found for ${en.quest[questId].name} ${questId}`);
         }
 
