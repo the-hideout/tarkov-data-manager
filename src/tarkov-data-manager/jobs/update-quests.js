@@ -10,6 +10,7 @@ const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const legacyQuests = require('./update-quests-legacy');
 const { setLocales, translatePath, getTranslation } = require('../modules/get-translation');
+const jobOutput = require('../modules/job-output');
 
 let logger = false;
 let en = {};
@@ -19,6 +20,8 @@ let presets = {};
 let tdQuests = false;
 let tdTraders = false;
 let tdMaps = false;
+let maps = false;
+let traderIdMap = {};
 
 const questStatusMap = {
     2: 'active',
@@ -66,27 +69,14 @@ const factionMap = {
     '6179b5b06e9dd54ac275e409': 'BEAR'
 };
 
-const traderIdMap = {
-    0: '54cb50c76803fa8b248b4571',
-    1: '54cb57776803fa99248b456e',
-    2: '58330581ace78e27b8b10cee',
-    3: '5935c25fb3acc3127c3d8cd9',
-    4: '5a7c2eca46aef81a7ca2145d',
-    5: '5ac3b934156ae10c4430e83c',
-    6: '5c0647fdd443bc2504c2d371',
-    7: '579dc571d53a0658a154fbec',
-};
-
-const mapIdByName = {
-    'Night Factory': '59fc81d786f774390775787e',
-    'Factory': '55f2d3fd4bdc2d5f408b4567',
-    'Lighthouse': '5704e4dad2720bb55b8b4567',
-    'Customs': '56f40101d2720b2a4d8b45d6',
-    'Reserve': '5704e5fad2720bc05b8b4567',
-    'Interchange': '5714dbc024597771384a510d',
-    'Shoreline': '5704e554d2720bac5b8b456e',
-    'Woods': '5704e3c2d2720bac5b8b4567',
-    'The Lab': '5b0fc42d86f7744a585f9105'
+const getMapFromNameId = nameId => {
+    for (const map of maps) {
+        if (map.nameId === nameId) {
+            return map;
+        }
+    }
+    logger.error(`Could not find map with nameId ${nameId}`);
+    return false;
 };
 
 const getTarget = (cond, langCode) => {
@@ -112,6 +102,29 @@ const getTdLocation = id => {
         const map = tdMaps[name];
         if (map.id === id) return map.locale.en;
     }
+};
+
+const descriptionMentionsMap = desc => {
+    const onMapRegex = new RegExp(`on (?<mapName>${maps.map(m => m.name).join('|')})`);
+    //console.log(onMapRegex)
+    const match = desc.match(onMapRegex);
+    if (match) {
+        for(const map of maps) {
+            if (map.name === match.groups.mapName) {
+                return map;
+            }
+        }
+        logger.warn(`Map ${match.groups.mapName} not found in maps`);
+    }
+    return false;
+};
+
+const addMapFromDescription = obj => {
+    if (obj.locationNames.length > 0) return;
+    const foundMap = descriptionMentionsMap(obj.description);
+    if (!foundMap) return;
+    obj.locationNames.push(foundMap.name);
+    obj.map_ids.push(foundMap.id);
 };
 
 const getRewardItems = (reward) => {
@@ -451,6 +464,11 @@ module.exports = async (externalLogger = false) => {
         items = await tarkovChanges.items();
         en = await tarkovChanges.locale_en();
         locales = await tarkovChanges.locales();
+        maps = await jobOutput('update-maps', './dumps/map_data.json', logger);
+        const traders = await jobOutput('update-traders', './dumps/trader_data.json', logger);
+        for (const trader of traders) {
+            traderIdMap[trader.tarkovDataId] = trader.id;
+        }
         setLocales(locales);
         //const itemMap = await remoteData.get();
         const itemResults = await query(`
@@ -679,13 +697,14 @@ module.exports = async (externalLogger = false) => {
                                     logger.warn(`Unrecognized location ${loc} for objective ${obj.id} of ${questData.name} ${questData.id}`);
                                     continue;
                                 }
-                                let mapName = en.interface[loc];
-                                obj.locationNames.push(mapName);
-                                if (mapName === 'Laboratory') mapName = 'The Lab';
-                                if (mapIdByName[mapName]) {
-                                    obj.map_ids.push(mapIdByName[mapName]);
+                                //let mapName = en.interface[loc];
+                                //if (mapName === 'Laboratory') mapName = 'The Lab';
+                                const map = getMapFromNameId(loc);
+                                if (map) {
+                                    obj.locationNames.push(map.name);
+                                    obj.map_ids.push(map.id);
                                 } else {
-                                    logger.warn(`Unrecognized map name ${mapName} for objective ${obj.id} of ${questData.name} ${questData.id}`);
+                                    logger.warn(`Unrecognized map name ${loc} for objective ${obj.id} of ${questData.name} ${questData.id}`);
                                 }
                             }
                         } else if (cond._parent === 'ExitStatus') {
@@ -906,6 +925,7 @@ module.exports = async (externalLogger = false) => {
                         obj[key] = changedQuests[questData.id].objectivesChanged[obj.id][key];
                     }
                 }
+                addMapFromDescription(obj);
                 questData.objectives.push(obj);
             }
             if (changedQuests[questData.id] && changedQuests[questData.id].objectivesAdded) {
@@ -1042,6 +1062,7 @@ module.exports = async (externalLogger = false) => {
                         };
                     }
                 }
+                addMapFromDescription(obj);
             }
             for (const tdQuest of tdQuests) {
                 if (quest.id == tdQuest.gameId || quest.name === tdQuest.title) {
