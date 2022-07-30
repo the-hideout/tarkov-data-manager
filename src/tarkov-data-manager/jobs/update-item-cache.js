@@ -475,6 +475,7 @@ module.exports = async () => {
             });
         }
 
+        // populate categories attribute with all categories up the tree
         for (const id in itemData) {
             const item = itemData[id];
             item.categories = [];
