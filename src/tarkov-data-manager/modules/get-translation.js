@@ -4,7 +4,7 @@ const getTranslation = (locales, code, translateFunction, logger) => {
     let lang = locales[code];
     if (!lang) lang = locales.en;
     try {
-        translateFunction(lang);
+        return translateFunction(lang);
     } catch (error) {
         if (error.message.includes('Cannot read properties of undefined') && code !== 'en') {
             const attPattern = /\(reading '(.+)'\)/;
@@ -14,7 +14,7 @@ const getTranslation = (locales, code, translateFunction, logger) => {
             } else {
                 console.log(`Could not find attribute ${attMatch} for translation ${code}; defaulting to en`);
             }
-            translateFunction(locales.en);
+            return translateFunction(locales.en);
         } else {
             throw error;
         }
