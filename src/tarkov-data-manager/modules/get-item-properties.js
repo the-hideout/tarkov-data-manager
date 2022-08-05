@@ -64,11 +64,18 @@ const getItemProperties = async (item, parent = false) => {
             penetrationChance: item._props.PenetrationChance,
             penetrationPower: item._props.PenetrationPower,
             accuracy: item._props.ammoAccr,
+            accuracyModifier: item._props.ammoAccr / 100,
             recoil: item._props.ammoRec,
+            recoilModifier: item._props.ammoRec / 100,
             initialSpeed: item._props.InitialSpeed,
             heavyBleedModifier: item._props.HeavyBleedingDelta,
             lightBleedModifier: item._props.LightBleedingDelta,
+            durabilityBurnFactor: item._props.DurabilityBurnModificator,
+            heatFactor: item._props.HeatFactor
         };
+        if (item._props.IsLightAndSoundShot) {
+            properties.ammoType = 'flashbang';
+        }
     } else if (item._parent === '5448e54d4bdc2dcc718b4568' || item._parent === '5448e5284bdc2dcb718b4567') {
         // armor vests and tactical rigs
         if (!locales) return Promise.reject(new Error('Must call setItemPropertiesLocales before getItemProperties'));
@@ -175,6 +182,7 @@ const getItemProperties = async (item, parent = false) => {
                 properties.deafening = item._props.DeafStrength;
             } else if (item._parent === '57bef4c42459772e8d35a53b') {
                 properties.propertiesType = 'ItemPropertiesArmorAttachment';
+                properties.blindnessProtection = item._props.BlindnessProtection;
             }
         }
     } else if (item._parent === '5448e5724bdc2ddf718b4568') {
@@ -189,7 +197,7 @@ const getItemProperties = async (item, parent = false) => {
             ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
             armor_material_id: item._props.ArmorMaterial,
         };
-    } else if (item._parent === '5795f317245977243854e041' || item._parent === '5671435f4bdc2d96058b4569') {
+    } else if (item._parent === '5795f317245977243854e041' || item._parent === '5671435f4bdc2d96058b4569' || item._parent === '5448bf274bdc2dfc2f8b456a') {
         properties = {
             propertiesType: 'ItemPropertiesContainer',
             capacity: 0
@@ -243,7 +251,9 @@ const getItemProperties = async (item, parent = false) => {
         properties = {
             propertiesType: 'ItemPropertiesWeaponMod',
             ergonomics: item._props.Ergonomics,
-            recoil: item._props.Recoil
+            recoil: item._props.Recoil,
+            recoilModifier: item._props.Recoil / 100,
+            accuracyModifier: item._props.Accuracy / 100
         };
         if (item._parent === '55818add4bdc2d5b648b456f' || item._parent === '55818ae44bdc2dde698b456c') {
             properties.propertiesType = 'ItemPropertiesScope';
@@ -352,6 +362,13 @@ const getItemProperties = async (item, parent = false) => {
         properties = {
             propertiesType: 'ItemPropertiesKey',
             uses: item._props.MaximumNumberOfUsage
+        };
+    } else if (item._parent === '5447e1d04bdc2dff2f8b4567') {
+        properties = {
+            propertiesType: 'ItemPropertiesMelee',
+            slashDamage: item._props.knifeHitSlashDam,
+            stabDamage: item._props.knifeHitStabDam,
+            hitRadius: item._props.knifeHitRadius
         };
     }
     return properties;
