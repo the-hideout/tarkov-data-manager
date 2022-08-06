@@ -10,7 +10,8 @@ scripts/local/
 !src/nginx/ssl-fake/*
 src/tarkov-data-manager/logs/*.log
 src/tarkov-data-manager/settings/crons.json
-src/tarkov-data-manager/cache/*.json
+src/tarkov-data-manager/cache/*
+!src/tarkov-data-manager/cache/.gitkeep
 src/tarkov-data-manager/public/data/*.json
 
 # Terraform

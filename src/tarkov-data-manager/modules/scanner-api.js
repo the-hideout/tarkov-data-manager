@@ -1,7 +1,19 @@
 const fs = require('fs');
 const path = require('path');
+
+const Jimp = require('jimp');
+const formidable = require('formidable');
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const {fromEnv} = require('@aws-sdk/credential-provider-env');
+
 const {query, format} = require('./db-connection');
-const {dashToCamelCase} = require('../modules/string-functions');
+const {dashToCamelCase} = require('./string-functions');
+const remoteData = require('./remote-data');
+
+const s3 = new S3Client({
+    region: 'us-east-1',
+    credentials: fromEnv(),
+});
 
 let refreshingUsers = false;
 let users = {};
@@ -640,6 +652,125 @@ const getJson = (options) => {
     return response;
 };
 
+const submitImage = (request, user) => {
+    const response = {errors: [], warnings: [], data: {}};
+    const form = formidable({
+        multiples: true,
+        uploadDir: path.join(__dirname, '..', 'cache'),
+    });
+
+    console.log(`User ${user.username} submitting image`);
+
+    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+        response.errors.push('aws variables not configured; image upload disabled');
+        return response;
+    }
+
+    return new Promise(resolve => {
+        const finish = (response, files) => {
+            if (files) {
+                for (const key in files) {
+                    fs.rm(files[key].filepath, error => {
+                        if (error) console.log(`Error deleting ${files[key].filepath}`, error);
+                    });
+                }
+            }
+            resolve(response);
+        };
+        form.parse(request, async (err, fields, files) => {
+            if (err) {
+                console.log(err);
+                response.errors.push(String(error));
+                return resolve(response);
+            }
+    
+            console.log(fields);
+            // console.log(files);
+    
+            const allItemData = await remoteData.get();
+            const currentItemData = allItemData.get(fields.id);
+    
+            if(fields.type !== 'grid-image' && fields.type !== 'icon' && fields.type !== 'image' && fields.type !== 'base-image'){
+                console.log(`Invalid image type: ${fields.type}`);
+                response.errors.push(`Invalid image type: ${fields.type}`);
+                return finish(response, files);
+            }
+    
+            let imageExists = false;
+            if (fields.type === 'grid-image' && currentItemData.grid_image_link) imageExists = true;
+    
+            if (fields.type === 'icon' && currentItemData.icon_link) imageExists = true;
+    
+            if (fields.type === 'image' && currentItemData.image_link) imageExists = true;
+    
+            if (fields.type === 'base-image' && currentItemData.base_image_link) imageExists = true;
+            if (imageExists) {
+                console.log(`Item ${fields.id} already has a ${fields.type}`);
+                response.errors.push(`Item ${fields.id} already has a ${fields.type}`);
+                return finish(response, files);
+            }
+    
+            let image = false;
+            try {
+                image = await Jimp.read(files[fields.type].filepath);
+            } catch (someError){
+                console.error(someError);
+    
+                response.errors.push(String(someError));
+                return finish(response, files);
+            }
+    
+            if(!image){
+                response.errors.push('Failed to add image');
+                return finish(response, files);
+            }
+    
+            let ext = 'jpg';
+            let contentType = 'image/jpeg';
+            let MIME = Jimp.MIME_JPEG;
+            if(fields.type === 'base-image'){
+                ext = 'png';
+                contentType = 'image/png';
+                MIME = Jimp.MIME_PNG;
+            }
+    
+            const uploadParams = {
+                Bucket: process.env.S3_BUCKET,
+                Key: `${fields.id}-${fields.type}.${ext}`,
+                ContentType: contentType,
+                CacheControl: 'max-age=604800',
+            };
+    
+            uploadParams.Body = await image.getBufferAsync(MIME);
+    
+            try {
+                await s3.send(new PutObjectCommand(uploadParams));
+                console.log('Image saved to s3');
+            } catch (err) {
+                console.log('Error saving image to s3', err);
+    
+                response.errors.push(String(err));
+                return finish(response, files);
+            }
+    
+            if(fields.type !== 'base-image'){
+                try {
+                    await remoteData.setProperty(fields.id, `${fields.type.replace(/\-/g, '_')}_link`, `https://${process.env.S3_BUCKET}/${fields.id}-${fields.type}.jpg`);
+                } catch (updateError){
+                    console.error(updateError);
+                    response.errors.push(String(updateError));
+                    return finish(response, files);
+                }
+            }
+    
+            console.log(`${fields.id} ${fields.type} updated`);
+    
+            response.data = 'ok';
+            return finish(response, files);
+        });
+    });
+};
+
 const userFlags = {
     disabled: 0,
     insertPlayerPrices: 1,
@@ -823,19 +954,32 @@ module.exports = {
             res.json({errors: ['access denied'], warnings: [], data: {}});
             return;
         }
-        const scannerName = req.headers.scanner;
-        if (!scannerName) {
-            res.json({errors: ['no scanner name specified'], warnings: [], data: {}});
-            return;
-        }
-        let options = req.body;
-        if (typeof options !== 'object') {
-            options = {};
-        }
-        options.scannerName = scannerName;
-        options = getOptions(options, user);
         let response = false;
+        let options = {};
+        if (resource === 'image') {
+            response = await submitImage(req, user);
+        }
+        if (!response) {
+            options = req.body;
+            if (typeof options !== 'object') {
+                options = {};
+            }
+            options = getOptions(options, user);
+        }
+        if (resource === 'json') {
+            if (user.flags & userFlags.jsonDownload) {
+                response = getJson(options);
+            } else {
+                return res.json({errors: ['You are not authorized to perform that action'], warnings: [], data: {}});
+            }
+        }
         try {
+            const scannerName = req.headers.scanner;
+            if (!scannerName && !response) {
+                res.json({errors: ['no scanner name specified'], warnings: [], data: {}});
+                return;
+            }
+            options.scannerName = scannerName;
             if (resource === 'items') {
                 options.scanner = await getScanner(options, true);
                 if (req.method === 'GET') {
@@ -865,22 +1009,16 @@ module.exports = {
             if (resource === 'ping' && req.method === 'GET') {
                 response = {errors: [], warnings: [], data: 'ok'};
             }
-            if (resource === 'json') {
-                if (options.user.flags & userFlags.jsonDownload) {
-                    response = getJson(options);
-                } else {
-                    return res.json({errors: ['You are not authorized to perform that action'], warnings: [], data: {}});
-                }
-            }
-            if (response) {
-                res.json(response);
-                return;
-            }
-            res.json({errors: ['unrecognized request'], warnings: [], data: {}});
         } catch (error) {
             console.log('Scanner API Error', error);
             res.json({errors: [String(error)], warnings: [], data: {}});
+            return;
         }
+        if (response) {
+            res.json(response);
+            return;
+        }
+        res.json({errors: ['unrecognized request'], warnings: [], data: {}});
     },
     refreshUsers: refreshUsers,
     getUserFlags: () => {
