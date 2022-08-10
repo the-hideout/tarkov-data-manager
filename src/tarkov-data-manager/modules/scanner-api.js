@@ -704,7 +704,7 @@ const submitImage = (request, user) => {
             if (fields.type === 'image' && currentItemData.image_link) imageExists = true;
     
             if (fields.type === 'base-image' && currentItemData.base_image_link) imageExists = true;
-            if (imageExists) {
+            if (imageExists && fields.overwrite !== 'true' && !(userFlags.overwriteImages & user.flags)) {
                 console.log(`Item ${fields.id} already has a ${fields.type}`);
                 response.errors.push(`Item ${fields.id} already has a ${fields.type}`);
                 return finish(response, files);
@@ -777,7 +777,8 @@ const userFlags = {
     insertTraderPrices: 2,
     trustTraderUnlocks: 4,
     skipPriceInsert: 8,
-    jsonDownload: 16
+    jsonDownload: 16,
+    overwriteImages: 32
 };
 
 const scannerFlags = {
