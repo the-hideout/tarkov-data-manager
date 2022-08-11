@@ -330,6 +330,10 @@ module.exports = async () => {
                         itemData[key].lastLowPrice = lastKnownPrice.price;
                     }
                 }
+            } else {
+                //remove flea price data if an item has been marked as no flea
+                delete itemData[key].lastLowPrice;
+                delete itemData[key].avg24hPrice;
             }
 
             itemData[key].types = itemData[key].types.map(type => dashToCamelCase(type));
