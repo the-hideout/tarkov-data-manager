@@ -28,7 +28,7 @@ module.exports = async () => {
                 continue;
             }
 
-            logger.log(JSON.stringify(scanner));
+            //logger.log(JSON.stringify(scanner));
             // Db timestamps are off so we add an hour
             const lastScan = new Date(scanner.last_scan.setTime(scanner.last_scan.getTime() + 3600000));
 

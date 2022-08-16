@@ -424,7 +424,6 @@ module.exports = {
                 TRADERS.skier,
                 TRADERS.peacekeeper,
                 TRADERS.ragman,
-                TRADERS.jaeger,
             ],
         },
         '5447b5f14bdc2d61278b4567': {
