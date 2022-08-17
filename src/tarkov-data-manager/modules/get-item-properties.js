@@ -264,6 +264,7 @@ const getItemProperties = async (item, parent = false) => {
             if (item._parent === '5a341c4086f77401f2541505' || item._parent === '5a341c4686f77469e155819e') {
                 properties.propertiesType = 'ItemPropertiesHelmet';
                 properties.deafening = item._props.DeafStrength;
+                properties.blocksHeadset = item._props.BlocksEarpiece;
                 properties.slots = getSlots(item);
             } else if (item._parent === '57bef4c42459772e8d35a53b') {
                 properties.propertiesType = 'ItemPropertiesArmorAttachment';
