@@ -3,12 +3,28 @@ const path = require('path');
 
 const chalk = require('chalk');
 
+const writeLog = (jobName, messages) => {
+    try {
+        fs.mkdirSync(path.join(__dirname, '..', 'logs'));
+    } catch (error) {
+        if (error.code !== 'EEXIST') {
+            console.log(error);
+        }
+    }
+    try {
+        fs.writeFileSync(path.join(__dirname, '..', 'logs', jobName+'.log'), JSON.stringify(messages, null, 4));
+    } catch (error) {
+        console.log(`Error writing log file for ${jobName}`, error);
+    }
+};
+
 class JobLogger {
-    constructor(jobName) {
+    constructor(jobName, writeLog = true) {
         this.jobName = jobName;
         this.startTime = new Date();
         this.messages = [];
         this.timers = {};
+        this.writeLog = writeLog;
         this.verbose = process.env.VERBOSE_LOGS == 'true';
     }
 
@@ -66,18 +82,7 @@ class JobLogger {
         const endMessage = `${this.jobName} ended in ${new Date() - this.startTime}ms`;
         this.log(endMessage);
         //if (this.verbose) console.log(endMessage);
-        try {
-            fs.mkdirSync(path.join(__dirname, '..', 'logs'));
-        } catch (error) {
-            if (error.code !== 'EEXIST') {
-                console.log(error);
-            }
-        }
-        try {
-            fs.writeFileSync(path.join(__dirname, '..', 'logs', this.jobName+'.log'), JSON.stringify(this.messages, null, 4));
-        } catch (error) {
-            console.log(`Error writing log file for ${this.jobName}`, error);
-        }
+        if (this.writeLog) writeLog(this.jobName, this.messages)
         this.messages.length = 0;
     }
 

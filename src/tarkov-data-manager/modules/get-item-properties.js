@@ -1,7 +1,19 @@
 const tarkovChanges = require('../modules/tarkov-changes');
+const JobLogger = require('../modules/job-logger');
 
 let locales = false;
 let globals = false;
+let items = false;
+let logger = false;
+let itemIds = false;
+let disabledItemIds = false;
+
+const topCategories = [
+    '54009119af1c881c07000029', // Item
+    '566162e44bdc2d3f298b4573', // Compound item
+    '5661632d4bdc2d903d8b456b', // Stackable item
+    '566168634bdc2d144c8b456c', // Searchable item
+];
 
 const setLocales = async (loc = false) => {
     if (loc) {
@@ -19,12 +31,94 @@ const setGlobals = async (glob = false) => {
     }
 };
 
-const setAll = async (loc = false, glob = false) => {
-    return Promise.all([setLocales(loc), setGlobals(glob)]);
+const setItems = async (it = false) => {
+    if (it) {
+        items = it;
+    } else {
+        items = await tarkovChanges.items();
+    }
+}
+
+const setAll = async (options) => {
+    const optionMap = {
+        items: setItems,
+        locales: setLocales,
+        globals: setGlobals,
+        logger: lgr => {
+            logger = lgr;
+        },
+        itemIds: ids => {
+            itemIds = ids;
+        },
+        disabledItemIds: ids => {
+            disabledItemIds = ids;
+        }
+    };
+    for (const key in options) {
+        if (optionMap[key]) {
+            await optionMap[key](options[key]);
+        } 
+    }
+    if (!logger) logger = new JobLogger('get-item-properties', false);
 };
 
 const hasCategory = (item, catId) => {
+    if (item._id === catId) return true;
+    const parent = items[item._parent];
+    if (parent) return hasCategory(parent, catId);
+    return false;
+};
 
+const getFilterConstraints = (item, grid) => {
+    const constraints = {
+        allowedCategories: [],
+        allowedItems: [],
+        excludedCategories: [],
+        excludedItems: []
+    };
+    //if (grid._props.filters.length !== 1) logger.warn(`${item._props.Name} (${item._id}) contains ${grid._props.filters.length} filter sets`)
+    for (const filterSet of grid._props.filters) {
+        for (const allowed of filterSet.Filter) {
+            if (itemIds.includes(allowed)) {
+                if (!disabledItemIds.includes(allowed)) constraints.allowedItems.push(allowed);
+                continue;
+            }
+            if (items[allowed]._type === 'Item') continue;
+            constraints.allowedCategories.push(allowed);
+        }
+        if (!filterSet.ExcludedFilter) continue;
+        for (const excluded of filterSet.ExcludedFilter) {
+            if (itemIds.includes(excluded)) {
+                if (!disabledItemIds.includes(excluded)) constraints.excludedItems.push(excluded);
+                continue;
+            }
+            if (items[excluded]._type === 'Item') continue;
+            constraints.excludedCategories.push(excluded);
+        }
+    }
+    return constraints;
+};
+
+const getGrids = (item) => {
+    let capacity = 0;
+    let grids = item._props.Grids.map(grid => {
+        capacity += (grid._props.cellsH * grid._props.cellsV);
+        return {
+            width: grid._props.cellsH,
+            height: grid._props.cellsV,
+            filters: getFilterConstraints(item, grid)
+        };
+    });
+    return {capacity, grids};
+};
+
+const getSlots = (item) => {
+    return item._props.Slots.map(slot => {
+        return {
+            name: slot._name,
+            filters: getFilterConstraints(item, slot)
+        };
+    });
 };
 
 const grenadeMap = {
@@ -84,14 +178,10 @@ const getItemProperties = async (item, parent = false) => {
             properties.propertiesType = 'ItemPropertiesArmor';
         } else if (item._parent === '5448e5284bdc2dcb718b4567') {
             properties.propertiesType = 'ItemPropertiesChestRig';
-            properties.capacity = 0;
-            properties.pouches = item._props.Grids.map(grid => {
-                properties.capacity += (grid._props.cellsH * grid._props.cellsV);
-                return {
-                    width: grid._props.cellsH,
-                    height: grid._props.cellsV
-                };
-            });
+            properties = {
+                ...properties,
+                ...getGrids(item)
+            };
         }
         if (item._props.armorClass) {
             properties = {
@@ -119,15 +209,8 @@ const getItemProperties = async (item, parent = false) => {
     } else if (item._parent === '5448e53e4bdc2d60728b4567') {
         properties = {
             propertiesType: 'ItemPropertiesBackpack',
-            capacity: 0
+            ...getGrids(item)
         };
-        properties.pouches = item._props.Grids.map(grid => {
-            properties.capacity += (grid._props.cellsH * grid._props.cellsV);
-            return {
-                width: grid._props.cellsH,
-                height: grid._props.cellsV
-            };
-        });
     } else if (item._parent === '543be6564bdc2df4348b4568') {
         // grenades
         properties = {
@@ -139,7 +222,7 @@ const getItemProperties = async (item, parent = false) => {
             contusionRadius: item._props.ContusionDistance
         };
         properties.type = grenadeMap[item._props.ExplosionEffectType] ? grenadeMap[item._props.ExplosionEffectType] : item._props.ExplosionEffectType;
-    } else if (item._parent === '5448e8d64bdc2dce718b4568' || item._parent === '5448e8d04bdc2ddf718b4569') {
+    } else if (hasCategory(item, '543be6674bdc2df1348b4569')) {
         // food and drink
         properties = {
             propertiesType: 'ItemPropertiesFoodDrink',
@@ -153,8 +236,8 @@ const getItemProperties = async (item, parent = false) => {
         if (item._props.effects_health.Hydration) {
             properties.hydration = item._props.effects_health.Hydration.value;
         }
-    } else if (item._parent === '5a341c4086f77401f2541505' || item._parent === '57bef4c42459772e8d35a53b') {
-        // headwear and ArmoredEquipment
+    } else if (item._parent === '5a341c4086f77401f2541505' || item._parent === '57bef4c42459772e8d35a53b' || item._parent === '5a341c4686f77469e155819e') {
+        // headwear and ArmoredEquipment and FaceCover
         if (item._props.armorClass && parseInt(item._props.armorClass) > 0) {
             // armored stuff only only
             properties = {
@@ -167,6 +250,7 @@ const getItemProperties = async (item, parent = false) => {
                 headZones: item._props.headSegments.map(key => {
                     return locales.en.interface[key];
                 }),
+                blindnessProtection: item._props.BlindnessProtection,
                 armor_material_id: item._props.ArmorMaterial,
                 locale: {}
             };
@@ -177,13 +261,13 @@ const getItemProperties = async (item, parent = false) => {
                     })
                 };
             }
-            if (item._parent === '5a341c4086f77401f2541505') {
+            if (item._parent === '5a341c4086f77401f2541505' || item._parent === '5a341c4686f77469e155819e') {
                 properties.propertiesType = 'ItemPropertiesHelmet';
                 properties.deafening = item._props.DeafStrength;
+                properties.slots = getSlots(item);
             } else if (item._parent === '57bef4c42459772e8d35a53b') {
                 properties.propertiesType = 'ItemPropertiesArmorAttachment';
-                properties.blindnessProtection = item._props.BlindnessProtection;
-            }
+            } 
         }
     } else if (item._parent === '5448e5724bdc2ddf718b4568') {
         properties = {
@@ -200,15 +284,8 @@ const getItemProperties = async (item, parent = false) => {
     } else if (item._parent === '5795f317245977243854e041' || item._parent === '5671435f4bdc2d96058b4569' || item._parent === '5448bf274bdc2dfc2f8b456a') {
         properties = {
             propertiesType: 'ItemPropertiesContainer',
-            capacity: 0
+            ...getGrids(item)
         };
-        properties.grids = item._props.Grids.map(grid => {
-            properties.capacity += (grid._props.cellsH * grid._props.cellsV);
-            return {
-                width: grid._props.cellsH,
-                height: grid._props.cellsV
-            };
-        });
     } else if (parent && parent._parent === '5422acb9af1c889c16000029') {
         // weapons
         properties = {
@@ -226,6 +303,10 @@ const getItemProperties = async (item, parent = false) => {
             fireModes: item._props.weapFireType.map(mode => {
                 return locales.en.interface[mode];
             }),
+            allowedAmmo: item._props.Chambers[0]?._props.filters[0].Filter.filter(id => {
+                return itemIds.includes(id) && !disabledItemIds.includes(id);
+            }) || [],
+            slots: getSlots(item),
             locale: {}
         };
         for (const code in locales) {
@@ -253,7 +334,8 @@ const getItemProperties = async (item, parent = false) => {
             ergonomics: item._props.Ergonomics,
             recoil: item._props.Recoil,
             recoilModifier: item._props.Recoil / 100,
-            accuracyModifier: item._props.Accuracy / 100
+            accuracyModifier: item._props.Accuracy / 100,
+            slots: getSlots(item)
         };
         if (item._parent === '55818add4bdc2d5b648b456f' || item._parent === '55818ae44bdc2dde698b456c') {
             properties.propertiesType = 'ItemPropertiesScope';
@@ -264,6 +346,9 @@ const getItemProperties = async (item, parent = false) => {
             properties.loadModifier = item._props.LoadUnloadModifier / 100;
             properties.ammoCheckModifier = item._props.CheckTimeModifier / 100;
             properties.malfunctionChance = item._props.MalfunctionChance;
+            properties.allowedAmmo = item._props.Cartridges[0]._props.filters[0].Filter.filter(id => {
+                return itemIds.includes(id) && !disabledItemIds.includes(id);
+            });
         }
     } else if (item._parent === '5448f3ac4bdc2dce718b4569') {
         properties = {
@@ -358,7 +443,7 @@ const getItemProperties = async (item, parent = false) => {
                 properties.stimEffects.push(effect);
             }
         }
-    } else if (item._parent === '5c99f98d86f7745c314214b3' || item._parent === '5c164d2286f774194c5e69fa') {
+    } else if (hasCategory(item, '543be5e94bdc2df1348b4568')) {
         properties = {
             propertiesType: 'ItemPropertiesKey',
             uses: item._props.MaximumNumberOfUsage
@@ -375,8 +460,7 @@ const getItemProperties = async (item, parent = false) => {
 };
 
 module.exports = {
-    setItemPropertiesLocales: setLocales,
-    setItemPropertiesGlobals: setGlobals,
-    setItemPropertiesLocalesGlobals: setAll,
-    getSpecialItemProperties: getItemProperties
+    setItemPropertiesOptions: setAll,
+    getSpecialItemProperties: getItemProperties,
+    topCategories: topCategories
 };

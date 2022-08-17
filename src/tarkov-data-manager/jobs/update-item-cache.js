@@ -12,7 +12,7 @@ const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const jobOutput = require('../modules/job-output');
 const {dashToCamelCase} = require('../modules/string-functions');
-const {setItemPropertiesLocalesGlobals, getSpecialItemProperties} = require('../modules/get-item-properties');
+const { setItemPropertiesOptions, getSpecialItemProperties, topCategories } = require('../modules/get-item-properties');
 const { initPresetSize, getPresetSize } = require('../modules/preset-size');
 
 let bsgItems = false;
@@ -21,13 +21,6 @@ let locales = false;
 let traderData = false;
 let logger = false;
 let bsgCategories = {};
-
-const ignoreCategories = [
-    '54009119af1c881c07000029', // Item
-    '566162e44bdc2d3f298b4573', // Compound item
-    '5661632d4bdc2d903d8b456b', // Stackable item
-    '566168634bdc2d144c8b456c', // Searchable item
-];
 
 const catNameToEnum = (sentence) => {
     return sentence.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g,
@@ -65,10 +58,10 @@ const addCategory = id => {
         }
     }
     const parentId = bsgItems[id]._parent;
-    if (!ignoreCategories.includes(parentId)) {
+    //if (!topCategories.includes(parentId)) {
         bsgCategories[id].parent_id = parentId;
         addCategory(parentId);
-    }
+    //}
 };
 
 const getTraderMultiplier = (traderId) => {
@@ -286,7 +279,14 @@ module.exports = async () => {
             });
         }
 
-        await setItemPropertiesLocalesGlobals(locales, globals);
+        await setItemPropertiesOptions({
+            logger,
+            items: bsgItems,
+            locales, 
+            globals,
+            itemIds: [...itemMap.keys()],
+            disabledItemIds: [...itemMap.values()].filter(item => item.types.includes('disabled')).map(item => item.id)
+        });
         for (const [key, value] of itemMap.entries()) {
             if (value.types.includes('disabled')) continue;
             if (!bsgItems[key] && !presets[key]) continue;
