@@ -14,6 +14,7 @@ const jobOutput = require('../modules/job-output');
 const {dashToCamelCase} = require('../modules/string-functions');
 const { setItemPropertiesOptions, getSpecialItemProperties, topCategories } = require('../modules/get-item-properties');
 const { initPresetSize, getPresetSize } = require('../modules/preset-size');
+const normalizeName = require('../modules/normalize-name');
 
 let bsgItems = false;
 let credits = false;
@@ -41,8 +42,10 @@ const addCategory = id => {
     };
     if (locales.en.templates[id]) {
         bsgCategories[id].name = locales.en.templates[id].Name
+        bsgCategories[id].normalizedName = normalizeName(locales.en.templates[id].Name);
     } else {
         bsgCategories[id].name = bsgItems[id]._name;
+        bsgCategories[id].normalizedName = normalizeName(bsgItems[id]._name);
     }
     bsgCategories[id].enumName = catNameToEnum(bsgCategories[id].name);
     for (const code in locales) {
