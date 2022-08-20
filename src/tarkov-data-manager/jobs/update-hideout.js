@@ -5,6 +5,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const hideoutLegacy = require('./update-hideout-legacy');
+const normalizeName = require('../modules/normalize-name');
 
 module.exports = async () => {
     const logger = new JobLogger('update-hideout');    
@@ -35,6 +36,7 @@ module.exports = async () => {
             const stationData = {
                 id: station._id,
                 name: en.interface[`hideout_area_${station.type}_name`],
+                normalizedName: normalizeName(en.interface[`hideout_area_${station.type}_name`]),
                 levels: [],
                 locale: {}
             };
