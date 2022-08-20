@@ -251,6 +251,9 @@ const getItemProperties = async (item, parent = false) => {
                     return locales.en.interface[key];
                 }),
                 blindnessProtection: item._props.BlindnessProtection,
+                ricochetX: item._props.RicochetParams.x,
+                ricochetY: item._props.RicochetParams.y,
+                ricochetZ: item._props.RicochetParams.z,
                 armor_material_id: item._props.ArmorMaterial,
                 locale: {}
             };
