@@ -38,6 +38,7 @@ const addCategory = id => {
     bsgCategories[id] = {
         id: id,
         parent_id: null,
+        child_ids: [],
         locale: {}
     };
     if (locales.en.templates[id]) {
@@ -498,6 +499,10 @@ module.exports = async () => {
                 parent = bsgCategories[parent.parent_id];
             }
         }
+
+        Object.values(bsgCategories).forEach(cat => {
+            bsgCategories[cat.parent_id]?.child_ids.push(cat.id);
+        });
 
         const fleaData = {
             name: 'Flea Market',
