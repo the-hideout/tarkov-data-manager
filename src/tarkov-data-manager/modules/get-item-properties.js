@@ -113,11 +113,44 @@ const getGrids = (item) => {
 };
 
 const getSlots = (item) => {
+    const slotReplacements = [
+        {pattern: /_(\d+)$/, replacement: ''},
+        {pattern:/_AKMS$/, replacement: ''}, 
+        {pattern: /_AXIS$/, replacement: ''},
+        {pattern: /^MOD_FLASHLIGHT$/, replacement: 'MOD_TACTICAL'},
+        {pattern: /CAMORA/, replacement: 'PATRON_IN_WEAPON'},
+    ];
     return item._props.Slots.map(slot => {
-        return {
-            name: slot._name,
-            filters: getFilterConstraints(item, slot)
+        const formattedSlot = {
+            name: locales.en.interface[slot._name.toUpperCase()],
+            nameId: slot._name,
+            filters: getFilterConstraints(item, slot),
+            locale: {}
         };
+        const missingTranslations = [];
+        let nameKey = formattedSlot.nameId.toUpperCase();
+        for (const code in locales) {
+            const lang = locales[code];
+            for (const rep of slotReplacements) {
+                nameKey = nameKey.replace(rep.pattern, rep.replacement);
+            }
+            if (lang.interface[nameKey]) {
+                formattedSlot.locale[code] = {
+                    name: lang.interface[nameKey].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
+                        return substr.toLowerCase();
+                    })
+                };
+            } else {
+                missingTranslations.push(code);
+                formattedSlot.locale[code] = {
+                    name: nameKey.replace('MOD_', '').replace('_', ' ').replace(/(?<!^|\s)\p{Lu}/gu, substr => {
+                        return substr.toLowerCase();
+                    })
+                };
+            }
+        }
+        if (missingTranslations.length > 0) logger.warn(`Could not find ${missingTranslations.join(', ')} label for ${nameKey} slot of ${item._id}`);
+        return formattedSlot;
     });
 };
 
