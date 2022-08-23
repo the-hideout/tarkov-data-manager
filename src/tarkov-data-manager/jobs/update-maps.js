@@ -5,6 +5,7 @@ const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
+const normalizeName = require('../modules/normalize-name');
 const mapQueueTimes = require('../modules/map-queue-times');
 
 const mapNames = {
@@ -118,6 +119,7 @@ module.exports = async function() {
                 id: id,
                 tarkovDataId: null,
                 name: locales.en.locations[id].Name,
+                normalizedName: normalizeName(locales.en.locations[id].Name),
                 nameId: map.Id,
                 description: locales.en.locations[id].Description,
                 wiki: 'https://escapefromtarkov.fandom.com/wiki/'+locales.en.locations[id].Name.replace(/ /g, '_'),
@@ -140,6 +142,7 @@ module.exports = async function() {
                 enemySet.add(spawn.BossName);
                 const bossData = {
                     name: spawn.BossName,
+                    normalizedName: normalizeName(getEnemyName(spawn.BossName, 'en')),
                     spawnChance: parseInt(spawn.BossChance) / 100,
                     spawnLocations: [],
                     escorts: [],
@@ -168,6 +171,7 @@ module.exports = async function() {
                         enemySet.add(spawn.BossEscortType);
                         bossData.escorts.push({
                             name: spawn.BossEscortType,
+                            normalizedName: normalizeName(getEnemyName(spawn.BossEscortType, 'en')),
                             amount: getChances(spawn.BossEscortAmount, 'count', true), 
                             locale: {}
                         });
@@ -180,6 +184,7 @@ module.exports = async function() {
                             enemySet.add(support.BossEscortType);
                             bossData.escorts.push({
                                 name: support.BossEscortType,
+                                normalizedName: normalizeName(getEnemyName(support.BossEscortType, 'en')),
                                 amount: getChances(support.BossEscortAmount, 'count', true), 
                                 locale: {}
                             });
