@@ -4,7 +4,7 @@ const vm = require('vm');
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const Jimp = require('jimp');
+const Jimp = require('jimp-compact');
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const session = require('express-session');
