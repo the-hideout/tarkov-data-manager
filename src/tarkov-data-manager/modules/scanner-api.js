@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const Jimp = require('jimp');
+const Jimp = require('jimp-compact');
 const formidable = require('formidable');
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
