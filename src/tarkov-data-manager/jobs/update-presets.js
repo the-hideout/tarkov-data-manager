@@ -85,7 +85,12 @@ module.exports = async (externalLogger = false) => {
                 if (part.upd && part.upd.StackObjectsCount) {
                     partData.count = part.upd.StackObjectsCount;
                 }
-                presetData.containsItems.push(partData);
+                const existingPart = presetData.containsItems.find(part => part.item.id === partData.item.id);
+                if (existingPart) {
+                    existingPart.count += partData.count;
+                } else {
+                    presetData.containsItems.push(partData);
+                }
             }
             presetData.weight = Math.round(presetData.weight * 100) / 100;
             if (preset._changeWeaponName && en.preset[presetId] && en.preset[presetId].Name) {
