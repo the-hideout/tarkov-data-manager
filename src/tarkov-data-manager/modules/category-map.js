@@ -706,7 +706,7 @@ module.exports = {
             id: '567849dd4bdc2d150f8b456e',
             traders: [
                 TRADERS.therapist,
-                TRADERS,fence,
+                TRADERS.fence,
             ],
         },
         '5b3f15d486f77432d0509248': { // checked
