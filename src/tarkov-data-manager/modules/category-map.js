@@ -704,7 +704,10 @@ module.exports = {
         '567849dd4bdc2d150f8b456e': {
             name: 'Map',
             id: '567849dd4bdc2d150f8b456e',
-            traders: [],
+            traders: [
+                TRADERS.therapist,
+                TRADERS.fence,
+            ],
         },
         '5b3f15d486f77432d0509248': { // checked
             name: 'ArmBand',
@@ -756,7 +759,13 @@ module.exports = {
         '5447bedf4bdc2d87278b4568': {
             name: 'GrenadeLauncher',
             id: '5447bedf4bdc2d87278b4568',
-            traders: [],
+            traders: [
+                TRADERS.prapor,
+                TRADERS.fence,
+                TRADERS.skier,
+                TRADERS.peacekeeper,
+                TRADERS.mechanic,
+            ],
         },
         '55818b014bdc2ddc698b456b': {
             name: 'Launcher',
@@ -766,7 +775,13 @@ module.exports = {
         "617f1ef5e8b54b0998387733": {
             id: "617f1ef5e8b54b0998387733",
             name: "Revolver",
-            traders: [],
+            traders: [
+                TRADERS.prapor,
+                TRADERS.fence,
+                TRADERS.skier,
+                TRADERS.peacekeeper,
+                TRADERS.mechanic,
+            ],
         },
     },
     items: {
