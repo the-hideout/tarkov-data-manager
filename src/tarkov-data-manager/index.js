@@ -10,6 +10,7 @@ const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const session = require('express-session');
 const chalk = require('chalk');
 const Sentry = require("@sentry/node");
+const formidable = require('formidable');
 
 if (process.env.NODE_ENV !== 'production') {
     const dotenv = require("dotenv");
@@ -34,6 +35,7 @@ const timer = require('./modules/console-timer');
 const scannerApi = require('./modules/scanner-api');
 const webhookApi = require('./modules/webhook-api');
 const queueApi = require('./modules/queue-api');
+const { consoleSandbox } = require('@sentry/utils');
 
 vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
 
@@ -347,118 +349,92 @@ app.post('/update', (request, response) => {
     response.send(res);
 });
 
-app.post('/items/edit/:id', urlencodedParser, async (req, res) => {
+app.post('/items/edit/:id', async (req, res) => {
     const allItemData = await remoteData.get();
     const currentItemData = allItemData.get(req.params.id);
     let updated = false;
     const response = {success: false, message: 'No changes made.', errors: []};
-
-    if(req.body['icon-link'] && req.body['icon-link'] !== 'null' && currentItemData.icon_link !== req.body['icon-link']){
-        console.log('Updating icon link');
-        let image = false;
-        try {
-            image = await Jimp.read(req.body['icon-link']);
-        } catch (someError){
-            console.error(someError);
+    const form = formidable({
+        multiples: true,
+        uploadDir: path.join(__dirname, 'cache'),
+    });
+    const finish = (files) => {
+        if (files) {
+            for (const key in files) {
+                fs.rm(files[key].filepath, error => {
+                    if (error) console.log(`Error deleting ${files[key].filepath}`, error);
+                });
+            }
         }
+    };
+    const validImageTypes = [
+        'image',
+        'grid-image',
+        'icon'
+    ];
+    try {
+        await new Promise((resolve, reject) => {
+            form.parse(req, async (err, fields, files) => {
+                if (err) {
+                    finish(files);
+                    return reject(error);
+                }
+                for (const field in files) {
+                    if (files[field].size === 0) continue;
+                    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+                        response.errors.push('aws variables not configured; image upload disabled');
+                        finish(files);
+                        return reject(error);
+                    }
+                    try {
+                        const imageType = field.replace('-upload', '');
+                        if (!validImageTypes.includes(imageType)) throw new Error(`${imageType} is not a valid image type`);
+                        const image = await Jimp.read(files[field].filepath);
+                
+                        const uploadParams = {
+                            Bucket: process.env.S3_BUCKET,
+                            Key: `${req.params.id}-${imageType}.jpg`,
+                            ContentType: 'image/jpeg',
+                            Body: await image.getBufferAsync(Jimp.MIME_JPEG)
+                        };
+                        await s3.send(new PutObjectCommand(uploadParams));
+                        console.log(`${req.params.id} ${imageType} saved to s3`);
+                        const imageLink = `https://${process.env.S3_BUCKET}/${req.params.id}-${imageType}.jpg`;
+                        const imageField = imageType.replace('-', '_')+'_link';
+                        if (currentItemData[imageField] !== imageLink){
+                            await remoteData.setProperty(req.params.id, imageField, imageLink);
+                        }
+                        updated = true;
+                    } catch (error){
+                        finish(files);
+                        return reject(error);
+                    }
+                }
 
-        if(!image){
-            response.errors.push(`Failed to add icon_link image from ${req.body['icon-link']}`);
-        }
-
-        const uploadParams = {
-            Bucket: process.env.S3_BUCKET,
-            Key: `${req.params.id}-icon.jpg`,
-            ContentType: 'image/jpeg',
-        };
-
-        uploadParams.Body = await image.getBufferAsync(Jimp.MIME_JPEG);
-
-        try {
-            await s3.send(new PutObjectCommand(uploadParams));
-            console.log("Image saved to s3");
-        } catch (err) {
-            console.log("Error", err);
-
-            response.errors.push(`Failed to save icon_link image to s3 ${err}`);
-        }
-
-        await remoteData.setProperty(req.params.id, 'icon_link', `https://${process.env.S3_BUCKET}/${req.params.id}-icon.jpg`);
-        updated = true;
+                if(fields['wiki-link'] && fields['wiki-link'] !== 'null' && currentItemData.wiki_link !== fields['wiki-link']){
+                    await remoteData.setProperty(req.params.id, 'wiki_link', fields['wiki-link']);
+                    updated = true;
+                }
+            
+                if (fields['match-index'] && fields['match-index'] !== 'null' && currentItemData.match_index != fields['match-index']) {
+                    await remoteData.setProperty(req.params.id, 'match_index', fields['match-index']);
+                    updated = true;
+                }
+            
+                if (updated) {
+                    response.success = true;
+                    response.message = `${currentItemData.name} updated.<br>Will be live in < 4 hours.`;
+                }
+                finish(files);
+                resolve();
+            });
+        });
+    } catch (error) {
+        console.log(error);
+        response.errors.push(error.message);
     }
-
-    if(req.body['image-link'] && req.body['image-link'] !== 'null' && currentItemData.image_link !== req.body['image-link']){
-        console.log('Updating image link');
-        let image = await Jimp.read(req.body['image-link']);
-
-        if(!image){
-            response.errors.push(`Failed to add image_link image from ${req.body['image-link']}`);
-        }
-
-        const uploadParams = {
-            Bucket: process.env.S3_BUCKET,
-            Key: `${req.params.id}-image.jpg`,
-            ContentType: 'image/jpeg',
-        };
-
-        uploadParams.Body = await image.getBufferAsync(Jimp.MIME_JPEG);
-
-        try {
-            await s3.send(new PutObjectCommand(uploadParams));
-            console.log("Image saved to s3");
-        } catch (err) {
-            console.log("Error", err);
-
-            response.errors.push(`Failed to save image_link image to s3 ${err}`);
-        }
-
-        await remoteData.setProperty(req.params.id, 'image_link', `https://${process.env.S3_BUCKET}/${req.params.id}-image.jpg`);
-        updated = true;
-    }
-
-    if(req.body['grid-image-link'] && req.body['grid-image-link'] !== 'null' && currentItemData.grid_image_link !== req.body['grid-image-link']){
-        let image = await Jimp.read(req.body['grid-image-link']);
-
-        if(!image){
-            response.errors.push(`Failed to add grid_image_link image from ${req.body['grid-image-link']}`);
-        }
-
-        const uploadParams = {
-            Bucket: process.env.S3_BUCKET,
-            Key: `${req.params.id}-grid-image.jpg`,
-            ContentType: 'image/jpeg',
-        };
-
-        uploadParams.Body = await image.getBufferAsync(Jimp.MIME_JPEG);
-
-        try {
-            await s3.send(new PutObjectCommand(uploadParams));
-            console.log("Image saved to s3");
-        } catch (err) {
-            console.log("Error", err);
-
-            response.errors.push(`Failed to save grid_image_link image to s3 ${err}`);
-        }
-
-        await remoteData.setProperty(req.params.id, 'grid_image_link', `https://${process.env.S3_BUCKET}/${req.params.id}-grid-image.jpg`);
-        updated = true;
-    }
-
-    if(req.body['wiki-link'] && req.body['wiki-link'] !== 'null' && currentItemData.wiki_link !== req.body['wiki-link']){
-        await remoteData.setProperty(req.params.id, 'wiki_link', req.body['wiki-link']);
-        updated = true;
-    }
-
-    if (req.body['match-index'] && req.body['match-index'] !== 'null' && currentItemData.match_index != req.body['match-index']) {
-        await remoteData.setProperty(req.params.id, 'match_index', req.body['match-index']);
-        updated = true;
-    }
-
-    if (updated) {
-        response.success = true;
-        response.message = `${currentItemData.name} updated.<br>Will be live in < 4 hours.`;
-    }
-    res.send(response);
+    
+    return res.send(response);
 });
 
 app.get('/items', async (req, res) => {
@@ -548,22 +524,28 @@ app.get('/items', async (req, res) => {
                         <div class="row">
                             <div class="input-field col s2 item-image image_link"></div>
                             <div class="input-field col s10">
-                                <input value="" id="image-link" type="text" class="validate item-value image_link" name="image-link">
-                                <label for="image-link">Image Link</label>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="input-field col s2 item-image icon_link"></div>
-                            <div class="input-field col s10">
-                                <input value="" id="icon-link" type="text" class="validate item-value icon_link" name="icon-link">
-                                <label for="icon-link">Icon Link</label>
+                                <!--input value="" id="image-link" type="text" class="validate item-value image_link" name="image-link">
+                                <label for="image-link">Image Link</label-->
+                                <div>Upload new image</div>
+                                <input id="image-upload" type="file" name="image-upload" />
                             </div>
                         </div>
                         <div class="row">
                             <div class="input-field col s2 item-image grid_image_link"></div>
                             <div class="input-field col s10">
-                                <input value="" id="grid-image-link" type="text" class="validate item-value grid_image_link" name="grid-image-link">
-                                <label for="grid-image-link">Grid image link</label>
+                                <!--input value="" id="grid-image-link" type="text" class="validate item-value grid_image_link" name="grid-image-link">
+                                <label for="grid-image-link">Grid image link</label-->
+                                <div>Upload new grid image</div>
+                                <input id="grid-image-upload" type="file" name="grid-image-upload" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s2 item-image icon_link"></div>
+                            <div class="input-field col s10">
+                                <!--input value="" id="icon-link" type="text" class="validate item-value icon_link" name="icon-link">
+                                <label for="icon-link">Icon Link</label-->
+                                <div>Upload new icon</div>
+                                <input id="icon-upload" type="file" name="icon-upload" />
                             </div>
                         </div>
                         <div class="row">
@@ -1327,7 +1309,7 @@ const server = app.listen(port, () => {
 (async () => {
     connection.keepAlive = true;
     jobs.start();
-    
+
     const triggerShutdown = async () => {
         try {
             await new Promise(resolve => {
