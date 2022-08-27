@@ -131,7 +131,6 @@ module.exports = {
             traders: [
                 TRADERS.prapor,
                 TRADERS.therapist,
-                TRADERS.fence,
             ],
         },
         '57864a66245977548f04a81f': {
@@ -220,6 +219,7 @@ module.exports = {
             traders: [
                 TRADERS.therapist,
                 TRADERS.fence,
+                TRADERS.jaeger,
             ],
         },
         '5d650c3e815116009f6201d2': {
@@ -515,6 +515,7 @@ module.exports = {
             traders: [
                 TRADERS.prapor,
                 TRADERS.fence,
+                TRADERS.skier,
             ],
         },
         '5485a8684bdc2da71d8b4567': {
@@ -729,14 +730,18 @@ module.exports = {
             name: 'PortableRangeFinder',
             id: '61605ddea09d851a0a0c1bbc',
             traders: [
-                TRADERS.prapor,
+                TRADERS.fence,
+                TRADERS.peacekeeper,
+                TRADERS.mechanic,
             ],
         },
         '5f4fbaaca5573a5ac31db429': {
             name: 'Compass',
             id: '5f4fbaaca5573a5ac31db429',
             traders: [
-                TRADERS.prapor,
+                TRADERS.fence,
+                TRADERS.peacekeeper,
+                TRADERS.mechanic,
             ],
         },
         '543be5cb4bdc2deb348b4568': {
