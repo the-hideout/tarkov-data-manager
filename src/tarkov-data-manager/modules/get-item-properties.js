@@ -332,7 +332,7 @@ const getItemProperties = async (item, parent = false) => {
             recoilVertical: item._props.RecoilForceUp,
             recoilHorizontal: item._props.RecoilForceBack,
             repairCost: item._props.RepairCost,
-            default_ammo_id: item._props.defAmmo,
+            default_ammo_id: itemIds.includes(item._props.defAmmo) && !disabledItemIds.includes(item._props.defAmmo) ? item._props.defAmmo : null,
             fireRate: item._props.bFirerate,
             effectiveDistance: item._props.bEffDist,
             sightingRange: item._props.SightingRange,
