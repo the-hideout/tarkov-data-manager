@@ -9,6 +9,10 @@ const runJob = function(name, cronSchedule) {
 
     const job = schedule.scheduleJob(cronSchedule, async () => {
         //console.log(`Running ${name} job`);
+        if (process.env.SKIP_JOBS === 'true') {
+            console.log(`Skipping ${name} job`);
+            return;
+        }
         try {
             await jobModule();
         } catch (error) {
@@ -98,6 +102,10 @@ const startJobs = async () => {
     }
     for (let i = 0; i < allStartupJobs.length; i++) {
         const jobName = allStartupJobs[i];
+        if (process.env.SKIP_JOBS === 'true') {
+            console.log(`Skipping ${jobName} startup job`);
+            continue;
+        }
         const jobModule = require(`./${jobName}`);
         console.log(`Running ${jobName} job at startup`);
         try {

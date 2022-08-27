@@ -23,6 +23,7 @@ const showEditItemModal = function(event){
             }
             $(this).append(`<img src="${item[field]}">`)
         });
+        editModal.find('input[type="file"]').val('');
     }
     M.Modal.getInstance(document.getElementById('modal-edit-item')).open();
     M.updateTextFields();
@@ -179,20 +180,18 @@ $(document).ready( function () {
 
     $('a.edit-item-save').click(function(event){
         const form = $('#modal-edit-item').find('form').first();
-        const formData = form.serialize();
-        $.ajax({
-            type: "POST",
-            url: form.attr('action'),
-            data: formData,
-            dataType: "json"
-          }).done(function (data) {
+        const formData = new FormData(form[0]);
+        fetch(form.attr('action'), {
+            method: 'POST',
+            body: formData
+        }).then(response => response.json()).then(data => {
             M.toast({html: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
                     M.toast({html: data.errors[i]});
                 }
             }
-          });
+        });
         M.Modal.getInstance(document.getElementById('modal-edit-item')).close();
     });
 
