@@ -524,6 +524,7 @@ module.exports = {
             traders: [
                 TRADERS.fence,
                 TRADERS.prapor,
+                TRADERS.peacekeeper,
                 TRADERS.mechanic,
             ],
         },
@@ -657,6 +658,8 @@ module.exports = {
             id: '5a74651486f7744e73386dd1',
             traders: [
                 TRADERS.fence,
+                TRADERS.skier,
+                TRADERS.peacekeeper,
                 TRADERS.mechanic,
             ],
         },
