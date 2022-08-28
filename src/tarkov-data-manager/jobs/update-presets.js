@@ -111,7 +111,7 @@ module.exports = async (externalLogger = false) => {
                 presetData.width = itemPresetSize.width;
                 presetData.height = itemPresetSize.height;
                 presetData.weight = itemPresetSize.weight;
-                presetData.baseValue = credits[baseItem._id];
+                presetData.baseValue = itemPresetSize.baseValue;//credits[baseItem._id];
                 presetData.ergonomics = itemPresetSize.ergonomics;
                 presetData.verticalRecoil = itemPresetSize.verticalRecoil;
                 presetData.horizontalRecoil = itemPresetSize.horizontalRecoil;
