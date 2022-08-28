@@ -380,6 +380,9 @@ module.exports = async () => {
                     recoilVertical: preset.verticalRecoil,
                     recoilHorizontal: preset.horizontalRecoil
                 };
+                if (itemData[preset.baseId]?.types.includes('noFlea') && !itemData[key].types.includes('noFlea')) {
+                    itemData[key].types.push('noFlea');
+                }
             } else if (!itemData[key].types.includes('disabled')) {
                 logger.log(`Item ${itemData[key].name} (${key}) is neither an item nor a preset`);
                 delete itemData[key];
