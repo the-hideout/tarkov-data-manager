@@ -1,3 +1,6 @@
+const fs = require('fs/promises');
+const  path = require('path');
+
 const cloudflare = require('../modules/cloudflare');
 const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
@@ -7,10 +10,27 @@ module.exports = async () => {
     const logger = new JobLogger('update-historical-prices');
     try {
         const aWeekAgo = new Date();
-        const allPriceData = {};
-        const itemPriceData = {};
-
         aWeekAgo.setDate(aWeekAgo.getDate() - 7);
+        const itemPriceData = await fs.readFile(path.join(__dirname, '..', 'dumps', 'historical_price_data.json')).then(buffer => {
+            return JSON.parse(buffer).data;
+        }).catch(error => {
+            if (error.code !== 'ENOENT') {
+                console.log(error);
+            }
+            return {};
+        });
+        let lastTimestamp = 0;
+        for (const itemId in itemPriceData) {
+            itemPriceData[itemId] = itemPriceData[itemId].filter(oldPrice => {
+                if (oldPrice.timestamp > lastTimestamp) {
+                    lastTimestamp = oldPrice.timestamp;
+                }
+                return oldPrice.timestamp > aWeekAgo;
+            });
+        }
+        const dateCutoff = lastTimestamp ? new Date(lastTimestamp) : aWeekAgo;
+        
+        const allPriceData = {};
 
         logger.time(`historical-price-query-items`);
         const historicalPriceDataItemIds = await query(`SELECT
@@ -20,7 +40,7 @@ module.exports = async () => {
         WHERE
             timestamp > ?
         GROUP BY
-            item_id`, [aWeekAgo]);
+            item_id`, [dateCutoff]);
         logger.timeEnd(`historical-price-query-items`);
 
         logger.time('all-items-queries');
@@ -39,7 +59,7 @@ module.exports = async () => {
             WHERE
                 timestamp > ?
             AND
-                item_id = ?`, [aWeekAgo, itemId]
+                item_id = ?`, [dateCutoff, itemId]
             ).then(historicalPriceData => {
                 //console.timeEnd(`historical-price-query-${itemId}`);
                 for (const row of historicalPriceData) {
