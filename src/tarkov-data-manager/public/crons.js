@@ -21,7 +21,13 @@ $(document).ready( function () {
             }
         },
         {
-            data: 'schedule'
+            data: 'schedule',
+            render: (data, type, cron) => {
+                if (type !== 'display') {
+                    return data;
+                }
+                return `<span class="tooltipped" data-tooltip="${window.cronstrue.toString(data)}">${data}</span>`
+            }
         },
         {
             data: 'lastRun',
@@ -68,6 +74,7 @@ $(document).ready( function () {
                 $('#modal-edit-cron .schedule').val(target.data('schedule'));
                 M.Modal.getInstance(document.getElementById('modal-edit-cron')).open();
                 M.updateTextFields();
+                $('#modal-edit-cron .schedule').keyup();
                 $('#modal-edit-cron .schedule').focus();
             });
 
@@ -113,6 +120,16 @@ $(document).ready( function () {
                     $('#modal-view-cron-log .log-messages').html(logMessages.join('<br>'));
                 });
             });
+        }
+    });
+
+    $('#schedule').keyup(event => {
+        const input = $(event.target);
+        try {
+            $('#modal-edit-cron .cronstrue').text(window.cronstrue.toString(input.val()));
+        } catch (error) {
+            console.log(error);
+            $('#modal-edit-cron .cronstrue').text('');
         }
     });
 

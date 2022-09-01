@@ -1177,6 +1177,7 @@ app.get('/crons', async (req, res) => {
     res.send(`${getHeader(req, {include: 'datatables'})}
         <script src="/ansi_up.js"></script>
         <script src="/crons.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/cronstrue/2.11.0/cronstrue.min.js"></script>
         <div class="row">
             <div class="col s10 offset-s1">
                 <div>
@@ -1228,6 +1229,8 @@ app.get('/crons', async (req, res) => {
                                 <input value="" id="schedule" type="text" class="validate schedule" name="schedule">
                                 <label for="schedule">Schedule</label>
                             </div>
+                        </div>
+                        <div class="row cronstrue">
                         </div>
                         <input value="" id="jobName" type="hidden" name="jobName" class="jobName">
                     </form>
