@@ -1,3 +1,5 @@
+const got = require('got');
+
 const { query, jobComplete } = require('../modules/db-connection');
 const webhook = require('../modules/webhook');
 const JobLogger = require('../modules/job-logger');
@@ -6,6 +8,24 @@ const scannerApi = require('../modules/scanner-api');
 
 module.exports = async () => {
     const logger = new JobLogger('check-scans');
+    try {
+        const services = await got('https://status.escapefromtarkov.com/api/services', {
+            responseType: 'json',
+            resolveBodyOnly: true
+        });
+
+        for (const service of services) {
+            if (!service.name === 'Trading') continue;
+            if (service.status === 1) {
+                logger.log('Game is updating, skipping scan check')
+                await jobComplete();
+                logger.end();
+                return;
+            }
+        }
+    } catch (error) {
+        logger.error(`Error checking EFT status messages: ${error.message}`);
+    }
     try {
         const scanners = await query(`
             select scanner.id, name, last_scan, username, scanner.flags, scanner_user.flags as user_flags, disabled 
