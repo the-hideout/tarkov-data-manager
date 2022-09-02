@@ -4,6 +4,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 
+let allItems = false;
 let bsgData = false;
 
 const isCategory = (item, categoryId) => {
@@ -78,7 +79,16 @@ const categoryMap = {
         types: ['provisions']
     },
     '5448e5284bdc2dcb718b4567': {
-        types: ['rig', 'wearable']
+        types: ['rig', 'wearable'],
+        always: async itemId => {
+            if (bsgData[itemId]._props.armorClass && !allItems.get(itemId).types.includes('armor')) {
+                await query(`INSERT IGNORE INTO types (item_id, type) VALUES(?, ?)`, [itemId, 'armor']).then(results => {
+                    if (results.affectedRows == 0) {
+                        logger.fail(`Already marked as armor ${itemId} ${allItems.get(itemId).name}`);
+                    }
+                });
+            }
+        }
     },
     '550aa4cd4bdc2dd8348b456c': {
         types: ['suppressor']
@@ -97,7 +107,7 @@ const categoryMap = {
 module.exports = async (externalLogger) => {
     const logger = externalLogger || new JobLogger('update-types');
     try {
-        const allItems = await remoteData.get(true);
+        allItems = await remoteData.get(true);
         bsgData = await tarkovChanges.items();
 
         logger.log(`Updating types`);
