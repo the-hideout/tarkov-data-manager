@@ -225,6 +225,7 @@ module.exports = async function() {
                     mapName = lang.interface.factory4_night;
                 }
                 mapData.name = mapName;
+                mapData.normalizedName = normalizeName(mapName);
                 const enemies = new Set(mapData.enemies.map(enemy => {
                     return getEnemyName(enemy, code);
                 }));
