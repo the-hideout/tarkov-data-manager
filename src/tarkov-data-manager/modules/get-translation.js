@@ -25,14 +25,14 @@ module.exports = {
     setLocales: loc => {
         locales = loc;
     },
-    translatePath(langCode, path, logger) {
+    translatePath(langCode, path, logger, errorOnNotFound = true) {
         if (!locales) throw new Error('You must call setLocales before translatePath');
         if (typeof path === 'string') path = [path];
         let translation = locales[langCode];
         if (!translation) {
             if (langCode !== 'en') {
                 if (logger) logger.warn(`Language "${langCode}" not found; defaulting to en`);
-                return module.exports.translatePath('en', path, logger);
+                return module.exports.translatePath('en', path, logger, errorOnNotFound);
             }
             throw new Error(`English translation localization missing`);
         }
@@ -41,9 +41,12 @@ module.exports = {
             if (!translation) {
                 if (langCode !== 'en') {
                     if (logger) logger.warn(`Translation for ${langCode}.${path.join('.')} not found; defaulting to en`);
-                    return module.exports.translatePath('en', path, logger);
+                    return module.exports.translatePath('en', path, logger, errorOnNotFound);
                 }
-                throw new Error(`Translation for ${langCode}."${path.join('.')}" not found`);
+                if (errorOnNotFound)
+                    throw new Error(`Translation for ${langCode}.${path.join('.')} not found`);
+                logger.warn(`Translation for ${langCode}.${path.join('.')} not found`);
+                return '';
             }
         }
         return translation;
