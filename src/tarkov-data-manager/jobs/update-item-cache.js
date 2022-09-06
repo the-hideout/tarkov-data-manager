@@ -397,7 +397,7 @@ module.exports = async () => {
 
             itemData[key].iconLink = itemData[key].icon_link;
             itemData[key].gridImageLink = itemData[key].grid_image_link;
-            itemData[key].imageLink = itemData[key].image_link;
+            itemData[key].inspectImageLink = itemData[key].image_link;
             //itemData[key].shortName = itemData[key].shortname;
             itemData[key].wikiLink = itemData[key].wiki_link;
             itemData[key].link = `https://tarkov.dev/item/${itemData[key].normalizedName}`;
@@ -407,7 +407,7 @@ module.exports = async () => {
             Reflect.deleteProperty(itemData[key], 'wiki_link');
 
             // Fallback images
-            itemData[key].inspectImageLinkFallback = itemData[key].imageLink || 'https://assets.tarkov.dev/unknown-item-image.jpg';
+            itemData[key].inspectImageLinkFallback = itemData[key].inspectImageLink || 'https://assets.tarkov.dev/unknown-item-image.jpg';
             itemData[key].iconLinkFallback = itemData[key].iconLink || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
             itemData[key].gridImageLinkFallback = itemData[key].gridImageLink || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
 
