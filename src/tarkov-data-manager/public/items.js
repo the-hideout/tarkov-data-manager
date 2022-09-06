@@ -26,6 +26,7 @@ const showEditItemModal = function(event){
         });
         editModal.find('input[type="file"]').val('');
     }
+    $('#modal-edit-item .image-download').attr('href', `/items/download-images/${item.id}`);
     const imageHolder = $('#modal-edit-item .source-image');
     imageHolder.empty();
     M.Modal.getInstance(document.getElementById('modal-edit-item')).open();

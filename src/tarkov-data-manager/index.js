@@ -8,6 +8,7 @@ const session = require('express-session');
 const chalk = require('chalk');
 const Sentry = require("@sentry/node");
 const formidable = require('formidable');
+const AdmZip = require('adm-zip');
 
 if (process.env.NODE_ENV !== 'production') {
     const dotenv = require("dotenv");
@@ -34,6 +35,7 @@ const webhookApi = require('./modules/webhook-api');
 const queueApi = require('./modules/queue-api');
 const uploadToS3 = require('./modules/upload-s3');
 const { createAndUploadFromSource } = require('./modules/image-create');
+const { response } = require('express');
 
 vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
 
@@ -342,6 +344,16 @@ app.post('/update', (request, response) => {
     response.send(res);
 });
 
+app.get('/items/download-images/:id', async (req, res) => {
+    const images = await uploadToS3.getImages(req.params.id);
+    const zip = new AdmZip();
+    for (const response of images) {
+        zip.addFile(response.filename, response.buffer);
+    }
+    res.type('zip');
+    res.send(zip.toBuffer());
+});
+
 app.post('/items/edit/:id', async (req, res) => {
     const allItemData = await remoteData.get();
     const currentItemData = allItemData.get(req.params.id);
@@ -552,6 +564,11 @@ app.get('/items', async (req, res) => {
                                 <div class="input-field item-image source-image"></div>
                                 <div>Generate new images from source image</div>
                                 <input id="source-upload" type="file" name="source-upload" />
+                            </div>
+                        </div>
+                        <div class="row>
+                            <div class="col s12">
+                                <a href="" class="image-download">Download Images from S3</a>
                             </div>
                         </div>
                         <div class="row">

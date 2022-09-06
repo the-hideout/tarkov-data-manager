@@ -44,7 +44,7 @@ const getPercentile = (validValues) => {
 };
 
 const methods = {
-    get: async (forceRefresh) => {
+    get: async (forceRefresh = false) => {
         // refresh if data hasn't been loaded, it's a forced refresh, or if it's been > 10 minutes
         if (!myData || forceRefresh || new Date() - 1000 * 60 * 10 > lastRefresh) {
             return methods.refresh();
