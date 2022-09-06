@@ -402,7 +402,7 @@ module.exports = async () => {
             itemData[key].iconLink = itemData[key].icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
             itemData[key].gridImageLink = itemData[key].grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
             itemData[key].inspectImageLink = itemData[key].image_link || 'https://assets.tarkov.dev/unknown-item-image.jpg';
-            itemData[key].imageLink = itemData[key].inspectImageLink;
+            /*itemData[key].imageLink = itemData[key].inspectImageLink;
 
             itemData[key].iconLinkFallback = itemData[key].iconLink
             itemData[key].gridImageLinkFallback = itemData[key].gridImageLink;
@@ -412,7 +412,7 @@ module.exports = async () => {
             Reflect.deleteProperty(itemData[key], 'icon_link');
             Reflect.deleteProperty(itemData[key], 'grid_image_link');
             Reflect.deleteProperty(itemData[key], 'image_link');
-            Reflect.deleteProperty(itemData[key], 'wiki_link');
+            Reflect.deleteProperty(itemData[key], 'wiki_link');*/
 
             // translations
             itemData[key].locale = {};
