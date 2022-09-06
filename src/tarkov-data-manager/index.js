@@ -4,9 +4,6 @@ const vm = require('vm');
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const Jimp = require('jimp-compact');
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
-const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const session = require('express-session');
 const chalk = require('chalk');
 const Sentry = require("@sentry/node");
@@ -35,17 +32,13 @@ const timer = require('./modules/console-timer');
 const scannerApi = require('./modules/scanner-api');
 const webhookApi = require('./modules/webhook-api');
 const queueApi = require('./modules/queue-api');
-const { consoleSandbox } = require('@sentry/utils');
+const uploadToS3 = require('./modules/upload-s3');
+const { createAndUploadFromSource } = require('./modules/image-create');
 
 vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
 
 const app = express();
 const port = process.env.PORT || 4000;
-
-const s3 = new S3Client({
-    region: 'us-east-1',
-    credentials: fromEnv(),
-});
 
 function maybe(fn) {
     return function(req, res, next) {
@@ -361,17 +354,14 @@ app.post('/items/edit/:id', async (req, res) => {
     const finish = (files) => {
         if (files) {
             for (const key in files) {
+                //console.log('removing', files[key].filepath);
                 fs.rm(files[key].filepath, error => {
                     if (error) console.log(`Error deleting ${files[key].filepath}`, error);
                 });
             }
         }
     };
-    const validImageTypes = [
-        'image',
-        'grid-image',
-        'icon'
-    ];
+
     try {
         await new Promise((resolve, reject) => {
             form.parse(req, async (err, fields, files) => {
@@ -379,31 +369,26 @@ app.post('/items/edit/:id', async (req, res) => {
                     finish(files);
                     return reject(error);
                 }
+                let sourceUpload = false;
+                for (const field in files) {
+                    if (field === 'source-upload') {
+                        sourceUpload = true;
+                        break;
+                    }
+                }
                 for (const field in files) {
                     if (files[field].size === 0) continue;
-                    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-                        response.errors.push('aws variables not configured; image upload disabled');
-                        finish(files);
-                        return reject(error);
+                    if (sourceUpload && field !== 'source-upload') {
+                        continue;
                     }
                     try {
-                        const imageType = field.replace('-upload', '');
-                        if (!validImageTypes.includes(imageType)) throw new Error(`${imageType} is not a valid image type`);
-                        const image = await Jimp.read(files[field].filepath);
-                
-                        const uploadParams = {
-                            Bucket: process.env.S3_BUCKET,
-                            Key: `${req.params.id}-${imageType}.jpg`,
-                            ContentType: 'image/jpeg',
-                            Body: await image.getBufferAsync(Jimp.MIME_JPEG)
-                        };
-                        await s3.send(new PutObjectCommand(uploadParams));
-                        console.log(`${req.params.id} ${imageType} saved to s3`);
-                        const imageLink = `https://${process.env.S3_BUCKET}/${req.params.id}-${imageType}.jpg`;
-                        const imageField = imageType.replace('-', '_')+'_link';
-                        if (currentItemData[imageField] !== imageLink){
-                            await remoteData.setProperty(req.params.id, imageField, imageLink);
+                        if (field === 'source-upload') {
+                            await createAndUploadFromSource(files[field].filepath, req.params.id);
+                            updated = true;
+                            break;
                         }
+                        const imageType = field.replace('-upload', '');
+                        await uploadToS3(files[field].filepath, imageType, req.params.id);
                         updated = true;
                     } catch (error){
                         finish(files);
@@ -430,8 +415,15 @@ app.post('/items/edit/:id', async (req, res) => {
             });
         });
     } catch (error) {
-        console.log(error);
-        response.errors.push(error.message);
+        if (Array.isArray(error)) {
+            for (const err of error) {
+                console.log(err);
+                response.errors.push(err.message);
+            }
+        } else {
+            console.log(error);
+            response.errors.push(error.message);
+        }
     }
     
     return res.send(response);
@@ -471,14 +463,28 @@ app.get('/items', async (req, res) => {
                                 <a class="waves-effect waves-light btn filter-types-all"><i class="material-icons left">all_inclusive</i>All</a>
                                 <a class="waves-effect waves-light btn filter-types-none"><i class="material-icons left">not_interested</i>None</a>
                             </div>
-                            <div class="switch">
+                            <div>
+                                <label>
+                                    <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="any" checked>
+                                    <span>Require any</span>
+                                </label>
+                                <label>
+                                    <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="all">
+                                    <span>Require all</span>
+                                </label>
+                                <label>
+                                    <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="none">
+                                    <span>Exclude</span>
+                                </label>
+                            </div>
+                            <!--iv class="switch">
                                 <label>
                                     Require any selected
                                     <input class="filter-types-require-selected" type="checkbox" value="true">
                                     <span class="lever"></span>
                                     Require all selected
                                 </label>
-                            </div>
+                            </div-->
                             <div class="row">${typeFilters}</div>
                             <div>Special Filters</div>
                             <div>
@@ -522,30 +528,30 @@ app.get('/items', async (req, res) => {
                 <div class="row">
                     <form class="col s12 post-url item-attribute id" data-attribute="action" data-prepend-value="/items/edit/" method="post" action="">
                         <div class="row">
-                            <div class="input-field col s2 item-image image_link"></div>
-                            <div class="input-field col s10">
-                                <!--input value="" id="image-link" type="text" class="validate item-value image_link" name="image-link">
-                                <label for="image-link">Image Link</label-->
+                            <div class="col s4">
+                                <div>Inspect image</div>
+                                <div class="input-field item-image image_link"></div>
                                 <div>Upload new image</div>
                                 <input id="image-upload" type="file" name="image-upload" />
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="input-field col s2 item-image grid_image_link"></div>
-                            <div class="input-field col s10">
-                                <!--input value="" id="grid-image-link" type="text" class="validate item-value grid_image_link" name="grid-image-link">
-                                <label for="grid-image-link">Grid image link</label-->
+                            <div class="col s4">
+                                <div>Grid image</div>
+                                <div class="input-field item-image grid_image_link"></div>
                                 <div>Upload new grid image</div>
                                 <input id="grid-image-upload" type="file" name="grid-image-upload" />
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="input-field col s2 item-image icon_link"></div>
-                            <div class="input-field col s10">
-                                <!--input value="" id="icon-link" type="text" class="validate item-value icon_link" name="icon-link">
-                                <label for="icon-link">Icon Link</label-->
+                            <div class="col s4">
+                                <div>Icon</div>
+                                <div class="input-field item-image icon_link"></div>
                                 <div>Upload new icon</div>
                                 <input id="icon-upload" type="file" name="icon-upload" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s12">
+                                <div class="input-field item-image source-image"></div>
+                                <div>Generate new images from source image</div>
+                                <input id="source-upload" type="file" name="source-upload" />
                             </div>
                         </div>
                         <div class="row">

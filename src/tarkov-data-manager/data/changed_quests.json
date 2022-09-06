@@ -199,5 +199,40 @@
                 "count": 12
             }
         }
+    },
+    "60e71c48c1bfa3050473b8e5": {
+        "name": "Crisis",
+        "objectivesAdded": [
+            {
+                "id": "62a701587230237f257cac30",
+                "type": "findItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a0a043cf4a99369e2624a5",
+                "item_name": "Bottle of OLOLO Multivitamins",
+                "count": 10,
+                "item": "62a0a043cf4a99369e2624a5",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a70168eb3cb46d9a0bba7a",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a0a043cf4a99369e2624a5",
+                "item_name": "Bottle of OLOLO Multivitamins",
+                "count": 10,
+                "item": "62a0a043cf4a99369e2624a5",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ]
     }
 }

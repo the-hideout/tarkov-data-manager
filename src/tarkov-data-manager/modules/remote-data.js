@@ -188,8 +188,9 @@ const methods = {
         return query(`DELETE FROM types WHERE item_id = ? AND type= ?`, [id, type]);
     },
     setProperty: async (id, property, value) => {
-        console.log(`Setting ${property} to ${value} for ${id}`);
         const currentItemData = myData.get(id);
+        if (currentItemData[property] === value) return;
+        console.log(`Setting ${property} to ${value} for ${id}`);
         currentItemData[property] = value;
         myData.set(id, currentItemData);
         return query(`UPDATE item_data SET ${property} = ? WHERE id = ?`, [value, id]);

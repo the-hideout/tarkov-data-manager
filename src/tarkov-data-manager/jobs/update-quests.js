@@ -625,7 +625,7 @@ module.exports = async (externalLogger = false) => {
                         obj.dogTagLevel = objective._props.dogtagLevel;
                         obj.maxDurability = objective._props.maxDurability;
                         obj.minDurability = objective._props.minDurability;
-                        obj.foundInRaid = (objective._props.onlyFoundInRaid != 0);
+                        obj.foundInRaid = Boolean(objective._props.onlyFoundInRaid);
                     }
                 } else if (objective._parent === 'CounterCreator') {
                     const counter = objective._props.counter;
