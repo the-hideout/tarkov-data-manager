@@ -105,6 +105,7 @@ const getTdLocation = id => {
 };
 
 const descriptionMentionsMap = desc => {
+    if (!desc) return false;
     const onMapRegex = new RegExp(`on (?<mapName>${maps.map(m => m.name).join('|')})`);
     //console.log(onMapRegex)
     const match = desc.match(onMapRegex);
@@ -593,7 +594,7 @@ module.exports = async (externalLogger = false) => {
                 for (const code in locales) {
                     const lang = locales[code];
                     obj.locale[code] = {
-                        description: translatePath(code, ['quest', questId, 'conditions', objective._props.id], logger)//lang.quest[questId] ? lang.quest[questId].conditions[objective._props.id] : locales.en.quest[questId].conditions[objective._props.id]
+                        description: translatePath(code, ['quest', questId, 'conditions', objective._props.id], logger, false)
                     };
                 }
                 if (objective._parent === 'FindItem' || objective._parent === 'HandoverItem') {
@@ -930,6 +931,9 @@ module.exports = async (externalLogger = false) => {
             }
             if (changedQuests[questData.id] && changedQuests[questData.id].objectivesAdded) {
                 for (const newObj of changedQuests[questData.id].objectivesAdded) {
+                    if (questData.objectives.some(obj => obj.id === newObj.id)) {
+                        continue;
+                    }
                     if (!newObj.locale) newObj.locale = {};
                     for (const code in locales) {
                         if (!newObj.locale[code]) newObj.locale[code] = {};

@@ -188,5 +188,16 @@
                 "foundInRaid": true
             }
         ]
+    },
+    "60e71b9bbd90872cb85440f3": {
+        "name": "Capturing Outposts",
+        "objectivesChanged": {
+            "60ec1e72d7b7cb55e94c1764": {
+                "count": 12
+            },
+            "60ec2229fd1bf4491c4e4552": {
+                "count": 12
+            }
+        }
     }
 }
