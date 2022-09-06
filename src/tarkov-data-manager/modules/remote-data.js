@@ -189,7 +189,8 @@ const methods = {
     },
     setProperty: async (id, property, value) => {
         const currentItemData = myData.get(id);
-        if (currentItemData[property] === value) return;
+        if (currentItemData[property] === value)
+            return;
         console.log(`Setting ${property} to ${value} for ${id}`);
         currentItemData[property] = value;
         myData.set(id, currentItemData);
