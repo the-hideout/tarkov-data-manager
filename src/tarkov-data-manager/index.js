@@ -345,10 +345,13 @@ app.post('/update', (request, response) => {
 });
 
 app.get('/items/download-images/:id', async (req, res) => {
-    const images = await uploadToS3.getImages(req.params.id);
+    const response = await uploadToS3.getImages(req.params.id);
     const zip = new AdmZip();
-    for (const response of images) {
-        zip.addFile(response.filename, response.buffer);
+    for (const image of response.images) {
+        zip.addFile(image.filename, image.buffer);
+    }
+    if (response.errors.length > 0) {
+        zip.addFile('errors.json', response.errors.join('\n'));
     }
     res.type('zip');
     res.send(zip.toBuffer());
@@ -489,14 +492,6 @@ app.get('/items', async (req, res) => {
                                     <span>Exclude</span>
                                 </label>
                             </div>
-                            <!--iv class="switch">
-                                <label>
-                                    Require any selected
-                                    <input class="filter-types-require-selected" type="checkbox" value="true">
-                                    <span class="lever"></span>
-                                    Require all selected
-                                </label>
-                            </div-->
                             <div class="row">${typeFilters}</div>
                             <div>Special Filters</div>
                             <div>
@@ -566,7 +561,7 @@ app.get('/items', async (req, res) => {
                                 <input id="source-upload" type="file" name="source-upload" />
                             </div>
                         </div>
-                        <div class="row>
+                        <div class="row">
                             <div class="col s12">
                                 <a href="" class="image-download">Download Images from S3</a>
                             </div>

@@ -81,6 +81,7 @@ async function downloadFromId(item) {
     }
     existingBaseImages = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json')));
     const imageRequests = [];
+    const errors = [];
     for (const imageType in imageTypes) {
         const typeInfo = imageTypes[imageType];
         const input = {
@@ -103,9 +104,13 @@ async function downloadFromId(item) {
                 stream.on("end", () => resolve({buffer: Buffer.concat(_buf), filename: filename}));
                 stream.on("error", err => reject(`error converting stream - ${err}`));
             });
+        }).catch(error => {
+            errors.push(`${filename}: ${error}`);
+            return false;
         }));
     }
-    return Promise.all(imageRequests);
+    const imageResponses = (await Promise.all(imageRequests)).filter(Boolean);
+    return {images: imageResponses, errors: errors};
 }
 
 module.exports = {

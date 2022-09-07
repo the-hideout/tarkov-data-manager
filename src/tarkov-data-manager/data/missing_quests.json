@@ -479,6 +479,21 @@
                 "foundInRaid": true
             },
             {
+                "id": "62a70191a9a0ea77981b57d9",
+                "type": "findItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a0a16d0b9d3c46de5b6e97",
+                "item_name": "Military flash drive",
+                "count": 4,
+                "item": "62a0a16d0b9d3c46de5b6e97",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
                 "id": "60e74302d1a062318d3d225f",
                 "type": "giveItem",
                 "optional": false,
@@ -533,6 +548,21 @@
                 "item": "5c052f6886f7746b1e3db148",
                 "item_name": "Military COFDM Wireless Signal Transmitter",
                 "count": 5,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a7019ea9a0ea77981b57da",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a0a16d0b9d3c46de5b6e97",
+                "item_name": "Military flash drive",
+                "count": 4,
+                "item": "62a0a16d0b9d3c46de5b6e97",
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
