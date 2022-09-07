@@ -1,19 +1,12 @@
 const fs = require('fs');
 const path = require('path');
-
-const Jimp = require('jimp-compact');
 const formidable = require('formidable');
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
-const {fromEnv} = require('@aws-sdk/credential-provider-env');
 
 const {query, format} = require('./db-connection');
 const {dashToCamelCase} = require('./string-functions');
 const remoteData = require('./remote-data');
-
-const s3 = new S3Client({
-    region: 'us-east-1',
-    credentials: fromEnv(),
-});
+const { uploadToS3 } = require('./upload-s3');
+const { createAndUploadFromSource, imageTypes } = require('./image-create');
 
 let refreshingUsers = false;
 let users = {};
@@ -689,78 +682,63 @@ const submitImage = (request, user) => {
     
             const allItemData = await remoteData.get();
             const currentItemData = allItemData.get(fields.id);
+            const checkImageExists = imageType => {
+                const field = imageTypes[imageType].field;
+                if (field) {
+                    return currentItemData[field];
+                }
+                return existingBaseImages.includes(fields.id);
+            };
+
+            if (fields.type === 'source') {
+                if (fields.overwrite !== 'true') {
+                    for (const imgType of Object.keys(imageTypes)) {
+                        if (checkImageExists(imgType)) {
+                            console.log(`Item ${fields.id} already has a ${imgType}`);
+                            response.errors.push(`Invalid image type: ${imgType}`);
+                            return finish(response, files);
+                        }
+                    }
+                }
+                try {
+                    await createAndUploadFromSource(files[fields.type].filepath, fields.id);
+                } catch (error) {
+                    console.error(error);
+                    if (Array.isArray(error)) {
+                        response.errors.push(...error.map(err => String(err)));
+                    } else {
+                        response.errors.push(String(error));
+                    }
+                    return finish(response, files);
+                }
+                response.data = 'ok;'
+                return finish(response, files);
+            }
     
-            if(fields.type !== 'grid-image' && fields.type !== 'icon' && fields.type !== 'image' && fields.type !== 'base-image'){
+            if(!Object.keys(imageTypes).includes(fields.type) || fields.type === 'large') {
                 console.log(`Invalid image type: ${fields.type}`);
                 response.errors.push(`Invalid image type: ${fields.type}`);
                 return finish(response, files);
             }
     
-            let imageExists = false;
-            if (fields.type === 'grid-image' && currentItemData.grid_image_link) imageExists = true;
-    
-            if (fields.type === 'icon' && currentItemData.icon_link) imageExists = true;
-    
-            if (fields.type === 'image' && currentItemData.image_link) imageExists = true;
-    
-            if (fields.type === 'base-image' && currentItemData.base_image_link) imageExists = true;
+            let imageExists = checkImageExists(fields.type);
+
             if (imageExists && fields.overwrite !== 'true' && !(userFlags.overwriteImages & user.flags)) {
                 console.log(`Item ${fields.id} already has a ${fields.type}`);
                 response.errors.push(`Item ${fields.id} already has a ${fields.type}`);
                 return finish(response, files);
             }
     
-            let image = false;
             try {
-                image = await Jimp.read(files[fields.type].filepath);
-            } catch (someError){
-                console.error(someError);
-    
-                response.errors.push(String(someError));
-                return finish(response, files);
-            }
-    
-            if(!image){
-                response.errors.push('Failed to add image');
-                return finish(response, files);
-            }
-    
-            let ext = 'jpg';
-            let contentType = 'image/jpeg';
-            let MIME = Jimp.MIME_JPEG;
-            if(fields.type === 'base-image'){
-                ext = 'png';
-                contentType = 'image/png';
-                MIME = Jimp.MIME_PNG;
-            }
-    
-            const uploadParams = {
-                Bucket: process.env.S3_BUCKET,
-                Key: `${fields.id}-${fields.type}.${ext}`,
-                ContentType: contentType,
-                CacheControl: 'max-age=604800',
-            };
-    
-            uploadParams.Body = await image.getBufferAsync(MIME);
-    
-            try {
-                await s3.send(new PutObjectCommand(uploadParams));
-                console.log('Image saved to s3');
-            } catch (err) {
-                console.log('Error saving image to s3', err);
-    
-                response.errors.push(String(err));
-                return finish(response, files);
-            }
-    
-            if(fields.type !== 'base-image'){
-                try {
-                    await remoteData.setProperty(fields.id, `${fields.type.replace(/\-/g, '_')}_link`, `https://${process.env.S3_BUCKET}/${fields.id}-${fields.type}.jpg`);
-                } catch (updateError){
-                    console.error(updateError);
-                    response.errors.push(String(updateError));
-                    return finish(response, files);
+                await uploadToS3(files[fields.type].filepath, fields.type, fields.id);
+            } catch (error){
+                console.error(error);
+                if (Array.isArray(error)) {
+                    response.errors.push(...error.map(err => String(err)));
+                } else {
+                    response.errors.push(String(error));
                 }
+                return finish(response, files);
             }
     
             console.log(`${fields.id} ${fields.type} updated`);

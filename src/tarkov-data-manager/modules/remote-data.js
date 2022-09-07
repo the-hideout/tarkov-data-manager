@@ -44,7 +44,7 @@ const getPercentile = (validValues) => {
 };
 
 const methods = {
-    get: async (forceRefresh) => {
+    get: async (forceRefresh = false) => {
         // refresh if data hasn't been loaded, it's a forced refresh, or if it's been > 10 minutes
         if (!myData || forceRefresh || new Date() - 1000 * 60 * 10 > lastRefresh) {
             return methods.refresh();
@@ -188,8 +188,10 @@ const methods = {
         return query(`DELETE FROM types WHERE item_id = ? AND type= ?`, [id, type]);
     },
     setProperty: async (id, property, value) => {
-        console.log(`Setting ${property} to ${value} for ${id}`);
         const currentItemData = myData.get(id);
+        if (currentItemData[property] === value)
+            return;
+        console.log(`Setting ${property} to ${value} for ${id}`);
         currentItemData[property] = value;
         myData.set(id, currentItemData);
         return query(`UPDATE item_data SET ${property} = ? WHERE id = ?`, [value, id]);

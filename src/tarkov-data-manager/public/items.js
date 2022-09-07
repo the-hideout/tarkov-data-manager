@@ -19,12 +19,16 @@ const showEditItemModal = function(event){
         editModal.find(`.item-image.${field}`).each(function(){
             $(this).empty();
             if (!item[field]) {
+                $(this).text('N/A');
                 return;
             }
             $(this).append(`<img src="${item[field]}">`)
         });
         editModal.find('input[type="file"]').val('');
     }
+    $('#modal-edit-item .image-download').attr('href', `/items/download-images/${item.id}`);
+    const imageHolder = $('#modal-edit-item .source-image');
+    imageHolder.empty();
     M.Modal.getInstance(document.getElementById('modal-edit-item')).open();
     M.updateTextFields();
 };
@@ -195,6 +199,15 @@ $(document).ready( function () {
         M.Modal.getInstance(document.getElementById('modal-edit-item')).close();
     });
 
+    $('#source-upload').change(event => {
+        const url = URL.createObjectURL(event.target.files[0]);
+        const imageHolder = $('#modal-edit-item .source-image');
+        imageHolder.empty();
+        if (url) {
+            imageHolder.append(`<img src="${url}">`);
+        }
+    });
+
     $('.filter-types-all').click(() => {
         $('input.filter-type').prop('checked', true);
         drawTable();
@@ -250,19 +263,25 @@ jQuery.fn.dataTableExt.afnFiltering.push(
             if (specialPassed) break;
         }
         if (!specialPassed) return false;
-        let requireSelected = jQuery('input.filter-types-require-selected:checked').length > 0; 
-        let typePassed = requireSelected;
+        let requireSelected = jQuery('input.filter-types-require-selected:checked').first().val(); 
+        let typePassed = requireSelected === 'none';
         let typeChecked = jQuery('input.filter-type:checked');
         let typeCount = jQuery('input.filter-type').length;
         if (typeof typeChecked == 'undefined') return false;
-        for (let i=0; i< typeChecked.length; i++) {
-            if (requireSelected) {
-                if (!item.types.includes(jQuery(typeChecked[i]).val())) {
+        for (const selectedType of typeChecked) {
+            if (requireSelected === 'all') {
+                if (!item.types.includes(jQuery(selectedType).val())) {
                     return false;
                 } 
                 continue;
             }
-            if (item.types.includes(jQuery(typeChecked[i]).val())) {
+            if (requireSelected === 'none') {
+                if (item.types.includes(jQuery(selectedType).val())) {
+                    return false;
+                } 
+                continue;
+            }
+            if (item.types.includes(jQuery(selectedType).val())) {
                 typePassed = true;
                 break;
             }

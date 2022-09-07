@@ -1,194 +1,4 @@
 {
-    "5c51aac186f77432ea65c552": {
-        "name": "Collector",
-        "objectivesChanged": {
-            "60d9d34e8a6f9a3731773f93": {
-                "playerLevel": 55
-            }
-        },
-        "objectivesAdded": [
-            {
-                "id": "62a6ff004de19a4c3422ea5d",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a09ec84f842e1bd12da3f2",
-                "item_name": "Missam forklift key",
-                "count": 1,
-                "item": "62a09ec84f842e1bd12da3f2",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "62a6ff141c307729c3264f96",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a09e974f842e1bd12da3f0",
-                "item_name": "Video cassette with the Cyborg Killer movie",
-                "count": 1,
-                "item": "62a09e974f842e1bd12da3f0",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "62a6ff203e015d7ce1151d8a",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a09e73af34e73a266d932a",
-                "item_name": "BakeEzy cook book",
-                "count": 1,
-                "item": "62a09e73af34e73a266d932a",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "62a6ff454de19a4c3422ea5e",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a09e410b9d3c46de5b6e78",
-                "item_name": "JohnB Liquid DNB glasses",
-                "count": 1,
-                "item": "62a09e410b9d3c46de5b6e78",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "62a6ff53b0c0eb73f7394741",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a09e08de7ac81993580532",
-                "item_name": "Glorious E lightweight armored mask",
-                "count": 1,
-                "item": "62a09e08de7ac81993580532",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "62a6ff633e015d7ce1151d8b",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a09dd4621468534a797ac7",
-                "item_name": "Baddies red beard",
-                "count": 1,
-                "item": "62a09dd4621468534a797ac7",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "62a6ff6b3e015d7ce1151d8c",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a09d79de7ac81993580530",
-                "item_name": "DRD body armor",
-                "count": 1,
-                "item": "62a09d79de7ac81993580530",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "62a6ff7f1c307729c3264f97",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a09d3bcf4a99369e262447",
-                "item_name": "Gingy keychain",
-                "count": 1,
-                "item": "62a09d3bcf4a99369e262447",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "62a6ff897230237f257cac2a",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a09cfe4f842e1bd12da3e4",
-                "item_name": "Golden egg",
-                "count": 1,
-                "item": "62a09cfe4f842e1bd12da3e4",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "62a6ffaa7230237f257cac2c",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a09cb7a04c0c5c6e0a84f8",
-                "item_name": "Press pass (issued for NoiceGuy)",
-                "count": 1,
-                "item": "62a09cb7a04c0c5c6e0a84f8",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "62a6ffb4a9a0ea77981b57d5",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a091170b9d3c46de5b6cf2",
-                "item_name": "Axel parrot figurine",
-                "count": 1,
-                "item": "62a091170b9d3c46de5b6cf2",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "62a6ffbcec21e50cad3b6708",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a08f4c4f842e1bd12d9d62",
-                "item_name": "BEAR Buddy plush toy",
-                "count": 1,
-                "item": "62a08f4c4f842e1bd12d9d62",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            }
-        ]
-    },
     "60e71b9bbd90872cb85440f3": {
         "name": "Capturing Outposts",
         "objectivesChanged": {
@@ -199,5 +9,40 @@
                 "count": 12
             }
         }
+    },
+    "60e71c48c1bfa3050473b8e5": {
+        "name": "Crisis",
+        "objectivesAdded": [
+            {
+                "id": "62a701587230237f257cac30",
+                "type": "findItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a0a043cf4a99369e2624a5",
+                "item_name": "Bottle of OLOLO Multivitamins",
+                "count": 10,
+                "item": "62a0a043cf4a99369e2624a5",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "62a70168eb3cb46d9a0bba7a",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62a0a043cf4a99369e2624a5",
+                "item_name": "Bottle of OLOLO Multivitamins",
+                "count": 10,
+                "item": "62a0a043cf4a99369e2624a5",
+                "dogTagLevel": 0,
+                "maxDurability": 0,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ]
     }
 }

@@ -395,25 +395,24 @@ module.exports = async () => {
                 itemData[key].basePrice = credits[key];
             } 
 
-            itemData[key].iconLink = itemData[key].icon_link;
-            itemData[key].gridImageLink = itemData[key].grid_image_link;
-            itemData[key].imageLink = itemData[key].image_link;
-            //itemData[key].shortName = itemData[key].shortname;
             itemData[key].wikiLink = itemData[key].wiki_link;
             itemData[key].link = `https://tarkov.dev/item/${itemData[key].normalizedName}`;
+
+            // images and fallbacks
+            itemData[key].iconLink = itemData[key].icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
+            itemData[key].gridImageLink = itemData[key].grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
+            itemData[key].inspectImageLink = itemData[key].image_link || 'https://assets.tarkov.dev/unknown-item-image.jpg';
+            /*itemData[key].imageLink = itemData[key].inspectImageLink;
+
+            itemData[key].iconLinkFallback = itemData[key].iconLink
+            itemData[key].gridImageLinkFallback = itemData[key].gridImageLink;
+            itemData[key].inspectImageLinkFallback = itemData[key].inspectImageLink;
+            itemData[key].imageLinkFallback = itemData[key].inspectImageLink;
+
             Reflect.deleteProperty(itemData[key], 'icon_link');
             Reflect.deleteProperty(itemData[key], 'grid_image_link');
             Reflect.deleteProperty(itemData[key], 'image_link');
-            Reflect.deleteProperty(itemData[key], 'wiki_link');
-
-            // Fallback images
-            itemData[key].imageLinkFallback = itemData[key].imageLink || 'https://assets.tarkov.dev/unknown-item-image.jpg';
-            itemData[key].iconLinkFallback = itemData[key].iconLink || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
-            itemData[key].gridImageLinkFallback = itemData[key].gridImageLink || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
-
-            itemData[key].imageLink = itemData[key].imageLink || itemData[key].imageLinkFallback;
-            itemData[key].iconLink = itemData[key].iconLink || itemData[key].iconLinkFallback;
-            itemData[key].gridImageLink = itemData[key].gridImageLink || itemData[key].gridImageLinkFallback;
+            Reflect.deleteProperty(itemData[key], 'wiki_link');*/
 
             // translations
             itemData[key].locale = {};
