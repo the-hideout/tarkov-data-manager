@@ -489,14 +489,6 @@ app.get('/items', async (req, res) => {
                                     <span>Exclude</span>
                                 </label>
                             </div>
-                            <!--iv class="switch">
-                                <label>
-                                    Require any selected
-                                    <input class="filter-types-require-selected" type="checkbox" value="true">
-                                    <span class="lever"></span>
-                                    Require all selected
-                                </label>
-                            </div-->
                             <div class="row">${typeFilters}</div>
                             <div>Special Filters</div>
                             <div>
@@ -566,7 +558,7 @@ app.get('/items', async (req, res) => {
                                 <input id="source-upload" type="file" name="source-upload" />
                             </div>
                         </div>
-                        <div class="row>
+                        <div class="row">
                             <div class="col s12">
                                 <a href="" class="image-download">Download Images from S3</a>
                             </div>
