@@ -932,10 +932,8 @@ module.exports = async (externalLogger = false) => {
             if (changedQuests[questData.id] && changedQuests[questData.id].objectivesAdded) {
                 for (const newObj of changedQuests[questData.id].objectivesAdded) {
                     if (questData.objectives.some(obj => obj.id === newObj.id)) {
-                        console.log(`${questData.name} skipping objective`,newObj)
                         continue;
                     }
-                    console.log(`${questData.name} adding objective`,newObj)
                     if (!newObj.locale) newObj.locale = {};
                     for (const code in locales) {
                         if (!newObj.locale[code]) newObj.locale[code] = {};
