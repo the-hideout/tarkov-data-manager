@@ -932,8 +932,10 @@ module.exports = async (externalLogger = false) => {
             if (changedQuests[questData.id] && changedQuests[questData.id].objectivesAdded) {
                 for (const newObj of changedQuests[questData.id].objectivesAdded) {
                     if (questData.objectives.some(obj => obj.id === newObj.id)) {
+                        console.log(`${questData.name} skipping objective`,newObj)
                         continue;
                     }
+                    console.log(`${questData.name} adding objective`,newObj)
                     if (!newObj.locale) newObj.locale = {};
                     for (const code in locales) {
                         if (!newObj.locale[code]) newObj.locale[code] = {};
@@ -1052,7 +1054,6 @@ module.exports = async (externalLogger = false) => {
             for (const obj of quest.objectives) {
                 obj.locale = {};
                 for (const code in locales) {
-                    const lang = locales[code];
                     obj.locale[code] = {
                         description: translatePath(code, ['quest', questId, 'conditions', obj.id], logger)//lang.quest[questId]?.conditions[obj.id] || locales.en.quest[questId].conditions[obj.id]
                     };
@@ -1060,7 +1061,6 @@ module.exports = async (externalLogger = false) => {
                 if (obj.type.endsWith('QuestItem')) {
                     obj.questItem.locale = {};
                     for (const code in locales) {
-                        const lang = locales[code];
                         obj.questItem.locale[code] = {
                             name: translatePath(code, ['templates', obj.questItem.id, 'Name'], logger)//lang.templates[obj.questItem.id].Name
                         };

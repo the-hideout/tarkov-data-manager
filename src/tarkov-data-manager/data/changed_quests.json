@@ -44,40 +44,5 @@
                 "foundInRaid": true
             }
         ]
-    },
-    "60e71ce009d7c801eb0c0ec6": {
-        "name": "Special Equipment",
-        "objectivesAdded": [
-            {
-                "id": "62a70191a9a0ea77981b57d9",
-                "type": "findItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a0a16d0b9d3c46de5b6e97",
-                "item_name": "Military flash drive",
-                "count": 4,
-                "item": "62a0a16d0b9d3c46de5b6e97",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "62a7019ea9a0ea77981b57da",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a0a16d0b9d3c46de5b6e97",
-                "item_name": "Military flash drive",
-                "count": 4,
-                "item": "62a0a16d0b9d3c46de5b6e97",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            }
-        ]
     }
 }
