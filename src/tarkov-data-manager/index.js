@@ -345,10 +345,13 @@ app.post('/update', (request, response) => {
 });
 
 app.get('/items/download-images/:id', async (req, res) => {
-    const images = await uploadToS3.getImages(req.params.id);
+    const response = await uploadToS3.getImages(req.params.id);
     const zip = new AdmZip();
-    for (const response of images) {
-        zip.addFile(response.filename, response.buffer);
+    for (const image of response.images) {
+        zip.addFile(image.filename, image.buffer);
+    }
+    if (response.errors.length > 0) {
+        zip.addFile('errors.json', response.errors.join('\n'));
     }
     res.type('zip');
     res.send(zip.toBuffer());
