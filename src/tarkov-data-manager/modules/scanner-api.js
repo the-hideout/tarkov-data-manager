@@ -6,7 +6,10 @@ const {query, format} = require('./db-connection');
 const {dashToCamelCase} = require('./string-functions');
 const remoteData = require('./remote-data');
 const { uploadToS3 } = require('./upload-s3');
-const { createAndUploadFromSource, imageTypes } = require('./image-create');
+const { createAndUploadFromSource } = require('./image-create');
+const { imageFunctions } = require('tarkov-dev-image-generator');
+
+const { imageSizes } = imageFunctions;
 
 let refreshingUsers = false;
 let users = {};
@@ -683,7 +686,7 @@ const submitImage = (request, user) => {
             const allItemData = await remoteData.get();
             const currentItemData = allItemData.get(fields.id);
             const checkImageExists = imageType => {
-                const field = imageTypes[imageType].field;
+                const field = imageSizes[imageType].field;
                 if (field) {
                     return currentItemData[field];
                 }
@@ -692,10 +695,10 @@ const submitImage = (request, user) => {
 
             if (fields.type === 'source') {
                 if (fields.overwrite !== 'true') {
-                    for (const imgType of Object.keys(imageTypes)) {
+                    for (const imgType of Object.keys(imageSizes)) {
                         if (checkImageExists(imgType)) {
                             console.log(`Item ${fields.id} already has a ${imgType}`);
-                            response.errors.push(`Invalid image type: ${imgType}`);
+                            response.errors.push(`Item ${fields.id} already has a ${imgType}`);
                             return finish(response, files);
                         }
                     }
@@ -715,7 +718,7 @@ const submitImage = (request, user) => {
                 return finish(response, files);
             }
     
-            if(!Object.keys(imageTypes).includes(fields.type) || fields.type === 'large') {
+            if(!Object.keys(imageSizes).includes(fields.type)) {
                 console.log(`Invalid image type: ${fields.type}`);
                 response.errors.push(`Invalid image type: ${fields.type}`);
                 return finish(response, files);

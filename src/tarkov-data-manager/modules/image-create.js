@@ -1,9 +1,9 @@
 const fs = require('fs');
-const Jimp = require('jimp-compact');
+const sharp = require('sharp');
 
 const { imageFunctions } = require('tarkov-dev-image-generator');
 
-const { uploadToS3, imageTypes } = require('./upload-s3');
+const { uploadToS3 } = require('./upload-s3');
 const jobOutput = require('./job-output');
 
 async function deleteCreatedImages(imageResults) {
@@ -17,7 +17,7 @@ async function deleteCreatedImages(imageResults) {
     }
 }
 
-async function createFromSource(filepath, id) {
+async function createFromSource(sourceImage, id) {
     const itemData = await jobOutput('update-item-cache', './dumps/item_data.json');
     const item = itemData[id];
     if (!item) {
@@ -27,13 +27,16 @@ async function createFromSource(filepath, id) {
         item.width = item.properties.defaultWidth;
         item.height = item.properties.defaultHeight;
     }
-    const sourceImage = await Jimp.read(filepath);
+    if (typeof sourceImage === 'string') {
+        sourceImage = sharp(sourceImage);
+    }
     const imageResults = await Promise.allSettled([
-        imageFunctions.createBaseImage(sourceImage, item).then(result => {return {path: result.path, type: 'base-image'}}),
-        //imageFunctions.createLargeImage(sourceImage, item).then(result => {return {path: result.path, type: 'large'}}).catch(() => false),
-        imageFunctions.createGridImage(sourceImage, item).then(result => {return {path: result.path, type: 'grid-image'}}),
-        imageFunctions.createIcon(sourceImage, item).then(result => {return {path: result.path, type: 'icon'}}),
-        imageFunctions.createInspectImage(sourceImage, item).then(result => {return {path: result.path, type: 'image'}}).catch(() => false),
+        imageFunctions.createIcon(sourceImage, item).then(result => {return {image: result, type: 'icon'}}),
+        imageFunctions.createBaseImage(sourceImage, item).then(result => {return {image: result, type: 'base-image'}}),
+        imageFunctions.createGridImage(sourceImage, item).then(result => {return {image: result, type: 'grid-image'}}),
+        imageFunctions.createInspectImage(sourceImage, item).then(result => {return {image: result, type: 'image'}}).catch(() => false),
+        imageFunctions.create512Image(sourceImage, item).then(result => {return {image: result, type: '512'}}).catch(() => false),
+        imageFunctions.create8xImage(sourceImage, item).then(result => {return {image: result, type: '8x'}}).catch(() => false),
     ]);
     const createdImages = [];
     const errors = [];
@@ -44,18 +47,18 @@ async function createFromSource(filepath, id) {
             createdImages.push(result.value);
         }
     }
-    if (errors.length > 0) {
+    /*if (errors.length > 0) {
         deleteCreatedImages(createdImages.filter(Boolean));
         return Promise.reject(errors);
-    }
+    }*/
     return createdImages.filter(Boolean);
 }
 
-async function createAndUploadFromSource(filepath, id) {
-    const createdImages = await createFromSource(filepath, id);
+async function createAndUploadFromSource(sourceImage, id) {
+    const createdImages = await createFromSource(sourceImage, id);
     const uploads = [];
     for (const result of createdImages) { 
-        uploads.push(uploadToS3(result.path, result.type, id));
+        uploads.push(uploadToS3(result.image, result.type, id));
     }
     const uploadResults = await Promise.allSettled(uploads);
     const errors = [];
@@ -65,15 +68,14 @@ async function createAndUploadFromSource(filepath, id) {
         }
     }
     if (errors.length > 0) {
-        deleteCreatedImages(createdImages);
+        //deleteCreatedImages(createdImages);
         return Promise.reject(errors);
     }
-    deleteCreatedImages(createdImages);
+    //deleteCreatedImages(createdImages);
     return createdImages.map(img => img.type);
 }
 
 module.exports = {
     createFromSource,
     createAndUploadFromSource,
-    imageTypes: imageTypes
 };
