@@ -14,6 +14,8 @@ const s3 = new S3Client({
     credentials: fromEnv(),
 });
 
+sharp.cache( { files: 0 } );
+
 async function uploadAnyImage(image, filename, contentType) {
     if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
         return Promise.reject(new Error('aws variables not configured; image upload disabled'));
@@ -115,5 +117,5 @@ async function downloadFromId(item) {
 module.exports = {
     uploadToS3: upload,
     getImages: downloadFromId,
-    uploadAnyImage: uploadAnyImage
+    uploadAnyImage: uploadAnyImage,
 };

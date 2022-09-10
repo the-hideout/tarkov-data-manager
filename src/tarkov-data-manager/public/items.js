@@ -22,7 +22,15 @@ const showEditItemModal = function(event){
                 $(this).text('N/A');
                 return;
             }
-            $(this).append(`<img src="${item[field]}">`)
+            $(this).append(`<img src="${item[field]}" style="max-height: 240px" />`);
+        });
+        editModal.find('.item-base-image').each(function() {
+            $(this).empty();
+            if (!baseImages.includes(item.id)) {
+                $(this).text('N/A');
+                return;
+            }
+            $(this).append(`<img src="https://assets.tarkov.dev/${item.id}-base-image.png" />`);
         });
         editModal.find('input[type="file"]').val('');
     }
@@ -34,12 +42,16 @@ const showEditItemModal = function(event){
 };
 
 let table = false;
+let baseImages = [];
 
 const drawTable = () => {
     if (table) table.draw();
 };
 
-$(document).ready( function () {
+$(document).ready( async function () {
+    fetch('/data/existing-bases.json').then(response => response.json()).then(data => {
+        baseImages = data;
+    });
     const columns = [
         {
             data: 'name',
@@ -68,11 +80,23 @@ $(document).ready( function () {
             data: 'image_link',
             render: (data, type, item) => {
                 if (type === 'display') {
+                    let imageLink = item.image_512_link;
+                    if (!imageLink) {
+                        const baseImageLink = baseImages.includes(item.id) ? `htts://assets.tarkov.dev/${item.id}-base-image.png` : false;
+                        imageLink = baseImageLink || item.grid_image_link || item.icon_link;
+                    }
                     return `
                         <div class="row">
-                            ${data ? `<div class="col s12 xl6"><img src="${data}" class="tooltipped" loading="lazy" data-tooltip="image" /></div>`: ''}
-                            ${item.grid_image_link ? `<div class="col s12 xl6"><img src="${item.grid_image_link}" class="tooltipped" loading="lazy" data-tooltip="grid image" /></div>`: ''}
-                            ${item.icon_link ? `<div class="col s12 xl6"><img src="${item.icon_link}" class="tooltipped" loading="lazy" data-tooltip="icon" /></div>`: ''}
+                            ${imageLink ? `<div class="col s12"><img src="${imageLink}" loading="lazy" style="max-height: 200px" /></div>`: ''}
+                        </div>
+                        <div class="row">
+                            ${item.image_8x_link ? '': '<span class="tooltipped" data-tooltip="8x image">🚫</span>'}
+                            ${item.image_512_link ? '': '<span class="tooltipped" data-tooltip="512 image">🚫</span>'}
+                            ${data ? '': '<span class="tooltipped" data-tooltip="inspect image">🚫</span>'}
+                            ${!baseImages.includes(item.id) ? '': '<span class="tooltipped" data-tooltip="base image">🚫</span>'}
+                            ${item.grid_image_link ? '': '<span class="tooltipped" data-tooltip="grid image">🚫</span>'}
+                            ${item.icon_link ? '' : '<span class="tooltipped" data-tooltip="icon image">🚫</span>'}
+                            ${item.image_8x_link || baseImages.includes(item.id) ? `<a class="waves-effect waves-light regenerate btn" data-id="${item.id}" data-tooltip="Regenerate images from source"><i class="medium material-icons">refresh</i></a>` : ''}
                         </div>
                     `;
                 }
@@ -168,6 +192,21 @@ $(document).ready( function () {
                     }
                 });
             });
+
+            $('.btn.regenerate').click(event => {
+                let target = event.target;
+                if (target.nodeName !== 'A') {
+                    target = target.parentElement;
+                }
+                $(target).addClass('disabled');
+                fetch(`/items/regenerate-images/${$(target).data('id')}`, {method: 'POST'}).then(response => response.json()).then(data => {
+                    $(target).removeClass('disabled');
+                    M.toast({html: data.message});
+                    for (const error of data.errors) {
+                        M.toast({html: error});
+                    }
+                });
+            });
         }
     });
 
@@ -256,7 +295,7 @@ jQuery.fn.dataTableExt.afnFiltering.push(
                 specialPassed = true;
                 allItems = true;
             } else if (filter === 'missing-image') {
-                if (!item.image_link || !item.grid_image_link || !item.icon_link) specialPassed = true;
+                if (!item.image_link || !item.grid_image_link || !item.icon_link || !item.image_512_link || !item.image_8x_link || !baseImages.includes(item.id)) specialPassed = true;
             } else if (filter === 'no-wiki') {
                 if (!item.wiki_link) specialPassed = true;
             }
