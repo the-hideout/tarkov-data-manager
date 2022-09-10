@@ -573,7 +573,7 @@ app.get('/items', async (req, res) => {
                         <div class="row">
                             <div class="col s4">
                                 <div>base image</div>
-                                <div class="input-field item-base-image"></div>
+                                <div class="input-field item-image base_image_link"></div>
                                 <div>Upload new base image</div>
                                 <input id="image-upload" type="file" name="base-image-upload" />
                             </div>

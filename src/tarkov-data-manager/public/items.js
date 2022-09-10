@@ -24,14 +24,6 @@ const showEditItemModal = function(event){
             }
             $(this).append(`<img src="${item[field]}" style="max-height: 240px" />`);
         });
-        editModal.find('.item-base-image').each(function() {
-            $(this).empty();
-            if (!item.base_image_link) {
-                $(this).text('N/A');
-                return;
-            }
-            $(this).append(`<img src="${item.base_image_link}" />`);
-        });
         editModal.find('input[type="file"]').val('');
     }
     $('#modal-edit-item .image-download').attr('href', `/items/download-images/${item.id}`);
