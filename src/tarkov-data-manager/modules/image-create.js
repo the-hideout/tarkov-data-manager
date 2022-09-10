@@ -94,6 +94,9 @@ async function regenerateFromExisting(id) {
             imageFunctions.createInspectImage(sourceImage, item).then(result => {return {image: result, type: 'image'}})
         );
         imageJobs.push(
+            imageFunctions.createBaseImage(sourceImage, item).then(result => {return {image: result, type: 'base-image'}})
+        );
+        imageJobs.push(
             imageFunctions.create512Image(sourceImage, item).then(result => {return {image: result, type: '512'}})
         );
     } else {
