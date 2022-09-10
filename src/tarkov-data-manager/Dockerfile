@@ -6,7 +6,7 @@ RUN chown -R node:node /app
 
 COPY --chown=node:node . .
 
-RUN npm install --unsafe-perm
+RUN npm install
 
 USER node
 
