@@ -87,7 +87,6 @@ async function regenerateFromExisting(id) {
     const imageJobs = [
         imageFunctions.createIcon(sourceImage, item).then(result => {return {image: result, type: 'icon'}}),
         imageFunctions.createGridImage(sourceImage, item).then(result => {return {image: result, type: 'grid-image'}}),
-        imageFunctions.createInspectImage(sourceImage, item).then(result => {return {image: result, type: 'image'}}),
     ];
     if (regenSource === '8x') {
         imageJobs.push(
