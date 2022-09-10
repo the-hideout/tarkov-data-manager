@@ -4,6 +4,8 @@ WORKDIR /app
 
 RUN chown -R node:node /app
 
+RUN sudo chown -R node ~/.npm ~/.npmrc
+
 COPY --chown=node:node . .
 
 RUN npm install
