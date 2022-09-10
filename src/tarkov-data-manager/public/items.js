@@ -39,6 +39,18 @@ const drawTable = () => {
     if (table) table.draw();
 };
 
+const missingImageElement = (imageType) => {
+    return `<span class="tooltipped" style="cursor: default" data-tooltip="${imageType} image">🚫</span>`;
+};
+
+const existingImageElement = (imageType, url) => {
+    const tooltip = `
+        <div>${imageType} image</div>
+        <img src=&quot;${url}&quot; style=&quot;max-height: 300px&quot;/>
+    `;
+    return `<a href="${url}" class="tooltipped" style="cursor: normal" data-tooltip="${tooltip}">✔️</a>`;
+};
+
 $(document).ready( async function () {
     const columns = [
         {
@@ -77,12 +89,14 @@ $(document).ready( async function () {
                             ${imageLink ? `<div class="col s12"><img src="${imageLink}" loading="lazy" style="max-height: 200px" /></div>`: ''}
                         </div>
                         <div class="row">
-                            ${item.image_8x_link ? '': '<span class="tooltipped" data-tooltip="8x image">🚫</span>'}
-                            ${item.image_512_link ? '': '<span class="tooltipped" data-tooltip="512 image">🚫</span>'}
-                            ${data ? '': '<span class="tooltipped" data-tooltip="inspect image">🚫</span>'}
-                            ${item.base_image_link ? '': '<span class="tooltipped" data-tooltip="base image">🚫</span>'}
-                            ${item.grid_image_link ? '': '<span class="tooltipped" data-tooltip="grid image">🚫</span>'}
-                            ${item.icon_link ? '' : '<span class="tooltipped" data-tooltip="icon image">🚫</span>'}
+                            ${item.image_8x_link ? existingImageElement('8x', item.image_8x_link): missingImageElement('8x')}
+                            ${item.image_512_link ? existingImageElement('512', item.image_512_link): missingImageElement('512')}
+                            ${data ? existingImageElement('inspect', data): missingImageElement('inspect')}
+                            ${item.base_image_link ? existingImageElement('base', item.base_image_link): missingImageElement('base')}
+                            ${item.grid_image_link ? existingImageElement('grid', item.grid_image_link): missingImageElement('grid')}
+                            ${item.icon_link ? existingImageElement('icon', item.icon_link) : missingImageElement('icon')}
+                        </div>
+                        <div class="row">
                             ${item.image_8x_link || item.base_image_link ? `<a class="waves-effect waves-light regenerate btn" data-id="${item.id}" data-tooltip="Regenerate images from source"><i class="medium material-icons">refresh</i></a>` : ''}
                         </div>
                     `;
@@ -179,7 +193,7 @@ $(document).ready( async function () {
                     }
                 });
             });
-            
+
             $('.btn.regenerate').off('click');
             $('.btn.regenerate').click(event => {
                 let target = event.target;
