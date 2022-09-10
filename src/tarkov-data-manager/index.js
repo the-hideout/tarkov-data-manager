@@ -631,13 +631,18 @@ app.get('/items', async (req, res) => {
 
 app.get('/items/get', async (req, res) => {
     const t = timer('getting-items');
-    const myData = await remoteData.get();
-    let existingBaseImages = [];
-    try {
-        existingBaseImages = JSON.parse(fs.readFileSync(path.join(__dirname, 'public', 'data', 'existing-bases.json')));
-    } catch (error) {
-        console.log('error trying to read existing basse images', error);
-    }
+    const [ myData, existingBaseImages ] = await Promise.all([
+        remoteData.get(),
+        new Promise(resolve => {
+            try {
+                bases = JSON.parse(fs.readFileSync(path.join(__dirname, 'public', 'data', 'existing-bases.json')));
+                resolve(bases);
+            } catch (error) {
+                console.log('error trying to read existing basse images', error);
+                resolve([]);
+            }
+        })
+    ]);
     const items = [];
     const attributes = [
         'id', 
