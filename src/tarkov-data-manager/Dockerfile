@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN chown -R node:node /app
 
-RUN sudo chown -R node ~/.npm ~/.npmrc
+RUN chown -R node ~/.npm ~/.npmrc
 
 COPY --chown=node:node . .
 
