@@ -179,7 +179,8 @@ $(document).ready( async function () {
                     }
                 });
             });
-
+            
+            $('.btn.regenerate').off('click');
             $('.btn.regenerate').click(event => {
                 let target = event.target;
                 if (target.nodeName !== 'A') {
