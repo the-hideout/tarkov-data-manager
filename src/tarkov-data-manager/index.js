@@ -348,7 +348,7 @@ app.post('/items/regenerate-images/:id', async (req, res) => {
     const response = {success: false, message: 'Error regenerating images', errors: []};
     try {
         const results = await regenerateFromExisting(req.params.id);
-        response.message = `Regenerated ${results.images.join(', ')} from ${result.source}`;
+        response.message = `Regenerated ${results.images.join(', ')} from ${results.source}`;
         response.success = true;
     } catch (error) {
         if (Array.isArray(error)) {
