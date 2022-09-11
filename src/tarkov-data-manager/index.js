@@ -339,9 +339,9 @@ app.get('/', async (req, res) => {
                 <h5><a href="/items" class="waves-effect waves-light btn"><i class="material-icons left">search</i>Items</a></h5>
                 <ul class="browser-default">
                     <li>Total: ${itemCount}</li>
-                    <li>Untagged: ${untagged.length}</li>
-                    <li>Missing image(s): ${missingImage.length} items missing ${missingImageCount} total images</li>
-                    <li>Missing wiki link: ${missingWiki.length}</li>
+                    ${untagged.length > 0 ? `<li>Untagged: ${untagged.length}</li>` : ''}
+                    ${missingImage.length > 0 ? `<li>Missing image(s): ${missingImage.length} items missing ${missingImageCount} total images</li>` : '' }
+                    ${missingWiki.length > 0 ? `<li>Missing wiki link: ${missingWiki.length}</li>` : '' }
                 </ul>
             </div>
             <div class="section col s12">
