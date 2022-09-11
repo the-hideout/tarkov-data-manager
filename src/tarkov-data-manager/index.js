@@ -288,16 +288,42 @@ app.get('/', async (req, res) => {
             activeScanners++;
         } 
     });
+    const imageFields = [
+        'image_8x_link',
+        'image_512_link',
+        'image_link',
+        'grid_image_link',
+        'icon_link',
+    ];
     let itemCount = 0;
-    let missingImage = [];
-    let missingWiki = [];
+    const missingImage = [];
+    let missingImageCount = 0;
+    const missingWiki = [];
     let untagged = [];
     const myData = await remoteData.get();
     const existingBaseImages = JSON.parse(fs.readFileSync(path.join(__dirname, 'public', 'data', 'existing-bases.json')));
     for (const [key, item] of myData) {
-        if (item.types.length == 0) untagged.push(item);
-        if (!item.wiki_link && !item.types.includes('disabled')) missingWiki.push(item);
-        if ((!item.image_link || !item.grid_image_link || !item.icon_link || !item.image_512_link || !item.image_8x_link || !existingBaseImages.includes(item.id)) && !item.types.includes('disabled')) missingImage.push(item);
+        if (item.types.length == 0) 
+            untagged.push(item);
+        
+        let missingImages = 0;
+        if (!item.types.includes('disabled')) {
+            if (!item.wiki_link) {
+                missingWiki.push(item);
+            }
+            for (const field of imageFields) {
+                if (!item[field]) {
+                    missingImages++;
+                }
+            }
+            if (!existingBaseImages.includes(item.id)) {
+                missingImages++
+            }
+        }
+        if (missingImages > 0) {
+            missingImage.push(item);
+            missingImageCount += missingImages;
+        }
         itemCount++;
     }
     res.send(`${getHeader(req)}
@@ -314,7 +340,7 @@ app.get('/', async (req, res) => {
                 <ul class="browser-default">
                     <li>Total: ${itemCount}</li>
                     <li>Untagged: ${untagged.length}</li>
-                    <li>Missing image(s): ${missingImage.length}</li>
+                    <li>Missing image(s): ${missingImage.length} items missing ${missingImageCount} total images</li>
                     <li>Missing wiki link: ${missingWiki.length}</li>
                 </ul>
             </div>
