@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const sharp = require('sharp');
 
 const axios = require('axios');
@@ -66,14 +67,14 @@ async function regenerateFromExisting(id) {
     const itemData = await jobOutput('update-item-cache', './dumps/item_data.json');
     const item = itemData[id];
     if (!item) {
-        return Promise.reject(`Item ${id} not found in processed item data`);
+        return Promise.reject(new Error(`Item ${id} not found in processed item data`));
     }
     let regenSource = '8x';
     let sourceUrl = item.image8xLink;
     if (item.image8xLink.includes('unknown-item')) {
         existingBaseImages = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json')));
         if (!existingBaseImages.includes(id)) {
-            return Promise.reject(`${item.name} does not have an 8x or base image to regnerate images from`);
+            return Promise.reject(new Error(`${item.name} does not have an 8x or base image to regnerate images from`));
         }
         sourceUrl = `https://${process.env.S3_BUCKET}/${id}-base-image.png`;
         regenSource = 'base';
@@ -99,7 +100,7 @@ async function regenerateFromExisting(id) {
             imageFunctions.create512Image(sourceImage, item).then(result => {return {image: result, type: '512'}})
         );
     } else {
-        if (imageFunctions.canCreateInspectImage(sourceImage)) {
+        if (await imageFunctions.canCreateInspectImage(sourceImage)) {
             imageJobs.push(
                 imageFunctions.createInspectImage(sourceImage, item).then(result => {return {image: result, type: 'image'}})
             );

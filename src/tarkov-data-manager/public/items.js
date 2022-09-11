@@ -249,6 +249,15 @@ $(document).ready( async function () {
         }
     });
 
+    $('.single-upload').change(event => {
+        const url = URL.createObjectURL(event.target.files[0]);
+        if (url) {
+            const imageHolder = $(event.target).parent().find('.item-image');
+            imageHolder.empty();
+            imageHolder.append(`<img src="${url}">`);
+        }
+    });
+
     $('.filter-types-all').click(() => {
         $('input.filter-type').prop('checked', true);
         drawTable();

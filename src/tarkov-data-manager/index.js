@@ -33,7 +33,7 @@ const timer = require('./modules/console-timer');
 const scannerApi = require('./modules/scanner-api');
 const webhookApi = require('./modules/webhook-api');
 const queueApi = require('./modules/queue-api');
-const uploadToS3 = require('./modules/upload-s3');
+const { uploadToS3 } = require('./modules/upload-s3');
 const { createAndUploadFromSource, regenerateFromExisting } = require('./modules/image-create');
 
 vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
@@ -352,9 +352,9 @@ app.post('/items/regenerate-images/:id', async (req, res) => {
         response.success = true;
     } catch (error) {
         if (Array.isArray(error)) {
-            response.errors = error.map(err => err.message);
+            response.errors = error.map(err => err.message || err);
         } else {
-            response.errors.push(error.message);
+            response.errors.push(error.message || error);
         }
     }
     res.send(response);
@@ -402,7 +402,7 @@ app.post('/items/edit/:id', async (req, res) => {
                 }
                 let sourceUpload = false;
                 for (const field in files) {
-                    if (field === 'source-upload') {
+                    if (field === 'source-upload' && files[field].size !== 0) {
                         sourceUpload = true;
                         break;
                     }
@@ -466,7 +466,7 @@ app.get('/items', async (req, res) => {
         typeFilters = `${typeFilters}
         <div class="col s4 l3 xl2">
             <label for="type-${type}">
-                <input type="checkbox" class="filled-in filter-type" id="type-${type}" value="${type}" checked />
+                <input type="checkbox" class="filled-in filter-type" id="type-${type}" value="${type}"${type === 'disabled' ? ' checked' : ''} />
                 <span>${type}</span>
             </label>
         </div>`;
@@ -496,7 +496,7 @@ app.get('/items', async (req, res) => {
                             </div>
                             <div>
                                 <label>
-                                    <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="any" checked>
+                                    <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="any">
                                     <span>Require any</span>
                                 </label>
                                 <label>
@@ -504,7 +504,7 @@ app.get('/items', async (req, res) => {
                                     <span>Require all</span>
                                 </label>
                                 <label>
-                                    <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="none">
+                                    <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="none" checked>
                                     <span>Exclude</span>
                                 </label>
                             </div>
@@ -555,19 +555,19 @@ app.get('/items', async (req, res) => {
                                 <div>8x image</div>
                                 <div class="input-field item-image image_8x_link"></div>
                                 <div>Upload new 8x image</div>
-                                <input id="image-upload" type="file" name="8x-upload" />
+                                <input id="image-8x-upload" class="single-upload" type="file" name="8x-upload" />
                             </div>
                             <div class="col s4">
                                 <div>512px image</div>
                                 <div class="input-field item-image image_512_link"></div>
                                 <div>Upload new 512 image</div>
-                                <input id="image-upload" type="file" name="512-upload" />
+                                <input id="image-512-upload" class="single-upload" type="file" name="512-upload" />
                             </div>
                             <div class="col s4">
                                 <div>Inspect image</div>
                                 <div class="input-field item-image image_link"></div>
                                 <div>Upload new inspect image</div>
-                                <input id="image-upload" type="file" name="image-upload" />
+                                <input id="image-upload" class="single-upload" type="file" name="image-upload" />
                             </div>
                         </div>
                         <div class="row">
@@ -575,19 +575,19 @@ app.get('/items', async (req, res) => {
                                 <div>Base image</div>
                                 <div class="input-field item-image base_image_link"></div>
                                 <div>Upload new base image</div>
-                                <input id="image-upload" type="file" name="base-image-upload" />
+                                <input id="base-image-upload" class="single-upload" type="file" name="base-image-upload" />
                             </div>
                             <div class="col s4">
                                 <div>Grid image</div>
                                 <div class="input-field item-image grid_image_link"></div>
                                 <div>Upload new grid image</div>
-                                <input id="grid-image-upload" type="file" name="grid-image-upload" />
+                                <input id="grid-image-upload" class="single-upload" type="file" name="grid-image-upload" />
                             </div>
                             <div class="col s4">
                                 <div>Icon</div>
                                 <div class="input-field item-image icon_link"></div>
                                 <div>Upload new icon</div>
-                                <input id="icon-upload" type="file" name="icon-upload" />
+                                <input id="icon-upload" class="single-upload" type="file" name="icon-upload" />
                             </div>
                         </div>
                         <div class="row">
