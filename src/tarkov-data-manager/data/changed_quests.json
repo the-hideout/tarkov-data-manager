@@ -64,6 +64,111 @@
                 "status": [
                     "complete"
                 ]
+            },
+            {
+                "task": "6179b4d1bca27a099552e04e",
+                "name": "Revision - Part 2",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "60896888e4a85c72ef3fa300",
+                "name": "Classified Technologies",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "6179aff8f57fb279792c60a1",
+                "name": "Overpopulation",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "61958c366726521dd96828ec",
+                "name": "Cargo X - Part 4",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "6089736efa70fc097863b8f6",
+                "name": "Back Door",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "608974af4b05530f55550c21",
+                "name": "Inventory Check",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "608a768d82e40b3c727fd17d",
+                "name": "Pest Control",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "6179b3bdc7560e13d23eeb8d",
+                "name": "Corporate Secrets",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "6179acbdc760af5ad2053585",
+                "name": "Easy Job - Part 2",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "6179b4f16e9dd54ac275e407",
+                "name": "Missing Cargo",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "6179ad56c760af5ad2053587",
+                "name": "Seaside Vacation",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c0d0f1886f77457b8210226",
+                "name": "Lend-Lease - Part 2",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5ae4497b86f7744cf402ed00",
+                "name": "Sew it Good - Part 4",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "6179b3a12153c15e937d52bc",
+                "name": "Energy Crisis",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "60e71b9bbd90872cb85440f3",
+                "name": "Capturing Outposts",
+                "status": [
+                    "complete"
+                ]
             }
         ]
     },
