@@ -1,4 +1,72 @@
 {
+    "5c51aac186f77432ea65c552": {
+        "name": "Collector",
+        "taskRequirementsAdded": [
+            {
+                "task": "5fd9fad9c1ce6b1a3b486d00",
+                "name": "Search Mission",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "596a218586f77420d232807c",
+                "name": "Car Repair",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "6179afd0bca27a099552e040",
+                "name": "Lost Contact",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "61904daa7d0d857927447b9c",
+                "name": "The Hermit",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "626bdcc3a371ee3a7a3514c5",
+                "name": "Stray Dogs",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5d25e29d86f7740a22516326",
+                "name": "The Survivalist Path - Eagle-Owl",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5d4bec3486f7743cac246665",
+                "name": "Regulated Materials",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "60896e28e4a85c72ef3fa301",
+                "name": "Disease History",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "60896b7bfa70fc097863b8f5",
+                "name": "Documents",
+                "status": [
+                    "complete"
+                ]
+            }
+        ]
+    },
     "60e71b9bbd90872cb85440f3": {
         "name": "Capturing Outposts",
         "objectivesChanged": {

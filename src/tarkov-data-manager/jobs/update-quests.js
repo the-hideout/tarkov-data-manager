@@ -948,6 +948,14 @@ module.exports = async (externalLogger = false) => {
                     questData.objectives.push(newObj);
                 }
             }
+            if (changedQuests[questData.id] && changedQuests[questData.id].taskRequirementsAdded) {
+                for (const newReq of changedQuests[questData.id].taskRequirementsAdded) {
+                    if (questData.taskRequirements.some(req => req.task === newReq.task)) {
+                        continue;
+                    }
+                    questData.taskRequirements.push(newReq);
+                }
+            }
             for (const req of quest.conditions.AvailableForStart) {
                 if (req._parent === 'Level') {
                     questData.minPlayerLevel = parseInt(req._props.value);
