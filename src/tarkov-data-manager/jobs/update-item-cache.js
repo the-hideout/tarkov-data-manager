@@ -401,7 +401,9 @@ module.exports = async () => {
             // images and fallbacks
             itemData[key].iconLink = itemData[key].icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
             itemData[key].gridImageLink = itemData[key].grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
-            itemData[key].inspectImageLink = itemData[key].image_link || 'https://assets.tarkov.dev/unknown-item-image.jpg';
+            itemData[key].inspectImageLink = itemData[key].image_link || 'https://assets.tarkov.dev/unknown-item-inspect.webp';
+            itemData[key].image512pxLink = itemData[key].image_512_link || 'https://assets.tarkov.dev/unknown-item-512.webp';
+            itemData[key].image8xLink = itemData[key].image_8x_link || 'https://assets.tarkov.dev/unknown-item-512.webp';
             /*itemData[key].imageLink = itemData[key].inspectImageLink;
 
             itemData[key].iconLinkFallback = itemData[key].iconLink

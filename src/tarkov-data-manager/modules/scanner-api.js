@@ -6,7 +6,10 @@ const {query, format} = require('./db-connection');
 const {dashToCamelCase} = require('./string-functions');
 const remoteData = require('./remote-data');
 const { uploadToS3 } = require('./upload-s3');
-const { createAndUploadFromSource, imageTypes } = require('./image-create');
+const { createAndUploadFromSource } = require('./image-create');
+const { imageFunctions } = require('tarkov-dev-image-generator');
+
+const { imageSizes } = imageFunctions;
 
 let refreshingUsers = false;
 let users = {};
@@ -92,6 +95,8 @@ const queryResultToBatchItem = item => {
         needsImage: item.needs_image ? true : false,
         needsGridImage: item.needs_grid_image ? true : false,
         needsIconImage: item.needs_icon_image ? true : false,
+        needs512pxImage: item.needs_512px_image ? true : false,
+        needs8xImage: item.needs_8x_image ? true : false,
 
         // Backwards compatibility
         /*short_name: String(item.short_name),
@@ -113,6 +118,8 @@ const queryResultToBatchItem = item => {
     needsImage: false,
     needsGridImage: false,
     needsIconImage: false,
+    needs512pxImage: false,
+    needs8xImage: false,
     types: [ 'gun', 'wearable' ],
     contains: [
         '564ca99c4bdc2d16268b4589',
@@ -148,6 +155,8 @@ const getItems = async(options) => {
                 image_link IS NULL OR image_link = '' AS needs_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
                 icon_link IS NULL OR icon_link = '' AS needs_icon_image,
+                image_512_link IS NULL or image_512_link = '' as needs_512px_image,
+                image_8x_link IS NULL or image_8x_link = '' as needs_8x_image,
                 GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types,
                 GROUP_CONCAT(distinct item_children.child_item_id SEPARATOR ',') as contains
             FROM
@@ -664,7 +673,9 @@ const submitImage = (request, user) => {
             if (files) {
                 for (const key in files) {
                     fs.rm(files[key].filepath, error => {
-                        if (error) console.log(`Error deleting ${files[key].filepath}`, error);
+                        if (error) {
+                            console.log(`Error deleting ${files[key].filepath}`, error);
+                        }
                     });
                 }
             }
@@ -683,7 +694,7 @@ const submitImage = (request, user) => {
             const allItemData = await remoteData.get();
             const currentItemData = allItemData.get(fields.id);
             const checkImageExists = imageType => {
-                const field = imageTypes[imageType].field;
+                const field = imageSizes[imageType].field;
                 if (field) {
                     return currentItemData[field];
                 }
@@ -692,10 +703,10 @@ const submitImage = (request, user) => {
 
             if (fields.type === 'source') {
                 if (fields.overwrite !== 'true') {
-                    for (const imgType of Object.keys(imageTypes)) {
+                    for (const imgType of Object.keys(imageSizes)) {
                         if (checkImageExists(imgType)) {
                             console.log(`Item ${fields.id} already has a ${imgType}`);
-                            response.errors.push(`Invalid image type: ${imgType}`);
+                            response.errors.push(`Item ${fields.id} already has a ${imgType}`);
                             return finish(response, files);
                         }
                     }
@@ -715,7 +726,7 @@ const submitImage = (request, user) => {
                 return finish(response, files);
             }
     
-            if(!Object.keys(imageTypes).includes(fields.type) || fields.type === 'large') {
+            if(!Object.keys(imageSizes).includes(fields.type)) {
                 console.log(`Invalid image type: ${fields.type}`);
                 response.errors.push(`Invalid image type: ${fields.type}`);
                 return finish(response, files);
@@ -731,7 +742,7 @@ const submitImage = (request, user) => {
     
             try {
                 await uploadToS3(files[fields.type].filepath, fields.type, fields.id);
-            } catch (error){
+            } catch (error) {
                 console.error(error);
                 if (Array.isArray(error)) {
                     response.errors.push(...error.map(err => String(err)));

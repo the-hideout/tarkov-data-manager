@@ -33,9 +33,8 @@ const timer = require('./modules/console-timer');
 const scannerApi = require('./modules/scanner-api');
 const webhookApi = require('./modules/webhook-api');
 const queueApi = require('./modules/queue-api');
-const uploadToS3 = require('./modules/upload-s3');
-const { createAndUploadFromSource } = require('./modules/image-create');
-const { response } = require('express');
+const { uploadToS3 } = require('./modules/upload-s3');
+const { createAndUploadFromSource, regenerateFromExisting } = require('./modules/image-create');
 
 vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
 
@@ -289,15 +288,42 @@ app.get('/', async (req, res) => {
             activeScanners++;
         } 
     });
+    const imageFields = [
+        'image_8x_link',
+        'image_512_link',
+        'image_link',
+        'grid_image_link',
+        'icon_link',
+    ];
     let itemCount = 0;
-    let missingImage = [];
-    let missingWiki = [];
+    const missingImage = [];
+    let missingImageCount = 0;
+    const missingWiki = [];
     let untagged = [];
     const myData = await remoteData.get();
+    const existingBaseImages = JSON.parse(fs.readFileSync(path.join(__dirname, 'public', 'data', 'existing-bases.json')));
     for (const [key, item] of myData) {
-        if (item.types.length == 0) untagged.push(item);
-        if (!item.wiki_link && !item.types.includes('disabled')) missingWiki.push(item);
-        if ((!item.image_link || !item.grid_image_link || !item.icon_link) && !item.types.includes('disabled')) missingImage.push(item);
+        if (item.types.length == 0) 
+            untagged.push(item);
+        
+        let missingImages = 0;
+        if (!item.types.includes('disabled')) {
+            if (!item.wiki_link) {
+                missingWiki.push(item);
+            }
+            for (const field of imageFields) {
+                if (!item[field]) {
+                    missingImages++;
+                }
+            }
+            if (!existingBaseImages.includes(item.id)) {
+                missingImages++
+            }
+        }
+        if (missingImages > 0) {
+            missingImage.push(item);
+            missingImageCount += missingImages;
+        }
         itemCount++;
     }
     res.send(`${getHeader(req)}
@@ -313,9 +339,9 @@ app.get('/', async (req, res) => {
                 <h5><a href="/items" class="waves-effect waves-light btn"><i class="material-icons left">search</i>Items</a></h5>
                 <ul class="browser-default">
                     <li>Total: ${itemCount}</li>
-                    <li>Untagged: ${untagged.length}</li>
-                    <li>Missing image(s): ${missingImage.length}</li>
-                    <li>Missing wiki link: ${missingWiki.length}</li>
+                    ${untagged.length > 0 ? `<li>Untagged: ${untagged.length}</li>` : ''}
+                    ${missingImage.length > 0 ? `<li>Missing image(s): ${missingImage.length} items missing ${missingImageCount} total images</li>` : '' }
+                    ${missingWiki.length > 0 ? `<li>Missing wiki link: ${missingWiki.length}</li>` : '' }
                 </ul>
             </div>
             <div class="section col s12">
@@ -342,6 +368,22 @@ app.post('/update', (request, response) => {
     }
 
     response.send(res);
+});
+
+app.post('/items/regenerate-images/:id', async (req, res) => {
+    const response = {success: false, message: 'Error regenerating images', errors: []};
+    try {
+        const results = await regenerateFromExisting(req.params.id);
+        response.message = `Regenerated ${results.images.join(', ')} from ${results.source}`;
+        response.success = true;
+    } catch (error) {
+        if (Array.isArray(error)) {
+            response.errors = error.map(err => err.message || err);
+        } else {
+            response.errors.push(error.message || error);
+        }
+    }
+    res.send(response);
 });
 
 app.get('/items/download-images/:id', async (req, res) => {
@@ -386,7 +428,7 @@ app.post('/items/edit/:id', async (req, res) => {
                 }
                 let sourceUpload = false;
                 for (const field in files) {
-                    if (field === 'source-upload') {
+                    if (field === 'source-upload' && files[field].size !== 0) {
                         sourceUpload = true;
                         break;
                     }
@@ -450,7 +492,7 @@ app.get('/items', async (req, res) => {
         typeFilters = `${typeFilters}
         <div class="col s4 l3 xl2">
             <label for="type-${type}">
-                <input type="checkbox" class="filled-in filter-type" id="type-${type}" value="${type}" checked />
+                <input type="checkbox" class="filled-in filter-type" id="type-${type}" value="${type}"${type === 'disabled' ? ' checked' : ''} />
                 <span>${type}</span>
             </label>
         </div>`;
@@ -480,7 +522,7 @@ app.get('/items', async (req, res) => {
                             </div>
                             <div>
                                 <label>
-                                    <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="any" checked>
+                                    <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="any">
                                     <span>Require any</span>
                                 </label>
                                 <label>
@@ -488,7 +530,7 @@ app.get('/items', async (req, res) => {
                                     <span>Require all</span>
                                 </label>
                                 <label>
-                                    <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="none">
+                                    <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="none" checked>
                                     <span>Exclude</span>
                                 </label>
                             </div>
@@ -536,22 +578,42 @@ app.get('/items', async (req, res) => {
                     <form class="col s12 post-url item-attribute id" data-attribute="action" data-prepend-value="/items/edit/" method="post" action="">
                         <div class="row">
                             <div class="col s4">
+                                <div>8x image</div>
+                                <div class="input-field item-image image_8x_link"></div>
+                                <div>Upload new 8x image</div>
+                                <input id="image-8x-upload" class="single-upload" type="file" name="8x-upload" />
+                            </div>
+                            <div class="col s4">
+                                <div>512px image</div>
+                                <div class="input-field item-image image_512_link"></div>
+                                <div>Upload new 512 image</div>
+                                <input id="image-512-upload" class="single-upload" type="file" name="512-upload" />
+                            </div>
+                            <div class="col s4">
                                 <div>Inspect image</div>
                                 <div class="input-field item-image image_link"></div>
-                                <div>Upload new image</div>
-                                <input id="image-upload" type="file" name="image-upload" />
+                                <div>Upload new inspect image</div>
+                                <input id="image-upload" class="single-upload" type="file" name="image-upload" />
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col s4">
+                                <div>Base image</div>
+                                <div class="input-field item-image base_image_link"></div>
+                                <div>Upload new base image</div>
+                                <input id="base-image-upload" class="single-upload" type="file" name="base-image-upload" />
                             </div>
                             <div class="col s4">
                                 <div>Grid image</div>
                                 <div class="input-field item-image grid_image_link"></div>
                                 <div>Upload new grid image</div>
-                                <input id="grid-image-upload" type="file" name="grid-image-upload" />
+                                <input id="grid-image-upload" class="single-upload" type="file" name="grid-image-upload" />
                             </div>
                             <div class="col s4">
                                 <div>Icon</div>
                                 <div class="input-field item-image icon_link"></div>
                                 <div>Upload new icon</div>
-                                <input id="icon-upload" type="file" name="icon-upload" />
+                                <input id="icon-upload" class="single-upload" type="file" name="icon-upload" />
                             </div>
                         </div>
                         <div class="row">
@@ -595,7 +657,18 @@ app.get('/items', async (req, res) => {
 
 app.get('/items/get', async (req, res) => {
     const t = timer('getting-items');
-    const myData = await remoteData.get();
+    const [ myData, existingBaseImages ] = await Promise.all([
+        remoteData.get(),
+        new Promise(resolve => {
+            try {
+                bases = JSON.parse(fs.readFileSync(path.join(__dirname, 'public', 'data', 'existing-bases.json')));
+                resolve(bases);
+            } catch (error) {
+                console.log('error trying to read existing basse images', error);
+                resolve([]);
+            }
+        })
+    ]);
     const items = [];
     const attributes = [
         'id', 
@@ -607,6 +680,8 @@ app.get('/items/get', async (req, res) => {
         'icon_link',
         'grid_image_link',
         'image_link',
+        'image_512_link',
+        'image_8x_link',
         'match_index',
         'avg24hPrice',
         'lastLowPrice'
@@ -616,6 +691,10 @@ app.get('/items/get', async (req, res) => {
         for (let i = 0; i < attributes.length; i++) {
             const attribute = attributes[i];
             newItem[attribute] = item[attribute];
+        }
+        newItem.base_image_link = null;
+        if (existingBaseImages.includes(item.id)) {
+            newItem.base_image_link = `https://${process.env.S3_BUCKET}/${item.id}-base-image.png`;
         }
         items.push(newItem);
     }

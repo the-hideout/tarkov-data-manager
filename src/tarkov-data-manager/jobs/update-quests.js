@@ -457,10 +457,10 @@ module.exports = async (externalLogger = false) => {
     try {
         logger.log('Processing quests...');
         logger.log('Retrieving TarkovTracker quests.json...');
-        tdQuests = (await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
+        tdQuests = await got('https://tarkovtracker.github.io/tarkovdata/quests.json', {
             responseType: 'json',
-            resolveBodyOnly: true
-        }));
+            resolveBodyOnly: true,
+        });
         const data = await tarkovChanges.quests();
         items = await tarkovChanges.items();
         en = await tarkovChanges.locale_en();
@@ -946,6 +946,14 @@ module.exports = async (externalLogger = false) => {
                         }
                     }
                     questData.objectives.push(newObj);
+                }
+            }
+            if (changedQuests[questData.id] && changedQuests[questData.id].taskRequirementsAdded) {
+                for (const newReq of changedQuests[questData.id].taskRequirementsAdded) {
+                    if (questData.taskRequirements.some(req => req.task === newReq.task)) {
+                        continue;
+                    }
+                    questData.taskRequirements.push(newReq);
                 }
             }
             for (const req of quest.conditions.AvailableForStart) {

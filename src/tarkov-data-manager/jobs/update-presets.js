@@ -8,6 +8,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const { getTranslation } = require('../modules/get-translation');
+const remoteData = require('../modules/remote-data');
 
 let logger = false;
 
@@ -20,6 +21,7 @@ module.exports = async (externalLogger = false) => {
         const en = await tarkovChanges.locale_en();
         const locales = await tarkovChanges.locales();
         const credits = await tarkovChanges.credits();
+        const localItems = await remoteData.get();
 
         initPresetSize(items, credits);
 
@@ -96,8 +98,11 @@ module.exports = async (externalLogger = false) => {
             if (preset._changeWeaponName && en.preset[presetId] && en.preset[presetId].Name) {
                 presetData.name += ' '+en.preset[presetId].Name;
                 presetData.shortName += ' '+en.preset[presetId].Name;
+                //presetData.default = false;
+            }
+            if (preset._encyclopedia !== presetData.baseId) {
                 presetData.default = false;
-            } 
+            }
             for (const code in locales) {
                 lang = locales[code];
                 if (preset._changeWeaponName && lang.preset[presetId] && lang.preset[presetId].Name) {
@@ -206,6 +211,32 @@ module.exports = async (externalLogger = false) => {
             presetsData['customdogtags12345678910'].locale[code] = {
                 name: getDogTagName(code),
                 shortName: getDogTagName(code)
+            }
+        }
+        for (const [id, item] of localItems.entries()) {
+            if (!item.types.includes('gun') || item.types.includes('disabled'))
+                continue;
+            
+            const matchingPresets = [];
+            let defaultId = false;
+            for (const preset of Object.values(presetsData)) {
+                if (preset.baseId !== id)
+                    continue;
+                
+                if (preset.default) {
+                    defaultId = preset.id;
+                    break;
+                }
+                matchingPresets.push(preset);
+            }
+            if (!defaultId) {
+                if (matchingPresets.length === 1) {
+                    defaultId = matchingPresets[0].id;
+                    matchingPresets[0].default = true;
+                }
+            }
+            if (!defaultId) {
+                console.log(item.id, item.name, 'missing preset');
             }
         }
         logger.log('Loading default presets...');
