@@ -3,6 +3,7 @@ const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
+const jobOutput = require('../modules/job-output');
 
 let allItems = false;
 let bsgData = false;
@@ -109,15 +110,16 @@ module.exports = async (externalLogger) => {
     try {
         allItems = await remoteData.get(true);
         bsgData = await tarkovChanges.items();
+        const presets = await jobOutput('update-presets', './cache/presets.json', logger);
 
         logger.log(`Updating types`);
         for (const [itemId, item] of allItems.entries()) {
-            if (item.types.includes('preset')) {
+            if (presets[item.id]) {
                 if (!item.types.includes('preset')) {
                     logger.warn(`${itemId} ${item.name} is not marked as a preset`);
                     await query(`INSERT IGNORE INTO types (item_id, type) VALUES(?, 'preset')`, [itemId]).then(results => {
                         if (results.affectedRows == 0) {
-                            logger.fail(`Already market as preset ${itemId} ${item.name}`);
+                            logger.fail(`Already marked as preset ${itemId} ${item.name}`);
                         }
                     });
                 }
@@ -153,6 +155,14 @@ module.exports = async (externalLogger) => {
                     await query(`INSERT IGNORE INTO types (item_id, type) VALUES(?, 'no-flea')`, [itemId]).then(results => {
                         if (results.affectedRows == 0) {
                             logger.fail(`Already marked as no-flea ${itemId} ${item.name}`);
+                        }
+                    });
+                }
+                if (!item.types.includes('quest') && bsgData[itemId]._props.QuestItem) {
+                    logger.warn(`${itemId} ${item.name} is not marked as a quest item`);
+                    await query(`INSERT IGNORE INTO types (item_id, type) VALUES(?, 'quest')`, [itemId]).then(results => {
+                        if (results.affectedRows == 0) {
+                            logger.fail(`Already marked as quest item ${itemId} ${item.name}`);
                         }
                     });
                 }
