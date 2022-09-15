@@ -20,6 +20,7 @@ const AVAILABLE_TYPES = [
     'pistol-grip',
     'preset',
     'provisions',
+    'quest',
     'rig',
     'suppressor',
     'wearable',
