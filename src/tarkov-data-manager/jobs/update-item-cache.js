@@ -292,8 +292,11 @@ module.exports = async () => {
             disabledItemIds: [...itemMap.values()].filter(item => item.types.includes('disabled')).map(item => item.id)
         });
         for (const [key, value] of itemMap.entries()) {
-            if (value.types.includes('disabled') || value.types.includes('quest')) continue;
-            if (!bsgItems[key] && !presets[key]) continue;
+            if (value.types.includes('disabled') || value.types.includes('quest'))
+                continue;
+            if (!bsgItems[key] && !presets[key])
+                continue;
+
             itemData[key] = {
                 ...value,
                 shortName: value.short_name,
