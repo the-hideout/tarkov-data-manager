@@ -11,6 +11,7 @@ const tarkovChanges = require('../modules/tarkov-changes');
 const legacyQuests = require('./update-quests-legacy');
 const { setLocales, translatePath, getTranslation, getTranslations } = require('../modules/get-translation');
 const jobOutput = require('../modules/job-output');
+const normalizeName = require('../modules/normalize-name');
 
 let logger = false;
 let en = {};
@@ -1124,6 +1125,7 @@ module.exports = async (externalLogger = false) => {
             } else {
                 logger.warn(`Quest item ${id} not found in DB`);
             }
+            questItems[id].normalizedName = normalizeName(questItems[id].locale.en.name);
         }
 
         quests.items = questItems;
