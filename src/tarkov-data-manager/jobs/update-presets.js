@@ -3,7 +3,7 @@ const path = require('path');
 
 const normalizeName = require('../modules/normalize-name');
 const { initPresetSize, getPresetSize } = require('../modules/preset-size');
-const { query, jobComplete} = require('../modules/db-connection');
+const { connection, query, jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
@@ -102,7 +102,6 @@ module.exports = async (externalLogger = false) => {
                 presetData.default = false;
             }
             for (const code in presetData.locale) {
-                console.log(presetData.locale[code]);
                 lang = locales[code];
                 if (preset._changeWeaponName && lang.preset[presetId] && lang.preset[presetId].Name) {
                     if (presetData.locale[code].name)
