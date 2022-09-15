@@ -199,6 +199,7 @@ const getItems = async(options) => {
                 item_children.container_item_id = item_data.id
             WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
+                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') AND 
                 (item_data.image_link IS NULL OR item_data.image_link = '' OR item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' OR item_data.icon_link IS NULL OR item_data.icon_link = '')
             GROUP BY item_data.id
             ORDER BY item_data.name
@@ -228,7 +229,8 @@ const getItems = async(options) => {
             SET checkout_scanner_id = ?
             WHERE (checkout_scanner_id IS NULL OR checkout_scanner_id = ?) AND
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
-                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') ${nofleaCondition} 
+                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
+                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${nofleaCondition} 
             ORDER BY last_scan, id
             LIMIT ?
         `, [options.scanner.id,options.scanner.id,options.batchSize]);
@@ -246,7 +248,8 @@ const getItems = async(options) => {
             SET trader_checkout_scanner_id = ?
             WHERE ((trader_checkout_scanner_id IS NULL OR trader_checkout_scanner_id = ?) AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
-                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') ${lastScanCondition} )
+                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
+                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${lastScanCondition} )
             ORDER BY trader_last_scan, id
             LIMIT ?
         `, [options.scanner.id,options.scanner.id,options.batchSize]);

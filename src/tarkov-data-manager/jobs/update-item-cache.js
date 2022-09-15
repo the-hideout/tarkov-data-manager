@@ -294,8 +294,11 @@ module.exports = async () => {
         });
         setLocales(locales);
         for (const [key, value] of itemMap.entries()) {
-            if (value.types.includes('disabled')) continue;
-            if (!bsgItems[key] && !presets[key]) continue;
+            if (value.types.includes('disabled') || value.types.includes('quest'))
+                continue;
+            if (!bsgItems[key] && !presets[key])
+                continue;
+
             itemData[key] = {
                 ...value,
                 shortName: value.short_name,
