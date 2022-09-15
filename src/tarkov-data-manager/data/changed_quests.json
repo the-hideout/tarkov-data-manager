@@ -190,6 +190,20 @@
                 "status": [
                     "complete"
                 ]
+            },
+            {
+                "task": "5d25e4ca86f77409dd5cdf2c",
+                "name": "Hunting Trip",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "60e71dc67fcf9c556f325056",
+                "name": "Booze",
+                "status": [
+                    "complete"
+                ]
             }
         ]
     },
