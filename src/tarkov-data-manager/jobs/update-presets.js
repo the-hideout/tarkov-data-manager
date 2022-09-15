@@ -3,7 +3,7 @@ const path = require('path');
 
 const normalizeName = require('../modules/normalize-name');
 const { initPresetSize, getPresetSize } = require('../modules/preset-size');
-const { jobComplete} = require('../modules/db-connection');
+const { query, jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
