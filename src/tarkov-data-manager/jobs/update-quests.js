@@ -362,8 +362,15 @@ const formatTdQuest = (quest) => {
             obj.count = objective.number;
             if (objective.type === 'pickup') {
                 obj.type = `findQuestItem`;
-                obj.questItem = `${questData.id}-${obj.id}`;
-                questItems[obj.questItem.id] = obj.questItem;
+                obj.item_id = objective.target;
+                questItems[obj.target] = {
+                    id: obj.target,
+                    locale: {
+                        en: {
+                            name: obj.target
+                        }
+                    }
+                };
                 obj.description = `Obtain ${objective.target}`;
             } else {
                 obj.type = `findItem`;
@@ -402,8 +409,15 @@ const formatTdQuest = (quest) => {
             obj.count = parseInt(objective.number);
             if (!objective.target.match(idPattern)) {
                 obj.type = 'plantQuestItem';
-                obj.questItem = `${questData.id}-${obj.id}`;
-                questItems[obj.questItem.id] = obj.questItem;
+                obj.item_id = obj.target;
+                questItems[obj.target] = {
+                    id: obj.target,
+                    locale: {
+                        en: {
+                            name: obj.target
+                        }
+                    }
+                };
             } else {
                 obj.type = 'plantItem';
                 obj.item = objective.target;
@@ -593,7 +607,7 @@ module.exports = async (externalLogger = false) => {
                     obj.count = parseInt(objective._props.value);
                     if (!targetItem || targetItem._props.QuestItem) {
                         obj.type = `${verb}QuestItem`;
-                        obj.questItem = objective._props.target[0]
+                        //obj.questItem = objective._props.target[0];
                         questItems[objective._props.target[0]] = {
                             id: objective._props.target[0]
                         };
@@ -759,7 +773,7 @@ module.exports = async (externalLogger = false) => {
                     obj.count = parseInt(objective._props.value);
                     if (items[objective._props.target[0]]._props.QuestItem) {
                         obj.type = 'plantQuestItem';
-                        obj.questItem = objective._props.target[0];
+                        obj.item_id = objective._props.target[0];
                         questItems[objective._props.target[0]] = {
                             id: objective._props.target[0]
                         };
@@ -1010,9 +1024,8 @@ module.exports = async (externalLogger = false) => {
             for (const obj of quest.objectives) {
                 obj.locale = getTranslations({description: ['quest', questId, 'conditions', obj.id]}, logger);
                 if (obj.type.endsWith('QuestItem')) {
-                    //obj.questItem.locale = getTranslations({name: ['templates', obj.questItem.id, 'Name']}, logger);
-                    questItems[obj.questItem.id] = {
-                        id: obj.questItem.id
+                    questItems[obj.item_id] = {
+                        id: obj.item_id
                     };
                 }
                 addMapFromDescription(obj);
@@ -1090,20 +1103,26 @@ module.exports = async (externalLogger = false) => {
         }
 
         for (const id in questItems) {
-            if (itemMap.has(id)) {
-                const itemData = itemMap.get(id);
+            if (items[id]) {
                 //all quest items have a yellow background
                 //questItems[id].backgroundColor = items[id]._props.BackgroundColor;
-                questItems[id].iconLink = itemData.icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
-                questItems[id].gridImageLink = itemData.grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
-                questItems[id].inspectImageLink = itemData.image_link || 'https://assets.tarkov.dev/unknown-item-inspect.webp';
-                questItems[id].image512pxLink = itemData.image_512_link || 'https://assets.tarkov.dev/unknown-item-512.webp';
-                questItems[id].image8xLink = itemData.image_8x_link || 'https://assets.tarkov.dev/unknown-item-512.webp';
+                questItems[id].width = items[id]._props.Width;
+                questItems[id].height = items[id]._props.Height;
                 questItems[id].locale = getTranslations({
                     name: ['templates', id, 'Name'],
                     shortName: ['templates', id, 'ShortName'],
                     description: ['templates', id, 'Description']
                 }, logger);
+            }
+            if (itemMap.has(id)) {
+                const itemData = itemMap.get(id);
+                questItems[id].iconLink = itemData.icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
+                questItems[id].gridImageLink = itemData.grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
+                questItems[id].inspectImageLink = itemData.image_link || 'https://assets.tarkov.dev/unknown-item-inspect.webp';
+                questItems[id].image512pxLink = itemData.image_512_link || 'https://assets.tarkov.dev/unknown-item-512.webp';
+                questItems[id].image8xLink = itemData.image_8x_link || 'https://assets.tarkov.dev/unknown-item-512.webp';
+            } else {
+                logger.warn(`Quest item ${id} not found in DB`);
             }
         }
 
