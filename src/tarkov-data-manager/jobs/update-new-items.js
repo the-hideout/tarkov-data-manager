@@ -57,10 +57,6 @@ module.exports = async (externalLogger) => {
                 return false;
             }
 
-            if(bsgObject._props.QuestItem){
-                return false;
-            }
-
             if(secureContainers.includes(bsgObject._id)){
                 return true;
             }
@@ -127,6 +123,9 @@ module.exports = async (externalLogger) => {
             const normalized = normalizeName(name);
 
             try {
+                if (item._props.QuestItem){
+                    await query(`INSERT IGNORE INTO types (item_id, type) VALUES(?, 'quest')`, [item._id]);
+                }
                 const results = await query(`
                     INSERT INTO 
                         item_data (id, name, short_name, normalized_name, properties)
@@ -142,7 +141,7 @@ module.exports = async (externalLogger) => {
                         short_name=${connection.escape(name)},
                         properties=${connection.escape(JSON.stringify({backgroundColor: item._props.BackgroundColor}))}
                 `);
-                if(results.changedRows > 0){
+                if (results.changedRows > 0){
                     console.log(`${name} updated`);
                 }
 
@@ -159,7 +158,7 @@ module.exports = async (externalLogger) => {
         }
 
         for (const itemId in currentItems.keys()){
-            if(items.find(bsgItem => bsgItem._id === itemId)){
+            if (items.find(bsgItem => bsgItem._id === itemId)){
                 continue;
             }
             if (currentItems.get(itemId).types.includes('disabled')) {
