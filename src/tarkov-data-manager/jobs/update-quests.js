@@ -9,7 +9,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const legacyQuests = require('./update-quests-legacy');
-const { setLocales, translatePath, getTranslation } = require('../modules/get-translation');
+const { setLocales, translatePath, getTranslation, getTranslations } = require('../modules/get-translation');
 const jobOutput = require('../modules/job-output');
 
 let logger = false;
@@ -22,6 +22,7 @@ let tdTraders = false;
 let tdMaps = false;
 let maps = false;
 let traderIdMap = {};
+const questItems = {};
 
 const questStatusMap = {
     2: 'active',
@@ -361,10 +362,8 @@ const formatTdQuest = (quest) => {
             obj.count = objective.number;
             if (objective.type === 'pickup') {
                 obj.type = `findQuestItem`;
-                obj.questItem = {
-                    id: null,
-                    name: objective.target
-                }
+                obj.questItem = `${questData.id}-${obj.id}`;
+                questItems[obj.questItem.id] = obj.questItem;
                 obj.description = `Obtain ${objective.target}`;
             } else {
                 obj.type = `findItem`;
@@ -403,10 +402,8 @@ const formatTdQuest = (quest) => {
             obj.count = parseInt(objective.number);
             if (!objective.target.match(idPattern)) {
                 obj.type = 'plantQuestItem';
-                obj.questItem = {
-                    id: null,
-                    name: objective.target
-                };
+                obj.questItem = `${questData.id}-${obj.id}`;
+                questItems[obj.questItem.id] = obj.questItem;
             } else {
                 obj.type = 'plantItem';
                 obj.item = objective.target;
@@ -569,14 +566,8 @@ module.exports = async (externalLogger = false) => {
                 tarkovDataId: undefined,
                 factionName: 'Any',
                 neededKeys: [],
-                locale: {}
+                locale: getTranslations({name: ['quest', questId, 'name']}. logger)
             };
-            for (const code in locales) {
-                const lang = locales[code];
-                questData.locale[code] = {
-                    name: translatePath(code, ['quest', questId, 'name'], logger)//lang.quest[questId]? lang.quest[questId].name : locales.en.quest[questId].name
-                };
-            }
             for (const objective of quest.conditions.AvailableForFinish) {
                 let optional = false;
                 if (objective._props.parentId) {
@@ -589,14 +580,8 @@ module.exports = async (externalLogger = false) => {
                     description: en.quest[questId].conditions[objective._props.id],
                     locationNames: [],
                     map_ids: [],
-                    locale: {}
+                    locale: getTranslations({description: ['quest', questId, 'conditions', objective._props.id]}, logger, false)
                 };
-                for (const code in locales) {
-                    const lang = locales[code];
-                    obj.locale[code] = {
-                        description: translatePath(code, ['quest', questId, 'conditions', objective._props.id], logger, false)
-                    };
-                }
                 if (objective._parent === 'FindItem' || objective._parent === 'HandoverItem') {
                     const targetItem = items[objective._props.target[0]];
                     let verb = 'give';
@@ -608,17 +593,10 @@ module.exports = async (externalLogger = false) => {
                     obj.count = parseInt(objective._props.value);
                     if (!targetItem || targetItem._props.QuestItem) {
                         obj.type = `${verb}QuestItem`;
-                        obj.questItem = {
-                            id: objective._props.target[0],
-                            name: en.templates[objective._props.target[0]].Name,
-                            locale: {}
-                        }
-                        for (const code in locales) {
-                            const lang = locales[code];
-                            obj.questItem.locale[code] = {
-                                name: translatePath(code, ['templates', objective._props.target[0], 'Name'], logger)//lang.templates[objective._props.target[0]] ? lang.templates[objective._props.target[0]].Name : locales.en.templates[objective._props.target[0]]
-                            };
-                        }
+                        obj.questItem = objective._props.target[0]
+                        questItems[objective._props.target[0]] = {
+                            id: objective._props.target[0]
+                        };
                     } else {
                         obj.type = `${verb}Item`;
                         obj.item = objective._props.target[0];
@@ -689,6 +667,8 @@ module.exports = async (externalLogger = false) => {
                             obj.target = getTarget(cond, 'en');
                             for (const code in locales) {
                                 //const lang = locales[code];
+                                if (!obj.locale[code])
+                                    obj.locale[code] = {};
                                 obj.locale[code].target = getTarget(cond, code);
                             }
                         } else if (cond._parent === 'Location') {
@@ -779,17 +759,10 @@ module.exports = async (externalLogger = false) => {
                     obj.count = parseInt(objective._props.value);
                     if (items[objective._props.target[0]]._props.QuestItem) {
                         obj.type = 'plantQuestItem';
-                        obj.questItem = {
-                            id: objective._props.target[0],
-                            name: en.templates[objective._props.target[0]].Name,
-                            locale: {}
+                        obj.questItem = objective._props.target[0];
+                        questItems[objective._props.target[0]] = {
+                            id: objective._props.target[0]
                         };
-                        for (const code in locales) {
-                            const lang = locales[code];
-                            obj.questItem.locale[code] = {
-                                name: translatePath(code, ['templates', objective._props.target[0], 'Name'], logger)//lang.templates[objective._props.target[0]].Name
-                            };
-                        }
                     } else {
                         obj.type = 'plantItem';
                         obj.item = objective._props.target[0];
@@ -804,13 +777,8 @@ module.exports = async (externalLogger = false) => {
                     obj.skillLevel = {
                         name: en.interface[objective._props.target],
                         level: objective._props.value,
-                        locale: {}
+                        locale: getTranslations({name: ['interface', objective._props.target]}, logger)
                     };
-                    for (const code in locales) {
-                        obj.skillLevel.locale[code] = {
-                            name: translatePath(code, ['interface', objective._props.target], logger)//locales[code].interface[objective._props.target]
-                        }
-                    }
                 } else if (objective._parent === 'WeaponAssembly') {
                     obj.type = 'buildWeapon';
                     obj.item = objective._props.target[0];
@@ -934,17 +902,12 @@ module.exports = async (externalLogger = false) => {
                     if (questData.objectives.some(obj => obj.id === newObj.id)) {
                         continue;
                     }
-                    if (!newObj.locale) newObj.locale = {};
-                    for (const code in locales) {
-                        if (!newObj.locale[code]) newObj.locale[code] = {};
-                        const lang = locales[code];
-                        newObj.locale[code].description = translatePath(code, ['quest', questId, 'conditions', newObj.id], logger);//lang.quest[questId].conditions[newObj.id];
-                        if (newObj.locale_map) {
-                            for (const key in newObj.locale_map) {
-                                newObj.locale[code][key] = translatePath(code, newObj.locale_map[key], logger);//lang.interface[newObj.locale_map[key]];
-                            }
-                        }
+                    const translateTargets = {description: ['quest', questId, 'conditions', newObj.id]};
+                    for (const key in newObj.locale_map) {
+                        translateTargets[key] = newObj.locale_map[key];
+                        newObj.locale[code][key] = translatePath(code, newObj.locale_map[key], logger);//lang.interface[newObj.locale_map[key]];
                     }
+                    newObj.locale = getTranslations(translateTargets, logger);
                     questData.objectives.push(newObj);
                 }
             }
@@ -990,14 +953,7 @@ module.exports = async (externalLogger = false) => {
                 for (const rewardType in changedQuests[questData.id].finishRewardsAdded) {
                     for (const reward of changedQuests[questData.id].finishRewardsAdded[rewardType]) {
                         if (reward.locale_map) {
-                            reward.locale = {};
-                            for (const code in locales) {
-                                const lang = locales[code];
-                                if (!reward.locale[code]) reward.locale[code] = {};
-                                for (const key in reward.locale_map) {
-                                    reward.locale[code][key] = translatePath(code, reward.locale_map[key], logger);//lang.interface[reward.locale_map[key]];
-                                }
-                            }
+                            reward.locale = getTranslations(reward.locale_map, logger);
                         }
                         questData.finishRewards[rewardType].push(reward);
                     }
@@ -1049,28 +1005,15 @@ module.exports = async (externalLogger = false) => {
                 }
             }
             logger.warn(`Adding missing quest ${quest.name} ${quest.id}...`);
-            quest.locale = {};
-            for (const code in locales) {
-                const lang = locales[code];
-                quest.locale[code] = {
-                    name: translatePath(code, ['quest', questId, 'name'], logger)//lang.quest[questId]?.name || locales.en.quest[questId].name
-                };
-            }
+            quest.locale = getTranslations({name: ['quest', questId, 'name']}, logger);
             quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(en.quest[questId].name.replaceAll(' ', '_'))}`;
             for (const obj of quest.objectives) {
-                obj.locale = {};
-                for (const code in locales) {
-                    obj.locale[code] = {
-                        description: translatePath(code, ['quest', questId, 'conditions', obj.id], logger)//lang.quest[questId]?.conditions[obj.id] || locales.en.quest[questId].conditions[obj.id]
-                    };
-                }
+                obj.locale = getTranslations({description: ['quest', questId, 'conditions', obj.id]}, logger);
                 if (obj.type.endsWith('QuestItem')) {
-                    obj.questItem.locale = {};
-                    for (const code in locales) {
-                        obj.questItem.locale[code] = {
-                            name: translatePath(code, ['templates', obj.questItem.id, 'Name'], logger)//lang.templates[obj.questItem.id].Name
-                        };
-                    }
+                    //obj.questItem.locale = getTranslations({name: ['templates', obj.questItem.id, 'Name']}, logger);
+                    questItems[obj.questItem.id] = {
+                        id: obj.questItem.id
+                    };
                 }
                 addMapFromDescription(obj);
             }
@@ -1145,6 +1088,26 @@ module.exports = async (externalLogger = false) => {
             }
             logger.warn(`No quest data found for ${en.quest[questId].name} ${questId}`);
         }
+
+        for (const id in questItems) {
+            if (itemMap.has(id)) {
+                const itemData = itemMap.get(id);
+                //all quest items have a yellow background
+                //questItems[id].backgroundColor = items[id]._props.BackgroundColor;
+                questItems[id].iconLink = itemData.icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
+                questItems[id].gridImageLink = itemData.grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
+                questItems[id].inspectImageLink = itemData.image_link || 'https://assets.tarkov.dev/unknown-item-inspect.webp';
+                questItems[id].image512pxLink = itemData.image_512_link || 'https://assets.tarkov.dev/unknown-item-512.webp';
+                questItems[id].image8xLink = itemData.image_8x_link || 'https://assets.tarkov.dev/unknown-item-512.webp';
+                questItems[id].locale = getTranslations({
+                    name: ['templates', id, 'Name'],
+                    shortName: ['templates', id, 'ShortName'],
+                    description: ['templates', id, 'Description']
+                }, logger);
+            }
+        }
+
+        quests.items = questItems;
 
         quests.legacy = await legacyQuests(tdQuests, logger);
 
