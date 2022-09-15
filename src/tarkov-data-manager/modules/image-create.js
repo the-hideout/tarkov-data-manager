@@ -7,12 +7,27 @@ const { imageFunctions } = require('tarkov-dev-image-generator');
 
 const { uploadToS3 } = require('./upload-s3');
 const jobOutput = require('./job-output');
+const tarkovChanges = require('./tarkov-changes');
 
 async function createFromSource(sourceImage, id) {
     const itemData = await jobOutput('update-item-cache', './dumps/item_data.json');
-    const item = itemData[id];
+    const taskData = await jobOutput('update-quests', './dumps/quest_data.json', false, true);
+    console.log(taskData.items)
+    let item = itemData[id] || taskData.items[id];
     if (!item) {
-        return Promise.reject(`Item ${id} not found in processed item data`);
+        const items = await tarkovChanges.items();
+        const en = await tarkovChanges.locale_en();
+        if (!items[id] || !en.templates[id])
+            return Promise.reject(`Item ${id} not found in item data`);
+        item = {
+            id: id,
+            name: en.templates[id].Name,
+            shortName: en.templates[id].ShortName,
+            backgroundColor: items[id]._props.BackgroundColor,
+            width: items[id]._props.Width,
+            height: items[id]._props.Height,
+            types: []
+        }
     }
     if (item.types.includes('gun')) {
         item.width = item.properties.defaultWidth;
