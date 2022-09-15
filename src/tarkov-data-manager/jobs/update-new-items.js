@@ -119,8 +119,8 @@ module.exports = async (externalLogger) => {
                 name = en.templates[item._id].Name || name;
                 shortname = en.templates[item._id].ShortName || shortname;
             }
-            name = name.trim();
-            shortname = shortname.trim();
+            name = String(name).trim();
+            shortname = String(shortname).trim();
             if (name.match(doNotUse)) continue;
             const normalized = normalizeName(name);
 
