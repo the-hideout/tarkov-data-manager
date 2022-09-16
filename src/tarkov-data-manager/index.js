@@ -33,7 +33,7 @@ const timer = require('./modules/console-timer');
 const scannerApi = require('./modules/scanner-api');
 const webhookApi = require('./modules/webhook-api');
 const queueApi = require('./modules/queue-api');
-const { uploadToS3 } = require('./modules/upload-s3');
+const { uploadToS3, getImages } = require('./modules/upload-s3');
 const { createAndUploadFromSource, regenerateFromExisting } = require('./modules/image-create');
 
 vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
@@ -387,7 +387,7 @@ app.post('/items/regenerate-images/:id', async (req, res) => {
 });
 
 app.get('/items/download-images/:id', async (req, res) => {
-    const response = await uploadToS3.getImages(req.params.id);
+    const response = await getImages(req.params.id);
     const zip = new AdmZip();
     for (const image of response.images) {
         zip.addFile(image.filename, image.buffer);

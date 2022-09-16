@@ -3,11 +3,11 @@ const path = require('path');
 
 const normalizeName = require('../modules/normalize-name');
 const { initPresetSize, getPresetSize } = require('../modules/preset-size');
-const {connection, query, jobComplete} = require('../modules/db-connection');
+const { connection, query, jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
-const { getTranslation } = require('../modules/get-translation');
+const { getTranslations, setLocales } = require('../modules/get-translation');
 const remoteData = require('../modules/remote-data');
 
 let logger = false;
@@ -22,6 +22,8 @@ module.exports = async (externalLogger = false) => {
         const locales = await tarkovChanges.locales();
         const credits = await tarkovChanges.credits();
         const localItems = await remoteData.get();
+
+        setLocales(locales);
 
         initPresetSize(items, credits);
 
@@ -67,14 +69,10 @@ module.exports = async (externalLogger = false) => {
                 }],
                 locale: {}
             }
-            for (const code in locales) {
-                getTranslation(locales, code, lang => {
-                    presetData.locale[code] = {
-                        name: lang.templates[baseItem._id].Name,
-                        shortName: lang.templates[baseItem._id].ShortName
-                    };
-                }, logger);
-            }
+            presetData.locale = getTranslations({
+                name: ['templates', baseItem._id, 'Name'],
+                shortName: ['templates', baseItem._id, 'ShortName']
+            }, logger);
             for (let i = 1; i < preset._items.length; i++) {
                 const part = preset._items[i];
                 const partData = {
@@ -103,11 +101,13 @@ module.exports = async (externalLogger = false) => {
             if (preset._encyclopedia !== presetData.baseId) {
                 presetData.default = false;
             }
-            for (const code in locales) {
+            for (const code in presetData.locale) {
                 lang = locales[code];
                 if (preset._changeWeaponName && lang.preset[presetId] && lang.preset[presetId].Name) {
-                    presetData.locale[code].name += ' '+lang.preset[presetId].Name;
-                    presetData.locale[code].shortName += ' '+lang.preset[presetId].Name;
+                    if (presetData.locale[code].name)
+                        presetData.locale[code].name += ' '+lang.preset[presetId].Name;
+                    if (presetData.locale[code].shortName)
+                        presetData.locale[code].shortName += ' '+lang.preset[presetId].Name;
                 }
             }
             presetData.normalized_name = normalizeName(presetData.name);
@@ -159,14 +159,13 @@ module.exports = async (externalLogger = false) => {
                 presetData.horizontalRecoil = baseItem._props.RecoilForceBack;
             }
 
-            presetData.locale = {};
-            for (const code in locales) {
-                getTranslation(locales, code, lang => {
-                    presetData.locale[code] = {
-                        name: lang.templates[baseItem._id].Name + ' ' + presetData.appendName,
-                        shortName: lang.templates[baseItem._id].ShortName + ' ' + presetData.appendName
-                    };
-                }, logger);
+            presetData.locale = getTranslations({
+                name: ['templates', baseItem._id, 'Name'],
+                shortName: ['templates', baseItem._id, 'ShortName']
+            }, logger);
+            for (const code in presetData.locale) {
+                presetData.locale[code].name += ' ' + presetData.appendName
+                presetData.locale[code].shortName += ' ' + presetData.appendName
             }
             presetsData[presetData.id] = presetData;
         }

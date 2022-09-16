@@ -15,6 +15,7 @@ const {dashToCamelCase} = require('../modules/string-functions');
 const { setItemPropertiesOptions, getSpecialItemProperties, topCategories } = require('../modules/get-item-properties');
 const { initPresetSize, getPresetSize } = require('../modules/preset-size');
 const normalizeName = require('../modules/normalize-name');
+const { setLocales, getTranslations } = require('../modules/get-translation');
 
 let bsgItems = false;
 let credits = false;
@@ -291,6 +292,7 @@ module.exports = async () => {
             itemIds: [...itemMap.keys()],
             disabledItemIds: [...itemMap.values()].filter(item => item.types.includes('disabled')).map(item => item.id)
         });
+        setLocales(locales);
         for (const [key, value] of itemMap.entries()) {
             if (value.types.includes('disabled') || value.types.includes('quest'))
                 continue;
@@ -420,17 +422,17 @@ module.exports = async () => {
             Reflect.deleteProperty(itemData[key], 'wiki_link');*/
 
             // translations
-            itemData[key].locale = {};
-            for (const code in locales) {
-                const lang = locales[code];
-                if (lang.templates[key]) {
-                    itemData[key].locale[code] = {
-                        name: lang.templates[key].Name,
-                        shortName: lang.templates[key].ShortName
-                    };
-                } else if (presets[key]) {
+            if (locales.en.templates[key]) { 
+                itemData[key].locale = getTranslations({
+                    name: ['templates', key, 'Name'],
+                    shortName: ['templates', key, 'ShortName'],
+                    description: ['templates', key, 'Description'],
+                }, logger);
+            } else if (presets[key]) {
+                itemData[key].locale = {};
+                for (const code in locales) {
                     itemData[key].locale[code] = presets[key].locale[code];
-                } 
+                }
             }
 
             // Add trader prices

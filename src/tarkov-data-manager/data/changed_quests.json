@@ -176,6 +176,34 @@
                 "status": [
                     "complete"
                 ]
+            },
+            {
+                "task": "5d25bfd086f77442734d3007",
+                "name": "The Survivalist Path - Zhivchik",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "60c0c018f7afb4354815096a",
+                "name": "The Huntsman Path - Factory Chief",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5d25e4ca86f77409dd5cdf2c",
+                "name": "Hunting Trip",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "60e71dc67fcf9c556f325056",
+                "name": "Booze",
+                "status": [
+                    "complete"
+                ]
             }
         ]
     },

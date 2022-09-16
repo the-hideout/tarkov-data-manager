@@ -2,10 +2,10 @@ const fs = require('fs');
 
 const { connection } = require('../modules/db-connection');
 
-module.exports = async (jobName, outputFile, logger) => {
+module.exports = async (jobName, outputFile, logger, rawOutput = false) => {
     try {
         const json = JSON.parse(fs.readFileSync(outputFile));
-        if (json.data) return json.data;
+        if (!rawOutput && json.data) return json.data;
         return json;
     } catch (error) {
         logger.warn(`Could not parse ${outputFile}; running ${jobName} job`);
@@ -20,6 +20,6 @@ module.exports = async (jobName, outputFile, logger) => {
         logger.error(`Error running ${jobName}: ${error}`);
     }
     const json = JSON.parse(fs.readFileSync(outputFile));
-    if (json.data) return json.data;
+    if (!rawOutput && json.data) return json.data;
     return json;
 };

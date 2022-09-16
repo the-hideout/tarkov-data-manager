@@ -21,35 +21,72 @@ const getTranslation = (locales, code, translateFunction, logger) => {
     }
 };
 
+const translatePath = (langCode, path, logger, errorOnNotFound = true) => {
+    if (!locales) throw new Error('You must call setLocales before translatePath');
+    if (typeof path === 'string') path = [path];
+    let translation = locales[langCode];
+    if (!translation) {
+        if (langCode !== 'en') {
+            //if (logger) logger.warn(`Language "${langCode}" not found; defaulting to en`);
+            //return module.exports.translatePath('en', path, logger, errorOnNotFound);
+            return undefined;
+        }
+        throw new Error(`English translation localization missing`);
+    }
+    for (const pathPart of path) {
+        translation = translation[pathPart];
+        if (!translation) {
+            if (langCode !== 'en') {
+                //if (logger) logger.warn(`Translation for ${langCode}.${path.join('.')} not found; defaulting to en`);
+                //return module.exports.translatePath('en', path, logger, errorOnNotFound);
+                return undefined;
+            }
+            if (errorOnNotFound)
+                throw new Error(`Translation for ${langCode}.${path.join('.')} not found`);
+            logger.warn(`Translation for ${langCode}.${path.join('.')} not found`);
+            return '';
+        }
+    }
+    if (langCode !== 'en') {
+        const enTran = translatePath('en', path, logger, errorOnNotFound);
+        if (translation === enTran) return undefined;
+    }
+    return translation;
+};
+
+const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
+    const translation = {};
+    for (const langCode in locales) {
+        translation[langCode] = {};
+        for (const fieldName in translationTarget) {
+            translation[langCode][fieldName] = translatePath(langCode, translationTarget[fieldName], logger, errorOnNotFound);
+            if (typeof translation[langCode][fieldName] === 'undefined') {
+                delete translation[langCode][fieldName];
+            }
+        }
+    }
+    for (const langCode in translation) {
+        if (langCode === 'en')
+            continue;
+        for (const field in translation[langCode]) {
+            if (translation[langCode][field] === translation.en[field]) {
+                delete translation[langCode][field];
+            }
+        }
+    }
+    for (const langCode in translation) {
+        if (Object.keys(translation[langCode]).length < 1) {
+            delete translation[langCode];
+        }
+    }
+    return translation;
+};
+
 module.exports = {
     setLocales: loc => {
         locales = loc;
     },
-    translatePath(langCode, path, logger, errorOnNotFound = true) {
-        if (!locales) throw new Error('You must call setLocales before translatePath');
-        if (typeof path === 'string') path = [path];
-        let translation = locales[langCode];
-        if (!translation) {
-            if (langCode !== 'en') {
-                if (logger) logger.warn(`Language "${langCode}" not found; defaulting to en`);
-                return module.exports.translatePath('en', path, logger, errorOnNotFound);
-            }
-            throw new Error(`English translation localization missing`);
-        }
-        for (const pathPart of path) {
-            translation = translation[pathPart];
-            if (!translation) {
-                if (langCode !== 'en') {
-                    if (logger) logger.warn(`Translation for ${langCode}.${path.join('.')} not found; defaulting to en`);
-                    return module.exports.translatePath('en', path, logger, errorOnNotFound);
-                }
-                if (errorOnNotFound)
-                    throw new Error(`Translation for ${langCode}.${path.join('.')} not found`);
-                logger.warn(`Translation for ${langCode}.${path.join('.')} not found`);
-                return '';
-            }
-        }
-        return translation;
-    },
-    getTranslation: getTranslation
+    translatePath: translatePath,
+    getTranslation: getTranslation,
+    getTranslations: getTranslations
 };
