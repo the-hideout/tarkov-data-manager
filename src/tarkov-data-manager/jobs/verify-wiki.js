@@ -59,7 +59,7 @@ module.exports = async () => {
             LEFT JOIN types ON
                 types.item_id = item_data.id
             WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
-            WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest')
+            NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest')
             GROUP BY item_data.id
         `);
         for(let i = 0; i < results.length; i++){
