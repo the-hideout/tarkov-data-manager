@@ -31,6 +31,7 @@ const defaultJobs = {
     'update-traders': '*/5 * * * *',
     'update-barters': '*/5 * * * *',
     'update-crafts': '1-59/5 * * * *',
+    'update-existing-bases': '4-59/5 * * * *',
     'game-data': '*/10 * * * *',
     'update-historical-prices': '30 * * * *',
     'update-trader-prices': '25 9,21 * * *',
@@ -49,6 +50,7 @@ const nonDevJobs = {
 };
 
 const startupJobs = [
+    'update-existing-bases',
     'update-tc-data',
 ];
 
