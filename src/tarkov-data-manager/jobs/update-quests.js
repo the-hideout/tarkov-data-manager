@@ -9,7 +9,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const legacyQuests = require('./update-quests-legacy');
-const { setLocales, translatePath, getTranslation, getTranslations } = require('../modules/get-translation');
+const { setLocales, getTranslations, addTranslations } = require('../modules/get-translation');
 const jobOutput = require('../modules/job-output');
 const normalizeName = require('../modules/normalize-name');
 
@@ -79,24 +79,6 @@ const getMapFromNameId = nameId => {
     }
     logger.error(`Could not find map with nameId ${nameId}`);
     return false;
-};
-
-const getTarget = (cond, langCode) => {
-    let targetCode = cond._props.target;
-    if (cond._props.savageRole) {
-        targetCode = cond._props.savageRole[0];
-    }
-    if (targetCode == 'followerBully') {
-        return getTranslation(locales, langCode, lang => {
-            return `${lang.interface['QuestCondition/Elimination/Kill/BotRole/bossBully']} ${lang.interface['ScavRole/Follower']}`;
-        }, logger);
-    }
-    const lang = locales[langCode];
-    if (targetKeyMap[targetCode]) targetCode = targetKeyMap[targetCode];
-    return lang.interface[`QuestCondition/Elimination/Kill/BotRole/${targetCode}`] 
-        || lang.interface[`QuestCondition/Elimination/Kill/Target/${targetCode}`] 
-        || lang.interface[`ScavRole/${targetCode}`] 
-        || targetCode;
 };
 
 const getTdLocation = id => {
@@ -231,13 +213,10 @@ const loadRewards = (questData, rewardsType, sourceRewards) => {
             const skillLevel = {
                 name: en.interface[reward.target],
                 level: parseInt(reward.value) / 100,
-                locale: {}
+                locale: getTranslations({name: lang => {
+                    return lang.interface[reward.target] || reward.target;
+                }}, logger)
             };
-            for (const code in locales) {
-                skillLevel.locale[code] = {
-                    name: locales[code].interface[reward.target] || reward.target
-                };
-            }
             questData[rewardsType].skillLevelReward.push(skillLevel);
         } else if (reward.type === 'TraderUnlock') {
             questData[rewardsType].traderUnlock.push({
@@ -592,7 +571,6 @@ module.exports = async (externalLogger = false) => {
                     id: objective._props.id,
                     type: null,
                     optional: optional,
-                    description: en.quest[questId].conditions[objective._props.id],
                     locationNames: [],
                     map_ids: [],
                     locale: getTranslations({description: ['quest', questId, 'conditions', objective._props.id]}, logger, false)
@@ -679,13 +657,20 @@ module.exports = async (externalLogger = false) => {
                                     time: null
                                 };
                             }
-                            obj.target = getTarget(cond, 'en');
-                            for (const code in locales) {
-                                //const lang = locales[code];
-                                if (!obj.locale[code])
-                                    obj.locale[code] = {};
-                                obj.locale[code].target = getTarget(cond, code);
+                            let targetCode = cond._props.target;
+                            if (cond._props.savageRole) {
+                                targetCode = cond._props.savageRole[0];
                             }
+                            obj.locale = addTranslations(obj.locale, {target: lang => {
+                                if (targetCode == 'followerBully') {
+                                    return `${lang.interface['QuestCondition/Elimination/Kill/BotRole/bossBully']} ${lang.interface['ScavRole/Follower']}`;
+                                }
+                                if (targetKeyMap[targetCode]) targetCode = targetKeyMap[targetCode];
+                                return lang.interface[`QuestCondition/Elimination/Kill/BotRole/${targetCode}`] 
+                                    || lang.interface[`QuestCondition/Elimination/Kill/Target/${targetCode}`] 
+                                    || lang.interface[`ScavRole/${targetCode}`] 
+                                    || targetCode;
+                            }}, logger);
                         } else if (cond._parent === 'Location') {
                             for (const loc of cond._props.target) {
                                 if (loc === 'develop') continue;
@@ -917,12 +902,11 @@ module.exports = async (externalLogger = false) => {
                     if (questData.objectives.some(obj => obj.id === newObj.id)) {
                         continue;
                     }
-                    const translateTargets = {description: ['quest', questId, 'conditions', newObj.id]};
-                    for (const key in newObj.locale_map) {
-                        translateTargets[key] = newObj.locale_map[key];
-                        newObj.locale[code][key] = translatePath(code, newObj.locale_map[key], logger);//lang.interface[newObj.locale_map[key]];
+                    if (!newObj.locale_map) {
+                        newObj.locale_map = {};
                     }
-                    newObj.locale = getTranslations(translateTargets, logger);
+                    newObj.locale_map.description = ['quest', questId, 'conditions', newObj.id];
+                    newObj.locale = getTranslations(newObj.locale_map, logger);
                     questData.objectives.push(newObj);
                 }
             }
@@ -1119,6 +1103,7 @@ module.exports = async (externalLogger = false) => {
                 const itemData = itemMap.get(id);
                 questItems[id].iconLink = itemData.icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
                 questItems[id].gridImageLink = itemData.grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
+                questItems[id].baseImageLink = itemData.base_image_link || 'https://assets.tarkov.dev/unknown-item-base-image.png';
                 questItems[id].inspectImageLink = itemData.image_link || 'https://assets.tarkov.dev/unknown-item-inspect.webp';
                 questItems[id].image512pxLink = itemData.image_512_link || 'https://assets.tarkov.dev/unknown-item-512.webp';
                 questItems[id].image8xLink = itemData.image_8x_link || 'https://assets.tarkov.dev/unknown-item-512.webp';

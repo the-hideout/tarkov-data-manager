@@ -292,6 +292,7 @@ app.get('/', async (req, res) => {
         'image_8x_link',
         'image_512_link',
         'image_link',
+        'base_image_link',
         'grid_image_link',
         'icon_link',
     ];
@@ -301,7 +302,6 @@ app.get('/', async (req, res) => {
     const missingWiki = [];
     let untagged = [];
     const myData = await remoteData.get();
-    const existingBaseImages = JSON.parse(fs.readFileSync(path.join(__dirname, 'public', 'data', 'existing-bases.json')));
     for (const [key, item] of myData) {
         if (item.types.length == 0) 
             untagged.push(item);
@@ -315,9 +315,6 @@ app.get('/', async (req, res) => {
                 if (!item[field]) {
                     missingImages++;
                 }
-            }
-            if (!existingBaseImages.includes(item.id)) {
-                missingImages++
             }
         }
         if (missingImages > 0) {
@@ -657,18 +654,7 @@ app.get('/items', async (req, res) => {
 
 app.get('/items/get', async (req, res) => {
     const t = timer('getting-items');
-    const [ myData, existingBaseImages ] = await Promise.all([
-        remoteData.get(),
-        new Promise(resolve => {
-            try {
-                bases = JSON.parse(fs.readFileSync(path.join(__dirname, 'public', 'data', 'existing-bases.json')));
-                resolve(bases);
-            } catch (error) {
-                console.log('error trying to read existing basse images', error);
-                resolve([]);
-            }
-        })
-    ]);
+    const myData = await remoteData.get();
     const items = [];
     const attributes = [
         'id', 
@@ -679,6 +665,7 @@ app.get('/items/get', async (req, res) => {
         'wiki_link',
         'icon_link',
         'grid_image_link',
+        'base_image_link',
         'image_link',
         'image_512_link',
         'image_8x_link',
@@ -691,10 +678,6 @@ app.get('/items/get', async (req, res) => {
         for (let i = 0; i < attributes.length; i++) {
             const attribute = attributes[i];
             newItem[attribute] = item[attribute];
-        }
-        newItem.base_image_link = null;
-        if (existingBaseImages.includes(item.id)) {
-            newItem.base_image_link = `https://${process.env.S3_BUCKET}/${item.id}-base-image.png`;
         }
         items.push(newItem);
     }

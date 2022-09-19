@@ -124,6 +124,7 @@ const getSlots = (item) => {
         const formattedSlot = {
             name: locales.en.interface[slot._name.toUpperCase()],
             nameId: slot._name,
+            required: slot._required,
             filters: getFilterConstraints(item, slot),
             locale: {}
         };
