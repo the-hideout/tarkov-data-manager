@@ -41,14 +41,14 @@ const getBucketContents = async (continuationToken = false) => {
 }
 
 module.exports = async () => {
-    const logger = new JobLogger('update-existing-bases');
+    const logger = new JobLogger('check-image-links');
     try {
         const itemData = await remoteData.get();
 
         const activeItems = [...itemData.values()].filter(item => !item.types.includes('disabled'));
 
         if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-            logger.log('aws variables not configured; skipping update-existing-bases job');
+            logger.log('aws variables not configured; skipping check-image-links job');
             logger.end();
             return;
         }
