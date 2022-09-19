@@ -59,7 +59,13 @@ const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
     for (const langCode in locales) {
         translation[langCode] = {};
         for (const fieldName in translationTarget) {
-            translation[langCode][fieldName] = translatePath(langCode, translationTarget[fieldName], logger, errorOnNotFound);
+            if (Array.isArray(translationTarget[fieldName])) {
+                translation[langCode][fieldName] = translatePath(langCode, translationTarget[fieldName], logger, errorOnNotFound);
+            } else if (typeof translationTarget[fieldName] === 'function') {
+                translation[langCode][fieldName] = translationTarget[fieldName](locales[langCode], logger);
+            } else {
+                return Promise.reject(new Error(`Invalid translation target type (${typeof translationTarget[fieldName]}) for ${fieldName}; expected array or function`));
+            }
             if (typeof translation[langCode][fieldName] === 'undefined') {
                 delete translation[langCode][fieldName];
             }
@@ -82,11 +88,33 @@ const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
     return translation;
 };
 
+const mergeLocale = (destinationLocale, newLocale) => {
+    if (typeof destinationLocale !== 'object') {
+        return Promise.reject(new Error('Cannot add to destination locale this is not an object'));
+    }
+    for (const langCode in newLocale) {
+        if (!destinationLocale[langCode]) {
+            destinationLocale[langCode] = {};
+        }
+        destinationLocale[langCode] = {
+            ...destinationLocale[langCode],
+            ...newLocale[langCode]
+        }
+    }
+    return destinationLocale;
+};
+
+const addTranslations = (destinationLocale, translationTarget, logger, errorOnNotFound) => {
+    return mergeLocale(destinationLocale, getTranslations(translationTarget, logger, errorOnNotFound));
+};
+
 module.exports = {
     setLocales: loc => {
         locales = loc;
     },
     translatePath: translatePath,
     getTranslation: getTranslation,
-    getTranslations: getTranslations
+    getTranslations: getTranslations,
+    addTranslations: addTranslations,
+    mergeLocale: mergeLocale,
 };

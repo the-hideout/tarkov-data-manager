@@ -1,5 +1,3 @@
-const fs = require('fs');
-const path = require('path');
 const sharp = require('sharp');
 
 const axios = require('axios');
@@ -87,8 +85,7 @@ async function regenerateFromExisting(id) {
     let regenSource = '8x';
     let sourceUrl = item.image8xLink;
     if (item.image8xLink.includes('unknown-item')) {
-        existingBaseImages = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json')));
-        if (!existingBaseImages.includes(id)) {
+        if (item.baseImageLink.includes('unknown-item')) {
             return Promise.reject(new Error(`${item.name} does not have an 8x or base image to regnerate images from`));
         }
         sourceUrl = `https://${process.env.S3_BUCKET}/${id}-base-image.png`;

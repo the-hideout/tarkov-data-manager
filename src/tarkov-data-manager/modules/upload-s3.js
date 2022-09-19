@@ -1,5 +1,3 @@
-const fs = require('fs');
-const path = require('path');
 const sharp = require('sharp');
 const { S3Client, PutObjectCommand, GetObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
@@ -75,7 +73,6 @@ async function downloadFromId(item) {
         allItems = await remoteData.get();
         item = allItems.get(item);
     }
-    existingBaseImages = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json')));
     const imageRequests = [];
     const errors = [];
     const requestedFiles = [];
@@ -87,9 +84,6 @@ async function downloadFromId(item) {
         const filename = `${item.id}-${imageType}.${typeInfo.format}`;
         if (requestedFiles.includes(filename)) {
             continue;
-        }
-        if (!typeInfo.field && existingBaseImages.includes(item.id)) {
-            input.Key = filename;
         }
         if (typeInfo.field && item[typeInfo.field]) {
             input.Key = filename;

@@ -13,7 +13,6 @@ const { imageSizes } = imageFunctions;
 
 let refreshingUsers = false;
 let users = {};
-let existingBaseImages = [];
 
 // sets defaults for various options used by API calls
 // limitItem is a single item or array of items to specifically retrieve (generally for testing)
@@ -91,7 +90,7 @@ const queryResultToBatchItem = item => {
         backgroundColor: backgroundColor,
         contains: contains,
         matchIndex: item.match_index,
-        needsBaseImage: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
+        needsBaseImage: item.needs_base_image ? true : false,
         needsImage: item.needs_image ? true : false,
         needsGridImage: item.needs_grid_image ? true : false,
         needsIconImage: item.needs_icon_image ? true : false,
@@ -153,6 +152,7 @@ const getItems = async(options) => {
                 match_index,
                 properties,
                 image_link IS NULL OR image_link = '' AS needs_image,
+                base_image_link IS NULL OR base_image_link = '' as needs_base_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
                 icon_link IS NULL OR icon_link = '' AS needs_icon_image,
                 image_512_link IS NULL or image_512_link = '' as needs_512px_image,
@@ -698,10 +698,7 @@ const submitImage = (request, user) => {
             const currentItemData = allItemData.get(fields.id);
             const checkImageExists = imageType => {
                 const field = imageSizes[imageType].field;
-                if (field) {
-                    return currentItemData[field];
-                }
-                return existingBaseImages.includes(fields.id);
+                return currentItemData[field];
             };
 
             if (fields.type === 'source') {
@@ -804,15 +801,6 @@ const refreshUsers = async () => {
 };
 
 refreshUsers();
-fs.watch(path.join(__dirname, '..', 'public', 'data'), {persistent: false}, (eventType, filename) => {
-    if (filename === 'existing-bases.json') {
-        try {
-            existingBaseImages = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json')));
-        } catch (error) {
-            console.log('Error reading exist-bases.json', error);
-        }
-    }
-});
 
 const createScanner = async (user, scannerName) => {
     if (!(userFlags.insertPlayerPrices & user.flags) && !(userFlags.insertTraderPrices & user.flags)) {
