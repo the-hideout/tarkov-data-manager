@@ -9,16 +9,19 @@ const remoteData = require('../modules/remote-data');
 module.exports = async () => {
     const logger = new JobLogger('update-existing-bases');
     try {
-        const itemdData = await remoteData.get();
+        const itemData = await remoteData.get();
+
+        const activeItems = [...itemData.values()].filter(item => !item.types.includes('disabled'));
 
         const baseKeys = [];
 
-        for (const [id, item] of itemdData) {
+        for (item of activeItems) {
             if (item.base_image_link) {
-                baseKeys.push(id);
+                baseKeys.push(item.id);
             }
         }
 
+        logger.log(`${baseKeys.length} of ${activeItems.length} active items have base images`);
         fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json'), JSON.stringify(baseKeys, null, 4));
     } catch (error) {
         logger.error(error);
