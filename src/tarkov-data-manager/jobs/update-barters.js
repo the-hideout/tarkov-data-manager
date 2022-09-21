@@ -268,24 +268,27 @@ const parseTradeRow = async (tradeElement) => {
             value: null,
             stringValue: null
         };
-        for (const task of oldTasks) {
-            if (task.wiki.endsWith(taskUrl)) {
-                questReq.value = task.id;
-                foundMatch = true;
-            } else if (taskName.toLowerCase() == task.title.toLowerCase()) {
-                questReq.value = task.id;
-                foundMatch = true;
-            }
-            if (foundMatch) break;
-        }
-        foundMatch = false;
         for (const task of tasks) {
-            if (taskName.toLowerCase() == task.name.toLowerCase()) {
+            if (
+                taskName.toLowerCase() === task.name.toLowerCase() ||
+                task.wikiLink.endsWith(taskUrl)
+                ) {
+                questReq.value = task.tarkovDataId;
                 questReq.stringValue = task.id;
                 tradeData.taskUnlock = task.id;
                 foundMatch = true;
+                break;
             } 
-            if (foundMatch)  break;
+        }
+        if (!foundMatch) {
+            for (const task of oldTasks) {
+                if (task.wiki.endsWith(taskUrl) || taskName.toLowerCase() === task.title.toLowerCase()) {
+                    questReq.value = task.id;
+                    questReq.stringValue = task.gameId;
+                    tradeData.taskUnlock = task.gameId;
+                    break;
+                }
+            }
         }
         tradeData.requirements.push(questReq);
         if (typeof questReq.value === 'null' && typeof questReq.stringValue === 'null') {
@@ -339,7 +342,7 @@ module.exports = async function() {
             ORDER BY item_data.id
         `);
         const wikiPromise = got(TRADES_URL);
-        const tasksPromise = jobOutput('update-quests', './dumps/trader_data.json', logger);
+        const tasksPromise = jobOutput('update-quests', './dumps/quest_data.json', logger);
         const oldTasksPromise = got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
             responseType: 'json',
         });
