@@ -1,5 +1,3 @@
-const fs = require('fs/promises');
-
 const roundTo = require('round-to');
 
 const dataMaps = require('../modules/data-map');
@@ -12,7 +10,7 @@ const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const jobOutput = require('../modules/job-output');
 const {dashToCamelCase} = require('../modules/string-functions');
-const { setItemPropertiesOptions, getSpecialItemProperties, topCategories } = require('../modules/get-item-properties');
+const { setItemPropertiesOptions, getSpecialItemProperties } = require('../modules/get-item-properties');
 const { initPresetSize, getPresetSize } = require('../modules/preset-size');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
@@ -287,6 +285,7 @@ module.exports = async () => {
         await setItemPropertiesOptions({
             logger,
             items: bsgItems,
+            presets,
             locales, 
             globals,
             itemIds: [...itemMap.keys()],
@@ -371,6 +370,21 @@ module.exports = async () => {
                     itemData[key].properties.defaultRecoilHorizontal = defaultSize.horizontalRecoil;
                     itemData[key].properties.defaultWeight = defaultSize.weight;
                 }
+                if (itemData[key].types.includes('gun')) {
+                    const preset = Object.values(presets).find(preset => preset.default && preset.baseId === key);
+                    if (preset) {
+                        itemData[key].containsItems = preset.containsItems.reduce((containedItems, contained) => {
+                            if (contained.item.id !== key) {
+                                containedItems.push({
+                                    item: contained.item.id,
+                                    count: contained.count,
+                                    attributes: []
+                                });
+                            }
+                            return containedItems;
+                        }, []);
+                    }
+                }
             } else if (presets[key]) {
                 const preset = presets[key];
                 itemData[key].width = preset.width;
@@ -388,6 +402,13 @@ module.exports = async () => {
                 if ((itemData[preset.baseId]?.types.includes('noFlea') || itemData[preset.baseId]?.types.includes('no-flea')) && !itemData[key].types.includes('noFlea')) {
                     itemData[key].types.push('noFlea');
                 }
+                itemData[key].containsItems = preset.containsItems.map(contained => {
+                    return {
+                        item: contained.item.id,
+                        count: contained.count,
+                        attributes: []
+                    };
+                });
             } else if (!itemData[key].types.includes('disabled')) {
                 logger.log(`Item ${itemData[key].name} (${key}) is neither an item nor a preset`);
                 delete itemData[key];

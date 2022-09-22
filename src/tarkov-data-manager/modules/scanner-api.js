@@ -13,6 +13,25 @@ const { imageSizes } = imageFunctions;
 
 let refreshingUsers = false;
 let users = {};
+let presets = [];
+let presetsTimeout = false;
+
+const updatePresets = () => {
+    try {
+        const fileContents = fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json'));
+        presets = Object.values(JSON.parse(fileContents));
+    } catch (error) {
+        console.log('Error reading presets.json', error);
+    }
+};
+
+fs.watch(path.join(__dirname, '..', 'cache'), {persistent: false}, (eventType, filename) => {
+    if (filename === 'presets.json') {
+        clearTimeout(presetsTimeout);
+        presetsTimeout = setTimeout(updatePresets, 100);
+        
+    }
+});
 
 // sets defaults for various options used by API calls
 // limitItem is a single item or array of items to specifically retrieve (generally for testing)
@@ -80,7 +99,24 @@ const dateToMysqlFormat = (dateTime) => {
 
 const queryResultToBatchItem = item => {
     const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
-    const contains = item.contains ? item.contains.split(',') : [];
+    let contains = item.contains ? item.contains.split(',') : [];
+    let preset = false;
+    if (types.includes('gun')) {
+        preset = presets.find(preset => preset.default && preset.baseId === item.id);
+        if (preset) {
+            contains = preset.containsItems.reduce((itemIds, currentItem) => {
+                if (currentItem.item.id !== item.id) {
+                    itemIds.push(currentItem.item.id);
+                }
+                return itemIds;
+            }, []);
+        }
+    } else if (types.includes('preset')) {
+        preset = presets.find(preset => preset.id === item.id);
+        if (preset) {
+            contains = preset.map(contained => contained.item.id);
+        }
+    }
     const backgroundColor = item.properties?.backgroundColor ? item.properties.backgroundColor : 'default';
     return {
         id: item.id,

@@ -164,8 +164,8 @@ module.exports = async (externalLogger = false) => {
                 shortName: ['templates', baseItem._id, 'ShortName']
             }, logger);
             for (const code in presetData.locale) {
-                presetData.locale[code].name += ' ' + presetData.appendName
-                presetData.locale[code].shortName += ' ' + presetData.appendName
+                presetData.locale[code].name += ' ' + presetData.appendName;
+                presetData.locale[code].shortName += ' ' + presetData.appendName;
             }
             presetsData[presetData.id] = presetData;
         }
@@ -238,11 +238,29 @@ module.exports = async (externalLogger = false) => {
                 console.log(item.id, item.name, 'missing preset');
             }
         }
+        for (const presetId in presetsData) {
+            const preset = presetsData[presetId];
+            if (!preset.default) {
+                continue;
+            }
+            const baseName = preset.containsItems.find(contained => contained.item.id === preset.baseId).item.name;
+            if (baseName !== preset.name) {
+                continue;
+            }
+            preset.name = preset.name + ' ' + en.interface.Default;
+            preset.normalizeName = normalizeName(preset.name);
+            for (const code in preset.locale) {
+                if (preset.locale[code].name)
+                    preset.locale[code].name += ' ' + locales[code].interface.Default;
+                if (preset.locale[code].shortName)
+                    preset.locale[code].shortName += ' ' + locales[code].interface.Default;
+            }
+        }
         logger.log('Loading default presets...');
         const queries = [];
         for (const presetId in presetsData) {
             const p = presetsData[presetId];
-            if (p.default) {
+            /*if (p.default) {
                 queries.push(query(`
                     DELETE IGNORE FROM 
                         item_children
@@ -270,7 +288,7 @@ module.exports = async (externalLogger = false) => {
                     logger.error(`Error updating default preset items for ${p.name} ${p.id}`);
                     logger.error(error);
                 }));
-            } else {
+            } else {*/
                 queries.push(query(`
                     INSERT INTO 
                         item_data (id, name, short_name, normalized_name, properties)
@@ -298,7 +316,7 @@ module.exports = async (externalLogger = false) => {
                     logger.error(`Error inerting preset type for ${p.name} ${p.id}`);
                     logger.error(error);
                 }));
-                for (const part of p.containsItems) {
+                /*for (const part of p.containsItems) {
                     queries.push(query(`
                         INSERT IGNORE INTO 
                             item_children (container_item_id, child_item_id, count)
@@ -308,8 +326,8 @@ module.exports = async (externalLogger = false) => {
                         logger.error(`Error updating preset items for ${p.name} ${p.id}`);
                         logger.error(error);
                     }));
-                }
-            } 
+                }*/
+            //} 
         }
 
         fs.writeFileSync(path.join(__dirname, '..', 'cache', 'presets.json'), JSON.stringify(presetsData, null, 4));
