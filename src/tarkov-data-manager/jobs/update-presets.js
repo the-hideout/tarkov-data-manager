@@ -108,15 +108,6 @@ module.exports = async (externalLogger = false) => {
             if (preset._encyclopedia !== presetData.baseId) {
                 presetData.default = false;
             }
-            /*for (const code in presetData.locale) {
-                lang = locales[code];
-                if (preset._changeWeaponName && lang.preset[presetId] && lang.preset[presetId].Name) {
-                    if (presetData.locale[code].name)
-                        presetData.locale[code].name += ' '+lang.preset[presetId].Name;
-                    if (presetData.locale[code].shortName)
-                        presetData.locale[code].shortName += ' '+lang.preset[presetId].Name;
-                }
-            }*/
             presetData.normalized_name = normalizeName(presetData.name);
             let itemPresetSize = await getPresetSize(presetData, logger);
             if (itemPresetSize) {
