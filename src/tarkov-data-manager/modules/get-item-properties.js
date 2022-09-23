@@ -133,6 +133,7 @@ const getSlots = (item) => {
     ];
     return item._props.Slots.map(slot => {
         const formattedSlot = {
+            id: slot._id,
             name: locales.en.interface[slot._name.toUpperCase()],
             nameId: slot._name,
             required: slot._required,

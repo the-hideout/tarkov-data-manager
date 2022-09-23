@@ -228,7 +228,7 @@ module.exports = async () => {
             return results;
         });
 
-        let presets, globals, avgPriceYesterday, lastKnownPriceData, containedItems, itemMap;
+        let presets, globals, avgPriceYesterday, lastKnownPriceData, itemMap;
         [
             bsgItems, 
             credits, 
@@ -517,6 +517,41 @@ module.exports = async () => {
         Object.values(bsgCategories).forEach(cat => {
             bsgCategories[cat.parent_id]?.child_ids.push(cat.id);
         });
+
+
+        const slotIds = [];
+
+        for (const id in bsgItems) {
+            if (!bsgItems[id] || !bsgItems[id]._props.Slots) {
+                continue;
+            }
+            bsgItems[id]._props.Slots.forEach(slot => {
+                slotIds.push(slot._id);
+            });
+        }
+
+        for (const id in itemData) {
+            const item = itemData[id];
+            item.conflictingItems = [];
+            item.conflictingSlotIds = [];
+            item.conflictingCategories = [];
+            if (item.types.includes('preset')) {
+                continue;
+            }
+            bsgItems[id]._props.ConflictingItems.forEach(conId => {                
+                if (itemData[conId]) {
+                    item.conflictingItems.push(conId);
+                } else if (slotIds.includes(conId)) {
+                    item.conflictingSlotIds.push(conId);
+                } else if (bsgCategories[conId]) {
+                    item.conflictingCategories.push(conId);
+                } else if (bsgItems[id]) {
+                    //logger.log(`${conId} is probably disabled`);
+                } else {
+                    logger.log(`${item.name} ${item.id} could not categorize conflicting item id ${conId}`);
+                }
+            });
+        }
 
         const fleaData = {
             name: 'Flea Market',
