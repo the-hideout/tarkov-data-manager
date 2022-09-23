@@ -248,7 +248,7 @@ module.exports = async (externalLogger = false) => {
                 continue;
             }
             preset.name = preset.name + ' ' + en.interface.Default;
-            preset.normalizeName = normalizeName(preset.name);
+            preset.normalized_name = normalizeName(preset.name);
             for (const code in preset.locale) {
                 if (preset.locale[code].name)
                     preset.locale[code].name += ' ' + locales[code].interface.Default;
