@@ -228,17 +228,6 @@ module.exports = async () => {
             return results;
         });
 
-        logger.time('contained-items-query');
-        const containedItemsPromise = query(`
-            SELECT
-                *
-            FROM
-                item_children;
-        `).then (results => {
-            logger.timeEnd('contained-items-query');
-            return results;
-        });
-
         let presets, globals, avgPriceYesterday, lastKnownPriceData, containedItems, itemMap;
         [
             bsgItems, 
@@ -249,7 +238,6 @@ module.exports = async () => {
             presets,
             avgPriceYesterday, 
             lastKnownPriceData, 
-            containedItems, 
             itemMap
         ] = await Promise.all([
             tarkovChanges.items(), 
@@ -260,27 +248,12 @@ module.exports = async () => {
             jobOutput('update-presets', './cache/presets.json', logger),
             avgPriceYesterdayPromise,
             lastKnownPriceDataPromise,
-            containedItemsPromise,
             remoteData.get(true)
         ]);
         const itemData = {};
         const itemTypesSet = new Set();
         bsgCategories = {};
         initPresetSize(bsgItems, credits);
-
-        let containedItemsMap = {};
-
-        for (const result of containedItems) {
-            if (!containedItemsMap[result.container_item_id]) {
-                containedItemsMap[result.container_item_id] = [];
-            }
-
-            containedItemsMap[result.container_item_id].push({
-                item: result.child_item_id,
-                count: result.count,
-                attributes: []
-            });
-        }
 
         await setItemPropertiesOptions({
             logger,
@@ -348,7 +321,7 @@ module.exports = async () => {
 
             itemData[key].types = itemData[key].types.map(type => dashToCamelCase(type));
 
-            itemData[key].containsItems = containedItemsMap[key] || [];
+            itemData[key].containsItems = [];
 
             // itemData[key].changeLast48h = itemPriceYesterday.priceYesterday || 0;
 
@@ -369,8 +342,7 @@ module.exports = async () => {
                     itemData[key].properties.defaultRecoilVertical = defaultSize.verticalRecoil;
                     itemData[key].properties.defaultRecoilHorizontal = defaultSize.horizontalRecoil;
                     itemData[key].properties.defaultWeight = defaultSize.weight;
-                }
-                if (itemData[key].types.includes('gun')) {
+
                     const preset = Object.values(presets).find(preset => preset.default && preset.baseId === key);
                     if (preset) {
                         itemData[key].containsItems = preset.containsItems.reduce((containedItems, contained) => {
@@ -384,6 +356,17 @@ module.exports = async () => {
                             return containedItems;
                         }, []);
                     }
+                }
+                // add ammo box contents
+                if (itemData[key].bsgCategoryId === '543be5cb4bdc2deb348b4568') {
+                    const ammoContents = bsgItems[key]._props.StackSlots[0];
+                    const count = ammoContents._max_count;
+                    const round = ammoContents._props.filters[0].Filter[0];
+                    itemData[key].containsItems.push({
+                        item: round,
+                        count: count,
+                        attributes: []
+                    })
                 }
             } else if (presets[key]) {
                 const preset = presets[key];

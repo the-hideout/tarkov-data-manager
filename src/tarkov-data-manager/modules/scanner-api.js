@@ -193,14 +193,11 @@ const getItems = async(options) => {
                 icon_link IS NULL OR icon_link = '' AS needs_icon_image,
                 image_512_link IS NULL or image_512_link = '' as needs_512px_image,
                 image_8x_link IS NULL or image_8x_link = '' as needs_8x_image,
-                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types,
-                GROUP_CONCAT(distinct item_children.child_item_id SEPARATOR ',') as contains
+                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
             FROM
                 item_data
             LEFT JOIN types ON
                 types.item_id = item_data.id
-            LEFT JOIN item_children ON
-                item_children.container_item_id = item_data.id
             WHERE 
                 item_data.id IN (${placeholders.join(',')})
             GROUP BY
@@ -225,14 +222,11 @@ const getItems = async(options) => {
                 image_link IS NULL OR image_link = '' AS needs_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
                 icon_link IS NULL OR icon_link = '' AS needs_icon_image,
-                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types,
-                GROUP_CONCAT(distinct item_children.child_item_id SEPARATOR ',') as contains
+                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
             FROM
                 item_data
             LEFT JOIN types ON
                 types.item_id = item_data.id
-            LEFT JOIN item_children ON
-                item_children.container_item_id = item_data.id
             WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') AND 
@@ -308,14 +302,11 @@ const getItems = async(options) => {
             image_link IS NULL OR image_link = '' AS needs_image,
             grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
             icon_link IS NULL OR icon_link = '' AS needs_icon_image,
-            GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types,
-            GROUP_CONCAT(distinct item_children.child_item_id SEPARATOR ',') as contains
+            GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
         FROM
             item_data
         LEFT JOIN types ON
             types.item_id = item_data.id
-        LEFT JOIN item_children ON
-            item_children.container_item_id = item_data.id
         ${where}
         GROUP BY item_data.id
         ORDER BY item_data.last_scan

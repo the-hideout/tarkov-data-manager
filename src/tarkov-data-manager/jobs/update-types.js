@@ -23,16 +23,6 @@ const categoryMap = {
     },
     '543be5cb4bdc2deb348b4568': {
         types: ['ammo-box'],
-        always: async itemId => {
-            const ammoContents = bsgData[itemId]._props.StackSlots[0];
-            const count = ammoContents._max_count;
-            const round = ammoContents._props.filters[0].Filter[0]
-            await query(`
-                INSERT IGNORE INTO 
-                    item_children (container_item_id, child_item_id, count)
-                VALUES (?, ?, ?)
-            `, [itemId, round, count]);
-        }
     },
     '5448e54d4bdc2dcc718b4568': {
         types: ['armor', 'wearable']
