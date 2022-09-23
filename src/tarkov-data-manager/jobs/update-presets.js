@@ -96,12 +96,19 @@ module.exports = async (externalLogger = false) => {
             if (preset._changeWeaponName && en.preset[presetId] && en.preset[presetId].Name) {
                 presetData.name += ' '+en.preset[presetId].Name;
                 presetData.shortName += ' '+en.preset[presetId].Name;
-                //presetData.default = false;
+                presetData.locale = getTranslations({
+                    name: (lang) => {
+                        return lang.templates[firstItem.id].Name + ' ' + lang.preset[presetId].Name;
+                    },
+                    shortName: (lang) => {
+                        return lang.templates[firstItem.id].ShortName + ' ' + lang.preset[presetId].Name;
+                    }
+                }, logger);
             }
             if (preset._encyclopedia !== presetData.baseId) {
                 presetData.default = false;
             }
-            for (const code in presetData.locale) {
+            /*for (const code in presetData.locale) {
                 lang = locales[code];
                 if (preset._changeWeaponName && lang.preset[presetId] && lang.preset[presetId].Name) {
                     if (presetData.locale[code].name)
@@ -109,7 +116,7 @@ module.exports = async (externalLogger = false) => {
                     if (presetData.locale[code].shortName)
                         presetData.locale[code].shortName += ' '+lang.preset[presetId].Name;
                 }
-            }
+            }*/
             presetData.normalized_name = normalizeName(presetData.name);
             let itemPresetSize = await getPresetSize(presetData, logger);
             if (itemPresetSize) {
@@ -160,26 +167,28 @@ module.exports = async (externalLogger = false) => {
             }
 
             presetData.locale = getTranslations({
-                name: ['templates', baseItem._id, 'Name'],
-                shortName: ['templates', baseItem._id, 'ShortName']
+                name: (lang) => {
+                    return lang.templates[baseItem._id].Name + ' ' + presetData.appendName;
+                },
+                shortName: (lang) => {
+                    return lang.templates[baseItem._id].ShortName + ' ' + presetData.appendName;
+                }
             }, logger);
-            for (const code in presetData.locale) {
-                presetData.locale[code].name += ' ' + presetData.appendName;
-                presetData.locale[code].shortName += ' ' + presetData.appendName;
-            }
             presetsData[presetData.id] = presetData;
         }
         // add dog tag preset
         const bearTag = items['59f32bb586f774757e1e8442'];
         const getDogTagName = lang => {
-            return locales[lang].templates[bearTag._id].Name.replace(locales[lang].templates['59f32bb586f774757e1e8442'].ShortName, '').trim();
+            return lang.templates[bearTag._id].Name.replace(lang.templates['59f32bb586f774757e1e8442'].ShortName, '').trim().replace(/^\p{Ll}/gu, substr => {
+                return substr.toUpperCase();
+            });
         };
         presetsData['customdogtags12345678910'] = {
             id: 'customdogtags12345678910',
-            name: getDogTagName('en'),
-            shortName: getDogTagName('en'),
+            name: getDogTagName(locales.en),
+            shortName: getDogTagName(locales.en),
             //description: en.templates[baseItem._id].Description,
-            normalized_name: normalizeName(getDogTagName('en')),
+            normalized_name: normalizeName(getDogTagName(locales.en)),
             baseId: bearTag._id,
             width: bearTag._props.Width,
             height: bearTag._props.Height,
@@ -203,15 +212,10 @@ module.exports = async (externalLogger = false) => {
                     count: 1
                 }
             ],
-            locale: {}
+            locale: getTranslations({name: getDogTagName, shortName: getDogTagName}, logger)
         };
-        for (const code in locales) {
-            lang = locales[code];
-            presetsData['customdogtags12345678910'].locale[code] = {
-                name: getDogTagName(code),
-                shortName: getDogTagName(code)
-            }
-        }
+
+        // check for missing default presets
         for (const [id, item] of localItems.entries()) {
             if (!item.types.includes('gun') || item.types.includes('disabled'))
                 continue;
@@ -234,10 +238,12 @@ module.exports = async (externalLogger = false) => {
                     matchingPresets[0].default = true;
                 }
             }
-            if (!defaultId) {
-                console.log(item.id, item.name, 'missing preset');
+            if (!defaultId && items[item.id]._props.Slots.length > 0) {
+                logger.log(`${item.id} ${item.name} missing preset`);
             }
         }
+
+        // add "Default" to the name of default presets to differentiate them from gun names
         for (const presetId in presetsData) {
             const preset = presetsData[presetId];
             if (!preset.default) {
@@ -249,85 +255,46 @@ module.exports = async (externalLogger = false) => {
             }
             preset.name = preset.name + ' ' + en.interface.Default;
             preset.normalized_name = normalizeName(preset.name);
-            for (const code in preset.locale) {
-                if (preset.locale[code].name)
-                    preset.locale[code].name += ' ' + locales[code].interface.Default;
-                if (preset.locale[code].shortName)
-                    preset.locale[code].shortName += ' ' + locales[code].interface.Default;
-            }
+            preset.locale = getTranslations({
+                name: (lang) => {
+                    return lang.templates[preset.baseId].Name + ' ' + lang.interface.Default;
+                },
+                shortName: (lang) => {
+                    return lang.templates[preset.baseId].ShortName + ' ' + lang.interface.Default;
+                }
+            }, logger);
         }
-        logger.log('Loading default presets...');
+        logger.log('Updating presets in DB...');
         const queries = [];
         for (const presetId in presetsData) {
             const p = presetsData[presetId];
-            /*if (p.default) {
-                queries.push(query(`
-                    DELETE IGNORE FROM 
-                        item_children
-                    WHERE container_item_id=?
-                `, [p.baseId]
-                ).catch(error => {
-                    logger.error(`Error removing default preset items for ${p.name} ${p.id}`);
-                    logger.error(error);
-                }).then(async () => {
-                    const insertQueries = [];
-                    for (const part of p.containsItems) {
-                        if (p.baseId == part.item.id) continue;
-                        insertQueries.push(query(`
-                            INSERT IGNORE INTO 
-                                item_children (container_item_id, child_item_id, count)
-                            VALUES (?, ?, ?)
-                        `, [p.baseId, part.item.id, part.count])
-                        .catch(error => {
-                            logger.error(`Error adding default preset items for ${p.name} ${p.id}`);
-                            logger.error(error);
-                        }));
-                    }
-                    await Promise.allSettled(insertQueries);
-                }).catch(error => {
-                    logger.error(`Error updating default preset items for ${p.name} ${p.id}`);
-                    logger.error(error);
-                }));
-            } else {*/
-                queries.push(query(`
-                    INSERT INTO 
-                        item_data (id, name, short_name, normalized_name, properties)
-                    VALUES (
-                        '${p.id}',
-                        ${connection.escape(p.name)},
-                        ${connection.escape(p.shortName)},
-                        ${connection.escape(p.normalized_name)},
-                        ${connection.escape(JSON.stringify({backgroundColor: p.backgroundColor}))}
-                    )
-                    ON DUPLICATE KEY UPDATE
-                        name=${connection.escape(p.name)},
-                        short_name=${connection.escape(p.shortName)},
-                        normalized_name=${connection.escape(p.normalized_name)},
-                        properties=${connection.escape(JSON.stringify({backgroundColor: p.backgroundColor}))}
-                `).then(results => {
-                    if(results.changedRows > 0){
-                        logger.log(`${p.name} updated`);
-                    }
-                    if(results.insertId !== 0){
-                        logger.log(`${p.name} added`);
-                    }
-                }));
-                queries.push(query(`INSERT IGNORE INTO types (item_id, type) VALUES (?, ?)`, [p.id, 'preset']).catch(error => {
-                    logger.error(`Error inerting preset type for ${p.name} ${p.id}`);
-                    logger.error(error);
-                }));
-                /*for (const part of p.containsItems) {
-                    queries.push(query(`
-                        INSERT IGNORE INTO 
-                            item_children (container_item_id, child_item_id, count)
-                        VALUES (?, ?, ?)
-                    `, [p.id, part.item.id, part.count])
-                    .catch(error => {
-                        logger.error(`Error updating preset items for ${p.name} ${p.id}`);
-                        logger.error(error);
-                    }));
-                }*/
-            //} 
+            queries.push(query(`
+                INSERT INTO 
+                    item_data (id, name, short_name, normalized_name, properties)
+                VALUES (
+                    '${p.id}',
+                    ${connection.escape(p.name)},
+                    ${connection.escape(p.shortName)},
+                    ${connection.escape(p.normalized_name)},
+                    ${connection.escape(JSON.stringify({backgroundColor: p.backgroundColor}))}
+                )
+                ON DUPLICATE KEY UPDATE
+                    name=${connection.escape(p.name)},
+                    short_name=${connection.escape(p.shortName)},
+                    normalized_name=${connection.escape(p.normalized_name)},
+                    properties=${connection.escape(JSON.stringify({backgroundColor: p.backgroundColor}))}
+            `).then(results => {
+                if(results.changedRows > 0){
+                    logger.log(`${p.name} updated`);
+                }
+                if(results.insertId !== 0){
+                    logger.log(`${p.name} added`);
+                }
+            }));
+            queries.push(query(`INSERT IGNORE INTO types (item_id, type) VALUES (?, ?)`, [p.id, 'preset']).catch(error => {
+                logger.error(`Error inerting preset type for ${p.name} ${p.id}`);
+                logger.error(error);
+            }));
         }
 
         fs.writeFileSync(path.join(__dirname, '..', 'cache', 'presets.json'), JSON.stringify(presetsData, null, 4));

@@ -62,7 +62,15 @@ const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
             if (Array.isArray(translationTarget[fieldName])) {
                 translation[langCode][fieldName] = translatePath(langCode, translationTarget[fieldName], logger, errorOnNotFound);
             } else if (typeof translationTarget[fieldName] === 'function') {
-                translation[langCode][fieldName] = translationTarget[fieldName](locales[langCode], logger);
+                try {
+                    translation[langCode][fieldName] = translationTarget[fieldName](locales[langCode], logger);
+                } catch (error) {
+                    if (langCode !== 'en') {
+                        translation[langCode][fieldName] = translationTarget[fieldName](locales['en'], logger);
+                    } else if (errorOnNotFound) {
+                        throw error;
+                    }
+                }
             } else {
                 return Promise.reject(new Error(`Invalid translation target type (${typeof translationTarget[fieldName]}) for ${fieldName}; expected array or function`));
             }
