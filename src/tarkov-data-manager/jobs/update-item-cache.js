@@ -1,5 +1,3 @@
-const fs = require('fs/promises');
-
 const roundTo = require('round-to');
 
 const dataMaps = require('../modules/data-map');
@@ -12,7 +10,7 @@ const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const jobOutput = require('../modules/job-output');
 const {dashToCamelCase} = require('../modules/string-functions');
-const { setItemPropertiesOptions, getSpecialItemProperties, topCategories } = require('../modules/get-item-properties');
+const { setItemPropertiesOptions, getSpecialItemProperties } = require('../modules/get-item-properties');
 const { initPresetSize, getPresetSize } = require('../modules/preset-size');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
@@ -230,18 +228,7 @@ module.exports = async () => {
             return results;
         });
 
-        logger.time('contained-items-query');
-        const containedItemsPromise = query(`
-            SELECT
-                *
-            FROM
-                item_children;
-        `).then (results => {
-            logger.timeEnd('contained-items-query');
-            return results;
-        });
-
-        let presets, globals, avgPriceYesterday, lastKnownPriceData, containedItems, itemMap;
+        let presets, globals, avgPriceYesterday, lastKnownPriceData, itemMap;
         [
             bsgItems, 
             credits, 
@@ -251,7 +238,6 @@ module.exports = async () => {
             presets,
             avgPriceYesterday, 
             lastKnownPriceData, 
-            containedItems, 
             itemMap
         ] = await Promise.all([
             tarkovChanges.items(), 
@@ -262,7 +248,6 @@ module.exports = async () => {
             jobOutput('update-presets', './cache/presets.json', logger),
             avgPriceYesterdayPromise,
             lastKnownPriceDataPromise,
-            containedItemsPromise,
             remoteData.get(true)
         ]);
         const itemData = {};
@@ -270,23 +255,10 @@ module.exports = async () => {
         bsgCategories = {};
         initPresetSize(bsgItems, credits);
 
-        let containedItemsMap = {};
-
-        for (const result of containedItems) {
-            if (!containedItemsMap[result.container_item_id]) {
-                containedItemsMap[result.container_item_id] = [];
-            }
-
-            containedItemsMap[result.container_item_id].push({
-                item: result.child_item_id,
-                count: result.count,
-                attributes: []
-            });
-        }
-
         await setItemPropertiesOptions({
             logger,
             items: bsgItems,
+            presets,
             locales, 
             globals,
             itemIds: [...itemMap.keys()],
@@ -349,7 +321,7 @@ module.exports = async () => {
 
             itemData[key].types = itemData[key].types.map(type => dashToCamelCase(type));
 
-            itemData[key].containsItems = containedItemsMap[key] || [];
+            itemData[key].containsItems = [];
 
             // itemData[key].changeLast48h = itemPriceYesterday.priceYesterday || 0;
 
@@ -370,6 +342,31 @@ module.exports = async () => {
                     itemData[key].properties.defaultRecoilVertical = defaultSize.verticalRecoil;
                     itemData[key].properties.defaultRecoilHorizontal = defaultSize.horizontalRecoil;
                     itemData[key].properties.defaultWeight = defaultSize.weight;
+
+                    const preset = Object.values(presets).find(preset => preset.default && preset.baseId === key);
+                    if (preset) {
+                        itemData[key].containsItems = preset.containsItems.reduce((containedItems, contained) => {
+                            if (contained.item.id !== key) {
+                                containedItems.push({
+                                    item: contained.item.id,
+                                    count: contained.count,
+                                    attributes: []
+                                });
+                            }
+                            return containedItems;
+                        }, []);
+                    }
+                }
+                // add ammo box contents
+                if (itemData[key].bsgCategoryId === '543be5cb4bdc2deb348b4568') {
+                    const ammoContents = bsgItems[key]._props.StackSlots[0];
+                    const count = ammoContents._max_count;
+                    const round = ammoContents._props.filters[0].Filter[0];
+                    itemData[key].containsItems.push({
+                        item: round,
+                        count: count,
+                        attributes: []
+                    })
                 }
             } else if (presets[key]) {
                 const preset = presets[key];
@@ -388,6 +385,13 @@ module.exports = async () => {
                 if ((itemData[preset.baseId]?.types.includes('noFlea') || itemData[preset.baseId]?.types.includes('no-flea')) && !itemData[key].types.includes('noFlea')) {
                     itemData[key].types.push('noFlea');
                 }
+                itemData[key].containsItems = preset.containsItems.map(contained => {
+                    return {
+                        item: contained.item.id,
+                        count: contained.count,
+                        attributes: []
+                    };
+                });
             } else if (!itemData[key].types.includes('disabled')) {
                 logger.log(`Item ${itemData[key].name} (${key}) is neither an item nor a preset`);
                 delete itemData[key];
@@ -513,6 +517,41 @@ module.exports = async () => {
         Object.values(bsgCategories).forEach(cat => {
             bsgCategories[cat.parent_id]?.child_ids.push(cat.id);
         });
+
+
+        const slotIds = [];
+
+        for (const id in bsgItems) {
+            if (!bsgItems[id] || !bsgItems[id]._props.Slots) {
+                continue;
+            }
+            bsgItems[id]._props.Slots.forEach(slot => {
+                slotIds.push(slot._id);
+            });
+        }
+
+        for (const id in itemData) {
+            const item = itemData[id];
+            item.conflictingItems = [];
+            item.conflictingSlotIds = [];
+            item.conflictingCategories = [];
+            if (item.types.includes('preset')) {
+                continue;
+            }
+            bsgItems[id]._props.ConflictingItems.forEach(conId => {                
+                if (itemData[conId]) {
+                    item.conflictingItems.push(conId);
+                } else if (slotIds.includes(conId)) {
+                    item.conflictingSlotIds.push(conId);
+                } else if (bsgCategories[conId]) {
+                    item.conflictingCategories.push(conId);
+                } else if (bsgItems[id]) {
+                    //logger.log(`${conId} is probably disabled`);
+                } else {
+                    logger.log(`${item.name} ${item.id} could not categorize conflicting item id ${conId}`);
+                }
+            });
+        }
 
         const fleaData = {
             name: 'Flea Market',

@@ -1,9 +1,11 @@
 const tarkovChanges = require('../modules/tarkov-changes');
 const JobLogger = require('../modules/job-logger');
+const jobOutput = require('../modules/job-output');
 
 let locales = false;
 let globals = false;
 let items = false;
+let presets = false;
 let logger = false;
 let itemIds = false;
 let disabledItemIds = false;
@@ -39,9 +41,18 @@ const setItems = async (it = false) => {
     }
 }
 
+const setPresets = async (pr = false) => {
+    if (pr) {
+        presets = pr;
+    } else {
+        presets = await jobOutput('update-presets', './cache/presets.json', logger);
+    }
+}
+
 const setAll = async (options) => {
     const optionMap = {
         items: setItems,
+        presets: setPresets,
         locales: setLocales,
         globals: setGlobals,
         logger: lgr => {
@@ -122,6 +133,7 @@ const getSlots = (item) => {
     ];
     return item._props.Slots.map(slot => {
         const formattedSlot = {
+            id: slot._id,
             name: locales.en.interface[slot._name.toUpperCase()],
             nameId: slot._name,
             required: slot._required,
@@ -345,6 +357,11 @@ const getItemProperties = async (item, parent = false) => {
                 return itemIds.includes(id) && !disabledItemIds.includes(id);
             }) || [],
             slots: getSlots(item),
+            defaultPreset: Object.values(presets).filter(preset => {
+                return preset.default && preset.baseId === item._id;
+            }).reduce((previousValue, currentValue) => {
+                return currentValue.id;
+            }, null),
             locale: {}
         };
         for (const code in locales) {

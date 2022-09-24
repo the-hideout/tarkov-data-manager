@@ -13,6 +13,25 @@ const { imageSizes } = imageFunctions;
 
 let refreshingUsers = false;
 let users = {};
+let presets = [];
+let presetsTimeout = false;
+
+const updatePresets = () => {
+    try {
+        const fileContents = fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json'));
+        presets = Object.values(JSON.parse(fileContents));
+    } catch (error) {
+        console.log('Error reading presets.json', error);
+    }
+};
+
+fs.watch(path.join(__dirname, '..', 'cache'), {persistent: false}, (eventType, filename) => {
+    if (filename === 'presets.json') {
+        clearTimeout(presetsTimeout);
+        presetsTimeout = setTimeout(updatePresets, 100);
+        
+    }
+});
 
 // sets defaults for various options used by API calls
 // limitItem is a single item or array of items to specifically retrieve (generally for testing)
@@ -80,7 +99,24 @@ const dateToMysqlFormat = (dateTime) => {
 
 const queryResultToBatchItem = item => {
     const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
-    const contains = item.contains ? item.contains.split(',') : [];
+    let contains = item.contains ? item.contains.split(',') : [];
+    let preset = false;
+    if (types.includes('gun')) {
+        preset = presets.find(preset => preset.default && preset.baseId === item.id);
+        if (preset) {
+            contains = preset.containsItems.reduce((itemIds, currentItem) => {
+                if (currentItem.item.id !== item.id) {
+                    itemIds.push(currentItem.item.id);
+                }
+                return itemIds;
+            }, []);
+        }
+    } else if (types.includes('preset')) {
+        preset = presets.find(preset => preset.id === item.id);
+        if (preset) {
+            contains = preset.map(contained => contained.item.id);
+        }
+    }
     const backgroundColor = item.properties?.backgroundColor ? item.properties.backgroundColor : 'default';
     return {
         id: item.id,
@@ -157,14 +193,11 @@ const getItems = async(options) => {
                 icon_link IS NULL OR icon_link = '' AS needs_icon_image,
                 image_512_link IS NULL or image_512_link = '' as needs_512px_image,
                 image_8x_link IS NULL or image_8x_link = '' as needs_8x_image,
-                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types,
-                GROUP_CONCAT(distinct item_children.child_item_id SEPARATOR ',') as contains
+                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
             FROM
                 item_data
             LEFT JOIN types ON
                 types.item_id = item_data.id
-            LEFT JOIN item_children ON
-                item_children.container_item_id = item_data.id
             WHERE 
                 item_data.id IN (${placeholders.join(',')})
             GROUP BY
@@ -189,14 +222,11 @@ const getItems = async(options) => {
                 image_link IS NULL OR image_link = '' AS needs_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
                 icon_link IS NULL OR icon_link = '' AS needs_icon_image,
-                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types,
-                GROUP_CONCAT(distinct item_children.child_item_id SEPARATOR ',') as contains
+                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
             FROM
                 item_data
             LEFT JOIN types ON
                 types.item_id = item_data.id
-            LEFT JOIN item_children ON
-                item_children.container_item_id = item_data.id
             WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') AND 
@@ -272,14 +302,11 @@ const getItems = async(options) => {
             image_link IS NULL OR image_link = '' AS needs_image,
             grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
             icon_link IS NULL OR icon_link = '' AS needs_icon_image,
-            GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types,
-            GROUP_CONCAT(distinct item_children.child_item_id SEPARATOR ',') as contains
+            GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
         FROM
             item_data
         LEFT JOIN types ON
             types.item_id = item_data.id
-        LEFT JOIN item_children ON
-            item_children.container_item_id = item_data.id
         ${where}
         GROUP BY item_data.id
         ORDER BY item_data.last_scan

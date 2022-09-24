@@ -353,7 +353,7 @@ module.exports = async function() {
         tasks = allResults[2];
         en = allResults[3];
         oldTasks = allResults[4].body;
-        presetData = JSON.parse(fs.readFileSync('./cache/presets.json'));
+        presetData = await jobOutput('update-presets', './cache/presets.json');//JSON.parse(fs.readFileSync('./cache/presets.json'));
         $ = cheerio.load(wikiResponse.body);
         trades = {
             updated: new Date(),
