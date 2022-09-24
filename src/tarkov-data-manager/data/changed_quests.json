@@ -294,5 +294,19 @@
                 }
             ]
         }
+    },
+    "6179ad56c760af5ad2053587": {
+        "name": "Seaside Vacation",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5969f9e986f7741dde183a50",
+                    "name": "Pharmacist",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
     }
 }
