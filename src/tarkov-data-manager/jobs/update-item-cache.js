@@ -342,6 +342,7 @@ module.exports = async () => {
                     itemData[key].properties.defaultRecoilVertical = defaultSize.verticalRecoil;
                     itemData[key].properties.defaultRecoilHorizontal = defaultSize.horizontalRecoil;
                     itemData[key].properties.defaultWeight = defaultSize.weight;
+                    itemData[key].properties.presets = Object.values(presets).filter(preset => preset.baseId === key).map(preset => preset.id);
 
                     const preset = Object.values(presets).find(preset => preset.default && preset.baseId === key);
                     if (preset) {
