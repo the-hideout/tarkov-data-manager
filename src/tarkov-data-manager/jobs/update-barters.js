@@ -22,7 +22,7 @@ let oldTasks;
 let tasks;
 let en;
 let $;
-let gunPages = {};
+let gunVariants = {};
 
 const tradeMap = {
     Fence: '579dc571d53a0658a154fbec',
@@ -77,11 +77,25 @@ const getItemByName = (searchName) => {
     });
 };
 
-const getGunPage = async (url) => {
-    if (!gunPages[url]) {
-        gunPages[url] = cheerio.load((await got(url)).body);
+const getGunVariants = async (url) => {
+    if (!gunVariants[url]) {
+        gunVariants[url] = [];
+        const $gunPage = cheerio.load((await got(url)).body);
+        $gunPage('.wikitable').each((tableIndex, tableElement) => {
+            const table = $(tableElement);
+            if (!table.find('th').eq(1).text().toLowerCase().includes('variant')) {
+                return;
+            }
+            //const variantTable = $(table);
+            table.each((variantTableIndex, variantTableElement) => {
+                $(variantTableElement).find('tr').each((variantIndex, variantRow) => {
+                    if (variantIndex === 0) return;
+                    gunVariants[url].push(variantRow);
+                });
+            });
+        });
     }
-    return gunPages[url];
+    return gunVariants[url];
 };
 
 const getPresetByRow = (baseItem, row) => {
@@ -208,21 +222,7 @@ const parseTradeRow = async (tradeElement) => {
             gunImage = gunImage.substring(0, gunImage.indexOf('/revision/'));
         }
         const gunLink = $trade.find('th').eq(-1).find('a').eq(0).prop('href');
-        let $gunPage = await getGunPage(WIKI_URL+gunLink);
-        const variantRows = [];
-        $gunPage('.wikitable').each((tableIndex, tableElement) => {
-            table = $(tableElement);
-            if (!table.find('th').eq(1).text().toLowerCase().includes('variant')) {
-                return;
-            }
-            const variantTable = $(table);
-            variantTable.each((variantTableIndex, variantTableElement) => {
-                $(variantTableElement).find('tr').each((variantIndex, variantRow) => {
-                    if (variantIndex === 0) return;
-                    variantRows.push(variantRow);
-                });
-            });
-        });
+        const variantRows = await getGunVariants(WIKI_URL+gunLink);
         for (const row of variantRows) {
             $variant = $(row);
             let img = $variant.find('td').eq(0).find('img').eq(0).data('src');
@@ -370,7 +370,7 @@ module.exports = async function() {
             updated: new Date(),
             data: [],
         };
-        gunPages = {};
+        gunVariants = {};
         const returnData = {};
         for(const result of results){
             Reflect.deleteProperty(result, 'item_id');
