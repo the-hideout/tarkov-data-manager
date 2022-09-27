@@ -204,6 +204,13 @@
                 "status": [
                     "complete"
                 ]
+            },
+            {
+                "task": "5d25e2e286f77444001e2e48",
+                "name": "The Huntsman Path - Sellout",
+                "status": [
+                    "complete"
+                ]
             }
         ]
     },
@@ -302,6 +309,42 @@
                 {
                     "task": "5969f9e986f7741dde183a50",
                     "name": "Pharmacist",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "5d25e2ee86f77443e35162ea": {
+        "name": "The Huntsman Path - Woods Keeper",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5d25e2b486f77409de05bba0",
+                    "name": "The Huntsman Path - Secured Perimeter",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "596a0e1686f7741ddf17dbee",
+                    "name": "Supply Plans",
+                    "status": [
+                        "complete",
+                        "failed"
+                    ]
+                }
+            ]
+        }
+    },
+    "5dc53acb86f77469c740c893": {
+        "name": "The Stylish One",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5d25e2e286f77444001e2e48",
+                    "name": "The Huntsman Path - Sellout",
                     "status": [
                         "complete"
                     ]
