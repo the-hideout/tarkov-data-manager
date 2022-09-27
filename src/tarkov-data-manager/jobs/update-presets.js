@@ -181,6 +181,7 @@ module.exports = async (externalLogger = false) => {
             presetData.normalized_name = normalizeName(presetData.name);
             delete presetData.appendName;
             presetsData[presetData.id] = presetData;
+            logger.succeed(`Completed ${presetData.name} manual preset (${presetData.containsItems.length+1} parts)`);
         }
         // add dog tag preset
         const bearTag = items['59f32bb586f774757e1e8442'];
