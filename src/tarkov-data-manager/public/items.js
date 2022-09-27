@@ -336,6 +336,9 @@ jQuery.fn.dataTableExt.afnFiltering.push(
                 break;
             }
         }
+        if (requireSelected === 'all') {
+            typePassed = true;
+        }
         if (typeChecked.length == 0 && item.types.length > 0) return false;
         if (item.types.length == 0 && allItems && (typeChecked.length == 0 || typeChecked.length == typeCount)) return true;
         return typePassed;

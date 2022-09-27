@@ -22,6 +22,7 @@ let oldTasks;
 let tasks;
 let en;
 let $;
+let gunPages = {};
 
 const tradeMap = {
     Fence: '579dc571d53a0658a154fbec',
@@ -76,6 +77,13 @@ const getItemByName = (searchName) => {
     });
 };
 
+const getGunPage = async (url) => {
+    if (!gunPages[url]) {
+        gunPages[url] = cheerio.load((await got(url)).body);
+    }
+    return gunPages[url];
+};
+
 const getPresetByRow = (baseItem, row) => {
     $variant = $(row);
     const variantName = $variant.find('td').eq(1).text().trim();
@@ -105,8 +113,12 @@ const getPresetByRow = (baseItem, row) => {
             }
             if (!matchedPart) break;
         }
-        if (matchedPartCount === attachments.length) return preset;
+        if (matchedPartCount === attachments.length) {
+            //logger.warn(`Found no preset matching name ${variantName || 'unnamed'} but matched ${preset.shortName}`);
+            return preset;
+        }
     }
+    logger.warn(`Found no preset for ${variantName || `Unnamed ${baseItem.shortName} preset`}`);
     return false;
 };
 
@@ -115,7 +127,6 @@ const getPresetbyShortName = shortName => {
         const preset = presetData[presetId];
         if (preset.shortName === shortName) return preset;
     }
-    logger.warn('Found no preset for '+shortName);
     return false;
 };
 
@@ -197,7 +208,7 @@ const parseTradeRow = async (tradeElement) => {
             gunImage = gunImage.substring(0, gunImage.indexOf('/revision/'));
         }
         const gunLink = $trade.find('th').eq(-1).find('a').eq(0).prop('href');
-        let $gunPage = cheerio.load((await got(WIKI_URL+gunLink)).body);
+        let $gunPage = await getGunPage(WIKI_URL+gunLink);
         const variantRows = [];
         $gunPage('.wikitable').each((tableIndex, tableElement) => {
             table = $(tableElement);
@@ -359,6 +370,7 @@ module.exports = async function() {
             updated: new Date(),
             data: [],
         };
+        gunPages = {};
         const returnData = {};
         for(const result of results){
             Reflect.deleteProperty(result, 'item_id');
