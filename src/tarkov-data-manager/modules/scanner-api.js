@@ -33,6 +33,8 @@ fs.watch(path.join(__dirname, '..', 'cache'), {persistent: false}, (eventType, f
     }
 });
 
+updatePresets();
+
 // sets defaults for various options used by API calls
 // limitItem is a single item or array of items to specifically retrieve (generally for testing)
 // imageOnly = true will retrieve only items missing images
@@ -54,7 +56,7 @@ const getOptions = (options, user) => {
         scanned: false,
         offerCount: undefined
     }
-    mergedOptions = {
+    const mergedOptions = {
         ...defaultOptions,
         ...options,
         user: user
@@ -100,21 +102,36 @@ const dateToMysqlFormat = (dateTime) => {
 const queryResultToBatchItem = item => {
     const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
     let contains = item.contains ? item.contains.split(',') : [];
-    let preset = false;
+    let itemPresets = [];
     if (types.includes('gun')) {
-        preset = presets.find(preset => preset.default && preset.baseId === item.id);
-        if (preset) {
-            contains = preset.containsItems.reduce((itemIds, currentItem) => {
-                if (currentItem.item.id !== item.id) {
-                    itemIds.push(currentItem.item.id);
-                }
-                return itemIds;
-            }, []);
-        }
+        itemPresets = presets.filter(testPreset => testPreset.baseId === item.id).map(preset => {
+            if (preset.default) {
+                contains = preset.containsItems.reduce((itemIds, currentItem) => {
+                    if (currentItem.item.id !== item.id) {
+                        itemIds.push(currentItem.item.id);
+                    }
+                    return itemIds;
+                }, []);
+            }
+            return {
+                id: preset.id,
+                name: preset.name,
+                shortName: preset.shortName,
+                types: preset.types,
+                backgroundColor: preset.backgroundColor,
+                default: preset.default,
+                contains: preset.containsItems.reduce((itemIds, currentItem) => {
+                    if (currentItem.item.id !== item.id) {
+                        itemIds.push(currentItem.item.id);
+                    }
+                    return itemIds;
+                }, [])
+            }
+        });
     } else if (types.includes('preset')) {
-        preset = presets.find(preset => preset.id === item.id);
-        if (preset) {
-            contains = preset.map(contained => contained.item.id);
+        const matchedPreset = presets.find(preset => preset.id === item.id);
+        if (matchedPreset) {
+            contains = matchedPreset.map(contained => contained.item.id);
         }
     }
     const backgroundColor = item.properties?.backgroundColor ? item.properties.backgroundColor : 'default';
@@ -132,7 +149,7 @@ const queryResultToBatchItem = item => {
         needsIconImage: item.needs_icon_image ? true : false,
         needs512pxImage: item.needs_512px_image ? true : false,
         needs8xImage: item.needs_8x_image ? true : false,
-
+        presets: itemPresets,
         // Backwards compatibility
         /*short_name: String(item.short_name),
         needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
