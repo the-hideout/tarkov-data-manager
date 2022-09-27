@@ -22,7 +22,6 @@ let oldTasks;
 let tasks;
 let en;
 let $;
-let gunVariants = {};
 
 const tradeMap = {
     Fence: '579dc571d53a0658a154fbec',
@@ -77,27 +76,6 @@ const getItemByName = (searchName) => {
     });
 };
 
-const getGunVariants = async (url) => {
-    if (!gunVariants[url]) {
-        gunVariants[url] = [];
-        const $gunPage = cheerio.load((await got(url)).body);
-        $gunPage('.wikitable').each((tableIndex, tableElement) => {
-            const table = $(tableElement);
-            if (!table.find('th').eq(1).text().toLowerCase().includes('variant')) {
-                return;
-            }
-            //const variantTable = $(table);
-            table.each((variantTableIndex, variantTableElement) => {
-                $(variantTableElement).find('tr').each((variantIndex, variantRow) => {
-                    if (variantIndex === 0) return;
-                    gunVariants[url].push(variantRow);
-                });
-            });
-        });
-    }
-    return gunVariants[url];
-};
-
 const getPresetByRow = (baseItem, row) => {
     $variant = $(row);
     const variantName = $variant.find('td').eq(1).text().trim();
@@ -127,12 +105,8 @@ const getPresetByRow = (baseItem, row) => {
             }
             if (!matchedPart) break;
         }
-        if (matchedPartCount === attachments.length) {
-            //logger.warn(`Found no preset matching name ${variantName || 'unnamed'} but matched ${preset.shortName}`);
-            return preset;
-        }
+        if (matchedPartCount === attachments.length) return preset;
     }
-    logger.warn(`Found no preset for ${variantName || `Unnamed ${baseItem.shortName} preset`}`);
     return false;
 };
 
@@ -141,6 +115,7 @@ const getPresetbyShortName = shortName => {
         const preset = presetData[presetId];
         if (preset.shortName === shortName) return preset;
     }
+    logger.warn('Found no preset for '+shortName);
     return false;
 };
 
@@ -222,7 +197,21 @@ const parseTradeRow = async (tradeElement) => {
             gunImage = gunImage.substring(0, gunImage.indexOf('/revision/'));
         }
         const gunLink = $trade.find('th').eq(-1).find('a').eq(0).prop('href');
-        const variantRows = await getGunVariants(WIKI_URL+gunLink);
+        let $gunPage = cheerio.load((await got(WIKI_URL+gunLink)).body);
+        const variantRows = [];
+        $gunPage('.wikitable').each((tableIndex, tableElement) => {
+            table = $(tableElement);
+            if (!table.find('th').eq(1).text().toLowerCase().includes('variant')) {
+                return;
+            }
+            const variantTable = $(table);
+            variantTable.each((variantTableIndex, variantTableElement) => {
+                $(variantTableElement).find('tr').each((variantIndex, variantRow) => {
+                    if (variantIndex === 0) return;
+                    variantRows.push(variantRow);
+                });
+            });
+        });
         for (const row of variantRows) {
             $variant = $(row);
             let img = $variant.find('td').eq(0).find('img').eq(0).data('src');
@@ -312,7 +301,7 @@ const parseTradeRow = async (tradeElement) => {
     }
 
     let items = $trade.find('th').eq(0).html().split(/<br>\s?\+\s?<br>/);
-    const itemCountMatches = $trade.find('th').eq(0).text().match(/\sx\d/gm) || ['x1'];
+    const itemCountMatches = $trade.find('th').eq(0).text().match(/\sx\d/gm) || ['x1'];
 
     if(itemCountMatches.length > items.length){
         items = $trade.find('th').eq(0).html().split(/<br><br>/);
@@ -370,7 +359,6 @@ module.exports = async function() {
             updated: new Date(),
             data: [],
         };
-        gunVariants = {};
         const returnData = {};
         for(const result of results){
             Reflect.deleteProperty(result, 'item_id');
