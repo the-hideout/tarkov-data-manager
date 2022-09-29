@@ -308,7 +308,7 @@ jQuery.fn.dataTableExt.afnFiltering.push(
             } else if (filter === 'missing-image') {
                 if (!item.image_link || !item.grid_image_link || !item.icon_link || !item.image_512_link || !item.image_8x_link || !item.base_image_link) specialPassed = true;
             } else if (filter === 'no-wiki') {
-                if (!item.wiki_link) specialPassed = true;
+                if (!item.wiki_link && !item.types.includes('quest')) specialPassed = true;
             }
             if (specialPassed) break;
         }
