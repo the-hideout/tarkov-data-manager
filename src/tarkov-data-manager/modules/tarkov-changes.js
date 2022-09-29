@@ -8,7 +8,6 @@ const tarkovBot = require('../modules/tarkov-bot');
 const sptLangs = {
     //'en': 'en',
     'es': 'es',
-    'ru': 'ru',
     'de': 'ge',
     'fr': 'fr',
     'cz': 'cz',
@@ -17,6 +16,7 @@ const sptLangs = {
     'jp': 'jp',
     'pl': 'pl',
     'pt': 'po',
+    //'ru': 'ru',
     'sk': 'sk',
     'tr': 'tu',
     'zh': 'ch',
