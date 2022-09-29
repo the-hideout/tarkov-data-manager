@@ -184,7 +184,7 @@ module.exports = {
     locale: async (download = false, lang = 'en') => {
         if (lang == 'en') return module.exports.locale_en(download);
         if (lang == 'ru') return tarkovBot.dictionary(download, `locale_ru.json`, lang);
-
+        return getSptLocale(lang, download);
     },
     locale_es: async (download = false) => {
         return module.exports.locale(download, 'es');
