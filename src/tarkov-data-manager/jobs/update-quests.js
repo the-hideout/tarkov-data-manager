@@ -560,7 +560,7 @@ module.exports = async (externalLogger = false) => {
                 tarkovDataId: undefined,
                 factionName: 'Any',
                 neededKeys: [],
-                locale: getTranslations({name: ['quest', questId, 'name']}. logger)
+                locale: getTranslations({name: ['quest', questId, 'name']}, logger)
             };
             for (const objective of quest.conditions.AvailableForFinish) {
                 let optional = false;

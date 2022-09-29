@@ -5,6 +5,23 @@ const got = require('got');
 
 const tarkovBot = require('../modules/tarkov-bot');
 
+const sptLangs = {
+    //'en': 'en',
+    'es': 'es',
+    'ru': 'ru',
+    'de': 'ge',
+    'fr': 'fr',
+    'cz': 'cz',
+    'hu': 'hu',
+    'it': 'it',
+    'jp': 'jp',
+    'pl': 'pl',
+    'pt': 'po',
+    'sk': 'sk',
+    'tr': 'tu',
+    'zh': 'ch',
+}
+
 const jsonRequest = async (path) => {
     const response = await got(process.env.TC_URL+path, {
         method: 'post',
@@ -25,6 +42,40 @@ const spt = async (fileName, path) => {
     });
     fs.writeFileSync(cachePath(fileName), JSON.stringify(returnValue.body, null, 4));
     return returnValue.body;
+};
+
+const getSptLocale = async (locale, download) => {
+    const localName = `locale_${locale}.json`;
+    if (download) {
+        return spt(localName, `https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/locales/global/${sptLangs[locale]}.json`);
+    }
+    try {
+        return JSON.parse(fs.readFileSync(cachePath(localName)));
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            return getSptLocale(locale, true);
+        }
+        return Promise.reject(error);
+    }
+};
+
+const getSptLocales = async (download) => {
+    const langCodes = Object.keys(sptLangs);
+    const localePromises = [];
+    for (const locale of langCodes) {
+        localePromises.push(getSptLocale(locale, download).then(localeData => {
+            return {
+                locale: locale,
+                data: localeData
+            }
+        }));
+    }
+    const translations = await Promise.all(localePromises);
+    const locales = {};
+    for (const localeData of translations) {
+        locales[localeData.locale] = localeData.data;
+    }
+    return locales;
 };
 
 const availableFiles = {
@@ -132,7 +183,8 @@ module.exports = {
     },
     locale: async (download = false, lang = 'en') => {
         if (lang == 'en') return module.exports.locale_en(download);
-        return tarkovBot.dictionary(download, `locale_${lang}.json`, lang);
+        if (lang == 'ru') return tarkovBot.dictionary(download, `locale_ru.json`, lang);
+
     },
     locale_es: async (download = false) => {
         return module.exports.locale(download, 'es');
@@ -161,7 +213,8 @@ module.exports = {
     locales: async (download = false) => {
         return {
             en: await module.exports.locale_en(download),
-            ...await tarkovBot.locales(download)
+            ru: await tarkovBot.dictionary(download, 'locale_ru.json', 'ru'),
+            ...await getSptLocales(download)
         }
     },
     locations: async (download = false) => {
@@ -189,6 +242,7 @@ module.exports = {
             //promises.push(module.exports.get(fileSource, true, availableFiles[file]).then(data => {return {name: availableFiles[fileSource] || fileSource, data: data}}));
             promises.push(module.exports[file](true, availableFiles[file]).then(data => {return {name: availableFiles[fileSource] || fileSource, data: data}}));
         }
+        promises.push(getSptLocales(true).then(data => {return {name: 'locales', data: data}}));
         const results = await Promise.allSettled(promises);
         const errors = [];
         const values = {};
