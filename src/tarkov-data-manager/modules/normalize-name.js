@@ -7,5 +7,5 @@ module.exports = (name) => {
         .trim()
         .replace(/\s/g, '-') // replace spaces with dash
         .replace(/[^a-z0-9\-]/g, '') // remove any unwanted chars
-        .replace(/\-\-/g, '-'); // make sure we only have a single -
+        .replace(/\-{2,}/g, '-'); // make sure we only have a single -
 };
