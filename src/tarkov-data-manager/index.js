@@ -308,7 +308,7 @@ app.get('/', async (req, res) => {
         
         let missingImages = 0;
         if (!item.types.includes('disabled')) {
-            if (!item.wiki_link) {
+            if (!item.wiki_link && !item.types.includes('quest')) {
                 missingWiki.push(item);
             }
             for (const field of imageFields) {

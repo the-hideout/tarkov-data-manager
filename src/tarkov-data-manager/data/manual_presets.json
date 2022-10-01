@@ -1,7 +1,7 @@
 [
     {
         "id": "mosinscopedbarter0000001",
-        "appendName": "PU",
+        "appendName": ["templates", "5b3f7c1c5acfc40dc5296b1d", "ShortName"],
         "baseId": "5ae08f0a5acfc408fb1398a1",
         "default": false,
         "containsItems": [
@@ -122,6 +122,333 @@
                 "item": {
                     "id": "5a32aa8bc4a2826c6e06d737",
                     "name": "Trijicon RMR reflex sight"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "rpk16drum000000000000001",
+        "appendName": "Drum",
+        "baseId": "5beed0f50db834001c062b12",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "5beed0f50db834001c062b12",
+                    "name": "RPK-16 5.45x39 light machine gun"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec8ea0db834001a6f9dbf",
+                    "name": "AK-12 pistol grip"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec91a0db834001961942d",
+                    "name": "RPK-16 dust cover"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec9450db83400970084fd",
+                    "name": "RPK-16 rear sight base"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5bf3f59f0db834001a6fa060",
+                    "name": "RPK-16 rear sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec8b20db834001961942a",
+                    "name": "RPK-16 buffer tube"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec8c20db834001d2c465c",
+                    "name": "AK-12 stock"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec3e30db8340019619424",
+                    "name": "RPK-16 handguard"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beecbb80db834001d2c465e",
+                    "name": "RPK-16 handguard rail"
+                },
+                "count": 2
+            },
+            {
+                "item": {
+                    "id": "5beec1bd0db834001e6006f3",
+                    "name": "RPK-16 5.45x39 15 inch barrel"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec3420db834001b095429",
+                    "name": "RPK-16 5.45x39 muzzle brake-compensator"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5bed625c0db834001c062946",
+                    "name": "RPK-16 5.45x39 95-round drum magazine"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "ash12silenced00000000001",
+        "appendName": ["preset", "58dffd4586f77408a27629b2", "Name"],
+        "baseId": "5cadfbf7ae92152ac412eeef",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "5cadfbf7ae92152ac412eeef",
+                    "name": "ASh-12 12.7x55 assault rifle"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5caf187cae92157c28402e43",
+                    "name": "ASh-12 12.7x55 sound suppressor"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5caf1041ae92157c28402e3f",
+                    "name": "ASh-12 12.7x55 10-round magazine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5caf16a2ae92152ac412efbc",
+                    "name": "ASh-12 folding front sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5cdaa99dd7f00c002412d0b2",
+                    "name": "ASh-12 polymer handguard"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5caf1691ae92152ac412efb9",
+                    "name": "ASh-12 rear sight carry handle"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "sksintrafuse000000000001",
+        "appendName": ["templates", "5afd7ded5acfc40017541f5e", "ShortName"],
+        "baseId": "574d967124597745970e7c94",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "574d967124597745970e7c94",
+                    "name": "Simonov SKS 7.62x39 carbine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5afd7ded5acfc40017541f5e",
+                    "name": "SKS TAPCO Intrafuse stock"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "574db213245977459a2f3f5d",
+                    "name": "SKS rear sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "587df583245977373c4f1129",
+                    "name": "SKS 7.62x39 ProMag SKS-A5 20-round magazine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5afd7e095acfc40017541f61",
+                    "name": "SKS TAPCO Intrafuse buffer tube"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5afd7e445acfc4001637e35a",
+                    "name": "SKS TAPCO Intrafuse kit SAW-Style pistol grip"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "55d4ae6c4bdc2d8b2f8b456e",
+                    "name": "High Standard M4SS Stock"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "opsksuas0000000000000001",
+        "appendName": "UAS",
+        "baseId": "587e02ff24597743df3deaeb",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "587e02ff24597743df3deaeb",
+                    "name": "Simonov OP-SKS 7.62x39 carbine (Hunting Rifle Version)"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5d0236dad7ad1a0940739d29",
+                    "name": "SKS FAB Defense UAS stock"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "574db213245977459a2f3f5d",
+                    "name": "SKS rear sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "587df3a12459772c28142567",
+                    "name": "SKS 7.62x39 10-round internal box magazine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "587e08ee245977446b4410cf",
+                    "name": "OP-SKS dovetail mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5d023784d7ad1a049d4aa7f2",
+                    "name": "SKS/VZ-58 FAB Defense AG-58 pistol grip"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "sa58spr00000000000000001",
+        "appendName": "SPR",
+        "baseId": "5b0bbe4e5acfc40dc528a72d",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "5b0bbe4e5acfc40dc528a72d",
+                    "name": "DS Arms SA-58 7.62x51 assault rifle"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b099b965acfc400186331e6",
+                    "name": "SA-58 SAW-style pistol grip (Black)"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b7c2d1d5acfc43d1028532a",
+                    "name": "SA-58/FAL 7.62x51 MMW polymer 20-round magazine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b7bedd75acfc43d825283f9",
+                    "name": "SA-58/FAL Vltor CASV-FAL handguard"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b7be1265acfc400161d0798",
+                    "name": "SA-58 7.62x51 21 inch barrel"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b0bc22d5acfc47a8607f085",
+                    "name": "SA-58 Holland Type rear sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b099bb25acfc400186331e8",
+                    "name": "SA-58 Extreme Duty dust cover"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b7d63de5acfc400170e2f8d",
+                    "name": "SA-58 SPR stock"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b7be46e5acfc400170e2dcf",
+                    "name": "Vltor CASV 5 inch rail"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b099b7d5acfc400186331e4",
+                    "name": "SA-58 3-Prong Trident 7.62x51 flash hider"
                 },
                 "count": 1
             }

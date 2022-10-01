@@ -1,5 +1,3 @@
-const fs = require('fs');
-
 const got = require('got');
 const cheerio = require('cheerio');
 
@@ -22,6 +20,7 @@ let oldTasks;
 let tasks;
 let en;
 let $;
+let gunVariants = {};
 
 const tradeMap = {
     Fence: '579dc571d53a0658a154fbec',
@@ -76,16 +75,56 @@ const getItemByName = (searchName) => {
     });
 };
 
-const getPresetByRow = (baseItem, row) => {
-    $variant = $(row);
-    const variantName = $variant.find('td').eq(1).text().trim();
-    if (variantName) {
-        const preset = getPresetbyShortName(variantName);
+const getGunVariants = async (url) => {
+    if (!gunVariants[url]) {
+        gunVariants[url] = got(url, {resolveBodyOnly: true}).then(response => {
+            const $gunPage = cheerio.load(response);
+            const foundVariants = [];
+            $gunPage('.wikitable').each((tableIndex, tableElement) => {
+                const table = $(tableElement);
+                if (!table.find('th').eq(1).text().toLowerCase().includes('variant')) {
+                    return foundVariants;
+                }
+                //const variantTable = $(table);
+                table.each((variantTableIndex, variantTableElement) => {
+                    $(variantTableElement).find('tr').each((variantIndex, variantRow) => {
+                        if (variantIndex === 0) return;
+                        variantRow = $(variantRow);
+                        const variant = {
+                            name: variantRow.find('td').eq(1).text().trim(),
+                            attachments: []
+                        };
+                        let img = variantRow.find('td').eq(0).find('img').eq(0).data('src');
+                        if (img && img.indexOf('/revision') > -1) {
+                            img = img.substring(0, img.indexOf('/revision/'));
+                        }
+                        variant.image = img;
+                        const attachments = variantRow.find('td').eq(2).find('a');
+                        for (const attachmentLink of attachments) {
+                            const attachment = getItemByName($(attachmentLink).attr('title'));
+                            //console.log(attachment);
+                            if (attachment) {
+                                variant.attachments.push(attachment.id);
+                            }
+                        }
+                        foundVariants.push(variant);
+                    });
+                });
+            });
+            return foundVariants;
+        });
+    }
+    return gunVariants[url];
+};
+
+const getPresetByVariant = (baseItem, variant) => {
+    if (variant.name) {
+        const preset = getPresetbyShortName(variant.name);
         if (preset) {
             return preset;
         }
     }
-    const attachments = $variant.find('td').eq(2).find('a');
+    const attachments = variant.attachments;
     for (const presetId in presetData) {
         const preset = presetData[presetId];
         if (preset.baseId !== baseItem.id) continue;
@@ -94,10 +133,9 @@ const getPresetByRow = (baseItem, row) => {
         let matchedPartCount = 0;
         for (const part of presetParts) {
             let matchedPart = false;
-            for (const attachmentLink of attachments) {
-                const attachment = getItemByName($(attachmentLink).attr('title'));
+            for (const attachmentId of attachments) {
                 //console.log(attachment);
-                if (attachment.id === part.item.id) {
+                if (attachmentId === part.item.id) {
                     matchedPart = true;
                     matchedPartCount++;
                     break;
@@ -105,8 +143,12 @@ const getPresetByRow = (baseItem, row) => {
             }
             if (!matchedPart) break;
         }
-        if (matchedPartCount === attachments.length) return preset;
+        if (matchedPartCount === attachments.length) {
+            //logger.warn(`Found no preset matching name ${variant.name || 'unnamed'} but matched ${preset.shortName}`);
+            return preset;
+        }
     }
+    logger.warn(`Found no preset for ${variant.name || `Unnamed ${baseItem.shortName} preset`}`);
     return false;
 };
 
@@ -115,7 +157,6 @@ const getPresetbyShortName = shortName => {
         const preset = presetData[presetId];
         if (preset.shortName === shortName) return preset;
     }
-    logger.warn('Found no preset for '+shortName);
     return false;
 };
 
@@ -197,29 +238,10 @@ const parseTradeRow = async (tradeElement) => {
             gunImage = gunImage.substring(0, gunImage.indexOf('/revision/'));
         }
         const gunLink = $trade.find('th').eq(-1).find('a').eq(0).prop('href');
-        let $gunPage = cheerio.load((await got(WIKI_URL+gunLink)).body);
-        const variantRows = [];
-        $gunPage('.wikitable').each((tableIndex, tableElement) => {
-            table = $(tableElement);
-            if (!table.find('th').eq(1).text().toLowerCase().includes('variant')) {
-                return;
-            }
-            const variantTable = $(table);
-            variantTable.each((variantTableIndex, variantTableElement) => {
-                $(variantTableElement).find('tr').each((variantIndex, variantRow) => {
-                    if (variantIndex === 0) return;
-                    variantRows.push(variantRow);
-                });
-            });
-        });
-        for (const row of variantRows) {
-            $variant = $(row);
-            let img = $variant.find('td').eq(0).find('img').eq(0).data('src');
-            if (img && img.indexOf('/revision') > -1) {
-                img = img.substring(0, img.indexOf('/revision/'));
-            }
-            if (img !== gunImage) continue;
-            const preset = getPresetByRow(rewardItem, row);
+        const wikiVariants = await getGunVariants(WIKI_URL+gunLink);
+        for (const variant of wikiVariants) {
+            if (variant.image !== gunImage) continue;
+            const preset = getPresetByVariant(rewardItem, variant);
             if (preset) {
                 rewardItem = preset;
                 break;
@@ -359,6 +381,7 @@ module.exports = async function() {
             updated: new Date(),
             data: [],
         };
+        gunVariants = {};
         const returnData = {};
         for(const result of results){
             Reflect.deleteProperty(result, 'item_id');

@@ -131,9 +131,6 @@ module.exports = async (externalLogger = false) => {
         // add manual presets
         for (const presetData of manualPresets) {
             const baseItem = items[presetData.baseId];
-            presetData.name = en.templates[baseItem._id].Name + ' ' + presetData.appendName;
-            presetData.shortName = en.templates[baseItem._id].ShortName + ' ' + presetData.appendName;
-            presetData.normalized_name = normalizeName(presetData.name);
             presetData.backgroundColor = baseItem._props.BackgroundColor;
             presetData.bsgCategoryId = baseItem._parent;
             presetData.types = ['preset'];
@@ -159,13 +156,32 @@ module.exports = async (externalLogger = false) => {
 
             presetData.locale = getTranslations({
                 name: (lang) => {
-                    return lang.templates[baseItem._id].Name + ' ' + presetData.appendName;
+                    let appendName = presetData.appendName;
+                    if (Array.isArray(appendName)) {
+                        appendName = lang;
+                        for (const key of presetData.appendName) {
+                            appendName = appendName[key];
+                        }
+                    }
+                    return lang.templates[baseItem._id].Name + ' ' + appendName;
                 },
                 shortName: (lang) => {
-                    return lang.templates[baseItem._id].ShortName + ' ' + presetData.appendName;
+                    let appendName = presetData.appendName;
+                    if (Array.isArray(appendName)) {
+                        appendName = lang;
+                        for (const key of presetData.appendName) {
+                            appendName = appendName[key];
+                        }
+                    }
+                    return lang.templates[baseItem._id].ShortName + ' ' + appendName;
                 }
             }, logger);
+            presetData.name = presetData.locale.en.name;
+            presetData.shortName = presetData.locale.en.shortName;
+            presetData.normalized_name = normalizeName(presetData.name);
+            delete presetData.appendName;
             presetsData[presetData.id] = presetData;
+            logger.succeed(`Completed ${presetData.name} manual preset (${presetData.containsItems.length+1} parts)`);
         }
         // add dog tag preset
         const bearTag = items['59f32bb586f774757e1e8442'];

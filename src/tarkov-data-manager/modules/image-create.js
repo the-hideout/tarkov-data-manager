@@ -10,7 +10,6 @@ const tarkovChanges = require('./tarkov-changes');
 async function createFromSource(sourceImage, id) {
     const itemData = await jobOutput('update-item-cache', './dumps/item_data.json');
     const taskData = await jobOutput('update-quests', './dumps/quest_data.json', false, true);
-    console.log(taskData.items)
     let item = itemData[id] || taskData.items[id];
     if (!item) {
         const items = await tarkovChanges.items();

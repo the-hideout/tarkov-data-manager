@@ -335,13 +335,7 @@ module.exports = async () => {
                 itemData[key].backgroundColor = bsgItems[key]._props.BackgroundColor;
                 itemData[key].properties = await getSpecialItemProperties(bsgItems[key], bsgItems[bsgItems[key]._parent]);
                 if (value.types.includes('gun')) {
-                    const defaultSize = await getPresetSize(itemData[key], logger);
-                    itemData[key].properties.defaultWidth = defaultSize.width;
-                    itemData[key].properties.defaultHeight = defaultSize.height;
-                    itemData[key].properties.defaultErgonomics = defaultSize.ergonomics;
-                    itemData[key].properties.defaultRecoilVertical = defaultSize.verticalRecoil;
-                    itemData[key].properties.defaultRecoilHorizontal = defaultSize.horizontalRecoil;
-                    itemData[key].properties.defaultWeight = defaultSize.weight;
+                    itemData[key].properties.presets = Object.values(presets).filter(preset => preset.baseId === key).map(preset => preset.id);
 
                     const preset = Object.values(presets).find(preset => preset.default && preset.baseId === key);
                     if (preset) {
@@ -356,6 +350,14 @@ module.exports = async () => {
                             return containedItems;
                         }, []);
                     }
+
+                    const defaultSize = await getPresetSize(itemData[key], logger);
+                    itemData[key].properties.defaultWidth = defaultSize.width;
+                    itemData[key].properties.defaultHeight = defaultSize.height;
+                    itemData[key].properties.defaultErgonomics = defaultSize.ergonomics;
+                    itemData[key].properties.defaultRecoilVertical = defaultSize.verticalRecoil;
+                    itemData[key].properties.defaultRecoilHorizontal = defaultSize.horizontalRecoil;
+                    itemData[key].properties.defaultWeight = defaultSize.weight;
                 }
                 // add ammo box contents
                 if (itemData[key].bsgCategoryId === '543be5cb4bdc2deb348b4568') {
