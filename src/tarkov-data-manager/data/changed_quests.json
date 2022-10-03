@@ -313,7 +313,8 @@
                         "complete"
                     ]
                 }
-            ]
+            ],
+            "minPlayerLevel": 17
         }
     },
     "5d25e2ee86f77443e35162ea": {
