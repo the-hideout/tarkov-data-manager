@@ -1056,6 +1056,7 @@ module.exports = async (externalLogger = false) => {
             quest.startMessageId = locales.en.quest[quest.id]?.startedMessageText;
             quest.successMessageId = locales.en.quest[quest.id]?.successMessageText;
             quest.failMessageId = locales.en.quest[quest.id]?.failMessageText;
+            quest.normalizedName = normalizeName(quest.name)+(quest.factionName !== 'Any' ? `-${normalizeName(quest.factionName)}` : '');
         }
 
         const ignoreQuests = [

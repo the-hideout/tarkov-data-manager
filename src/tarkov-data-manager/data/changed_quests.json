@@ -351,5 +351,11 @@
                 }
             ]
         }
+    },
+    "60effd818b669d08a35bfad5": {
+        "name": "The Choice",
+        "propertiesChanged": {
+            "minPlayerLevel": 50
+        }
     }
 }
