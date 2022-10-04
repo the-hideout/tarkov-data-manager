@@ -212,7 +212,35 @@
                     "complete"
                 ]
             }
-        ]
+        ],
+        "objectivesRemoved": [
+            "60e827a20c492412897c688f",
+            "60e827a20c492412897c688g",
+            "60e827a20c492412897c688h",
+            "60e827a20c492412897c688i",
+            "60e827a20c492412897c688j",
+            "60e827a20c492412897c688k",
+            "60e827a20c492412897c688l",
+            "60e827a20c492412897c688m",
+            "60e827a20c492412897c688n",
+            "60e827a20c492412897c688o",
+            "60e827a20c492412897c688p",
+            "60e827a20c492412897c688q"
+        ],
+        "objectiveIdsChanged": {
+            "60e827faf09904268a4dbc41": "62a6ff004de19a4c3422ea5d",
+            "60e827faf09904268a4dbc42": "62a6ff141c307729c3264f96",
+            "60e827faf09904268a4dbc43": "62a6ff203e015d7ce1151d8a",
+            "60e827faf09904268a4dbc44": "62a6ff454de19a4c3422ea5e",
+            "60e827faf09904268a4dbc45": "62a6ff53b0c0eb73f7394741",
+            "60e827faf09904268a4dbc46": "62a6ff633e015d7ce1151d8b",
+            "60e827faf09904268a4dbc47": "62a6ff6b3e015d7ce1151d8c",
+            "60e827faf09904268a4dbc48": "62a6ff7f1c307729c3264f97",
+            "60e827faf09904268a4dbc49": "62a6ff897230237f257cac2a",
+            "60e827faf09904268a4dbc50": "62a6ffaa7230237f257cac2c",
+            "60e827faf09904268a4dbc51": "62a6ffb4a9a0ea77981b57d5",
+            "60e827faf09904268a4dbc52": "62a6ffbcec21e50cad3b6708"
+        }
     },
     "60c0c018f7afb4354815096a": {
         "name": "The Huntsman Path - Factory Chief",
