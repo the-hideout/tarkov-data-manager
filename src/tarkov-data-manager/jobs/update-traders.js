@@ -5,6 +5,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const normalizeName = require('../modules/normalize-name');
+const { setLocales, getTranslations } = require('../modules/get-translation');
 
 module.exports = async function(externalLogger) {
     const logger = externalLogger || new JobLogger('update-traders');
@@ -14,6 +15,7 @@ module.exports = async function(externalLogger) {
         logger.log('Loading en from Tarkov-Changes...');
         const en = await tarkovChanges.locale_en();
         const locales = await tarkovChanges.locales();
+        setLocales(locales);
         logger.log('Loading TarkovData traders.json...');
         const tdTraders = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
             responseType: 'json',
@@ -35,25 +37,20 @@ module.exports = async function(externalLogger) {
                 resetTime: date,
                 discount: parseInt(trader.discount) / 100,
                 levels: [],
-                locale: {}
+                locale: getTranslations({
+                    name: ['trading', trader._id, 'Nickname'],
+                    description: ['trading', trader._id, 'Description'],
+                }, logger)
             };
             if (!en.trading[trader._id]) {
                 logger.warn(`No trader id ${trader._id} found in locale_en.json`);
                 traderData.name = trader.nickname;
-            }
-            for (const code in locales) {
-                const lang = locales[code];
-                if (!lang.trading[trader._id]) {
-                    logger.warn(`No trader id ${trader._id} found in ${code} translation`);
-                    traderData.name = trader.nickname;
-                } else {
-                    traderData.locale[code] = {name: lang.trading[trader._id].Nickname};
-                }
+                traderData.normalizedName = normalizeName(trader.nickname);
             }
             logger.log(`${traderData.name} ${trader._id}`);
             for (let i = 0; i < trader.loyaltyLevels.length; i++) {
                 const level = trader.loyaltyLevels[i];
-                if (trader._id == '579dc571d53a0658a154fbec' &&traderData.levels.length === 0) {
+                if (trader._id == '579dc571d53a0658a154fbec' && traderData.levels.length === 0) {
                     i--;
                 }
                 const buyCoef = parseInt(level.buy_price_coef);
