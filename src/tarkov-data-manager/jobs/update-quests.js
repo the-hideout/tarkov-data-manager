@@ -563,17 +563,24 @@ module.exports = async (externalLogger = false) => {
                 locale: getTranslations({name: ['quest', questId, 'name']}, logger)
             };
             for (const objective of quest.conditions.AvailableForFinish) {
+                if (changedQuests[questData.id]?.objectivesRemoved?.includes(objective._props.id)) {
+                    continue;
+                }
+                let objectiveId = objective._props.id;
+                if (changedQuests[questData.id]?.objectiveIdsChanged && changedQuests[questData.id]?.objectiveIdsChanged[objectiveId]) {
+                    objectiveId = changedQuests[questData.id]?.objectiveIdsChanged[objectiveId];
+                }
                 let optional = false;
                 if (objective._props.parentId) {
                     optional = true;
                 }
                 const obj = {
-                    id: objective._props.id,
+                    id: objectiveId,
                     type: null,
                     optional: optional,
                     locationNames: [],
                     map_ids: [],
-                    locale: getTranslations({description: ['quest', questId, 'conditions', objective._props.id]}, logger, false)
+                    locale: getTranslations({description: ['quest', questId, 'conditions', objectiveId]}, logger, false)
                 };
                 if (objective._parent === 'FindItem' || objective._parent === 'HandoverItem') {
                     const targetItem = items[objective._props.target[0]];
