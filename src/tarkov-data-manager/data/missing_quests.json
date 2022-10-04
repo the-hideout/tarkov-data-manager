@@ -1181,5 +1181,134 @@
         "experience": 137000,
         "factionName": "Any",
         "neededKeys": []
+    },
+    "61e6e615eea2935bc018a2c5": {
+        "id": "61e6e615eea2935bc018a2c5",
+        "name": "Compensation for Damage - Barkeep",
+        "trader": "579dc571d53a0658a154fbec",
+        "location_id": null,
+        "locationName": "any",
+        "minPlayerLevel": 0,
+        "taskRequirements": [],
+        "traderLevelRequirements": [
+            {
+                "id": "61e6e615eea2935bc018a2c5-579dc571d53a0658a154fbec",
+                "trader_id": "579dc571d53a0658a154fbec",
+                "name": "Fence",
+                "level": -2
+            }
+        ],
+        "objectives": [
+            {
+                "id": "61e703205ca3b3783662be2b",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5d403f9186f7743cac3f229b",
+                "item_name": "Bottle of Dan Jackiel whiskey",
+                "count": 1,
+                "item": "5d403f9186f7743cac3f229b",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "61e7034b95a8910716185486",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "57514643245977207f2c2d09",
+                "item_name": "Can of TarCola soda",
+                "count": 3,
+                "item": "57514643245977207f2c2d09",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "579dc571d53a0658a154fbec",
+                    "name": "Fence",
+                    "standing": 1
+                }
+            ],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "61e6e60c5ca3b3783662be27": {
+        "id": "61e6e60c5ca3b3783662be27",
+        "name": "Compensation for Damage - Wergild",
+        "trader": "579dc571d53a0658a154fbec",
+        "location_id": null,
+        "locationName": "any",
+        "minPlayerLevel": 0,
+        "taskRequirements": [],
+        "traderLevelRequirements": [
+            {
+                "id": "61e6e60c5ca3b3783662be27-579dc571d53a0658a154fbec",
+                "trader_id": "579dc571d53a0658a154fbec",
+                "name": "Fence",
+                "level": -3
+            }
+        ],
+        "objectives": [
+            {
+                "id": "61e6f5a1eea2935bc018a2c7",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5449016a4bdc2d6f028b456f",
+                "item_name": "Roubles",
+                "count": 1000000,
+                "item": "5449016a4bdc2d6f028b456f",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "579dc571d53a0658a154fbec",
+                    "name": "Fence",
+                    "standing": 1
+                }
+            ],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
     }
 }
