@@ -462,8 +462,9 @@ module.exports = async (externalLogger = false) => {
             traderIdMap[trader.tarkovDataId] = trader.id;
         }
         setLocales(locales);
+        const itemMap = await jobOutput('update-item-cache', './dumps/item_data.json', logger);
         //const itemMap = await remoteData.get();
-        const itemResults = await query(`
+        /*const itemResults = await query(`
             SELECT
                 item_data.*,
                 GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
@@ -485,7 +486,7 @@ module.exports = async (externalLogger = false) => {
             };
             if (!preparedData.properties) preparedData.properties = {};
             itemMap.set(result.id, preparedData);
-        }
+        }*/
         const missingQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'missing_quests.json')));
         const changedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'changed_quests.json')));
         const removedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'removed_quests.json')));
@@ -647,7 +648,7 @@ module.exports = async (externalLogger = false) => {
                                             logger.warn(`Unrecognized weapon mod ${itemId} for objective ${obj.id} of ${questData.name}`);
                                             continue;
                                         }
-                                        if (!itemMap.has(itemId) || itemMap.get(itemId).types.includes('disabled')) {
+                                        if (!itemMap[itemId] || itemMap[itemId].types.includes('disabled')) {
                                             continue;
                                         }
                                         modSet.push({
@@ -858,17 +859,17 @@ module.exports = async (externalLogger = false) => {
                         });
                     }
                     for (const itemId of objective._props.hasItemFromCategory) {
-                        for (const partId in items) {
-                            if (!itemMap.has(itemId) || itemMap.get(itemId).types.includes('disabled')) {
-                                continue;
-                            }
-                            if (items[partId]._parent === itemId) {
+                        if (itemMap[itemId] && itemMap[itemId].types.includes('disabled')) {
+                            continue;
+                        }
+                        Object.values(itemMap).forEach(item => {
+                            if (item.categories.includes(itemId)) {
                                 obj.containsOne.push({
-                                    id: partId,
-                                    name: en.templates[partId].Name
+                                    id: item.id,
+                                    name: item.name
                                 });
                             }
-                        }
+                        });
                     }
                 } else if (objective._parent === 'TraderLoyalty') {
                     obj.type = 'traderLevel';
@@ -1107,7 +1108,7 @@ module.exports = async (externalLogger = false) => {
                     description: ['templates', id, 'Description']
                 }, logger);
             }
-            if (itemMap.has(id)) {
+            if (itemMap[id]) {
                 const itemData = itemMap.get(id);
                 questItems[id].iconLink = itemData.icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
                 questItems[id].gridImageLink = itemData.grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
