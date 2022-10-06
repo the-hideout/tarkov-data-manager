@@ -464,7 +464,7 @@ module.exports = async (externalLogger = false) => {
         setLocales(locales);
         const itemMap = await jobOutput('update-item-cache', './dumps/item_data.json', logger);
         //const itemMap = await remoteData.get();
-        /*const itemResults = await query(`
+        const itemResults = await query(`
             SELECT
                 item_data.*,
                 GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
@@ -472,10 +472,15 @@ module.exports = async (externalLogger = false) => {
                 item_data
             LEFT JOIN types ON
                 types.item_id = item_data.id
+            WHERE EXISTS (
+                SELECT item_id
+                FROM types
+                WHERE type='quest' AND item_id=item_data.id
+            )
             GROUP BY
                 item_data.id
         `);
-        const itemMap = new Map();
+        const questItemMap = new Map();
         for(const result of itemResults){
             Reflect.deleteProperty(result, 'item_id');
             Reflect.deleteProperty(result, 'base_price');
@@ -485,8 +490,8 @@ module.exports = async (externalLogger = false) => {
                 types: result.types?.split(',') || []
             };
             if (!preparedData.properties) preparedData.properties = {};
-            itemMap.set(result.id, preparedData);
-        }*/
+            questItemMap.set(result.id, preparedData);
+        }
         const missingQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'missing_quests.json')));
         const changedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'changed_quests.json')));
         const removedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'removed_quests.json')));
@@ -1108,8 +1113,8 @@ module.exports = async (externalLogger = false) => {
                     description: ['templates', id, 'Description']
                 }, logger);
             }
-            if (itemMap[id]) {
-                const itemData = itemMap.get(id);
+            if (questItemMap.has(id)) {
+                const itemData = questItemMap.get(id);
                 questItems[id].iconLink = itemData.icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
                 questItems[id].gridImageLink = itemData.grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
                 questItems[id].baseImageLink = itemData.base_image_link || 'https://assets.tarkov.dev/unknown-item-base-image.png';
