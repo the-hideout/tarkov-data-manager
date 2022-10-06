@@ -660,7 +660,7 @@ module.exports = async (externalLogger = false) => {
                                 }
                             }
                             if (cond._props.enemyHealthEffects) {
-                                obj.enemyHealthEffects = {
+                                obj.enemyHealthEffect = {
                                     ...cond._props.enemyHealthEffects[0],
                                     time: null
                                 };
