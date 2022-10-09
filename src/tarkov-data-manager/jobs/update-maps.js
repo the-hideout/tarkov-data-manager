@@ -7,6 +7,7 @@ const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const normalizeName = require('../modules/normalize-name');
 const mapQueueTimes = require('../modules/map-queue-times');
+const { setLocales, getTranslations } = require('../modules/get-translation');
 
 const mapNames = {
     '59fc81d786f774390775787e': 'Night Factory',
@@ -69,8 +70,7 @@ const triggers = {
 
 let locales;
 
-const getEnemyName = (enemy, code = 'en') => {
-    const lang = locales[code];
+const getEnemyName = (enemy, lang) => {
     if (enemyMap[enemy]) {
         if (lang.interface[enemyMap[enemy]]) {
             return lang.interface[enemyMap[enemy]];
@@ -106,6 +106,7 @@ module.exports = async function() {
     try {
         logger.log('Getting data from Tarkov-Changes...');
         locales = await tarkovChanges.locales();
+        setLocales(locales);
         const locations = await tarkovChanges.locations();
         const maps = {
             updated: new Date(),
@@ -142,7 +143,7 @@ module.exports = async function() {
                 enemySet.add(spawn.BossName);
                 const bossData = {
                     name: spawn.BossName,
-                    normalizedName: normalizeName(getEnemyName(spawn.BossName, 'en')),
+                    normalizedName: normalizeName(getEnemyName(spawn.BossName, locales.en)),
                     spawnChance: parseInt(spawn.BossChance) / 100,
                     spawnLocations: [],
                     escorts: [],
@@ -171,7 +172,7 @@ module.exports = async function() {
                         enemySet.add(spawn.BossEscortType);
                         bossData.escorts.push({
                             name: spawn.BossEscortType,
-                            normalizedName: normalizeName(getEnemyName(spawn.BossEscortType, 'en')),
+                            normalizedName: normalizeName(getEnemyName(spawn.BossEscortType, locales.en)),
                             amount: getChances(spawn.BossEscortAmount, 'count', true), 
                             locale: {}
                         });
@@ -184,7 +185,7 @@ module.exports = async function() {
                             enemySet.add(support.BossEscortType);
                             bossData.escorts.push({
                                 name: support.BossEscortType,
-                                normalizedName: normalizeName(getEnemyName(support.BossEscortType, 'en')),
+                                normalizedName: normalizeName(getEnemyName(support.BossEscortType, locales.en)),
                                 amount: getChances(support.BossEscortAmount, 'count', true), 
                                 locale: {}
                             });
@@ -199,42 +200,38 @@ module.exports = async function() {
                         bossData.spawnTrigger = 'Exfil Activation';
                     }
                 }
-
-                for (const code in locales) {
-                    bossData.locale[code] = {
-                        name: getEnemyName(bossData.name, code)
-                    };
-                    /*if (bossData.escort) {
-                        bossData.escort.locale[code] = {
-                            name: getEnemyName(bossData.escort.name, code)
-                        };
-                    }*/
-                    for (const escort of bossData.escorts) {
-                        escort.locale[code] = {
-                            name: getEnemyName(escort.name, code)
-                        };
+                bossData.locale = getTranslations({
+                    name: lang => {
+                        return getEnemyName(bossData.name, lang);
                     }
+                }, logger);
+                for (const escort of bossData.escorts) {
+                    escort.locale = getTranslations({
+                        name: lang => {
+                            return getEnemyName(escort.name, lang);
+                        }
+                    }, logger);
                 }
                 mapData.bosses.push(bossData);
             }
             mapData.enemies = [...enemySet];
-            for (const code in locales) {
-                const lang = locales[code];
-                let mapName = lang.locations[id].Name;
-                if (id === '59fc81d786f774390775787e' && lang.interface.factory4_night) {
-                    mapName = lang.interface.factory4_night;
+            mapData.locale = getTranslations({
+                name: lang => {
+                    if (id === '59fc81d786f774390775787e' && lang.interface.factory4_night) {
+                        return lang.interface.factory4_night;
+                    }
+                    return lang.locations[id].Name;
+                },
+                description: ['locations', id, 'Description'],
+                enemies: lang => {
+                    const enemies = new Set(mapData.enemies.map(enemy => {
+                        return getEnemyName(enemy, lang);
+                    }));
+                    return [...enemies];
                 }
-                mapData.name = mapName;
-                mapData.normalizedName = normalizeName(mapName);
-                const enemies = new Set(mapData.enemies.map(enemy => {
-                    return getEnemyName(enemy, code);
-                }));
-                mapData.locale[code] = {
-                    name: mapName,
-                    description: lang.locations[id].Description,
-                    enemies: [...enemies]
-                };
-            }
+            }, logger);
+            mapData.name = mapData.locale.en.name;
+            mapData.normalizedName = normalizeName(mapData.name);
             maps.data.push(mapData);
         }
 

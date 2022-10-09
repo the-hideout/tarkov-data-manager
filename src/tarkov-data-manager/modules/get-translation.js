@@ -86,6 +86,23 @@ const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
             if (translation[langCode][field] === translation.en[field]) {
                 delete translation[langCode][field];
             }
+            if (!Array.isArray(translation[langCode][field]) || !Array.isArray(translation.en[field])) {
+                continue;
+            }
+            if (translation[langCode][field].length !== translation.en[field].length) {
+                continue;
+            }
+            let mismatch = false;
+            for (let i = 0; i < translation[langCode][field].length; i++) {
+                if (translation[langCode][field][i] !== translation.en[field][i]) {
+                    mismatch = true;
+                    break;
+                }
+            }
+            if (mismatch) {
+                continue;
+            }
+            delete translation[langCode][field];
         }
     }
     for (const langCode in translation) {
