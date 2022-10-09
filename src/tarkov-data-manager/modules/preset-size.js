@@ -33,6 +33,8 @@ const getPresetSize = async (item, logger = false) => {
     const baseHorizontalRecoil = baseItem._props.RecoilForceBack;
     let vRecoil = baseVerticalRecoil;
     let hRecoil = baseHorizontalRecoil;
+    let centerOfImpact = baseItem._props.CenterOfImpact;
+    let barrelDeviationMax = 100.0;
     for (const contained of item.containsItems) {
         let partId = contained.item;
         if (typeof partId === 'object') partId = partId.id;
@@ -62,7 +64,22 @@ const getPresetSize = async (item, logger = false) => {
         ergo += part._props.Ergonomics;
         vRecoil += (baseVerticalRecoil * (part._props.Recoil / 100));
         hRecoil += (baseHorizontalRecoil * (part._props.Recoil / 100));
+        if (part._props.DeviationMax) {
+            barrelDeviationMax = part._props.DeviationMax;
+        }
+        if (!isNaN(part._props.CenterOfImpact)) {
+            centerOfImpact += parseFloat(part._props.CenterOfImpact);
+        }
     }
+
+    const getBarrelDeviation = (durability = 100.0) => {
+        const deviationCurve = baseItem._props.DeviationCurve;
+        const num = 2.0 * deviationCurve;
+        const num2 = ((100.0 - num === 0) ? durability / num : (((deviationCurve * -1) + Math.sqrt(((num * -1) + 100.0) * durability + deviationCurve)) / ((num * -1) + 100.0)));
+        const num3 = 1.0 - num2;
+        return num3 * num3 * barrelDeviationMax + 2.0 * num2 * num3 * deviationCurve + num2 * num2;
+    };
+    const moa = centerOfImpact * getBarrelDeviation() * 100.0 / 2.9089;
 
     return {
         width: baseItem._props.Width + softSizes.Left + softSizes.Right + hardSizes.Left + hardSizes.Right,
@@ -71,7 +88,8 @@ const getPresetSize = async (item, logger = false) => {
         baseValue: baseValue,
         ergonomics: ergo,
         verticalRecoil: Math.round(vRecoil),
-        horizontalRecoil: Math.round(hRecoil)
+        horizontalRecoil: Math.round(hRecoil),
+        moa: Math.round(moa * 100) / 100,
     };
 };
 

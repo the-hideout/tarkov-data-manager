@@ -397,7 +397,8 @@ module.exports = async () => {
                     base_item_id: preset.baseId,
                     ergonomics: preset.ergonomics,
                     recoilVertical: preset.verticalRecoil,
-                    recoilHorizontal: preset.horizontalRecoil
+                    recoilHorizontal: preset.horizontalRecoil,
+                    moa: preset.moa,
                 };
                 if ((itemData[preset.baseId]?.types.includes('noFlea') || itemData[preset.baseId]?.types.includes('no-flea')) && !itemData[key].types.includes('noFlea')) {
                     itemData[key].types.push('noFlea');

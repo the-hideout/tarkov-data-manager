@@ -118,6 +118,7 @@ module.exports = async (externalLogger = false) => {
                 presetData.ergonomics = itemPresetSize.ergonomics;
                 presetData.verticalRecoil = itemPresetSize.verticalRecoil;
                 presetData.horizontalRecoil = itemPresetSize.horizontalRecoil;
+                presetData.moa = itemPresetSize.moa;
             }
             presetsData[presetId] = presetData;
             if (presetData.default && !defaults[firstItem.id]) {
