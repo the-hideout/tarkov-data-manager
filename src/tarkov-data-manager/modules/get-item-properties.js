@@ -350,6 +350,9 @@ const getItemProperties = async (item, parent = false) => {
             effectiveDistance: item._props.bEffDist,
             sightingRange: item._props.SightingRange,
             maxDurability: item._props.MaxDurability,
+            centerOfImpact: item._props.CenterOfImpact,
+            deviationCurve: item._props.DeviationCurve,
+            deviationMax: item._props.DeviationMax,
             fireModes: item._props.weapFireType.map(mode => {
                 return locales.en.interface[mode];
             }),
@@ -397,7 +400,7 @@ const getItemProperties = async (item, parent = false) => {
             properties.zoomLevels = item._props.Zooms;
             properties.sightingRange = item._props.SightingRange;
             properties.sightModes = item._props.ModesCount;
-        } else if (item._parent == '5448bc234bdc2d3c308b4569' || item._parent === '610720f290b75a49ff2e5e25') {
+        } else if (item._parent === '5448bc234bdc2d3c308b4569' || item._parent === '610720f290b75a49ff2e5e25') {
             properties.propertiesType = 'ItemPropertiesMagazine';
             properties.capacity = item._props.Cartridges[0]._max_count;
             properties.loadModifier = item._props.LoadUnloadModifier / 100;
@@ -406,6 +409,11 @@ const getItemProperties = async (item, parent = false) => {
             properties.allowedAmmo = item._props.Cartridges[0]._props.filters[0].Filter.filter(id => {
                 return itemIds.includes(id) && !disabledItemIds.includes(id);
             });
+        } else if (item._parent === '555ef6e44bdc2de9068b457e') {
+            properties.propertiesType = 'ItemPropertiesBarrel';            
+            properties.centerOfImpact = item._props.CenterOfImpact;
+            properties.deviationCurve = item._props.DeviationCurve;
+            properties.deviationMax = item._props.DeviationMax;
         }
     } else if (item._parent === '5448f3ac4bdc2dce718b4569') {
         properties = {
