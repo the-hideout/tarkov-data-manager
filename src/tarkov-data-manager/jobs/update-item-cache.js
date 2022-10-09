@@ -39,35 +39,22 @@ const addCategory = id => {
     if (!id || bsgCategories[id]) return;
     bsgCategories[id] = {
         id: id,
-        parent_id: null,
+        parent_id: bsgItems[id]._parent,
         child_ids: [],
-        locale: {}
+        locale: getTranslations({
+            name: lang => {
+                if (lang.templates[id]) {
+                    return lang.templates[id].Name
+                } else {
+                    return bsgItems[id]._name
+                }
+            }
+        }, logger)
     };
-    if (locales.en.templates[id]) {
-        bsgCategories[id].name = locales.en.templates[id].Name;
-        bsgCategories[id].normalizedName = normalizeName(locales.en.templates[id].Name);
-    } else {
-        bsgCategories[id].name = bsgItems[id]._name;
-        bsgCategories[id].normalizedName = normalizeName(bsgItems[id]._name);
-    }
-    bsgCategories[id].enumName = catNameToEnum(bsgCategories[id].name);
-    for (const code in locales) {
-        const lang = locales[code];
-        if (lang.templates[id]) {
-            bsgCategories[id].locale[code] = {
-                name: lang.templates[id].Name
-            };
-        } else {
-            bsgCategories[id].locale[code] = {
-                name: bsgItems[id]._name
-            };
-        }
-    }
-    const parentId = bsgItems[id]._parent;
-    //if (!topCategories.includes(parentId)) {
-        bsgCategories[id].parent_id = parentId;
-        addCategory(parentId);
-    //}
+    bsgCategories[id].normalizedName = normalizeName(bsgCategories[id].locale.en.name);
+    bsgCategories[id].enumName = catNameToEnum(bsgCategories[id].locale.en.name);
+
+    addCategory(bsgCategories[id].parent_id);
 };
 
 const addHandbookCategory = id => {
@@ -561,9 +548,7 @@ module.exports = async () => {
                 continue;
             }
             addHandbookCategory(handbookItem.ParentId);
-            //item.handbookCategories.push(handbookItem.ParentId);
             let parent = handbookCategories[handbookItem.ParentId];
-            //console.log(handbookItem, parent)
             while (parent) {
                 item.handbookCategories.push(parent.id);
                 parent = handbookCategories[parent.parent_id];
