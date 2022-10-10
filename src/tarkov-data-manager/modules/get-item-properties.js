@@ -74,6 +74,14 @@ const setAll = async (options) => {
 };
 
 const hasCategory = (item, catId) => {
+    if (Array.isArray(catId)) {
+        for (const id of catId) {
+            if (hasCategory(item, id)) {
+                return true;
+            }
+        }
+        return false;
+    }
     if (item._id === catId) return true;
     const parent = items[item._parent];
     if (parent) return hasCategory(parent, catId);
@@ -175,16 +183,6 @@ const grenadeMap = {
     'grenade_smoke_m18_green': 'Smoke',
 };
 
-const weaponMods = [
-    '55802f3e4bdc2de7118b4584', // gear mod
-    '5448fe394bdc2d0d028b456c', // muzzle device
-    '5448fe7a4bdc2d6f028b456b', // sights
-    '55802f4a4bdc2ddb688b4569', // essential mod
-    '550aa4154bdc2dd8348b456b', // functional mod
-    '55818aeb4bdc2ddc698b456a', // special scope
-    '5448bc234bdc2d3c308b4569', // magazine, which CylinderMagazine is a child of
-];
-
 const getItemProperties = async (item, parent = false) => {
     let properties = null;
     if (item._parent === '5485a8684bdc2da71d8b4567') {
@@ -216,7 +214,7 @@ const getItemProperties = async (item, parent = false) => {
         if (item._props.IsLightAndSoundShot) {
             properties.ammoType = 'flashbang';
         }
-    } else if (item._parent === '5448e54d4bdc2dcc718b4568' || item._parent === '5448e5284bdc2dcb718b4567') {
+    } else if (hasCategory(item, ['5448e54d4bdc2dcc718b4568', '5448e5284bdc2dcb718b4567'])) {
         // armor vests and tactical rigs
         if (!locales) return Promise.reject(new Error('Must call setItemPropertiesLocales before getItemProperties'));
         properties = {};
@@ -282,7 +280,7 @@ const getItemProperties = async (item, parent = false) => {
         if (item._props.effects_health.Hydration) {
             properties.hydration = item._props.effects_health.Hydration.value;
         }
-    } else if (item._parent === '5a341c4086f77401f2541505' || item._parent === '57bef4c42459772e8d35a53b' || item._parent === '5a341c4686f77469e155819e') {
+    } else if (hasCategory(item, ['5a341c4086f77401f2541505', '57bef4c42459772e8d35a53b', '5a341c4686f77469e155819e'])) {
         // headwear and ArmoredEquipment and FaceCover
         if (item._props.armorClass && parseInt(item._props.armorClass) > 0) {
             // armored stuff only only
@@ -310,7 +308,7 @@ const getItemProperties = async (item, parent = false) => {
                     })
                 };
             }
-            if (item._parent === '5a341c4086f77401f2541505' || item._parent === '5a341c4686f77469e155819e') {
+            if (hasCategory(item, ['5a341c4086f77401f2541505', '5a341c4686f77469e155819e'])) {
                 properties.propertiesType = 'ItemPropertiesHelmet';
                 properties.deafening = item._props.DeafStrength;
                 properties.blocksHeadset = item._props.BlocksEarpiece;
@@ -331,12 +329,12 @@ const getItemProperties = async (item, parent = false) => {
             ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
             armor_material_id: item._props.ArmorMaterial,
         };
-    } else if (item._parent === '5795f317245977243854e041' || item._parent === '5671435f4bdc2d96058b4569' || item._parent === '5448bf274bdc2dfc2f8b456a') {
+    } else if (hasCategory(item, ['5795f317245977243854e041', '5671435f4bdc2d96058b4569', '5448bf274bdc2dfc2f8b456a'])) {
         properties = {
             propertiesType: 'ItemPropertiesContainer',
             ...getGrids(item)
         };
-    } else if (parent && parent._parent === '5422acb9af1c889c16000029') {
+    } else if (hasCategory(item, '5422acb9af1c889c16000029')) {
         // weapons
         properties = {
             propertiesType: 'ItemPropertiesWeapon',
@@ -386,7 +384,7 @@ const getItemProperties = async (item, parent = false) => {
     } else if (item._parent === '5d21f59b6dbe99052b54ef83') {
         // thermal vision
         // capture here otherwise it will be counted as a weapon mod
-    } else if (parent && weaponMods.includes(parent._parent)) {
+    } else if (hasCategory(item, '5448fe124bdc2da5018b4567')) {
         properties = {
             propertiesType: 'ItemPropertiesWeaponMod',
             ergonomics: item._props.Ergonomics,
@@ -395,12 +393,12 @@ const getItemProperties = async (item, parent = false) => {
             accuracyModifier: item._props.Accuracy / 100,
             slots: getSlots(item)
         };
-        if (item._parent === '55818add4bdc2d5b648b456f' || item._parent === '55818ae44bdc2dde698b456c') {
+        if (hasCategory(item, ['55818add4bdc2d5b648b456f', '55818ae44bdc2dde698b456c', '5448fe7a4bdc2d6f028b456b'])) {
             properties.propertiesType = 'ItemPropertiesScope';
             properties.zoomLevels = item._props.Zooms;
             properties.sightingRange = item._props.SightingRange;
             properties.sightModes = item._props.ModesCount;
-        } else if (item._parent === '5448bc234bdc2d3c308b4569' || item._parent === '610720f290b75a49ff2e5e25') {
+        } else if (hasCategory(item, ['5448bc234bdc2d3c308b4569', '610720f290b75a49ff2e5e25'])) {
             properties.propertiesType = 'ItemPropertiesMagazine';
             properties.capacity = item._props.Cartridges[0]._max_count;
             properties.loadModifier = item._props.LoadUnloadModifier / 100;
