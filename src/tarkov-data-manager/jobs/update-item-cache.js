@@ -415,13 +415,16 @@ module.exports = async () => {
                 delete itemData[key];
                 continue;
             }
+            if (itemData[key].properties && !itemData[key].properties.propertiesType) {
+                logger.warn(`${itemData[key].name} ${key} lacks propertiesType`);
+                itemData[key].properties = null;
+            }
             addCategory(itemData[key].bsgCategoryId);
             if (presets[key]) {
                 itemData[key].basePrice = presets[key].baseValue;
             } else if (credits[key]) {
                 itemData[key].basePrice = credits[key];
             } 
-            
             itemData[key].wikiLink = itemData[key].wiki_link;
             itemData[key].link = `https://tarkov.dev/item/${itemData[key].normalizedName}`;
 
