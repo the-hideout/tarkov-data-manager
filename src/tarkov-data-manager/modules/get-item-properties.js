@@ -280,6 +280,18 @@ const getItemProperties = async (item, parent = false) => {
         if (item._props.effects_health.Hydration) {
             properties.hydration = item._props.effects_health.Hydration.value;
         }
+    } else if (item._parent === '5448e5724bdc2ddf718b4568') {
+        properties = {
+            propertiesType: 'ItemPropertiesGlasses',
+            class: parseInt(item._props.armorClass),
+            durability: parseInt(item._props.Durability),
+            repairCost: parseInt(item._props.RepairCost),
+            blindnessProtection: item._props.BlindnessProtection,
+            speedPenalty: parseInt(item._props.speedPenaltyPercent) / 100,
+            turnPenalty: parseInt(item._props.mousePenalty) / 100,
+            ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
+            armor_material_id: item._props.ArmorMaterial,
+        };
     } else if (hasCategory(item, ['5a341c4086f77401f2541505', '57bef4c42459772e8d35a53b', '5a341c4686f77469e155819e'])) {
         // headwear and ArmoredEquipment and FaceCover
         if (item._props.armorClass && parseInt(item._props.armorClass) > 0) {
@@ -317,18 +329,6 @@ const getItemProperties = async (item, parent = false) => {
                 properties.propertiesType = 'ItemPropertiesArmorAttachment';
             } 
         }
-    } else if (item._parent === '5448e5724bdc2ddf718b4568') {
-        properties = {
-            propertiesType: 'ItemPropertiesGlasses',
-            class: parseInt(item._props.armorClass),
-            durability: parseInt(item._props.Durability),
-            repairCost: parseInt(item._props.RepairCost),
-            blindnessProtection: item._props.BlindnessProtection,
-            speedPenalty: parseInt(item._props.speedPenaltyPercent) / 100,
-            turnPenalty: parseInt(item._props.mousePenalty) / 100,
-            ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
-            armor_material_id: item._props.ArmorMaterial,
-        };
     } else if (hasCategory(item, ['5795f317245977243854e041', '5671435f4bdc2d96058b4569', '5448bf274bdc2dfc2f8b456a'])) {
         properties = {
             propertiesType: 'ItemPropertiesContainer',

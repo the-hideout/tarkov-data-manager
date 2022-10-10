@@ -421,7 +421,9 @@ module.exports = async () => {
             } else if (credits[key]) {
                 itemData[key].basePrice = credits[key];
             } 
-
+            if (itemData[key].properties && !itemData[key].properties.propertiesType) {
+                console.log('lacks propertiesType', itemData[key])
+            }
             itemData[key].wikiLink = itemData[key].wiki_link;
             itemData[key].link = `https://tarkov.dev/item/${itemData[key].normalizedName}`;
 
