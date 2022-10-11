@@ -1,4 +1,5 @@
 const roundTo = require('round-to');
+const got = require('got');
 
 const dataMaps = require('../modules/data-map');
 const {categories, items} = require('../modules/category-map');
@@ -17,10 +18,12 @@ const { setLocales, getTranslations } = require('../modules/get-translation');
 
 let bsgItems = false;
 let credits = false;
+let handbook = false;
 let locales = false;
 let traderData = false;
 let logger = false;
 let bsgCategories = {};
+let handbookCategories = {};
 
 const catNameToEnum = (sentence) => {
     return sentence.replace(/(?:^\w|[A-Z]|\b\w|\s+)/g,
@@ -29,42 +32,49 @@ const catNameToEnum = (sentence) => {
           return '';
        return i === 0 ? word :
        word.toUpperCase();
-    }).replace(/\.+/g, '');
+    }).replace(/[^a-zA-Z0-9]+/g, '');
 };
 
 const addCategory = id => {
     if (!id || bsgCategories[id]) return;
     bsgCategories[id] = {
         id: id,
+        parent_id: bsgItems[id]._parent,
+        child_ids: [],
+        locale: getTranslations({
+            name: lang => {
+                if (lang.templates[id]) {
+                    return lang.templates[id].Name
+                } else {
+                    return bsgItems[id]._name
+                }
+            }
+        }, logger)
+    };
+    bsgCategories[id].normalizedName = normalizeName(bsgCategories[id].locale.en.name);
+    bsgCategories[id].enumName = catNameToEnum(bsgCategories[id].locale.en.name);
+
+    addCategory(bsgCategories[id].parent_id);
+};
+
+const addHandbookCategory = id => {
+    if (!id || handbookCategories[id]) return;
+    handbookCategories[id] = {
+        id: id,
+        name: locales.en.handbook[id],
+        normalizedName: normalizeName(locales.en.handbook[id]),
+        enumName: catNameToEnum(locales.en.handbook[id]),
         parent_id: null,
         child_ids: [],
-        locale: {}
+        locale: getTranslations({
+            name: ['handbook', id],
+        }, logger),
     };
-    if (locales.en.templates[id]) {
-        bsgCategories[id].name = locales.en.templates[id].Name
-        bsgCategories[id].normalizedName = normalizeName(locales.en.templates[id].Name);
-    } else {
-        bsgCategories[id].name = bsgItems[id]._name;
-        bsgCategories[id].normalizedName = normalizeName(bsgItems[id]._name);
-    }
-    bsgCategories[id].enumName = catNameToEnum(bsgCategories[id].name);
-    for (const code in locales) {
-        const lang = locales[code];
-        if (lang.templates[id]) {
-            bsgCategories[id].locale[code] = {
-                name: lang.templates[id].Name
-            };
-        } else {
-            bsgCategories[id].locale[code] = {
-                name: bsgItems[id]._name
-            };
-        }
-    }
-    const parentId = bsgItems[id]._parent;
-    //if (!topCategories.includes(parentId)) {
-        bsgCategories[id].parent_id = parentId;
-        addCategory(parentId);
-    //}
+
+    const category = handbook.Categories.find(cat => cat.Id === id);
+    const parentId = category.ParentId;
+    handbookCategories[id].parent_id = parentId;
+    addHandbookCategory(parentId);
 };
 
 const getTraderMultiplier = (traderId) => {
@@ -238,7 +248,8 @@ module.exports = async () => {
             presets,
             avgPriceYesterday, 
             lastKnownPriceData, 
-            itemMap
+            itemMap,
+            handbook,
         ] = await Promise.all([
             tarkovChanges.items(), 
             tarkovChanges.credits(),
@@ -248,7 +259,11 @@ module.exports = async () => {
             jobOutput('update-presets', './cache/presets.json', logger),
             avgPriceYesterdayPromise,
             lastKnownPriceDataPromise,
-            remoteData.get(true)
+            remoteData.get(true),
+            got('https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/templates/handbook.json', {
+                responseType: 'json', 
+                resolveBodyOnly: true,
+            }),
         ]);
         const itemData = {};
         const itemTypesSet = new Set();
@@ -382,7 +397,8 @@ module.exports = async () => {
                     base_item_id: preset.baseId,
                     ergonomics: preset.ergonomics,
                     recoilVertical: preset.verticalRecoil,
-                    recoilHorizontal: preset.horizontalRecoil
+                    recoilHorizontal: preset.horizontalRecoil,
+                    moa: preset.moa,
                 };
                 if ((itemData[preset.baseId]?.types.includes('noFlea') || itemData[preset.baseId]?.types.includes('no-flea')) && !itemData[key].types.includes('noFlea')) {
                     itemData[key].types.push('noFlea');
@@ -399,13 +415,16 @@ module.exports = async () => {
                 delete itemData[key];
                 continue;
             }
+            if (itemData[key].properties && !itemData[key].properties.propertiesType) {
+                logger.warn(`${itemData[key].name} ${key} lacks propertiesType`);
+                itemData[key].properties = null;
+            }
             addCategory(itemData[key].bsgCategoryId);
             if (presets[key]) {
                 itemData[key].basePrice = presets[key].baseValue;
             } else if (credits[key]) {
                 itemData[key].basePrice = credits[key];
             } 
-
             itemData[key].wikiLink = itemData[key].wiki_link;
             itemData[key].link = `https://tarkov.dev/item/${itemData[key].normalizedName}`;
 
@@ -520,6 +539,29 @@ module.exports = async () => {
             bsgCategories[cat.parent_id]?.child_ids.push(cat.id);
         });
 
+        // populate handbookCategories attribute with all categories up the tree
+        for (let id in itemData) {
+            const item = itemData[id];
+            if (item.types.includes('preset')) {
+                id = item.properties.base_item_id;
+            }
+            item.handbookCategories = [];
+            const handbookItem = handbook.Items.find(hbi => hbi.Id === id);
+            if (!handbookItem) {
+                logger.warn(`Item ${item.name} ${id} has no handbook entry`);
+                continue;
+            }
+            addHandbookCategory(handbookItem.ParentId);
+            let parent = handbookCategories[handbookItem.ParentId];
+            while (parent) {
+                item.handbookCategories.push(parent.id);
+                parent = handbookCategories[parent.parent_id];
+            }
+        }
+        
+        Object.values(handbookCategories).forEach(cat => {
+            handbookCategories[cat.parent_id]?.child_ids.push(cat.id);
+        });
 
         const slotIds = [];
 
@@ -622,6 +664,7 @@ module.exports = async () => {
             updated: new Date(),
             data: itemData,
             categories: bsgCategories,
+            handbookCategories: handbookCategories,
             types: ['any', ...itemTypesSet].sort(),
             flea: fleaData,
             armorMats: armorData,
