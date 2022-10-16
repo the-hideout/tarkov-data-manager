@@ -50,8 +50,8 @@ module.exports = async function() {
                     count: craft.count,
                     attributes: []
                 }],
-                station: station._id,
-                station_id: station._id,
+                station: station.id,
+                station_id: station.id,
                 sourceName: en.interface[`hideout_area_${craft.areaType}_name`],
                 duration: craft.productionTime,
                 requirements: []
