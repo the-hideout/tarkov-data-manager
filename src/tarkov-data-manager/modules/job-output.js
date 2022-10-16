@@ -8,7 +8,11 @@ module.exports = async (jobName, outputFile, logger, rawOutput = false) => {
         if (!rawOutput && json.data) return json.data;
         return json;
     } catch (error) {
-        logger.warn(`Could not parse ${outputFile}; running ${jobName} job`);
+        if (logger) {
+            logger.warn(`Could not parse ${outputFile}; running ${jobName} job`);
+        } else {
+            console.log(`Could not parse ${outputFile}; running ${jobName} job`)
+        }
     }
     try {
         const keepAlive = connection.keepAlive;
@@ -17,7 +21,11 @@ module.exports = async (jobName, outputFile, logger, rawOutput = false) => {
         await jobModule(logger);
         connection.keepAlive = keepAlive;
     } catch (error) {
-        logger.error(`Error running ${jobName}: ${error}`);
+        if (logger) {
+            logger.error(`Error running ${jobName}: ${error}`);
+        } else {
+            console.log(`Error running ${jobName}: ${error}`);
+        }
     }
     const json = JSON.parse(fs.readFileSync(outputFile));
     if (!rawOutput && json.data) return json.data;

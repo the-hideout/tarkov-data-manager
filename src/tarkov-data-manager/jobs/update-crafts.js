@@ -14,8 +14,8 @@ module.exports = async function() {
             tarkovChanges.items(),
             tarkovChanges.crafts(),
             tarkovChanges.locale_en(),
-            jobOutput('update-hideout', './dumps/hideout_data.json'),
-            jobOutput('update-item-cache', './dumps/item_data.json'),
+            jobOutput('update-hideout', './dumps/hideout_data.json', logger),
+            jobOutput('update-item-cache', './dumps/item_data.json', logger),
         ]);
         const crafts = {
             updated: new Date(),
