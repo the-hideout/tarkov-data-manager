@@ -6,16 +6,21 @@ const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
 const hideoutLegacy = require('./update-hideout-legacy');
 const normalizeName = require('../modules/normalize-name');
+const { setLocales, getTranslations } = require('../modules/get-translation');
 
 module.exports = async () => {
     const logger = new JobLogger('update-hideout');    
     try {
-        const data = await tarkovChanges.areas();
-        const en = await tarkovChanges.locale_en();
-        const locales = await tarkovChanges.locales();
-        const tdHideout = (await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/hideout.json', {
-            responseType: 'json',
-        })).body;
+        const [data, locales, tdHideout] = await Promise.all([
+            tarkovChanges.areas(),
+            tarkovChanges.locales(),
+            got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/hideout.json', {
+                responseType: 'json',
+                resolveBodyOnly: true,
+            })
+        ]);
+        const en = locales.en;
+        setLocales(locales);
         const hideoutData = {
             updated: new Date(),
             data: [],
@@ -37,18 +42,15 @@ module.exports = async () => {
                 id: station._id,
                 name: en.interface[`hideout_area_${station.type}_name`],
                 normalizedName: normalizeName(en.interface[`hideout_area_${station.type}_name`]),
+                areaType: station.type,
                 levels: [],
-                locale: {}
+                locale: getTranslations({name: ['interface', `hideout_area_${station.type}_name`]}, logger),
             };
             if (!station.enabled) {
                 logger.warn(`Hideout station ${stationData.name} is disabled`);
                 continue;
             }
             logger.log(`Processing ${stationData.name}`);
-            for (const code in locales) {
-                const lang = locales[code];
-                stationData.locale[code] = {name: lang.interface[`hideout_area_${station.type}_name`]};
-            }
             for (const tdStation of tdHideout.stations) {
                 if (tdStation.locales.en.toLowerCase() === stationData.name.toLowerCase()) {
                     stationData.tarkovDataId = tdStation.id;
@@ -76,12 +78,8 @@ module.exports = async () => {
                     stationLevelRequirements: [],
                     itemRequirements: [],
                     skillRequirements: [],
-                    locale: {}
+                    locale: getTranslations({description: ['interface', `hideout_area_${station.type}_stage_${i}_description`]}),
                 };
-                for (const code in locales) {
-                    const lang = locales[code];
-                    stageData.locale[code] = {description: lang.interface[`hideout_area_${station.type}_stage_${i}_description`]};
-                }
                 for (const tdModule of tdHideout.modules) {
                     if (tdModule.stationId === stationData.tarkovDataId && tdModule.level === stageData.level) {
                         stageData.tarkovDataId = tdModule.id;
@@ -106,13 +104,8 @@ module.exports = async () => {
                             id: `${stationData.id}-${i}-${r}`,
                             name: en.interface[req.skillName] || req.skillName,
                             level: req.skillLevel,
-                            locale: {}
+                            locale: getTranslations({name: ['interface', req.skillName]}),
                         };
-                        for (const code in locales) {
-                            skillReq.locale[code] = {
-                                name: locales[code].interface[req.skillName] || req.skillName
-                            };
-                        }
                         stageData.skillRequirements.push(skillReq);
                     } else if (req.type === 'Area') {
                         if (req.requiredLevel < 1) {
