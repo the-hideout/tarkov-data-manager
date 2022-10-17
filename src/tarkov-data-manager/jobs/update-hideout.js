@@ -73,7 +73,6 @@ module.exports = async () => {
                     id: `${stationData.id}-${i}`,
                     level: i,
                     constructionTime: stage.constructionTime,
-                    description: en.interface[`hideout_area_${station.type}_stage_${i}_description`],
                     traderRequirements: [],
                     stationLevelRequirements: [],
                     itemRequirements: [],

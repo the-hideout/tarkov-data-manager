@@ -1,6 +1,3 @@
-const fs = require('fs');
-const path = require('path');
-
 const got = require('got');
 const webhook = require('../modules/webhook');
 
@@ -8,6 +5,7 @@ const {query, jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovChanges = require('../modules/tarkov-changes');
+const jobOutput = require('../modules/job-output');
 
 let logger = false;
 let presets = {};
@@ -43,7 +41,7 @@ module.exports = async () => {
     logger = new JobLogger('verify-wiki');
     try {
         try {
-            presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
+            presets = await jobOutput('update-presets', './cache/presets.json', logger);
         } catch (error) {
             logger.error(error);
         }

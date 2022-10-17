@@ -496,7 +496,7 @@ module.exports = async (externalLogger = false) => {
         const changedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'changed_quests.json')));
         const removedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'removed_quests.json')));
         try {
-            presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
+            presets = await jobOutput('update-presets', './cache/presets.json', logger);
         } catch (error) {
             logger.error(error);
         }
