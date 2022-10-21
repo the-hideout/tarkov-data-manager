@@ -4,6 +4,7 @@ const updateItemNames = require('./update-item-names');
 const updateTypes = require('./update-types');
 const { connection, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
+const tarkovData = require('../modules/tarkov-data');
 const {alert} = require('../modules/webhook');
 
 module.exports = async () => {
@@ -26,6 +27,10 @@ module.exports = async () => {
         logger.log('Running updateTypes...');
         await updateTypes(logger);
         logger.log('Completed updateTypes');
+
+        logger.log('Updating handbook...');
+        await tarkovData.handbook(true);
+        logger.log('Completed updating handbook')
     } catch (error){
         logger.error(error);
         alert({

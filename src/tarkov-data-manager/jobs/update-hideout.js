@@ -3,7 +3,7 @@ const got = require('got');
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
 const hideoutLegacy = require('./update-hideout-legacy');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
@@ -12,8 +12,8 @@ module.exports = async () => {
     const logger = new JobLogger('update-hideout');    
     try {
         const [data, locales, tdHideout] = await Promise.all([
-            tarkovChanges.areas(),
-            tarkovChanges.locales(),
+            tarkovData.areas(),
+            tarkovData.locales(),
             got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/hideout.json', {
                 responseType: 'json',
                 resolveBodyOnly: true,

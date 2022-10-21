@@ -4,7 +4,7 @@ const cheerio = require('cheerio');
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 const mapQueueTimes = require('../modules/map-queue-times');
 const { setLocales, getTranslations } = require('../modules/get-translation');
@@ -104,10 +104,10 @@ const getChances = (input, nameLabel = 'name', labelInt = false) => {
 module.exports = async function() {
     const logger = new JobLogger('update-maps');
     try {
-        logger.log('Getting data from Tarkov-Changes...');
-        locales = await tarkovChanges.locales();
+        logger.log('Getting maps data...');
+        locales = await tarkovData.locales();
         setLocales(locales);
-        const locations = await tarkovChanges.locations();
+        const locations = await tarkovData.locations();
         const maps = {
             updated: new Date(),
             data: [],

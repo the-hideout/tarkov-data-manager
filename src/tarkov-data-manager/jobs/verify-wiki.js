@@ -4,7 +4,7 @@ const webhook = require('../modules/webhook');
 const {query, jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
 const jobOutput = require('../modules/job-output');
 
 let logger = false;
@@ -45,7 +45,7 @@ module.exports = async () => {
         } catch (error) {
             logger.error(error);
         }
-        const en = await tarkovChanges.locale_en();
+        const en = await tarkovData.locale('en');
         let missing = 0;
         const promises = [];
         logger.log('Verifying wiki links');

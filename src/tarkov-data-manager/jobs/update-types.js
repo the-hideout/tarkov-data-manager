@@ -2,7 +2,7 @@ const remoteData = require('../modules/remote-data');
 const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
 const jobOutput = require('../modules/job-output');
 
 let allItems = false;
@@ -99,7 +99,7 @@ module.exports = async (externalLogger) => {
     const logger = externalLogger || new JobLogger('update-types');
     try {
         allItems = await remoteData.get(true);
-        bsgData = await tarkovChanges.items();
+        bsgData = await tarkovData.items();
         const presets = await jobOutput('update-presets', './cache/presets.json', logger);
 
         logger.log(`Updating types`);

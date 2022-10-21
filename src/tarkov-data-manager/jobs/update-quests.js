@@ -7,7 +7,7 @@ const { query, jobComplete } = require('../modules/db-connection');
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
 const legacyQuests = require('./update-quests-legacy');
 const { setLocales, getTranslations, addTranslations } = require('../modules/get-translation');
 const jobOutput = require('../modules/job-output');
@@ -452,10 +452,10 @@ module.exports = async (externalLogger = false) => {
             responseType: 'json',
             resolveBodyOnly: true,
         });
-        const data = await tarkovChanges.quests();
-        items = await tarkovChanges.items();
-        en = await tarkovChanges.locale_en();
-        locales = await tarkovChanges.locales();
+        const data = await tarkovData.quests();
+        items = await tarkovData.items();
+        locales = await tarkovData.locales();
+        en = locales.en;
         maps = await jobOutput('update-maps', './dumps/map_data.json', logger);
         const traders = await jobOutput('update-traders', './dumps/trader_data.json', logger);
         for (const trader of traders) {

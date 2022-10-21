@@ -7,7 +7,7 @@ const remoteData = require('../modules/remote-data');
 const { connection, query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
 
 const ignoreMap = [
     '5447bed64bdc2d97278b4568', // AGS 30x29 mm automatic grenade launcher
@@ -43,8 +43,8 @@ module.exports = async (externalLogger) => {
     try {
         const currentItems = await remoteData.get(true);
 
-        const bsgData = await tarkovChanges.items();
-        const en = await tarkovChanges.locale_en();
+        const bsgData = await tarkovData.items();
+        const en = await tarkovData.locale('en');
 
         logger.log('Updating game data');
 

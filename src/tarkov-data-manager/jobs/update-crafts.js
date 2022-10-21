@@ -3,7 +3,7 @@ const cloudflare = require('../modules/cloudflare');
 
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
 const jobOutput = require('../modules/job-output');
 
 module.exports = async function() {
@@ -11,9 +11,9 @@ module.exports = async function() {
     try {
         logger.log('Loading json files...');
         const [items, json, en, areas, processedItems] = await Promise.all([
-            tarkovChanges.items(),
-            tarkovChanges.crafts(),
-            tarkovChanges.locale_en(),
+            tarkovData.items(),
+            tarkovData.crafts(),
+            tarkovData.locale('en'),
             jobOutput('update-hideout', './dumps/hideout_data.json', logger),
             jobOutput('update-item-cache', './dumps/item_data.json', logger),
         ]);
