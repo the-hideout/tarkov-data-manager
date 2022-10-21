@@ -1,4 +1,5 @@
 const fs = require('fs/promises');
+const fsSync = require('fs');
 const path = require('path');
 
 const got = require('got');
@@ -73,7 +74,7 @@ module.exports = {
         let returnValue = false;
         if (download) {
             returnValue = await jsonRequest(dataType, params, logger);
-            await fs.writeFile(cachePath(saveFileName || dataTypes[dataType]), JSON.stringify(returnValue, null, 4));
+            fsSync.writeFileSync(cachePath(saveFileName || dataTypes[dataType]), JSON.stringify(returnValue, null, 4));
             return returnValue;
         }
         try {
