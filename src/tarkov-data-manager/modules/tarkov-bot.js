@@ -4,9 +4,9 @@ const path = require('path');
 const got = require('got');
 
 const dataTypes = {
-    'items': 'tb-items.json',
-    'prices': 'tb-prices.json',
-    'dictionary': 'tb-en.json',
+    'items': 'items-tb.json',
+    'prices': 'credits-tb.json',
+    'dictionary': 'locale_{{lang}}.json',
 };
 
 const langs = {
@@ -51,7 +51,24 @@ const cachePath = (filename) => {
 }
 
 module.exports = {
-    get: async (dataType, download = false, saveFileName = false, params = {}, logger = false) => {
+    get: async (dataType, download = false, params = {}, logger = false) => {
+        let saveFileName = dataTypes[dataType];
+        if (dataType === 'dictionary') {
+            if (!params.lang) {
+                return Promise.reject(new Error('You must specify a lang value in the params argument to request a dictionary'));
+            }
+            let isoLang = false;
+            for (const isoCode in langs) {
+                if (langs[isoCode] === params.lang) {
+                    isoLang = isoCode;
+                    break;
+                }
+            }
+            if (!isoLang) {
+                return Promise.reject(new Error(`${params.lang} is not a recognized lang value`));
+            }
+            saveFileName = saveFileName.replace('{{lang}}', isoLang)
+        }
         if (!dataTypes[dataType]) return Promise.reject(new Error(`${dataType} is not a valid request for Tarkov-Bot`));
         let returnValue = false;
         if (download) {
@@ -63,27 +80,24 @@ module.exports = {
             return JSON.parse(await fs.readFile(cachePath(saveFileName || dataTypes[dataType])));
         } catch (error) {
             if (error.code === 'ENOENT') {
-                return module.exports.get(dataType, true);
+                return module.exports.get(dataType, true, params, logger);
             }
             return Promise.reject(error);
         }
     },
-    items: async (download = false, saveFileName = false, logger = false) => {
-        return module.exports.get('items', download, saveFileName, false, logger);
+    items: async (download = false, logger = false) => {
+        return module.exports.get('items', download, false, logger);
     },
-    prices: async (download = false, saveFileName = false, logger = false) => {
-        return module.exports.get('prices', download, saveFileName, false, logger);
+    prices: async (download = false, logger = false) => {
+        return module.exports.get('prices', download, false, logger);
     },
-    locale_en: async (download = false, saveFileName = false, logger = false) => {
-        return module.exports.get('dictionary', download, saveFileName, false, logger);
-    },
-    dictionary: async (download = false, saveFileName = false, lang = 'en', logger = false) => {
-        return module.exports.get('dictionary', download, saveFileName, {lang: langs[lang]}, logger);
+    locale: (lang = 'ru', download = false, logger = false) => {
+        return module.exports.get('dictionary', download, {lang: langs[lang]}, logger);
     },
     locales: async (download = false, logger = false) => {
         const promises = [];
         for (const lang in langs) {
-            promises.push(module.exports.dictionary(download, `locale_${lang}.json`, langs[lang], logger = false).then(data => {
+            promises.push(module.exports.get('dictionary', download, {lang: langs[lang]}, logger).then(data => {
                 return {lang: lang, data: data};
             }).catch(error => {
                 return Promise.reject({lang: lang, error: error});

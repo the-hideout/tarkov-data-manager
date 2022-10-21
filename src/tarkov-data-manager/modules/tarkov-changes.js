@@ -78,7 +78,6 @@ module.exports = {
         return module.exports.get('credits.json', download);
     },
     locale_en: async (download = false) => {
-        //return tarkovBot.locale_en(download, 'locale_en.json');
         return module.exports.get('locale_en_td.json', download, 'locale_en.json');
     },
     locations: async (download = false) => {

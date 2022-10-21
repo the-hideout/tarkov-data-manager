@@ -23,13 +23,13 @@ module.exports = {
     },
     locale: (lang = 'en', download = false) => {
         if (lang == 'en') return tarkovChanges.locale_en(download);
-        if (lang == 'ru') return tarkovBot.dictionary(download, `locale_ru.json`, lang);
+        if (lang == 'ru') return tarkovBot.locale('ru', download);
         return spt.locale(lang, download);
     },
     locales: async (download = false) => {
         const [en, ru, others] = await Promise.all([
             tarkovChanges.locale_en(download),
-            tarkovBot.dictionary(download, 'locale_ru.json', 'ru'),
+            tarkovBot.locale('ru', download),
             spt.locales(download),
         ]);
         return {
