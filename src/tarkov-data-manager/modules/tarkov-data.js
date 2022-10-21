@@ -27,10 +27,15 @@ module.exports = {
         return spt.locale(lang, download);
     },
     locales: async (download = false) => {
+        const [en, ru, others] = await Promise.all([
+            tarkovChanges.locale_en(download),
+            tarkovBot.dictionary(download, 'locale_ru.json', 'ru'),
+            spt.locales(download),
+        ]);
         return {
-            en: await tarkovChanges.locale_en(download),
-            ru: await tarkovBot.dictionary(download, 'locale_ru.json', 'ru'),
-            ...await spt.locales(download)
+            en: en,
+            ru: ru,
+            ...others
         }
     },
     locations: (download = false) => {
