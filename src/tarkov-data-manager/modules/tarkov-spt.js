@@ -4,6 +4,8 @@ const path = require('path');
 
 const got = require('got');
 
+const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/';
+
 const sptLangs = {
     //'en': 'en',
     'es': 'es',
@@ -48,7 +50,7 @@ const getLocale = async (locale, download) => {
     if (sptLangs[locale]) {
         locale = sptLangs[locale];
     }
-    return downloadJson(`locale_${locale}.json`, `https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/locales/global/${locale}.json`, download);
+    return downloadJson(`locale_${locale}.json`, `${sptPath}locales/global/${locale}.json`, download);
 };
 
 const getLocales = async (download) => {
@@ -72,11 +74,11 @@ const getLocales = async (download) => {
 
 module.exports = {
     handbook: (download) => {
-        return downloadJson('handbook.json', 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/templates/handbook.json', download);
+        return downloadJson('handbook.json', `${sptPath}templates/handbook.json`, download);
     },
     locale: getLocale,
     locales: getLocales,
     quests: (download) => {
-        return downloadJson('quests.json', 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/templates/quests.json', download);
+        return downloadJson('quests.json', `${sptPath}templates/quests.json`, download);
     },
 };
