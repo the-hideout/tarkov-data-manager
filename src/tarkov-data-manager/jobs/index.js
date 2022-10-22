@@ -115,7 +115,6 @@ const startJobs = async () => {
         }
     }
     let buildPresets = false;
-    let buildQuests = false;
     try {
         fs.accessSync(path.join(__dirname, '..', 'cache', 'presets.json'))
     } catch (error) {
@@ -125,25 +124,13 @@ const startJobs = async () => {
             console.log(error);
         }
     }
-    /*try {
-        fs.accessSync(path.join(__dirname, '..', 'cache', 'tasks.json'))
-    } catch (error) {
-        if (error.code === 'ENOENT') {
-            buildQuests = true;
-        }
-    }*/
     const promise = new Promise((resolve, reject) => {
         if (!buildPresets) return resolve(true);
         console.log('Running build-presets job at startup');
         const presetsModule = require('./update-presets');
         presetsModule().finally(() => {
             resolve(true);
-        })
-    }).then(() => {
-        if (!buildQuests) return resolve(true);
-        console.log('Running build-quests-new job at startup');
-        const tasksModule = require('./update-quests-new');
-        return tasksModule();
+        });
     });
     await Promise.allSettled([promise]);
     console.log('Startup jobs complete');

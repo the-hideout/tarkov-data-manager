@@ -3,18 +3,18 @@ const got = require('got');
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
 
 module.exports = async function(externalLogger) {
     const logger = externalLogger || new JobLogger('update-traders');
     try {
-        logger.log('Loading trader data from Tarkov-Changes...');
-        const tradersData = await tarkovChanges.traders();
-        logger.log('Loading en from Tarkov-Changes...');
-        const en = await tarkovChanges.locale_en();
-        const locales = await tarkovChanges.locales();
+        logger.log('Loading trader data...');
+        const tradersData = await tarkovData.traders();
+        logger.log('Loading locales...');
+        const locales = await tarkovData.locales();
+        const en = locales.en;
         setLocales(locales);
         logger.log('Loading TarkovData traders.json...');
         const tdTraders = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
@@ -47,7 +47,7 @@ module.exports = async function(externalLogger) {
                 traderData.name = trader.nickname;
                 traderData.normalizedName = normalizeName(trader.nickname);
             }
-            logger.log(`${traderData.name} ${trader._id}`);
+            logger.log(`${traderData.name} ${trader._id} - ${date}`);
             for (let i = 0; i < trader.loyaltyLevels.length; i++) {
                 const level = trader.loyaltyLevels[i];
                 if (trader._id == '579dc571d53a0658a154fbec' && traderData.levels.length === 0) {

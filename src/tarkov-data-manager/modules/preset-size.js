@@ -1,14 +1,14 @@
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
 
 let itemData = false;
 let credits = false;
 
 const getPresetSize = async (item, logger = false) => {
     if(!itemData){
-        itemData = await tarkovChanges.items();
+        itemData = await tarkovData.items();
     }
     if (!credits) {
-        credits = await tarkovChanges.credits();
+        credits = await tarkovData.credits();
     }
 
     const directions = [

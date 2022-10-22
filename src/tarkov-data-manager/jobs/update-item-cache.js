@@ -8,7 +8,7 @@ const remoteData = require('../modules/remote-data');
 const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
 const jobOutput = require('../modules/job-output');
 const {dashToCamelCase} = require('../modules/string-functions');
 const { setItemPropertiesOptions, getSpecialItemProperties } = require('../modules/get-item-properties');
@@ -251,19 +251,16 @@ module.exports = async () => {
             itemMap,
             handbook,
         ] = await Promise.all([
-            tarkovChanges.items(), 
-            tarkovChanges.credits(),
-            tarkovChanges.locales(),
-            tarkovChanges.globals(),
+            tarkovData.items(), 
+            tarkovData.credits(),
+            tarkovData.locales(),
+            tarkovData.globals(),
             jobOutput('update-traders', './dumps/trader_data.json', logger),
             jobOutput('update-presets', './cache/presets.json', logger),
             avgPriceYesterdayPromise,
             lastKnownPriceDataPromise,
             remoteData.get(true),
-            got('https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/templates/handbook.json', {
-                responseType: 'json', 
-                resolveBodyOnly: true,
-            }),
+            tarkovData.handbook(),
         ]);
         const itemData = {};
         const itemTypesSet = new Set();

@@ -5,7 +5,7 @@ const cloudflare = require('../modules/cloudflare');
 const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
 const jobOutput = require('../modules/job-output');
 
 const traderMap = {
@@ -125,7 +125,7 @@ module.exports = async () => {
             'USD': '5696686a4bdc2da3298b456a',
             'EUR': '569668774bdc2da2298b4568'
         };
-        const credits = await tarkovChanges.credits();
+        const credits = await tarkovData.credits();
         const currenciesNow = {
             'RUB': 1,
             'USD': Math.round(credits['5696686a4bdc2da3298b456a'] * 1.104271357),

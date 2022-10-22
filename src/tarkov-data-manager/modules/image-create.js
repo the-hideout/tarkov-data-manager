@@ -5,15 +5,15 @@ const { imageFunctions } = require('tarkov-dev-image-generator');
 
 const { uploadToS3 } = require('./upload-s3');
 const jobOutput = require('./job-output');
-const tarkovChanges = require('./tarkov-changes');
+const tarkovData = require('./tarkov-data');
 
 async function createFromSource(sourceImage, id) {
     const itemData = await jobOutput('update-item-cache', './dumps/item_data.json');
     const taskData = await jobOutput('update-quests', './dumps/quest_data.json', false, true);
     let item = itemData[id] || taskData.items[id];
     if (!item) {
-        const items = await tarkovChanges.items();
-        const en = await tarkovChanges.locale_en();
+        const items = await tarkovData.items();
+        const en = await tarkovData.locale('en');
         if (!items[id] || !en.templates[id])
             return Promise.reject(`Item ${id} not found in item data`);
         item = {

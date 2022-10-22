@@ -3,18 +3,20 @@ const cloudflare = require('../modules/cloudflare');
 
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
+const jobOutput = require('../modules/job-output');
 
 module.exports = async function() {
     const logger = new JobLogger('update-crafts');
     try {
-        logger.log('Downloading item data from Tarkov-Changes...');
-        const items = await tarkovChanges.items();
-        logger.log('Downloading crafts from Takov-Changes...');
-        const json = await tarkovChanges.crafts();
-        logger.log('Downloading en from Tarkov-Changes...');
-        const en = await tarkovChanges.locale_en();
-        const areas = await tarkovChanges.areas();
+        logger.log('Loading json files...');
+        const [items, json, en, areas, processedItems] = await Promise.all([
+            tarkovData.items(),
+            tarkovData.crafts(),
+            tarkovData.locale('en'),
+            jobOutput('update-hideout', './dumps/hideout_data.json', logger),
+            jobOutput('update-item-cache', './dumps/item_data.json', logger),
+        ]);
         const crafts = {
             updated: new Date(),
             data: [],
@@ -22,22 +24,21 @@ module.exports = async function() {
         logger.log('Processing crafts...');
         for (const id in json) {
             const craft = json[id];
-            let station = false;
-            for (const areaId in areas) {
-                const area = areas[areaId];
-                if (area.type === craft.areaType) {
-                    station = area;
-                    break;
-                }
+            let station = areas.find(area => area.areaType === craft.areaType);
+            if (!station) {
+                logger.warn(`${en.interface[`hideout_area_${craft.areaType}_name`]} is not an active station`);
+                continue;
             }
-            // skip christmas tree
-            if (station._id === '5df8a81f8f77747fcf5f5702') continue;
             if (!en.templates[craft.endProduct]) {
                 logger.warn(`No end product item with id ${craft.endProduct} found in locale_en.json`);
                 continue;
             }
             if (!en.interface[`hideout_area_${craft.areaType}_name`]) {
                 logger.warn(`No hideout station of type ${craft.areaType} found in locale_en.json`);
+                continue;
+            }
+            if (!processedItems[craft.endProduct]) {
+                logger.warn(`No end product item with id ${craft.endProduct} found in processed items`);
                 continue;
             }
             const craftData = {
@@ -49,8 +50,8 @@ module.exports = async function() {
                     count: craft.count,
                     attributes: []
                 }],
-                station: station._id,
-                station_id: station._id,
+                station: station.id,
+                station_id: station.id,
                 sourceName: en.interface[`hideout_area_${craft.areaType}_name`],
                 duration: craft.productionTime,
                 requirements: []
@@ -73,6 +74,10 @@ module.exports = async function() {
                     }
                     if (!items[req.templateId]) {
                         logger.warn(`No requirement resource with id ${req.templateId} found in items.json`);
+                        continue;
+                    }
+                    if (!processedItems[req.templateId]) {
+                        logger.warn(`No requirement resource with id ${req.templateId} found in processed items`);
                         continue;
                     }
                     craftData.requiredItems.push({

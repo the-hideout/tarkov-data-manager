@@ -1,4 +1,4 @@
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
 const JobLogger = require('../modules/job-logger');
 const jobOutput = require('../modules/job-output');
 
@@ -21,7 +21,7 @@ const setLocales = async (loc = false) => {
     if (loc) {
         locales = loc;
     } else {
-        locales = await tarkovChanges.locales();
+        locales = await tarkovData.locales();
     }
 };
 
@@ -29,7 +29,7 @@ const setGlobals = async (glob = false) => {
     if (glob) {
         globals = glob;
     } else {
-        globals = await tarkovChanges.globals();
+        globals = await tarkovData.globals();
     }
 };
 
@@ -37,7 +37,7 @@ const setItems = async (it = false) => {
     if (it) {
         items = it;
     } else {
-        items = await tarkovChanges.items();
+        items = await tarkovData.items();
     }
 }
 

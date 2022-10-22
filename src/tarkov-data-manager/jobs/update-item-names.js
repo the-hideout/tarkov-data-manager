@@ -9,20 +9,18 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 
 const {connection, query, jobComplete} = require('../modules/db-connection');
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
+const jobOutput = require('../modules/job-output');
 
 module.exports = async (externalLogger) => {
     const logger = externalLogger || new JobLogger('update-item-names');
     try {
-        const localItems = await remoteData.get();
-        const bsgData = await tarkovChanges.items();
-        const en = await tarkovChanges.locale_en();
-        let presets = {};
-        try {
-            presets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json')));
-        } catch (error) {
-            logger.error(error);
-        }
+        const [localItems, bsgData, en, presets] = await Promise.all([
+            remoteData.get(),
+            tarkovData.items(),
+            tarkovData.locale('en'),
+            jobOutput('update-presets', './cache/presets.json', logger),
+        ]);
         const currentDestinations = [];
 
         logger.log(`Updating names`);

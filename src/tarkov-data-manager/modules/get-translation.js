@@ -1,6 +1,11 @@
+const { promises } = require("form-data");
+
 let locales;
 
 const getTranslation = (locales, code, translateFunction, logger) => {
+    if (!locales) {
+        return Promise.reject(new Error('Must call setLocales before  getTranslation'));
+    }
     let lang = locales[code];
     if (!lang) lang = locales.en;
     try {
@@ -55,6 +60,9 @@ const translatePath = (langCode, path, logger, errorOnNotFound = true) => {
 };
 
 const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
+    if (!locales) {
+        return Promise.reject(new Error('You must call setLocales before getTranslations'));
+    }
     const translation = {};
     for (const langCode in locales) {
         translation[langCode] = {};
@@ -114,6 +122,9 @@ const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
 };
 
 const mergeLocale = (destinationLocale, newLocale) => {
+    if (!locales) {
+        return Promise.reject(new Error('You must call setLocales before mergeLocale'));
+    }
     if (typeof destinationLocale !== 'object') {
         return Promise.reject(new Error('Cannot add to destination locale this is not an object'));
     }

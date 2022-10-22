@@ -6,7 +6,7 @@ const { initPresetSize, getPresetSize } = require('../modules/preset-size');
 const { connection, query, jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
 const { getTranslations, setLocales } = require('../modules/get-translation');
 const remoteData = require('../modules/remote-data');
 
@@ -16,11 +16,11 @@ module.exports = async (externalLogger = false) => {
     logger = externalLogger || new JobLogger('update-presets');
     try {
         logger.log('Updating presets');
-        const presets = (await tarkovChanges.globals())['ItemPresets'];
-        const items = await tarkovChanges.items();
-        const en = await tarkovChanges.locale_en();
-        const locales = await tarkovChanges.locales();
-        const credits = await tarkovChanges.credits();
+        const presets = (await tarkovData.globals())['ItemPresets'];
+        const items = await tarkovData.items();
+        const en = await tarkovData.locale('en');
+        const locales = await tarkovData.locales();
+        const credits = await tarkovData.credits();
         const localItems = await remoteData.get();
 
         setLocales(locales);

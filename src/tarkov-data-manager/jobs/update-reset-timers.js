@@ -2,13 +2,13 @@ const {jobComplete} = require('../modules/db-connection');
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
 
 module.exports = async () => {
     const logger = new JobLogger('update-reset-timers');
     try {
-        const traders = await tarkovChanges.traders();
-        const en = await tarkovChanges.locale_en();
+        const traders = await tarkovData.traders();
+        const en = await tarkovData.locale('en');
 
         const resetTimes = {};
         for (const id in traders) {

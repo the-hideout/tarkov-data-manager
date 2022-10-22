@@ -6,7 +6,7 @@ const oldNames = require('../old-names.json');
 const fixName = require('../modules/wiki-replacements');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovChanges = require('../modules/tarkov-changes');
+const tarkovData = require('../modules/tarkov-data');
 const { query, jobComplete } = require('../modules/db-connection');
 const jobOutput = require('../modules/job-output');
 
@@ -368,14 +368,14 @@ module.exports = async function() {
         const oldTasksPromise = got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
             responseType: 'json',
         });
-        const enPromise = tarkovChanges.locale_en();
+        const enPromise = tarkovData.locale('en');
         const allResults = await Promise.all([itemsPromise, wikiPromise, tasksPromise, enPromise, oldTasksPromise]);
         const results = allResults[0];
         const wikiResponse = allResults[1];
         tasks = allResults[2];
         en = allResults[3];
         oldTasks = allResults[4].body;
-        presetData = await jobOutput('update-presets', './cache/presets.json');//JSON.parse(fs.readFileSync('./cache/presets.json'));
+        presetData = await jobOutput('update-presets', './cache/presets.json', logger);//JSON.parse(fs.readFileSync('./cache/presets.json'));
         $ = cheerio.load(wikiResponse.body);
         trades = {
             updated: new Date(),
