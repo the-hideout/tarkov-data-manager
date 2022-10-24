@@ -1,4 +1,3 @@
-const got = require('got');
 const moment = require('moment');
 
 const cloudflare = require('../modules/cloudflare');
@@ -27,7 +26,7 @@ const traderMap = {
     'Jaeger': '5c0647fdd443bc2504c2d371',
 };
 
-let logger, tasks;
+let logger, tasks, items;
 
 const outputPrices = async (prices) => {
     try {
@@ -69,7 +68,7 @@ const getQuestUnlock = (traderItem) => {
                 };
             }
         }
-        logger.warn(`Could not find quest unlock for trader offer ${traderItem.id}`);
+        throw new Error(`Could not find quest unlock for trader offer ${traderItem.id}: ${traderItem.trader_name} ${items[traderItem.item_id].name} ${traderItem.item_id}`);
     }
     return false;
 };
@@ -87,7 +86,10 @@ const unlockMatches = (itemId, rewards, traderId) => {
 module.exports = async () => {
     logger = new JobLogger('update-trader-prices');
     try {
-        tasks = await jobOutput('update-quests', './dumps/quest_data.json', logger);
+        [tasks, items] = await Promise.all([
+            jobOutput('update-quests', './dumps/quest_data.json', logger),
+            jobOutput('update-item-cache', './dumps/item_data.json', logger),
+        ]);
         const outputData = {};
         const junkboxLastScan = await query(`
             SELECT
@@ -243,10 +245,17 @@ module.exports = async () => {
                 itemPrice = currenciesNow[currencyISO[traderItem.item_id]];
             }
             let minLevel = traderItem.min_level;
-            const questUnlock = getQuestUnlock(traderItem);
-            if (questUnlock) {
-                minLevel = questUnlock.level;
+            let questUnlock = false;
+            try {
+                questUnlock = getQuestUnlock(traderItem);
+                if (questUnlock) {
+                    minLevel = questUnlock.level;
+                }
+            } catch (error) {
+                logger.warn(error.message);
+                continue;
             }
+            
             const offer = {
                 id: traderItem.item_id,
                 vendor: {

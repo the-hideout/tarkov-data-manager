@@ -1,8 +1,7 @@
 const roundTo = require('round-to');
-const got = require('got');
 
 const dataMaps = require('../modules/data-map');
-const {categories, items} = require('../modules/category-map');
+const {categories: sellCategories, items: sellItems} = require('../modules/category-map');
 const cloudflare = require('../modules/cloudflare');
 const remoteData = require('../modules/remote-data');
 const { query, jobComplete } = require('../modules/db-connection');
@@ -84,21 +83,6 @@ const getTraderMultiplier = (traderId) => {
         }
     }
     throw error (`Trader with id ${traderId} not found in traders data`);
-};
-
-const getItemCategory = (id, original) => {
-    if (!original) original = id;
-    if(!id){
-        return original;
-    }
-
-    // Check if parent is category
-    if(categories[id]){
-        return id;
-    }
-
-    // Let's traverse
-    return getItemCategory(bsgItems[id]._parent, original);
 };
 
 const mappingProperties = {
@@ -287,21 +271,40 @@ module.exports = async () => {
                 ...value,
                 shortName: value.short_name,
                 normalizedName: value.normalized_name,
-                lastOfferCount: value.last_offer_count
+                lastOfferCount: value.last_offer_count,
+                types: value.types.map(type => dashToCamelCase(type)),
+                wikiLink: value.wiki_link,
+                link: `https://tarkov.dev/item/${value.normalizedName}`,
+                iconLink: value.icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg',
+                gridImageLink: value.grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg',
+                baseImageLink: value.base_image_link || 'https://assets.tarkov.dev/unknown-item-base-image.png',
+                inspectImageLink: value.image_link || 'https://assets.tarkov.dev/unknown-item-inspect.webp',
+                image512pxLink: value.image_512_link || 'https://assets.tarkov.dev/unknown-item-512.webp',
+                image8xLink: value.image_8x_link || 'https://assets.tarkov.dev/unknown-item-512.webp',
+                containsItems: [],
+                discardLimit: -1,
+                basePrice: 0,
+                categories: [],
+                handbookCategories: [],
             };
 
-            Reflect.deleteProperty(itemData[key], 'last_update');
-            Reflect.deleteProperty(itemData[key], 'last_scan');
-            Reflect.deleteProperty(itemData[key], 'trader_last_scan');
-            Reflect.deleteProperty(itemData[key], 'checkout_scanner_id');
-            Reflect.deleteProperty(itemData[key], 'trader_checkout_scanner_id');
-            Reflect.deleteProperty(itemData[key], 'scan_position');
-            Reflect.deleteProperty(itemData[key], 'match_index');
-            Reflect.deleteProperty(itemData[key], 'normalized_name');
-            Reflect.deleteProperty(itemData[key], 'short_name');
+            // clean up unused fields
+            for (const fieldName in itemData[key]) {
+                if (fieldName.includes('_')) {
+                    Reflect.deleteProperty(itemData[key], fieldName);
+                }
+            }
             Reflect.deleteProperty(itemData[key], 'disabled');
-            Reflect.deleteProperty(itemData[key], 'last_offer_count');
+            Reflect.deleteProperty(itemData[key], 'properties');
 
+            // add base value
+            if (presets[key]) {
+                itemData[key].basePrice = presets[key].baseValue;
+            } else if (credits[key]) {
+                itemData[key].basePrice = credits[key];
+            }  else {
+                logger.warn(`Unknown base value for ${itemData[key].name} ${key}`);
+            }
 
             // Only add these if it's allowed on the flea market
             if (!itemData[key].types.includes('no-flea')) {
@@ -331,15 +334,7 @@ module.exports = async () => {
                 itemData[key].avg24hPrice = 0;
             }
 
-            itemData[key].types = itemData[key].types.map(type => dashToCamelCase(type));
-
-            itemData[key].containsItems = [];
-
-            // itemData[key].changeLast48h = itemPriceYesterday.priceYesterday || 0;
-
             // add item properties
-            itemData[key].discardLimit = -1;
-            itemData[key].basePrice = 0;
             if (bsgItems[key]) {
                 addPropertiesToItem(itemData[key]);
                 itemData[key].bsgCategoryId = bsgItems[key]._parent;
@@ -416,33 +411,32 @@ module.exports = async () => {
                 logger.warn(`${itemData[key].name} ${key} lacks propertiesType`);
                 itemData[key].properties = null;
             }
+
+            // add template categories
             addCategory(itemData[key].bsgCategoryId);
-            if (presets[key]) {
-                itemData[key].basePrice = presets[key].baseValue;
-            } else if (credits[key]) {
-                itemData[key].basePrice = credits[key];
-            } 
-            itemData[key].wikiLink = itemData[key].wiki_link;
-            itemData[key].link = `https://tarkov.dev/item/${itemData[key].normalizedName}`;
+            const cat = bsgCategories[itemData[key].bsgCategoryId];
+            if (cat) {
+                itemData[key].categories.push(itemData[key].bsgCategoryId);
+                let parent = bsgCategories[cat.parent_id];
+                while (parent) {
+                    itemData[key].categories.push(parent.id);
+                    parent = bsgCategories[parent.parent_id];
+                }
+            }
 
-            // images and fallbacks
-            itemData[key].iconLink = itemData[key].icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
-            itemData[key].gridImageLink = itemData[key].grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
-            itemData[key].baseImageLink = itemData[key].base_image_link || 'https://assets.tarkov.dev/unknown-item-base-image.png';
-            itemData[key].inspectImageLink = itemData[key].image_link || 'https://assets.tarkov.dev/unknown-item-inspect.webp';
-            itemData[key].image512pxLink = itemData[key].image_512_link || 'https://assets.tarkov.dev/unknown-item-512.webp';
-            itemData[key].image8xLink = itemData[key].image_8x_link || 'https://assets.tarkov.dev/unknown-item-512.webp';
-            /*itemData[key].imageLink = itemData[key].inspectImageLink;
-
-            itemData[key].iconLinkFallback = itemData[key].iconLink
-            itemData[key].gridImageLinkFallback = itemData[key].gridImageLink;
-            itemData[key].inspectImageLinkFallback = itemData[key].inspectImageLink;
-            itemData[key].imageLinkFallback = itemData[key].inspectImageLink;
-
-            Reflect.deleteProperty(itemData[key], 'icon_link');
-            Reflect.deleteProperty(itemData[key], 'grid_image_link');
-            Reflect.deleteProperty(itemData[key], 'image_link');
-            Reflect.deleteProperty(itemData[key], 'wiki_link');*/
+            // add handbook categories
+            const handbookItemId = itemData[key].types.includes('preset') ? itemData[key].properties.base_item_id : key;
+            const handbookItem = handbook.Items.find(hbi => hbi.Id === handbookItemId);
+            if (!handbookItem) {
+                logger.warn(`Item ${itemData[key].name} ${id} has no handbook entry`);
+            } else {
+                addHandbookCategory(handbookItem.ParentId);
+                let parent = handbookCategories[handbookItem.ParentId];
+                while (parent) {
+                    itemData[key].handbookCategories.push(parent.id);
+                    parent = handbookCategories[parent.parent_id];
+                }
+            }
 
             // translations
             if (locales.en.templates[key]) { 
@@ -470,17 +464,20 @@ module.exports = async () => {
             const currencyId = dataMaps.currencyIsoId;
             const traderId = dataMaps.traderNameId;
             
-            let sellCategory = getItemCategory(itemData[key].bsgCategoryId);
-            if (!sellCategory && !itemData[key].types.includes('disabled')) {
-                logger.log(`No category found for ${itemData[key].name} (${key})`);
-            }
-            if (sellCategory && categories[sellCategory]){
-                for(const trader of categories[sellCategory].traders){
+            for (const sellCategory of itemData[key].categories) {
+                if (!sellCategories[sellCategory]) {
+                    continue;
+                }
+                for (const trader of sellCategories[sellCategory].traders) {
                     let currency = 'RUB';
-                    if (trader.name === 'Peacekeeper') currency = 'USD';
+                    if (trader.name === 'Peacekeeper') {
+                        currency = 'USD';
+                    }
                     let priceRUB = Math.floor(getTraderMultiplier(trader.id) * itemData[key].basePrice);
                     const priceCUR = Math.round(priceRUB / currenciesNow[currency]);
-                    if (priceCUR === 0) priceRUB = 0;
+                    if (priceCUR === 0) {
+                        priceRUB = 0;
+                    }
                     itemData[key].traderPrices.push({
                         name: trader.name,
                         price: priceCUR,
@@ -490,17 +487,23 @@ module.exports = async () => {
                         trader: traderId[trader.name]
                     });
                 }
-            } else {
-                if (itemData[key].types && !itemData[key].types.includes('disabled')) {
-                    logger.log(`No category for trader prices mapped for ${itemData[key].name} (${itemData[key].id}) with category id ${itemData[key].bsgCategoryId}`);
-                }
+                break;
+            }
+            const ignoreCategories = [
+                '543be5dd4bdc2deb348b4569', // currency
+                '5448bf274bdc2dfc2f8b456a', // secure container
+            ];
+            if (itemData[key].traderPrices.length === 0 && !ignoreCategories.includes(itemData[key].bsgCategoryId)) {
+                logger.log(`No trader sell prices mapped by category for ${itemData[key].name} (${itemData[key].id}) with category id ${itemData[key].bsgCategoryId}`);
             }
 
             // Map special items bought by specific vendors
-            if(items[key]){
-                for(const trader of items[key].traders){
+            if (sellItems[key]){
+                for (const trader of sellItems[key].traders){
                     let currency = 'RUB';
-                    if (trader.name === 'Peacekeeper') currency = 'USD';
+                    if (trader.name === 'Peacekeeper') {
+                        currency = 'USD';
+                    }
                     itemData[key].traderPrices.push({
                         name: trader.name,
                         price: Math.round((getTraderMultiplier(trader.id) * itemData[key].basePrice) / currenciesNow[currency]),
@@ -517,45 +520,12 @@ module.exports = async () => {
             });
         }
 
-        // populate categories attribute with all categories up the tree
-        for (const id in itemData) {
-            const item = itemData[id];
-            item.categories = [];
-            const cat = bsgCategories[item.bsgCategoryId];
-            if (!cat) continue;
-            item.categories.push(item.bsgCategoryId);
-            if (!bsgCategories[cat.parent_id]) continue;
-            let parent = bsgCategories[cat.parent_id];
-            while (parent) {
-                item.categories.push(parent.id);
-                parent = bsgCategories[parent.parent_id];
-            }
-        }
-
+        // populate child ids for tempalte categories
         Object.values(bsgCategories).forEach(cat => {
             bsgCategories[cat.parent_id]?.child_ids.push(cat.id);
         });
-
-        // populate handbookCategories attribute with all categories up the tree
-        for (let id in itemData) {
-            const item = itemData[id];
-            if (item.types.includes('preset')) {
-                id = item.properties.base_item_id;
-            }
-            item.handbookCategories = [];
-            const handbookItem = handbook.Items.find(hbi => hbi.Id === id);
-            if (!handbookItem) {
-                logger.warn(`Item ${item.name} ${id} has no handbook entry`);
-                continue;
-            }
-            addHandbookCategory(handbookItem.ParentId);
-            let parent = handbookCategories[handbookItem.ParentId];
-            while (parent) {
-                item.handbookCategories.push(parent.id);
-                parent = handbookCategories[parent.parent_id];
-            }
-        }
         
+        // populate child ids for handbook categories
         Object.values(handbookCategories).forEach(cat => {
             handbookCategories[cat.parent_id]?.child_ids.push(cat.id);
         });
@@ -602,7 +572,11 @@ module.exports = async () => {
             sellOfferFeeRate: (globals.config.RagFair.communityItemTax / 100),
             sellRequirementFeeRate: (globals.config.RagFair.communityRequirementTax / 100),
             reputationLevels: [],
-            locale: {}
+            locale: getTranslations({name: lang => {
+                return lang.interface['RAG FAIR'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
+                    return substr.toLowerCase();
+                });
+            }}, logger),
         };
         for (const offerCount of globals.config.RagFair.maxActiveOfferCount) {
             if (fleaData.reputationLevels.length > 0 && fleaData.reputationLevels[fleaData.reputationLevels.length-1].offers == offerCount.count) {
@@ -615,16 +589,6 @@ module.exports = async () => {
                 maxRep: offerCount.to
             });
         }
-        for (const code in locales) {
-            const lang = locales[code];
-            if (lang.interface['RAG FAIR']) {
-                fleaData.locale[code] = {
-                    name: lang.interface['RAG FAIR'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
-                        return substr.toLowerCase();
-                    })
-                };
-            }
-        }
 
         const armorData = {};
         for (const armorTypeId in globals.config.ArmorMaterials) {
@@ -632,19 +596,10 @@ module.exports = async () => {
             armorData[armorTypeId] = {
                 id: armorTypeId,
                 name: locales.en.interface['Mat'+armorTypeId],
-                locale: {}
+                locale: getTranslations({name: ['interface', `Mat${armorTypeId}`]}, logger),
             };
             for (const key in armorType) {
                 armorData[armorTypeId][key.charAt(0).toLocaleLowerCase()+key.slice(1)] = armorType[key];
-            }
-            armorData[armorTypeId].name = locales.en.interface['Mat'+armorTypeId];
-            for (const code in locales) {
-                const lang = locales[code];
-                if (lang.interface['Mat'+armorTypeId]) {
-                    armorData[armorTypeId].locale[code] = {
-                        name: lang.interface['Mat'+armorTypeId]
-                    };
-                }
             }
         }
 
