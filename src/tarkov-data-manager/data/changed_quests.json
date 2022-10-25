@@ -211,6 +211,13 @@
                 "status": [
                     "complete"
                 ]
+            },
+            {
+                "task": "5edac63b930f5454f51e128b",
+                "name": "TerraGroup Employee",
+                "status": [
+                    "complete"
+                ]
             }
         ],
         "objectivesRemoved": [
@@ -258,6 +265,28 @@
                     "name": "Scout",
                     "status": [
                         "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "5edac63b930f5454f51e128b" : {
+        "name": "TerraGroup Employee",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5edac020218d181e29451446",
+                    "name": "Samples",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "5edab4b1218d181e29451435",
+                    "name": "The Huntsman Path - Sadist",
+                    "status": [
+                        "complete",
+                        "failed"
                     ]
                 }
             ]
