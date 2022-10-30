@@ -428,7 +428,7 @@ module.exports = async () => {
             const handbookItemId = itemData[key].types.includes('preset') ? itemData[key].properties.base_item_id : key;
             const handbookItem = handbook.Items.find(hbi => hbi.Id === handbookItemId);
             if (!handbookItem) {
-                logger.warn(`Item ${itemData[key].name} ${id} has no handbook entry`);
+                logger.warn(`Item ${itemData[key].name} ${key} has no handbook entry`);
             } else {
                 addHandbookCategory(handbookItem.ParentId);
                 let parent = handbookCategories[handbookItem.ParentId];

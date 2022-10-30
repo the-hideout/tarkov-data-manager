@@ -1,6 +1,7 @@
 const tarkovData = require('../modules/tarkov-data');
 const JobLogger = require('../modules/job-logger');
 const jobOutput = require('../modules/job-output');
+const { setLocales: setTranslationLocales, getTranslations } = require('./get-translation');
 
 let locales = false;
 let globals = false;
@@ -23,6 +24,7 @@ const setLocales = async (loc = false) => {
     } else {
         locales = await tarkovData.locales();
     }
+    setTranslationLocales(locales);
 };
 
 const setGlobals = async (glob = false) => {
@@ -175,6 +177,37 @@ const getSlots = (item) => {
     });
 };
 
+const effectMap = {
+    RemoveAllBloodLosses: 'Removeallbloodlosses'
+};
+
+const getStimEffects = (item) => {
+    const stimEffects = [];
+    if (item._props.StimulatorBuffs && globals.config.Health.Effects.Stimulator.Buffs[item._props.StimulatorBuffs]) {
+        const buffs = globals.config.Health.Effects.Stimulator.Buffs[item._props.StimulatorBuffs];
+        for (const buff of buffs) {
+            let effectKey = effectMap[buff.BuffType] || buff.BuffType;
+            const effect = {
+                chance: buff.Chance,
+                delay: buff.Delay,
+                duration: buff.Duration,
+                value: buff.Value,
+                percent: !buff.AbsoluteValue,
+                locale: getTranslations({
+                    type: lang => {
+                        return buff.SkillName ? lang.interface.Skill : lang.interface[effectKey];
+                    },
+                    skillName: lang => {
+                        return buff.SkillName ? lang.interface[buff.SkillName] : undefined;
+                    }
+                }),
+            };
+            stimEffects.push(effect);
+        }
+    }
+    return stimEffects;
+};
+
 const grenadeMap = {
     'Grenade_new': 'Grenade',
     'Grenade_new2': 'Impact Grenade',
@@ -272,7 +305,8 @@ const getItemProperties = async (item, parent = false) => {
             propertiesType: 'ItemPropertiesFoodDrink',
             energy: 0,
             hydration: 0,
-            units: item._props.MaxResource
+            units: item._props.MaxResource,
+            stimEffects: getStimEffects(item),
         };
         if (item._props.effects_health.Energy) {
             properties.energy = item._props.effects_health.Energy.value;
@@ -465,47 +499,14 @@ const getItemProperties = async (item, parent = false) => {
             properties.hydrationImpact = item._props.effects_health.Hydration.value;
         }
     } else if (item._parent === '5448f3a64bdc2d60728b456a') {
-        const effectMap = {
-            RemoveAllBloodLosses: 'Removeallbloodlosses'
-        };
         properties = {
             propertiesType: 'ItemPropertiesStim',
             useTime: item._props.medUseTime,
             cures: Object.keys(item._props.effects_damage).filter(status => {
                 return status !== 'RadExposure';
             }),
-            stimEffects: [],
+            stimEffects: getStimEffects(item),
         };
-        if (item._props.StimulatorBuffs && globals.config.Health.Effects.Stimulator.Buffs[item._props.StimulatorBuffs]) {
-            const buffs = globals.config.Health.Effects.Stimulator.Buffs[item._props.StimulatorBuffs];
-            for (const buff of buffs) {
-                let effectKey = effectMap[buff.BuffType] || buff.BuffType;
-                const effect = {
-                    type: locales.en.interface[effectKey],
-                    chance: buff.Chance,
-                    delay: buff.Delay,
-                    duration: buff.Duration,
-                    value: buff.Value,
-                    percent: !buff.AbsoluteValue,
-                    locale: {}
-                };
-                if (buff.SkillName) {
-                    effect.type = locales.en.interface.Skill;
-                    effect.skillName = locales.en.interface[buff.SkillName];
-                }
-                for (const code in locales) {
-                    effect.locale[code] = {
-                        type: locales[code].interface[effectKey],
-                    };
-                    if (buff.SkillName) {
-                        effect.locale[code].type = locales[code].interface.Skill;
-                        effect.locale[code].skillName = locales[code].interface[buff.SkillName];
-                    }
-                    if (!effect.locale[code].type) effect.locale[code].type = locales.en.interface[effectKey];//return Promise.reject(new Error(`No ${code} translation found for stim buff type ${buff.BuffType}`));
-                }
-                properties.stimEffects.push(effect);
-            }
-        }
     } else if (hasCategory(item, '543be5e94bdc2df1348b4568')) {
         properties = {
             propertiesType: 'ItemPropertiesKey',
