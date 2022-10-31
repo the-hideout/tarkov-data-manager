@@ -1,9 +1,8 @@
 const tarkovData = require('../modules/tarkov-data');
 const JobLogger = require('../modules/job-logger');
 const jobOutput = require('../modules/job-output');
-const { setLocales: setTranslationLocales, getTranslations } = require('./get-translation');
+const { setLocales, getTranslations } = require('./get-translation');
 
-let locales = false;
 let globals = false;
 let items = false;
 let presets = false;
@@ -17,15 +16,6 @@ const topCategories = [
     '5661632d4bdc2d903d8b456b', // Stackable item
     '566168634bdc2d144c8b456c', // Searchable item
 ];
-
-const setLocales = async (loc = false) => {
-    if (loc) {
-        locales = loc;
-    } else {
-        locales = await tarkovData.locales();
-    }
-    setTranslationLocales(locales);
-};
 
 const setGlobals = async (glob = false) => {
     if (glob) {
@@ -142,36 +132,29 @@ const getSlots = (item) => {
         {pattern: /CAMORA/, replacement: 'PATRON_IN_WEAPON'},
     ];
     return item._props.Slots.map(slot => {
+        let nameKey = slot._name.toUpperCase();
+        for (const rep of slotReplacements) {
+            nameKey = nameKey.replace(rep.pattern, rep.replacement);
+        }
+        const missingTranslations = [];
         const formattedSlot = {
             id: slot._id,
-            name: locales.en.interface[slot._name.toUpperCase()],
             nameId: slot._name,
             required: slot._required,
             filters: getFilterConstraints(item, slot),
-            locale: {}
+            locale: getTranslations({name: (lang, code) => {
+                if (lang.interface[nameKey]) {
+                    return lang.interface[nameKey].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
+                        return substr.toLowerCase();
+                    });
+                } else {
+                    missingTranslations.push(code);
+                    return nameKey.replace('MOD_', '').replace('_', ' ').replace(/(?<!^|\s)\p{Lu}/gu, substr => {
+                        return substr.toLowerCase();
+                    });
+                }
+            }}, logger),
         };
-        const missingTranslations = [];
-        let nameKey = formattedSlot.nameId.toUpperCase();
-        for (const code in locales) {
-            const lang = locales[code];
-            for (const rep of slotReplacements) {
-                nameKey = nameKey.replace(rep.pattern, rep.replacement);
-            }
-            if (lang.interface[nameKey]) {
-                formattedSlot.locale[code] = {
-                    name: lang.interface[nameKey].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
-                        return substr.toLowerCase();
-                    })
-                };
-            } else {
-                missingTranslations.push(code);
-                formattedSlot.locale[code] = {
-                    name: nameKey.replace('MOD_', '').replace('_', ' ').replace(/(?<!^|\s)\p{Lu}/gu, substr => {
-                        return substr.toLowerCase();
-                    })
-                };
-            }
-        }
         if (missingTranslations.length > 0) logger.warn(`Could not find ${missingTranslations.join(', ')} label for ${nameKey} slot of ${item._id}`);
         return formattedSlot;
     });
@@ -200,7 +183,7 @@ const getStimEffects = (item) => {
                     skillName: lang => {
                         return buff.SkillName ? lang.interface[buff.SkillName] : undefined;
                     }
-                }),
+                }, logger),
             };
             stimEffects.push(effect);
         }
@@ -216,7 +199,7 @@ const grenadeMap = {
     'grenade_smoke_m18_green': 'Smoke',
 };
 
-const getItemProperties = async (item, parent = false) => {
+const getItemProperties = async (item) => {
     let properties = null;
     if (item._parent === '5485a8684bdc2da71d8b4567') {
         // ammo
@@ -249,7 +232,6 @@ const getItemProperties = async (item, parent = false) => {
         }
     } else if (hasCategory(item, ['5448e54d4bdc2dcc718b4568', '5448e5284bdc2dcb718b4567'])) {
         // armor vests and tactical rigs
-        if (!locales) return Promise.reject(new Error('Must call setItemPropertiesLocales before getItemProperties'));
         properties = {};
         if (item._parent === '5448e54d4bdc2dcc718b4568') {
             properties.propertiesType = 'ItemPropertiesArmor';
@@ -269,19 +251,13 @@ const getItemProperties = async (item, parent = false) => {
                 speedPenalty: parseInt(item._props.speedPenaltyPercent) / 100,
                 turnPenalty: parseInt(item._props.mousePenalty) / 100,
                 ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
-                zones: item._props.armorZone.map(key => {
-                    return locales.en.interface[key];
-                }),
                 armor_material_id: item._props.ArmorMaterial,
-                locale: {}
+                locale: getTranslations({zones: lang => {
+                    return item._props.armorZone.map(key => {
+                        return lang.interface[key];
+                    });
+                }}, logger),
             };
-            for (const code in locales) {
-                properties.locale[code] = {
-                    zones: item._props.armorZone.map(key => {
-                        return locales[code].interface[key];
-                    })
-                };
-            }
         }
     } else if (item._parent === '5448e53e4bdc2d60728b4567') {
         properties = {
@@ -337,23 +313,17 @@ const getItemProperties = async (item, parent = false) => {
                 speedPenalty: parseInt(item._props.speedPenaltyPercent) / 100,
                 turnPenalty: parseInt(item._props.mousePenalty) / 100,
                 ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
-                headZones: item._props.headSegments.map(key => {
-                    return locales.en.interface[key];
-                }),
                 blindnessProtection: item._props.BlindnessProtection,
                 ricochetX: item._props.RicochetParams.x,
                 ricochetY: item._props.RicochetParams.y,
                 ricochetZ: item._props.RicochetParams.z,
                 armor_material_id: item._props.ArmorMaterial,
-                locale: {}
+                locale: getTranslations({headZones: lang => {
+                    return item._props.headSegments.map(key => {
+                        return lang.interface[key];
+                    });
+                }}, logger),
             };
-            for (const code in locales) {
-                properties.locale[code] = {
-                    headZones: item._props.headSegments.map(key => {
-                        return locales[code].interface[key];
-                    })
-                };
-            }
             if (hasCategory(item, ['5a341c4086f77401f2541505', '5a341c4686f77469e155819e'])) {
                 properties.propertiesType = 'ItemPropertiesHelmet';
                 properties.deafening = item._props.DeafStrength;
@@ -385,9 +355,6 @@ const getItemProperties = async (item, parent = false) => {
             centerOfImpact: item._props.CenterOfImpact,
             deviationCurve: item._props.DeviationCurve,
             deviationMax: item._props.DeviationMax,
-            fireModes: item._props.weapFireType.map(mode => {
-                return locales.en.interface[mode];
-            }),
             allowedAmmo: item._props.Chambers[0]?._props.filters[0].Filter.filter(id => {
                 return itemIds.includes(id) && !disabledItemIds.includes(id);
             }) || [],
@@ -397,15 +364,12 @@ const getItemProperties = async (item, parent = false) => {
             }).reduce((previousValue, currentValue) => {
                 return currentValue.id;
             }, null),
-            locale: {}
+            locale: getTranslations({fireModes: lang => {
+                return item._props.weapFireType.map(mode => {
+                    return lang.interface[mode];
+                });
+            }}, logger),
         };
-        for (const code in locales) {
-            properties.locale[code] = {
-                fireModes: item._props.weapFireType.map(mode => {
-                    return locales[code].interface[mode];
-                }),
-            };
-        }
     } else if (item._parent === '5a2c3a9486f774688b05e574') {
         // night vision
         properties = {

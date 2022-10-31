@@ -340,7 +340,7 @@ module.exports = async () => {
                 itemData[key].bsgCategoryId = bsgItems[key]._parent;
                 itemData[key].discardLimit = bsgItems[key]._props.DiscardLimit;
                 itemData[key].backgroundColor = bsgItems[key]._props.BackgroundColor;
-                itemData[key].properties = await getSpecialItemProperties(bsgItems[key], bsgItems[bsgItems[key]._parent]);
+                itemData[key].properties = await getSpecialItemProperties(bsgItems[key]);
                 if (value.types.includes('gun')) {
                     itemData[key].properties.presets = Object.values(presets).filter(preset => preset.baseId === key).map(preset => preset.id);
 
