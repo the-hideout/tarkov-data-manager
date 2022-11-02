@@ -59,7 +59,7 @@ module.exports = async function(externalLogger) {
                     name: traderData.name,
                     level: i+1,
                     requiredPlayerLevel: parseInt(level.minLevel),
-                    requiredReputation: parseInt(level.minStanding),
+                    requiredReputation: parseFloat(level.minStanding),
                     requiredCommerce: parseInt(level.minSalesSum),
                     payRate: buyCoef ? (100 - buyCoef) / 100 : 0.0001,
                     insuranceRate: null,

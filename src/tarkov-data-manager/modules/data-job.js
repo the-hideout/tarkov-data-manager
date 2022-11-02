@@ -30,23 +30,6 @@ class DataJob {
             await jobComplete();
         }
     }
-
-    getTranslation(code, translateFunction) {
-        let lang = this.data.locales[code];
-        if (!lang) lang = locales.en;
-        try {
-            translateFunction(lang);
-        } catch (error) {
-            if (error.message.includes('Cannot read properties of undefined') && code !== 'en') {
-                const attPattern = /\(reading '(.+)'\)/;
-                const attMatch = error.message.match(attPattern)[1];
-                this.logger.error(`Could not find attribute ${attMatch} for translation ${code}; defaulting to en`);
-                translateFunction(this.data.locales.en);
-            } else {
-                throw error;
-            }
-        }
-    }
 }
 
 module.exports = DataJob;

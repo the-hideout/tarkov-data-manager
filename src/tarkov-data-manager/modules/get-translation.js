@@ -1,33 +1,30 @@
-const { promises } = require("form-data");
-
 let locales;
 
-const getTranslation = (locales, code, translateFunction, logger) => {
+const getTranslation = (langCode, translationTarget, logger, errorOnNotFound = true) => {
     if (!locales) {
-        return Promise.reject(new Error('Must call setLocales before  getTranslation'));
+        return Promise.reject(new Error('Must call setLocales before getTranslation'));
     }
-    let lang = locales[code];
-    if (!lang) lang = locales.en;
-    try {
-        return translateFunction(lang);
-    } catch (error) {
-        if (error.message.includes('Cannot read properties of undefined') && code !== 'en') {
-            const attPattern = /\(reading '(.+)'\)/;
-            const attMatch = error.message.match(attPattern)[1];
-            if (logger) {
-                logger.error(`Could not find attribute ${attMatch} for translation ${code}; defaulting to en`);
-            } else {
-                console.log(`Could not find attribute ${attMatch} for translation ${code}; defaulting to en`);
+    if (Array.isArray(translationTarget)) {
+        return translatePath(langCode, translationTarget, logger, errorOnNotFound);
+    } else if (typeof translationTarget === 'function') {
+        try {
+            return translationTarget(locales[langCode], langCode);
+        } catch (error) {
+            if (langCode !== 'en') {
+                return translationTarget(locales['en'], logger);
+            } else if (errorOnNotFound) {
+                throw error;
             }
-            return translateFunction(locales.en);
-        } else {
-            throw error;
         }
+    } else {
+        return Promise.reject(new Error(`Invalid translation target type (${typeof translationTarget}); expected array or function`));
     }
 };
 
 const translatePath = (langCode, path, logger, errorOnNotFound = true) => {
-    if (!locales) throw new Error('You must call setLocales before translatePath');
+    if (!locales) {
+        throw new Error('Must call setLocales before translatePath');
+    }
     if (typeof path === 'string') path = [path];
     let translation = locales[langCode];
     if (!translation) {
@@ -61,7 +58,7 @@ const translatePath = (langCode, path, logger, errorOnNotFound = true) => {
 
 const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
     if (!locales) {
-        return Promise.reject(new Error('You must call setLocales before getTranslations'));
+        return Promise.reject(new Error('Must call setLocales before getTranslations'));
     }
     const translation = {};
     for (const langCode in locales) {
@@ -71,7 +68,7 @@ const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
                 translation[langCode][fieldName] = translatePath(langCode, translationTarget[fieldName], logger, errorOnNotFound);
             } else if (typeof translationTarget[fieldName] === 'function') {
                 try {
-                    translation[langCode][fieldName] = translationTarget[fieldName](locales[langCode], logger);
+                    translation[langCode][fieldName] = translationTarget[fieldName](locales[langCode], langCode);
                 } catch (error) {
                     if (langCode !== 'en') {
                         translation[langCode][fieldName] = translationTarget[fieldName](locales['en'], logger);

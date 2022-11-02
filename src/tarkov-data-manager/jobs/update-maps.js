@@ -1,6 +1,3 @@
-const got = require('got');
-const cheerio = require('cheerio');
-
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');

@@ -16,12 +16,13 @@ module.exports = async (externalLogger = false) => {
     logger = externalLogger || new JobLogger('update-presets');
     try {
         logger.log('Updating presets');
-        const presets = (await tarkovData.globals())['ItemPresets'];
-        const items = await tarkovData.items();
-        const en = await tarkovData.locale('en');
-        const locales = await tarkovData.locales();
-        const credits = await tarkovData.credits();
-        const localItems = await remoteData.get();
+        const [presets, items, locales, credits, localItems] = await Promise.all([
+            tarkovData.globals().then(glob => glob['ItemPresets']),
+            tarkovData.items(),
+            tarkovData.locales(),
+            tarkovData.credits(),
+            remoteData.get(),
+        ]);
 
         setLocales(locales);
 
@@ -46,12 +47,12 @@ module.exports = async (externalLogger = false) => {
             }
             const firstItem = {
                 id: baseItem._id,
-                name: en.templates[baseItem._id].Name
+                name: locales.en.templates[baseItem._id].Name
             };
             const presetData = {
                 id: presetId,
-                name: en.templates[baseItem._id].Name,
-                shortName: en.templates[baseItem._id].ShortName,
+                name: locales.en.templates[baseItem._id].Name,
+                shortName: locales.en.templates[baseItem._id].ShortName,
                 //description: en.templates[baseItem._id].Description,
                 normalized_name: false,
                 baseId: firstItem.id,
@@ -78,7 +79,7 @@ module.exports = async (externalLogger = false) => {
                 const partData = {
                     item: {
                         id: part._tpl,
-                        name: en.templates[part._tpl].Name,
+                        name: locales.en.templates[part._tpl].Name,
                     },
                     count: 1
                 };
@@ -93,9 +94,9 @@ module.exports = async (externalLogger = false) => {
                 }
             }
             presetData.weight = Math.round(presetData.weight * 100) / 100;
-            if (preset._changeWeaponName && en.preset[presetId] && en.preset[presetId].Name) {
-                presetData.name += ' '+en.preset[presetId].Name;
-                presetData.shortName += ' '+en.preset[presetId].Name;
+            if (preset._changeWeaponName && locales.en.preset[presetId] && locales.en.preset[presetId].Name) {
+                presetData.name += ' '+locales.en.preset[presetId].Name;
+                presetData.shortName += ' '+locales.en.preset[presetId].Name;
                 presetData.locale = getTranslations({
                     name: (lang) => {
                         return lang.templates[firstItem.id].Name + ' ' + lang.preset[presetId].Name;
@@ -261,7 +262,7 @@ module.exports = async (externalLogger = false) => {
             if (baseName !== preset.name) {
                 continue;
             }
-            preset.name = preset.name + ' ' + en.interface.Default;
+            preset.name = preset.name + ' ' + locales.en.interface.Default;
             preset.normalized_name = normalizeName(preset.name);
             preset.locale = getTranslations({
                 name: (lang) => {
