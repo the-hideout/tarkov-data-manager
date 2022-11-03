@@ -220,6 +220,12 @@
                 ]
             }
         ],
+        "taskRequirementsRemoved": [
+            {
+                "id": "597a0e5786f77426d66c0636",
+                "name": "Chemical - Part 3"
+            }
+        ],
         "objectivesRemoved": [
             "60e827a20c492412897c688f",
             "60e827a20c492412897c688g",
