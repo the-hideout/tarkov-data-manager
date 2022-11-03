@@ -396,6 +396,20 @@
             ]
         }
     },
+    "61904daa7d0d857927447b9c": {
+        "name": "The Hermit",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5d25cf2686f77443e75488d4",
+                    "name": "The Survivalist Path - Tough Guy",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
     "5dc53acb86f77469c740c893": {
         "name": "The Stylish One",
         "propertiesChanged" : {
