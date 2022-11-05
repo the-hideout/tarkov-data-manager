@@ -17,6 +17,7 @@ const AVAILABLE_TYPES = [
     'meds',
     'mods',
     'no-flea',
+    'only-flea',
     'pistol-grip',
     'preset',
     'provisions',

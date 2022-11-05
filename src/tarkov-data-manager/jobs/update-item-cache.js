@@ -272,7 +272,7 @@ module.exports = async () => {
                 shortName: value.short_name,
                 normalizedName: value.normalized_name,
                 lastOfferCount: value.last_offer_count,
-                types: value.types.map(type => dashToCamelCase(type)),
+                types: value.types.map(type => dashToCamelCase(type)).filter(type => type !== 'onlyFlea'),
                 wikiLink: value.wiki_link,
                 link: `https://tarkov.dev/item/${value.normalizedName}`,
                 iconLink: value.icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg',
