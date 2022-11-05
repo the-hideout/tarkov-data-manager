@@ -194,6 +194,11 @@ module.exports = async () => {
             return results;
         });
 
+        const lastWipe = await query('SELECT start_date FROM wipe ORDER BY start_date DESC LIMIT 1');
+        if (lastWipe.length < 1) {
+            lastWipe.push({start_date: 0});
+        }
+
         logger.time('last-low-price-query');
         const lastKnownPriceDataPromise = query(`
             SELECT
@@ -209,7 +214,7 @@ module.exports = async () => {
                 FROM
                     price_data
                 WHERE
-                    timestamp > '2022-06-29 01:00:00'
+                    timestamp > ?
                 GROUP BY
                     item_id
             ) b
@@ -217,7 +222,8 @@ module.exports = async () => {
                 a.timestamp = b.timestamp
             GROUP BY
                 item_id, timestamp, price;
-        `).then(results => {
+        `, [lastWipe[0].start_date]).then(results => {
+            console.log(results.length)
             logger.timeEnd('last-low-price-query');
             return results;
         });

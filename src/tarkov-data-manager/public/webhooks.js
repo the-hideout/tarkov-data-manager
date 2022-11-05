@@ -63,7 +63,6 @@ $(document).ready( function () {
             $('.edit-webhook').click(function (event) {
                 let target = $(event.target);
                 if (target[0].nodeName === 'I') target = target.parent();
-                console.log(target);
                 $('#modal-edit-webhook .name').val(target.data('name'));
                 $('#modal-edit-webhook .url').val(target.data('url'));
                 const form = $('#modal-edit-webhook').find('form').first();

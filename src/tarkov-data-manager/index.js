@@ -248,6 +248,7 @@ const getHeader = (req, options) => {
                         <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
                         <li class="${req.url === '/webhooks' ? 'active' : ''}"><a href="/webhooks">Webhooks</a></li>
                         <li class="${req.url === '/crons' ? 'active' : ''}"><a href="/crons">Crons</a></li>
+                        <li class="${req.url === '/wipes' ? 'active' : ''}"><a href="/wipes">Wipes</a></li>
                         <!--li class="${req.url === '/trader-prices' ? 'active' : ''}"><a href="/trader-prices">Trader Prices</a></li-->
                     </ul>
                 </div>
@@ -258,6 +259,7 @@ const getHeader = (req, options) => {
                 <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
                 <li class="${req.url === '/webhooks' ? 'active' : ''}"><a href="/webhooks">Webhooks</a></li>
                 <li class="${req.url === '/crons' ? 'active' : ''}"><a href="/crons">Crons</a></li>
+                <li class="${req.url === '/wipes' ? 'active' : ''}"><a href="/crons">Wipes</a></li>
                 <!--li class="${req.url === '/trader-prices' ? 'active' : ''}"><a href="/trader-prices">Trader Prices</a></li-->
             </ul>
         `;
@@ -1369,6 +1371,133 @@ app.get('/crons/run/:name', async (req, res) => {
         response.success = false;
         response.message = `Error running ${req.params.name} job`;
         response.errors.push(error.toString());
+    }
+    res.json(response);
+});
+
+app.get('/wipes', async (req, res) => {
+    res.send(`${getHeader(req, {include: 'datatables'})}
+        <script src="/wipes.js"></script>
+        <div class="row">
+            <div class="col s10 offset-s1">
+                <a href="#" class="waves-effect waves-light btn add-wipe tooltipped" data-tooltip="Add wipe"><i class="material-icons">add</i></a>
+                <table class="highlight main">
+                    <thead>
+                        <tr>
+                            <th>
+                                Start
+                            </th>
+                            <th>
+                                Patch
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="modal-edit-wipe" class="modal modal-fixed-footer">
+            <div class="modal-content">
+                <h4></h4>
+                <div>
+                    Warning: Queries use the date of the latest wipe as as a starting cutoff. Adding a new wipe can remove previous prices from the API.
+                </div>
+                <div class="row">
+                    <form class="col s12 post-url" method="post" action="/wipes">
+                        <div class="row">
+                            <div class="input-field">
+                                <input value="" id="start_date" type="text" class="validate start_date" name="start_date">
+                                <label for="start_date">Start Date</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field">
+                                <input value="" id="version" type="text" class="validate version" name="version">
+                                <label for="version">Version</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="waves-effect waves-green btn edit-wipe-save">Save</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+            </div>
+        </div>
+    ${getFooter(req)}`);
+});
+
+app.get('/wipes/get', async (req, res) => {
+    const wipes = await query('SELECT * FROM wipe');
+    res.json(wipes);
+});
+
+app.post('/wipes', async (req, res) => {
+    //add
+    const response = {message: 'No changes made.', errors: []};
+    if (!req.body.start_date) {
+        response.errors.push('Start date cannot be blank');
+    }
+    if (!req.body.version) {
+        response.errors.push('Version cannot be blank');
+    }
+    if (response.errors.length > 0) {
+        res.json(response);
+        return;
+    }
+    try {
+        const wipeCheck = await query('SELECT * FROM wipe WHERE start_date=? OR version=?', [req.body.start_date, req.body.version]);
+        for (const wipe of wipeCheck) {
+            if (wipe.start_date === req.body.start_date) {
+                response.errors.push(`Wipe with start date ${req.body.start_date} already exists`);
+            }
+            if (wipe.version === req.body.version) {
+                response.errors.push(`Wipe with version ${req.body.version} already exists`);
+            }
+        }
+        if (wipeCheck.length > 0) {
+            res.json(response);
+            return;
+        }
+    } catch (error) {
+        response.errors.push(error.message);
+        res.json(response);
+        return;
+    }
+    try {
+        console.log(`creating wipe: ${req.body.start_date} ${req.body.version}`);
+        await query('INSERT INTO wipe (start_date, version) VALUES (?, ?)', [req.body.start_date, req.body.version]);
+        response.message = `Created wipe ${req.body.start_date} ${req.body.version}`;
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.json(response);
+});
+
+app.put('/wipes/:id', async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        await query('UPDATE wipe SET start_date=?, version=? WHERE id=?', [req.body.start_date, req.body.version, req.params.id]);
+        response.message = `Wipe updated to ${req.body.start_date} (${req.body.version})`;
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.send(response);
+});
+
+app.delete('/wipes/:id', async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        let deleteResult = await query('DELETE FROM wipe WHERE id=?', [req.params.id]);
+        if (deleteResult.affectedRows > 0) {
+            console.log(`Deleted wipe ${req.params.id}`);
+            response.message = `Wipe deleted`;
+        } else {
+            response.errors.push(`Wipe ${req.params.id} not found`);
+        }
+    } catch (error) {
+        response.errors.push(error.message);
     }
     res.json(response);
 });
