@@ -193,7 +193,9 @@ module.exports = async () => {
             SELECT
                 *
             FROM
-                trader_items;
+                trader_items
+            WHERE
+                NOT EXISTS (SELECT type FROM types WHERE trader_items.item_id = types.item_id AND type = 'only-flea');
         `);
 
         const traderPriceData = await query(`
