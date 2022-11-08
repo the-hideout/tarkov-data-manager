@@ -280,7 +280,7 @@ module.exports = async () => {
                 lastOfferCount: value.last_offer_count,
                 types: value.types.map(type => dashToCamelCase(type)).filter(type => type !== 'onlyFlea'),
                 wikiLink: value.wiki_link,
-                link: `https://tarkov.dev/item/${value.normalizedName}`,
+                link: `https://tarkov.dev/item/${value.normalized_name}`,
                 iconLink: value.icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg',
                 gridImageLink: value.grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg',
                 baseImageLink: value.base_image_link || 'https://assets.tarkov.dev/unknown-item-base-image.png',
