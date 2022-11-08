@@ -223,7 +223,6 @@ module.exports = async () => {
             GROUP BY
                 item_id, timestamp, price;
         `, [lastWipe[0].start_date]).then(results => {
-            console.log(results.length)
             logger.timeEnd('last-low-price-query');
             return results;
         });
