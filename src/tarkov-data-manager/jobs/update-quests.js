@@ -940,6 +940,11 @@ module.exports = async (externalLogger = false) => {
                         name: en.quest[req._props.target].name,
                         status: []
                     };
+                    if (changedQuests[questData.id] && changedQuests[questData.id].taskRequirementsRemoved) {
+                        if (changedQuests[questData.id].taskRequirementsRemoved.some(req => req.id === questReq.task)) {
+                            continue;
+                        }
+                    }
                     for (const statusCode of req._props.status) {
                         if (!questStatusMap[statusCode]) {
                             logger.warn(`Unrecognized quest status "${statusCode}" for quest requirement ${en.quest[req._props.target].name} ${req._props.target} of ${questData.name}`);

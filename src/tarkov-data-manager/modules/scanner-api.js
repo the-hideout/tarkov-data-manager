@@ -296,6 +296,7 @@ const getItems = async(options) => {
             WHERE ((trader_checkout_scanner_id IS NULL OR trader_checkout_scanner_id = ?) AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
+                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'only-flea') AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${lastScanCondition} )
             ORDER BY trader_last_scan, id
             LIMIT ?

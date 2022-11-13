@@ -220,6 +220,12 @@
                 ]
             }
         ],
+        "taskRequirementsRemoved": [
+            {
+                "id": "597a0e5786f77426d66c0636",
+                "name": "Chemical - Part 3"
+            }
+        ],
         "objectivesRemoved": [
             "60e827a20c492412897c688f",
             "60e827a20c492412897c688g",
@@ -391,6 +397,20 @@
                     "status": [
                         "complete",
                         "failed"
+                    ]
+                }
+            ]
+        }
+    },
+    "61904daa7d0d857927447b9c": {
+        "name": "The Hermit",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5d25cf2686f77443e75488d4",
+                    "name": "The Survivalist Path - Tough Guy",
+                    "status": [
+                        "complete"
                     ]
                 }
             ]
