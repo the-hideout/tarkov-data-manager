@@ -452,7 +452,7 @@ module.exports = async (externalLogger = false) => {
             responseType: 'json',
             resolveBodyOnly: true,
         });
-        const data = await tarkovData.quests();
+        const data = await tarkovData.quests(true);
         items = await tarkovData.items();
         locales = await tarkovData.locales();
         en = locales.en;
@@ -508,7 +508,7 @@ module.exports = async (externalLogger = false) => {
         for (const questId in data) {
             if (removedQuests[questId]) continue;
             const quest = data[questId];
-            logger.log(`Processing ${en.quest[questId].name} ${questId}`);
+            logger.log(`Processing ${en.quest[questId]?.name} ${questId}`);
             /*if (!en.locations[quest.location]) {
                 logger.warn(`Could not find location name for ${quest.location} of ${en.quest[questId].name}`);
                 continue;
@@ -521,7 +521,7 @@ module.exports = async (externalLogger = false) => {
             }
             const questData = {
                 id: questId,
-                name: en.quest[questId].name,
+                name: en.quest[questId]?.name,
                 trader: quest.traderId,
                 traderName: en.trading[quest.traderId].Nickname,
                 location_id: locationId,
