@@ -7,7 +7,7 @@ const got = require('got');
 const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/';
 
 const sptLangs = {
-    //'en': 'en',
+    'en': 'en',
     'es': 'es',
     'de': 'ge',
     'fr': 'fr',
@@ -17,7 +17,7 @@ const sptLangs = {
     'ja': 'jp',
     'pl': 'pl',
     'pt': 'po',
-    //'ru': 'ru',
+    'ru': 'ru',
     'sk': 'sk',
     'tr': 'tu',
     'zh': 'ch',
