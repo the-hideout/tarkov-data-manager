@@ -64,7 +64,7 @@ const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
     for (const langCode in locales) {
         translation[langCode] = {};
         for (const fieldName in translationTarget) {
-            if (Array.isArray(translationTarget[fieldName])) {
+            if (Array.isArray(translationTarget[fieldName]) || typeof translationTarget[fieldName] === 'string') {
                 translation[langCode][fieldName] = translatePath(langCode, translationTarget[fieldName], logger, errorOnNotFound);
             } else if (typeof translationTarget[fieldName] === 'function') {
                 try {

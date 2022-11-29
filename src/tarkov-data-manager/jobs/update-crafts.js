@@ -26,14 +26,14 @@ module.exports = async function() {
             const craft = json[id];
             let station = areas.find(area => area.areaType === craft.areaType);
             if (!station) {
-                logger.warn(`${en.interface[`hideout_area_${craft.areaType}_name`]} is not an active station`);
+                logger.warn(`${en[`hideout_area_${craft.areaType}_name`]} is not an active station`);
                 continue;
             }
-            if (!en.templates[craft.endProduct]) {
+            if (!en[`${craft.endProduct} Name`]) {
                 logger.warn(`No end product item with id ${craft.endProduct} found in locale_en.json`);
                 continue;
             }
-            if (!en.interface[`hideout_area_${craft.areaType}_name`]) {
+            if (!en[`hideout_area_${craft.areaType}_name`]) {
                 logger.warn(`No hideout station of type ${craft.areaType} found in locale_en.json`);
                 continue;
             }
@@ -45,14 +45,14 @@ module.exports = async function() {
                 id: id,
                 requiredItems: [],
                 rewardItems: [{
-                    name: en.templates[craft.endProduct].Name,
+                    name: en[`${craft.endProduct} Name`],
                     item: craft.endProduct,
                     count: craft.count,
                     attributes: []
                 }],
                 station: station.id,
                 station_id: station.id,
-                sourceName: en.interface[`hideout_area_${craft.areaType}_name`],
+                sourceName: en[`hideout_area_${craft.areaType}_name`],
                 duration: craft.productionTime,
                 requirements: []
             };
@@ -68,7 +68,7 @@ module.exports = async function() {
                     craftData.level = req.requiredLevel;
                     level = req.requiredLevel;
                 } else if (req.type === 'Resource') {
-                    if (!en.templates[req.templateId]) {
+                    if (!en[`${req.templateId} Name`]) {
                         logger.warn(`No requirement resource with id ${req.templateId} found in locale_en.json`);
                         continue;
                     }
@@ -81,18 +81,18 @@ module.exports = async function() {
                         continue;
                     }
                     craftData.requiredItems.push({
-                        name: en.templates[req.templateId].Name,
+                        name: en[`${req.templateId} Name`],
                         item: req.templateId,
                         count: req.resource / items[req.templateId]._props.Resource,
                         attributes: []
                     });
                 } else if (req.type === 'Item') {
-                    if (!en.templates[req.templateId]) {
+                    if (!en[`${req.templateId} Name`]) {
                         logger.warn(`No requirement item with id ${req.templateId} found in locale_en.json`);
                         continue;
                     }
                     const reqData = {
-                        name: en.templates[req.templateId].Name,
+                        name: en[`${req.templateId} Name`],
                         item: req.templateId,
                         count: req.count,
                         attributes: []
@@ -105,12 +105,12 @@ module.exports = async function() {
                     }
                     craftData.requiredItems.push(reqData);
                 } else if (req.type == 'Tool') {
-                    if (!en.templates[req.templateId]) {
+                    if (!en[`${req.templateId} Name`]) {
                         logger.warn(`No requirement tool with id ${req.templateId} found in locale_en.json`);
                         continue;
                     }
                     const reqData = {
-                        name: en.templates[req.templateId].Name,
+                        name: en[`${req.templateId} Name`],
                         item: req.templateId,
                         count: 1,
                         attributes: []
@@ -130,7 +130,7 @@ module.exports = async function() {
                 });
                 craftData.level = 1;
             }
-            craftData.source = `${en.interface[`hideout_area_${craft.areaType}_name`]} level ${craftData.level}`;
+            craftData.source = `${en[`hideout_area_${craft.areaType}_name`]} level ${craftData.level}`;
             crafts.data.push(craftData);
         }
         logger.log(`Processed ${Object.keys(json).length} crafts`);

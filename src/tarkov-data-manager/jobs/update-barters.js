@@ -18,7 +18,6 @@ let logger;
 let trades;
 let oldTasks;
 let tasks;
-let en;
 let $;
 let gunVariants = {};
 
@@ -368,13 +367,11 @@ module.exports = async function() {
         const oldTasksPromise = got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
             responseType: 'json',
         });
-        const enPromise = tarkovData.locale('en');
-        const allResults = await Promise.all([itemsPromise, wikiPromise, tasksPromise, enPromise, oldTasksPromise]);
+        const allResults = await Promise.all([itemsPromise, wikiPromise, tasksPromise, oldTasksPromise]);
         const results = allResults[0];
         const wikiResponse = allResults[1];
         tasks = allResults[2];
-        en = allResults[3];
-        oldTasks = allResults[4].body;
+        oldTasks = allResults[3].body;
         presetData = await jobOutput('update-presets', './cache/presets.json', logger);//JSON.parse(fs.readFileSync('./cache/presets.json'));
         $ = cheerio.load(wikiResponse.body);
         trades = {
@@ -450,5 +447,5 @@ module.exports = async function() {
     // Possibility to POST to a Discord webhook here with cron status details
     logger.end();
     await jobComplete();
-    itemData = trades = oldTasks = tasks = en = $ = logger = false;
+    itemData = trades = oldTasks = tasks = $ = logger = false;
 };

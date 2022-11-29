@@ -143,8 +143,8 @@ const getSlots = (item) => {
             required: slot._required,
             filters: getFilterConstraints(item, slot),
             locale: getTranslations({name: (lang, code) => {
-                if (lang.interface[nameKey]) {
-                    return lang.interface[nameKey].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
+                if (lang[nameKey]) {
+                    return lang[nameKey].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
                         return substr.toLowerCase();
                     });
                 } else {
@@ -178,10 +178,10 @@ const getStimEffects = (item) => {
                 percent: !buff.AbsoluteValue,
                 locale: getTranslations({
                     type: lang => {
-                        return buff.SkillName ? lang.interface.Skill : lang.interface[effectKey];
+                        return buff.SkillName ? lang.Skill : lang[effectKey];
                     },
                     skillName: lang => {
-                        return buff.SkillName ? lang.interface[buff.SkillName] : undefined;
+                        return buff.SkillName ? lang[buff.SkillName] : undefined;
                     }
                 }, logger),
             };
@@ -254,7 +254,7 @@ const getItemProperties = async (item) => {
                 armor_material_id: item._props.ArmorMaterial,
                 locale: getTranslations({zones: lang => {
                     return item._props.armorZone.map(key => {
-                        return lang.interface[key];
+                        return lang[key];
                     });
                 }}, logger),
             };
@@ -320,7 +320,7 @@ const getItemProperties = async (item) => {
                 armor_material_id: item._props.ArmorMaterial,
                 locale: getTranslations({headZones: lang => {
                     return item._props.headSegments.map(key => {
-                        return lang.interface[key];
+                        return lang[key];
                     });
                 }}, logger),
             };
@@ -366,7 +366,7 @@ const getItemProperties = async (item) => {
             }, null),
             locale: getTranslations({fireModes: lang => {
                 return item._props.weapFireType.map(mode => {
-                    return lang.interface[mode];
+                    return lang[mode];
                 });
             }}, logger),
         };

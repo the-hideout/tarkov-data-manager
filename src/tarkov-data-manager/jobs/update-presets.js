@@ -47,12 +47,12 @@ module.exports = async (externalLogger = false) => {
             }
             const firstItem = {
                 id: baseItem._id,
-                name: locales.en.templates[baseItem._id].Name
+                name: locales.en[`${baseItem._id} Name`]
             };
             const presetData = {
                 id: presetId,
-                name: locales.en.templates[baseItem._id].Name,
-                shortName: locales.en.templates[baseItem._id].ShortName,
+                name: locales.en[`${baseItem._id} Name`],
+                shortName: locales.en[`${baseItem._id} ShortName`],
                 //description: en.templates[baseItem._id].Description,
                 normalized_name: false,
                 baseId: firstItem.id,
@@ -71,15 +71,15 @@ module.exports = async (externalLogger = false) => {
                 locale: {}
             }
             presetData.locale = getTranslations({
-                name: ['templates', baseItem._id, 'Name'],
-                shortName: ['templates', baseItem._id, 'ShortName']
+                name: `${baseItem._id} Name`,
+                shortName: `${baseItem._id} ShortName`
             }, logger);
             for (let i = 1; i < preset._items.length; i++) {
                 const part = preset._items[i];
                 const partData = {
                     item: {
                         id: part._tpl,
-                        name: locales.en.templates[part._tpl].Name,
+                        name: locales.en[`${part._tpl} Name`],
                     },
                     count: 1
                 };
@@ -94,15 +94,15 @@ module.exports = async (externalLogger = false) => {
                 }
             }
             presetData.weight = Math.round(presetData.weight * 100) / 100;
-            if (preset._changeWeaponName && locales.en.preset[presetId] && locales.en.preset[presetId].Name) {
-                presetData.name += ' '+locales.en.preset[presetId].Name;
-                presetData.shortName += ' '+locales.en.preset[presetId].Name;
+            if (preset._changeWeaponName && locales.en[presetId]) {
+                presetData.name += ' '+locales.en[presetId];
+                presetData.shortName += ' '+locales.en[presetId];
                 presetData.locale = getTranslations({
                     name: (lang) => {
-                        return lang.templates[firstItem.id].Name + ' ' + lang.preset[presetId].Name;
+                        return lang[`${firstItem.id} Name`] + ' ' + lang[presetId];
                     },
                     shortName: (lang) => {
-                        return lang.templates[firstItem.id].ShortName + ' ' + lang.preset[presetId].Name;
+                        return lang[`${firstItem.id} ShortName`] + ' ' + lang[presetId];
                     }
                 }, logger);
             }
@@ -165,7 +165,7 @@ module.exports = async (externalLogger = false) => {
                             appendName = appendName[key];
                         }
                     }
-                    return lang.templates[baseItem._id].Name + ' ' + appendName;
+                    return lang[`${baseItem._id} Name`] + ' ' + appendName;
                 },
                 shortName: (lang) => {
                     let appendName = presetData.appendName;
@@ -175,7 +175,7 @@ module.exports = async (externalLogger = false) => {
                             appendName = appendName[key];
                         }
                     }
-                    return lang.templates[baseItem._id].ShortName + ' ' + appendName;
+                    return lang[`${baseItem._id} ShortName`] + ' ' + appendName;
                 }
             }, logger);
             presetData.name = presetData.locale.en.name;
@@ -188,7 +188,7 @@ module.exports = async (externalLogger = false) => {
         // add dog tag preset
         const bearTag = items['59f32bb586f774757e1e8442'];
         const getDogTagName = lang => {
-            return lang.templates[bearTag._id].Name.replace(lang.templates['59f32bb586f774757e1e8442'].ShortName, '').trim().replace(/^\p{Ll}/gu, substr => {
+            return lang[`${bearTag._id} Name`].replace(lang['59f32bb586f774757e1e8442 ShortName'], '').trim().replace(/^\p{Ll}/gu, substr => {
                 return substr.toUpperCase();
             });
         };
@@ -262,14 +262,14 @@ module.exports = async (externalLogger = false) => {
             if (baseName !== preset.name) {
                 continue;
             }
-            preset.name = preset.name + ' ' + locales.en.interface.Default;
+            preset.name = preset.name + ' ' + locales.en.Default;
             preset.normalized_name = normalizeName(preset.name);
             preset.locale = getTranslations({
                 name: (lang) => {
-                    return lang.templates[preset.baseId].Name + ' ' + lang.interface.Default;
+                    return lang[`${preset.baseId} Name`] + ' ' + lang.Default;
                 },
                 shortName: (lang) => {
-                    return lang.templates[preset.baseId].ShortName + ' ' + lang.interface.Default;
+                    return lang[`${preset.baseId} ShortName`] + ' ' + lang.Default;
                 }
             }, logger);
         }

@@ -45,10 +45,8 @@ module.exports = async (externalLogger) => {
             let bgColor = localItem.properties.backgroundColor;
             if (item) {
                 name = item._props.Name.toString().trim();
-                if (en.templates[itemId]) {
-                    name = en.templates[itemId].Name.toString().trim();
-                    shortname = en.templates[itemId].ShortName.toString().trim();
-                }
+                name = en[`${itemId} Name`].toString().trim();
+                shortname = en[`${itemId} ShortName`].toString().trim();
                 bgColor = item._props.BackgroundColor;
             } else if (presets[itemId]) {
                 name = presets[itemId].name;

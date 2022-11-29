@@ -10,7 +10,7 @@ module.exports = async (externalLogger) => {
         logger.time('lang-download');
         await Promise.all([
             tarkovBot.locale('ru', true, logger),
-            spt.locales(true),
+            //spt.locales(true),
         ]);
         logger.timeEnd('lang-download');
         logger.success('Successfully downloaded data from Tarkov-Bot and SPT');

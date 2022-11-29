@@ -34,17 +34,17 @@ module.exports = async () => {
             if (stationId === '5df8a81f8f77747fcf5f5702') continue;
             
             const station = data[stationId];
-            if (!en.interface[`hideout_area_${station.type}_name`]) {
+            if (!en[`hideout_area_${station.type}_name`]) {
                 logger.warn(`No hideout station of type ${station.type} found in locale_en.json`);
                 continue;
             }
             const stationData = {
                 id: station._id,
-                name: en.interface[`hideout_area_${station.type}_name`],
-                normalizedName: normalizeName(en.interface[`hideout_area_${station.type}_name`]),
+                name: en[`hideout_area_${station.type}_name`],
+                normalizedName: normalizeName(en[`hideout_area_${station.type}_name`]),
                 areaType: station.type,
                 levels: [],
-                locale: getTranslations({name: ['interface', `hideout_area_${station.type}_name`]}, logger),
+                locale: getTranslations({name: `hideout_area_${station.type}_name`}, logger),
             };
             if (!station.enabled) {
                 logger.warn(`Hideout station ${stationData.name} is disabled`);
@@ -65,7 +65,7 @@ module.exports = async () => {
                     logger.warn(`No stage found for ${stationData.name} level ${i}`);
                     continue;
                 }
-                if (!en.interface[`hideout_area_${station.type}_stage_${i}_description`]) {
+                if (!en[`hideout_area_${station.type}_stage_${i}_description`]) {
                     logger.warn(`No stage ${i} description found for ${stationData.name}`);
                 }
                 const stage = station.stages[String(i)];
@@ -77,7 +77,7 @@ module.exports = async () => {
                     stationLevelRequirements: [],
                     itemRequirements: [],
                     skillRequirements: [],
-                    locale: getTranslations({description: ['interface', `hideout_area_${station.type}_stage_${i}_description`]}),
+                    locale: getTranslations({description: `hideout_area_${station.type}_stage_${i}_description`}),
                 };
                 for (const tdModule of tdHideout.modules) {
                     if (tdModule.stationId === stationData.tarkovDataId && tdModule.level === stageData.level) {
@@ -94,34 +94,34 @@ module.exports = async () => {
                         stageData.itemRequirements.push({
                             id: `${stationData.id}-${i}-${r}`,
                             item: req.templateId,
-                            name: en.templates[req.templateId].Name,
+                            name: en[`${req.templateId} Name`],
                             count: req.count,
                             //functional: req.isFunctional
                         });
                     } else if (req.type === 'Skill') {
                         const skillReq = {
                             id: `${stationData.id}-${i}-${r}`,
-                            name: en.interface[req.skillName] || req.skillName,
+                            name: en[req.skillName] || req.skillName,
                             level: req.skillLevel,
-                            locale: getTranslations({name: ['interface', req.skillName]}),
+                            locale: getTranslations({name: req.skillName}),
                         };
                         stageData.skillRequirements.push(skillReq);
                     } else if (req.type === 'Area') {
                         if (req.requiredLevel < 1) {
-                            logger.warn(`Skipping ${en.interface[`hideout_area_${req.areaType}_name`]} level ${req.requiredLevel} requirement for ${en.interface[`hideout_area_${station.type}_name`]} level ${i}`);
+                            logger.warn(`Skipping ${en[`hideout_area_${req.areaType}_name`]} level ${req.requiredLevel} requirement for ${en[`hideout_area_${station.type}_name`]} level ${i}`);
                             continue;
                         }
                         stageData.stationLevelRequirements.push({
                             id: `${stationData.id}-${i}-${r}`,
                             station: areasByType[req.areaType],
-                            name: en.interface[`hideout_area_${req.areaType}_name`],
+                            name: en[`hideout_area_${req.areaType}_name`],
                             level: req.requiredLevel
                         });
                     } else if (req.type === 'TraderLoyalty') {
                         stageData.traderRequirements.push({
                             id: `${stationData.id}-${i}-${r}`,
                             trader_id: req.traderId,
-                            name: en.trading[req.traderId].Nickname,
+                            name: en[`${req.traderId} Nickname`],
                             level: req.loyaltyLevel
                         });
                     } else {

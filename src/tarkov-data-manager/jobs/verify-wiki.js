@@ -109,7 +109,7 @@ module.exports = async () => {
                     if (!presets[result.id]) {
                         newWikiLink = nameToWikiLink(result.name);
                     } else {
-                        newWikiLink = nameToWikiLink(en.templates[presets[result.id].baseId].Name);
+                        newWikiLink = nameToWikiLink(en[`${presets[result.id].baseId} Name`]);
                     }
 
                     try {
