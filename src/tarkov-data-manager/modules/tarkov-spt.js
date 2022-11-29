@@ -15,6 +15,7 @@ const sptLangs = {
     'hu': 'hu',
     'it': 'it',
     'ja': 'jp',
+    'ko': 'kr',
     'pl': 'pl',
     'pt': 'po',
     'ru': 'ru',
