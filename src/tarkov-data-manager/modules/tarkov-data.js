@@ -23,7 +23,7 @@ module.exports = {
     },
     locale: (lang = 'en', download = false) => {
         if (lang == 'en') return tarkovChanges.locale_en(download);
-        if (lang == 'ru') return tarkovBot.locale('ru', download);
+        //if (lang == 'ru') return tarkovBot.locale('ru', download);
         return spt.locale(lang, download);
     },
     locales: async (download = false) => {

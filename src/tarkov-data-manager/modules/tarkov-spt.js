@@ -18,7 +18,7 @@ const sptLangs = {
     'ko': 'kr',
     'pl': 'pl',
     'pt': 'po',
-    //'ru': 'ru',
+    'ru': 'ru',
     'sk': 'sk',
     'tr': 'tu',
     'zh': 'ch',
