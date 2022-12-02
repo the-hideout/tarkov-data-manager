@@ -44,6 +44,10 @@ module.exports = async (externalLogger) => {
             let normalized = localItem.normalized_name;
             let bgColor = localItem.properties.backgroundColor;
             if (item) {
+                if (!en[`${itemId} Name`]) {
+                    logger.log(`No en translation found for ${itemId} ${item._name}`);
+                    continue;
+                }
                 name = item._props.Name.toString().trim();
                 name = en[`${itemId} Name`].toString().trim();
                 shortname = en[`${itemId} ShortName`].toString().trim();
