@@ -444,7 +444,7 @@ module.exports = async () => {
             }
 
             // translations
-            if (locales[`${key} Name`]) { 
+            if (locales.en[`${key} Name`]) { 
                 itemData[key].locale = getTranslations({
                     name: `${key} Name`,
                     shortName: `${key} ShortName`,
