@@ -14,7 +14,6 @@ const jobOutput = require('../modules/job-output');
 const normalizeName = require('../modules/normalize-name');
 
 let logger = false;
-let en = {};
 let locales = {};
 let items = {};
 let presets = {};
@@ -115,7 +114,7 @@ const addMapFromDescription = obj => {
 const getRewardItems = (reward) => {
     const rewardData = {
         item: reward.items[0]._tpl,
-        item_name: en.templates[reward.items[0]._tpl].Name,
+        item_name: locales.en[`${reward.items[0]._tpl} Name`],
         count: 1,
         contains: [],
         attributes: []
@@ -127,7 +126,7 @@ const getRewardItems = (reward) => {
         const item = reward.items[i];
         const containedItem = {
             item: item._tpl,
-            name: en.templates[item._tpl].Name,
+            name: locales.en[`${item._tpl} Name`],
             slot: item.slotId,
             count: 1
         };
@@ -177,20 +176,20 @@ const loadRewards = (questData, rewardsType, sourceRewards) => {
         } else if (reward.type === 'TraderStanding') {
             questData[rewardsType].traderStanding.push({
                 trader_id: reward.target,
-                name: en.trading[reward.target].Nickname,
+                name: locales.en[`${reward.target} Nickname`],
                 standing: parseFloat(reward.value)
             });
         } else if (reward.type === 'Item') {
             questData[rewardsType].items.push(getRewardItems(reward));
         } else if (reward.type === 'AssortmentUnlock') {
-            if (!en.templates[reward.items[0]._tpl]) {
+            if (!locales.en[`${reward.items[0]._tpl} Name`]) {
                 logger.warn(`No name found for unlock item "${reward.items[0]._tpl}" for completion reward ${reward.id} of ${questData.name}`);
                 continue;
             }
             let unlock = {
                 id: reward.id,
                 trader_id: reward.traderId,
-                trader_name: en.trading[reward.traderId].Nickname,
+                trader_name: locales.en[`${reward.traderId} Nickname`],
                 level: reward.loyaltyLevel,
                 /*item_id: reward.items[0]._tpl,
                 item_name: en.templates[reward.items[0]._tpl].Name,
@@ -211,17 +210,17 @@ const loadRewards = (questData, rewardsType, sourceRewards) => {
             questData[rewardsType].offerUnlock.push(unlock);
         } else if (reward.type === 'Skill') {
             const skillLevel = {
-                name: en.interface[reward.target],
+                name: locales.en[reward.target],
                 level: parseInt(reward.value) / 100,
                 locale: getTranslations({name: lang => {
-                    return lang.interface[reward.target] || reward.target;
+                    return lang[reward.target] || reward.target;
                 }}, logger)
             };
             questData[rewardsType].skillLevelReward.push(skillLevel);
         } else if (reward.type === 'TraderUnlock') {
             questData[rewardsType].traderUnlock.push({
                 trader_id: reward.target,
-                trader_name: en.trading[reward.target].Nickname
+                trader_name: locales.en[`${reward.target} Nickname`]
             });
         } else {
             logger.warn(`Unrecognized reward type "${reward.type}" for ${rewardsType} reward ${reward.id} of ${questData.name}`);
@@ -294,7 +293,7 @@ const formatTdQuest = (quest) => {
                 if (preQuest.gameId) {
                     questData.taskRequirements.push({
                         task: preQuest.gameId,
-                        name: en.quest[preQuest.gameId].name,
+                        name: locales.en[`${preQuest.gameId} name`],
                         status: ['complete']
                     });
                 } else {
@@ -355,13 +354,13 @@ const formatTdQuest = (quest) => {
             } else {
                 obj.type = `findItem`;
                 obj.item_id = objective.target;
-                obj.item_name = en.templates[objective.target].Name;
+                obj.item_name = locales.en[`${objective.target} Name`];
                 obj.item = objective.target;
                 obj.dogTagLevel = 0;
                 obj.maxDurability = 0;
                 obj.minDurability = 100;
                 obj.foundInRaid = objective.type === 'find';
-                obj.description = `Find ${en.templates[objective.target].Name}`;
+                obj.description = `Find ${locales.en[`${objective.target} Name`]}`;
             }
             if (objective.hint) obj.description += ` ${objective.hint}`;
         } else if (objective.type === 'kill') {
@@ -401,19 +400,19 @@ const formatTdQuest = (quest) => {
             } else {
                 obj.type = 'plantItem';
                 obj.item = objective.target;
-                obj.item_name = en.templates[objective.target].Name;
+                obj.item_name = locales.en[`${objective.target} Name`];
                 obj.dogTagLevel = 0;
                 obj.maxDurability = 100;
                 obj.minDurability = 0;
                 obj.foundInRaid = false;
             }
-            obj.description = `Place ${en.templates[objective.target].Name}`;
+            obj.description = `Place ${locales.en[`${objective.target} Name`]}`;
             if (objective.hint) obj.description += ` at ${objective.hint}`;
         } else if (objective.type === 'mark') {
             obj.type = 'mark';
             obj.item = objective.target;
             obj.item_id = objective.target;
-            obj.item_name = en.templates[objective.target].Name;
+            obj.item_name = locales.en[`${objective.target} Name`];
         } else if (objective.type === 'skill') {
             obj.type = 'skill';
             obj.skillLevel = {
@@ -455,7 +454,6 @@ module.exports = async (externalLogger = false) => {
         const data = await tarkovData.quests(true);
         items = await tarkovData.items();
         locales = await tarkovData.locales();
-        en = locales.en;
         maps = await jobOutput('update-maps', './dumps/map_data.json', logger);
         const traders = await jobOutput('update-traders', './dumps/trader_data.json', logger);
         for (const trader of traders) {
@@ -508,7 +506,7 @@ module.exports = async (externalLogger = false) => {
         for (const questId in data) {
             if (removedQuests[questId]) continue;
             const quest = data[questId];
-            logger.log(`Processing ${en.quest[questId]?.name} ${questId}`);
+            logger.log(`Processing ${locales.en[`${questId} name`]} ${questId}`);
             /*if (!en.locations[quest.location]) {
                 logger.warn(`Could not find location name for ${quest.location} of ${en.quest[questId].name}`);
                 continue;
@@ -516,17 +514,17 @@ module.exports = async (externalLogger = false) => {
             let locationName = 'any';
             let locationId = null;
             if (quest.location !== 'any') {
-                locationName = en.locations[quest.location].Name;
+                locationName = locales.en[`${quest.location} Name`];
                 locationId = quest.location;
             }
             const questData = {
                 id: questId,
-                name: en.quest[questId]?.name,
+                name: locales.en[`${questId} name`],
                 trader: quest.traderId,
-                traderName: en.trading[quest.traderId].Nickname,
+                traderName: locales.en[`${quest.traderId} Nickname`],
                 location_id: locationId,
                 locationName: locationName,
-                wikiLink: `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(en.quest[questId].name.replaceAll(' ', '_'))}`,
+                wikiLink: `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(locales.en[`${questId} name`].replaceAll(' ', '_'))}`,
                 minPlayerLevel: 0,
                 taskRequirements: [],
                 traderLevelRequirements: [],
@@ -566,7 +564,7 @@ module.exports = async (externalLogger = false) => {
                 tarkovDataId: undefined,
                 factionName: 'Any',
                 neededKeys: [],
-                locale: getTranslations({name: ['quest', questId, 'name']}, logger)
+                locale: getTranslations({name: `${questId} name`}, logger)
             };
             for (const objective of quest.conditions.AvailableForFinish) {
                 if (changedQuests[questData.id]?.objectivesRemoved?.includes(objective._props.id)) {
@@ -586,7 +584,7 @@ module.exports = async (externalLogger = false) => {
                     optional: optional,
                     locationNames: [],
                     map_ids: [],
-                    locale: getTranslations({description: ['quest', questId, 'conditions', objectiveId]}, logger, false)
+                    locale: getTranslations({description: objectiveId}, logger, false)
                 };
                 if (objective._parent === 'FindItem' || objective._parent === 'HandoverItem') {
                     const targetItem = items[objective._props.target[0]];
@@ -595,7 +593,7 @@ module.exports = async (externalLogger = false) => {
                         verb = 'find';
                     }
                     obj.item_id = objective._props.target[0];
-                    obj.item_name = en.templates[objective._props.target[0]].Name;
+                    obj.item_name = locales.en[`${objective._props.target[0]} Name`];
                     obj.count = parseInt(objective._props.value);
                     if (!targetItem || targetItem._props.QuestItem) {
                         obj.type = `${verb}QuestItem`;
@@ -618,7 +616,7 @@ module.exports = async (externalLogger = false) => {
                         if (cond._parent === 'VisitPlace') {
                             //obj.description = en.quest[questId].conditions[objective._props.id];
                         } else if (cond._parent === 'Kills' || cond._parent === 'Shots') {
-                            obj.target = en.interface[`QuestCondition/Elimination/Kill/Target/${cond._props.target}`] || cond._props.target;
+                            obj.target = locales.en[`QuestCondition/Elimination/Kill/Target/${cond._props.target}`] || cond._props.target;
                             obj.count = parseInt(objective._props.value);
                             obj.shotType = 'kill';
                             if (cond._parent === 'Shots') obj.shotType = 'hit';
@@ -641,7 +639,7 @@ module.exports = async (externalLogger = false) => {
                                 for (const itemId of cond._props.weapon) {
                                     obj.usingWeapon.push({
                                         id: itemId,
-                                        name: en.templates[itemId].Name
+                                        name: locales.en[`${itemId} Name`]
                                     });
                                 }
                             }
@@ -649,7 +647,7 @@ module.exports = async (externalLogger = false) => {
                                 for (const modArray of cond._props.weaponModsInclusive) {
                                     const modSet = [];
                                     for (const itemId of modArray) {
-                                        if (!en.templates[itemId]) {
+                                        if (!locales.en[`${itemId} Name`]) {
                                             logger.warn(`Unrecognized weapon mod ${itemId} for objective ${obj.id} of ${questData.name}`);
                                             continue;
                                         }
@@ -658,7 +656,7 @@ module.exports = async (externalLogger = false) => {
                                         }
                                         modSet.push({
                                             id: itemId,
-                                            name: en.templates[itemId].Name
+                                            name: locales.en[`${itemId} Name`]
                                         })
                                     }
                                     obj.usingWeaponMods.push(modSet);
@@ -676,18 +674,18 @@ module.exports = async (externalLogger = false) => {
                             }
                             obj.locale = addTranslations(obj.locale, {target: lang => {
                                 if (targetCode == 'followerBully') {
-                                    return `${lang.interface['QuestCondition/Elimination/Kill/BotRole/bossBully']} ${lang.interface['ScavRole/Follower']}`;
+                                    return `${lang['QuestCondition/Elimination/Kill/BotRole/bossBully']} ${lang['ScavRole/Follower']}`;
                                 }
                                 if (targetKeyMap[targetCode]) targetCode = targetKeyMap[targetCode];
-                                return lang.interface[`QuestCondition/Elimination/Kill/BotRole/${targetCode}`] 
-                                    || lang.interface[`QuestCondition/Elimination/Kill/Target/${targetCode}`] 
-                                    || lang.interface[`ScavRole/${targetCode}`] 
+                                return lang[`QuestCondition/Elimination/Kill/BotRole/${targetCode}`] 
+                                    || lang[`QuestCondition/Elimination/Kill/Target/${targetCode}`] 
+                                    || lang[`ScavRole/${targetCode}`] 
                                     || targetCode;
                             }}, logger);
                         } else if (cond._parent === 'Location') {
                             for (const loc of cond._props.target) {
                                 if (loc === 'develop') continue;
-                                if (!en.interface[loc]) {
+                                if (!locales.en[loc]) {
                                     logger.warn(`Unrecognized location ${loc} for objective ${obj.id} of ${questData.name} ${questData.id}`);
                                     continue;
                                 }
@@ -713,7 +711,7 @@ module.exports = async (externalLogger = false) => {
                                     for (const itemId of outfit) {
                                         outfitData.push({
                                             id: itemId,
-                                            name: en.templates[itemId].Name
+                                            name: locales.en[`${itemId} Name`]
                                         });
                                     }
                                     obj.wearing.push(outfitData);
@@ -724,7 +722,7 @@ module.exports = async (externalLogger = false) => {
                                     for (const itemId of outfit) {
                                         obj.notWearing.push({
                                             id: itemId,
-                                            name: en.templates[itemId].Name
+                                            name: locales.en[`${itemId} Name`]
                                         });
                                     }
                                 }
@@ -767,7 +765,7 @@ module.exports = async (externalLogger = false) => {
                     obj.type = 'mark';
                     obj.item = objective._props.target[0];
                     obj.item_id = objective._props.target[0];
-                    obj.item_name = en.templates[objective._props.target[0]].Name;
+                    obj.item_name = locales.en[`${objective._props.target[0]} Name`];
                 } else if (objective._parent === 'LeaveItemAtLocation') {
                     obj.count = parseInt(objective._props.value);
                     if (items[objective._props.target[0]]._props.QuestItem) {
@@ -779,7 +777,7 @@ module.exports = async (externalLogger = false) => {
                     } else {
                         obj.type = 'plantItem';
                         obj.item = objective._props.target[0];
-                        obj.item_name = en.templates[objective._props.target[0]].Name;
+                        obj.item_name = locales.en[`${objective._props.target[0]} Name`];
                         obj.dogTagLevel = 0;
                         obj.maxDurability = 100;
                         obj.minDurability = 0;
@@ -788,14 +786,14 @@ module.exports = async (externalLogger = false) => {
                 } else if (objective._parent === 'Skill') {
                     obj.type = 'skill';
                     obj.skillLevel = {
-                        name: en.interface[objective._props.target],
+                        name: locales.en[objective._props.target],
                         level: objective._props.value,
-                        locale: getTranslations({name: ['interface', objective._props.target]}, logger)
+                        locale: getTranslations({name: objective._props.target}, logger)
                     };
                 } else if (objective._parent === 'WeaponAssembly') {
                     obj.type = 'buildWeapon';
                     obj.item = objective._props.target[0];
-                    obj.item_name = en.templates[objective._props.target[0]].Name;
+                    obj.item_name = locales.en[`${objective._props.target[0]} Name`];
                     objective._props.ergonomics.value = parseInt(objective._props.ergonomics.value);
                     objective._props.recoil.value = parseInt(objective._props.recoil.value);
                     obj.attributes = [
@@ -860,7 +858,7 @@ module.exports = async (externalLogger = false) => {
                     for (const itemId of objective._props.containsItems) {
                         obj.containsAll.push({
                             id: itemId,
-                            name: en.templates[itemId].Name
+                            name: locales.en[`${itemId} Name`]
                         });
                     }
                     for (const itemId of objective._props.hasItemFromCategory) {
@@ -879,18 +877,18 @@ module.exports = async (externalLogger = false) => {
                 } else if (objective._parent === 'TraderLoyalty') {
                     obj.type = 'traderLevel';
                     obj.trader_id = objective._props.target;
-                    obj.trader_name = en.trading[objective._props.target].Nickname;
+                    obj.trader_name = locales.en[`${objective._props.target} Nickname`];
                     obj.level = objective._props.value;
                 } else if (objective._parent === 'VisitPlace') {
                     obj.type = 'visit';
                 } else if (objective._parent === 'Quest') {
                     obj.type = 'taskStatus';
                     obj.task = objective._props.target;
-                    obj.quest_name = en.quest[objective._props.target].name;
+                    obj.quest_name = locales.en[`${objective._props.target} name`];
                     obj.status = [];
                     for (const statusCode of objective._props.status) {
                         if (!questStatusMap[statusCode]) {
-                            logger.warn(`Unrecognized quest status "${statusCode}" for quest objective ${en.quest[req._props.target].name} ${req._props.target} of ${questData.name}`);
+                            logger.warn(`Unrecognized quest status "${statusCode}" for quest objective ${locales.en[`${req._props.target}`]} ${req._props.target} of ${questData.name}`);
                             continue;
                         }
                         obj.status.push(questStatusMap[statusCode]);
@@ -918,7 +916,7 @@ module.exports = async (externalLogger = false) => {
                     if (!newObj.locale_map) {
                         newObj.locale_map = {};
                     }
-                    newObj.locale_map.description = ['quest', questId, 'conditions', newObj.id];
+                    newObj.locale_map.description = newObj.id;
                     newObj.locale = getTranslations(newObj.locale_map, logger);
                     questData.objectives.push(newObj);
                 }
@@ -937,7 +935,7 @@ module.exports = async (externalLogger = false) => {
                 } else if (req._parent === 'Quest') {
                     const questReq = {
                         task: req._props.target,
-                        name: en.quest[req._props.target].name,
+                        name: locales.en[`${req._props.target} name`],
                         status: []
                     };
                     if (changedQuests[questData.id] && changedQuests[questData.id].taskRequirementsRemoved) {
@@ -947,7 +945,7 @@ module.exports = async (externalLogger = false) => {
                     }
                     for (const statusCode of req._props.status) {
                         if (!questStatusMap[statusCode]) {
-                            logger.warn(`Unrecognized quest status "${statusCode}" for quest requirement ${en.quest[req._props.target].name} ${req._props.target} of ${questData.name}`);
+                            logger.warn(`Unrecognized quest status "${statusCode}" for quest requirement ${locales.en[req._props.target]} ${req._props.target} of ${questData.name}`);
                             continue;
                         }
                         questReq.status.push(questStatusMap[statusCode]);
@@ -957,7 +955,7 @@ module.exports = async (externalLogger = false) => {
                     questData.traderLevelRequirements.push({
                         id: req._props.id,
                         trader_id: req._props.target,
-                        name: en.trading[req._props.target].Nickname,
+                        name: locales.en[`${req._props.target} Nickname`],
                         level: parseInt(req._props.value)
                     });
                 } else {
@@ -1022,10 +1020,10 @@ module.exports = async (externalLogger = false) => {
                 }
             }
             logger.warn(`Adding missing quest ${quest.name} ${quest.id}...`);
-            quest.locale = getTranslations({name: ['quest', questId, 'name']}, logger);
-            quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(en.quest[questId].name.replaceAll(' ', '_'))}`;
+            quest.locale = getTranslations({name: `${questId} name`}, logger);
+            quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(locales.en[`${questId} name`].replaceAll(' ', '_'))}`;
             for (const obj of quest.objectives) {
-                obj.locale = getTranslations({description: ['quest', questId, 'conditions', obj.id]}, logger);
+                obj.locale = getTranslations({description: obj.id}, logger);
                 if (obj.type.endsWith('QuestItem')) {
                     questItems[obj.item_id] = {
                         id: obj.item_id
@@ -1070,10 +1068,10 @@ module.exports = async (externalLogger = false) => {
         // add start, success, and fail message ids
 
         for (const quest of quests.data) {
-            quest.descriptionMessageId = locales.en.quest[quest.id]?.description;
+            /*quest.descriptionMessageId = locales.en.quest[quest.id]?.description;
             quest.startMessageId = locales.en.quest[quest.id]?.startedMessageText;
             quest.successMessageId = locales.en.quest[quest.id]?.successMessageText;
-            quest.failMessageId = locales.en.quest[quest.id]?.failMessageText;
+            quest.failMessageId = locales.en.quest[quest.id]?.failMessageText;*/
             quest.normalizedName = normalizeName(quest.name)+(quest.factionName !== 'Any' ? `-${normalizeName(quest.factionName)}` : '');
         }
 
@@ -1090,7 +1088,12 @@ module.exports = async (externalLogger = false) => {
             '61bb4756883b2c16a163870a',
             '61bfa784f4378605ca5598e1',
         ];
-        for (const questId in en.quest) {
+        for (const key in locales.en) {
+            const match = key.match(/(?<id>[a-f0-9]{24}) name/);
+            if (!match) {
+                continue;
+            }
+            const questId = match.groups.id;
             let found = false;
             for (const quest of quests.data) {
                 if (questId === quest.id) {
@@ -1098,12 +1101,15 @@ module.exports = async (externalLogger = false) => {
                     break;
                 };
             }
-            if (found || !en.quest[questId].name || ignoreQuests.includes(questId)) continue;
-            if (removedQuests[questId]) {
-                logger.warn(`Quest ${en.quest[questId].name} ${questId} has been removed`);
+            if (found || ignoreQuests.includes(questId)) continue;
+            if (!locales.en[`${questId} name`]) {
                 continue;
             }
-            logger.warn(`No quest data found for ${en.quest[questId].name} ${questId}`);
+            if (removedQuests[questId]) {
+                logger.warn(`Quest ${locales.en[`${questId} name`]} ${questId} has been removed`);
+                continue;
+            }
+            logger.warn(`No quest data found for ${locales.en[`${questId} name`]} ${questId}`);
         }
 
         for (const id in questItems) {
@@ -1113,9 +1119,9 @@ module.exports = async (externalLogger = false) => {
                 questItems[id].width = items[id]._props.Width;
                 questItems[id].height = items[id]._props.Height;
                 questItems[id].locale = getTranslations({
-                    name: ['templates', id, 'Name'],
-                    shortName: ['templates', id, 'ShortName'],
-                    description: ['templates', id, 'Description']
+                    name: `${id} Name`,
+                    shortName: `${id} ShortName`,
+                    description: `${id} Description`
                 }, logger);
             }
             if (questItemMap.has(id)) {
@@ -1163,5 +1169,5 @@ module.exports = async (externalLogger = false) => {
     }
     await jobComplete();
     logger.end();
-    logger = en = locales = items = presets = tdQuests = tdTraders = tdMaps = false;
+    logger = locales = items = presets = tdQuests = tdTraders = tdMaps = false;
 }

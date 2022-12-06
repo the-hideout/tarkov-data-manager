@@ -115,10 +115,8 @@ module.exports = async (externalLogger) => {
 
             let name = item._props.Name.trim();
             let shortname = '';
-            if (en.templates[item._id]) {
-                name = en.templates[item._id].Name || name;
-                shortname = en.templates[item._id].ShortName || shortname;
-            }
+            name = en[`${item._id} Name`] || name;
+            shortname = en[`${item._id} ShortName`] || shortname;
             name = String(name).trim();
             shortname = String(shortname).trim();
             if (name.match(doNotUse)) continue;

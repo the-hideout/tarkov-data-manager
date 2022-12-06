@@ -1,7 +1,7 @@
 [
     {
         "id": "mosinscopedbarter0000001",
-        "appendName": ["templates", "5b3f7c1c5acfc40dc5296b1d", "ShortName"],
+        "appendName": ["5b3f7c1c5acfc40dc5296b1d ShortName"],
         "baseId": "5ae08f0a5acfc408fb1398a1",
         "default": false,
         "containsItems": [
@@ -221,7 +221,7 @@
     },
     {
         "id": "ash12silenced00000000001",
-        "appendName": ["preset", "58dffd4586f77408a27629b2", "Name"],
+        "appendName": ["58dffd4586f77408a27629b2 Name"],
         "baseId": "5cadfbf7ae92152ac412eeef",
         "default": false,
         "containsItems": [
@@ -271,7 +271,7 @@
     },
     {
         "id": "sksintrafuse000000000001",
-        "appendName": ["templates", "5afd7ded5acfc40017541f5e", "ShortName"],
+        "appendName": ["5afd7ded5acfc40017541f5e ShortName"],
         "baseId": "574d967124597745970e7c94",
         "default": false,
         "containsItems": [

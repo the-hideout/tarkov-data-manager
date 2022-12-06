@@ -44,11 +44,13 @@ module.exports = async (externalLogger) => {
             let normalized = localItem.normalized_name;
             let bgColor = localItem.properties.backgroundColor;
             if (item) {
-                name = item._props.Name.toString().trim();
-                if (en.templates[itemId]) {
-                    name = en.templates[itemId].Name.toString().trim();
-                    shortname = en.templates[itemId].ShortName.toString().trim();
+                if (!en[`${itemId} Name`]) {
+                    logger.log(`No en translation found for ${itemId} ${item._name}`);
+                    continue;
                 }
+                name = item._props.Name.toString().trim();
+                name = en[`${itemId} Name`].toString().trim();
+                shortname = en[`${itemId} ShortName`].toString().trim();
                 bgColor = item._props.BackgroundColor;
             } else if (presets[itemId]) {
                 name = presets[itemId].name;

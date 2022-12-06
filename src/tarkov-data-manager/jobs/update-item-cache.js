@@ -42,10 +42,10 @@ const addCategory = id => {
         child_ids: [],
         locale: getTranslations({
             name: lang => {
-                if (lang.templates[id]) {
-                    return lang.templates[id].Name
+                if (lang[`${id} Name`]) {
+                    return lang[`${id} Name`];
                 } else {
-                    return bsgItems[id]._name
+                    return bsgItems[id]._name;
                 }
             }
         }, logger)
@@ -60,13 +60,13 @@ const addHandbookCategory = id => {
     if (!id || handbookCategories[id]) return;
     handbookCategories[id] = {
         id: id,
-        name: locales.en.handbook[id],
-        normalizedName: normalizeName(locales.en.handbook[id]),
-        enumName: catNameToEnum(locales.en.handbook[id]),
+        name: locales.en[id],
+        normalizedName: normalizeName(locales.en[id]),
+        enumName: catNameToEnum(locales.en[id]),
         parent_id: null,
         child_ids: [],
         locale: getTranslations({
-            name: ['handbook', id],
+            name: id,
         }, logger),
     };
 
@@ -444,11 +444,11 @@ module.exports = async () => {
             }
 
             // translations
-            if (locales.en.templates[key]) { 
+            if (locales.en[`${key} Name`]) { 
                 itemData[key].locale = getTranslations({
-                    name: ['templates', key, 'Name'],
-                    shortName: ['templates', key, 'ShortName'],
-                    description: ['templates', key, 'Description'],
+                    name: `${key} Name`,
+                    shortName: `${key} ShortName`,
+                    description: `${key} Description`,
                 }, logger);
             } else if (presets[key]) {
                 itemData[key].locale = {};
@@ -578,7 +578,7 @@ module.exports = async () => {
             sellRequirementFeeRate: (globals.config.RagFair.communityRequirementTax / 100),
             reputationLevels: [],
             locale: getTranslations({name: lang => {
-                return lang.interface['RAG FAIR'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
+                return lang['RAG FAIR'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
                     return substr.toLowerCase();
                 });
             }}, logger),
@@ -600,8 +600,8 @@ module.exports = async () => {
             const armorType = globals.config.ArmorMaterials[armorTypeId];
             armorData[armorTypeId] = {
                 id: armorTypeId,
-                name: locales.en.interface['Mat'+armorTypeId],
-                locale: getTranslations({name: ['interface', `Mat${armorTypeId}`]}, logger),
+                name: locales.en['Mat'+armorTypeId],
+                locale: getTranslations({name: `Mat${armorTypeId}`}, logger),
             };
             for (const key in armorType) {
                 armorData[armorTypeId][key.charAt(0).toLocaleLowerCase()+key.slice(1)] = armorType[key];

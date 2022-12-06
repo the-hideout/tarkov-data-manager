@@ -14,7 +14,6 @@ module.exports = async function(externalLogger) {
         const tradersData = await tarkovData.traders();
         logger.log('Loading locales...');
         const locales = await tarkovData.locales();
-        const en = locales.en;
         setLocales(locales);
         logger.log('Loading TarkovData traders.json...');
         const tdTraders = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
@@ -31,18 +30,18 @@ module.exports = async function(externalLogger) {
             //date.setHours(date.getHours() +5);
             const traderData = {
                 id: trader._id,
-                name: en.trading[trader._id].Nickname,
-                normalizedName: normalizeName(en.trading[trader._id].Nickname),
+                name: locales.en[`${trader._id} Nickname`],
+                normalizedName: normalizeName(locales.en[`${trader._id} Nickname`]),
                 currency: trader.currency,
                 resetTime: date,
                 discount: parseInt(trader.discount) / 100,
                 levels: [],
                 locale: getTranslations({
-                    name: ['trading', trader._id, 'Nickname'],
-                    description: ['trading', trader._id, 'Description'],
+                    name: `${trader._id} Nickname`,
+                    description: `${trader._id} Description`,
                 }, logger)
             };
-            if (!en.trading[trader._id]) {
+            if (!locales.en[`${trader._id} Nickname`]) {
                 logger.warn(`No trader id ${trader._id} found in locale_en.json`);
                 traderData.name = trader.nickname;
                 traderData.normalizedName = normalizeName(trader.nickname);

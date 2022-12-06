@@ -44,7 +44,7 @@ const availableFiles = {
     },
     locale_en: {
         requestName: 'locale_en_td.json',
-        fileName: 'locale_en.json'
+        fileName: 'locale_en.json',
     },
 };
 

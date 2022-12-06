@@ -69,10 +69,10 @@ let locales;
 
 const getEnemyName = (enemy, lang) => {
     if (enemyMap[enemy]) {
-        if (lang.interface[enemyMap[enemy]]) {
-            return lang.interface[enemyMap[enemy]];
+        if (lang[enemyMap[enemy]]) {
+            return lang[enemyMap[enemy]];
         }
-        return locales.en.interface[enemyMap[enemy]];
+        return locales.en[enemyMap[enemy]];
     } else if (manualNames[enemy]) {
         return manualNames[enemy];
     }
@@ -116,11 +116,11 @@ module.exports = async function() {
             const mapData = {
                 id: id,
                 tarkovDataId: null,
-                name: locales.en.locations[id].Name,
-                normalizedName: normalizeName(locales.en.locations[id].Name),
+                name: locales.en[`${id} Name`],
+                normalizedName: normalizeName(locales.en[`${id} Name`]),
                 nameId: map.Id,
-                description: locales.en.locations[id].Description,
-                wiki: 'https://escapefromtarkov.fandom.com/wiki/'+locales.en.locations[id].Name.replace(/ /g, '_'),
+                description: locales.en[`${id} Description`],
+                wiki: 'https://escapefromtarkov.fandom.com/wiki/'+locales.en[`${id} Name`].replace(/ /g, '_'),
                 enemies: [],
                 raidDuration: map.EscapeTimeLimit,
                 players: map.MinPlayers+'-'+map.MaxPlayers,
@@ -214,12 +214,12 @@ module.exports = async function() {
             mapData.enemies = [...enemySet];
             mapData.locale = getTranslations({
                 name: lang => {
-                    if (id === '59fc81d786f774390775787e' && lang.interface.factory4_night) {
-                        return lang.interface.factory4_night;
+                    if (id === '59fc81d786f774390775787e' && lang.factory4_night) {
+                        return lang.factory4_night;
                     }
-                    return lang.locations[id].Name;
+                    return lang[`${id} Name`];
                 },
-                description: ['locations', id, 'Description'],
+                description: `${id} Description`,
                 enemies: lang => {
                     const enemies = new Set(mapData.enemies.map(enemy => {
                         return getEnemyName(enemy, lang);
