@@ -106,7 +106,7 @@ module.exports = async (externalLogger) => {
             return true;
         });
 
-        const doNotUse = /DO[ _]NOT[ _]USE/;
+        const doNotUse = /DO[ _]NOT[ _]USE|translation_pending/;
         for (const item of items) {
             // Skip existing items to speed things up
             if (currentItems.has(item._id)){
