@@ -245,7 +245,7 @@ const parseTradeRow = async (tradeElement) => {
                 rewardItem = preset;
                 break;
             } else {
-                logger.warn(`Matched ${img} for ${rewardItem.name}, but could not match preset`);
+                logger.warn(`Matched ${gunImage} for ${rewardItem.name}, but could not match preset`);
             }
         }
         if (baseId === rewardItem.id) {
