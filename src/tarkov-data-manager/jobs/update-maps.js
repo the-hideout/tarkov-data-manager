@@ -150,6 +150,9 @@ module.exports = async function() {
                     spawnTrigger: null,
                     locale: {}
                 };
+                if (bossData.spawnChance === 0) {
+                    continue;
+                }
                 const locationCount = {};
                 const locations = spawn.BossZone.split(',').map(zone => {
                     let locationName = zone.replace(/Zone_?/, '').replace(/Bot/, '');
