@@ -1,7 +1,5 @@
 # To build the entire stack run 'make run'
 
-version: '3.7'
-
 services:
   tarkov_data_manager:
     container_name: tarkov_data_manager
