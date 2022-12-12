@@ -104,40 +104,47 @@ module.exports = async (externalLogger) => {
 
         logger.log('Checking redirects');
         const results = await query(`SELECT source, destination FROM redirects`);
-        const sources = [];
-        const destinations = [];
 
-        const redirects = results
+        let redirects = results
             .map(row => {
-                sources.push(row.source);
-                destinations.push(row.destination);
-
                 return [
                     `/item/${row.source}`,
                     `/item/${row.destination}`,
                 ];
             })
             .filter(Boolean);
+        redirects = Object.fromEntries(redirects);
 
-
-        for(const source of sources){
+        for (const source in redirects) {
             //logger.log(`Checking ${source}`);
-            if(!currentDestinations.includes(source)){
+            if (!currentDestinations.includes(source)){
                 continue;
             }
 
-            logger.warn(`${source} is not a valid source`);
+            logger.warn(`${source} is not a valid redirect source`);
+            await query(`DELETE FROM redirects WHERE source = ?`, [source.replace(/^\/item\//, '')]);
         }
 
-        for(const source of sources){
-            if(!destinations.includes(source)){
+        for (const source in redirects) {
+            if (!redirects[redirects[source]]) {
                 continue;
             }
-
-            logger.warn(`${source} is both a source and a destination`);
+            const startDestination = redirects[source];
+            let finalDestination = redirects[startDestination];
+            while (finalDestination) {
+                redirects[source] = finalDestination;
+                finalDestination = redirects[redirects[source]];
+            }
+            if (startDestination !== redirects[source]) {
+                logger.warn(`${source} is both a redirect source and destination`);
+                await query(`UPDATE redirects SET destination = ? WHERE source = ?`, [
+                    redirects[source].replace(/^\/item\//, ''), 
+                    source.replace(/^\/item\//, '')
+                ]);
+            }
         }
 
-        fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'redirects.json'), JSON.stringify(Object.fromEntries(redirects), null, 4));
+        fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'redirects.json'), JSON.stringify(redirects, null, 4));
         logger.succeed('Finished updating redirects');
     } catch (error) {
         logger.error(error);
