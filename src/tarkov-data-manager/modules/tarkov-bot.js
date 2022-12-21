@@ -1,5 +1,4 @@
-const fs = require('fs/promises');
-const fsSync = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 const got = require('got');
@@ -74,11 +73,11 @@ module.exports = {
         let returnValue = false;
         if (download) {
             returnValue = await jsonRequest(dataType, params, logger);
-            fsSync.writeFileSync(cachePath(saveFileName || dataTypes[dataType]), JSON.stringify(returnValue, null, 4));
+            fs.writeFileSync(cachePath(saveFileName || dataTypes[dataType]), JSON.stringify(returnValue, null, 4));
             return returnValue;
         }
         try {
-            return JSON.parse(await fs.readFile(cachePath(saveFileName || dataTypes[dataType])));
+            return JSON.parse(fs.readFileSync(cachePath(saveFileName || dataTypes[dataType])));
         } catch (error) {
             if (error.code === 'ENOENT') {
                 return module.exports.get(dataType, true, params, logger);

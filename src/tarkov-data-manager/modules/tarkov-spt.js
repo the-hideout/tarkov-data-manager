@@ -1,5 +1,4 @@
-const fs = require('fs/promises');
-const fsSync = require('fs');
+const fs = require('fs');
 const path = require('path');
 
 const got = require('got');
@@ -34,11 +33,11 @@ const downloadJson = async (fileName, path, download = false) => {
             responseType: 'json',
             resolveBodyOnly: true,
         });
-        fsSync.writeFileSync(cachePath(fileName), JSON.stringify(returnValue, null, 4));
+        fs.writeFileSync(cachePath(fileName), JSON.stringify(returnValue, null, 4));
         return returnValue;
     }
     try {
-        return JSON.parse(await fs.readFile(cachePath(fileName)));
+        return JSON.parse(fs.readFileSync(cachePath(fileName)));
     } catch (error) {
         if (error.code === 'ENOENT') {
             return downloadJson(fileName, path, true);

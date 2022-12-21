@@ -8,6 +8,8 @@ const hideoutLegacy = require('./update-hideout-legacy');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
 
+const skipChristmasTree = true;
+
 module.exports = async () => {
     const logger = new JobLogger('update-hideout');    
     try {
@@ -30,12 +32,9 @@ module.exports = async () => {
             areasByType[data[stationId].type] = stationId;
         }
         for (const stationId in data) {
-            // skip christmas tree
-            if (stationId === '5df8a81f8f77747fcf5f5702') continue;
-            
             const station = data[stationId];
             if (!en[`hideout_area_${station.type}_name`]) {
-                logger.warn(`No hideout station of type ${station.type} found in locale_en.json`);
+                logger.warn(`❌ ${station.type} not found in locale_en.json`);
                 continue;
             }
             const stationData = {
@@ -46,11 +45,11 @@ module.exports = async () => {
                 levels: [],
                 locale: getTranslations({name: `hideout_area_${station.type}_name`}, logger),
             };
-            if (!station.enabled) {
-                logger.warn(`Hideout station ${stationData.name} is disabled`);
+            if (!station.enabled || (skipChristmasTree && stationId === '5df8a81f8f77747fcf5f5702')) {
+                logger.log(`❌ ${stationData.name}`);
                 continue;
             }
-            logger.log(`Processing ${stationData.name}`);
+            logger.log(`✔️ ${stationData.name}`);
             for (const tdStation of tdHideout.stations) {
                 if (tdStation.locales.en.toLowerCase() === stationData.name.toLowerCase()) {
                     stationData.tarkovDataId = tdStation.id;

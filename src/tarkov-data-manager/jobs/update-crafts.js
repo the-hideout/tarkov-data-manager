@@ -21,38 +21,38 @@ module.exports = async function() {
             updated: new Date(),
             data: [],
         };
+        const stations = {};
+        const inactiveStations = {};
         logger.log('Processing crafts...');
         for (const id in json) {
             const craft = json[id];
-            let station = areas.find(area => area.areaType === craft.areaType);
+            const station = areas.find(area => area.areaType === craft.areaType);
             if (!station) {
-                logger.warn(`${en[`hideout_area_${craft.areaType}_name`]} is not an active station`);
-                continue;
-            }
-            if (!en[`${craft.endProduct} Name`]) {
-                logger.warn(`No end product item with id ${craft.endProduct} found in locale_en.json`);
-                continue;
-            }
-            if (!en[`hideout_area_${craft.areaType}_name`]) {
-                logger.warn(`No hideout station of type ${craft.areaType} found in locale_en.json`);
+                if (!inactiveStations[en[`hideout_area_${craft.areaType}_name`]]) {
+                    inactiveStations[en[`hideout_area_${craft.areaType}_name`]] = 0;
+                }
+                inactiveStations[en[`hideout_area_${craft.areaType}_name`]]++;
                 continue;
             }
             if (!processedItems[craft.endProduct]) {
-                logger.warn(`No end product item with id ${craft.endProduct} found in processed items`);
+                logger.warn(`${id}: No end product item with id ${craft.endProduct} found in processed items`);
                 continue;
+            }
+            if (!stations[station.locale.en.name]) {
+                stations[station.locale.en.name] = 0;
             }
             const craftData = {
                 id: id,
                 requiredItems: [],
                 rewardItems: [{
-                    name: en[`${craft.endProduct} Name`],
+                    name: processedItems[craft.endProduct].locale.en.name,
                     item: craft.endProduct,
                     count: craft.count,
                     attributes: []
                 }],
                 station: station.id,
                 station_id: station.id,
-                sourceName: en[`hideout_area_${craft.areaType}_name`],
+                sourceName: station.locale.en.name,
                 duration: craft.productionTime,
                 requirements: []
             };
@@ -68,31 +68,27 @@ module.exports = async function() {
                     craftData.level = req.requiredLevel;
                     level = req.requiredLevel;
                 } else if (req.type === 'Resource') {
-                    if (!en[`${req.templateId} Name`]) {
-                        logger.warn(`No requirement resource with id ${req.templateId} found in locale_en.json`);
-                        continue;
-                    }
                     if (!items[req.templateId]) {
-                        logger.warn(`No requirement resource with id ${req.templateId} found in items.json`);
+                        logger.warn(`${id}: No requirement resource with id ${req.templateId} found in items.json`);
                         continue;
                     }
                     if (!processedItems[req.templateId]) {
-                        logger.warn(`No requirement resource with id ${req.templateId} found in processed items`);
+                        logger.warn(`${id}: No requirement resource with id ${req.templateId} found in processed items`);
                         continue;
                     }
                     craftData.requiredItems.push({
-                        name: en[`${req.templateId} Name`],
+                        name: processedItems[req.templateId].locale.en.name,
                         item: req.templateId,
                         count: req.resource / items[req.templateId]._props.Resource,
                         attributes: []
                     });
                 } else if (req.type === 'Item') {
-                    if (!en[`${req.templateId} Name`]) {
-                        logger.warn(`No requirement item with id ${req.templateId} found in locale_en.json`);
+                    if (!processedItems[req.templateId]) {
+                        logger.warn(`${id}: No requirement resource with id ${req.templateId} found in processed items`);
                         continue;
                     }
                     const reqData = {
-                        name: en[`${req.templateId} Name`],
+                        name: processedItems[req.templateId].locale.en.name,
                         item: req.templateId,
                         count: req.count,
                         attributes: []
@@ -105,12 +101,12 @@ module.exports = async function() {
                     }
                     craftData.requiredItems.push(reqData);
                 } else if (req.type == 'Tool') {
-                    if (!en[`${req.templateId} Name`]) {
-                        logger.warn(`No requirement tool with id ${req.templateId} found in locale_en.json`);
+                    if (!processedItems[req.templateId]) {
+                        logger.warn(`${id}: No requirement resource with id ${req.templateId} found in processed items`);
                         continue;
                     }
                     const reqData = {
-                        name: en[`${req.templateId} Name`],
+                        name: processedItems[req.templateId].locale.en.name,
                         item: req.templateId,
                         count: 1,
                         attributes: []
@@ -130,10 +126,17 @@ module.exports = async function() {
                 });
                 craftData.level = 1;
             }
-            craftData.source = `${en[`hideout_area_${craft.areaType}_name`]} level ${craftData.level}`;
+            craftData.source = `${station.locale.en.name} level ${craftData.level}`;
             crafts.data.push(craftData);
+            stations[station.locale.en.name]++;
         }
-        logger.log(`Processed ${Object.keys(json).length} crafts`);
+        for (const stationName in stations) {
+            logger.log(`✔️ ${stationName}: ${stations[stationName]}`);
+        }
+        for (const stationName in inactiveStations) {
+            logger.log(`❌ ${stationName}: ${inactiveStations[stationName]}`);
+        }
+        logger.log(`Processed ${crafts.data.length} active crafts`);
 
         const response = await cloudflare.put('craft_data', JSON.stringify(crafts)).catch(error => {
             logger.error(error);
