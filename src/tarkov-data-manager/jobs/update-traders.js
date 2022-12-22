@@ -46,7 +46,8 @@ module.exports = async function(externalLogger) {
                 traderData.name = trader.nickname;
                 traderData.normalizedName = normalizeName(trader.nickname);
             }
-            logger.log(`${traderData.name} ${trader._id} - ${date}`);
+            logger.log(`✔️ ${traderData.name} ${trader._id}`);
+            logger.log(`   - Restock: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`);
             for (let i = 0; i < trader.loyaltyLevels.length; i++) {
                 const level = trader.loyaltyLevels[i];
                 if (trader._id == '579dc571d53a0658a154fbec' && traderData.levels.length === 0) {
@@ -72,6 +73,7 @@ module.exports = async function(externalLogger) {
                 }
                 traderData.levels.push(levelData);
             }
+            logger.log(`   - Levels: ${traderData.levels.length}`);
             if (tdTraders[traderData.name.toLowerCase()]) {
                 traderData.tarkovDataId = tdTraders[traderData.name.toLowerCase()].id;
             }

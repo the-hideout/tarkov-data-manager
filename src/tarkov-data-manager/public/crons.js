@@ -116,7 +116,6 @@ $(document).ready( function () {
                     for (let i = 0; i < data.length; i++) {
                         logMessages.push(ansi_up.ansi_to_html(data[i]));
                     }
-                    console.log(logMessages);
                     $('#modal-view-cron-log .log-messages').html(logMessages.join('<br>'));
                 });
             });

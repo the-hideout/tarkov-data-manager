@@ -112,7 +112,10 @@ module.exports = async function() {
         logger.log('Processing maps...');
         for (const id in locations.locations) {
             const map = locations.locations[id];
-            if (id !== '59fc81d786f774390775787e' && (!map.Enabled || map.Locked)) continue;
+            if (id !== '59fc81d786f774390775787e' && (!map.Enabled || map.Locked)) {
+                logger.log(`❌ ${locales.en[`${id} Name`] || ''} ${id}`);
+                continue;
+            }
             const mapData = {
                 id: id,
                 tarkovDataId: null,
@@ -233,6 +236,7 @@ module.exports = async function() {
             mapData.name = mapData.locale.en.name;
             mapData.normalizedName = normalizeName(mapData.name);
             maps.data.push(mapData);
+            logger.log(`✔️ ${mapData.name} ${id}`);
         }
 
         //const queueTimes = await mapQueueTimes(maps.data, logger);
