@@ -11,13 +11,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579 # pin@v2
+      - uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # pin@v3.2.0
 
       - uses: azure/login@77f1b2e3fb80c0e8645114159d17008b8a2e475a # pin@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - uses: hashicorp/setup-terraform@3d8debd658c92063839bc97da5c2427100420dec # pin@v1
+      - uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1 # pin@v2.0.3
         with:
           terraform_version: 1.1.7
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
@@ -46,7 +46,7 @@ jobs:
           script_stop: true
           script: ~/tarkov-data-manager/script/deploy -r="main" -d="tarkov-data-manager"
 
-      - uses: actions/setup-python@98f2ad02fd48d057ee3b4d4f66525b231c3e52b6 # pin@v3
+      - uses: actions/setup-python@5ccb29d8773c3f3f653e1705f474dfaa8a06a912 # pin@v4.4.0
         with:
           python-version: '3.10'
           cache: 'pip'
