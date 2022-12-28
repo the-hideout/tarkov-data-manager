@@ -3,7 +3,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
-const mapQueueTimes = require('../modules/map-queue-times');
+//const mapQueueTimes = require('../modules/map-queue-times');
 const { setLocales, getTranslations } = require('../modules/get-translation');
 
 const mapNames = {
@@ -49,7 +49,8 @@ const enemyMap = {
     'bossKojaniy': 'QuestCondition/Elimination/Kill/BotRole/bossKojaniy',
     'followerKojaniy': 'ScavRole/Follower',
     'bossTagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla',
-    'followerTagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla'
+    'followerTagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla',
+    'bossZryachiy': '63626d904aa74b8fe30ab426 ShortName',
 };
 
 const manualNames = {
