@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: github/branch-deploy@668add1b55ab3b7aff46668d95c4501aebdf2541 # pin@v3.0.3
+      - uses: github/branch-deploy@32a0085d9de430d4614bf6ceff687f4cb615f0d6 # pin@v3.1.0
         id: branch-deploy
         with:
           admins: the-hideout/core-contributors
@@ -25,7 +25,7 @@ jobs:
 
       - name: Checkout
         if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
-        uses: actions/checkout@7884fcad6b5d53d10323aee724dc68d8b9096a2e # pin@v2
+        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # pin@v3.2.0
         with:
           ref: ${{ steps.branch-deploy.outputs.ref }}
 
@@ -34,7 +34,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - uses: hashicorp/setup-terraform@ed3a0531877aca392eb870f440d9ae7aba83a6bd # pin@v1
+      - uses: hashicorp/setup-terraform@633666f66e0061ca3b725c73b2ec20cd13a8fdd1 # pin@v2.0.3
         if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
         with:
           terraform_version: 1.1.7
@@ -74,7 +74,7 @@ jobs:
         continue-on-error: true
 
       # Post comment on PR with development plan info
-      - uses: actions/github-script@5d03ada4b0a753e9460b312e61cc4f8fdeacf163 # pin@0.9.0
+      - uses: actions/github-script@d556feaca394842dc55e4734bf3bb9f685482fa0 # pin@v6.3.3
         if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop == 'true' }}
         env:
           PLAN: "terraform ${{ steps.plan.outputs.stdout }}"
@@ -130,7 +130,7 @@ jobs:
           script_stop: true
           script: ~/tarkov-data-manager/script/deploy -r="${{ steps.branch-deploy.outputs.ref }}" -f="${{ steps.branch-deploy.outputs.fork_checkout }}" -d="tarkov-data-manager" -n="${{ steps.branch-deploy.outputs.fork_full_name }}"
 
-      - uses: actions/setup-python@98f2ad02fd48d057ee3b4d4f66525b231c3e52b6 # pin@v3
+      - uses: actions/setup-python@5ccb29d8773c3f3f653e1705f474dfaa8a06a912 # pin@v4.4.0
         if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
         with:
           python-version: '3.10'
