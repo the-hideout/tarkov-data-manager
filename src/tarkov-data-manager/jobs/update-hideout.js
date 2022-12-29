@@ -94,7 +94,7 @@ module.exports = async () => {
                             id: `${stationData.id}-${i}-${r}`,
                             item: req.templateId,
                             name: en[`${req.templateId} Name`],
-                            count: req.count,
+                            count: req.count || 1,
                             //functional: req.isFunctional
                         });
                     } else if (req.type === 'Skill') {
