@@ -41,6 +41,8 @@ vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
 const app = express();
 const port = process.env.PORT || 4000;
 
+// variables for caching scanner data for the public api endpoint
+// /api/scanners-status will return the cached data if it is less than 60 seconds old
 var scannersCached = [];
 const scannersCachedExpiration = 60 * 1000;
 
