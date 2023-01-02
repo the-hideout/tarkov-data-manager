@@ -687,6 +687,31 @@ app.get('/items/get', async (req, res) => {
     res.json(items);
 });
 
+// Simple API route to determine if at least one scanner is online
+// Gets the general status of scanners
+app.get('/api/scanners-status', async (req, res) => {
+    const activeScanners = [];
+    const inactiveScanners = [];
+    const scanners = await query(`
+        SELECT scanner.*, COALESCE(scanner_user.flags, 0) as flags, COALESCE(scanner_user.disabled, 1) as disabled FROM scanner
+        LEFT JOIN scanner_user on scanner_user.id = scanner.scanner_user_id
+    `);
+    const userFlags = scannerApi.getUserFlags();
+    scanners.forEach(scanner => {
+        if (scanner.disabled) return;
+        if (!(scanner.flags & userFlags.insertPlayerPrices) && !(scanner.flags & userFlags.insertTraderPrices)) return;
+        if (new Date() - scanner.last_scan < 1000 * 60 * 5) {
+            activeScanners.push({...scanner, timestamp: scanner.last_scan});
+        } else {
+            inactiveScanners.push({...scanner, timestamp: scanner.last_scan});
+        }
+    });
+
+    if (activeScanners.length > 0) {
+        res.json({status: 'online'});
+    }
+});
+
 app.get('/scanners', async (req, res) => {
     const activeScanners = [];
     const inactiveScanners = [];
