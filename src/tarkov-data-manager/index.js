@@ -701,7 +701,6 @@ app.get('/api/scanners-status', async (req, res) => {
     if (scannersCached && new Date() - scannersCached.timestamp < scannersCachedExpiration) {
         scanners = scannersCached.scanners;
     } else {
-        console.log('Scanners cache expired, fetching new data from database...')
         scanners = await query(`
             SELECT scanner.*, COALESCE(scanner_user.flags, 0) as flags, COALESCE(scanner_user.disabled, 1) as disabled FROM scanner
             LEFT JOIN scanner_user on scanner_user.id = scanner.scanner_user_id
