@@ -709,6 +709,8 @@ app.get('/api/scanners-status', async (req, res) => {
 
     if (activeScanners.length > 0) {
         res.json({status: 'online'});
+    } else {
+        res.json({status: 'offline'});
     }
 });
 
