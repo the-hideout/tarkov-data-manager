@@ -41,6 +41,9 @@ vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
 const app = express();
 const port = process.env.PORT || 4000;
 
+var scannersCached = [];
+const scannersCachedExpiration = 60 * 1000;
+
 function maybe(fn) {
     return function(req, res, next) {
         if (req.path === '/auth' && req.method === 'POST') {
@@ -692,10 +695,20 @@ app.get('/items/get', async (req, res) => {
 app.get('/api/scanners-status', async (req, res) => {
     const activeScanners = [];
     const inactiveScanners = [];
-    const scanners = await query(`
-        SELECT scanner.*, COALESCE(scanner_user.flags, 0) as flags, COALESCE(scanner_user.disabled, 1) as disabled FROM scanner
-        LEFT JOIN scanner_user on scanner_user.id = scanner.scanner_user_id
-    `);
+    var scanners = [];
+
+    // Try to use the scannersCached data if it's not older than 1 minute
+    if (scannersCached && new Date() - scannersCached.timestamp < scannersCachedExpiration) {
+        scanners = scannersCached.scanners;
+    } else {
+        console.log('Scanners cache expired, fetching new data from database...')
+        scanners = await query(`
+            SELECT scanner.*, COALESCE(scanner_user.flags, 0) as flags, COALESCE(scanner_user.disabled, 1) as disabled FROM scanner
+            LEFT JOIN scanner_user on scanner_user.id = scanner.scanner_user_id
+        `);
+        scannersCached = {scanners: scanners, timestamp: new Date()};
+    }
+
     const userFlags = scannerApi.getUserFlags();
     scanners.forEach(scanner => {
         if (scanner.disabled) return;
@@ -707,6 +720,12 @@ app.get('/api/scanners-status', async (req, res) => {
         }
     });
 
+    // add a header indicating when the data was cached
+    res.set('x-cache-timestamp', `${new Date(scannersCached.timestamp).toISOString()}`);
+
+    // add a header indicating the remaining time in seconds until the cache expires
+    res.set('x-cache-remaining', `${Math.round((scannersCachedExpiration - (new Date() - scannersCached.timestamp)) / 1000)}`);
+    
     if (activeScanners.length > 0) {
         res.json({status: 'online'});
     } else {
