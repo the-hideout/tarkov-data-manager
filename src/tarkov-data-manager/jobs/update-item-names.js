@@ -30,7 +30,7 @@ module.exports = async (externalLogger) => {
             }
         }
 
-        const doNotUse = /DO[ _]NOT[ _]USE/;
+        const doNotUse = /DO[ _]NOT[ _]USE|translation_pending/;
         let i = 0;
         for (const [itemId, localItem] of localItems.entries()) {
             i++;
@@ -43,27 +43,36 @@ module.exports = async (externalLogger) => {
             let shortname = localItem.short_name;
             let normalized = localItem.normalized_name;
             let bgColor = localItem.properties.backgroundColor;
+            let width = localItem.properties.width;
+            let height = localItem.properties.height;
             if (item) {
                 if (!en[`${itemId} Name`]) {
                     logger.log(`No en translation found for ${itemId} ${item._name}`);
                     continue;
                 }
-                name = item._props.Name.toString().trim();
+                //name = item._props.Name.toString().trim();
                 name = en[`${itemId} Name`].toString().trim();
                 shortname = en[`${itemId} ShortName`].toString().trim();
                 bgColor = item._props.BackgroundColor;
-            } else if (presets[itemId]) {
+                width = item._props.Width;
+                height = item._props.Height;
+            } /*else if (presets[itemId]) {
                 name = presets[itemId].name;
                 shortname = presets[itemId].shortName;
                 bgColor = presets[itemId].backgroundColor;
-            }
+            }*/
             if ((!name || name == null) && normalized) {
                 name = normalized;
             } else if (name && !normalized) {
                 normalized = normalizeName(name);
             }
 
-            if (name !== localItem.name || shortname !== localItem.short_name || normalized !== localItem.normalized_name || bgColor !== localItem.properties.backgroundColor) {
+            if (name !== localItem.name || 
+                shortname !== localItem.short_name || 
+                normalized !== localItem.normalized_name || 
+                bgColor !== localItem.properties.backgroundColor || 
+                width !== localItem.properties.width ||
+                height !== localItem.properties.height) {
                 if (localItem.name.match(doNotUse) && !name.match(doNotUse)) {
                     query(`DELETE FROM types WHERE item_id = ? AND type = 'disabled'`, [itemId]);
                 }
@@ -74,6 +83,8 @@ module.exports = async (externalLogger) => {
                             name = ${connection.escape(name)},
                             short_name = ${connection.escape(shortname)},
                             normalized_name = ${connection.escape(normalized)},
+                            width = ${connection.escape(width)},
+                            height = ${connection.escape(height)},
                             properties = ${connection.escape(JSON.stringify({backgroundColor: bgColor}))}
                         WHERE
                             id = '${itemId}'
