@@ -61,6 +61,7 @@ module.exports = async function() {
                 requirements: []
             };
             let level = false;
+            let skip = false;
             for (index in craft.requirements) {
                 const req = craft.requirements[index];
                 if (req.type === 'Area') {
@@ -109,7 +110,7 @@ module.exports = async function() {
                         if (!questItems[req.templateId]) {
                             logger.warn(`${id}: Unknown tool ${en[`${req.templateId} Name`]} ${req.templateId}`);
                             if (items[req.templateId] && items[req.templateId]._props.QuestItem) {
-                                craftData.requiredQuestItems.push(null);
+                                skip = true;
                             }
                             continue;
                         }
@@ -145,6 +146,9 @@ module.exports = async function() {
                 } else {
                     logger.warn(`${id}: Unknown craft requirement type ${req.type}`);
                 }
+            }
+            if (skip) {
+                continue;
             }
             if (!level) {
                 //craftData.station = craftData.station + ' level 1';
