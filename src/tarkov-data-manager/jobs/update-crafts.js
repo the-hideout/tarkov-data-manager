@@ -10,13 +10,16 @@ module.exports = async function() {
     const logger = new JobLogger('update-crafts');
     try {
         logger.log('Loading json files...');
-        const [items, json, en, areas, processedItems] = await Promise.all([
+        const [items, json, en, areas, processedItems, tasksData] = await Promise.all([
             tarkovData.items(),
             tarkovData.crafts(),
             tarkovData.locale('en'),
             jobOutput('update-hideout', './dumps/hideout_data.json', logger),
             jobOutput('update-item-cache', './dumps/item_data.json', logger),
+            jobOutput('update-quests', './dumps/quest_data.json', logger, true),
         ]);
+        const tasks = tasksData.data;
+        const questItems = tasksData.items;
         const crafts = {
             updated: new Date(),
             data: [],
@@ -44,6 +47,7 @@ module.exports = async function() {
             const craftData = {
                 id: id,
                 requiredItems: [],
+                requiredQuestItems: [],
                 rewardItems: [{
                     name: processedItems[craft.endProduct].locale.en.name,
                     item: craft.endProduct,
@@ -69,11 +73,11 @@ module.exports = async function() {
                     level = req.requiredLevel;
                 } else if (req.type === 'Resource') {
                     if (!items[req.templateId]) {
-                        logger.warn(`${id}: No requirement resource with id ${req.templateId} found in items.json`);
+                        logger.warn(`${id}: Resource ${en[`${req.templateId} Name`]} ${req.templateId} not found in items.json`);
                         continue;
                     }
                     if (!processedItems[req.templateId]) {
-                        logger.warn(`${id}: No requirement resource with id ${req.templateId} found in processed items`);
+                        logger.warn(`${id}: Resource ${en[`${req.templateId} Name`]} ${req.templateId} not found in processed items`);
                         continue;
                     }
                     craftData.requiredItems.push({
@@ -84,7 +88,7 @@ module.exports = async function() {
                     });
                 } else if (req.type === 'Item') {
                     if (!processedItems[req.templateId]) {
-                        logger.warn(`${id}: No requirement resource with id ${req.templateId} found in processed items`);
+                        logger.warn(`${id}: Unknown item ${en[`${req.templateId} Name`]} ${req.templateId} found in processed items`);
                         continue;
                     }
                     const reqData = {
@@ -102,7 +106,17 @@ module.exports = async function() {
                     craftData.requiredItems.push(reqData);
                 } else if (req.type == 'Tool') {
                     if (!processedItems[req.templateId]) {
-                        logger.warn(`${id}: No requirement resource with id ${req.templateId} found in processed items`);
+                        if (!questItems[req.templateId]) {
+                            logger.warn(`${id}: Unknown tool ${en[`${req.templateId} Name`]} ${req.templateId}`);
+                            if (items[req.templateId] && items[req.templateId]._props.QuestItem) {
+                                craftData.requiredQuestItems.push(null);
+                            }
+                            continue;
+                        }
+                        craftData.requiredQuestItems.push({
+                            name: questItems[req.templateId].locale.en.name,
+                            item: req.templateId,
+                        });
                         continue;
                     }
                     const reqData = {
@@ -116,6 +130,20 @@ module.exports = async function() {
                         value: String(true)
                     });
                     craftData.requiredItems.push(reqData);
+                } else if (req.type === 'QuestComplete') {
+                    const task = tasks.find(q => q.id === req.questId);
+                    if (!task) {
+                        logger.warn(`${id}: Unknown quest unlock ${en[`${req.questId} name`]} ${req.questId}`);
+                        continue;
+                    }
+                    craftData.requirements.push({
+                        type: 'questCompleted',
+                        value: task.tarkovDataId,
+                        stringValue: task.id,
+                    });
+                    craftData.taskUnlock = task.id;
+                } else {
+                    logger.warn(`${id}: Unknown craft requirement type ${req.type}`);
                 }
             }
             if (!level) {

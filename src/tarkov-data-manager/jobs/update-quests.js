@@ -21,6 +21,8 @@ let tdQuests = false;
 let tdTraders = false;
 let tdMaps = false;
 let maps = false;
+let hideout = false;
+let crafts = false;
 let traderIdMap = {};
 const questItems = {};
 
@@ -58,7 +60,8 @@ const zoneMap = {
     place_merch_022_5: 'Inside ULTRA Mall',
     place_merch_022_6: 'Inside ULTRA Mall',
     place_merch_022_7: 'Inside ULTRA Mall',
-    lijnik_storage_area_1: 'Underground Warehouse'
+    lijnik_storage_area_1: 'Underground Warehouse',
+    quest_zone_kill_c17_adm: 'Pinewood Hotel',
 };
 
 const factionMap = {
@@ -222,6 +225,38 @@ const loadRewards = (questData, rewardsType, sourceRewards) => {
                 trader_id: reward.target,
                 trader_name: locales.en[`${reward.target} Nickname`]
             });
+        } else if (reward.type === 'ProductionScheme') {
+            const station = hideout.find(s => s.areaType == reward.traderId);
+            if (!station) {
+                logger.warn(`Unrecognized hideout area type "${reward.traderId}" for ${rewardsType} reward ${reward.id} of ${questData.name}`);
+                continue;
+            }
+            const craft = crafts.find(c => {
+                if (c.station !== station.id || c.level !== reward.loyaltyLevel) {
+                    return false;
+                }
+                if (reward.items[0]._tpl !== c.rewardItems[0].item) {
+                    return false;
+                }
+                return true;
+            });
+            if (!craft) {
+                logger.warn(`Unrecognized craft of ${locales.en[`${reward.items[0]._tpl} Name`]} at ${station.name} ${reward.loyaltyLevel} for ${rewardsType} reward ${reward.id} of ${questData.name}`);
+                continue;
+            }
+            questData[rewardsType].craftUnlock.push({
+                craft_id: craft.id,
+                items: reward.items.map(item => {
+                    return {
+                        id: item._tpl,
+                        name: locales.en[`${item._tpl} Name`],
+                        count: item.upd?.StackObjectsCount || 1,
+                    }
+                }),
+                station_id: station.id,
+                station_name: station.name,
+                level: reward.loyaltyLevel,
+            });
         } else {
             logger.warn(`Unrecognized reward type "${reward.type}" for ${rewardsType} reward ${reward.id} of ${questData.name}`);
         }
@@ -273,14 +308,16 @@ const formatTdQuest = (quest) => {
             items: [],
             offerUnlock: [],
             skillLevelReward: [],
-            traderUnlock: []
+            traderUnlock: [],
+            craftUnlock: [],
         },
         finishRewards: {
             traderStanding: [],
             items: [],
             offerUnlock: [],
             skillLevelReward: [],
-            traderUnlock: []
+            traderUnlock: [],
+            craftUnlock: [],
         },
         experience: quest.exp,
         tarkovDataId: quest.id,
@@ -451,10 +488,16 @@ module.exports = async (externalLogger = false) => {
             responseType: 'json',
             resolveBodyOnly: true,
         });
+        const oldQuests = await got('https://dev.sp-tarkov.com/SPT-AKI/Server/raw/commit/4e0192f21ed557b78d3e65a1c7c5f380c0dcfa96/project/assets/database/templates/quests.json', {
+            responseType: 'json',
+            resolveBodyOnly: true,
+        });
         const data = await tarkovData.quests(true);
         items = await tarkovData.items();
         locales = await tarkovData.locales();
         maps = await jobOutput('update-maps', './dumps/map_data.json', logger);
+        hideout = await jobOutput('update-hideout', './dumps/hideout_data.json', logger);
+        crafts = await jobOutput('update-crafts', './dumps/craft_data.json', logger);
         const traders = await jobOutput('update-traders', './dumps/trader_data.json', logger);
         for (const trader of traders) {
             traderIdMap[trader.tarkovDataId] = trader.id;
@@ -551,14 +594,16 @@ module.exports = async (externalLogger = false) => {
                     items: [],
                     offerUnlock: [],
                     skillLevelReward: [],
-                    traderUnlock: []
+                    traderUnlock: [],
+                    craftUnlock: [],
                 },
                 finishRewards: {
                     traderStanding: [],
                     items: [],
                     offerUnlock: [],
                     skillLevelReward: [],
-                    traderUnlock: []
+                    traderUnlock: [],
+                    craftUnlock: [],
                 },
                 experience: 0,
                 tarkovDataId: undefined,
@@ -688,12 +733,6 @@ module.exports = async (externalLogger = false) => {
                         } else if (cond._parent === 'Location') {
                             for (const loc of cond._props.target) {
                                 if (loc === 'develop') continue;
-                                if (!locales.en[loc]) {
-                                    logger.warn(`Unrecognized location ${loc} for objective ${obj.id} of ${questData.name} ${questData.id}`);
-                                    continue;
-                                }
-                                //let mapName = en.interface[loc];
-                                //if (mapName === 'Laboratory') mapName = 'The Lab';
                                 const map = getMapFromNameId(loc);
                                 if (map) {
                                     obj.locationNames.push(map.name);
@@ -705,6 +744,8 @@ module.exports = async (externalLogger = false) => {
                         } else if (cond._parent === 'ExitStatus') {
                             obj.exitStatus = cond._props.status;
                             obj.zoneNames = [];
+                        } else if (cond._parent === 'ExitName') {
+                            obj.locale = addTranslations(obj.locale, {exitName: cond._props.exitName}, logger);
                         } else if (cond._parent === 'Equipment') {
                             if (!obj.wearing) obj.wearing = [];
                             if (!obj.notWearing) obj.notWearing = [];
@@ -1000,7 +1041,7 @@ module.exports = async (externalLogger = false) => {
             }
             if (typeof questData.tarkovDataId === 'undefined') {
                 questData.tarkovDataId = null;
-                logger.warn(`Could not find TarkovData quest id for ${questData.name} ${questData.id}`);
+                //logger.warn(`Could not find TarkovData quest id for ${questData.name} ${questData.id}`);
             } else {
                 mergeTdQuest(questData);
             }
@@ -1068,7 +1109,17 @@ module.exports = async (externalLogger = false) => {
         }
         logger.log('Finished processing TarkovData quests');
 
+        for (const oldQuestId in oldQuests) {
+            const foundQuest = quests.data.find(q => q.id === oldQuestId);
+            if (!foundQuest && !removedQuests[oldQuestId]) {
+                logger.warn(`Old quest ${locales.en[`${oldQuestId} name`]} ${oldQuestId} is missing from current quests`);
+                continue;
+            }
+        }
+
+
         // add start, success, and fail message ids
+        // validate task requirements
 
         for (const quest of quests.data) {
             /*quest.descriptionMessageId = locales.en.quest[quest.id]?.description;
