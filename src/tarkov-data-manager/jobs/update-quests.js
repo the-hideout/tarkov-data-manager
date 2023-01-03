@@ -1073,6 +1073,17 @@ module.exports = async (externalLogger = false) => {
             quest.successMessageId = locales.en.quest[quest.id]?.successMessageText;
             quest.failMessageId = locales.en.quest[quest.id]?.failMessageText;*/
             quest.normalizedName = normalizeName(quest.name)+(quest.factionName !== 'Any' ? `-${normalizeName(quest.factionName)}` : '');
+
+            const removeReqs = [];
+            for (const req of quest.taskRequirements) {
+                const questIncluded = quests.data.some(q => q.id === req.task);
+                if (questIncluded) {
+                    continue;
+                }
+                logger.warn(`${quest.locale.en.name} (${quest.id}) task requirement ${req.name} (${req.task}) is not a valid task`);
+                removeReqs.push(req.task);
+            }
+            quest.taskRequirements = quest.taskRequirements.filter(req => !removeReqs.includes(req.task));
         }
 
         const ignoreQuests = [
