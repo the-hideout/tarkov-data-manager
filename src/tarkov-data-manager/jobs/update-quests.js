@@ -637,6 +637,9 @@ module.exports = async (externalLogger = false) => {
                             }
                             if (cond._props.weapon) {
                                 for (const itemId of cond._props.weapon) {
+                                    if (!itemMap[itemId] || itemMap[itemId].types.includes('disabled')) {
+                                        continue;
+                                    }
                                     obj.usingWeapon.push({
                                         id: itemId,
                                         name: locales.en[`${itemId} Name`]
