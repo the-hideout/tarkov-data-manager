@@ -71,8 +71,8 @@ module.exports = async (externalLogger) => {
                 shortname !== localItem.short_name || 
                 normalized !== localItem.normalized_name || 
                 bgColor !== localItem.properties.backgroundColor || 
-                width !== localItem.properties.width ||
-                height !== localItem.properties.height) {
+                width !== localItem.width ||
+                height !== localItem.height) {
                 if (localItem.name.match(doNotUse) && !name.match(doNotUse)) {
                     query(`DELETE FROM types WHERE item_id = ? AND type = 'disabled'`, [itemId]);
                 }
