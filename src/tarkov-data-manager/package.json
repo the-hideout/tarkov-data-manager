@@ -7,9 +7,9 @@
     "node": "18.x"
   },
   "scripts": {
-    "test": "node -r dotenv/config --trace-warnings  test.js",
-    "dev": "node -r dotenv/config --trace-warnings  index.js",
-    "start": "node --max-old-space-size=460 index.js",
+    "test": "node -r dotenv/config --trace-warnings test.js",
+    "dev": "node -r dotenv/config --trace-warnings index.js",
+    "start": "node index.js",
     "job": "node -r dotenv/config --trace-warnings test-job.js",
     "put-kvs": "node -r dotenv/config --trace-warnings populate-kvs.js"
   },
