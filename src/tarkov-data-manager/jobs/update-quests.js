@@ -22,7 +22,6 @@ let tdTraders = false;
 let tdMaps = false;
 let maps = false;
 let hideout = false;
-let crafts = false;
 let traderIdMap = {};
 const questItems = {};
 
@@ -231,21 +230,7 @@ const loadRewards = (questData, rewardsType, sourceRewards) => {
                 logger.warn(`Unrecognized hideout area type "${reward.traderId}" for ${rewardsType} reward ${reward.id} of ${questData.name}`);
                 continue;
             }
-            const craft = crafts.find(c => {
-                if (c.station !== station.id || c.level !== reward.loyaltyLevel) {
-                    return false;
-                }
-                if (reward.items[0]._tpl !== c.rewardItems[0].item) {
-                    return false;
-                }
-                return true;
-            });
-            if (!craft) {
-                logger.warn(`Unrecognized craft of ${locales.en[`${reward.items[0]._tpl} Name`]} at ${station.name} ${reward.loyaltyLevel} for ${rewardsType} reward ${reward.id} of ${questData.name}`);
-                continue;
-            }
             questData[rewardsType].craftUnlock.push({
-                craft_id: craft.id,
                 items: reward.items.map(item => {
                     return {
                         id: item._tpl,
@@ -497,7 +482,6 @@ module.exports = async (externalLogger = false) => {
         locales = await tarkovData.locales();
         maps = await jobOutput('update-maps', './dumps/map_data.json', logger);
         hideout = await jobOutput('update-hideout', './dumps/hideout_data.json', logger);
-        crafts = await jobOutput('update-crafts', './dumps/craft_data.json', logger);
         const traders = await jobOutput('update-traders', './dumps/trader_data.json', logger);
         for (const trader of traders) {
             traderIdMap[trader.tarkovDataId] = trader.id;
