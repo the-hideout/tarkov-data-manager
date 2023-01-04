@@ -362,16 +362,15 @@ module.exports = async function() {
             ORDER BY item_data.id
         `);
         const wikiPromise = got(TRADES_URL);
-        const tasksPromise = jobOutput('update-quests', './dumps/quest_data.json', logger);
         const oldTasksPromise = got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
             responseType: 'json',
         });
-        const allResults = await Promise.all([itemsPromise, wikiPromise, tasksPromise, oldTasksPromise]);
+        const allResults = await Promise.all([itemsPromise, wikiPromise, oldTasksPromise]);
         const results = allResults[0];
         const wikiResponse = allResults[1];
-        tasks = allResults[2];
-        oldTasks = allResults[3].body;
+        oldTasks = allResults[2].body;
         presetData = await jobOutput('update-presets', './cache/presets.json', logger);//JSON.parse(fs.readFileSync('./cache/presets.json'));
+        tasks = await jobOutput('update-quests', './dumps/quest_data.json', logger);
         $ = cheerio.load(wikiResponse.body);
         trades = {
             updated: new Date(),
