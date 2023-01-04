@@ -2,7 +2,6 @@
 creds.env
 node_modules
 *.sql
-dumps/
 bsg-data.json
 item-props.json
 scripts/local/
@@ -17,6 +16,7 @@ src/tarkov-data-manager/node-logs/*
 src/tarkov-data-manager/generated-images
 src/tarkov-data-manager/generated-images/*
 src/tarkov-data-manager/public/data/*.json
+src/tarkov-data-manager/dumps/*.json
 
 # Terraform
 terraform.auto.tfvars.json
