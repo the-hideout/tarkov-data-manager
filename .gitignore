@@ -12,6 +12,8 @@ src/tarkov-data-manager/logs/*.log
 src/tarkov-data-manager/settings/crons.json
 src/tarkov-data-manager/cache/*
 !src/tarkov-data-manager/cache/.gitkeep
+src/tarkov-data-manager/node-logs/*
+!src/tarkov-data-manager/node-logs/.gitkeep
 src/tarkov-data-manager/generated-images
 src/tarkov-data-manager/generated-images/*
 src/tarkov-data-manager/public/data/*.json
