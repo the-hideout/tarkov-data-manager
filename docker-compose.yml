@@ -16,6 +16,7 @@ services:
       - ./src/tarkov-data-manager/settings:/app/settings
       - ./src/tarkov-data-manager/cache:/app/cache
       - ./src/tarkov-data-manager/logs:/app/logs
+      - ./src/tarkov-data-manager/node-logs:/home/node/.npm/_logs
 
   caddy:
     container_name: caddy-service
