@@ -11,14 +11,14 @@ module.exports = async function() {
     logger.verbose = true;
     try {
         logger.log('Loading json files...');
-        const [items, json, en, areas, processedItems, tasksData] = await Promise.all([
+        const [items, json, en] = await Promise.all([
             tarkovData.items(),
             tarkovData.crafts(),
             tarkovData.locale('en'),
-            jobOutput('update-hideout', './dumps/hideout_data.json', logger),
-            jobOutput('update-item-cache', './dumps/item_data.json', logger),
-            jobOutput('update-quests', './dumps/quest_data.json', logger, true),
         ]);
+        const areas = await jobOutput('update-hideout', './dumps/hideout_data.json', logger);
+        const processedItems = await jobOutput('update-item-cache', './dumps/item_data.json', logger);
+        const tasksData = await jobOutput('update-quests', './dumps/quest_data.json', logger, true);
         const tasks = tasksData.data;
         const questItems = tasksData.items;
         const crafts = {

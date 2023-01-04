@@ -6,7 +6,6 @@ const oldNames = require('../old-names.json');
 const fixName = require('../modules/wiki-replacements');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const tarkovData = require('../modules/tarkov-data');
 const { query, jobComplete } = require('../modules/db-connection');
 const jobOutput = require('../modules/job-output');
 

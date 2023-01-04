@@ -233,8 +233,6 @@ module.exports = async () => {
             credits, 
             locales, 
             globals, 
-            traderData, 
-            presets,
             avgPriceYesterday, 
             lastKnownPriceData, 
             itemMap,
@@ -244,13 +242,13 @@ module.exports = async () => {
             tarkovData.credits(),
             tarkovData.locales(),
             tarkovData.globals(),
-            jobOutput('update-traders', './dumps/trader_data.json', logger),
-            jobOutput('update-presets', './cache/presets.json', logger),
             avgPriceYesterdayPromise,
             lastKnownPriceDataPromise,
             remoteData.get(true),
             tarkovData.handbook(),
         ]);
+        traderData = await jobOutput('update-traders', './dumps/trader_data.json', logger);
+        presets = await jobOutput('update-presets', './cache/presets.json', logger);
         const itemData = {};
         const itemTypesSet = new Set();
         bsgCategories = {};
