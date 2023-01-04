@@ -43,8 +43,8 @@ module.exports = async (externalLogger) => {
             let shortname = localItem.short_name;
             let normalized = localItem.normalized_name;
             let bgColor = localItem.properties.backgroundColor;
-            let width = localItem.properties.width;
-            let height = localItem.properties.height;
+            let width = localItem.width;
+            let height = localItem.height;
             if (item) {
                 if (!en[`${itemId} Name`]) {
                     logger.log(`No en translation found for ${itemId} ${item._name}`);
