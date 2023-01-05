@@ -8,7 +8,6 @@ const jobOutput = require('../modules/job-output');
 
 module.exports = async function() {
     const logger = new JobLogger('update-crafts');
-    logger.verbose = true;
     try {
         logger.log('Loading json files...');
         const [items, json, en] = await Promise.all([
