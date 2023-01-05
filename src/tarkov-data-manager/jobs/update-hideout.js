@@ -87,6 +87,12 @@ module.exports = async () => {
                 if (typeof stageData.tarkovDataId === 'undefined') {
                     logger.warn(`Could not find tarkovData id for ${stationData.name} level ${stageData.level}`);
                 }
+                if (i === 1 && station.requirements.length > 0) {
+                    stage.requirements = [
+                        ...station.requirements,
+                        ...stage.requirements,
+                    ];
+                }
                 for (let r = 0; r < stage.requirements.length; r++) {
                     const req = stage.requirements[r];
                     if (req.type === 'Item') {
