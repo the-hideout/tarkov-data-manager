@@ -182,8 +182,8 @@ module.exports = async function() {
                 if (spawn.Supports) {
                     for (const support of spawn.Supports) {
                         if (support.BossEscortAmount === '0') continue;
-                        let enemyKey = spawn.BossEscortType;
-                        if (!enemyMap[spawn.BossEscortType] && !manualNames[spawn.BossEscortType]) {
+                        let enemyKey = support.BossEscortType;
+                        if (!enemyMap[enemyKey] && !manualNames[enemyKey]) {
                             enemyKey = 'guard';
                         }
                         enemySet.add(enemyKey);
