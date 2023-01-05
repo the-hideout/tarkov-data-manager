@@ -72,7 +72,7 @@ const getEnemyName = (enemy, lang) => {
     } else if (manualNames[enemy]) {
         return manualNames[enemy];
     }
-    return enemy;
+    return enemy.replace('boss', '');
 };
 
 const getChances = (input, nameLabel = 'name', labelInt = false) => {
