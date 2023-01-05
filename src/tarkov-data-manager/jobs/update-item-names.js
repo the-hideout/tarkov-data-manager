@@ -29,7 +29,7 @@ module.exports = async (externalLogger) => {
                 currentDestinations.push(localItem.normalized_name);
             }
         }
-
+        const normalizedNames = {};
         const doNotUse = /DO[ _]NOT[ _]USE|translation_pending/;
         let i = 0;
         for (const [itemId, localItem] of localItems.entries()) {
@@ -53,6 +53,7 @@ module.exports = async (externalLogger) => {
                 //name = item._props.Name.toString().trim();
                 name = en[`${itemId} Name`].toString().trim();
                 shortname = en[`${itemId} ShortName`].toString().trim();
+                normalized = name ? normalizeName(name) : normalized;
                 bgColor = item._props.BackgroundColor;
                 width = item._props.Width;
                 height = item._props.Height;
@@ -65,6 +66,17 @@ module.exports = async (externalLogger) => {
                 name = normalized;
             } else if (name && !normalized) {
                 normalized = normalizeName(name);
+            }
+
+            if (!localItem.types.includes('disabled')) {
+                if (normalizedNames[normalized]) {
+                    let counter = 1;
+                    while (normalizedNames[`${normalized}-${counter}`]) {
+                        counter++;
+                    }
+                    normalized = `${normalized}-${counter}`;
+                }
+                normalizedNames[normalized] = itemId;
             }
 
             if (name !== localItem.name || 
