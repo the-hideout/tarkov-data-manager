@@ -32,26 +32,20 @@ const idMap = {
 
 const enemyMap = {
     'bossGluhar': 'QuestCondition/Elimination/Kill/BotRole/bossGluhar',
-    'followerGluharScout': 'ScavRole/Follower',
-    'followerGluharAssault': 'ScavRole/Follower',
-    'followerGluharSecurity': 'ScavRole/Follower',
     'bossKilla': 'QuestCondition/Elimination/Kill/BotRole/bossKilla',
     'pmcBot': 'ScavRole/PmcBot',
     'bossBully': 'QuestCondition/Elimination/Kill/BotRole/bossBully',
-    'followerBully': 'ScavRole/Follower',
     'exUsec': 'ScavRole/ExUsec',
     'bossSanitar': 'QuestCondition/Elimination/Kill/BotRole/bossSanitar',
-    'followerSanitar': 'ScavRole/Follower',
     'scavs': 'QuestCondition/Elimination/Kill/Target/Savage',
     'sniper': 'ScavRole/Marksman',
     'sectantPriest': 'QuestCondition/Elimination/Kill/BotRole/sectantPriest',
     'sectantWarrior': 'QuestCondition/Elimination/Kill/BotRole/cursedAssault',
     'bossKojaniy': 'QuestCondition/Elimination/Kill/BotRole/bossKojaniy',
-    'followerKojaniy': 'ScavRole/Follower',
     'bossTagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla',
     'followerTagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla',
     'bossZryachiy': '63626d904aa74b8fe30ab426 ShortName',
-    'followerZryachiy': 'ScavRole/Follower',
+    'guard': 'ScavRole/Follower',
 };
 
 const manualNames = {
@@ -173,28 +167,32 @@ module.exports = async function() {
                     });
                 }
                 if (spawn.BossEscortAmount !== '0') {
-                    if (enemyMap[spawn.BossEscortType] || manualNames[spawn.BossEscortType]) {
-                        enemySet.add(spawn.BossEscortType);
-                        bossData.escorts.push({
-                            name: spawn.BossEscortType,
-                            normalizedName: normalizeName(getEnemyName(spawn.BossEscortType, locales.en)),
-                            amount: getChances(spawn.BossEscortAmount, 'count', true), 
-                            locale: {}
-                        });
+                    let enemyKey = spawn.BossEscortType;
+                    if (!enemyMap[spawn.BossEscortType] && !manualNames[spawn.BossEscortType]) {
+                        enemyKey = 'guard';
                     }
+                    enemySet.add(enemyKey);
+                    bossData.escorts.push({
+                        name: enemyKey,
+                        normalizedName: normalizeName(getEnemyName(enemyKey, locales.en)),
+                        amount: getChances(spawn.BossEscortAmount, 'count', true), 
+                        locale: {}
+                    });
                 }
                 if (spawn.Supports) {
                     for (const support of spawn.Supports) {
                         if (support.BossEscortAmount === '0') continue;
-                        if (enemyMap[support.BossEscortType] || manualNames[support.BossEscortType]) {
-                            enemySet.add(support.BossEscortType);
-                            bossData.escorts.push({
-                                name: support.BossEscortType,
-                                normalizedName: normalizeName(getEnemyName(support.BossEscortType, locales.en)),
-                                amount: getChances(support.BossEscortAmount, 'count', true), 
-                                locale: {}
-                            });
+                        let enemyKey = spawn.BossEscortType;
+                        if (!enemyMap[spawn.BossEscortType] && !manualNames[spawn.BossEscortType]) {
+                            enemyKey = 'guard';
                         }
+                        enemySet.add(enemyKey);
+                        bossData.escorts.push({
+                            name: enemyKey,
+                            normalizedName: normalizeName(getEnemyName(enemyKey, locales.en)),
+                            amount: getChances(support.BossEscortAmount, 'count', true), 
+                            locale: {}
+                        });
                     }
                 }
 
