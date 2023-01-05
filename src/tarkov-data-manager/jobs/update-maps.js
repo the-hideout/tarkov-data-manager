@@ -51,6 +51,7 @@ const enemyMap = {
     'bossTagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla',
     'followerTagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla',
     'bossZryachiy': '63626d904aa74b8fe30ab426 ShortName',
+    'followerZryachiy': 'ScavRole/Follower',
 };
 
 const manualNames = {
