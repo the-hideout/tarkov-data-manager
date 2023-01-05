@@ -29,7 +29,10 @@ module.exports = async (externalLogger) => {
                 currentDestinations.push(localItem.normalized_name);
             }
         }
-        const normalizedNames = {};
+        const normalizedNames = {
+            normal: {},
+            quest: {},
+        };
         const doNotUse = /DO[ _]NOT[ _]USE|translation_pending/;
         let i = 0;
         for (const [itemId, localItem] of localItems.entries()) {
@@ -69,14 +72,15 @@ module.exports = async (externalLogger) => {
             }
 
             if (!localItem.types.includes('disabled')) {
-                if (normalizedNames[normalized]) {
+                const normalType = localItem.types.includes('quest') ? 'quest' : 'normal';
+                if (normalizedNames[normalType][normalized]) {
                     let counter = 1;
-                    while (normalizedNames[`${normalized}-${counter}`]) {
+                    while (normalizedNames[normalType][`${normalized}-${counter}`]) {
                         counter++;
                     }
                     normalized = `${normalized}-${counter}`;
                 }
-                normalizedNames[normalized] = itemId;
+                normalizedNames[normalType][normalized] = itemId;
             }
 
             if (name !== localItem.name || 
