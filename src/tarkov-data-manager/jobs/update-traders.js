@@ -39,7 +39,9 @@ module.exports = async function(externalLogger) {
                 locale: getTranslations({
                     name: `${trader._id} Nickname`,
                     description: `${trader._id} Description`,
-                }, logger)
+                }, logger),
+                items_buy: trader.items_buy,
+                items_buy_prohibited: trader.items_buy_prohibited,
             };
             if (!locales.en[`${trader._id} Nickname`]) {
                 logger.warn(`No trader id ${trader._id} found in locale_en.json`);
