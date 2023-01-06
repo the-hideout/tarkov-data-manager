@@ -497,6 +497,15 @@
                 "id": "5ac242ab86f77412464f68b4",
                 "name": "Gunsmith - Part 16"
             }
+        ],
+        "taskRequirementsAdded": [
+            {
+                "task": "5b47799d86f7746c5d6a5fd8",
+                "name": "Gunsmith - Part 12",
+                "status": [
+                    "complete"
+                ]
+            }
         ]
     },
     "5ae3280386f7742a41359364": {
@@ -514,6 +523,15 @@
             {
                 "id": "5ac244eb86f7741356335af1",
                 "name": "Gunsmith - Part 7"
+            }
+        ],
+        "taskRequirementsAdded": [
+            {
+                "task": "5ae3280386f7742a41359364",
+                "name": "Gunsmith - Part 15",
+                "status": [
+                    "complete"
+                ]
             }
         ]
     },
