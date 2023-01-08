@@ -8,7 +8,7 @@ const hideoutLegacy = require('./update-hideout-legacy');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
 
-const skipChristmasTree = false;
+const skipChristmasTree = true;
 
 module.exports = async () => {
     const logger = new JobLogger('update-hideout');    
