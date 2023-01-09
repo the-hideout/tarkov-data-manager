@@ -820,6 +820,7 @@ const formatRawQuest = (quest) => {
             obj.recoil.value = parseInt(obj.recoil.value);*/
             obj.containsAll = [];
             obj.containsOne = [];
+            obj.containsCategory = [];
             for (const itemId of objective._props.containsItems) {
                 obj.containsAll.push({
                     id: itemId,
@@ -830,6 +831,10 @@ const formatRawQuest = (quest) => {
                 if (itemMap[itemId] && itemMap[itemId].types.includes('disabled')) {
                     continue;
                 }
+                obj.containsCategory.push({
+                    id: itemId,
+                    name: locales.en[`${itemId} Name`]
+                });
                 Object.values(itemMap).forEach(item => {
                     if (item.categories.includes(itemId)) {
                         obj.containsOne.push({
