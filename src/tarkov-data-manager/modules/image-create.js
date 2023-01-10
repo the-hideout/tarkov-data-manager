@@ -3,33 +3,28 @@ const sharp = require('sharp');
 const axios = require('axios');
 const { imageFunctions } = require('tarkov-dev-image-generator');
 
+const remoteData = require('../modules/remote-data');
 const { uploadToS3 } = require('./upload-s3');
-const jobOutput = require('./job-output');
-const tarkovData = require('./tarkov-data');
+
+function itemFromDb(itemData) {
+    return {
+        id: itemData.id,
+        name: itemData.name,
+        shortName: itemData.short_name,
+        backgroundColor: itemData.properties.backgroundColor,
+        width: itemData.width,
+        height: itemData.height,
+        types: itemData.types
+    };
+}
 
 async function createFromSource(sourceImage, id) {
-    const itemData = await jobOutput('update-item-cache', './dumps/item_data.json');
-    const taskData = await jobOutput('update-quests', './dumps/quest_data.json', false, true);
-    let item = itemData[id] || taskData.items[id];
-    if (!item) {
-        const items = await tarkovData.items();
-        const en = await tarkovData.locale('en');
-        if (!items[id] || !en.templates[id])
-            return Promise.reject(`Item ${id} not found in item data`);
-        item = {
-            id: id,
-            name: en.templates[id].Name,
-            shortName: en.templates[id].ShortName,
-            backgroundColor: items[id]._props.BackgroundColor,
-            width: items[id]._props.Width,
-            height: items[id]._props.Height,
-            types: []
-        }
+    const items = await remoteData.get();
+    const itemData = items.get(id);
+    if (!itemData) {
+        return Promise.reject(`Item ${id} not found in item data`);
     }
-    if (item.types.includes('gun')) {
-        item.width = item.properties.defaultWidth;
-        item.height = item.properties.defaultHeight;
-    }
+    const item = itemFromDb(itemData);
     if (typeof sourceImage === 'string') {
         sourceImage = sharp(sourceImage);
     }
@@ -76,11 +71,12 @@ async function createAndUploadFromSource(sourceImage, id) {
 }
 
 async function regenerateFromExisting(id) {
-    const itemData = await jobOutput('update-item-cache', './dumps/item_data.json');
-    const item = itemData[id];
-    if (!item) {
-        return Promise.reject(new Error(`Item ${id} not found in processed item data`));
+    const items = await remoteData.get();
+    const itemData = items.get(id);
+    if (!itemData) {
+        return Promise.reject(`Item ${id} not found in item data`);
     }
+    const item = itemFromDb(itemData);
     let regenSource = '8x';
     let sourceUrl = item.image8xLink;
     if (item.image8xLink.includes('unknown-item')) {
@@ -89,10 +85,6 @@ async function regenerateFromExisting(id) {
         }
         sourceUrl = `https://${process.env.S3_BUCKET}/${id}-base-image.png`;
         regenSource = 'base';
-    }
-    if (item.types.includes('gun')) {
-        item.width = item.properties.defaultWidth;
-        item.height = item.properties.defaultHeight;
     }
     const imageData = (await axios({ url: sourceUrl, responseType: 'arraybuffer' })).data;
     const sourceImage = sharp(await sharp(imageData).png().toBuffer());
