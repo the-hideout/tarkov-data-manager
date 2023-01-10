@@ -119,6 +119,8 @@ const queryResultToBatchItem = item => {
                 shortName: preset.shortName,
                 types: preset.types,
                 backgroundColor: preset.backgroundColor,
+                width: preset.width,
+                height: preset.height,
                 default: preset.default,
                 contains: preset.containsItems.reduce((itemIds, currentItem) => {
                     if (currentItem.item.id !== item.id) {
@@ -141,6 +143,8 @@ const queryResultToBatchItem = item => {
         shortName: String(item.short_name),
         types: types,
         backgroundColor: backgroundColor,
+        width: item.width ? item.width : 1,
+        height: item.height ? item.height : 1,
         contains: contains,
         matchIndex: item.match_index,
         needsBaseImage: item.needs_base_image ? true : false,
@@ -203,6 +207,8 @@ const getItems = async(options) => {
                 name,
                 short_name,
                 match_index,
+                width,
+                height,
                 properties,
                 image_link IS NULL OR image_link = '' AS needs_image,
                 base_image_link IS NULL OR base_image_link = '' as needs_base_image,
@@ -235,10 +241,15 @@ const getItems = async(options) => {
                 name,
                 short_name,
                 match_index,
+                width,
+                height,
                 properties,
                 image_link IS NULL OR image_link = '' AS needs_image,
+                base_image_link IS NULL OR base_image_link = '' as needs_base_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
                 icon_link IS NULL OR icon_link = '' AS needs_icon_image,
+                image_512_link IS NULL or image_512_link = '' as needs_512px_image,
+                image_8x_link IS NULL or image_8x_link = '' as needs_8x_image,
                 GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
             FROM
                 item_data
@@ -247,7 +258,12 @@ const getItems = async(options) => {
             WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                 NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') AND 
-                (item_data.image_link IS NULL OR item_data.image_link = '' OR item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' OR item_data.icon_link IS NULL OR item_data.icon_link = '')
+                (item_data.image_link IS NULL OR item_data.image_link = '' OR 
+                item_data.base_image_link IS NULL OR item_data.base_image_link = '' OR 
+                item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' OR 
+                item_data.icon_link IS NULL OR item_data.icon_link = '' OR
+                item_data.image_512_link IS NULL or item_data.image_512_link = '' OR 
+                item_data.image_8x_link IS NULL or item_data.image_8x_link = '')
             GROUP BY item_data.id
             ORDER BY item_data.name
         `;
