@@ -1,7 +1,6 @@
 const roundTo = require('round-to');
 
 const dataMaps = require('../modules/data-map');
-const {categories: sellCategories, items: sellItems} = require('../modules/category-map');
 const cloudflare = require('../modules/cloudflare');
 const remoteData = require('../modules/remote-data');
 const { query, jobComplete } = require('../modules/db-connection');
@@ -233,8 +232,6 @@ module.exports = async () => {
             credits, 
             locales, 
             globals, 
-            traderData, 
-            presets,
             avgPriceYesterday, 
             lastKnownPriceData, 
             itemMap,
@@ -244,13 +241,13 @@ module.exports = async () => {
             tarkovData.credits(),
             tarkovData.locales(),
             tarkovData.globals(),
-            jobOutput('update-traders', './dumps/trader_data.json', logger),
-            jobOutput('update-presets', './cache/presets.json', logger),
             avgPriceYesterdayPromise,
             lastKnownPriceDataPromise,
             remoteData.get(true),
             tarkovData.handbook(),
         ]);
+        traderData = await jobOutput('update-traders', './dumps/trader_data.json', logger);
+        presets = await jobOutput('update-presets', './cache/presets.json', logger);
         const itemData = {};
         const itemTypesSet = new Set();
         bsgCategories = {};
@@ -467,57 +464,37 @@ module.exports = async () => {
                 //'EUR': Math.round(credits['569668774bdc2da2298b4568'] * 1.1530984204131)
             };
             const currencyId = dataMaps.currencyIsoId;
-            const traderId = dataMaps.traderNameId;
-            
-            for (const sellCategory of itemData[key].categories) {
-                if (!sellCategories[sellCategory]) {
+            for (const trader of traderData) {
+                if (trader.items_buy_prohibited.id_list.includes(key)) {
                     continue;
                 }
-                for (const trader of sellCategories[sellCategory].traders) {
-                    let currency = 'RUB';
-                    if (trader.name === 'Peacekeeper') {
-                        currency = 'USD';
-                    }
-                    let priceRUB = Math.floor(getTraderMultiplier(trader.id) * itemData[key].basePrice);
-                    const priceCUR = Math.round(priceRUB / currenciesNow[currency]);
-                    if (priceCUR === 0) {
-                        priceRUB = 0;
-                    }
-                    itemData[key].traderPrices.push({
-                        name: trader.name,
-                        price: priceCUR,
-                        currency: currency,
-                        currencyItem: currencyId[currency],
-                        priceRUB: priceRUB,
-                        trader: traderId[trader.name]
-                    });
+                if (trader.items_buy_prohibited.category.some(bannedCatId => itemData[key].categories.includes(bannedCatId))) {
+                    continue;
                 }
-                break;
+                if (!trader.items_buy.id_list.includes(key) && !trader.items_buy.category.some(buyCatId => itemData[key].categories.includes(buyCatId))) {
+                    continue;
+                }
+                let currency = trader.currency;
+                let priceRUB = Math.floor(getTraderMultiplier(trader.id) * itemData[key].basePrice);
+                const priceCUR = Math.round(priceRUB / currenciesNow[currency]);
+                if (priceCUR === 0) {
+                    priceRUB = 0;
+                }
+                itemData[key].traderPrices.push({
+                    name: trader.name,
+                    price: priceCUR,
+                    currency: currency,
+                    currencyItem: currencyId[currency],
+                    priceRUB: priceRUB,
+                    trader: trader.id
+                });
             }
             const ignoreCategories = [
                 '543be5dd4bdc2deb348b4569', // currency
                 '5448bf274bdc2dfc2f8b456a', // secure container
             ];
             if (itemData[key].traderPrices.length === 0 && !ignoreCategories.includes(itemData[key].bsgCategoryId)) {
-                logger.log(`No trader sell prices mapped by category for ${itemData[key].name} (${itemData[key].id}) with category id ${itemData[key].bsgCategoryId}`);
-            }
-
-            // Map special items bought by specific vendors
-            if (sellItems[key]){
-                for (const trader of sellItems[key].traders){
-                    let currency = 'RUB';
-                    if (trader.name === 'Peacekeeper') {
-                        currency = 'USD';
-                    }
-                    itemData[key].traderPrices.push({
-                        name: trader.name,
-                        price: Math.round((getTraderMultiplier(trader.id) * itemData[key].basePrice) / currenciesNow[currency]),
-                        currency: currency,
-                        currencyItem: currencyId[currency],
-                        priceRUB: Math.floor(getTraderMultiplier(trader.id) * itemData[key].basePrice),
-                        trader: traderId[trader.name]
-                    });
-                }
+                logger.log(`No trader sell prices mapped for ${itemData[key].name} (${itemData[key].id}) with category id ${itemData[key].bsgCategoryId}`);
             }
 
             itemData[key].types.forEach(itemType => {

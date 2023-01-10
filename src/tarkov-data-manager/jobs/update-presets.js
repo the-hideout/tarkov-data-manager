@@ -279,18 +279,22 @@ module.exports = async (externalLogger = false) => {
             const p = presetsData[presetId];
             queries.push(query(`
                 INSERT INTO 
-                    item_data (id, name, short_name, normalized_name, properties)
+                    item_data (id, name, short_name, normalized_name, width, height, properties)
                 VALUES (
                     '${p.id}',
                     ${connection.escape(p.name)},
                     ${connection.escape(p.shortName)},
                     ${connection.escape(p.normalized_name)},
+                    ${connection.escape(p.width)},
+                    ${connection.escape(p.height)},
                     ${connection.escape(JSON.stringify({backgroundColor: p.backgroundColor}))}
                 )
                 ON DUPLICATE KEY UPDATE
                     name=${connection.escape(p.name)},
                     short_name=${connection.escape(p.shortName)},
                     normalized_name=${connection.escape(p.normalized_name)},
+                    width=${connection.escape(p.width)},
+                    height=${connection.escape(p.height)},
                     properties=${connection.escape(JSON.stringify({backgroundColor: p.backgroundColor}))}
             `).then(results => {
                 if(results.changedRows > 0){
@@ -301,7 +305,7 @@ module.exports = async (externalLogger = false) => {
                 }
             }));
             queries.push(query(`INSERT IGNORE INTO types (item_id, type) VALUES (?, ?)`, [p.id, 'preset']).catch(error => {
-                logger.error(`Error inerting preset type for ${p.name} ${p.id}`);
+                logger.error(`Error inserting preset type for ${p.name} ${p.id}`);
                 logger.error(error);
             }));
         }
