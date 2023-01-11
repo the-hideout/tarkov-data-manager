@@ -459,9 +459,13 @@ module.exports = async function() {
                 //queueTimes: queueTimes[map.id]
             };
         });
-        maps.mobs = processedBosses;
-
         logger.log(`Processed ${maps.data.length} maps`);
+
+        maps.mobs = processedBosses;
+        logger.log(`Processed ${Object.keys(maps.mobs).length} mobs`);
+        for (const mob of Object.values(maps.mobs)) {
+            logger.log(`✔️ ${mob.locale.en.name}`);
+        }
 
         const response = await cloudflare.put('map_data', JSON.stringify(maps)).catch(error => {
             logger.error(error);
