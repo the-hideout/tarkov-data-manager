@@ -255,6 +255,13 @@ const getBossInfo = async (bossKey) => {
             if (preset) {
                 equipmentItem.item = preset.id;
                 equipmentItem.item_name = preset.locale.en.name;
+                //add base item to preset
+                equipmentItem.contains.unshift({
+                    item: id,
+                    item_name: items[id].locale.en.name,
+                    count: 1,
+                    attributes: [],
+                });
             }
             bossInfo.equipment.push(equipmentItem);
         }
