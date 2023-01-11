@@ -81,4 +81,8 @@ module.exports = {
     quests: (download) => {
         return downloadJson('quests.json', `${sptPath}templates/quests.json`, download);
     },
+    botInfo: (botKey, download = true) => {
+        botKey = botKey.toLowerCase();
+        return downloadJson(`${botKey}.json`, `${sptPath}bots/types/${botKey}.json`, download);
+    },
 };
