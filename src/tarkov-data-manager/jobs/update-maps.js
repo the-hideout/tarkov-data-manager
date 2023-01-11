@@ -44,7 +44,6 @@ const enemyMap = {
     'sectantWarrior': 'QuestCondition/Elimination/Kill/BotRole/cursedAssault',
     'bossKojaniy': 'QuestCondition/Elimination/Kill/BotRole/bossKojaniy',
     'bossTagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla',
-    'followerTagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla',
     'bossZryachiy': '63626d904aa74b8fe30ab426 ShortName',
     'guard': 'ScavRole/Follower',
 };
@@ -75,8 +74,21 @@ const getEnemyName = (enemy, lang) => {
             return lang[enemyMap[enemy]];
         }
         return locales.en[enemyMap[enemy]];
-    } else if (manualNames[enemy]) {
+    }
+    if (manualNames[enemy]) {
         return manualNames[enemy];
+    }
+    if (enemy.includes('follower')) {
+        const nameParts = [];
+        const guardTypePattern = /Assault|Security|Scout/;
+        const bossKey = enemy.replace('follower', 'boss').replace(guardTypePattern, '');
+        nameParts.push(getEnemyName(bossKey, lang));
+        nameParts.push(getEnemyName('guard', lang));
+        const guardTypeMatch = enemy.match(guardTypePattern);
+        if (guardTypeMatch) {
+            nameParts.push(guardTypeMatch[0]);
+        }
+        return nameParts.join(' ')
     }
     return enemy.replace('boss', '');
 };
@@ -365,9 +377,9 @@ module.exports = async function() {
                 }
                 if (spawn.BossEscortAmount !== '0') {
                     let enemyKey = spawn.BossEscortType;
-                    if (!enemyMap[spawn.BossEscortType] && !manualNames[spawn.BossEscortType]) {
+                    /*if (!enemyMap[spawn.BossEscortType] && !manualNames[spawn.BossEscortType]) {
                         enemyKey = 'guard';
-                    }
+                    }*/
                     enemySet.add(enemyKey);
                     bossData.escorts.push({
                         id: spawn.BossEscortType,
@@ -382,9 +394,9 @@ module.exports = async function() {
                     for (const support of spawn.Supports) {
                         if (support.BossEscortAmount === '0') continue;
                         let enemyKey = support.BossEscortType;
-                        if (!enemyMap[enemyKey] && !manualNames[enemyKey]) {
+                        /*if (!enemyMap[enemyKey] && !manualNames[enemyKey]) {
                             enemyKey = 'guard';
-                        }
+                        }*/
                         enemySet.add(enemyKey);
                         bossData.escorts.push({
                             id: support.BossEscortType,
