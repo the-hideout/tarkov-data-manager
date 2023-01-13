@@ -467,5 +467,11 @@
         "propertiesChanged" : {
             "minPlayerLevel": 21
         }
+    },
+    "5edabd13218d181e29451442": {
+        "name": "Rigged Game",
+        "propertiesChanged" : {
+            "minPlayerLevel": 0
+        }
     }
 }
