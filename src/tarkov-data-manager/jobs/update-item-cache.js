@@ -243,7 +243,7 @@ module.exports = async () => {
             tarkovData.globals(),
             avgPriceYesterdayPromise,
             lastKnownPriceDataPromise,
-            remoteData.get(true),
+            remoteData.getWithPrices(true),
             tarkovData.handbook(),
         ]);
         traderData = await jobOutput('update-traders', './dumps/trader_data.json', logger);

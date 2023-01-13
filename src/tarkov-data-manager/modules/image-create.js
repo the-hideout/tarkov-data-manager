@@ -16,7 +16,7 @@ function itemFromDb(itemData) {
         height: itemData.height,
         types: itemData.types,
         image8xLink: itemData.image_8x_link,
-        baseImageLink: itemData.base_iamge_link,
+        baseImageLink: itemData.base_image_link,
     };
 }
 

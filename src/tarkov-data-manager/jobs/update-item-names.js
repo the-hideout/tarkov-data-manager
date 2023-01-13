@@ -8,7 +8,7 @@ const normalizeName = require('../modules/normalize-name');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 
-const {connection, query, jobComplete} = require('../modules/db-connection');
+const { query, jobComplete} = require('../modules/db-connection');
 const { regenerateFromExisting } = require('../modules/image-create')
 const tarkovData = require('../modules/tarkov-data');
 const jobOutput = require('../modules/job-output');
@@ -99,7 +99,7 @@ module.exports = async (externalLogger) => {
                     query(`DELETE FROM types WHERE item_id = ? AND type = 'disabled'`, [itemId]);
                 }
                 try {
-                    await query(`
+                    /*await query(`
                         UPDATE item_data 
                         SET
                             name = ${connection.escape(name)},
@@ -110,7 +110,15 @@ module.exports = async (externalLogger) => {
                             properties = ${connection.escape(JSON.stringify({backgroundColor: bgColor}))}
                         WHERE
                             id = '${itemId}'
-                    `);
+                    `);*/
+                    await remoteData.setProperties(itemId, {
+                        name: name,
+                        short_name: shortname,
+                        normalized_name: normalized,
+                        width: width,
+                        height: height,
+                        properties: {backgroundColor: bgColor},
+                    });
                     logger.succeed(`Updated ${i}/${localItems.size} ${itemId} ${shortname || name}`);            
                 } catch (error) {
                     logger.error(`Error updating item names for ${itemId} ${name}`);
@@ -181,12 +189,11 @@ module.exports = async (externalLogger) => {
         logger.succeed('Finished updating redirects');
 
         if (regnerateImages.length > 0) {
-            await remoteData.get(true);
             logger.log(`Regenerating ${regnerateImages.length} item images due to changed background`);
             for (const id of regnerateImages) {
                 logger.log(`Regerating images for ${id}`);
-                await regenerateFromExisting(id, true).catch(error => {
-                    logger.error(`Error regenerating images for ${id}: ${error.message}`);
+                await regenerateFromExisting(id, true).catch(errors => {
+                    logger.error(`Error regenerating images for ${id}: ${errors.map(error => error.message).join(', ')}`);
                 });
             }
             logger.succeed('Finished regenerating images');
