@@ -9,6 +9,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 
 const {connection, query, jobComplete} = require('../modules/db-connection');
+const { regenerateFromExisting } = require('../modules/image-create')
 const tarkovData = require('../modules/tarkov-data');
 const jobOutput = require('../modules/job-output');
 
@@ -22,6 +23,7 @@ module.exports = async (externalLogger) => {
             jobOutput('update-presets', './cache/presets.json', logger),
         ]);
         const currentDestinations = [];
+        const regnerateImages = [];
 
         logger.log(`Updating names`);
         for(const localItem in localItems.values()){
@@ -81,6 +83,10 @@ module.exports = async (externalLogger) => {
                     normalized = `${normalized}-${counter}`;
                 }
                 normalizedNames[normalType][normalized] = itemId;
+            }
+
+            if (bgColor !== localItem.properties.backgroundColor) {
+                regnerateImages.push(itemId);
             }
 
             if (name !== localItem.name || 
@@ -173,6 +179,18 @@ module.exports = async (externalLogger) => {
 
         fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'redirects.json'), JSON.stringify(redirects, null, 4));
         logger.succeed('Finished updating redirects');
+
+        if (regnerateImages.length > 0) {
+            await remoteData.get(true);
+            logger.log(`Regenerating ${regnerateImages.length} item images due to changed background`);
+            for (const id of regnerateImages) {
+                logger.log(`Regerating images for ${id}`);
+                await regenerateFromExisting(id, true).catch(error => {
+                    logger.error(`Error regenerating images for ${id}: ${error.message}`);
+                });
+            }
+            logger.succeed('Finished regenerating images');
+        }
     } catch (error) {
         logger.error(error);
         alert({
