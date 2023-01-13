@@ -8,16 +8,18 @@ const runJob = function(name, cronSchedule) {
     console.log(`Setting up ${name} job to run ${cronSchedule}`);
 
     const job = schedule.scheduleJob(cronSchedule, async () => {
-        //console.log(`Running ${name} job`);
         if (process.env.SKIP_JOBS === 'true') {
             console.log(`Skipping ${name} job`);
             return;
         }
+        console.log(`Running ${name} job`);
+        console.time(name);
         try {
             await jobModule();
         } catch (error) {
             console.log(`Error running ${name} job: ${error}`);
         }
+        console.timeEnd(name);
     });
     if (scheduledJobs[name]) {
         scheduledJobs[name].cancel();
