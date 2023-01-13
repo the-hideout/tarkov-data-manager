@@ -65,6 +65,7 @@ const zoneMap = {
     place_merch_022_7: 'Inside ULTRA Mall',
     lijnik_storage_area_1: 'Underground Warehouse',
     quest_zone_kill_c17_adm: 'Pinewood Hotel',
+    meh_44_eastLight_kill: 'Lighthouse Island',
 };
 
 const factionMap = {
@@ -921,7 +922,7 @@ const formatRawQuest = (quest) => {
                 questReq.status.push(questStatusMap[statusCode]);
             }
             questData.taskRequirements.push(questReq);
-        } else if (req._parent === 'TraderLoyalty') {
+        } else if (req._parent === 'TraderLoyalty' || req._parent === 'TraderStanding') {
             questData.traderLevelRequirements.push({
                 id: req._props.id,
                 trader_id: req._props.target,

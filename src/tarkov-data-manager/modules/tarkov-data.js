@@ -6,6 +6,9 @@ module.exports = {
     areas: (download = false) => {
         return tarkovChanges.areas(download);
     },
+    botInfo: (botKey, download = true) => {
+        return spt.botInfo(botKey, download);
+    },
     crafts: (download = false) => {
         return tarkovChanges.crafts(download);
     },
