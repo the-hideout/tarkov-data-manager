@@ -30,7 +30,7 @@ module.exports = async () => {
 
         logger.log('Updating handbook...');
         await tarkovData.handbook(true);
-        logger.log('Completed updating handbook')
+        logger.log('Completed updating handbook');
     } catch (error){
         logger.error(error);
         alert({

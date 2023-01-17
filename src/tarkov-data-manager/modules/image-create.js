@@ -14,7 +14,9 @@ function itemFromDb(itemData) {
         backgroundColor: itemData.properties.backgroundColor,
         width: itemData.width,
         height: itemData.height,
-        types: itemData.types
+        types: itemData.types,
+        image8xLink: itemData.image_8x_link,
+        baseImageLink: itemData.base_image_link,
     };
 }
 
@@ -70,7 +72,7 @@ async function createAndUploadFromSource(sourceImage, id) {
     return createdImages.map(img => img.type);
 }
 
-async function regenerateFromExisting(id) {
+async function regenerateFromExisting(id, backgroundOnly = false) {
     const items = await remoteData.get();
     const itemData = items.get(id);
     if (!itemData) {
@@ -92,21 +94,23 @@ async function regenerateFromExisting(id) {
         imageFunctions.createIcon(sourceImage, item).then(result => {return {image: result, type: 'icon'}}),
         imageFunctions.createGridImage(sourceImage, item).then(result => {return {image: result, type: 'grid-image'}}),
     ];
-    if (regenSource === '8x') {
-        imageJobs.push(
-            imageFunctions.createInspectImage(sourceImage, item).then(result => {return {image: result, type: 'image'}})
-        );
-        imageJobs.push(
-            imageFunctions.createBaseImage(sourceImage, item).then(result => {return {image: result, type: 'base-image'}})
-        );
-        imageJobs.push(
-            imageFunctions.create512Image(sourceImage, item).then(result => {return {image: result, type: '512'}})
-        );
-    } else {
-        if (await imageFunctions.canCreateInspectImage(sourceImage)) {
+    if (!backgroundOnly) {
+        if (regenSource === '8x') {
             imageJobs.push(
                 imageFunctions.createInspectImage(sourceImage, item).then(result => {return {image: result, type: 'image'}})
             );
+            imageJobs.push(
+                imageFunctions.createBaseImage(sourceImage, item).then(result => {return {image: result, type: 'base-image'}})
+            );
+            imageJobs.push(
+                imageFunctions.create512Image(sourceImage, item).then(result => {return {image: result, type: '512'}})
+            );
+        } else {
+            if (await imageFunctions.canCreateInspectImage(sourceImage)) {
+                imageJobs.push(
+                    imageFunctions.createInspectImage(sourceImage, item).then(result => {return {image: result, type: 'image'}})
+                );
+            }
         }
     }
     const imageResults = await Promise.allSettled(imageJobs);

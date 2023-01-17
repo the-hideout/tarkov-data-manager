@@ -356,11 +356,15 @@ app.get('/', async (req, res) => {
     res.send(allData);
 });*/
 
-app.post('/update', (request, response) => {
-    console.log(request.body);
+app.post('/items/update-types/:id', async (request, response) => {
+    //console.log(request.body, request.params.id);
     const res = {errors: [], message: ''};
     try {
-        remoteData.updateTypes(request.body);
+        if (request.body.active) {
+            await remoteData.addType(request.params.id, request.body.type);
+        } else {
+            await remoteData.removeType(request.params.id, request.body.type);
+        }
         res.message = 'ok';
     } catch (error) {
         res.errors.push(error.message);
@@ -559,9 +563,9 @@ app.get('/items', async (req, res) => {
                             <th>
                                 Tags
                             </th>
-                            <th>
+                            <!--th>
                                 Price
-                            </th>
+                            </th-->
                         </tr>
                     </thead>
                     <tbody>

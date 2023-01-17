@@ -142,7 +142,7 @@ $(document).ready( async function () {
                 return data.join(',');
             }
         },
-        {
+        /*{
             data: 'avg24hPrice',
             render: (data, type, item) => {
                 if (type === 'display') {
@@ -150,7 +150,7 @@ $(document).ready( async function () {
                 }
                 return data;
             }
-        }
+        }*/
     ];
 
     table = $('table.main').DataTable({
@@ -180,7 +180,7 @@ $(document).ready( async function () {
                     active: event.target.checked,
                 }
             
-                postData('/update', dataUpdate).then(data => {
+                postData(`/items/update-types/${event.target.dataset.itemId}`, dataUpdate).then(data => {
                     for (let i = 0; i < table.data().length; i++) {
                         const item = table.data()[i];
                         if (item.id !== event.target.dataset.itemId) continue;

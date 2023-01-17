@@ -243,7 +243,7 @@ module.exports = async () => {
             tarkovData.globals(),
             avgPriceYesterdayPromise,
             lastKnownPriceDataPromise,
-            remoteData.get(true),
+            remoteData.getWithPrices(true),
             tarkovData.handbook(),
         ]);
         traderData = await jobOutput('update-traders', './dumps/trader_data.json', logger);
@@ -509,6 +509,9 @@ module.exports = async () => {
         
         // populate child ids for handbook categories
         Object.values(handbookCategories).forEach(cat => {
+            if (handbookCategories[cat.parent_id]?.child_ids.includes(cat.id)) {
+                return;
+            }
             handbookCategories[cat.parent_id]?.child_ids.push(cat.id);
         });
 

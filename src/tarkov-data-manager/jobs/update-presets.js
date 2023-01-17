@@ -3,7 +3,7 @@ const path = require('path');
 
 const normalizeName = require('../modules/normalize-name');
 const { initPresetSize, getPresetSize } = require('../modules/preset-size');
-const { connection, query, jobComplete} = require('../modules/db-connection');
+const { jobComplete} = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovData = require('../modules/tarkov-data');
@@ -277,34 +277,26 @@ module.exports = async (externalLogger = false) => {
         const queries = [];
         for (const presetId in presetsData) {
             const p = presetsData[presetId];
-            queries.push(query(`
-                INSERT INTO 
-                    item_data (id, name, short_name, normalized_name, width, height, properties)
-                VALUES (
-                    '${p.id}',
-                    ${connection.escape(p.name)},
-                    ${connection.escape(p.shortName)},
-                    ${connection.escape(p.normalized_name)},
-                    ${connection.escape(p.width)},
-                    ${connection.escape(p.height)},
-                    ${connection.escape(JSON.stringify({backgroundColor: p.backgroundColor}))}
-                )
-                ON DUPLICATE KEY UPDATE
-                    name=${connection.escape(p.name)},
-                    short_name=${connection.escape(p.shortName)},
-                    normalized_name=${connection.escape(p.normalized_name)},
-                    width=${connection.escape(p.width)},
-                    height=${connection.escape(p.height)},
-                    properties=${connection.escape(JSON.stringify({backgroundColor: p.backgroundColor}))}
-            `).then(results => {
-                if(results.changedRows > 0){
+            queries.push(remoteData.addItem({
+                id: p.id,
+                name: p.name,
+                short_name: p.shortName,
+                normalized_name: p.normalized_name,
+                width: p.width,
+                height: p.height,
+                properties: {backgroundColor: p.backgroundColor},
+            }).then(results => {
+                /*if (results.affectedRows > 0) {
                     logger.log(`${p.name} updated`);
-                }
-                if(results.insertId !== 0){
+                }*/
+                if (results.insertId !== 0) {
                     logger.log(`${p.name} added`);
                 }
+            }).catch(error => {
+                logger.error(`Error updating preset in DB`);
+                logger.error(error);
             }));
-            queries.push(query(`INSERT IGNORE INTO types (item_id, type) VALUES (?, ?)`, [p.id, 'preset']).catch(error => {
+            queries.push(remoteData.addType(p.id, 'preset').catch(error => {
                 logger.error(`Error inserting preset type for ${p.name} ${p.id}`);
                 logger.error(error);
             }));

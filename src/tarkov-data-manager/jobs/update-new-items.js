@@ -4,7 +4,7 @@ const normalizeName = require('../modules/normalize-name');
 const remoteData = require('../modules/remote-data');
 //const oldShortnames = require('../old-shortnames.json');
 
-const { connection, query, jobComplete } = require('../modules/db-connection');
+const { jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovData = require('../modules/tarkov-data');
@@ -41,7 +41,7 @@ const secureContainers = [
 module.exports = async (externalLogger) => {
     const logger = externalLogger || new JobLogger('update-new-items');
     try {
-        const currentItems = await remoteData.get(true);
+        const currentItems = await remoteData.get();
 
         const bsgData = await tarkovData.items();
         const en = await tarkovData.locale('en');
@@ -123,34 +123,24 @@ module.exports = async (externalLogger) => {
             const normalized = normalizeName(name);
 
             try {
-                if (item._props.QuestItem){
-                    await query(`INSERT IGNORE INTO types (item_id, type) VALUES(?, 'quest')`, [item._id]);
-                }
-                const results = await query(`
-                    INSERT INTO 
-                        item_data (id, name, short_name, normalized_name, width, height, properties)
-                    VALUES (
-                        '${item._id}',
-                        ${connection.escape(name)},
-                        ${connection.escape(shortname)},
-                        ${connection.escape(normalized)},
-                        ${connection.escape(item._props.Width)},
-                        ${connection.escape(item._props.Height)},
-                        ${connection.escape(JSON.stringify({backgroundColor: item._props.BackgroundColor}))}
-                    )
-                    ON DUPLICATE KEY UPDATE
-                        name=${connection.escape(name)},
-                        short_name=${connection.escape(name)},
-                        width=${connection.escape(item._props.Width)},
-                        height=${connection.escape(item._props.Height)},
-                        properties=${connection.escape(JSON.stringify({backgroundColor: item._props.BackgroundColor}))}
-                `);
-                if (results.changedRows > 0){
+                const results = await remoteData.addItem({
+                    id: item._id,
+                    name: name,
+                    short_name: shortname,
+                    normalized_name: normalized,
+                    width: item._props.Width,
+                    height: item._props.Height,
+                    properties: {backgroundColor: item._props.BackgroundColor},
+                });
+                if (results.affectedRows > 0){
                     console.log(`${name} updated`);
                 }
 
-                if(results.insertId !== 0){
+                if (results.insertId !== 0){
                     console.log(`${name} added`);
+                }
+                if (item._props.QuestItem){
+                    await remoteData.addType(item._id, 'quest')
                 }
             } catch (error){
                 logger.fail(`${name} error updating item`);
