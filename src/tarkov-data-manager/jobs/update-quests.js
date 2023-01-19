@@ -290,6 +290,7 @@ const formatTdQuest = (quest) => {
         locationName: null,
         wikiLink: quest.wiki,
         minPlayerLevel: quest.require.level,
+        effectiveMinPlayerLevel: quest.require.level,
         taskRequirements: [],
         traderLevelRequirements: [],
         objectives: [],
@@ -491,6 +492,7 @@ const formatRawQuest = (quest) => {
         locationName: locationName,
         wikiLink: `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(locales.en[`${questId} name`].replaceAll(' ', '_'))}`,
         minPlayerLevel: 0,
+        effectiveMinPlayerLevel: 0,
         taskRequirements: [],
         traderLevelRequirements: [],
         objectives: [],/*{
@@ -903,6 +905,7 @@ const formatRawQuest = (quest) => {
     for (const req of quest.conditions.AvailableForStart) {
         if (req._parent === 'Level') {
             questData.minPlayerLevel = parseInt(req._props.value);
+            questData.effectiveMinPlayerLevel = questData.minPlayerLevel;
         } else if (req._parent === 'Quest') {
             const questReq = {
                 task: req._props.target,
@@ -1120,6 +1123,34 @@ module.exports = async (externalLogger = false) => {
         // add start, success, and fail message ids
         // validate task requirements
 
+        const getQuestMinLevel = (questId) => {
+            const quest = quests.data.find(q => q.id === questId);
+            if (!quest) {
+                return 0;
+            }
+            let actualMinLevel = quest.effectiveMinPlayerLevel;
+            for (const req of quest.traderLevelRequirements) {
+                const trader = traders.find(tr => tr.id === req.trader_id);
+                if (!trader) {
+                    continue;
+                }
+                const traderLevel = trader.levels.find(lvl => lvl.level === req.level);
+                if (!traderLevel) {
+                    continue;
+                }
+                if (traderLevel.requiredPlayerLevel > actualMinLevel) {
+                    actualMinLevel = traderLevel.requiredPlayerLevel;
+                }
+            }
+            for (const req of quest.taskRequirements) {
+                const reqMinLevel = getQuestMinLevel(req.task);
+                if (reqMinLevel > actualMinLevel) {
+                    actualMinLevel = reqMinLevel;
+                }
+            }
+            return actualMinLevel;
+        };
+
         for (const quest of quests.data) {
             /*quest.descriptionMessageId = locales.en.quest[quest.id]?.description;
             quest.startMessageId = locales.en.quest[quest.id]?.startedMessageText;
@@ -1137,6 +1168,8 @@ module.exports = async (externalLogger = false) => {
                 removeReqs.push(req.task);
             }
             quest.taskRequirements = quest.taskRequirements.filter(req => !removeReqs.includes(req.task));
+
+            quest.effectiveMinPlayerLevel = getQuestMinLevel(quest.id);
         }
 
         const ignoreQuests = [
