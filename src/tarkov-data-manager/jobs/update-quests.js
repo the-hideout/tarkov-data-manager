@@ -290,7 +290,6 @@ const formatTdQuest = (quest) => {
         locationName: null,
         wikiLink: quest.wiki,
         minPlayerLevel: quest.require.level,
-        effectiveMinPlayerLevel: quest.require.level,
         taskRequirements: [],
         traderLevelRequirements: [],
         objectives: [],
@@ -492,7 +491,6 @@ const formatRawQuest = (quest) => {
         locationName: locationName,
         wikiLink: `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(locales.en[`${questId} name`].replaceAll(' ', '_'))}`,
         minPlayerLevel: 0,
-        effectiveMinPlayerLevel: 0,
         taskRequirements: [],
         traderLevelRequirements: [],
         objectives: [],/*{
@@ -905,7 +903,6 @@ const formatRawQuest = (quest) => {
     for (const req of quest.conditions.AvailableForStart) {
         if (req._parent === 'Level') {
             questData.minPlayerLevel = parseInt(req._props.value);
-            questData.effectiveMinPlayerLevel = questData.minPlayerLevel;
         } else if (req._parent === 'Quest') {
             const questReq = {
                 task: req._props.target,
@@ -1139,7 +1136,7 @@ module.exports = async (externalLogger = false) => {
             if (!quest) {
                 return 0;
             }
-            let actualMinLevel = quest.effectiveMinPlayerLevel;
+            let actualMinLevel = quest.minPlayerLevel;
             for (const req of quest.traderLevelRequirements) {
                 const traderMinPlayerLevel = getMinPlayerLevelForTraderLevel(req.trader_id, req.level);
                 if (traderMinPlayerLevel > actualMinLevel) {
@@ -1184,7 +1181,7 @@ module.exports = async (externalLogger = false) => {
             }
             quest.taskRequirements = quest.taskRequirements.filter(req => !removeReqs.includes(req.task));
 
-            quest.effectiveMinPlayerLevel = getQuestMinLevel(quest.id);
+            quest.minPlayerLevel = getQuestMinLevel(quest.id);
         }
 
         const ignoreQuests = [
