@@ -622,6 +622,27 @@ module.exports = async () => {
                 logger.error(response.messages[i]);
             }
         }
+        const schemaData = {
+            updated: new Date(),
+            itemTypes: ['any', ...itemTypesSet].sort().join('\n '),
+            itemCategories: Object.values(bsgCategories).map(cat => cat.enumName).sort().join('\n  '),
+            handbookCategories: Object.values(handbookCategories).map(cat => cat.enumName).sort().join('\n  '),
+            languageCodes: Object.keys(locales).sort().join('\n '),
+        };
+        response = await cloudflare.put('schema_data', JSON.stringify(schemaData)).catch(error => {
+            logger.error(error);
+            return {success: false, errors: [], messages: []};
+        });
+        if (response.success) {
+            logger.success('Successful Cloudflare put of schema_data');
+        } else {
+            for (let i = 0; i < response.errors.length; i++) {
+                logger.error(response.errors[i]);
+            }
+            for (let i = 0; i < response.messages.length; i++) {
+                logger.error(response.messages[i]);
+            }
+        }
 
         // Possibility to POST to a Discord webhook here with cron status details.
     } catch (error) {
