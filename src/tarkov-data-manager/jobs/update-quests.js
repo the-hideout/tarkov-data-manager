@@ -1123,27 +1123,42 @@ module.exports = async (externalLogger = false) => {
         // add start, success, and fail message ids
         // validate task requirements
 
-        const getQuestMinLevel = (questId) => {
+        const getMinPlayerLevelForTraderLevel = (traderId, traderLevel) => {
+            const trader = traders.find(tr => tr.id === traderId);
+            if (!trader) {
+                return 0;
+            }
+            const tLevel = trader.levels.find(lvl => lvl.level === traderLevel);
+            if (!tLevel) {
+                return 0;
+            }
+            return tLevel.requiredPlayerLevel;
+        };
+        const getQuestMinLevel = (questId, isPrereq = false) => {
             const quest = quests.data.find(q => q.id === questId);
             if (!quest) {
                 return 0;
             }
             let actualMinLevel = quest.effectiveMinPlayerLevel;
             for (const req of quest.traderLevelRequirements) {
-                const trader = traders.find(tr => tr.id === req.trader_id);
-                if (!trader) {
-                    continue;
+                const traderMinPlayerLevel = getMinPlayerLevelForTraderLevel(req.trader_id, req.level);
+                if (traderMinPlayerLevel > actualMinLevel) {
+                    actualMinLevel = traderMinPlayerLevel;
                 }
-                const traderLevel = trader.levels.find(lvl => lvl.level === req.level);
-                if (!traderLevel) {
-                    continue;
-                }
-                if (traderLevel.requiredPlayerLevel > actualMinLevel) {
-                    actualMinLevel = traderLevel.requiredPlayerLevel;
+            }
+            if (isPrereq) {
+                for (const obj of quest.objectives) {
+                    if (obj.type !== 'traderLevel') {
+                        continue;
+                    }
+                    const traderMinPlayerLevel = getMinPlayerLevelForTraderLevel(obj.trader_id, obj.level);
+                    if (traderMinPlayerLevel > actualMinLevel) {
+                        actualMinLevel = traderMinPlayerLevel;
+                    }
                 }
             }
             for (const req of quest.taskRequirements) {
-                const reqMinLevel = getQuestMinLevel(req.task);
+                const reqMinLevel = getQuestMinLevel(req.task, true);
                 if (reqMinLevel > actualMinLevel) {
                     actualMinLevel = reqMinLevel;
                 }
