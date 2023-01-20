@@ -92,10 +92,10 @@ module.exports = async () => {
             }
         }
 
-        const response = await cloudflare.put('historical_price_data', JSON.stringify({
+        const response = await cloudflare.put('historical_price_data', {
             updated: new Date(),
             data: itemPriceData,
-        })).catch(error => {
+        }).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

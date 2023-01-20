@@ -1254,7 +1254,7 @@ module.exports = async (externalLogger = false) => {
         logger.log('Writing quests.json...');
         //fs.writeFileSync(path.join(__dirname, '..', 'cache', 'tasks.json'), JSON.stringify(quests.data, null, 4));
 
-        const response = await cloudflare.put('quest_data', JSON.stringify(quests)).catch(error => {
+        const response = await cloudflare.put('quest_data', quests).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

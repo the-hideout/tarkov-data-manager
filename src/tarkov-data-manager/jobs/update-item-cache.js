@@ -608,7 +608,7 @@ module.exports = async () => {
             playerLevels: levelData,
             languageCodes: Object.keys(locales).sort()
         };
-        let response = await cloudflare.put('item_data', JSON.stringify(itemsData)).catch(error => {
+        let response = await cloudflare.put('item_data', itemsData).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
@@ -629,7 +629,7 @@ module.exports = async () => {
             handbookCategories: Object.values(handbookCategories).map(cat => cat.enumName).sort().join('\n  '),
             languageCodes: Object.keys(locales).sort().join('\n '),
         };
-        response = await cloudflare.put('schema_data', JSON.stringify(schemaData)).catch(error => {
+        response = await cloudflare.put('schema_data', schemaData).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

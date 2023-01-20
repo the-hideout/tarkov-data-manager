@@ -141,7 +141,7 @@ module.exports = async () => {
 
         hideoutData.legacy = await hideoutLegacy(tdHideout, logger);
 
-        const response = await cloudflare.put('hideout_data', JSON.stringify(hideoutData)).catch(error => {
+        const response = await cloudflare.put('hideout_data', hideoutData).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
