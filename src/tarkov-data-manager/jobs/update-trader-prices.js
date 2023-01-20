@@ -30,10 +30,10 @@ let logger, tasks, items;
 
 const outputPrices = async (prices) => {
     try {
-        const response = await cloudflare.put('trader_price_data', JSON.stringify({
+        const response = await cloudflare.put('trader_price_data', {
             updated: new Date(),
             data: prices,
-        }));
+        });
         if (response.success) {
             logger.success(`Successful Cloudflare put of ${Object.keys(prices).length} trader prices`);
         } else {

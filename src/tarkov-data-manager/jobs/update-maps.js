@@ -467,7 +467,7 @@ module.exports = async function() {
             logger.log(`✔️ ${mob.locale.en.name}`);
         }
 
-        const response = await cloudflare.put('map_data', JSON.stringify(maps)).catch(error => {
+        const response = await cloudflare.put('map_data', maps).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

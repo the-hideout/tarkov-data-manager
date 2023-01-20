@@ -170,7 +170,7 @@ module.exports = async function() {
         }
         logger.log(`Processed ${crafts.data.length} active crafts`);
 
-        const response = await cloudflare.put('craft_data', JSON.stringify(crafts)).catch(error => {
+        const response = await cloudflare.put('craft_data', crafts).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

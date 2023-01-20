@@ -63,6 +63,11 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
 
 const putValue = async (key, value) => {
     const encoding = 'base64';
+    console.log(typeof value)
+    if (typeof value === 'object'){
+        value.updated = new Date();
+        value = JSON.stringify(value);
+    } 
     return doRequest('PUT', 'values', key, zlib.gzipSync(value).toString(encoding), false, {compression: 'gzip', encoding: encoding}).then(response => {
         fs.writeFileSync(path.join(__dirname, '..', 'dumps', `${key.split("/").pop().toLowerCase()}.json`), JSON.stringify(JSON.parse(value), null, 4));
         return response;

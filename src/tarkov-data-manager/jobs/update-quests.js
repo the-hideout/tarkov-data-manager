@@ -1120,6 +1120,49 @@ module.exports = async (externalLogger = false) => {
         // add start, success, and fail message ids
         // validate task requirements
 
+        const getMinPlayerLevelForTraderLevel = (traderId, traderLevel) => {
+            const trader = traders.find(tr => tr.id === traderId);
+            if (!trader) {
+                return 0;
+            }
+            const tLevel = trader.levels.find(lvl => lvl.level === traderLevel);
+            if (!tLevel) {
+                return 0;
+            }
+            return tLevel.requiredPlayerLevel;
+        };
+        const getQuestMinLevel = (questId, isPrereq = false) => {
+            const quest = quests.data.find(q => q.id === questId);
+            if (!quest) {
+                return 0;
+            }
+            let actualMinLevel = quest.minPlayerLevel;
+            for (const req of quest.traderLevelRequirements) {
+                const traderMinPlayerLevel = getMinPlayerLevelForTraderLevel(req.trader_id, req.level);
+                if (traderMinPlayerLevel > actualMinLevel) {
+                    actualMinLevel = traderMinPlayerLevel;
+                }
+            }
+            if (isPrereq) {
+                for (const obj of quest.objectives) {
+                    if (obj.type !== 'traderLevel') {
+                        continue;
+                    }
+                    const traderMinPlayerLevel = getMinPlayerLevelForTraderLevel(obj.trader_id, obj.level);
+                    if (traderMinPlayerLevel > actualMinLevel) {
+                        actualMinLevel = traderMinPlayerLevel;
+                    }
+                }
+            }
+            for (const req of quest.taskRequirements) {
+                const reqMinLevel = getQuestMinLevel(req.task, true);
+                if (reqMinLevel > actualMinLevel) {
+                    actualMinLevel = reqMinLevel;
+                }
+            }
+            return actualMinLevel;
+        };
+
         for (const quest of quests.data) {
             /*quest.descriptionMessageId = locales.en.quest[quest.id]?.description;
             quest.startMessageId = locales.en.quest[quest.id]?.startedMessageText;
@@ -1137,6 +1180,8 @@ module.exports = async (externalLogger = false) => {
                 removeReqs.push(req.task);
             }
             quest.taskRequirements = quest.taskRequirements.filter(req => !removeReqs.includes(req.task));
+
+            quest.minPlayerLevel = getQuestMinLevel(quest.id);
         }
 
         const ignoreQuests = [
@@ -1209,7 +1254,7 @@ module.exports = async (externalLogger = false) => {
         logger.log('Writing quests.json...');
         //fs.writeFileSync(path.join(__dirname, '..', 'cache', 'tasks.json'), JSON.stringify(quests.data, null, 4));
 
-        const response = await cloudflare.put('quest_data', JSON.stringify(quests)).catch(error => {
+        const response = await cloudflare.put('quest_data', quests).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
