@@ -5,6 +5,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovData = require('../modules/tarkov-data');
 const jobOutput = require('../modules/job-output');
+const stellate = require('../modules/stellate');
 
 module.exports = async function() {
     const logger = new JobLogger('update-crafts');
@@ -176,6 +177,7 @@ module.exports = async function() {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of craft_data');
+            await stellate.purgeTypes(['Craft'], logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

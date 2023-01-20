@@ -5,6 +5,7 @@ const cloudflare = require('../modules/cloudflare');
 const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
+const stellate = require('../modules/stellate');
 
 module.exports = async () => {
     const logger = new JobLogger('update-historical-prices');
@@ -101,6 +102,7 @@ module.exports = async () => {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of historical_price_data');
+            await stellate.purgeTypes(['historicalPricePoint'], logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

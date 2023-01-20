@@ -63,7 +63,6 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
 
 const putValue = async (key, value) => {
     const encoding = 'base64';
-    console.log(typeof value)
     if (typeof value === 'object'){
         value.updated = new Date();
         value = JSON.stringify(value);

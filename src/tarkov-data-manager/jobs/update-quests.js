@@ -12,6 +12,7 @@ const legacyQuests = require('./update-quests-legacy');
 const { setLocales, getTranslations, addTranslations } = require('../modules/get-translation');
 const jobOutput = require('../modules/job-output');
 const normalizeName = require('../modules/normalize-name');
+const stellate = require('../modules/stellate');
 
 let logger = false;
 let locales = {};
@@ -1260,6 +1261,7 @@ module.exports = async (externalLogger = false) => {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of quest_data');
+            await stellate.purgeTypes(['Task', 'Quest', 'QuestItem'], logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

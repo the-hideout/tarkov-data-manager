@@ -7,6 +7,7 @@ const tarkovData = require('../modules/tarkov-data');
 const hideoutLegacy = require('./update-hideout-legacy');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
+const stellate = require('../modules/stellate');
 
 const skipChristmasTree = true;
 
@@ -138,6 +139,7 @@ module.exports = async () => {
             }
             hideoutData.data.push(stationData);
         }
+        logger.success(`Processed ${hideoutData.data.length} hideout stations`);
 
         hideoutData.legacy = await hideoutLegacy(tdHideout, logger);
 
@@ -147,6 +149,7 @@ module.exports = async () => {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of hideout_data');
+            await stellate.purgeTypes(['HideoutStation', 'HideoutModule'], logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);
@@ -155,7 +158,6 @@ module.exports = async () => {
                 logger.error(response.messages[i]);
             }
         }
-        logger.success(`Processed ${hideoutData.data.length} hideout stations`);
     } catch (error){
         logger.error(error);
         alert({

@@ -13,6 +13,7 @@ const { setItemPropertiesOptions, getSpecialItemProperties } = require('../modul
 const { initPresetSize, getPresetSize } = require('../modules/preset-size');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
+const stellate = require('../modules/stellate');
 
 let bsgItems = false;
 let credits = false;
@@ -635,6 +636,7 @@ module.exports = async () => {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of schema_data');
+            await stellate.purgeTypes(['Item', 'Ammo', 'ItemCategory', 'FleaMarket', 'ArmorMaterial', 'PlayerLevel'], logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

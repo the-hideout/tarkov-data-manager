@@ -82,7 +82,7 @@ class JobLogger {
         const endMessage = `${this.jobName} ended in ${new Date() - this.startTime}ms`;
         this.log(endMessage);
         //if (this.verbose) console.log(endMessage);
-        if (this.writeLog) writeLog(this.jobName, this.messages)
+        if (this.writeLog) writeLog(this.jobName, this.messages);
         this.messages.length = 0;
     }
 
@@ -95,6 +95,11 @@ class JobLogger {
         const endMessage = `${label} completed in ${new Date - this.timers[label]}ms`;
         this.log(endMessage);
         delete this.timers[label];
+    }
+
+    write() {
+        this.log(`${this.jobName} ended in ${new Date() - this.startTime}ms`);
+        writeLog(this.jobName, this.messages);
     }
 }
 

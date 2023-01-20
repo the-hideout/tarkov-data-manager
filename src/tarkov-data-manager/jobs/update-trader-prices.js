@@ -6,6 +6,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const tarkovData = require('../modules/tarkov-data');
 const jobOutput = require('../modules/job-output');
+const stellate = require('../modules/stellate');
 
 const traderMap = {
     'prapor': '54cb50c76803fa8b248b4571',
@@ -36,6 +37,7 @@ const outputPrices = async (prices) => {
         });
         if (response.success) {
             logger.success(`Successful Cloudflare put of ${Object.keys(prices).length} trader prices`);
+            await stellate.purgeTypes(['TraderCashOffer', 'ItemPrice'], logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

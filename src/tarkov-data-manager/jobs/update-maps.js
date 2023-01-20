@@ -6,6 +6,7 @@ const normalizeName = require('../modules/normalize-name');
 //const mapQueueTimes = require('../modules/map-queue-times');
 const { setLocales, getTranslations } = require('../modules/get-translation');
 const jobOutput = require('../modules/job-output');
+const stellate = require('../modules/stellate');
 
 const mapNames = {
     '59fc81d786f774390775787e': 'Night Factory',
@@ -473,6 +474,7 @@ module.exports = async function() {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of map_data');
+            await stellate.purgeTypes(['Map', 'MobInfo'], logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

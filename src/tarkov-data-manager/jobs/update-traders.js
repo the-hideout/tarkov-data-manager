@@ -6,6 +6,7 @@ const {alert} = require('../modules/webhook');
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
+const stellate = require('../modules/stellate');
 
 module.exports = async function(externalLogger) {
     const logger = externalLogger || new JobLogger('update-traders');
@@ -89,6 +90,7 @@ module.exports = async function(externalLogger) {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of trader_data');
+            await stellate.purgeTypes(['Trader'], logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

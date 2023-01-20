@@ -8,6 +8,7 @@ const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 const { query, jobComplete } = require('../modules/db-connection');
 const jobOutput = require('../modules/job-output');
+const stellate = require('../modules/stellate');
 
 let itemData = false;
 let presetData;
@@ -415,7 +416,7 @@ module.exports = async function() {
         for (const trade of trades.data) {
             trade.id = barterId++;
         }
-        logger.succeed('Finished parsing barters table');
+        logger.succeed(`Processed ${trades.data.length} barters`);
 
         const response = await cloudflare.put('barter_data', trades).catch(error => {
             logger.error('Error on cloudflare put for barter_data')
@@ -424,6 +425,7 @@ module.exports = async function() {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of barter data');
+            await stellate.purgeTypes(['Barter'], logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);
@@ -432,8 +434,6 @@ module.exports = async function() {
         for (let i = 0; i < response.messages.length; i++) {
             logger.error(response.messages[i]);
         }
-
-        logger.succeed(`Finished processing ${trades.data.length} barters`);
     } catch (error) {
         logger.error(error);
         alert({
