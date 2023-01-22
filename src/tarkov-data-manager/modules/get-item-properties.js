@@ -320,7 +320,10 @@ const getItemProperties = async (item) => {
                 armor_material_id: item._props.ArmorMaterial,
                 locale: getTranslations({headZones: lang => {
                     return item._props.headSegments.map(key => {
-                        return lang[key];
+                        if (key === 'LowerNape') {
+                            key = key.toLowerCase();
+                        }
+                        return lang[`HeadSegment/${key}`];
                     });
                 }}, logger),
             };
