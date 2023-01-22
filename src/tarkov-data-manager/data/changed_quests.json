@@ -487,5 +487,47 @@
                 }
             ]
         }
+    },
+    "5ae4493486f7744efa289417": {
+        "name": "Database - Part 1",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "5ae448bf86f7744d733e55ee",
+                    "name": "Make ULTRA Great Again",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "5ae448f286f77448d73c0131": {
+        "name": "The Blood of War - Part 1",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "5ae448bf86f7744d733e55ee",
+                    "name": "Make ULTRA Great Again",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "6086c852c945025d41566124": {
+        "name": "Revision - Reserve",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "5a27b87686f77460de0252a8",
+                    "name": "Humanitarian Supplies",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
     }
 }
