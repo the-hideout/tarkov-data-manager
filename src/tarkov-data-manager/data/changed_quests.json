@@ -530,6 +530,15 @@
             ]
         }
     },
+    "6179b4d1bca27a099552e04e": {
+        "name": "Revision - Lighthouse",
+        "taskRequirementsRemoved": [
+            {
+                "id": "5a27b80086f774429a5d7e20",
+                "name": "Eagle Eye"
+            }
+        ]
+    },
     "639135f286e646067c176a87": {
         "name": "Revision - Streets of Tarkov",
         "propertiesChanged": {
