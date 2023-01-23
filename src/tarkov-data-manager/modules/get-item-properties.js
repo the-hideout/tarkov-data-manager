@@ -456,7 +456,6 @@ const getItemProperties = async (item) => {
                 return effects;
             }, {});
         }
-        console.log(item._id, effects_damage)
         properties = {
             propertiesType: 'ItemPropertiesPainkiller',
             uses: item._props.MaxHpResource | 1,
