@@ -448,14 +448,23 @@ const getItemProperties = async (item) => {
             }
         }
     } else if (item._parent === '5448f3a14bdc2d27728b4569') {
+        let effects_damage = item._props.effects_damage;
+        if (Array.isArray(effects_damage)) {
+            // some effects_damage are arrays (544fb3f34bdc2d03748b456a), others are dictionaries
+            effects_damage = effects_damage.reduce((effects, current) => {
+                effects[current.type] = current;
+                return effects;
+            }, {});
+        }
+        console.log(item._id, effects_damage)
         properties = {
             propertiesType: 'ItemPropertiesPainkiller',
             uses: item._props.MaxHpResource | 1,
             useTime: item._props.medUseTime,
-            cures: Object.keys(item._props.effects_damage).filter(status => {
+            cures: Object.keys(effects_damage).filter(status => {
                 return status !== 'RadExposure';
             }),
-            painkillerDuration: item._props.effects_damage.Pain.duration,
+            painkillerDuration: effects_damage.Pain.duration,
             energyImpact: 0,
             hydrationImpact: 0
         };
