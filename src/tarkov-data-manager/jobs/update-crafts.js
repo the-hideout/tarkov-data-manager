@@ -181,8 +181,7 @@ module.exports = async function() {
         if (response.success) {
             logger.success('Successful Cloudflare put of craft_data');
             if (diffs.data || diffs.data__added || diffs.data__removed) {
-
-                await stellate.purgeTypes('Craft', logger);   
+                await stellate.purgeTypes('Craft', logger);
             }
         } else {
             for (let i = 0; i < response.errors.length; i++) {

@@ -646,7 +646,10 @@ module.exports = async () => {
                     purge.Ammo = [];
                 }
                 if (diffs.categories || diffs.handbookCategories) {
-                    purge.ItemCategory = [];
+                    purge.ItemCategory = [
+                        ...diffs.categories?.map(cat => cat.id) || [],
+                        ...diffs.handbookCategories?.map(cat => cat.id) || []
+                    ];
                 }
                 if (diffs.types) {
                     purge.ItemType = [];

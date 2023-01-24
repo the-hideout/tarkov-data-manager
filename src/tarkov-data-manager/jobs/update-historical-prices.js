@@ -92,11 +92,11 @@ module.exports = async () => {
                 });
             }
         }
+        const priceData = {
+            data: itemPriceData
+        };
 
-        const response = await cloudflare.put('historical_price_data', {
-            updated: new Date(),
-            data: itemPriceData,
-        }).catch(error => {
+        const response = await cloudflare.put('historical_price_data', priceData).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });

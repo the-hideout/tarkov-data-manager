@@ -1263,11 +1263,11 @@ module.exports = async (externalLogger = false) => {
             logger.success('Successful Cloudflare put of quest_data');
             if (Object.keys(diffs).length > 0) {
                 const purge = {};
-                if (diffs.data || diffs.data__added || diffs.data__removed) {
-                    purge.Task = [];
+                if (diffs.data) {
+                    purge.Task = diffs.data.map(diff => diff.id);
                 }
-                if (diffs.items || diffs.items__added || diffs.items__removed) {
-                    purge.QuestItem = [];
+                if (diffs.items) {
+                    purge.QuestItem = diffs.items.map(diff => diff.id);
                 }
                 if (diffs.legacy || diffs.legacy__added || diffs.legacy__removed) {
                     purge.Quest = [];

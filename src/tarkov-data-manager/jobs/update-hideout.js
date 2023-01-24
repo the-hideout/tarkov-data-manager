@@ -26,7 +26,6 @@ module.exports = async () => {
         const en = locales.en;
         setLocales(locales);
         const hideoutData = {
-            updated: new Date(),
             data: [],
         };
         const areasByType = {};
@@ -144,7 +143,7 @@ module.exports = async () => {
 
         hideoutData.legacy = await hideoutLegacy(tdHideout, logger);
 
-        const diffs = kvDelta('craft_data', hideoutData, logger);
+        const diffs = kvDelta('hideout_data', hideoutData, logger);
 
         const response = await cloudflare.put('hideout_data', hideoutData).catch(error => {
             logger.error(error);

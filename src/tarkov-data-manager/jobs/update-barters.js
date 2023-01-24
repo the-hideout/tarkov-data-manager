@@ -220,7 +220,7 @@ const getItemData = function getItemData(html){
     };
 };
 
-const parseTradeRow = async (tradeElement) => {
+const parseTradeRow = async (tradeElement, tradeIndex) => {
     const $trade = $(tradeElement);
     const rewardItemName = fixName($trade.find('th').eq(-1).find('a').eq(0).prop('title'));
     const traderRequirement = fixName($trade.find('th').eq(2).find('a').eq(1).text());
@@ -229,7 +229,7 @@ const parseTradeRow = async (tradeElement) => {
     if(!rewardItem){
         logger.error(`Found no reward item called "${rewardItemName}"`);
 
-        return true;
+        return false;
     }
     const baseId = rewardItem.id;
     if (rewardItem.types.includes('gun') || rewardItem.id === '5a16bb52fcdbcb001a3b00dc') {
@@ -270,7 +270,8 @@ const parseTradeRow = async (tradeElement) => {
         trader_id: tradeMap[traderName],
         trader_name: traderName,
         level: 1,
-        taskUnlock: null
+        taskUnlock: null,
+        id: tradeIndex + 1,
     };
     const loyaltyLevelMatch = traderRequirement.match(/ LL(\d)/);
     if (loyaltyLevelMatch) {
@@ -334,19 +335,17 @@ const parseTradeRow = async (tradeElement) => {
     }
 
     if(itemCountMatches.length > items.length){
-        return true;
+        return false;
     }
 
     tradeData.requiredItems = items.map(getItemData).filter(Boolean);
 
     // Failed to map at least one item
     if(tradeData.requiredItems.length !== items.length){
-        return true;
+        return false;
     }
 
-    trades.data.push(tradeData);
-
-    return true;
+    return tradeData;
 }
 
 module.exports = async function() {
@@ -412,11 +411,8 @@ module.exports = async function() {
         });
 
         logger.log('Parsing barters table...');
-        await Promise.all(traderRows.map(parseTradeRow));
-        let barterId = 1;
-        for (const trade of trades.data) {
-            trade.id = barterId++;
-        }
+        trades.data = (await Promise.all(traderRows.map(parseTradeRow))).filter(Boolean);
+        
         logger.succeed(`Processed ${trades.data.length} barters`);
 
         const diffs = kvDelta('barter_data', trades, logger);
@@ -428,7 +424,7 @@ module.exports = async function() {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of barter data');
-            if (diffs.data || diffs.data__added || diffs.data__removed) {
+            if (diffs.data) {
                 await stellate.purgeTypes(['Barter'], logger);
             }
         } else {
