@@ -469,7 +469,7 @@ module.exports = async function() {
             logger.log(`✔️ ${mob.locale.en.name}`);
         }
 
-        const diffs = kvDelta('map_data', maps, logger);
+        const diffs = await kvDelta('map_data', maps, logger);
         const response = await cloudflare.put('map_data', maps).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};

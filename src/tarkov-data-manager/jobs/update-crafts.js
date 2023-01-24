@@ -172,7 +172,7 @@ module.exports = async function() {
         }
         logger.log(`Processed ${crafts.data.length} active crafts`);
 
-        const diffs = kvDelta('craft_data', crafts, logger);
+        const diffs = await kvDelta('craft_data', crafts, logger);
 
         const response = await cloudflare.put('craft_data', crafts).catch(error => {
             logger.error(error);

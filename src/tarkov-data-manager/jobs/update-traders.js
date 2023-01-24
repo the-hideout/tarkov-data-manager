@@ -84,7 +84,7 @@ module.exports = async function(externalLogger) {
         }
         logger.log(`Processed ${traders.data.length} traders`);
 
-        const diff = kvDelta('trader_data', traders);
+        const diff = await kvDelta('trader_data', traders);
         const changedTraders = [];
         if (diff.data) {
             for (const traderDiff of diff.data) {

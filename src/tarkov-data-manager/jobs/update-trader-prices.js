@@ -35,7 +35,7 @@ const outputPrices = async (prices) => {
         const priceData = {
             data: prices,
         };
-        const diff = kvDelta('trader_price_data', priceData);
+        const diff = await kvDelta('trader_price_data', priceData);
         let changedPrices = false;
         if (diff.data || diff.data__added || diff.data__removed) {
             changedPrices = true;

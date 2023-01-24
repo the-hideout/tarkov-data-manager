@@ -143,7 +143,7 @@ module.exports = async () => {
 
         hideoutData.legacy = await hideoutLegacy(tdHideout, logger);
 
-        const diffs = kvDelta('hideout_data', hideoutData, logger);
+        const diffs = await kvDelta('hideout_data', hideoutData, logger);
 
         const response = await cloudflare.put('hideout_data', hideoutData).catch(error => {
             logger.error(error);

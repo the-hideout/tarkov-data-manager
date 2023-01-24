@@ -1253,7 +1253,7 @@ module.exports = async (externalLogger = false) => {
 
         quests.legacy = await legacyQuests(tdQuests, logger);
 
-        const diffs = kvDelta('quest_data', quests, logger);
+        const diffs = await kvDelta('quest_data', quests, logger);
 
         const response = await cloudflare.put('quest_data', quests).catch(error => {
             logger.error(error);

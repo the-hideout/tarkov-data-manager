@@ -610,7 +610,7 @@ module.exports = async () => {
             playerLevels: levelData,
             languageCodes: Object.keys(locales).sort()
         };
-        const diffs = kvDelta('item_data', itemsData);
+        const diffs = await kvDelta('item_data', itemsData);
         let response = await cloudflare.put('item_data', itemsData).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};

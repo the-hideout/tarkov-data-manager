@@ -167,9 +167,30 @@ const deleteValues = async (keys) => {
     return response.body;
 };
 
+const purgeCache = async (urls) => {
+    if (typeof urls === 'string') {
+        urls = [urls];
+    }
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
+        },
+        contentType: 'application/json',
+        responseType: 'json',
+        //resolveBodyOnly: true,
+        body: JSON.stringify({
+            files: urls
+        })
+    };
+    console.log(requestOptions);
+    return got(`${BASE_URL}zones/a17204c79af55fcf05e4975f66e2490e/purge_cache`, requestOptions);
+};
+
 module.exports = {
     put: putValue,
     getKeys: getKeys,
+    purgeCache: purgeCache,
     //getOldKeys: getOldKeys,
     //delete: deleteValue,
     //deleteBulk: deleteValues

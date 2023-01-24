@@ -1,4 +1,46 @@
-const fs = require('fs');
+const { fork } = require('child_process');
+
+module.exports = async (outputFile, newData, logger) => {
+    if (!logger) {
+        logger = {
+            ...console,
+            success: console.log,
+        };
+    } else {
+        logger.write('Processed main data');
+    }
+    return new Promise((resolve, reject) => {
+        const controller = new AbortController();
+        const child = fork('./modules/diff-worker.js', { 
+            signal: controller.signal,
+            env: {
+                outputFile,
+                newData: JSON.stringify(newData),
+            }
+        });
+        child.on('error', (err) => {
+            logger.error(err.message);
+            reject(err);
+        });
+        child.on('message', (message) => {
+            if (message.level === 'error') {
+                logger.error(message.message);
+                return;
+            }
+            if (message.level === 'warn') {
+                logger.warn(message.messsage);
+            }
+            if (message.level === 'log') {
+                if (message.message === 'complete') {
+                    return resolve(message.diff);
+                }
+                logger.log(message.message);
+            }
+        });
+    });
+};
+
+/*const fs = require('fs');
 
 const jsonDiff = require('json-diff');
 
@@ -60,4 +102,4 @@ module.exports = (outputFile, newData, logger) => {
         logger.warn(`Could not parse ${outputFile}`);
     }
     return diffs;
-};
+};*/

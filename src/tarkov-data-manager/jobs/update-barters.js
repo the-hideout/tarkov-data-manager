@@ -415,7 +415,7 @@ module.exports = async function() {
         
         logger.succeed(`Processed ${trades.data.length} barters`);
 
-        const diffs = kvDelta('barter_data', trades, logger);
+        const diffs = await kvDelta('barter_data', trades, logger);
 
         const response = await cloudflare.put('barter_data', trades).catch(error => {
             logger.error('Error on cloudflare put for barter_data')
