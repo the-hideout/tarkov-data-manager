@@ -102,6 +102,8 @@ module.exports = async (data, logger) => {
             return parsedQuest;
         });
 
+        logger.log(`Processed ${quests.length} tarkovdata quests`);
+
         /*const response = await cloudflare.put('quest_data', JSON.stringify({
             updated: new Date(),
             data: quests,

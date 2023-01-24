@@ -28,6 +28,7 @@ module.exports = (outputFile, newData, logger) => {
         };
     }
     let diffs = {};
+    const start = new Date();
     try {
         newData = JSON.parse(JSON.stringify(newData));
         const json = JSON.parse(fs.readFileSync(`./dumps/${outputFile}.json`));
@@ -53,6 +54,7 @@ module.exports = (outputFile, newData, logger) => {
                 delete diffs[key];
             }
         }
+        logger.log(`${outputFile} diff generated in ${new Date() - start} ms`)
     } catch (error) {
         console.log('Error getting KV delta', error);
         logger.warn(`Could not parse ${outputFile}`);
