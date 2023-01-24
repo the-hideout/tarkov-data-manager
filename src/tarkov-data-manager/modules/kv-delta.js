@@ -9,6 +9,7 @@ module.exports = async (outputFile, newData, logger) => {
     } else {
         logger.write('Processed main data');
     }
+    return {};
     return new Promise((resolve, reject) => {
         const controller = new AbortController();
         const child = fork('./modules/diff-worker.js', { 
