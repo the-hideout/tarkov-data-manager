@@ -7,6 +7,7 @@ const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
 const jobOutput = require('../modules/job-output');
 const stellate = require('../modules/stellate');
+const kvDelta = require('../modules/kv-delta');
 
 const mapNames = {
     '59fc81d786f774390775787e': 'Night Factory',
@@ -468,13 +469,23 @@ module.exports = async function() {
             logger.log(`✔️ ${mob.locale.en.name}`);
         }
 
+        const diffs = kvDelta('map_data', maps, logger);
         const response = await cloudflare.put('map_data', maps).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of map_data');
-            await stellate.purgeTypes(['Map', 'MobInfo'], logger);
+            if (Object.keys(diffs).length > 0) {
+                const purge = {};
+                if (diffs.data || diffs.data__added || diffs.data__removed) {
+                    purge.Map = [];
+                }
+                if (diffs.mobs || diffs.mobs__added || diffs.mobs__removed) {
+                    purge.MobInfo = [];
+                }
+                await stellate.purgeTypes(purge, logger);
+            }
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

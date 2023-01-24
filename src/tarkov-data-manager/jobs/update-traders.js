@@ -7,6 +7,7 @@ const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
 const stellate = require('../modules/stellate');
+const kvDelta = require('../modules/kv-delta');
 
 module.exports = async function(externalLogger) {
     const logger = externalLogger || new JobLogger('update-traders');
@@ -21,7 +22,6 @@ module.exports = async function(externalLogger) {
             responseType: 'json',
         })).body;
         const traders = {
-            updated: new Date(),
             data: [],
         };
         logger.log('Processing traders...');
@@ -84,13 +84,33 @@ module.exports = async function(externalLogger) {
         }
         logger.log(`Processed ${traders.data.length} traders`);
 
+        const diff = kvDelta('trader_data', traders);
+        const changedTraders = [];
+        if (diff.data) {
+            for (const traderDiff of diff.data) {
+                changedTraders.push(traderDiff.id);
+            }
+        }
+        if (diff.data__added) {
+            for (const traderDiff of diff.data__added) {
+                changedTraders.push(traderDiff.id);
+            }
+        }
+        if (diff.data__removed) {
+            for (const traderDiff of diff.data__removed) {
+                changedTraders.push(traderDiff.id);
+            }
+        }
+
         const response = await cloudflare.put('trader_data', traders).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of trader_data');
-            await stellate.purgeTypes(['Trader'], logger);
+            if (changedTraders.length > 0) {
+                await stellate.purgeTypes({Trader: changedTraders}, logger);
+            }
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

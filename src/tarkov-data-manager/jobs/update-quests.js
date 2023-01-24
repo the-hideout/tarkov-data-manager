@@ -13,6 +13,7 @@ const { setLocales, getTranslations, addTranslations } = require('../modules/get
 const jobOutput = require('../modules/job-output');
 const normalizeName = require('../modules/normalize-name');
 const stellate = require('../modules/stellate');
+const kvDelta = require('../modules/kv-delta');
 
 let logger = false;
 let locales = {};
@@ -1252,8 +1253,7 @@ module.exports = async (externalLogger = false) => {
 
         quests.legacy = await legacyQuests(tdQuests, logger);
 
-        logger.log('Writing quests.json...');
-        //fs.writeFileSync(path.join(__dirname, '..', 'cache', 'tasks.json'), JSON.stringify(quests.data, null, 4));
+        const diffs = kvDelta('quest_data', quests, logger);
 
         const response = await cloudflare.put('quest_data', quests).catch(error => {
             logger.error(error);
@@ -1261,7 +1261,19 @@ module.exports = async (externalLogger = false) => {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of quest_data');
-            await stellate.purgeTypes(['Task', 'Quest', 'QuestItem'], logger);
+            if (Object.keys(diffs).length > 0) {
+                const purge = {};
+                if (diffs.data || diffs.data__added || diffs.data__removed) {
+                    purge.Task = [];
+                }
+                if (diffs.items || diffs.items__added || diffs.items__removed) {
+                    purge.QuestItem = [];
+                }
+                if (diffs.legacy || diffs.legacy__added || diffs.legacy__removed) {
+                    purge.Quest = [];
+                }
+                await stellate.purgeTypes(purge, logger);
+            }
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

@@ -4,15 +4,26 @@ async function purgeTypes(types, logger = false, delay = 60) {
     if (!process.env.STELLATE_PURGE_TOKEN) {
         return;
     }
-    if (logger) {
+    // if we're delaying the purge; write the rest of the job log
+    if (logger && delay) {
         logger.write();
     }
     if (typeof types === 'string') {
-        types = [types];
+        types = {types: []};
+    }
+    if (Array.isArray(types)) {
+        types = types.reduce((allTypes, current) => {
+            allTypes[current] = [];
+            return allTypes;
+        }, {});
+    }
+    for (const t in types) {
+        types[t] = types[t].map(val => `"${val}"`);
     }
     let url = 'https://admin.stellate.co/tarkov-dev-api';
     if (process.env.NODE_ENV === 'dev') {
         url += '-dev';
+        delay = 0; // if we're in dev mode, don't delay the purge
     }
     return new Promise(resolve => {
         setTimeout(async () => {
@@ -26,7 +37,7 @@ async function purgeTypes(types, logger = false, delay = 60) {
                         'Content-Type': 'application/json',
                         'stellate-token': process.env.STELLATE_PURGE_TOKEN,
                     },
-                    body: JSON.stringify({ query: `mutation { ${types.map(t => `purge${t}(soft: true)`).join(' ')} }` }),
+                    body: JSON.stringify({ query: `mutation { ${Object.keys(types).map(t => `purge${t}(${types[t].length > 0 ? `id: [${types[t].join(', ')}] ` : ''}soft: true)`).join(' ')} }` }),
                     responseType: 'json',
                     resolveBodyOnly: true,
                 });

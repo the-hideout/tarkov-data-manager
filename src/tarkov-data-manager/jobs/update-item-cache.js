@@ -14,6 +14,7 @@ const { initPresetSize, getPresetSize } = require('../modules/preset-size');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
 const stellate = require('../modules/stellate');
+const kvDelta = require('../modules/kv-delta');
 
 let bsgItems = false;
 let credits = false;
@@ -609,6 +610,7 @@ module.exports = async () => {
             playerLevels: levelData,
             languageCodes: Object.keys(locales).sort()
         };
+        const diffs = kvDelta('item_data', itemsData);
         let response = await cloudflare.put('item_data', itemsData).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
@@ -636,7 +638,30 @@ module.exports = async () => {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of schema_data');
-            await stellate.purgeTypes(['Item', 'Ammo', 'ItemCategory', 'FleaMarket', 'ArmorMaterial', 'PlayerLevel'], logger);
+
+            if (Object.keys(diffs).length > 0) {
+                const purge = {};
+                if (diffs.data) {
+                    purge.Item = diffs.data.map(diff => diff.id);
+                    purge.Ammo = [];
+                }
+                if (diffs.categories || diffs.handbookCategories) {
+                    purge.ItemCategory = [];
+                }
+                if (diffs.types) {
+                    purge.ItemType = [];
+                }
+                if (diffs.flea) {
+                    purge.FleaMarket = [];
+                }
+                if (diffs.armorMats) {
+                    purge.ArmorMaterial = [];
+                }
+                if (diffs.playerLevels) {
+                    purge.PlayerLevel = [];
+                }
+                await stellate.purgeTypes(purge, logger);
+            }
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

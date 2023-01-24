@@ -8,6 +8,7 @@ const hideoutLegacy = require('./update-hideout-legacy');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
 const stellate = require('../modules/stellate');
+const kvDelta = require('../modules/kv-delta');
 
 const skipChristmasTree = true;
 
@@ -143,13 +144,24 @@ module.exports = async () => {
 
         hideoutData.legacy = await hideoutLegacy(tdHideout, logger);
 
+        const diffs = kvDelta('craft_data', hideoutData, logger);
+
         const response = await cloudflare.put('hideout_data', hideoutData).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of hideout_data');
-            await stellate.purgeTypes(['HideoutStation', 'HideoutModule'], logger);
+            if (Object.keys(diffs).length > 0) {
+                const purge = {};
+                if (diffs.data || diffs.data__added || diffs.data__removed) {
+                    purge.HideoutStation = [];
+                }
+                if (diffs.legacy || diffs.legacy__added || diffs.legacy__removed) {
+                    purge.HideoutModule = [];
+                }
+                await stellate.purgeTypes(purge, logger);
+            }
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

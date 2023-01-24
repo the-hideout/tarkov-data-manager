@@ -6,6 +6,7 @@ const {alert} = require('../modules/webhook');
 const tarkovData = require('../modules/tarkov-data');
 const jobOutput = require('../modules/job-output');
 const stellate = require('../modules/stellate');
+const kvDelta = require('../modules/kv-delta');
 
 module.exports = async function() {
     const logger = new JobLogger('update-crafts');
@@ -171,13 +172,18 @@ module.exports = async function() {
         }
         logger.log(`Processed ${crafts.data.length} active crafts`);
 
+        const diffs = kvDelta('craft_data', crafts, logger);
+
         const response = await cloudflare.put('craft_data', crafts).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of craft_data');
-            await stellate.purgeTypes(['Craft'], logger);
+            if (diffs.data || diffs.data__added || diffs.data__removed) {
+
+                await stellate.purgeTypes('Craft', logger);   
+            }
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

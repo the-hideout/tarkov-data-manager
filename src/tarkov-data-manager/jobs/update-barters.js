@@ -9,6 +9,7 @@ const {alert} = require('../modules/webhook');
 const { query, jobComplete } = require('../modules/db-connection');
 const jobOutput = require('../modules/job-output');
 const stellate = require('../modules/stellate');
+const kvDelta = require('../modules/kv-delta');
 
 let itemData = false;
 let presetData;
@@ -418,6 +419,8 @@ module.exports = async function() {
         }
         logger.succeed(`Processed ${trades.data.length} barters`);
 
+        const diffs = kvDelta('barter_data', trades, logger);
+
         const response = await cloudflare.put('barter_data', trades).catch(error => {
             logger.error('Error on cloudflare put for barter_data')
             logger.error(error);
@@ -425,7 +428,9 @@ module.exports = async function() {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of barter data');
-            await stellate.purgeTypes(['Barter'], logger);
+            if (diffs.data || diffs.data__added || diffs.data__removed) {
+                await stellate.purgeTypes(['Barter'], logger);
+            }
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);
