@@ -9,10 +9,6 @@ async function purgeTypes(dataName, logger = false) {
     if (!process.env.STELLATE_PURGE_TOKEN) {
         return;
     }
-    // if we're delaying the purge; write the rest of the job log
-    if (logger && delay) {
-        logger.write();
-    }
     if (Object.keys(purge).length === 0) {
         if (logger) {
             logger.log('Nothing to purge from cache');
