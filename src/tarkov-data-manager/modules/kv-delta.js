@@ -7,6 +7,8 @@ const aliases = {
 const ignoreTypes = [
     'updated',
     'data',
+    'ItemType',
+    'LanguageCode',
 ];
 
 const ignoreId = [
