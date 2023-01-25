@@ -116,8 +116,11 @@ module.exports = async (externalLogger) => {
                 continue;
             }
             //logger.log(`Checking ${itemId} ${item.name}`)
+            if (item.types.includes('preset')) {
+                continue;
+            }
             try {
-                if (!bsgData[itemId] && !item.types.includes('preset')) {
+                if (!bsgData[itemId]) {
                     if (!item.types.includes('disabled')) {
                         logger.warn(`${itemId} ${item.name} is no longer in the game, disabling`);
                         await remoteData.addType(itemId, 'disabled').then(results => {
