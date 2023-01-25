@@ -105,6 +105,11 @@ module.exports = async (externalLogger) => {
         logger.log(`Updating types`);
         for (const [itemId, item] of allItems.entries()) {
             if (presets[item.id] || item.types.includes('preset')) {
+                await remoteData.removeType(itemId, 'disabled').then(results => {
+                    if (results.affectedRows == 0) {
+                        logger.fail(`Not disabled ${itemId} ${item.name}`);
+                    }
+                });
                 if (!item.types.includes('preset')) {
                     logger.warn(`${itemId} ${item.name} is not marked as a preset`);
                     await remoteData.addType(itemId, 'preset').then(results => {
