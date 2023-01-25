@@ -248,7 +248,7 @@ module.exports = async () => {
             tarkovData.handbook(),
         ]);
         traderData = await jobOutput('update-traders', './dumps/trader_data.json', logger);
-        presets = await jobOutput('update-presets', './cache/presets.json', logger);
+        presets = await jobOutput('update-presets', './cache/presets.json', logger, true);
         const itemData = {};
         const itemTypesSet = new Set();
         bsgCategories = {};

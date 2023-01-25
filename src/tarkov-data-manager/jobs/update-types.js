@@ -100,11 +100,11 @@ module.exports = async (externalLogger) => {
     try {
         allItems = await remoteData.get();
         bsgData = await tarkovData.items();
-        const presets = await jobOutput('update-presets', './cache/presets.json', logger);
+        const presets = await jobOutput('update-presets', './cache/presets.json', logger, true);
 
         logger.log(`Updating types`);
         for (const [itemId, item] of allItems.entries()) {
-            if (presets[item.id]) {
+            if (presets[item.id] || item.types.includes('preset')) {
                 if (!item.types.includes('preset')) {
                     logger.warn(`${itemId} ${item.name} is not marked as a preset`);
                     await remoteData.addType(itemId, 'preset').then(results => {
@@ -116,9 +116,6 @@ module.exports = async (externalLogger) => {
                 continue;
             }
             //logger.log(`Checking ${itemId} ${item.name}`)
-            if (item.types.includes('preset')) {
-                continue;
-            }
             try {
                 if (!bsgData[itemId]) {
                     if (!item.types.includes('disabled')) {

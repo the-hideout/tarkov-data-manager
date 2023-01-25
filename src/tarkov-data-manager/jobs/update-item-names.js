@@ -20,7 +20,7 @@ module.exports = async (externalLogger) => {
             remoteData.get(),
             tarkovData.items(),
             tarkovData.locale('en'),
-            jobOutput('update-presets', './cache/presets.json', logger),
+            jobOutput('update-presets', './cache/presets.json', logger, true),
         ]);
         const currentDestinations = [];
         const regnerateImages = [];

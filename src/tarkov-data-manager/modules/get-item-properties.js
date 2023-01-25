@@ -37,7 +37,7 @@ const setPresets = async (pr = false) => {
     if (pr) {
         presets = pr;
     } else {
-        presets = await jobOutput('update-presets', './cache/presets.json', logger);
+        presets = await jobOutput('update-presets', './cache/presets.json', logger, true);
     }
 }
 

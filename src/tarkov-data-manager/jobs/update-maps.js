@@ -306,7 +306,7 @@ module.exports = async function() {
         logger.log('Getting maps data...');
         locales = await tarkovData.locales();
         items = await jobOutput('update-item-cache', './dumps/item_data.json', logger);
-        presets = await jobOutput('update-presets', './cache/presets.json', logger);
+        presets = await jobOutput('update-presets', './cache/presets.json', logger, true);
         setLocales(locales);
         const locations = await tarkovData.locations();
         const maps = {

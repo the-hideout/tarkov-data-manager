@@ -41,7 +41,7 @@ module.exports = async () => {
     logger = new JobLogger('verify-wiki');
     try {
         try {
-            presets = await jobOutput('update-presets', './cache/presets.json', logger);
+            presets = await jobOutput('update-presets', './cache/presets.json', logger, true);
         } catch (error) {
             logger.error(error);
         }
