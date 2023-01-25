@@ -13,7 +13,8 @@ module.exports = async () => {
         const aWeekAgo = new Date();
         aWeekAgo.setDate(aWeekAgo.getDate() - 7);
         const itemPriceData = await fs.readFile(path.join(__dirname, '..', 'dumps', 'historical_price_data.json')).then(buffer => {
-            return JSON.parse(buffer).data;
+            const parsed = JSON.parse(buffer);
+            return parsed.historicalPricePoint || parsed.data;
         }).catch(error => {
             if (error.code !== 'ENOENT') {
                 console.log(error);
@@ -93,7 +94,7 @@ module.exports = async () => {
             }
         }
         const priceData = {
-            data: itemPriceData
+            historicalPricePoint: itemPriceData
         };
 
         const response = await cloudflare.put('historical_price_data', priceData).catch(error => {
@@ -102,7 +103,7 @@ module.exports = async () => {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of historical_price_data');
-            await stellate.purgeTypes(['historicalPricePoint'], logger);
+            await stellate.purgeTypes('historical_price_data', logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

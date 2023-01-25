@@ -13,7 +13,6 @@ const { setLocales, getTranslations, addTranslations } = require('../modules/get
 const jobOutput = require('../modules/job-output');
 const normalizeName = require('../modules/normalize-name');
 const stellate = require('../modules/stellate');
-const kvDelta = require('../modules/kv-delta');
 
 let logger = false;
 let locales = {};
@@ -1048,17 +1047,16 @@ module.exports = async (externalLogger = false) => {
         }
         
         const quests = {
-            updated: new Date(),
-            data: [],
+            Task: [],
         };
         for (const questId in data) {
             if (removedQuests[questId]) continue;
-            quests.data.push(formatRawQuest(data[questId]));
+            quests.Task.push(formatRawQuest(data[questId]));
         }
         
         for (const questId in missingQuests) {
             const quest = missingQuests[questId];
-            for (const q of quests.data) {
+            for (const q of quests.Task) {
                 if (q.id === quest.id) {
                     continue;
                 }
@@ -1083,14 +1081,14 @@ module.exports = async (externalLogger = false) => {
                     break;
                 }
             }
-            quests.data.push(quest);
+            quests.Task.push(quest);
         }
 
         for (const oldQuestId in oldQuests) {
-            const foundQuest = quests.data.find(q => q.id === oldQuestId);
+            const foundQuest = quests.Task.find(q => q.id === oldQuestId);
             if (!foundQuest && !removedQuests[oldQuestId]) {
                 logger.warn(`Old quest ${locales.en[`${oldQuestId} name`]} ${oldQuestId} is missing from current quests`);
-                quests.data.push(formatRawQuest(oldQuests[oldQuestId]));
+                quests.Task.push(formatRawQuest(oldQuests[oldQuestId]));
                 continue;
             }
         }
@@ -1110,7 +1108,7 @@ module.exports = async (externalLogger = false) => {
                             responseType: 'json',
                         })).body;
                     }
-                    quests.data.push(formatTdQuest(tdQuest));
+                    quests.Task.push(formatTdQuest(tdQuest));
                 }
             } catch (error) {
                 logger.error('Error processing missing TarkovData quests');
@@ -1134,7 +1132,7 @@ module.exports = async (externalLogger = false) => {
             return tLevel.requiredPlayerLevel;
         };
         const getQuestMinLevel = (questId, isPrereq = false) => {
-            const quest = quests.data.find(q => q.id === questId);
+            const quest = quests.Task.find(q => q.id === questId);
             if (!quest) {
                 return 0;
             }
@@ -1165,7 +1163,7 @@ module.exports = async (externalLogger = false) => {
             return actualMinLevel;
         };
 
-        for (const quest of quests.data) {
+        for (const quest of quests.Task) {
             /*quest.descriptionMessageId = locales.en.quest[quest.id]?.description;
             quest.startMessageId = locales.en.quest[quest.id]?.startedMessageText;
             quest.successMessageId = locales.en.quest[quest.id]?.successMessageText;
@@ -1174,7 +1172,7 @@ module.exports = async (externalLogger = false) => {
 
             const removeReqs = [];
             for (const req of quest.taskRequirements) {
-                const questIncluded = quests.data.some(q => q.id === req.task);
+                const questIncluded = quests.Task.some(q => q.id === req.task);
                 if (questIncluded) {
                     continue;
                 }
@@ -1206,7 +1204,7 @@ module.exports = async (externalLogger = false) => {
             }
             const questId = match.groups.id;
             let found = false;
-            for (const quest of quests.data) {
+            for (const quest of quests.Task) {
                 if (questId === quest.id) {
                     found = true;
                     break;
@@ -1249,11 +1247,9 @@ module.exports = async (externalLogger = false) => {
             questItems[id].normalizedName = normalizeName(questItems[id].locale.en.name);
         }
 
-        quests.items = questItems;
+        quests.QuestItem = questItems;
 
-        quests.legacy = await legacyQuests(tdQuests, logger);
-
-        const diffs = await kvDelta('quest_data', quests, logger);
+        quests.Quest = await legacyQuests(tdQuests, logger);
 
         const response = await cloudflare.put('quest_data', quests).catch(error => {
             logger.error(error);
@@ -1261,19 +1257,7 @@ module.exports = async (externalLogger = false) => {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of quest_data');
-            if (Object.keys(diffs).length > 0) {
-                const purge = {};
-                if (diffs.data) {
-                    purge.Task = diffs.data.map(diff => diff.id);
-                }
-                if (diffs.items) {
-                    purge.QuestItem = diffs.items.map(diff => diff.id);
-                }
-                if (diffs.legacy || diffs.legacy__added || diffs.legacy__removed) {
-                    purge.Quest = [];
-                }
-                await stellate.purgeTypes(purge, logger);
-            }
+            await stellate.purgeTypes('quest_data', logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);
@@ -1282,7 +1266,7 @@ module.exports = async (externalLogger = false) => {
         for (let i = 0; i < response.messages.length; i++) {
             logger.error(response.messages[i]);
         }
-        logger.success(`Finished processing ${quests.data.length} quests`);
+        logger.success(`Finished processing ${quests.Task.length} quests`);
     } catch (error){
         logger.error(error);
         alert({

@@ -7,7 +7,6 @@ const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
 const jobOutput = require('../modules/job-output');
 const stellate = require('../modules/stellate');
-const kvDelta = require('../modules/kv-delta');
 
 const mapNames = {
     '59fc81d786f774390775787e': 'Night Factory',
@@ -311,8 +310,7 @@ module.exports = async function() {
         setLocales(locales);
         const locations = await tarkovData.locations();
         const maps = {
-            updated: new Date(),
-            data: [],
+            Map: [],
         };
         logger.log('Processing maps...');
         for (const id in locations.locations) {
@@ -450,42 +448,32 @@ module.exports = async function() {
             }, logger);
             mapData.name = mapData.locale.en.name;
             mapData.normalizedName = normalizeName(mapData.name);
-            maps.data.push(mapData);
+            maps.Map.push(mapData);
             logger.log(`✔️ ${mapData.name} ${id}`);
         }
 
         //const queueTimes = await mapQueueTimes(maps.data, logger);
-        maps.data = maps.data.sort((a, b) => a.name.localeCompare(b.name)).map(map => {
+        maps.Map = maps.Map.sort((a, b) => a.name.localeCompare(b.name)).map(map => {
             return {
                 ...map,
                 //queueTimes: queueTimes[map.id]
             };
         });
-        logger.log(`Processed ${maps.data.length} maps`);
+        logger.log(`Processed ${maps.Map.length} maps`);
 
-        maps.mobs = processedBosses;
-        logger.log(`Processed ${Object.keys(maps.mobs).length} mobs`);
-        for (const mob of Object.values(maps.mobs)) {
+        maps.MobInfo = processedBosses;
+        logger.log(`Processed ${Object.keys(maps.MobInfo).length} mobs`);
+        for (const mob of Object.values(maps.MobInfo)) {
             logger.log(`✔️ ${mob.locale.en.name}`);
         }
 
-        const diffs = await kvDelta('map_data', maps, logger);
         const response = await cloudflare.put('map_data', maps).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of map_data');
-            if (Object.keys(diffs).length > 0) {
-                const purge = {};
-                if (diffs.data || diffs.data__added || diffs.data__removed) {
-                    purge.Map = [];
-                }
-                if (diffs.mobs || diffs.mobs__added || diffs.mobs__removed) {
-                    purge.MobInfo = [];
-                }
-                await stellate.purgeTypes(purge, logger);
-            }
+            await stellate.purgeTypes('map_data', logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

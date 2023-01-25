@@ -14,7 +14,6 @@ const { initPresetSize, getPresetSize } = require('../modules/preset-size');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
 const stellate = require('../modules/stellate');
-const kvDelta = require('../modules/kv-delta');
 
 let bsgItems = false;
 let credits = false;
@@ -600,17 +599,16 @@ module.exports = async () => {
         }
 
         const itemsData = {
-            updated: new Date(),
-            data: itemData,
-            categories: bsgCategories,
-            handbookCategories: handbookCategories,
-            types: ['any', ...itemTypesSet].sort(),
-            flea: fleaData,
-            armorMats: armorData,
-            playerLevels: levelData,
-            languageCodes: Object.keys(locales).sort()
+            Item: itemData,
+            ItemCategory: bsgCategories,
+            HandbookCategory: handbookCategories,
+            ItemType: ['any', ...itemTypesSet].sort(),
+            FleaMarket: fleaData,
+            ArmorMaterial: armorData,
+            PlayerLevel: levelData,
+            LanguageCode: Object.keys(locales).sort()
         };
-        const diffs = await kvDelta('item_data', itemsData);
+
         let response = await cloudflare.put('item_data', itemsData).catch(error => {
             logger.error(error);
             return {success: false, errors: [], messages: []};
@@ -627,10 +625,10 @@ module.exports = async () => {
         }
         const schemaData = {
             updated: new Date(),
-            itemTypes: ['any', ...itemTypesSet].sort().join('\n '),
-            itemCategories: Object.values(bsgCategories).map(cat => cat.enumName).sort().join('\n  '),
-            handbookCategories: Object.values(handbookCategories).map(cat => cat.enumName).sort().join('\n  '),
-            languageCodes: Object.keys(locales).sort().join('\n '),
+            ItemType: ['any', ...itemTypesSet].sort().join('\n '),
+            ItemCategory: Object.values(bsgCategories).map(cat => cat.enumName).sort().join('\n  '),
+            HandbookCategory: Object.values(handbookCategories).map(cat => cat.enumName).sort().join('\n  '),
+            LanguageCode: Object.keys(locales).sort().join('\n '),
         };
         response = await cloudflare.put('schema_data', schemaData).catch(error => {
             logger.error(error);
@@ -639,32 +637,7 @@ module.exports = async () => {
         if (response.success) {
             logger.success('Successful Cloudflare put of schema_data');
 
-            if (Object.keys(diffs).length > 0) {
-                const purge = {};
-                if (diffs.data) {
-                    purge.Item = diffs.data.map(diff => diff.id);
-                    purge.Ammo = [];
-                }
-                if (diffs.categories || diffs.handbookCategories) {
-                    purge.ItemCategory = [
-                        ...diffs.categories?.map(cat => cat.id) || [],
-                        ...diffs.handbookCategories?.map(cat => cat.id) || []
-                    ];
-                }
-                if (diffs.types) {
-                    purge.ItemType = [];
-                }
-                if (diffs.flea) {
-                    purge.FleaMarket = [];
-                }
-                if (diffs.armorMats) {
-                    purge.ArmorMaterial = [];
-                }
-                if (diffs.playerLevels) {
-                    purge.PlayerLevel = [];
-                }
-                await stellate.purgeTypes(purge, logger);
-            }
+            await stellate.purgeTypes('item_data', logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

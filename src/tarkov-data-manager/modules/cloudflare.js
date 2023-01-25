@@ -68,7 +68,14 @@ const putValue = async (key, value) => {
         value = JSON.stringify(value);
     } 
     return doRequest('PUT', 'values', key, zlib.gzipSync(value).toString(encoding), false, {compression: 'gzip', encoding: encoding}).then(response => {
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', `${key.split("/").pop().toLowerCase()}.json`), JSON.stringify(JSON.parse(value), null, 4));
+        const newName = path.join(__dirname, '..', 'dumps', `${key.split("/").pop().toLowerCase()}.json`);
+        const oldName = newName.replace('.json', '_old.json');
+        try {
+            fs.renameSync(newName, oldName);
+        } catch (error) {
+            // do nothing
+        }
+        fs.writeFileSync(newName, JSON.stringify(JSON.parse(value), null, 4));
         return response;
     });
 };
@@ -176,14 +183,12 @@ const purgeCache = async (urls) => {
         headers: {
             'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
         },
-        contentType: 'application/json',
         responseType: 'json',
         //resolveBodyOnly: true,
-        body: JSON.stringify({
+        json: {
             files: urls
-        })
+        },
     };
-    console.log(requestOptions);
     return got(`${BASE_URL}zones/a17204c79af55fcf05e4975f66e2490e/purge_cache`, requestOptions);
 };
 

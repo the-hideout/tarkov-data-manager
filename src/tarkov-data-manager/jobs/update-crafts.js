@@ -6,7 +6,6 @@ const {alert} = require('../modules/webhook');
 const tarkovData = require('../modules/tarkov-data');
 const jobOutput = require('../modules/job-output');
 const stellate = require('../modules/stellate');
-const kvDelta = require('../modules/kv-delta');
 
 module.exports = async function() {
     const logger = new JobLogger('update-crafts');
@@ -24,7 +23,7 @@ module.exports = async function() {
         const questItems = tasksData.items;
         const crafts = {
             updated: new Date(),
-            data: [],
+            Craft: [],
         };
         const stations = {};
         const inactiveStations = {};
@@ -161,7 +160,7 @@ module.exports = async function() {
                 craftData.level = 1;
             }
             craftData.source = `${station.locale.en.name} level ${craftData.level}`;
-            crafts.data.push(craftData);
+            crafts.Craft.push(craftData);
             stations[station.locale.en.name]++;
         }
         for (const stationName in stations) {
@@ -170,9 +169,7 @@ module.exports = async function() {
         for (const stationName in inactiveStations) {
             logger.log(`❌ ${stationName}: ${inactiveStations[stationName]}`);
         }
-        logger.log(`Processed ${crafts.data.length} active crafts`);
-
-        const diffs = await kvDelta('craft_data', crafts, logger);
+        logger.log(`Processed ${crafts.Craft.length} active crafts`);
 
         const response = await cloudflare.put('craft_data', crafts).catch(error => {
             logger.error(error);
@@ -180,9 +177,7 @@ module.exports = async function() {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of craft_data');
-            if (diffs.data || diffs.data__added || diffs.data__removed) {
-                await stellate.purgeTypes('Craft', logger);
-            }
+            await stellate.purgeTypes('craft_data', logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

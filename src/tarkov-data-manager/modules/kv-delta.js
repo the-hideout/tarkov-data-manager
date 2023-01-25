@@ -1,6 +1,25 @@
 const { fork } = require('child_process');
 
-module.exports = async (outputFile, newData, logger) => {
+const aliases = {
+    HandbookCategory: 'ItemCategory',
+};
+
+const ignoreTypes = [
+    'updated',
+    'data',
+];
+
+const ignoreId = [
+    'Barter',
+    'MobInfo',
+    'TraderCashOffer',
+];
+
+const linkedTypes = {
+    TraderCashOffer: ['ItemPrice'],
+};
+
+module.exports = async (outputFile, logger) => {
     if (!logger) {
         logger = {
             ...console,
@@ -15,7 +34,6 @@ module.exports = async (outputFile, newData, logger) => {
             signal: controller.signal,
             env: {
                 outputFile,
-                newData: JSON.stringify(newData),
             }
         });
         child.on('error', (err) => {
@@ -32,7 +50,34 @@ module.exports = async (outputFile, newData, logger) => {
             }
             if (message.level === 'log') {
                 if (message.message === 'complete') {
-                    return resolve(message.diff);
+                    const purge = {};
+                    for (const rawType in message.diff) {
+                        const match = rawType.match(/(?<fieldName>[a-zA-Z0-9]+)(__(?<diffType>[a-z]+))?/);
+                        const typeName = match.groups.fieldName;
+                        if (ignoreTypes.includes(typeName)) {
+                            continue;
+                        }
+                        const purgeName = aliases[typeName] ? aliases[typeName] : typeName;
+                        if (!purge[purgeName]) {
+                            purge[purgeName] = [];
+                        }
+                        if (linkedTypes[typeName]) {
+                            for (const linkedType of linkedTypes[typeName]) {
+                                if (!purge[linkedType]) {
+                                    purge[linkedType] = [];
+                                }
+                            }
+                        }
+                        if (ignoreId.includes(typeName)) {
+                            continue;
+                        }
+                        for (const diff of message.diff[rawType]) {
+                            if (diff.id) {
+                                purge[purgeName].push(diff.id);
+                            }
+                        }
+                    }
+                    return resolve({purge, updated: new Date(message.updated)});
                 }
                 logger.log(message.message);
             }

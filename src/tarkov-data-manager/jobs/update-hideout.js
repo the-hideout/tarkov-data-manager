@@ -26,7 +26,7 @@ module.exports = async () => {
         const en = locales.en;
         setLocales(locales);
         const hideoutData = {
-            data: [],
+            HideoutStation: [],
         };
         const areasByType = {};
         for (const stationId in data) {
@@ -137,13 +137,11 @@ module.exports = async () => {
                 }
                 stationData.levels.push(stageData);
             }
-            hideoutData.data.push(stationData);
+            hideoutData.HideoutStation.push(stationData);
         }
-        logger.success(`Processed ${hideoutData.data.length} hideout stations`);
+        logger.success(`Processed ${hideoutData.HideoutStation.length} hideout stations`);
 
-        hideoutData.legacy = await hideoutLegacy(tdHideout, logger);
-
-        const diffs = await kvDelta('hideout_data', hideoutData, logger);
+        hideoutData.HideoutModule = await hideoutLegacy(tdHideout, logger);
 
         const response = await cloudflare.put('hideout_data', hideoutData).catch(error => {
             logger.error(error);
@@ -151,16 +149,7 @@ module.exports = async () => {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of hideout_data');
-            if (Object.keys(diffs).length > 0) {
-                const purge = {};
-                if (diffs.data || diffs.data__added || diffs.data__removed) {
-                    purge.HideoutStation = [];
-                }
-                if (diffs.legacy || diffs.legacy__added || diffs.legacy__removed) {
-                    purge.HideoutModule = [];
-                }
-                await stellate.purgeTypes(purge, logger);
-            }
+            await stellate.purgeTypes('hideout_data', logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

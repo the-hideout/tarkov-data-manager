@@ -34,14 +34,19 @@ const triggerShutdown = async () => {
     process.on( 'SIGHUP', triggerShutdown);
     
     const outputFile = process.env.outputFile;
-    const newData = JSON.parse(process.env.newData);
+    let newData = {};
+    let oldData = {};
 
     let diffs = {};
     const start = new Date();
     try {
-        //newData = JSON.parse(JSON.stringify(newData));
-        const json = JSON.parse(fs.readFileSync(`./dumps/${outputFile}.json`));
-        diffs = jsonDiff.diff(json, newData, {outputKeys: ['id']});
+        oldData = JSON.parse(fs.readFileSync(`./dumps/${outputFile}_old.json`));
+    } catch (error) {
+        // do nothing
+    }
+    try {
+        newData = JSON.parse(fs.readFileSync(`./dumps/${outputFile}.json`));
+        diffs = jsonDiff.diff(oldData, newData, {outputKeys: ['id']});
         delete diffs.updated;
         delete diffs.updated__deleted;
         for (const key in diffs) {
@@ -67,5 +72,5 @@ const triggerShutdown = async () => {
     } catch (error) {
         process.send({level: 'error', message: `Error getting KV delta: ${error.message}`, error: error});
     }
-    process.send({level: 'log', message: 'complete', diff: diffs});
+    process.send({level: 'log', message: 'complete', diff: diffs, updated: newData.updated});
 })();

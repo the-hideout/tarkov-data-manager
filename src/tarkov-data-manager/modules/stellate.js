@@ -1,6 +1,11 @@
 const got = require('got');
 
-async function purgeTypes(types, logger = false, delay = 60) {
+const kvDelta = require('./kv-delta');
+
+async function purgeTypes(dataName, logger = false) {
+    const {purge, updated} = await kvDelta(dataName, logger)
+    let delay = 60000 - (new Date() - updated);
+    delay = delay > 0 ? delay : 0;
     if (!process.env.STELLATE_PURGE_TOKEN) {
         return;
     }
@@ -8,17 +13,14 @@ async function purgeTypes(types, logger = false, delay = 60) {
     if (logger && delay) {
         logger.write();
     }
-    if (typeof types === 'string') {
-        types = {types: []};
+    if (Object.keys(purge).length === 0) {
+        if (logger) {
+            logger.log('Nothing to purge from cache');
+        }
+        return;
     }
-    if (Array.isArray(types)) {
-        types = types.reduce((allTypes, current) => {
-            allTypes[current] = [];
-            return allTypes;
-        }, {});
-    }
-    for (const t in types) {
-        types[t] = types[t].map(val => `"${val}"`);
+    for (const t in purge) {
+        purge[t] = purge[t].map(val => `"${val}"`);
     }
     let url = 'https://admin.stellate.co/tarkov-dev-api';
     if (process.env.NODE_ENV === 'dev') {
@@ -37,7 +39,7 @@ async function purgeTypes(types, logger = false, delay = 60) {
                         'Content-Type': 'application/json',
                         'stellate-token': process.env.STELLATE_PURGE_TOKEN,
                     },
-                    body: JSON.stringify({ query: `mutation { ${Object.keys(types).map(t => `purge${t}(${types[t].length > 0 ? `id: [${types[t].join(', ')}] ` : ''}soft: true)`).join(' ')} }` }),
+                    body: JSON.stringify({ query: `mutation { ${Object.keys(purge).map(t => `purge${t}(${purge[t].length > 0 ? `id: [${purge[t].join(', ')}] ` : ''}soft: true)`).join(' ')} }` }),
                     responseType: 'json',
                     resolveBodyOnly: true,
                 });
@@ -50,7 +52,7 @@ async function purgeTypes(types, logger = false, delay = 60) {
                 logger.error(`Error purging cache: ${response.errors.map(err => err.message).join(', ')}`);
             }
             if (response.data) {
-                logger.log(`Purged cache for: ${Object.keys(response.data).map(key => key.replace(/^purge/, '')).join(', ')}`);
+                logger.log(`Purged cache for: ${Object.keys(response.data).map(key => key.replace(/^purge/, '')).map(type => `${type}${purge[type].length > 0 ? ` (${purge[type].length})` : '' }`).join(', ')}`);
             }
             resolve();
         }, delay * 1000);

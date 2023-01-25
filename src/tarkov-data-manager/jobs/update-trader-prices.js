@@ -7,7 +7,6 @@ const {alert} = require('../modules/webhook');
 const tarkovData = require('../modules/tarkov-data');
 const jobOutput = require('../modules/job-output');
 const stellate = require('../modules/stellate');
-const kvDelta = require('../modules/kv-delta');
 
 const traderMap = {
     'prapor': '54cb50c76803fa8b248b4571',
@@ -33,19 +32,12 @@ let logger, tasks, items;
 const outputPrices = async (prices) => {
     try {
         const priceData = {
-            data: prices,
+            TraderCashOffer: prices,
         };
-        const diff = await kvDelta('trader_price_data', priceData);
-        let changedPrices = false;
-        if (diff.data || diff.data__added || diff.data__removed) {
-            changedPrices = true;
-        }
         const response = await cloudflare.put('trader_price_data', priceData);
         if (response.success) {
             logger.success(`Successful Cloudflare put of ${Object.keys(prices).length} trader prices`);
-            if (changedPrices) {
-                await stellate.purgeTypes(['TraderCashOffer', 'ItemPrice'], logger);
-            }
+            await stellate.purgeTypes('trader_price_data', logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

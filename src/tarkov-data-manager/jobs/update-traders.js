@@ -7,7 +7,6 @@ const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
 const stellate = require('../modules/stellate');
-const kvDelta = require('../modules/kv-delta');
 
 module.exports = async function(externalLogger) {
     const logger = externalLogger || new JobLogger('update-traders');
@@ -22,7 +21,7 @@ module.exports = async function(externalLogger) {
             responseType: 'json',
         })).body;
         const traders = {
-            data: [],
+            Trader: [],
         };
         logger.log('Processing traders...');
         for (const traderId in tradersData) {
@@ -80,27 +79,9 @@ module.exports = async function(externalLogger) {
             if (tdTraders[traderData.name.toLowerCase()]) {
                 traderData.tarkovDataId = tdTraders[traderData.name.toLowerCase()].id;
             }
-            traders.data.push(traderData);
+            traders.Trader.push(traderData);
         }
-        logger.log(`Processed ${traders.data.length} traders`);
-
-        const diff = await kvDelta('trader_data', traders);
-        const changedTraders = [];
-        if (diff.data) {
-            for (const traderDiff of diff.data) {
-                changedTraders.push(traderDiff.id);
-            }
-        }
-        if (diff.data__added) {
-            for (const traderDiff of diff.data__added) {
-                changedTraders.push(traderDiff.id);
-            }
-        }
-        if (diff.data__removed) {
-            for (const traderDiff of diff.data__removed) {
-                changedTraders.push(traderDiff.id);
-            }
-        }
+        logger.log(`Processed ${traders.Trader.length} traders`);
 
         const response = await cloudflare.put('trader_data', traders).catch(error => {
             logger.error(error);
@@ -108,9 +89,8 @@ module.exports = async function(externalLogger) {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of trader_data');
-            if (changedTraders.length > 0) {
-                await stellate.purgeTypes({Trader: changedTraders}, logger);
-            }
+
+            await stellate.purgeTypes('trader_data', logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

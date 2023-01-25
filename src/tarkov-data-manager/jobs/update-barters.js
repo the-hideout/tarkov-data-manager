@@ -9,7 +9,6 @@ const {alert} = require('../modules/webhook');
 const { query, jobComplete } = require('../modules/db-connection');
 const jobOutput = require('../modules/job-output');
 const stellate = require('../modules/stellate');
-const kvDelta = require('../modules/kv-delta');
 
 let itemData = false;
 let presetData;
@@ -374,8 +373,7 @@ module.exports = async function() {
         tasks = await jobOutput('update-quests', './dumps/quest_data.json', logger);
         $ = cheerio.load(wikiResponse.body);
         trades = {
-            updated: new Date(),
-            data: [],
+            Barter: [],
         };
         gunVariants = {};
         const returnData = {};
@@ -411,11 +409,9 @@ module.exports = async function() {
         });
 
         logger.log('Parsing barters table...');
-        trades.data = (await Promise.all(traderRows.map(parseTradeRow))).filter(Boolean);
+        trades.Barter = (await Promise.all(traderRows.map(parseTradeRow))).filter(Boolean);
         
-        logger.succeed(`Processed ${trades.data.length} barters`);
-
-        const diffs = await kvDelta('barter_data', trades, logger);
+        logger.succeed(`Processed ${trades.Barter.length} barters`);
 
         const response = await cloudflare.put('barter_data', trades).catch(error => {
             logger.error('Error on cloudflare put for barter_data')
@@ -424,9 +420,7 @@ module.exports = async function() {
         });
         if (response.success) {
             logger.success('Successful Cloudflare put of barter data');
-            if (diffs.data) {
-                await stellate.purgeTypes(['Barter'], logger);
-            }
+            await stellate.purgeTypes('barter_data', logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 logger.error(response.errors[i]);

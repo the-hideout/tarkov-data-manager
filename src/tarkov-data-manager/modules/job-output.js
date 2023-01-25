@@ -5,7 +5,7 @@ const { connection } = require('../modules/db-connection');
 module.exports = async (jobName, outputFile, logger, rawOutput = false) => {
     try {
         const json = JSON.parse(fs.readFileSync(outputFile));
-        if (!rawOutput && json.data) return json.data;
+        if (!rawOutput) return json[Object.keys(json).find(key => key !== 'updated')];
         return json;
     } catch (error) {
         if (logger) {
@@ -28,6 +28,6 @@ module.exports = async (jobName, outputFile, logger, rawOutput = false) => {
         }
     }
     const json = JSON.parse(fs.readFileSync(outputFile));
-    if (!rawOutput && json.data) return json.data;
+    if (!rawOutput) return json[Object.keys(json).find(key => key !== 'updated')];
     return json;
 };
