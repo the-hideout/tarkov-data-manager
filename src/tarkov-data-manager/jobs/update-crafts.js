@@ -19,8 +19,8 @@ module.exports = async function() {
         const areas = await jobOutput('update-hideout', './dumps/hideout_data.json', logger);
         const processedItems = await jobOutput('update-item-cache', './dumps/item_data.json', logger);
         const tasksData = await jobOutput('update-quests', './dumps/quest_data.json', logger, true);
-        const tasks = tasksData.data;
-        const questItems = tasksData.items;
+        const tasks = tasksData.Task;
+        const questItems = tasksData.QuestItem;
         const crafts = {
             updated: new Date(),
             Craft: [],
