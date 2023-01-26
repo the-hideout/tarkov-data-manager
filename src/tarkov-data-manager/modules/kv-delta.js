@@ -1,4 +1,5 @@
-const { fork } = require('child_process');
+//const { fork } = require('child_process');
+const fs = require('fs');
 
 const aliases = {
     HandbookCategory: 'ItemCategory',
@@ -21,7 +22,99 @@ const linkedTypes = {
     TraderCashOffer: ['ItemPrice'],
 };
 
+function addDiff(diffs, dataType, value = false) {
+    const purgeName = aliases[dataType] ? aliases[dataType] : dataType;
+    if (!diffs[purgeName]) {
+        diffs[purgeName] = [];
+    }
+    if (ignoreId.includes(purgeName)) {
+        return;
+    }
+    if (value) {
+        diffs[purgeName].push(value);
+    }
+}
+
 module.exports = async (outputFile, logger) => {
+    if (!logger) {
+        logger = {
+            ...console,
+            success: console.log,
+        };
+    }
+    let newData = {};
+    let oldData = {};
+
+    let diffs = {};
+    const start = new Date();
+    try {
+        oldData = JSON.parse(fs.readFileSync(`./dumps/${outputFile}_old.json`));
+    } catch (error) {
+        // do nothing
+    }
+    try {
+        newData = JSON.parse(fs.readFileSync(`./dumps/${outputFile}.json`));
+        for (const dataType in oldData) {
+            if (ignoreTypes.includes(dataType)) {
+                continue;
+            }
+            const oldD = oldData[dataType];
+            const newD = newData[dataType];
+            if (!newD) {
+                diffs[dataType] = [];
+                continue;
+            }
+            for (const key in oldD) {
+                const oldValue = oldD[key];
+                let newValue = Array.isArray(newD) && key < newD.length ? newD[key] : false;
+                let id = false;
+                if (!Array.isArray(newD)) {
+                    newValue = newD[key];
+                    if (typeof oldValue.id !== 'undefined') {
+                        id = oldValue.id;
+                    }
+                }
+                if (Array.isArray(oldD) && Array.isArray(newD) && typeof oldValue.id !== 'undefined') {
+                    id = oldValue.id;
+                    newValue = newD.find(val => val.id === id);
+                }
+                if (!newValue) {
+                    //console.log('newValue does not exist for', oldValue);
+                    addDiff(diffs, dataType, id);
+                    continue;
+                }
+                if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+                    //console.log('newValue !== oldValue', id, newValue, oldValue);
+                    addDiff(diffs, dataType, id);
+                }
+            }
+            for (const key in newD) {
+                const newValue = newD[key];
+                let oldValue = Array.isArray(oldD) && key < oldD.length ? oldD[key] : false;
+                let id = false;
+                if (!Array.isArray(oldD)) {
+                    oldValue = oldD[key];
+                    if (typeof newValue.id !== 'undefined') {
+                        id = newValue.id;
+                    }
+                }
+                if (Array.isArray(oldD) && Array.isArray(newD) && typeof newValue.id !== 'undefined') {
+                    id = newValue.id;
+                    oldValue = oldD.find(val => val.id === id);
+                }
+                if (!oldValue) {
+                    addDiff(diffs, dataType, id);
+                }
+            }
+        }
+        logger.log(`${outputFile} diff generated in ${new Date() - start} ms`);
+    } catch (error) {
+        logger.error(`Error getting KV delta: ${error.message}`);
+    }
+    return {purge: diffs, updated: new Date(newData.updated)};
+};
+
+/*module.exports = async (outputFile, logger) => {
     if (!logger) {
         logger = {
             ...console,
@@ -85,68 +178,4 @@ module.exports = async (outputFile, logger) => {
             }
         });
     });
-};
-
-/*const fs = require('fs');
-
-const jsonDiff = require('json-diff');
-
-function getRealDiffs(object) {
-    if (typeof object !== 'object') {
-        return object;
-    }
-    if (Array.isArray(object)) {
-        object = object.map(element => {
-            if (!Array.isArray(element)) {
-                return element;
-            }
-            if (element[0] === ' ') {
-                return false;
-            }
-            return element[1];
-        }).filter(Boolean);
-    }
-    return object;
-}
-
-module.exports = (outputFile, newData, logger) => {
-    if (!logger) {
-        logger = {
-            ...console,
-            success: console.log,
-        };
-    }
-    let diffs = {};
-    const start = new Date();
-    try {
-        newData = JSON.parse(JSON.stringify(newData));
-        const json = JSON.parse(fs.readFileSync(`./dumps/${outputFile}.json`));
-        diffs = jsonDiff.diff(json, newData, {outputKeys: ['id']});
-        delete diffs.updated;
-        delete diffs.updated__deleted;
-        for (const key in diffs) {
-            if (Array.isArray(diffs[key])) {
-                diffs[key] = getRealDiffs(diffs[key]);
-            } else {
-                diffs[key] = Object.values(diffs[key]);
-            }
-            for (let diff of diffs[key]) {
-                diff = getRealDiffs(diff);
-            }
-            diffs[key] = diffs[key].filter(diff => {
-                if (Object.keys(diff).length === 1 && diff.id) {
-                    return false;
-                }
-                return true;
-            });
-            if (diffs[key].length === 0) {
-                delete diffs[key];
-            }
-        }
-        logger.log(`${outputFile} diff generated in ${new Date() - start} ms`)
-    } catch (error) {
-        console.log('Error getting KV delta', error);
-        logger.warn(`Could not parse ${outputFile}`);
-    }
-    return diffs;
 };*/

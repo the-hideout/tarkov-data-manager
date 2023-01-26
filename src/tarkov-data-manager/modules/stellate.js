@@ -3,7 +3,7 @@ const got = require('got');
 const kvDelta = require('./kv-delta');
 
 async function purgeTypes(dataName, logger = false) {
-    const {purge, updated} = await kvDelta(dataName, logger)
+    const {purge, updated} = await kvDelta(dataName, logger);
     let delay = 60000 - (new Date() - updated);
     delay = delay > 0 ? delay : 0;
     if (!process.env.STELLATE_PURGE_TOKEN) {

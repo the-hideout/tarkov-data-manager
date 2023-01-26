@@ -1,5 +1,4 @@
 const got = require('got');
-const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
 
@@ -20,25 +19,6 @@ module.exports = async (data, logger) => {
             });
         }
         logger.log('Processing tarkovdata hideout.json...');
-        /*const hideoutData = {
-            updated: new Date(),
-            data: data.body.modules,
-        };
-
-        const response = await cloudflare.put('hideout_legacy_data', JSON.stringify(hideoutData)).catch(error => {
-            logger.error(error);
-            return {success: false, errors: [], messages: []};
-        });
-        if (response.success) {
-            logger.success('Successful Cloudflare put of legacy hideout_legacy_data');
-        } else {
-            for (let i = 0; i < response.errors.length; i++) {
-                logger.error(response.errors[i]);
-            }
-            for (let i = 0; i < response.messages.length; i++) {
-                logger.error(response.messages[i]);
-            }
-        }*/
         for (const hideoutModule of data.modules) {
             const newRequirement = {
                 id: hideoutModule.id,

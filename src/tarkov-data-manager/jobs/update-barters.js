@@ -1,12 +1,13 @@
 const got = require('got');
 const cheerio = require('cheerio');
 
+const remoteData = require('../modules/remote-data');
 const cloudflare = require('../modules/cloudflare');
 const oldNames = require('../old-names.json');
 const fixName = require('../modules/wiki-replacements');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
-const { query, jobComplete } = require('../modules/db-connection');
+const { jobComplete } = require('../modules/db-connection');
 const jobOutput = require('../modules/job-output');
 const stellate = require('../modules/stellate');
 
@@ -33,45 +34,46 @@ const tradeMap = {
 };
 
 const getItemByName = (searchName) => {
-    const itemArray = Object.values(itemData).filter(item => !item.types.includes('disabled'));
-
-    if(!searchName){
+    if (!searchName){
         return false;
     }
-
-    let returnItem = itemArray.find((item) => {
-        return item.name.toLowerCase().trim().replace(/['""]/g, '') === searchName.toLowerCase().trim().replace(/['""]/g, '');
-    });
-
-    if(returnItem){
-        return returnItem;
-    }
-
-    returnItem = itemArray.find((item) => {
-        return item.short_name && item.short_name.toLowerCase().trim().replace(/['""]/g, '') === searchName.toLowerCase().trim().replace(/['""]/g, '');
-    });
-
-    if(returnItem){
-        return returnItem;
-    }
-
-    if(oldNames[searchName]){
-        return itemData[oldNames[searchName]];
-    }
-
-    return itemArray.find((item) => {
-        if(!item.name.includes('(')){
-            return false;
+    for (const [id, item] of itemData) {
+        if (item.types.includes('disabled')) {
+            continue;
         }
-
+        if (item.name.toLowerCase().trim().replace(/['""]/g, '') === searchName.toLowerCase().trim().replace(/['""]/g, '')) {
+            return item;
+        }
+    }
+    for (const [id, item] of itemData) {
+        if (item.types.includes('disabled')) {
+            continue;
+        }
+        if (item.short_name && item.short_name.toLowerCase().trim().replace(/['""]/g, '') === searchName.toLowerCase().trim().replace(/['""]/g, '')) {
+            return item;
+        }
+    }
+    if(oldNames[searchName]){
+        return itemData.get(oldNames[searchName]);
+    }
+    for (const [id, item] of itemData) {
+        if (item.types.includes('disabled')) {
+            continue;
+        }
+        if(!item.name.includes('(')){
+            continue;
+        }
         const match = item.name.toLowerCase().match(/(.*)\s\(.+?$/);
 
         if(!match){
-            return false;
+            continue;
         }
 
-        return match[1].trim() === searchName.toLowerCase().trim();
-    });
+        if (match[1].trim() === searchName.toLowerCase().trim()) {
+            return item;
+        }
+    }
+    return false;
 };
 
 const getGunVariants = async (url) => {
@@ -352,21 +354,12 @@ module.exports = async function() {
     logger = new JobLogger('update-barters');
     try {
         logger.log('Retrieving barters data...');
-        const itemsPromise = query(`
-            SELECT item_data.*, GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
-            FROM item_data
-            LEFT JOIN types ON
-                types.item_id = item_data.id
-            GROUP BY
-                item_data.id
-            ORDER BY item_data.id
-        `);
         const wikiPromise = got(TRADES_URL);
         const oldTasksPromise = got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
             responseType: 'json',
         });
-        const allResults = await Promise.all([itemsPromise, wikiPromise, oldTasksPromise]);
-        const results = allResults[0];
+        const allResults = await Promise.all([remoteData.get(), wikiPromise, oldTasksPromise]);
+        itemData = allResults[0];
         const wikiResponse = allResults[1];
         oldTasks = allResults[2].body;
         presetData = await jobOutput('update-presets', './cache/presets.json', logger, true);//JSON.parse(fs.readFileSync('./cache/presets.json'));
@@ -376,20 +369,6 @@ module.exports = async function() {
             Barter: [],
         };
         gunVariants = {};
-        const returnData = {};
-        for(const result of results){
-            Reflect.deleteProperty(result, 'item_id');
-
-            const preparedData = {
-                ...result,
-                types: result.types ? result.types.split(',') : []
-            }
-
-            returnData[result.id] = preparedData;
-            //if (preparedData.types.includes('preset')) presetData.push(preparedData);
-        }
-
-        itemData = returnData;
 
         logger.succeed('Barters data retrieved');
         // itemData = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'src', 'data', 'all-en.json')));
@@ -418,6 +397,7 @@ module.exports = async function() {
             logger.error(error);
             return {success: false, errors: [], messages: []};
         });
+        itemData = oldTasks = tasks = $ = trades = false;
         if (response.success) {
             logger.success('Successful Cloudflare put of barter data');
             await stellate.purgeTypes('barter_data', logger);
@@ -440,5 +420,5 @@ module.exports = async function() {
     // Possibility to POST to a Discord webhook here with cron status details
     logger.end();
     await jobComplete();
-    itemData = trades = oldTasks = tasks = $ = logger = false;
+    logger = false;
 };

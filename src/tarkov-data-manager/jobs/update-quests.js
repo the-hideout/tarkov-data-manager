@@ -3,7 +3,8 @@ const path = require('path');
 
 const got = require('got');
 
-const { query, jobComplete } = require('../modules/db-connection');
+const remoteData = require('../modules/remote-data');
+const { jobComplete } = require('../modules/db-connection');
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
@@ -67,6 +68,7 @@ const zoneMap = {
     lijnik_storage_area_1: 'Underground Warehouse',
     quest_zone_kill_c17_adm: 'Pinewood Hotel',
     meh_44_eastLight_kill: 'Lighthouse Island',
+    quest_zone_keeper5: 'Woods Mountain',
 };
 
 const factionMap = {
@@ -1009,33 +1011,12 @@ module.exports = async (externalLogger = false) => {
         setLocales(locales);
         itemMap = await jobOutput('update-item-cache', './dumps/item_data.json', logger);
         //const itemMap = await remoteData.get();
-        const itemResults = await query(`
-            SELECT
-                item_data.*,
-                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
-            FROM
-                item_data
-            LEFT JOIN types ON
-                types.item_id = item_data.id
-            WHERE EXISTS (
-                SELECT item_id
-                FROM types
-                WHERE type='quest' AND item_id=item_data.id
-            )
-            GROUP BY
-                item_data.id
-        `);
+        const itemResults = await remoteData.get();
         const questItemMap = new Map();
-        for(const result of itemResults){
-            Reflect.deleteProperty(result, 'item_id');
-            Reflect.deleteProperty(result, 'base_price');
-
-            const preparedData = {
-                ...result,
-                types: result.types?.split(',') || []
-            };
-            if (!preparedData.properties) preparedData.properties = {};
-            questItemMap.set(result.id, preparedData);
+        for (const [id, item] of itemResults) {
+            if (item.types.includes('quest')) {
+                questItemMap.set(id, item);
+            }
         }
         missingQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'missing_quests.json')));
         changedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'changed_quests.json')));

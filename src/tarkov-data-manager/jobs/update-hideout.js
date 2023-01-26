@@ -8,7 +8,6 @@ const hideoutLegacy = require('./update-hideout-legacy');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
 const stellate = require('../modules/stellate');
-const kvDelta = require('../modules/kv-delta');
 
 const skipChristmasTree = true;
 

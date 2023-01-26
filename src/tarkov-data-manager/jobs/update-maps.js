@@ -1,3 +1,5 @@
+const remoteData = require('../modules/remote-data');
+const { jobComplete } = require('../modules/db-connection');
 const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
@@ -68,6 +70,20 @@ let items;
 let presets;
 let bossLoadouts = {};
 let processedBosses = {};
+
+const isValidItem = (id) => {
+    const item = items.get(id);
+    if (!item) {
+        return false;
+    }
+    if (item.types.includes('disabled')) {
+        return false;
+    }
+    if (item.types.includes('quest')) {
+        return false;
+    }
+    return true;
+};
 
 const getEnemyName = (enemy, lang) => {
     if (enemyMap[enemy]) {
@@ -142,7 +158,7 @@ const matchEquipmentItemToPreset = (equipmentItem) => {
         if (preset.baseId !== baseItemId) {
             continue;
         }
-        const presetParts = preset.containsItems.filter(ci => ci.item.id !== preset.baseId).filter(ci => !items[ci.item.id].types.includes('ammo'));
+        const presetParts = preset.containsItems.filter(ci => ci.item.id !== preset.baseId).filter(ci => !items.get(ci.item.id).types.includes('ammo'));
         if (presetParts.length !== containedParts.length) {
             continue;
         }
@@ -181,7 +197,7 @@ const getModsForItem = (id, modList, mods = []) => {
         for (const modId of modList[id][slot]) {
             mods.push({
                 item: modId,
-                item_name: items[modId].locale.en.name,
+                item_name: items.get(modId).name,
                 count: 1,
                 attributes: [
                     {
@@ -238,18 +254,18 @@ const getBossInfo = async (bossKey) => {
     });
     for (const slotName in bossData.inventory.equipment) {
         const totalWeight = Object.keys(bossData.inventory.equipment[slotName]).reduce((total, id) => {
-            if (items[id]) {
+            if (isValidItem(id)) {
                 total += bossData.inventory.equipment[slotName][id];
             }
             return total;
         }, 0);
         for (const id in bossData.inventory.equipment[slotName]) {
-            if (!items[id]) {
+            if (!isValidItem(id)) {
                 continue;
             }
             equipmentItem = {
                 item: id,
-                item_name: items[id].locale.en.name,
+                item_name: items.get(id).name,
                 contains: [],
                 count: 1,
                 attributes: [
@@ -271,7 +287,7 @@ const getBossInfo = async (bossKey) => {
                 //add base item to preset
                 equipmentItem.contains.unshift({
                     item: id,
-                    item_name: items[id].locale.en.name,
+                    item_name: items.get(id).name,
                     count: 1,
                     attributes: [],
                 });
@@ -285,12 +301,12 @@ const getBossInfo = async (bossKey) => {
             if (bossInfo.items.some(item => item.id === id)) {
                 continue;
             }
-            if (!items[id]) {
+            if (!isValidItem(id)) {
                 continue;
             }
             bossInfo.items.push({
                 id: id,
-                name: items[id].name,
+                name: items.get(id).name,
             });
         }
     }
@@ -304,9 +320,14 @@ module.exports = async function() {
     processedBosses = {};
     try {
         logger.log('Getting maps data...');
-        locales = await tarkovData.locales();
-        items = await jobOutput('update-item-cache', './dumps/item_data.json', logger);
-        presets = await jobOutput('update-presets', './cache/presets.json', logger, true);
+        [locales, items, presets] = await Promise.all([
+            tarkovData.locales(),
+            remoteData.get(),
+            jobOutput('update-presets', './cache/presets.json', logger, true),
+        ]);
+        //locales = await tarkovData.locales();
+        //items = await jobOutput('update-item-cache', './dumps/item_data.json', logger);
+        //presets = await jobOutput('update-presets', './cache/presets.json', logger, true);
         setLocales(locales);
         const locations = await tarkovData.locations();
         const maps = {
@@ -491,5 +512,5 @@ module.exports = async function() {
         });
     }
     logger.end();
-    //await jobComplete();
+    await jobComplete();
 };
