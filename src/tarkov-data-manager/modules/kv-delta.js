@@ -28,7 +28,7 @@ module.exports = async (outputFile, logger) => {
             success: console.log,
         };
     } else {
-        logger.write('Processed main data');
+        logger.write('Processed main data in', true);
     }
     return new Promise((resolve, reject) => {
         const controller = new AbortController();

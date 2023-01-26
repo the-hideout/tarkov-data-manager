@@ -97,11 +97,12 @@ class JobLogger {
         delete this.timers[label];
     }
 
-    write(customMessage = false) {
+    write(customMessage = false, appendTime = false) {
         if (!customMessage) {
-            customMessage = `${this.jobName} ended in ${new Date() - this.startTime}ms`;
-        } else {
-            customMessage = `${customMessage} in ${new Date() - this.startTime}ms`
+            customMessage = `${this.jobName} ended`;
+        }
+        if (appendTime) {
+            customMessage = `${customMessage} ${new Date() - this.startTime}ms`
         }
         this.log(customMessage);
         writeLog(this.jobName, this.messages);
