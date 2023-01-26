@@ -23,6 +23,9 @@ async function purgeTypes(dataName, logger = false) {
         url += '-dev';
         delay = 0; // if we're in dev mode, don't delay the purge
     }
+    if (delay) {
+        logger.log(`Purging cache in ${delay} ms`)
+    }
     return new Promise(resolve => {
         setTimeout(async () => {
             let response = {};
