@@ -188,8 +188,16 @@ const purgeCache = async (urls) => {
         json: {
             files: urls
         },
+        throwHttpErrors: false,
+        resolveBodyOnly: true,
     };
-    return got(`${BASE_URL}zones/a17204c79af55fcf05e4975f66e2490e/purge_cache`, requestOptions);
+    return got(`${BASE_URL}zones/a17204c79af55fcf05e4975f66e2490e/purge_cache`, requestOptions).then(response => {
+        if (response.success === false && response.errors) {
+            //console.log(`Error purging ${urls.join(', ')}: ${response.errors.map(err => err.message).join(', ')}`);
+            return Promise.reject(new Error(`${response.errors[0].message} (${response.errors[0].code}) purging ${urls.join(', ')}: `));
+        }
+        return response;
+    });
 };
 
 module.exports = {
