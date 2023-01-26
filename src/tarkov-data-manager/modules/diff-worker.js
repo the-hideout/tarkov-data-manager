@@ -155,4 +155,5 @@ const triggerShutdown = async () => {
         process.send({level: 'error', message: `Error getting KV delta: ${error.message}`, error: error});
     }
     process.send({level: 'log', message: 'complete', diff: diffs, updated: newData.updated});
+    process.exit();
 })();
