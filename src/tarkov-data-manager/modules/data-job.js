@@ -50,6 +50,7 @@ class DataJob {
     }
 
     async start(options) {
+        this.startDate = new Date();
         if (options && options.parent) {
             this.selfLogger = this.logger;
             this.logger = options.parent.logger;
@@ -82,18 +83,19 @@ class DataJob {
         return returnValue;
     }
 
-    async run(options) {
+    async run() {
         this.logger.error('run method not implemented');
     }
 
     cloudflarePut = async (data, kvOverride) => {
         let kvName = kvOverride || this.kvName;
-        console.log(kvName);
         if (!kvName) {
             return Promise.reject(new Error('Must set kvName property before calling cloudflarePut'));
         }
         if (this.nextInvocation) {
+            const processTime = new Date() - this.startDate;
             const expireDate = new Date(this.nextInvocation);
+            expireDate.setMilliseconds(expireDate.getMilliseconds() + processTime);
             expireDate.setMinutes(expireDate.getMinutes() + 1);
             data.expiration = expireDate;
         }
