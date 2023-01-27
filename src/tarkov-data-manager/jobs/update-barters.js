@@ -23,6 +23,7 @@ const tradeMap = {
 class UpdateBartersJob extends DataJob {
     constructor(jobManager) {
         super({name: 'update-barters', jobManager});
+        this.kvName = 'barter_data';
     }
 
     run = async () => {
@@ -35,8 +36,8 @@ class UpdateBartersJob extends DataJob {
         this.itemData = allResults[0];
         const wikiResponse = allResults[1];
         this.oldTasks = allResults[2].body;
-        this.presetData = await this.jobManager.jobOutput('update-presets', './cache/presets.json', this, true);//JSON.parse(fs.readFileSync('./cache/presets.json'));
-        this.tasks = await this.jobManager.jobOutput('update-quests', './dumps/quest_data.json', this);
+        this.presetData = await this.jobManager.jobOutput('update-presets', this, true);//JSON.parse(fs.readFileSync('./cache/presets.json'));
+        this.tasks = await this.jobManager.jobOutput('update-quests', this);
         this.$ = cheerio.load(wikiResponse.body);
         this.gunVariants = {};
 
@@ -64,7 +65,7 @@ class UpdateBartersJob extends DataJob {
         
         this.logger.succeed(`Processed ${trades.Barter.length} barters`);
 
-        await this.cloudflarePut('barter_data', trades);
+        await this.cloudflarePut(trades);
         return trades;
     }
 

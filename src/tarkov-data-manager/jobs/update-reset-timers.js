@@ -3,10 +3,11 @@ const DataJob = require('../modules/data-job');
 class UpdateResetTimersJob extends DataJob {
     constructor(jobManager) {
         super({name: 'update-reset-timers', jobManager});
+        this.kvName = 'reset_time_data';
     }
 
     async run() {
-        const traders = await this.jobManager.jobOutput('update-traders', './dumps/trader_data.json', this);
+        const traders = await this.jobManager.jobOutput('update-traders', this);
 
         const resetTimes = {};
         for (const trader of traders) {
@@ -43,7 +44,7 @@ class UpdateResetTimersJob extends DataJob {
             resetTimes[result.trader_name] = resetTime;
         }*/
 
-        await this.cloudflarePut('reset_time_data', resetTimes);
+        await this.cloudflarePut(resetTimes);
 
         // fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'reset-times.json'), JSON.stringify(cloudflareData, null, 4));
 

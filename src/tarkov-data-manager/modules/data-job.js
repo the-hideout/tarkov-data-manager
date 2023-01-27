@@ -25,13 +25,16 @@ class DataJob {
         this.running = false;
         this.saveFields = [
             'jobManager',
+            'kvName',
             'logger',
             'name',
             //'running',
             'saveFields',
             'selfLogger',
+            'writeFolder',
             ...options.saveFields,
         ];
+        this.writeFolder = 'dumps';
     }
 
     cleanup() {
@@ -83,7 +86,17 @@ class DataJob {
         this.logger.error('run method not implemented');
     }
 
-    cloudflarePut = async (kvName, data) => {
+    cloudflarePut = async (data, kvOverride) => {
+        let kvName = kvOverride || this.kvName;
+        console.log(kvName);
+        if (!kvName) {
+            return Promise.reject(new Error('Must set kvName property before calling cloudflarePut'));
+        }
+        if (this.nextInvocation) {
+            const expireDate = new Date(this.nextInvocation);
+            expireDate.setMinutes(expireDate.getMinutes() + 1);
+            data.expiration = expireDate;
+        }
         if (typeof data !== 'string') {
             data = JSON.stringify(data);
         }

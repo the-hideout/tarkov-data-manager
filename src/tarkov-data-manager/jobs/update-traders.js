@@ -8,6 +8,7 @@ const DataJob = require('../modules/data-job');
 class UpdateTradersJob extends DataJob {
     constructor(jobManager) {
         super({name: 'update-traders', jobManager});
+        this.kvName = 'trader_data';
     }
 
     async run() {
@@ -83,7 +84,7 @@ class UpdateTradersJob extends DataJob {
         }
         this.logger.log(`Processed ${traders.Trader.length} traders`);
 
-        await this.cloudflarePut('trader_data', traders);
+        await this.cloudflarePut(traders);
         return traders;
     }
 }

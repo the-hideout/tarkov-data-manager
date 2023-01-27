@@ -11,6 +11,8 @@ const DataJob = require('../modules/data-job');
 class UpdatePresetsJob extends DataJob {
     constructor(jobManager) {
         super({name: 'update-presets', jobManager});
+        this.writeFolder = 'cache';
+        this.kvName = 'presets';
     }
 
     run = async () => {
@@ -301,7 +303,7 @@ class UpdatePresetsJob extends DataJob {
             }));
         }
 
-        fs.writeFileSync(path.join(__dirname, '..', 'cache', 'presets.json'), JSON.stringify(presetsData, null, 4));
+        fs.writeFileSync(path.join(__dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(presetsData, null, 4));
         await Promise.allSettled(queries);
         return presetsData;
     }

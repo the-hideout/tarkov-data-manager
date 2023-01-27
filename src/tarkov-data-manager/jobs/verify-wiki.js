@@ -13,7 +13,7 @@ class VerifyWikiJob extends DataJob {
     async run() {
         this.presets = {};
         try {
-            this.presets = await this.jobManager.jobOutput('update-presets', './cache/presets.json', this, true);
+            this.presets = await this.jobManager.jobOutput('update-presets', this, true);
         } catch (error) {
             this.logger.error(error);
         }

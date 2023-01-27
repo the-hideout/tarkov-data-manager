@@ -14,6 +14,7 @@ const DataJob = require('../modules/data-job');
 class UpdateItemCacheJob extends DataJob {
     constructor(jobManager) {
         super({name: 'update-item-cache', jobManager});
+        this.kvName = 'item_data';
     }
 
     run = async () => {
@@ -88,8 +89,8 @@ class UpdateItemCacheJob extends DataJob {
             remoteData.getWithPrices(true),
             tarkovData.handbook(),
         ]);
-        this.traderData = await this.jobManager.jobOutput('update-traders', './dumps/trader_data.json', this);
-        this.presets = await this.jobManager.jobOutput('update-presets', './cache/presets.json', this, true);
+        this.traderData = await this.jobManager.jobOutput('update-traders', this);
+        this.presets = await this.jobManager.jobOutput('update-presets', this, true);
         const itemData = {};
         const itemTypesSet = new Set();
         this.bsgCategories = {};
@@ -450,7 +451,7 @@ class UpdateItemCacheJob extends DataJob {
             PlayerLevel: levelData,
             LanguageCode: Object.keys(this.locales).sort()
         };
-        await this.cloudflarePut('item_data', itemsData);
+        await this.cloudflarePut(itemsData);
 
         const schemaData = {
             updated: new Date(),
@@ -459,7 +460,7 @@ class UpdateItemCacheJob extends DataJob {
             HandbookCategory: Object.values(this.handbookCategories).map(cat => cat.enumName).sort().join('\n  '),
             LanguageCode: Object.keys(this.locales).sort().join('\n '),
         };
-        await this.cloudflarePut('schema_data', schemaData);
+        await this.cloudflarePut(schemaData, 'schema_data');
 
         return itemsData;
     }

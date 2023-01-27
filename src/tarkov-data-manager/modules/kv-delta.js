@@ -8,6 +8,7 @@ const aliases = {
 const ignoreTypes = [
     'updated',
     'data',
+    'expiration',
     'ItemType',
     'LanguageCode',
 ];

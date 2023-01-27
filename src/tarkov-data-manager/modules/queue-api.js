@@ -19,7 +19,7 @@ const validation = async (req, res) => {
             // console.log('queue-api: using cached map data');
         } else {
             // Fetch all current maps
-            const allMapsRaw = await jobOutput('update-maps', './dumps/map_data.json');
+            const allMapsRaw = await jobOutput('update-maps');
 
             // Update the allMaps object in the memory cache
             allMaps.timestamp = moment().format('YYYY-MM-DD HH:mm:ss');

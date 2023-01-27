@@ -3,92 +3,6 @@ const fs = require('fs');
 
 const schedule = require('node-schedule');
 
-const jobs = {};
-const jobClasses = {};
-
-const jobFiles = fs.readdirSync('./jobs').filter(file => file.endsWith('.js'));
-
-for (const file of jobFiles) {
-    if (file === 'index.js') {
-        continue;
-    }
-    const jobClass = require(`./${file}`);
-    jobClasses[file.replace('.js', '')] = jobClass;
-}
-
-const runJob = async (jobName, options, bumpSchedule = true) => {
-    if (!jobs[jobName]) {
-        return Promise.reject(new Error(`${jobName} is not a valid job`));
-    }
-    if (bumpSchedule && scheduledJobs[jobName]) {
-        const scheduledJob = scheduledJobs[jobName];
-        if (new Date() > scheduledJob.nextInvocation()._date - (1000 * 60 * 5)) {
-            scheduledJob.cancelNext(true);
-        }
-    }
-    return jobs[jobName].start(options);
-}
-
-const jobOutput = async (jobName, outputFile, job, rawOutput = false) => {
-    logger = false;
-    if (job && job.logger) {
-        logger = job.logger;
-    }
-    try {
-        const json = JSON.parse(fs.readFileSync(outputFile));
-        if (!rawOutput) return json[Object.keys(json).find(key => key !== 'updated')];
-        return json;
-    } catch (error) {
-        if (logger) {
-            logger.warn(`Output ${outputFile} missing; running ${jobName} job`);
-        } else {
-            console.log(`Output ${outputFile} missing; running ${jobName} job`);
-        }
-    }
-    try {
-        //const keepAlive = connection.keepAlive;
-        //connection.keepAlive = true;
-        return runJob(jobName, {parent: job}).then(result => {
-            if (!rawOutput) return result[Object.keys(result).find(key => key !== 'updated')];
-            return result;
-        });
-        //connection.keepAlive = keepAlive;
-    } catch (error) {
-        if (logger) {
-            logger.error(`Error running ${jobName}: ${error}`);
-        } else {
-            console.log(`Error running ${jobName}: ${error}`);
-        }
-    }
-}
-
-for (const jobClassName in jobClasses) {
-    jobs[jobClassName] = new jobClasses[jobClassName]({runJob, jobOutput});
-}
-
-const scheduleJob = function(name, cronSchedule) {
-    console.log(`Setting up ${name} job to run ${cronSchedule}`);
-
-    const job = schedule.scheduleJob(cronSchedule, async () => {
-        if (process.env.SKIP_JOBS === 'true') {
-            console.log(`Skipping ${name} job`);
-            return;
-        }
-        console.log(`Running ${name} job`);
-        console.time(name);
-        try {
-            await runJob(name, false, false);
-        } catch (error) {
-            console.log(`Error running ${name} job: ${error}`);
-        }
-        console.timeEnd(name);
-    });
-    if (scheduledJobs[name]) {
-        scheduledJobs[name].cancel();
-    }
-    scheduledJobs[name] = job;
-}
-
 const defaultJobs = {
     'check-scans': '20 * * * *',
     'update-item-cache': '*/5 * * * *',
@@ -141,7 +55,102 @@ if (process.env.NODE_ENV !== 'dev') {
     };
 }
 
+const jobs = {};
+const jobClasses = {};
 const scheduledJobs = {};
+
+const jobFiles = fs.readdirSync('./jobs').filter(file => file.endsWith('.js'));
+
+for (const file of jobFiles) {
+    if (file === 'index.js') {
+        continue;
+    }
+    const jobClass = require(`./${file}`);
+    jobClasses[file.replace('.js', '')] = jobClass;
+}
+
+const runJob = async (jobName, options, bumpSchedule = true) => {
+    if (!jobs[jobName]) {
+        return Promise.reject(new Error(`${jobName} is not a valid job`));
+    }
+    if (bumpSchedule && scheduledJobs[jobName]) {
+        const scheduledJob = scheduledJobs[jobName];
+        const nextRunMinusFive = scheduledJob.nextInvocation().toDate();
+        nextRunMinusFive.setMinutes(nextRunMinusFive.getMinutes() - 5);
+        if (new Date() > nextRunMinusFive) {
+            scheduledJob.cancelNext(true);
+        }
+        jobs[jobName].nextInvocation = scheduledJob.nextInvocation().toDate();
+    }
+    return jobs[jobName].start(options);
+}
+
+const jobOutput = async (jobName, parentJob, rawOutput = false) => {
+    const job = jobs[jobName];
+    if (!job) {
+        return Promise.reject(new Error(`Job ${jobName} is not a valid job`));
+    }
+    const outputFile = `./${job.writeFolder}/${job.kvName}.json`;
+    logger = false;
+    if (parentJob && parentJob.logger) {
+        logger = parentJob.logger;
+    }
+    try {
+        const json = JSON.parse(fs.readFileSync(outputFile));
+        if (!rawOutput) return json[Object.keys(json).find(key => key !== 'updated')];
+        return json;
+    } catch (error) {
+        if (logger) {
+            logger.warn(`Output ${outputFile} missing; running ${jobName} job`);
+        } else {
+            console.log(`Output ${outputFile} missing; running ${jobName} job`);
+        }
+    }
+    try {
+        //const keepAlive = connection.keepAlive;
+        //connection.keepAlive = true;
+        return runJob(jobName, {parent: parentJob}).then(result => {
+            if (!rawOutput) return result[Object.keys(result).find(key => key !== 'updated')];
+            return result;
+        });
+        //connection.keepAlive = keepAlive;
+    } catch (error) {
+        if (logger) {
+            logger.error(`Error running ${jobName}: ${error}`);
+        } else {
+            console.log(`Error running ${jobName}: ${error}`);
+        }
+    }
+}
+
+for (const jobClassName in jobClasses) {
+    jobs[jobClassName] = new jobClasses[jobClassName]();
+    jobs[jobClassName].jobManager = {runJob, jobOutput};
+}
+
+const scheduleJob = function(name, cronSchedule) {
+    console.log(`Setting up ${name} job to run ${cronSchedule}`);
+
+    const job = schedule.scheduleJob(cronSchedule, async () => {
+        if (process.env.SKIP_JOBS === 'true') {
+            console.log(`Skipping ${name} job`);
+            return;
+        }
+        console.log(`Running ${name} job`);
+        console.time(name);
+        try {
+            await runJob(name, false, false);
+        } catch (error) {
+            console.log(`Error running ${name} job: ${error}`);
+        }
+        console.timeEnd(name);
+    });
+    jobs[name].cronSchedule = cronSchedule;
+    if (scheduledJobs[name]) {
+        scheduledJobs[name].cancel();
+    }
+    scheduledJobs[name] = job;
+}
 
 const startJobs = async () => {
     // Only run in production

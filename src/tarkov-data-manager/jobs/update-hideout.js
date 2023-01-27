@@ -10,6 +10,7 @@ const skipChristmasTree = true;
 class UpdateHideoutJob extends DataJob {
     constructor(jobManager) {
         super({name: 'update-hideout', jobManager});
+        this.kvName = 'hideout_data';
     }
 
     async run() {
@@ -141,7 +142,7 @@ class UpdateHideoutJob extends DataJob {
 
         hideoutData.HideoutModule = await this.jobManager.runJob('update-hideout-legacy', {data: tdHideout, parent: this});
 
-        await this.cloudflarePut('hideout_data', hideoutData);
+        await this.cloudflarePut(hideoutData);
         return hideoutData;
     }
 }

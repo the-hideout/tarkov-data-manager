@@ -21,7 +21,7 @@ class UpdateItemNamesJob extends DataJob {
             remoteData.get(),
             tarkovData.items(),
             tarkovData.locale('en'),
-            this.jobManager.jobOutput('update-presets', './cache/presets.json', this, true),
+            this.jobManager.jobOutput('update-presets', this, true),
         ]);
         const currentDestinations = [];
         const regnerateImages = [];

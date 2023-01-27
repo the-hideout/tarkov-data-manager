@@ -7,6 +7,7 @@ const DataJob = require('../modules/data-job');
 class UpdateHistoricalPricesJob extends DataJob {
     constructor(JobManager) {
         super({name: 'update-historical-prices', JobManager});
+        this.kvName = 'historical_price_data';
     }
 
     async run() {
@@ -97,7 +98,7 @@ class UpdateHistoricalPricesJob extends DataJob {
             historicalPricePoint: itemPriceData
         };
 
-        await this.cloudflarePut('historical_price_data', priceData);
+        await this.cloudflarePut(priceData);
 
         this.logger.success('Done with historical prices');
         // Possibility to POST to a Discord webhook here with cron status details

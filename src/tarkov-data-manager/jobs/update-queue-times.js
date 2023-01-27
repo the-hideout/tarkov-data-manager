@@ -7,6 +7,7 @@ const DataJob = require('../modules/data-job');
 class UpdateQueueTimesJob extends DataJob {
     constructor(jobManager) {
         super({name: 'update-queue-times', jobManager});
+        this.kvName = 'queue_data';
     }
 
     async run() {
@@ -19,7 +20,7 @@ class UpdateQueueTimesJob extends DataJob {
         timestamps.push({ details: 'last 7 days', timestamp: moment().subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss')});
 
         // Fetch all current maps
-        const allMaps = await this.jobManager.jobOutput('update-maps', './dumps/map_data.json', this);
+        const allMaps = await this.jobManager.jobOutput('update-maps', this);
 
         const queueTimes = {};
         for (const timestamp of timestamps) {
@@ -94,7 +95,7 @@ class UpdateQueueTimesJob extends DataJob {
             updated: new Date(),
             data: queueTimeData,
         };
-        await this.cloudflarePut('queue_data', kvData);
+        await this.cloudflarePut(kvData);
         return kvData;
     }
 }

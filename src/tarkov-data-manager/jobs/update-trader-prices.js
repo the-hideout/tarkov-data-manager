@@ -7,12 +7,13 @@ const DataJob = require('../modules/data-job');
 class UpdateTraderPricesJob extends DataJob {
     constructor(jobManager) {
         super({name: 'update-trader-prices', jobManager});
+        this.kvName = 'trader_price_data';
     }
 
     async run() {
         [this.tasks, this.items] = await Promise.all([
-            this.jobManager.jobOutput('update-quests', './dumps/quest_data.json', this.logger),
-            this.jobManager.jobOutput('update-item-cache', './dumps/item_data.json', this.logger),
+            this.jobManager.jobOutput('update-quests', this.logger),
+            this.jobManager.jobOutput('update-item-cache', this.logger),
         ]);
         const outputData = {};
         const junkboxLastScan = await query(`
@@ -220,7 +221,7 @@ class UpdateTraderPricesJob extends DataJob {
         const priceData = {
             TraderCashOffer: prices,
         };
-        await this.cloudflarePut('trader_price_data', priceData);
+        await this.cloudflarePut(priceData);
         return priceData;
     }
 

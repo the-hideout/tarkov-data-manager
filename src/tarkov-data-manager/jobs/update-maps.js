@@ -8,6 +8,7 @@ const DataJob = require('../modules/data-job');
 class UpdateMapsJob extends DataJob {
     constructor(jobManager) {
         super({name: 'update-maps', jobManager});
+        this.kvName = 'map_data';
     }
 
     run = async () => {
@@ -15,7 +16,7 @@ class UpdateMapsJob extends DataJob {
         [this.locales, this.items, this.presets] = await Promise.all([
             tarkovData.locales(),
             remoteData.get(),
-            this.jobManager.jobOutput('update-presets', './cache/presets.json', this, true),
+            this.jobManager.jobOutput('update-presets', this, true),
         ]);
         setLocales(this.locales);
         this.bossLoadouts = {};
@@ -179,7 +180,7 @@ class UpdateMapsJob extends DataJob {
             this.logger.log(`✔️ ${mob.locale.en.name}`);
         }
 
-        await this.cloudflarePut('map_data', maps);
+        await this.cloudflarePut(maps);
         return maps;
     }
 

@@ -88,7 +88,7 @@ class UpdateTypesJob extends DataJob {
 
         this.allItems = await remoteData.get();
         this.bsgData = await tarkovData.items();
-        const presets = await this.jobManager.jobOutput('update-presets', './cache/presets.json', this, true);
+        const presets = await this.jobManager.jobOutput('update-presets', this, true);
 
         this.logger.log(`Updating types`);
         for (const [itemId, item] of this.allItems.entries()) {

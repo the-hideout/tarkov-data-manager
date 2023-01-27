@@ -13,6 +13,7 @@ const DataJob = require('../modules/data-job');
 class UpdateQuestsJob extends DataJob {
     constructor(jobManager) {
         super({name: 'update-quests', jobManager});
+        this.kvName = 'quest_data';
     }
 
     async run() {
@@ -29,15 +30,15 @@ class UpdateQuestsJob extends DataJob {
         const data = await tarkovData.quests(true);
         this.items = await tarkovData.items();
         this.locales = await tarkovData.locales();
-        this.maps = await this.jobManager.jobOutput('update-maps', './dumps/map_data.json', this);
-        this.hideout = await this.jobManager.jobOutput('update-hideout', './dumps/hideout_data.json', this);
-        const traders = await this.jobManager.jobOutput('update-traders', './dumps/trader_data.json', this);
+        this.maps = await this.jobManager.jobOutput('update-maps', this);
+        this.hideout = await this.jobManager.jobOutput('update-hideout', this);
+        const traders = await this.jobManager.jobOutput('update-traders', this);
         this.traderIdMap = {};
         for (const trader of traders) {
             this.traderIdMap[trader.tarkovDataId] = trader.id;
         }
         setLocales(this.locales);
-        this.itemMap = await this.jobManager.jobOutput('update-item-cache', './dumps/item_data.json', this);
+        this.itemMap = await this.jobManager.jobOutput('update-item-cache', this);
         const itemResults = await remoteData.get();
         const questItemMap = new Map();
         for (const [id, item] of itemResults) {
@@ -49,7 +50,7 @@ class UpdateQuestsJob extends DataJob {
         this.changedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'changed_quests.json')));
         const removedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'removed_quests.json')));
         try {
-            this.presets = await this.jobManager.jobOutput('update-presets', './cache/presets.json', this, true);
+            this.presets = await this.jobManager.jobOutput('update-presets', this, true);
         } catch (error) {
             this.logger.error(error);
         }
@@ -260,7 +261,7 @@ class UpdateQuestsJob extends DataJob {
 
         quests.Quest = await this.jobManager.runJob('update-quests-legacy', {data: this.tdQuests, parent: this});
 
-        await this.cloudflarePut('quest_data', quests);
+        await this.cloudflarePut(quests);
         this.logger.success(`Finished processing ${quests.Task.length} quests`);
         return quests;
     }

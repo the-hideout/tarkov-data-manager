@@ -20,7 +20,7 @@ module.exports = async (allMaps, logger = false) => {
         timestamps.push(new Date() - 1000 * 60 * 60 * 24 * 7); // seven days
 console.log(timestamps.map(ts => new Date(ts)));
         // Fetch all current maps if needed
-        if (!allMaps) allMaps = await jobOutput('update-maps', './dumps/map_data.json', logger);
+        if (!allMaps) allMaps = await jobOutput('update-maps', logger);
 
         const queueTimes = {};
         for (const map of allMaps) {

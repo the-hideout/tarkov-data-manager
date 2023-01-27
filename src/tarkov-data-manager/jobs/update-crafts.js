@@ -5,6 +5,7 @@ const DataJob = require('../modules/data-job');
 class UpdateCraftsJob extends DataJob {
     constructor(jobManager) {
         super({name: 'update-crafts', jobManager});
+        this.kvName = 'craft_data';
     }
 
     run = async () => {
@@ -15,8 +16,8 @@ class UpdateCraftsJob extends DataJob {
             tarkovData.locale('en'),
             remoteData.get(),
         ]);
-        const areas = await this.jobManager.jobOutput('update-hideout', './dumps/hideout_data.json', this);
-        const tasks = await this.jobManager.jobOutput('update-quests', './dumps/quest_data.json', this);
+        const areas = await this.jobManager.jobOutput('update-hideout', this);
+        const tasks = await this.jobManager.jobOutput('update-quests', this);
         const crafts = {
             Craft: [],
         };
@@ -192,7 +193,7 @@ class UpdateCraftsJob extends DataJob {
         }
         this.logger.log(`Processed ${crafts.Craft.length} active crafts`);
 
-        await this.cloudflarePut('craft_data', crafts);
+        await this.cloudflarePut(crafts);
         return crafts;
     }
 }
