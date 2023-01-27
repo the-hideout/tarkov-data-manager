@@ -1369,7 +1369,9 @@ app.get('/crons/run/:name', async (req, res) => {
         errors: []
     };
     try {
-        jobs.runJob(req.params.name);
+        const startDate = new Date();
+        await jobs.runJob(req.params.name);
+        response.message = `${req.params.name} job finished in ${new Date - startDate} ms`;
     } catch (error) {
         console.log(chalk.red(`Error running ${req.params.name} job`), error);
         response.success = false;

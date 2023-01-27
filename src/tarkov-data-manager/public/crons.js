@@ -83,6 +83,7 @@ $(document).ready( function () {
                 let target = $(event.target);
                 if (target[0].nodeName === 'I') target = target.parent();
                 target.addClass('disabled');
+                M.toast({html: `Starting ${target.data('job')} job...`});
                 $.ajax({
                     //method: ,
                     dataType: "json",
