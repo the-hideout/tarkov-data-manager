@@ -2,7 +2,14 @@ const got = require('got');
 
 const kvDelta = require('./kv-delta');
 
+const ignoreData = [
+    'schema_data'
+];
+
 async function purgeTypes(dataName, logger = false) {
+    if (ignoreData.includes(dataName)) {
+        return;
+    }
     const {purge, updated} = await kvDelta(dataName, logger);
     let delay = 60000 - (new Date() - updated);
     delay = delay > 0 ? delay : 0;

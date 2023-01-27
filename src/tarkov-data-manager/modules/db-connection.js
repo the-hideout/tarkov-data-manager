@@ -13,6 +13,39 @@ const pool = mysql.createPool({
     }
 });
 
+let connectedCount = 0;
+
+pool.on('acquire', function (connection) {
+    //console.log('Connection %d acquired', connection.threadId);
+    connectedCount++;
+});
+
+/*pool.on('connection', function (connection) {
+    console.log('Connected', connection.threadId);
+});
+
+pool.on('enqueue', function () {
+    console.log('Waiting for available connection slot');
+});
+
+pool.on('release', function (connection) {
+    console.log('Connection %d released', connection.threadId);
+});*/
+
+const waitForConnections = () => {
+    if (connectedCount >= 5) {
+        return Promise.resolve();
+    }
+    return new Promise(resolve => {
+        const connectedInterval = setInterval(() => {
+            if (connectedCount >= 5) {
+                clearInterval(connectedInterval);
+                resolve();
+            }
+        }, 1000);
+    });
+};
+
 const query = (sql, params) => {
     return new Promise((resolve, reject) => {
         pool.query(sql, params, (error, results) => {
@@ -35,6 +68,7 @@ module.exports = {
         if (pool.keepAlive) {
             return Promise.resolve(false);
         }
+        await waitForConnections();
         return new Promise((resolve, reject) => {
             pool.end(error => {
                 if (error) {

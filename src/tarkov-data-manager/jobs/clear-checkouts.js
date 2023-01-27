@@ -1,10 +1,12 @@
-const { query, jobComplete } = require('../modules/db-connection');
-const JobLogger = require('../modules/job-logger');
-const {alert} = require('../modules/webhook');
+const { query } = require('../modules/db-connection');
+const DataJob = require('../modules/data-job');
 
-module.exports = async () => {
-    const logger = new JobLogger('clear-checkouts');
-    try {
+class ClearCheckoutsJob extends DataJob {
+    constructor(jobManager) {
+        super({name: 'clear-checkouts', jobManager});
+    }
+
+    async run() {
         const scanners = await query('SELECT * FROM scanner').then(results => {
             const scannerMap = {};
             for (const scanner of results) {
@@ -27,7 +29,7 @@ module.exports = async () => {
                 if((scannerResult.last_scan.getTime() / 1000) > scanCutoff){
                     continue;
                 }
-                logger.log(`${scanners[scannerResult.scanner_id].name} hasn't worked since ${scannerResult.last_scan}; releasing any batches`);
+                this.logger.log(`${scanners[scannerResult.scanner_id].name} hasn't worked since ${scannerResult.last_scan}; releasing any batches`);
                 await query(`
                     UPDATE
                         item_data
@@ -51,7 +53,7 @@ module.exports = async () => {
                 if((scannerResult.last_scan.getTime() / 1000) > scanCutoff){
                     continue;
                 }
-                logger.log(`${scanners[scannerResult.scanner_id].name} hasn't worked since ${scannerResult.last_scan}; releasing any trader batches`);
+                this.logger.log(`${scanners[scannerResult.scanner_id].name} hasn't worked since ${scannerResult.last_scan}; releasing any trader batches`);
                 return query(`
                     UPDATE
                         item_data
@@ -63,15 +65,7 @@ module.exports = async () => {
             }
         });
         await Promise.all([playerPrices, traderPrices]);
-    } catch (error) {
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.toString()
-        });
     }
+}
 
-    // Possibility to POST to a Discord webhook here with cron status details
-    logger.end();
-    await jobComplete();
-};
+module.exports = ClearCheckoutsJob;

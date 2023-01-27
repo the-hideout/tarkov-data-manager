@@ -11,8 +11,6 @@ const jsonRequest = async (path) => {
         responseType: 'json',
         headers: {
             'Accept': 'application/json',
-            //'CF-Access-Client-Id': process.env.TC_CF_ID,
-            //'CF-Access-Client-Secret': process.env.TC_CF_SECRET,
         },
         resolveBodyOnly: true,
     });

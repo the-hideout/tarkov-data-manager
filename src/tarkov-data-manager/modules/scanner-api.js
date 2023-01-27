@@ -21,7 +21,7 @@ const updatePresets = () => {
         const fileContents = fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json'));
         presets = Object.values(JSON.parse(fileContents));
     } catch (error) {
-        console.log('Error reading presets.json', error);
+        console.log('ScannerAPI error reading presets.json:', error.message);
     }
 };
 

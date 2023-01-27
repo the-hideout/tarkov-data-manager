@@ -107,6 +107,11 @@ module.exports = async (outputFile, logger) => {
                 }
             }
         }
+        for (const dataType in diffs) {
+            if (linkedTypes[dataType] && !diffs[linkedTypes[dataType]]) {
+                diffs[linkedTypes[dataType]] = [];
+            }
+        }
         logger.log(`${outputFile} diff generated in ${new Date() - start} ms`);
     } catch (error) {
         logger.error(`Error getting KV delta: ${error.message}`);

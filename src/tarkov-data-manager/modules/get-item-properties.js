@@ -1,6 +1,5 @@
 const tarkovData = require('../modules/tarkov-data');
 const JobLogger = require('../modules/job-logger');
-const jobOutput = require('../modules/job-output');
 const { setLocales, getTranslations } = require('./get-translation');
 
 let globals = false;
@@ -36,8 +35,6 @@ const setItems = async (it = false) => {
 const setPresets = async (pr = false) => {
     if (pr) {
         presets = pr;
-    } else {
-        presets = await jobOutput('update-presets', './cache/presets.json', logger, true);
     }
 }
 
@@ -200,6 +197,9 @@ const grenadeMap = {
 };
 
 const getItemProperties = async (item) => {
+    if (!presets) {
+        return Promise.reject(new Error('Must set presets before calling getItemProperties'));
+    }
     let properties = null;
     if (item._parent === '5485a8684bdc2da71d8b4567') {
         // ammo

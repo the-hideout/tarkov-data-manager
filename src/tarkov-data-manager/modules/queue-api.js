@@ -1,6 +1,6 @@
 const moment = require('moment');
 
-const jobOutput = require('./job-output');
+const {jobOutput} = require('../jobs');
 const { query, format } = require('./db-connection');
 const { alert } = require('./webhook');
 

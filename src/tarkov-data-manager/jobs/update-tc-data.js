@@ -1,21 +1,18 @@
 const tarkovChanges = require('../modules/tarkov-changes');
-const JobLogger = require('../modules/job-logger');
-const {alert} = require('../modules/webhook');
+const DataJob = require('../modules/data-job');
 
-module.exports = async (externalLogger) => {
-    const logger = externalLogger || new JobLogger('update-tc-data');
-    try {
-        logger.log('Downloading data from Tarkov-Changes...');
-        logger.time('tc-download');
-        await tarkovChanges.downloadAll();
-        logger.timeEnd('tc-download');
-        logger.success('Successfully downloaded data from Tarkov-Changes');
-    } catch (error) {
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.toString()
-        });
+class UpdateTcDataJob extends DataJob {
+    constructor(jobManager) {
+        super({name: 'update-tc-data', jobManager});
     }
-    logger.end();
+
+    async run() {
+        this.logger.log('Downloading data from Tarkov-Changes...');
+        this.logger.time('tc-download');
+        await tarkovChanges.downloadAll();
+        this.logger.timeEnd('tc-download');
+        this.logger.success('Successfully downloaded data from Tarkov-Changes');
+    }
 }
+
+module.exports = UpdateTcDataJob;

@@ -1,29 +1,29 @@
 const got = require('got');
 
-const cloudflare = require('../modules/cloudflare');
-const JobLogger = require('../modules/job-logger');
-const {alert} = require('../modules/webhook');
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
-const stellate = require('../modules/stellate');
+const DataJob = require('../modules/data-job');
 
-module.exports = async function(externalLogger) {
-    const logger = externalLogger || new JobLogger('update-traders');
-    try {
-        logger.log('Loading trader data...');
+class UpdateTradersJob extends DataJob {
+    constructor(jobManager) {
+        super({name: 'update-traders', jobManager});
+    }
+
+    async run() {
+        this.logger.log('Loading trader data...');
         const tradersData = await tarkovData.traders();
-        logger.log('Loading locales...');
+        this.logger.log('Loading locales...');
         const locales = await tarkovData.locales();
         setLocales(locales);
-        logger.log('Loading TarkovData traders.json...');
+        this.logger.log('Loading TarkovData traders.json...');
         const tdTraders = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
             responseType: 'json',
         })).body;
         const traders = {
             Trader: [],
         };
-        logger.log('Processing traders...');
+        this.logger.log('Processing traders...');
         for (const traderId in tradersData) {
             const trader = tradersData[traderId];
             const date = new Date(trader.nextResupply*1000);
@@ -39,17 +39,17 @@ module.exports = async function(externalLogger) {
                 locale: getTranslations({
                     name: `${trader._id} Nickname`,
                     description: `${trader._id} Description`,
-                }, logger),
+                }, this.logger),
                 items_buy: trader.items_buy,
                 items_buy_prohibited: trader.items_buy_prohibited,
             };
             if (!locales.en[`${trader._id} Nickname`]) {
-                logger.warn(`No trader id ${trader._id} found in locale_en.json`);
+                this.logger.warn(`No trader id ${trader._id} found in locale_en.json`);
                 traderData.name = trader.nickname;
                 traderData.normalizedName = normalizeName(trader.nickname);
             }
-            logger.log(`✔️ ${traderData.name} ${trader._id}`);
-            logger.log(`   - Restock: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`);
+            this.logger.log(`✔️ ${traderData.name} ${trader._id}`);
+            this.logger.log(`   - Restock: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`);
             for (let i = 0; i < trader.loyaltyLevels.length; i++) {
                 const level = trader.loyaltyLevels[i];
                 if (trader._id == '579dc571d53a0658a154fbec' && traderData.levels.length === 0) {
@@ -75,37 +75,17 @@ module.exports = async function(externalLogger) {
                 }
                 traderData.levels.push(levelData);
             }
-            logger.log(`   - Levels: ${traderData.levels.length}`);
+            this.logger.log(`   - Levels: ${traderData.levels.length}`);
             if (tdTraders[traderData.name.toLowerCase()]) {
                 traderData.tarkovDataId = tdTraders[traderData.name.toLowerCase()].id;
             }
             traders.Trader.push(traderData);
         }
-        logger.log(`Processed ${traders.Trader.length} traders`);
+        this.logger.log(`Processed ${traders.Trader.length} traders`);
 
-        const response = await cloudflare.put('trader_data', traders).catch(error => {
-            logger.error(error);
-            return {success: false, errors: [], messages: []};
-        });
-        if (response.success) {
-            logger.success('Successful Cloudflare put of trader_data');
-
-            await stellate.purgeTypes('trader_data', logger);
-        } else {
-            for (let i = 0; i < response.errors.length; i++) {
-                logger.error(response.errors[i]);
-            }
-            for (let i = 0; i < response.messages.length; i++) {
-                logger.error(response.messages[i]);
-            }
-        }
-        // Possibility to POST to a Discord webhook here with cron status details
-    } catch (error) {
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.toString()
-        });
+        await this.cloudflarePut('trader_data', traders);
+        return traders;
     }
-    logger.end();
-};
+}
+
+module.exports = UpdateTradersJob;

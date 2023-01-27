@@ -1,37 +1,23 @@
 const got = require('got');
 
-const cloudflare = require('../modules/cloudflare');
-const JobLogger = require('../modules/job-logger');
-const {alert} = require('../modules/webhook');
+const DataJob = require('../modules/data-job');
 
-const traderMap = [
-    'prapor',
-    'therapist',
-    'fence',
-    'skier',
-    'peacekeeper',
-    'mechanic',
-    'ragman',
-    'jaeger',
-];
-
-module.exports = async (data, logger) => {
-    let closeLogger = false;
-    let quests = [];
-    if (!logger) {
-        logger = new JobLogger('update-quests-legacy');
-        logger.log('Running update-quests-legacy...');
-        closeLogger = true;
+class UpdateQuestsLegacyJob extends DataJob {
+    constructor(jobManager) {
+        super({name: 'update-quests-legacy', jobManager});
     }
-    try {
+
+    async run(options) {
+        let quests = [];
+        let data = options?.data;
         if (!data) {
-            logger.log('Retrieving tarkovdata quests.json...');
+            this.logger.log('Retrieving tarkovdata quests.json...');
             data = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
                 responseType: 'json',
                 resolveBodyOnly: true
             });
         }
-        logger.log('Processing tarkovdata quests.json...');
+        this.logger.log('Processing tarkovdata quests.json...');
 
         quests = data.map((quest) => {
             const parsedQuest = {
@@ -102,34 +88,9 @@ module.exports = async (data, logger) => {
             return parsedQuest;
         });
 
-        logger.log(`Processed ${quests.length} tarkovdata quests`);
-
-        /*const response = await cloudflare.put('quest_data', JSON.stringify({
-            updated: new Date(),
-            data: quests,
-        })).catch(error => {
-            logger.error(error);
-            return {success: false, errors: [], messages: []};
-        });
-        if (response.success) {
-            logger.success('Successful Cloudflare put of quest_data');
-        } else {
-            for (let i = 0; i < response.errors.length; i++) {
-                logger.error(response.errors[i]);
-            }
-        }
-        for (let i = 0; i < response.messages.length; i++) {
-            logger.error(response.messages[i]);
-        }*/
-
-    } catch (error){
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.toString()
-        });
-        return Promise.reject(error);
+        this.logger.log(`Processed ${quests.length} tarkovdata quests`);
+        return quests;
     }
-    if (closeLogger) logger.end();
-    return quests;
 }
+
+module.exports = UpdateQuestsLegacyJob;

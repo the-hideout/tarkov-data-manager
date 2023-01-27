@@ -1,33 +1,28 @@
-const cloudflare = require('../modules/cloudflare');
-//const christmasTreeCrafts = require('../public/data/christmas-tree-crafts.json');
-
 const remoteData = require('../modules/remote-data');
-const { jobComplete } = require('../modules/db-connection');
-const JobLogger = require('../modules/job-logger');
-const {alert} = require('../modules/webhook');
 const tarkovData = require('../modules/tarkov-data');
-const jobOutput = require('../modules/job-output');
-const stellate = require('../modules/stellate');
+const DataJob = require('../modules/data-job');
 
-module.exports = async function() {
-    const logger = new JobLogger('update-crafts');
-    try {
-        logger.log('Loading json files...');
+class UpdateCraftsJob extends DataJob {
+    constructor(jobManager) {
+        super({name: 'update-crafts', jobManager});
+    }
+
+    run = async () => {
+        this.logger.log('Loading json files...');
         const [items, json, en, processedItems] = await Promise.all([
             tarkovData.items(),
             tarkovData.crafts(),
             tarkovData.locale('en'),
             remoteData.get(),
         ]);
-        const areas = await jobOutput('update-hideout', './dumps/hideout_data.json', logger);
-        const tasks = await jobOutput('update-quests', './dumps/quest_data.json', logger);
+        const areas = await this.jobManager.jobOutput('update-hideout', './dumps/hideout_data.json', this);
+        const tasks = await this.jobManager.jobOutput('update-quests', './dumps/quest_data.json', this);
         const crafts = {
-            updated: new Date(),
             Craft: [],
         };
         const stations = {};
         const inactiveStations = {};
-        logger.log('Processing crafts...');
+        this.logger.log('Processing crafts...');
         for (const id in json) {
             const craft = json[id];
             const station = areas.find(area => area.areaType === craft.areaType);
@@ -40,15 +35,15 @@ module.exports = async function() {
             }
             const endProduct = processedItems.get(craft.endProduct);
             if (!endProduct) {
-                logger.warn(`${id}: No end product item with id ${craft.endProduct} found in items`);
+                this.logger.warn(`${id}: No end product item with id ${craft.endProduct} found in items`);
                 continue;
             }
             if (endProduct.types.includes('disabled')) {
-                logger.warn(`${id}: End product ${endProduct.name} ${craft.endProduct} is disabled`);
+                this.logger.warn(`${id}: End product ${endProduct.name} ${craft.endProduct} is disabled`);
                 continue;
             }
             if (endProduct.types.includes('quest')) {
-                logger.warn(`${id}: End product ${endProduct.name} ${craft.endProduct} is a quest item`);
+                this.logger.warn(`${id}: End product ${endProduct.name} ${craft.endProduct} is a quest item`);
                 continue;
             }
             if (!stations[station.locale.en.name]) {
@@ -72,7 +67,7 @@ module.exports = async function() {
             };
             let level = false;
             let skip = false;
-            for (index in craft.requirements) {
+            for (const index in craft.requirements) {
                 const req = craft.requirements[index];
                 if (req.type === 'Area') {
                     //craftData.station = craftData.station + ' level '+req.requiredLevel;
@@ -84,20 +79,20 @@ module.exports = async function() {
                     level = req.requiredLevel;
                 } else if (req.type === 'Resource') {
                     if (!items[req.templateId]) {
-                        logger.warn(`${id}: Resource ${en[`${req.templateId} Name`]} ${req.templateId} not found in items.json`);
+                        this.logger.warn(`${id}: Resource ${en[`${req.templateId} Name`]} ${req.templateId} not found in items.json`);
                         continue;
                     }
                     const resourceItem = processedItems.get(req.templateId);
                     if (!resourceItem) {
-                        logger.warn(`${id}: Resource ${en[`${req.templateId} Name`]} ${req.templateId} not found in items`);
+                        this.logger.warn(`${id}: Resource ${en[`${req.templateId} Name`]} ${req.templateId} not found in items`);
                         continue;
                     }
                     if (resourceItem.types.includes('disabled')) {
-                        logger.warn(`${id}: Resource ${resourceItem.name} ${req.templateId} is disabled`);
+                        this.logger.warn(`${id}: Resource ${resourceItem.name} ${req.templateId} is disabled`);
                         continue;
                     }
                     if (resourceItem.types.includes('quest')) {
-                        logger.warn(`${id}: Resource ${resourceItem.name} ${req.templateId} is a quest item`);
+                        this.logger.warn(`${id}: Resource ${resourceItem.name} ${req.templateId} is a quest item`);
                         continue;
                     }
                     craftData.requiredItems.push({
@@ -109,15 +104,15 @@ module.exports = async function() {
                 } else if (req.type === 'Item') {
                     const ingredient = processedItems.get(req.templateId);
                     if (!ingredient) {
-                        logger.warn(`${id}: Ingredient item ${en[`${req.templateId} Name`]} ${req.templateId} found in items`);
+                        this.logger.warn(`${id}: Ingredient item ${en[`${req.templateId} Name`]} ${req.templateId} found in items`);
                         continue;
                     }
                     if (ingredient.types.includes('disabled')) {
-                        logger.warn(`${id}: Ingredient ${ingredient.name} ${ingredient.id} is disabled`);
+                        this.logger.warn(`${id}: Ingredient ${ingredient.name} ${ingredient.id} is disabled`);
                         continue;
                     }
                     if (ingredient.types.includes('quest')) {
-                        logger.warn(`${id}: Ingredient ${ingredient.name} ${ingredient.id} is a quest item`);
+                        this.logger.warn(`${id}: Ingredient ${ingredient.name} ${ingredient.id} is a quest item`);
                         continue;
                     }
                     const reqData = {
@@ -136,7 +131,7 @@ module.exports = async function() {
                 } else if (req.type == 'Tool') {
                     const toolItem = processedItems.get(req.templateId);
                     if (!toolItem) {
-                        logger.warn(`${id}: Unknown tool ${en[`${req.templateId} Name`]} ${req.templateId}`);
+                        this.logger.warn(`${id}: Unknown tool ${en[`${req.templateId} Name`]} ${req.templateId}`);
                         if (items[req.templateId] && items[req.templateId]._props.QuestItem) {
                             skip = true;
                         }
@@ -161,7 +156,7 @@ module.exports = async function() {
                 } else if (req.type === 'QuestComplete') {
                     const task = tasks.find(q => q.id === req.questId);
                     if (!task) {
-                        logger.warn(`${id}: Unknown quest unlock ${en[`${req.questId} name`]} ${req.questId}`);
+                        this.logger.warn(`${id}: Unknown quest unlock ${en[`${req.questId} name`]} ${req.questId}`);
                         continue;
                     }
                     craftData.requirements.push({
@@ -171,7 +166,7 @@ module.exports = async function() {
                     });
                     craftData.taskUnlock = task.id;
                 } else {
-                    logger.warn(`${id}: Unknown craft requirement type ${req.type}`);
+                    this.logger.warn(`${id}: Unknown craft requirement type ${req.type}`);
                 }
             }
             if (skip) {
@@ -190,36 +185,16 @@ module.exports = async function() {
             stations[station.locale.en.name]++;
         }
         for (const stationName in stations) {
-            logger.log(`✔️ ${stationName}: ${stations[stationName]}`);
+            this.logger.log(`✔️ ${stationName}: ${stations[stationName]}`);
         }
         for (const stationName in inactiveStations) {
-            logger.log(`❌ ${stationName}: ${inactiveStations[stationName]}`);
+            this.logger.log(`❌ ${stationName}: ${inactiveStations[stationName]}`);
         }
-        logger.log(`Processed ${crafts.Craft.length} active crafts`);
+        this.logger.log(`Processed ${crafts.Craft.length} active crafts`);
 
-        const response = await cloudflare.put('craft_data', crafts).catch(error => {
-            logger.error(error);
-            return {success: false, errors: [], messages: []};
-        });
-        if (response.success) {
-            logger.success('Successful Cloudflare put of craft_data');
-            await stellate.purgeTypes('craft_data', logger);
-        } else {
-            for (let i = 0; i < response.errors.length; i++) {
-                logger.error(response.errors[i]);
-            }
-            for (let i = 0; i < response.messages.length; i++) {
-                logger.error(response.messages[i]);
-            }
-        }
-        // Possibility to POST to a Discord webhook here with cron status details
-    } catch (error) {
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.toString()
-        });
+        await this.cloudflarePut('craft_data', crafts);
+        return crafts;
     }
-    logger.end();
-    await jobComplete();
-};
+}
+
+module.exports = UpdateCraftsJob;

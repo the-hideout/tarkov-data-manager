@@ -119,4 +119,5 @@ module.exports = {
     uploadToS3: upload,
     getImages: downloadFromId,
     uploadAnyImage: uploadAnyImage,
+    client: s3,
 };

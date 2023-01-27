@@ -1,7 +1,7 @@
 const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('../modules/job-logger');
 const { alert } = require('../modules/webhook');
-const jobOutput = require('../modules/job-output');
+const {jobOutput} = require('../jobs');
 
 // function to get map queue times
 module.exports = async (allMaps, logger = false) => {
