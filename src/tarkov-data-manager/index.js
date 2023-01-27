@@ -1336,7 +1336,7 @@ app.get('/crons/get', async (req, res) => {
 
 app.get('/crons/get/:name', async (req, res) => {
     try {
-        const logMessages = JSON.parse(fs.readFileSync(path.join(__dirname, 'logs', req.params.name+'.log')));
+        const logMessages = JSON.parse(fs.readFileSync(path.join(__dirname, 'logs', req.params.name+'.log'), {encoding: 'utf8'}));
         res.json(logMessages);
         return;
     } catch (error) {

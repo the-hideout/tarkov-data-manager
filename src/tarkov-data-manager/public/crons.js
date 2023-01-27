@@ -114,6 +114,7 @@ $(document).ready( function () {
                 }).done(function (data) {
                     const ansi_up = new AnsiUp;
                     const logMessages = [];
+                    console.log(data);
                     for (let i = 0; i < data.length; i++) {
                         logMessages.push(ansi_up.ansi_to_html(data[i]));
                     }

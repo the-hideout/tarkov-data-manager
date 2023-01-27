@@ -12,7 +12,7 @@ const writeLog = (jobName, messages) => {
         }
     }
     try {
-        fs.writeFileSync(path.join(__dirname, '..', 'logs', jobName+'.log'), JSON.stringify(messages, null, 4));
+        fs.writeFileSync(path.join(__dirname, '..', 'logs', jobName+'.log'), JSON.stringify(messages, null, 4), {encoding: 'utf8'});
     } catch (error) {
         console.log(`Error writing log file for ${jobName}`, error);
     }
