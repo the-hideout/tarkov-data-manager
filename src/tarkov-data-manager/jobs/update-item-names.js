@@ -12,8 +12,8 @@ const tarkovData = require('../modules/tarkov-data');
 const DataJob = require('../modules/data-job');
 
 class UpdateItemNamesJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-item-names', jobManager});
+    constructor() {
+        super('update-item-names');
     }
 
     run = async () => {

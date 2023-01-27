@@ -3,8 +3,8 @@ const spt = require('../modules/tarkov-spt');
 const DataJob = require('../modules/data-job');
 
 class UpdateLangJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-lang', jobManager});
+    constructor() {
+        super('update-lang');
     }
 
     run = async () => {

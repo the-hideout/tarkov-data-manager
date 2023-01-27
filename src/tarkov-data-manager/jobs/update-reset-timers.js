@@ -1,8 +1,8 @@
 const DataJob = require('../modules/data-job');
 
 class UpdateResetTimersJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-reset-timers', jobManager});
+    constructor() {
+        super('update-reset-timers');
         this.kvName = 'reset_time_data';
     }
 

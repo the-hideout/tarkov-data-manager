@@ -2,8 +2,8 @@ const { query } = require('../modules/db-connection');
 const DataJob = require('../modules/data-job');
 
 class ClearCheckoutsJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'clear-checkouts', jobManager});
+    constructor() {
+        super('clear-checkouts');
     }
 
     async run() {

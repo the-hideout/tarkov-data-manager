@@ -5,14 +5,13 @@ const got = require('got');
 
 const remoteData = require('../modules/remote-data');
 const tarkovData = require('../modules/tarkov-data');
-const legacyQuestsJob = require('./update-quests-legacy');
 const { setLocales, getTranslations, addTranslations } = require('../modules/get-translation');
 const normalizeName = require('../modules/normalize-name');
 const DataJob = require('../modules/data-job');
 
 class UpdateQuestsJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-quests', jobManager});
+    constructor() {
+        super('update-quests');
         this.kvName = 'quest_data';
     }
 

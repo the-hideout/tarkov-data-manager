@@ -6,8 +6,8 @@ const { setLocales, getTranslations } = require('../modules/get-translation');
 const DataJob = require('../modules/data-job');
 
 class UpdateTradersJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-traders', jobManager});
+    constructor() {
+        super('update-traders');
         this.kvName = 'trader_data';
     }
 

@@ -9,8 +9,8 @@ const DataJob = require('../modules/data-job');
 const { client: s3 } = require('../modules/upload-s3');
 
 class CheckImageLinksJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'check-image-links', jobManager});
+    constructor() {
+        super('check-image-links');
     }
 
     async run() {

@@ -6,8 +6,8 @@ const { setLocales, getTranslations } = require('../modules/get-translation');
 const DataJob = require('../modules/data-job');
 
 class UpdateMapsJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-maps', jobManager});
+    constructor() {
+        super('update-maps');
         this.kvName = 'map_data';
     }
 

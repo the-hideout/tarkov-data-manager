@@ -6,8 +6,8 @@ const scannerApi = require('../modules/scanner-api');
 const DataJob = require('../modules/data-job');
 
 class CheckScansJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'check-scans', jobManager});
+    constructor() {
+        super('check-scans');
     }
 
     async run() {

@@ -8,8 +8,8 @@ const DataJob = require('../modules/data-job');
 const skipChristmasTree = true;
 
 class UpdateHideoutJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-hideout', jobManager});
+    constructor() {
+        super('update-hideout');
         this.kvName = 'hideout_data';
     }
 

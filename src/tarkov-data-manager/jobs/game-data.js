@@ -3,8 +3,8 @@ const tarkovData = require('../modules/tarkov-data');
 const DataJob = require('../modules/data-job');
 
 class GameDataJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'game-data', jobManager});
+    constructor() {
+        super('game-data');
     }
 
     async run() {

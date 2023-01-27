@@ -4,8 +4,8 @@ const {alert} = require('../modules/webhook');
 const DataJob = require('../modules/data-job');
 
 class UpdateHideoutLegacyJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-hideout-legacy', jobManager});
+    constructor() {
+        super('update-hideout-legacy');
     }
 
     async run(options) {

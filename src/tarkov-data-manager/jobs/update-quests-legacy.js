@@ -3,8 +3,8 @@ const got = require('got');
 const DataJob = require('../modules/data-job');
 
 class UpdateQuestsLegacyJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-quests-legacy', jobManager});
+    constructor() {
+        super('update-quests-legacy');
     }
 
     async run(options) {

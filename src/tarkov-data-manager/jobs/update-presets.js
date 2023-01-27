@@ -9,8 +9,8 @@ const remoteData = require('../modules/remote-data');
 const DataJob = require('../modules/data-job');
 
 class UpdatePresetsJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-presets', jobManager});
+    constructor() {
+        super('update-presets');
         this.writeFolder = 'cache';
         this.kvName = 'presets';
     }

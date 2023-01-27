@@ -5,8 +5,8 @@ const { query } = require('../modules/db-connection');
 const DataJob = require('../modules/data-job');
 
 class UpdateQueueTimesJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-queue-times', jobManager});
+    constructor() {
+        super('update-queue-times');
         this.kvName = 'queue_data';
     }
 

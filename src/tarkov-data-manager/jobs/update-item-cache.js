@@ -12,8 +12,8 @@ const { setLocales, getTranslations } = require('../modules/get-translation');
 const DataJob = require('../modules/data-job');
 
 class UpdateItemCacheJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-item-cache', jobManager});
+    constructor() {
+        super('update-item-cache');
         this.kvName = 'item_data';
     }
 

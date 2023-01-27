@@ -21,8 +21,8 @@ const tradeMap = {
 };
 
 class UpdateBartersJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-barters', jobManager});
+    constructor() {
+        super('update-barters');
         this.kvName = 'barter_data';
     }
 

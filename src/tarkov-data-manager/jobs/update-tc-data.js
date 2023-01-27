@@ -2,8 +2,8 @@ const tarkovChanges = require('../modules/tarkov-changes');
 const DataJob = require('../modules/data-job');
 
 class UpdateTcDataJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-tc-data', jobManager});
+    constructor() {
+        super('update-tc-data');
     }
 
     async run() {

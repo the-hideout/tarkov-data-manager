@@ -3,8 +3,8 @@ const tarkovData = require('../modules/tarkov-data');
 const DataJob = require('../modules/data-job');
 
 class UpdateCraftsJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-crafts', jobManager});
+    constructor() {
+        super('update-crafts');
         this.kvName = 'craft_data';
     }
 

@@ -5,8 +5,8 @@ const { query } = require('../modules/db-connection');
 const DataJob = require('../modules/data-job');
 
 class UpdateLangJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-longtime-data', jobManager});
+    constructor() {
+        super('update-longtime-data');
     }
 
     run = async () => {

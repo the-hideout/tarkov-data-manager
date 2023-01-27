@@ -6,8 +6,8 @@ const tarkovData = require('../modules/tarkov-data');
 const DataJob = require('../modules/data-job');
 
 class VerifyWikiJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'verify-wiki', jobManager});
+    constructor() {
+        super('verify-wiki');
     }
 
     async run() {

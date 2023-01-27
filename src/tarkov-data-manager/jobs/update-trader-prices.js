@@ -5,8 +5,8 @@ const tarkovData = require('../modules/tarkov-data');
 const DataJob = require('../modules/data-job');
 
 class UpdateTraderPricesJob extends DataJob {
-    constructor(jobManager) {
-        super({name: 'update-trader-prices', jobManager});
+    constructor() {
+        super('update-trader-prices');
         this.kvName = 'trader_price_data';
     }
 
