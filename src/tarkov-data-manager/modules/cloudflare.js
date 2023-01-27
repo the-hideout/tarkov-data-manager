@@ -21,7 +21,8 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
         headers: {
             'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
         },
-        responseType: 'json'
+        responseType: 'json',
+        resolveBodyOnly: true,
     };
 
     if(extraHeaders){
@@ -50,15 +51,13 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
         }
     }
 
-    let response;
-
-    try {
-        response = await got(`${BASE_URL}${fullCloudflarePath}`, requestOptions);
-    } catch (requestError){
-        console.log(requestError);
-    }
-
-    return response.body;
+    return got(`${BASE_URL}${fullCloudflarePath}`, requestOptions).catch(error => {
+        return {
+            success: false,
+            errors: [error],
+            messages: [],
+        }
+    });
 };
 
 const putValue = async (key, value) => {
