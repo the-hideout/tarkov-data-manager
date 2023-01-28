@@ -1,13 +1,13 @@
-const {jobComplete} = require('../modules/db-connection');
-const cloudflare = require('../modules/cloudflare');
-const JobLogger = require('../modules/job-logger');
-const {alert} = require('../modules/webhook');
-const jobOutput = require('../modules/job-output');
+const DataJob = require('../modules/data-job');
 
-module.exports = async () => {
-    const logger = new JobLogger('update-reset-timers');
-    try {
-        const traders = await jobOutput('update-traders', './dumps/trader_data.json', logger);
+class UpdateResetTimersJob extends DataJob {
+    constructor() {
+        super('update-reset-timers');
+        this.kvName = 'reset_time_data';
+    }
+
+    async run() {
+        const traders = await this.jobManager.jobOutput('update-traders', this);
 
         const resetTimes = {};
         for (const trader of traders) {
@@ -44,31 +44,13 @@ module.exports = async () => {
             resetTimes[result.trader_name] = resetTime;
         }*/
 
-        const response = await cloudflare.put('reset_time_data', JSON.stringify(resetTimes)).catch(error => {
-            logger.error(error);
-            return {success: false, errors: [], messages: []};
-        });
-        if (response.success) {
-            logger.success('Successful Cloudflare put of reset_time_data');
-        } else {
-            for (let i = 0; i < response.errors.length; i++) {
-                logger.error(response.errors[i]);
-            }
-            for (let i = 0; i < response.messages.length; i++) {
-                logger.error(response.messages[i]);
-            }
-        }
+        await this.cloudflarePut(resetTimes);
 
         // fs.writeFileSync(path.join(__dirname, '..', 'dumps', 'reset-times.json'), JSON.stringify(cloudflareData, null, 4));
 
         // Possibility to POST to a Discord webhook here with cron status details
-    } catch (error){
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.toString()
-        });
+        return resetTimes;
     }
-    logger.end();
-    await jobComplete();
-};
+}
+
+module.exports = UpdateResetTimersJob;

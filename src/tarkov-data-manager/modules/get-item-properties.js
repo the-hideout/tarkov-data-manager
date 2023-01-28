@@ -1,6 +1,5 @@
 const tarkovData = require('../modules/tarkov-data');
 const JobLogger = require('../modules/job-logger');
-const jobOutput = require('../modules/job-output');
 const { setLocales, getTranslations } = require('./get-translation');
 
 let globals = false;
@@ -36,8 +35,6 @@ const setItems = async (it = false) => {
 const setPresets = async (pr = false) => {
     if (pr) {
         presets = pr;
-    } else {
-        presets = await jobOutput('update-presets', './cache/presets.json', logger);
     }
 }
 
@@ -200,6 +197,9 @@ const grenadeMap = {
 };
 
 const getItemProperties = async (item) => {
+    if (!presets) {
+        return Promise.reject(new Error('Must set presets before calling getItemProperties'));
+    }
     let properties = null;
     if (item._parent === '5485a8684bdc2da71d8b4567') {
         // ammo
@@ -320,7 +320,10 @@ const getItemProperties = async (item) => {
                 armor_material_id: item._props.ArmorMaterial,
                 locale: getTranslations({headZones: lang => {
                     return item._props.headSegments.map(key => {
-                        return lang[key];
+                        if (key === 'LowerNape') {
+                            key = key.toLowerCase();
+                        }
+                        return lang[`HeadSegment/${key}`];
                     });
                 }}, logger),
             };
@@ -445,14 +448,22 @@ const getItemProperties = async (item) => {
             }
         }
     } else if (item._parent === '5448f3a14bdc2d27728b4569') {
+        let effects_damage = item._props.effects_damage;
+        if (Array.isArray(effects_damage)) {
+            // some effects_damage are arrays (544fb3f34bdc2d03748b456a), others are dictionaries
+            effects_damage = effects_damage.reduce((effects, current) => {
+                effects[current.type] = current;
+                return effects;
+            }, {});
+        }
         properties = {
             propertiesType: 'ItemPropertiesPainkiller',
             uses: item._props.MaxHpResource | 1,
             useTime: item._props.medUseTime,
-            cures: Object.keys(item._props.effects_damage).filter(status => {
+            cures: Object.keys(effects_damage).filter(status => {
                 return status !== 'RadExposure';
             }),
-            painkillerDuration: item._props.effects_damage.Pain.duration,
+            painkillerDuration: effects_damage.Pain.duration,
             energyImpact: 0,
             hydrationImpact: 0
         };

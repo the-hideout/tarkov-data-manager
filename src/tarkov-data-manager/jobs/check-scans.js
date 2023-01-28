@@ -1,14 +1,16 @@
 const got = require('got');
 
-const { query, jobComplete } = require('../modules/db-connection');
+const { query } = require('../modules/db-connection');
 const webhook = require('../modules/webhook');
-const JobLogger = require('../modules/job-logger');
-const {alert} = require('../modules/webhook');
 const scannerApi = require('../modules/scanner-api');
+const DataJob = require('../modules/data-job');
 
-module.exports = async () => {
-    const logger = new JobLogger('check-scans');
-    try {
+class CheckScansJob extends DataJob {
+    constructor() {
+        super('check-scans');
+    }
+
+    async run() {
         const services = await got('https://status.escapefromtarkov.com/api/services', {
             responseType: 'json',
             resolveBodyOnly: true
@@ -17,16 +19,11 @@ module.exports = async () => {
         for (const service of services) {
             if (!service.name === 'Trading') continue;
             if (service.status === 1) {
-                logger.log('Game is updating, skipping scan check')
-                await jobComplete();
-                logger.end();
+                this.logger.log('Game is updating, skipping scan check')
                 return;
             }
         }
-    } catch (error) {
-        logger.error(`Error checking EFT status messages: ${error.message}`);
-    }
-    try {
+
         const scanners = await query(`
             select scanner.id, name, last_scan, username, scanner.flags, scanner_user.flags as user_flags, disabled 
             from scanner 
@@ -40,11 +37,11 @@ module.exports = async () => {
                 continue;
             }
             if (scannerFlags.ignoreMissingScans & scanner.flags) {
-                logger.log(`Ignoring source: ${scanner.name}`);
+                this.logger.log(`Ignoring source: ${scanner.name}`);
                 continue;
             }
             if (!(userFlags.insertPlayerPrices & scanner.user_flags) && !(userFlags.insertTraderPrices & scanner.user_flags)) {
-                logger.log(`Skipping scanner without insert flags: ${scanner.name}`);
+                this.logger.log(`Skipping scanner without insert flags: ${scanner.name}`);
                 continue;
             }
 
@@ -59,7 +56,7 @@ module.exports = async () => {
             // console.log(new Date().getTimezoneOffset());
 
             const lastScanAge = Math.floor((new Date().getTime() - lastScan.getTime()) / 1000);
-            logger.log(`${scanner.name}: ${lastScanAge}s`);
+            this.logger.log(`${scanner.name}: ${lastScanAge}s`);
 
             if (lastScanAge < 1800) {
                 continue;
@@ -70,19 +67,13 @@ module.exports = async () => {
                 message: `The last scanned price was ${lastScanAge} seconds ago`
             };
 
-            logger.log('Sending alert');
+            this.logger.log('Sending alert');
             webhook.alert(messageData);
         }
 
         // Possibility to POST to a Discord webhook here with cron status details
-    } catch (error) {
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.toString()
-        });
+        //await scannerApi.waitForActions();
     }
-    await scannerApi.waitForActions();
-    await jobComplete();
-    logger.end();
-};
+}
+
+module.exports = CheckScansJob;

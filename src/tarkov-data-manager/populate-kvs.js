@@ -7,6 +7,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const { connection, jobComplete } = require('./modules/db-connection');
+const {runJob} = require('./jobs');
 
 const kvJobs = [
     'update-barters',
@@ -24,9 +25,7 @@ const kvJobs = [
     connection.keepAlive = true;
     for (const job of kvJobs) {
         try {
-            const jobModule = require(`./jobs/${job}`);
-            console.log(`Running ${job}`);
-            await jobModule();
+            await runJob(job);
         } catch (error) {
             console.log(`Error running ${job} job`, error);
         }

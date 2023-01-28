@@ -1,94 +1,19 @@
 const moment = require('moment');
-
-const cloudflare = require('../modules/cloudflare');
-const { query, jobComplete } = require('../modules/db-connection');
-const JobLogger = require('../modules/job-logger');
-const {alert} = require('../modules/webhook');
+;
+const { query } = require('../modules/db-connection');
 const tarkovData = require('../modules/tarkov-data');
-const jobOutput = require('../modules/job-output');
+const DataJob = require('../modules/data-job');
 
-const traderMap = {
-    'prapor': '54cb50c76803fa8b248b4571',
-    'Prapor': '54cb50c76803fa8b248b4571',
-    'therapist': '54cb57776803fa99248b456e',
-    'Therapist': '54cb57776803fa99248b456e',
-    'fence': '579dc571d53a0658a154fbec',
-    'Fence': '579dc571d53a0658a154fbec',
-    'skier': '58330581ace78e27b8b10cee',
-    'Skier': '58330581ace78e27b8b10cee',
-    'peacekeeper': '5935c25fb3acc3127c3d8cd9',
-    'Peacekeeper': '5935c25fb3acc3127c3d8cd9',
-    'mechanic': '5a7c2eca46aef81a7ca2145d',
-    'Mechanic': '5a7c2eca46aef81a7ca2145d',
-    'ragman': '5ac3b934156ae10c4430e83c',
-    'Ragman': '5ac3b934156ae10c4430e83c',
-    'jaeger': '5c0647fdd443bc2504c2d371',
-    'Jaeger': '5c0647fdd443bc2504c2d371',
-};
-
-let logger, tasks, items;
-
-const outputPrices = async (prices) => {
-    try {
-        const response = await cloudflare.put('trader_price_data', {
-            updated: new Date(),
-            data: prices,
-        });
-        if (response.success) {
-            logger.success(`Successful Cloudflare put of ${Object.keys(prices).length} trader prices`);
-        } else {
-            for (let i = 0; i < response.errors.length; i++) {
-                logger.error(response.errors[i]);
-            }
-            for (let i = 0; i < response.messages.length; i++) {
-                logger.error(response.messages[i]);
-            }
-        }
-    } catch (requestError){
-        logger.error(requestError);
+class UpdateTraderPricesJob extends DataJob {
+    constructor() {
+        super('update-trader-prices');
+        this.kvName = 'trader_price_data';
     }
 
-    // Possibility to POST to a Discord webhook here with cron status details
-    logger.end();
-    await jobComplete();
-    logger = false;
-};
-
-const getQuestUnlock = (traderItem) => {
-    if (!isNaN(parseInt(traderItem.quest_unlock_id)) || traderItem.quest_unlock_bsg_id) {
-        const traderId = traderMap[traderItem.trader_name];
-        const itemId = traderItem.item_id;
-        for (const quest of tasks) {
-            const match = unlockMatches(itemId, quest.startRewards, traderId) || unlockMatches(itemId, quest.finishRewards, traderId);
-            if (match) {
-                return {
-                    id: quest.id,
-                    tarkovDataId: quest.tarkovDataId,
-                    level: match.level
-                };
-            }
-        }
-        throw new Error(`Could not find quest unlock for trader offer ${traderItem.id}: ${traderItem.trader_name} ${items[traderItem.item_id].name} ${traderItem.item_id}`);
-    }
-    return false;
-};
-
-const unlockMatches = (itemId, rewards, traderId) => {
-    if (!rewards || !rewards.offerUnlock) return false;
-    for (const unlock of rewards.offerUnlock) {
-        if (unlock.trader_id !== traderId) continue;
-        if (unlock.item === itemId) return unlock;
-        if (unlock.base_item_id && unlock.base_item_id === itemId) return unlock;
-    }
-    return false;
-};
-
-module.exports = async () => {
-    logger = new JobLogger('update-trader-prices');
-    try {
-        [tasks, items] = await Promise.all([
-            jobOutput('update-quests', './dumps/quest_data.json', logger),
-            jobOutput('update-item-cache', './dumps/item_data.json', logger),
+    async run() {
+        [this.tasks, this.items] = await Promise.all([
+            this.jobManager.jobOutput('update-quests', this.logger),
+            this.jobManager.jobOutput('update-item-cache', this.logger),
         ]);
         const outputData = {};
         const junkboxLastScan = await query(`
@@ -108,15 +33,14 @@ module.exports = async () => {
             LIMIT 1
         `);
         if (junkboxLastScan.length === 0) {
-            await outputPrices(outputData);
-            return;
+            return this.outputPrices(outputData);
         }
 
         const scanOffsetTimestampMoment = moment(junkboxLastScan[0].timestamp).subtract(6, 'hours').format("YYYY-MM-DD HH:mm:ss");
         //const scanOffsetTimestamp = new Date(junkboxLastScan[0].timestamp).setHours(junkboxLastScan[0].timestamp.getHours() - 6);
 
-        logger.log('Trader price cutoff:')
-        logger.log(scanOffsetTimestampMoment);
+        this.logger.log('Trader price cutoff:')
+        this.logger.log(scanOffsetTimestampMoment);
         
         const currencyISO = {
             '5696686a4bdc2da3298b456a': 'USD',
@@ -249,12 +173,12 @@ module.exports = async () => {
             let minLevel = traderItem.min_level;
             let questUnlock = false;
             try {
-                questUnlock = getQuestUnlock(traderItem);
+                questUnlock = this.getQuestUnlock(traderItem);
                 if (questUnlock) {
                     minLevel = questUnlock.level;
                 }
             } catch (error) {
-                logger.warn(error.message);
+                this.logger.warn(error.message);
                 continue;
             }
             
@@ -290,15 +214,64 @@ module.exports = async () => {
             outputData[traderItem.item_id].push(offer);
         }
 
-        await outputPrices(outputData);
-    } catch (error) {
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.toString()
-        });
-        logger.end();
-        jobComplete();
-        logger = false;
+        return this.outputPrices(outputData);
     }
+
+    outputPrices = async (prices) => {
+        const priceData = {
+            TraderCashOffer: prices,
+        };
+        await this.cloudflarePut(priceData);
+        return priceData;
+    }
+
+    getQuestUnlock = (traderItem) => {
+        if (!isNaN(parseInt(traderItem.quest_unlock_id)) || traderItem.quest_unlock_bsg_id) {
+            const traderId = traderMap[traderItem.trader_name];
+            const itemId = traderItem.item_id;
+            for (const quest of this.tasks) {
+                const match = unlockMatches(itemId, quest.startRewards, traderId) || unlockMatches(itemId, quest.finishRewards, traderId);
+                if (match) {
+                    return {
+                        id: quest.id,
+                        tarkovDataId: quest.tarkovDataId,
+                        level: match.level
+                    };
+                }
+            }
+            throw new Error(`Could not find quest unlock for trader offer ${traderItem.id}: ${traderItem.trader_name} ${this.items[traderItem.item_id].name} ${traderItem.item_id}`);
+        }
+        return false;
+    }
+}
+
+const traderMap = {
+    'prapor': '54cb50c76803fa8b248b4571',
+    'Prapor': '54cb50c76803fa8b248b4571',
+    'therapist': '54cb57776803fa99248b456e',
+    'Therapist': '54cb57776803fa99248b456e',
+    'fence': '579dc571d53a0658a154fbec',
+    'Fence': '579dc571d53a0658a154fbec',
+    'skier': '58330581ace78e27b8b10cee',
+    'Skier': '58330581ace78e27b8b10cee',
+    'peacekeeper': '5935c25fb3acc3127c3d8cd9',
+    'Peacekeeper': '5935c25fb3acc3127c3d8cd9',
+    'mechanic': '5a7c2eca46aef81a7ca2145d',
+    'Mechanic': '5a7c2eca46aef81a7ca2145d',
+    'ragman': '5ac3b934156ae10c4430e83c',
+    'Ragman': '5ac3b934156ae10c4430e83c',
+    'jaeger': '5c0647fdd443bc2504c2d371',
+    'Jaeger': '5c0647fdd443bc2504c2d371',
 };
+
+const unlockMatches = (itemId, rewards, traderId) => {
+    if (!rewards || !rewards.offerUnlock) return false;
+    for (const unlock of rewards.offerUnlock) {
+        if (unlock.trader_id !== traderId) continue;
+        if (unlock.item === itemId) return unlock;
+        if (unlock.base_item_id && unlock.base_item_id === itemId) return unlock;
+    }
+    return false;
+};
+
+module.exports = UpdateTraderPricesJob;

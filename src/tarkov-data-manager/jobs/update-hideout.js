@@ -1,18 +1,19 @@
 const got = require('got');
 
-const cloudflare = require('../modules/cloudflare');
-const JobLogger = require('../modules/job-logger');
-const {alert} = require('../modules/webhook');
 const tarkovData = require('../modules/tarkov-data');
-const hideoutLegacy = require('./update-hideout-legacy');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
+const DataJob = require('../modules/data-job');
 
 const skipChristmasTree = true;
 
-module.exports = async () => {
-    const logger = new JobLogger('update-hideout');    
-    try {
+class UpdateHideoutJob extends DataJob {
+    constructor() {
+        super('update-hideout');
+        this.kvName = 'hideout_data';
+    }
+
+    async run() {
         const [data, locales, tdHideout] = await Promise.all([
             tarkovData.areas(),
             tarkovData.locales(),
@@ -24,8 +25,7 @@ module.exports = async () => {
         const en = locales.en;
         setLocales(locales);
         const hideoutData = {
-            updated: new Date(),
-            data: [],
+            HideoutStation: [],
         };
         const areasByType = {};
         for (const stationId in data) {
@@ -34,7 +34,7 @@ module.exports = async () => {
         for (const stationId in data) {
             const station = data[stationId];
             if (!en[`hideout_area_${station.type}_name`]) {
-                logger.warn(`❌ ${station.type} not found in locale_en.json`);
+                this.logger.warn(`❌ ${station.type} not found in locale_en.json`);
                 continue;
             }
             const stationData = {
@@ -43,13 +43,13 @@ module.exports = async () => {
                 normalizedName: normalizeName(en[`hideout_area_${station.type}_name`]),
                 areaType: station.type,
                 levels: [],
-                locale: getTranslations({name: `hideout_area_${station.type}_name`}, logger),
+                locale: getTranslations({name: `hideout_area_${station.type}_name`}, this.logger),
             };
             if (!station.enabled || (skipChristmasTree && stationId === '5df8a81f8f77747fcf5f5702')) {
-                logger.log(`❌ ${stationData.name}`);
+                this.logger.log(`❌ ${stationData.name}`);
                 continue;
             }
-            logger.log(`✔️ ${stationData.name}`);
+            this.logger.log(`✔️ ${stationData.name}`);
             for (const tdStation of tdHideout.stations) {
                 if (tdStation.locales.en.toLowerCase() === stationData.name.toLowerCase()) {
                     stationData.tarkovDataId = tdStation.id;
@@ -57,15 +57,15 @@ module.exports = async () => {
                 }
             }
             if (typeof stationData.tarkovDataId === 'undefined') {
-                logger.warn(`Could not find TarkovData id for ${stationData.name}`);
+                this.logger.warn(`Could not find TarkovData id for ${stationData.name}`);
             }
             for (let i = 1; i < Object.keys(station.stages).length; i++) {
                 if (!station.stages[String(i)]) {
-                    logger.warn(`No stage found for ${stationData.name} level ${i}`);
+                    this.logger.warn(`No stage found for ${stationData.name} level ${i}`);
                     continue;
                 }
                 if (!en[`hideout_area_${station.type}_stage_${i}_description`]) {
-                    logger.warn(`No stage ${i} description found for ${stationData.name}`);
+                    this.logger.warn(`No stage ${i} description found for ${stationData.name}`);
                 }
                 const stage = station.stages[String(i)];
                 const stageData = {
@@ -85,7 +85,7 @@ module.exports = async () => {
                     }
                 }
                 if (typeof stageData.tarkovDataId === 'undefined') {
-                    logger.warn(`Could not find tarkovData id for ${stationData.name} level ${stageData.level}`);
+                    this.logger.warn(`Could not find tarkovData id for ${stationData.name} level ${stageData.level}`);
                 }
                 if (i === 1 && station.requirements.length > 0) {
                     stage.requirements = [
@@ -113,7 +113,7 @@ module.exports = async () => {
                         stageData.skillRequirements.push(skillReq);
                     } else if (req.type === 'Area') {
                         if (req.requiredLevel < 1) {
-                            logger.warn(`Skipping ${en[`hideout_area_${req.areaType}_name`]} level ${req.requiredLevel} requirement for ${en[`hideout_area_${station.type}_name`]} level ${i}`);
+                            this.logger.warn(`Skipping ${en[`hideout_area_${req.areaType}_name`]} level ${req.requiredLevel} requirement for ${en[`hideout_area_${station.type}_name`]} level ${i}`);
                             continue;
                         }
                         stageData.stationLevelRequirements.push({
@@ -130,38 +130,21 @@ module.exports = async () => {
                             level: req.loyaltyLevel
                         });
                     } else {
-                        logger.warn(`Unrecognized requirement type ${req.type} for ${stationData.name} ${i}`);
+                        this.logger.warn(`Unrecognized requirement type ${req.type} for ${stationData.name} ${i}`);
                         continue;
                     }
                 }
                 stationData.levels.push(stageData);
             }
-            hideoutData.data.push(stationData);
+            hideoutData.HideoutStation.push(stationData);
         }
+        this.logger.success(`Processed ${hideoutData.HideoutStation.length} hideout stations`);
 
-        hideoutData.legacy = await hideoutLegacy(tdHideout, logger);
+        hideoutData.HideoutModule = await this.jobManager.runJob('update-hideout-legacy', {data: tdHideout, parent: this});
 
-        const response = await cloudflare.put('hideout_data', hideoutData).catch(error => {
-            logger.error(error);
-            return {success: false, errors: [], messages: []};
-        });
-        if (response.success) {
-            logger.success('Successful Cloudflare put of hideout_data');
-        } else {
-            for (let i = 0; i < response.errors.length; i++) {
-                logger.error(response.errors[i]);
-            }
-            for (let i = 0; i < response.messages.length; i++) {
-                logger.error(response.messages[i]);
-            }
-        }
-        logger.success(`Processed ${hideoutData.data.length} hideout stations`);
-    } catch (error){
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error
-        });
+        await this.cloudflarePut(hideoutData);
+        return hideoutData;
     }
-    logger.end();
 }
+
+module.exports = UpdateHideoutJob;

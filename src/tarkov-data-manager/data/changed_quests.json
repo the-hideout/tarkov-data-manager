@@ -487,5 +487,77 @@
                 }
             ]
         }
+    },
+    "5ae4493486f7744efa289417": {
+        "name": "Database - Part 1",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "5ae448bf86f7744d733e55ee",
+                    "name": "Make ULTRA Great Again",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "5ae448f286f77448d73c0131": {
+        "name": "The Blood of War - Part 1",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "5ae448bf86f7744d733e55ee",
+                    "name": "Make ULTRA Great Again",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "6086c852c945025d41566124": {
+        "name": "Revision - Reserve",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "5a27b87686f77460de0252a8",
+                    "name": "Humanitarian Supplies",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "6179b4d1bca27a099552e04e": {
+        "name": "Revision - Lighthouse",
+        "taskRequirementsRemoved": [
+            {
+                "id": "5a27b80086f774429a5d7e20",
+                "name": "Eagle Eye"
+            }
+        ]
+    },
+    "639135f286e646067c176a87": {
+        "name": "Revision - Streets of Tarkov",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "5a27b87686f77460de0252a8",
+                    "name": "Humanitarian Supplies",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "5a27d2af86f7744e1115b323",
+                    "name": "Friend from the West - Part 2",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
     }
 }

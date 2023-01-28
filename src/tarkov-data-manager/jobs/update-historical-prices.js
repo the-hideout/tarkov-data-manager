@@ -1,18 +1,21 @@
 const fs = require('fs/promises');
 const  path = require('path');
 
-const cloudflare = require('../modules/cloudflare');
-const { query, jobComplete } = require('../modules/db-connection');
-const JobLogger = require('../modules/job-logger');
-const {alert} = require('../modules/webhook');
+const { query } = require('../modules/db-connection');
+const DataJob = require('../modules/data-job');
 
-module.exports = async () => {
-    const logger = new JobLogger('update-historical-prices');
-    try {
+class UpdateHistoricalPricesJob extends DataJob {
+    constructor() {
+        super('update-historical-prices');
+        this.kvName = 'historical_price_data';
+    }
+
+    async run() {
         const aWeekAgo = new Date();
         aWeekAgo.setDate(aWeekAgo.getDate() - 7);
         const itemPriceData = await fs.readFile(path.join(__dirname, '..', 'dumps', 'historical_price_data.json')).then(buffer => {
-            return JSON.parse(buffer).data;
+            const parsed = JSON.parse(buffer);
+            return parsed.historicalPricePoint || parsed.data;
         }).catch(error => {
             if (error.code !== 'ENOENT') {
                 console.log(error);
@@ -32,7 +35,7 @@ module.exports = async () => {
         
         const allPriceData = {};
 
-        logger.time(`historical-price-query-items`);
+        this.logger.time(`historical-price-query-items`);
         const historicalPriceDataItemIds = await query(`SELECT
             item_id
         FROM
@@ -41,9 +44,9 @@ module.exports = async () => {
             timestamp > ?
         GROUP BY
             item_id`, [dateCutoff]);
-        logger.timeEnd(`historical-price-query-items`);
+        this.logger.timeEnd(`historical-price-query-items`);
 
-        logger.time('all-items-queries');
+        this.logger.time('all-items-queries');
         const itemQueries = [];
         for (const itemIdRow of historicalPriceDataItemIds) {
             const itemId = itemIdRow.item_id;
@@ -77,7 +80,7 @@ module.exports = async () => {
             itemQueries.push(historicalPriceDataPromise);
         }
         await Promise.all(itemQueries);
-        logger.timeEnd('all-items-queries');
+        this.logger.timeEnd('all-items-queries');
 
         for(const itemId in allPriceData){
             if(!itemPriceData[itemId]){
@@ -91,34 +94,16 @@ module.exports = async () => {
                 });
             }
         }
+        const priceData = {
+            historicalPricePoint: itemPriceData
+        };
 
-        const response = await cloudflare.put('historical_price_data', {
-            updated: new Date(),
-            data: itemPriceData,
-        }).catch(error => {
-            logger.error(error);
-            return {success: false, errors: [], messages: []};
-        });
-        if (response.success) {
-            logger.success('Successful Cloudflare put of historical_price_data');
-        } else {
-            for (let i = 0; i < response.errors.length; i++) {
-                logger.error(response.errors[i]);
-            }
-            for (let i = 0; i < response.messages.length; i++) {
-                logger.error(response.messages[i]);
-            }
-        }
+        await this.cloudflarePut(priceData);
 
-        logger.success('Done with historical prices');
+        this.logger.success('Done with historical prices');
         // Possibility to POST to a Discord webhook here with cron status details
-    } catch (error) {
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.toString()
-        });
+        return priceData;
     }
-    logger.end();
-    await jobComplete();
-};
+}
+
+module.exports = UpdateHistoricalPricesJob;

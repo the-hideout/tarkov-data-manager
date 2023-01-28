@@ -12,7 +12,7 @@ const writeLog = (jobName, messages) => {
         }
     }
     try {
-        fs.writeFileSync(path.join(__dirname, '..', 'logs', jobName+'.log'), JSON.stringify(messages, null, 4));
+        fs.writeFileSync(path.join(__dirname, '..', 'logs', jobName+'.log'), JSON.stringify(messages, null, 4), {encoding: 'utf8'});
     } catch (error) {
         console.log(`Error writing log file for ${jobName}`, error);
     }
@@ -82,7 +82,7 @@ class JobLogger {
         const endMessage = `${this.jobName} ended in ${new Date() - this.startTime}ms`;
         this.log(endMessage);
         //if (this.verbose) console.log(endMessage);
-        if (this.writeLog) writeLog(this.jobName, this.messages)
+        if (this.writeLog) writeLog(this.jobName, this.messages);
         this.messages.length = 0;
     }
 
@@ -95,6 +95,17 @@ class JobLogger {
         const endMessage = `${label} completed in ${new Date - this.timers[label]}ms`;
         this.log(endMessage);
         delete this.timers[label];
+    }
+
+    write(customMessage = false, appendTime = false) {
+        if (!customMessage) {
+            customMessage = `${this.jobName} ended`;
+        }
+        if (appendTime) {
+            customMessage = `${customMessage} ${new Date() - this.startTime}ms`
+        }
+        this.log(customMessage);
+        writeLog(this.jobName, this.messages);
     }
 }
 

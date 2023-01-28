@@ -2,6 +2,7 @@ const sharp = require('sharp');
 const { S3Client, PutObjectCommand, GetObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
 
+const cloudflare = require('./cloudflare');
 const { imageFunctions } = require('tarkov-dev-image-generator');
 const { imageSizes } = imageFunctions;
 
@@ -59,10 +60,11 @@ async function upload(image, imageType, id) {
     };
     await s3.send(new PutObjectCommand(uploadParams));
     console.log(`${id} ${imageType} saved to s3`);
+    const imageLink = `https://${uploadParams.Bucket}/${uploadParams.Key}`;
     if (typeInfo.field) {
-        const imageLink = `https://${process.env.S3_BUCKET}/${id}-${imageType}.${typeInfo.format}`;
         await remoteData.setProperty(id, typeInfo.field, imageLink);
     }
+    return cloudflare.purgeCache(imageLink);
 }
 
 async function downloadFromId(item) {
@@ -112,4 +114,5 @@ module.exports = {
     uploadToS3: upload,
     getImages: downloadFromId,
     uploadAnyImage: uploadAnyImage,
+    client: s3,
 };

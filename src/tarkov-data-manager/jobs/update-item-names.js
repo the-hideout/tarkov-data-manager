@@ -5,27 +5,28 @@ const path = require('path');
 
 const remoteData = require('../modules/remote-data');
 const normalizeName = require('../modules/normalize-name');
-const JobLogger = require('../modules/job-logger');
-const {alert} = require('../modules/webhook');
 
-const { query, jobComplete} = require('../modules/db-connection');
+const { query } = require('../modules/db-connection');
 const { regenerateFromExisting } = require('../modules/image-create')
 const tarkovData = require('../modules/tarkov-data');
-const jobOutput = require('../modules/job-output');
+const DataJob = require('../modules/data-job');
 
-module.exports = async (externalLogger) => {
-    const logger = externalLogger || new JobLogger('update-item-names');
-    try {
+class UpdateItemNamesJob extends DataJob {
+    constructor() {
+        super('update-item-names');
+    }
+
+    run = async () => {
         const [localItems, bsgData, en, presets] = await Promise.all([
             remoteData.get(),
             tarkovData.items(),
             tarkovData.locale('en'),
-            jobOutput('update-presets', './cache/presets.json', logger),
+            this.jobManager.jobOutput('update-presets', this, true),
         ]);
         const currentDestinations = [];
         const regnerateImages = [];
 
-        logger.log(`Updating names`);
+        this.logger.log(`Updating names`);
         for(const localItem in localItems.values()){
             if (localItem.normalized_name) {
                 currentDestinations.push(localItem.normalized_name);
@@ -52,7 +53,7 @@ module.exports = async (externalLogger) => {
             let height = localItem.height;
             if (item) {
                 if (!en[`${itemId} Name`]) {
-                    logger.log(`No en translation found for ${itemId} ${item._name}`);
+                    this.logger.log(`No en translation found for ${itemId} ${item._name}`);
                     continue;
                 }
                 //name = item._props.Name.toString().trim();
@@ -85,7 +86,7 @@ module.exports = async (externalLogger) => {
                 normalizedNames[normalType][normalized] = itemId;
             }
 
-            if (bgColor !== localItem.properties.backgroundColor) {
+            if (bgColor !== localItem.properties.backgroundColor || shortname !== localItem.short_name) {
                 regnerateImages.push(itemId);
             }
 
@@ -119,10 +120,10 @@ module.exports = async (externalLogger) => {
                         height: height,
                         properties: {backgroundColor: bgColor},
                     });
-                    logger.succeed(`Updated ${i}/${localItems.size} ${itemId} ${shortname || name}`);            
+                    this.logger.succeed(`Updated ${i}/${localItems.size} ${itemId} ${shortname || name}`);            
                 } catch (error) {
-                    logger.error(`Error updating item names for ${itemId} ${name}`);
-                    logger.error(error);
+                    this.logger.error(`Error updating item names for ${itemId} ${name}`);
+                    this.logger.error(error);
                 }
             }
 
@@ -138,12 +139,12 @@ module.exports = async (externalLogger) => {
                             (?, ?)
                     `, [oldKey, newKey]);
                 } catch (redirectInsertError){
-                    logger.error(redirectInsertError);
+                    this.logger.error(redirectInsertError);
                 }
             }
         }
 
-        logger.log('Checking redirects');
+        this.logger.log('Checking redirects');
         const results = await query(`SELECT source, destination FROM redirects`);
 
         let redirects = results
@@ -157,12 +158,12 @@ module.exports = async (externalLogger) => {
         redirects = Object.fromEntries(redirects);
 
         for (const source in redirects) {
-            //logger.log(`Checking ${source}`);
+            //this.logger.log(`Checking ${source}`);
             if (!currentDestinations.includes(source)){
                 continue;
             }
 
-            logger.warn(`${source} is not a valid redirect source`);
+            this.logger.warn(`${source} is not a valid redirect source`);
             await query(`DELETE FROM redirects WHERE source = ?`, [source.replace(/^\/item\//, '')]);
         }
 
@@ -177,7 +178,7 @@ module.exports = async (externalLogger) => {
                 finalDestination = redirects[redirects[source]];
             }
             if (startDestination !== redirects[source]) {
-                logger.warn(`${source} is both a redirect source and destination`);
+                this.logger.warn(`${source} is both a redirect source and destination`);
                 await query(`UPDATE redirects SET destination = ? WHERE source = ?`, [
                     redirects[source].replace(/^\/item\//, ''), 
                     source.replace(/^\/item\//, '')
@@ -186,25 +187,19 @@ module.exports = async (externalLogger) => {
         }
 
         fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'redirects.json'), JSON.stringify(redirects, null, 4));
-        logger.succeed('Finished updating redirects');
+        this.logger.succeed('Finished updating redirects');
 
         if (regnerateImages.length > 0) {
-            logger.log(`Regenerating ${regnerateImages.length} item images due to changed background`);
+            this.logger.log(`Regenerating ${regnerateImages.length} item images due to changed background`);
             for (const id of regnerateImages) {
-                logger.log(`Regerating images for ${id}`);
+                this.logger.log(`Regerating images for ${id}`);
                 await regenerateFromExisting(id, true).catch(errors => {
-                    logger.error(`Error regenerating images for ${id}: ${errors.map(error => error.message).join(', ')}`);
+                    this.logger.error(`Error regenerating images for ${id}: ${errors.map(error => error.message).join(', ')}`);
                 });
             }
-            logger.succeed('Finished regenerating images');
+            this.logger.succeed('Finished regenerating images');
         }
-    } catch (error) {
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.toString()
-        });
     }
-    if (!externalLogger) logger.end();
-    await jobComplete();
-};
+}
+
+module.exports = UpdateItemNamesJob;

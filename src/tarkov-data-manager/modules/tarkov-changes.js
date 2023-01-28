@@ -5,12 +5,12 @@ const got = require('got');
 
 const jsonRequest = async (path) => {
     const response = await got(process.env.TC_URL+path, {
-        method: 'post',
+        method: 'POST',
         username: process.env.TC_USERNAME,
         password: process.env.TC_PASSWORD,
         responseType: 'json',
         headers: {
-            'Accept': 'application/json'
+            'Accept': 'application/json',
         },
         resolveBodyOnly: true,
     });

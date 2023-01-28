@@ -1,44 +1,24 @@
 const got = require('got');
-const cloudflare = require('../modules/cloudflare');
 const JobLogger = require('../modules/job-logger');
 const {alert} = require('../modules/webhook');
+const DataJob = require('../modules/data-job');
 
-module.exports = async (data, logger) => {
-    let hideout = [];
-    let closeLogger = false;
-    if (!logger) {
-        logger = new JobLogger('update-hideout-legacy');
-        logger.log('Running update-hideout-legacy...');
-        closeLogger = true;
+class UpdateHideoutLegacyJob extends DataJob {
+    constructor() {
+        super('update-hideout-legacy');
     }
-    try {
+
+    async run(options) {
+        const hideout = [];
+        let data = options?.data;
         if (!data) {
-            logger.log('Retrieving tarkovdata hideout.json...');
+            this.logger.log('Retrieving tarkovdata hideout.json...');
             data = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/hideout.json', {
                 responseType: 'json',
                 resolveBodyOnly: true
             });
         }
-        logger.log('Processing tarkovdata hideout.json...');
-        /*const hideoutData = {
-            updated: new Date(),
-            data: data.body.modules,
-        };
-
-        const response = await cloudflare.put('hideout_legacy_data', JSON.stringify(hideoutData)).catch(error => {
-            logger.error(error);
-            return {success: false, errors: [], messages: []};
-        });
-        if (response.success) {
-            logger.success('Successful Cloudflare put of legacy hideout_legacy_data');
-        } else {
-            for (let i = 0; i < response.errors.length; i++) {
-                logger.error(response.errors[i]);
-            }
-            for (let i = 0; i < response.messages.length; i++) {
-                logger.error(response.messages[i]);
-            }
-        }*/
+        this.logger.log('Processing tarkovdata hideout.json...');
         for (const hideoutModule of data.modules) {
             const newRequirement = {
                 id: hideoutModule.id,
@@ -70,14 +50,8 @@ module.exports = async (data, logger) => {
             newRequirement.itemRequirements = newRequirement.itemRequirements.filter(Boolean);
             hideout.push(newRequirement);
         }
-    } catch (error){
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job; update-hideout-legacy subjob`,
-            message: error.toString()
-        });
-        return Promise.reject(error);
+        return hideout;
     }
-    if (closeLogger) logger.end();
-    return hideout;
 }
+
+module.exports = UpdateHideoutLegacyJob;
