@@ -64,12 +64,7 @@ async function upload(image, imageType, id) {
     if (typeInfo.field) {
         await remoteData.setProperty(id, typeInfo.field, imageLink);
     }
-    return;
-    await cloudflare.purgeCache(imageLink).then(response => {
-        console.log(response);
-    }).catch(error => {
-        console.log(error);
-    });
+    return cloudflare.purgeCache(imageLink);
 }
 
 async function downloadFromId(item) {
