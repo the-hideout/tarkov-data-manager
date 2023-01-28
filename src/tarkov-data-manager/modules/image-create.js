@@ -31,12 +31,18 @@ async function createFromSource(sourceImage, id) {
         sourceImage = sharp(sourceImage);
     }
     const imageResults = await Promise.allSettled([
-        imageFunctions.createIcon(sourceImage, item).then(result => {return {image: result, type: 'icon'}}),
-        imageFunctions.createBaseImage(sourceImage, item).then(result => {return {image: result, type: 'base-image'}}),
-        imageFunctions.createGridImage(sourceImage, item).then(result => {return {image: result, type: 'grid-image'}}),
-        imageFunctions.createInspectImage(sourceImage, item).then(result => {return {image: result, type: 'image'}}).catch(() => false),
-        imageFunctions.create512Image(sourceImage, item).then(result => {return {image: result, type: '512'}}).catch(() => false),
-        imageFunctions.create8xImage(sourceImage, item).then(result => {return {image: result, type: '8x'}}).catch(() => false),
+        imageFunctions.createIcon(sourceImage, item)
+            .then(result => {return {image: result, type: 'icon'}}),
+        imageFunctions.createBaseImage(sourceImage, item)
+            .then(result => {return {image: result, type: 'base-image'}}),
+        imageFunctions.createGridImage(sourceImage, item)
+            .then(result => {return {image: result, type: 'grid-image'}}),
+        imageFunctions.createInspectImage(sourceImage, item)
+            .then(result => {return {image: result, type: 'image'}}).catch(() => false),
+        imageFunctions.create512Image(sourceImage, item)
+            .then(result => {return {image: result, type: '512'}}).catch(() => false),
+        imageFunctions.create8xImage(sourceImage, item)
+            .then(result => {return {image: result, type: '8x'}}).catch(() => false),
     ]);
     const createdImages = [];
     const errors = [];
@@ -91,24 +97,36 @@ async function regenerateFromExisting(id, backgroundOnly = false) {
     const imageData = (await axios({ url: sourceUrl, responseType: 'arraybuffer' })).data;
     const sourceImage = sharp(await sharp(imageData).png().toBuffer());
     const imageJobs = [
-        imageFunctions.createIcon(sourceImage, item).then(result => {return {image: result, type: 'icon'}}),
-        imageFunctions.createGridImage(sourceImage, item).then(result => {return {image: result, type: 'grid-image'}}),
+        imageFunctions.createIcon(sourceImage, item)
+            .then(result => {return {image: result, type: 'icon'}})
+            .catch(error => {return Promise.reject({type: 'icon', error: error})}),
+        imageFunctions.createGridImage(sourceImage, item)
+            .then(result => {return {image: result, type: 'grid-image'}})
+            .catch(error => {return Promise.reject({type: 'grid', error: error})}),
     ];
     if (!backgroundOnly) {
         if (regenSource === '8x') {
             imageJobs.push(
-                imageFunctions.createInspectImage(sourceImage, item).then(result => {return {image: result, type: 'image'}})
+                imageFunctions.createInspectImage(sourceImage, item)
+                    .then(result => {return {image: result, type: 'image'}})
+                    .catch(error => {return Promise.reject({type: 'inspect', error: error})})
             );
             imageJobs.push(
-                imageFunctions.createBaseImage(sourceImage, item).then(result => {return {image: result, type: 'base-image'}})
+                imageFunctions.createBaseImage(sourceImage, item)
+                    .then(result => {return {image: result, type: 'base-image'}})
+                    .catch(error => {return Promise.reject({type: 'base', error: error})})
             );
             imageJobs.push(
-                imageFunctions.create512Image(sourceImage, item).then(result => {return {image: result, type: '512'}})
+                imageFunctions.create512Image(sourceImage, item)
+                    .then(result => {return {image: result, type: '512'}})
+                    .catch(error => {return Promise.reject({type: '512', error: error})})
             );
         } else {
             if (await imageFunctions.canCreateInspectImage(sourceImage)) {
                 imageJobs.push(
-                    imageFunctions.createInspectImage(sourceImage, item).then(result => {return {image: result, type: 'image'}})
+                    imageFunctions.createInspectImage(sourceImage, item)
+                        .then(result => {return {image: result, type: 'image'}})
+                        .catch(error => {return Promise.reject({type: 'inspect', error: error})})
                 );
             }
         }
@@ -118,7 +136,9 @@ async function regenerateFromExisting(id, backgroundOnly = false) {
     const errors = [];
     for (const result of imageResults) {
         if (result.status === 'rejected') {
-            errors.push(result.reason);
+            const error = result.reason.error;
+            error.message = `${result.reason.type} image error: ${error.message}`;
+            errors.push(error);
         } else {
             createdImages.push(result.value);
         }
