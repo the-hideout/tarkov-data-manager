@@ -562,16 +562,11 @@
     },
     "6179b3a12153c15e937d52bc": {
         "name": "Energy Crisis",
-        "propertiesChanged": {
-            "taskRequirements": [
-                {
-                    "task": "5ac3462b86f7741d6118b983",
-                    "name": "Farming - Part 3",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        }
+        "taskRequirementsRemoved": [
+            {
+                "id": "596760e186f7741e11214d58",
+                "name": "Postman Pat - Part 2"
+            }
+        ]
     }
 }
