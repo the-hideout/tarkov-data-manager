@@ -22,10 +22,6 @@ class UpdateQuestsJob extends DataJob {
             responseType: 'json',
             resolveBodyOnly: true,
         });
-        const oldQuests = await got('https://dev.sp-tarkov.com/SPT-AKI/Server/raw/commit/4e0192f21ed557b78d3e65a1c7c5f380c0dcfa96/project/assets/database/templates/quests.json', {
-            responseType: 'json',
-            resolveBodyOnly: true,
-        });
         const data = await tarkovData.quests(true);
         this.items = await tarkovData.items();
         this.locales = await tarkovData.locales();
@@ -58,6 +54,9 @@ class UpdateQuestsJob extends DataJob {
         const quests = {
             Task: [],
         };
+        if (!Object.values(data).some(q => q.raw)) {
+            this.logger.warn('No raw quest input provided.');
+        }
         for (const questId in data) {
             if (removedQuests[questId]) continue;
             quests.Task.push(this.formatRawQuest(data[questId]));
@@ -93,12 +92,12 @@ class UpdateQuestsJob extends DataJob {
             quests.Task.push(quest);
         }
 
-        for (const oldQuestId in oldQuests) {
-            const foundQuest = quests.Task.find(q => q.id === oldQuestId);
-            if (!foundQuest && !removedQuests[oldQuestId]) {
-                this.logger.warn(`Old quest ${this.locales.en[`${oldQuestId} name`]} ${oldQuestId} is missing from current quests`);
-                quests.Task.push(this.formatRawQuest(oldQuests[oldQuestId]));
+        for (const changedId in this.changedQuests) {
+            if (!this.changedQuests[changedId].objectiveIdsChanged) {
                 continue;
+            }
+            if (Object.keys(this.changedQuests[changedId].objectiveIdsChanged).length > 0) {
+                this.logger.warn(`Changed quest ${changedId} has unused objectiveIdsChanged`);
             }
         }
 
@@ -722,12 +721,13 @@ class UpdateQuestsJob extends DataJob {
             locale: getTranslations({name: `${questId} name`}, this.logger)
         };
         for (const objective of quest.conditions.AvailableForFinish) {
-            if (this.changedQuests[questData.id]?.objectivesRemoved?.includes(objective._props.id)) {
-                continue;
-            }
             let objectiveId = objective._props.id;
             if (this.changedQuests[questData.id]?.objectiveIdsChanged && this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId]) {
+                if (quest.raw) {
+                    logger.warn(`Changing objective id ${objectiveId} to ${this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId]}`);
+                }
                 objectiveId = this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId];
+                delete this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId];
             }
             let optional = false;
             if (objective._props.parentId) {
@@ -1059,34 +1059,8 @@ class UpdateQuestsJob extends DataJob {
                 this.logger.warn(`Unrecognized type "${objective._parent}" for objective ${objective._props.id} of ${questData.name}`);
                 continue;
             }
-            if (this.changedQuests[questData.id]?.objectivesChanged && this.changedQuests[questData.id]?.objectivesChanged[obj.id]) {
-                for (const key of Object.keys(this.changedQuests[questData.id].objectivesChanged[obj.id])) {
-                    obj[key] = this.changedQuests[questData.id].objectivesChanged[obj.id][key];
-                }
-            }
             this.addMapFromDescription(obj);
             questData.objectives.push(obj);
-        }
-        if (this.changedQuests[questData.id] && this.changedQuests[questData.id].objectivesAdded) {
-            for (const newObj of this.changedQuests[questData.id].objectivesAdded) {
-                if (questData.objectives.some(obj => obj.id === newObj.id)) {
-                    continue;
-                }
-                if (!newObj.locale_map) {
-                    newObj.locale_map = {};
-                }
-                newObj.locale_map.description = newObj.id;
-                newObj.locale = getTranslations(newObj.locale_map, this.logger);
-                questData.objectives.push(newObj);
-            }
-        }
-        if (this.changedQuests[questData.id] && this.changedQuests[questData.id].taskRequirementsAdded) {
-            for (const newReq of this.changedQuests[questData.id].taskRequirementsAdded) {
-                if (questData.taskRequirements.some(req => req.task === newReq.task)) {
-                    continue;
-                }
-                questData.taskRequirements.push(newReq);
-            }
         }
         for (const req of quest.conditions.AvailableForStart) {
             if (req._parent === 'Level') {
@@ -1097,11 +1071,6 @@ class UpdateQuestsJob extends DataJob {
                     name: this.locales.en[`${req._props.target} name`],
                     status: []
                 };
-                if (this.changedQuests[questData.id] && this.changedQuests[questData.id].taskRequirementsRemoved) {
-                    if (this.changedQuests[questData.id].taskRequirementsRemoved.some(req => req.id === questReq.task)) {
-                        continue;
-                    }
-                }
                 for (const statusCode of req._props.status) {
                     if (!questStatusMap[statusCode]) {
                         this.logger.warn(`Unrecognized quest status "${statusCode}" for quest requirement ${this.locales.en[req._props.target]} ${req._props.target} of ${questData.name}`);
@@ -1123,21 +1092,6 @@ class UpdateQuestsJob extends DataJob {
         }
         this.loadRewards(questData, 'finishRewards', quest.rewards.Success);
         this.loadRewards(questData, 'startRewards', quest.rewards.Started);
-        if (this.changedQuests[questData.id] && this.changedQuests[questData.id].finishRewardsAdded) {
-            for (const rewardType in this.changedQuests[questData.id].finishRewardsAdded) {
-                for (const reward of this.changedQuests[questData.id].finishRewardsAdded[rewardType]) {
-                    if (reward.locale_map) {
-                        reward.locale = getTranslations(reward.locale_map, this.logger);
-                    }
-                    questData.finishRewards[rewardType].push(reward);
-                }
-            }
-        }
-        if (this.changedQuests[questData.id] && this.changedQuests[questData.id].finishRewardsChanged) {
-            for (const rewardType in this.changedQuests[questData.id].finishRewardsChanged) {
-                questData.finishRewards[rewardType] = this.changedQuests[questData.id].finishRewardsChanged[rewardType];
-            }
-        }
         let nameMatch = undefined;
         for (const tdQuest of this.tdQuests) {
             if (questData.id == tdQuest.gameId) {
@@ -1163,9 +1117,120 @@ class UpdateQuestsJob extends DataJob {
         if (factionMap[questData.id]) questData.factionName = factionMap[questData.id];
         if (this.missingQuests[questData.id]) delete this.missingQuests[questData.id];
     
-        if (this.changedQuests[questData.id]?.propertiesChanged) {
-            for (const key of Object.keys(this.changedQuests[questData.id].propertiesChanged)) {
-                questData[key] = this.changedQuests[questData.id].propertiesChanged[key];
+        if (this.changedQuests[questData.id]) {
+            if (quest.raw) {
+                this.logger.warn(`${questData.locale.en.name} ${questData.id} has manaul changes, but appears in raw quest dump`);
+            }
+            if (this.changedQuests[questData.id].propertiesChanged) {
+                for (const key of Object.keys(this.changedQuests[questData.id].propertiesChanged)) {
+                    if (quest.raw && key === 'taskRequirements' && questData.taskRequirements.length > 0) {
+                        this.logger.warn(`Overwriting existing task requirements with:`);
+                        this.logger.warn(JSON.stringify(this.changedQuests[questData.id].propertiesChanged[key], null, 4));
+                    } else if (quest.raw && key === 'taskRequirements' && questData.taskRequirements.length === 0) {
+                        this.logger.warn(`Adding missing task requirements`);
+                    } else if (quest.raw) {
+                        this.logger.warn(`Changing ${key} property to: ${JSON.stringify(this.changedQuests[questData.id].propertiesChanged[key], null, 4)}`);
+                    }
+                    questData[key] = this.changedQuests[questData.id].propertiesChanged[key];
+                }
+            }
+            if (this.changedQuests[questData.id].taskRequirementsAdded) {
+                let addedCount = 0;
+                for (const newReq of this.changedQuests[questData.id].taskRequirementsAdded) {
+                    if (questData.taskRequirements.some(req => req.task === newReq.task)) {
+                        continue;
+                    }
+                    questData.taskRequirements.push(newReq);
+                    addedCount++;
+                }
+                if (addedCount === 0) {
+                    this.logger.warn('Manually added task requirements already present');
+                }
+            }
+            if (this.changedQuests[questData.id].taskRequirementsRemoved) {
+                const reqsCount = questData.taskRequirements.length;
+                questData.taskRequirements.filter(questReq => {
+                    const reqRemoved = this.changedQuests[questData.id].taskRequirementsRemoved.find(req => req.id === questReq.task);
+                    if (reqRemoved) {
+                        this.logger.warn('Removing quest requirement');
+                        this.logger.warn(JSON.stringify(questReq, null, 4));
+                    }
+                    return !reqRemoved;
+                });
+                if (questData.taskRequirements.length === reqsCount) {
+                    this.logger.warn('No matching quest requirements to remove');
+                    this.logger.warn(JSON.stringify(this.changedQuests[questData.id].taskRequirementsRemoved, null, 4));
+                }
+            }
+            if (this.changedQuests[questData.id].objectivesChanged) {
+                for (const objId in this.changedQuests[questData.id].objectivesChanged) {
+                    const obj = questData.objectives.find(o => o.id === objId);
+                    if (!obj) {
+                        this.logger.warn(`Objective ${objId} not found in quest data`);
+                        continue;
+                    }
+                    for (const key of Object.keys(this.changedQuests[questData.id].objectivesChanged[obj.id])) {
+                        if (quest.raw) {
+                            this.logger.warn(`Changing objective ${key} to ${JSON.stringify(this.changedQuests[questData.id].objectivesChanged[obj.id], null, 4)}`);
+                        }
+                        obj[key] = this.changedQuests[questData.id].objectivesChanged[obj.id][key];
+                    }
+                }
+            }
+            if (this.changedQuests[questData.id].objectivesAdded) {
+                let addedCount = 0;
+                for (const newObj of this.changedQuests[questData.id].objectivesAdded) {
+                    if (questData.objectives.some(obj => obj.id === newObj.id)) {
+                        continue;
+                    }
+                    if (!newObj.locale_map) {
+                        newObj.locale_map = {};
+                    }
+                    newObj.locale_map.description = newObj.id;
+                    newObj.locale = getTranslations(newObj.locale_map, this.logger);
+                    questData.objectives.push(newObj);
+                    addedCount++;
+                }
+                if (addedCount === 0) {
+                    this.logger.warn('Manually added objectives already present');
+                }
+            }
+            if (this.changedQuests[questData.id].objectivesRemoved) {
+                const oldObjCount = questData.objectives.length;
+                questData.objectives.filter(obj => {
+                    const objRemoved = this.changedQuests[questData.id].objectivesRemoved.find(remId => remId === obj.id);
+                    if (objRemoved) {
+                        this.logger.warn('Removing quest objective');
+                        this.logger.warn(JSON.stringify(obj, null, 4));
+                    }
+                    return !objRemoved;
+                });
+                if (questData.objectives.length === oldObjCount) {
+                    this.logger.warn('No matching quest objective to remove');
+                    this.logger.warn(JSON.stringify(this.changedQuests[questData.id].objectivesRemoved, null, 4));
+                }
+            }
+            if (this.changedQuests[questData.id].finishRewardsAdded) {
+                if (quest.raw) {
+                    this.logger.warn('Adding finish rewards');
+                }
+                for (const rewardType in this.changedQuests[questData.id].finishRewardsAdded) {
+                    for (const reward of this.changedQuests[questData.id].finishRewardsAdded[rewardType]) {
+                        if (reward.locale_map) {
+                            reward.locale = getTranslations(reward.locale_map, this.logger);
+                        }
+                        questData.finishRewards[rewardType].push(reward);
+                    }
+                }
+            }
+            if (this.changedQuests[questData.id].finishRewardsChanged) {
+                if (quest.raw) {
+                    this.logger.warn('Changing finish rewards');
+                    this.logger.warn(JSON.stringify(this.changedQuests[questData.id].finishRewardsChanged), null, 4);
+                }
+                for (const rewardType in this.changedQuests[questData.id].finishRewardsChanged) {
+                    questData.finishRewards[rewardType] = this.changedQuests[questData.id].finishRewardsChanged[rewardType];
+                }
             }
         }
         return questData;

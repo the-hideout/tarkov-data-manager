@@ -79,7 +79,18 @@ module.exports = {
     locale: getLocale,
     locales: getLocales,
     quests: (download) => {
-        return downloadJson('quests.json', `${sptPath}templates/quests.json`, download);
+        return downloadJson('quests.json', `${sptPath}templates/quests.json`, download).then(sptQuests => {
+            try {
+                const rawQuests = JSON.parse(fs.readFileSync(cachePath('quests_raw.json'))).data;
+                for (const rawQuest of rawQuests) {
+                    sptQuests[rawQuest._id] = rawQuest;
+                    sptQuests[rawQuest._id].raw = true;
+                }
+            } catch (error) {
+                console.log(error);
+            }
+            return sptQuests;
+        });
     },
     botInfo: (botKey, download = true) => {
         botKey = botKey.toLowerCase();
