@@ -56,20 +56,35 @@ class DataJob {
             this.logger = options.parent.logger;
         }
         if (this.running) {
-            //return Promise.reject(`${this.name} is already running`);
+            if (options && options.parent) {
+                for (let parent = options.parent; parent; parent = parent.parent) {
+                    if (parent.name === this.name) {
+                        return Promise.reject(new Error(`Job ${this.name} is a parent of ${options.parent.name}, so ${options.parent.name} cannot run it`));
+                    }
+                }
+                this.parent = options.parent;
+            }
             this.logger.log(`${this.name} is already running; waiting for completion`);
             return this.running;
         }
+        if (options && options.parent) {
+            this.parent = options.parent;
+        }
         let returnValue;
+        let throwError = false;
         try {
             this.running = this.run(options);
             returnValue = await this.running;
         } catch (error) {
-            this.logger.error(error);
-            alert({
-                title: `Error running ${this.name} job`,
-                message: error.stack
-            });
+            if (this.parent) {
+                throwError = error;
+            } else {
+                this.logger.error(error);
+                alert({
+                    title: `Error running ${this.name} job`,
+                    message: error.stack
+                });
+            }
         }
         //this.running = false;
         this.cleanup();
@@ -79,6 +94,9 @@ class DataJob {
         } else {
             this.logger = this.selfLogger;
             delete this.selfLogger;
+        }
+        if (throwError) {
+            return Promise.reject(throwError);
         }
         return returnValue;
     }
