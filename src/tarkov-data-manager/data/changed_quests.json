@@ -580,5 +580,11 @@
                 ]
             }
         ]
+    },
+    "60e71dc0a94be721b065bbfc": {
+        "name": "Long Line",
+        "propertiesChanged" : {
+            "minPlayerLevel": 45
+        }
     }
 }

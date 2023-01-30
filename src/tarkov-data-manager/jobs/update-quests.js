@@ -766,7 +766,7 @@ class UpdateQuestsJob extends DataJob {
                 }
             } else if (objective._parent === 'CounterCreator') {
                 const counter = objective._props.counter;
-                const zoneKeys = [];
+                let zoneKeys = [];
                 for (const cond of counter.conditions) {
                     if (cond._parent === 'VisitPlace') {
                         //obj.description = en.quest[questId].conditions[objective._props.id];
@@ -939,11 +939,59 @@ class UpdateQuestsJob extends DataJob {
                     obj.type = 'visit';
                 }
                 if (obj.type === 'shoot' || obj.type === 'extract') {
-                    for (const key of zoneKeys) {
-                        if (zoneMap[key]) {
-                            obj.zoneNames.push(zoneMap[key]);
-                        } else {
-                            this.logger.warn(`Unrecognized zone ${key} for objective ${objective._props.id} of ${questData.name}`)
+                    if (zoneKeys.length > 0) {
+                        zoneKeys = zoneKeys.filter(key => {
+                            if (!zoneMap[key]) {
+                                this.logger.warn(`Unrecognized zone ${key} for objective ${objective._props.id} of ${questData.name}`);
+                                return false;
+                            }
+                            return true;
+                        });
+                        if (zoneKeys.length > 0) {
+                            if (!obj.zoneNames.includes())
+                            obj.zoneNames = zoneKeys.map(key => zoneMap[key].en);
+                            obj.zoneNames = obj.zoneNames.reduce((allZones, current) => {
+                                if (!allZones.includes(current)) {
+                                    allZones.push(current);
+                                }
+                                return allZones;
+                            }, []);
+                            obj.locale.zoneNames = {};
+                            for (const key of zoneKeys) {
+                                for (const lang in this.locales) {
+                                    if (!obj.locale.zoneNames[lang]) {
+                                        obj.locale.zoneNames[lang] = [];
+                                    }
+                                    if (zoneMap[key][lang]) {
+                                        obj.locale.zoneNames[lang].push(zoneMap[key][lang]);
+                                    } else {
+                                        obj.locale.zoneNames[lang].push(zoneMap[key].en);
+                                    }
+                                }
+                            }
+                            for (const lang in obj.locale.zoneNames) {
+                                obj.locale.zoneNames[lang] = obj.locale.zoneNames[lang].reduce((allZones, current) => {
+                                    if (!allZones.includes(current)) {
+                                        allZones.push(current);
+                                    }
+                                    return allZones;
+                                }, []);
+                            }
+                            for (const lang in obj.locale.zoneNames) {
+                                if (lang === 'en') {
+                                    continue;
+                                }
+                                let different = false;
+                                for (const index in obj.locale.zoneNames[lang]) {
+                                    if (obj.locale.zoneNames[lang][index] !==obj.locale.zoneNames.en[index]) {
+                                        different = true;
+                                        break;
+                                    }
+                                }
+                                if (!different) {
+                                    delete obj.locale.zoneNames[lang];
+                                }
+                            }
                         }
                     }
                 }
@@ -1276,31 +1324,81 @@ const targetKeyMap = {
 };
 
 const zoneMap = {
-    huntsman_013: 'Dorms',
-    huntsman_020: 'Office',
-    eger_barracks_area_1: 'Black Pawn',
-    eger_barracks_area_2: 'White Pawn',
-    qlight_br_secure_road: 'Highway',
-    prapor_27_1: 'Stronghold (Customs)',
-    prapor_27_2: 'Medical Camp (Woods)',
-    prapor_27_3: 'Pier (Shoreline)',
-    prapor_27_4: 'Pier (Shoreline)',
-    prapor_hq_area_check_1: 'Command Bunker',
-    mechanik_exit_area_1: 'D-2 Extract',
-    qlight_pr1_heli2_kill: 'Helicopter at Water Treatment Plant',
-    qlight_pc1_ucot_kill: 'Chalets',
-    place_merch_022_1: 'Inside ULTRA Mall',
-    place_merch_022_2: 'Inside ULTRA Mall',
-    place_merch_022_3: 'Inside ULTRA Mall',
-    place_merch_022_4: 'Inside ULTRA Mall',
-    place_merch_022_5: 'Inside ULTRA Mall',
-    place_merch_022_6: 'Inside ULTRA Mall',
-    place_merch_022_7: 'Inside ULTRA Mall',
-    lijnik_storage_area_1: 'Underground Warehouse',
-    quest_zone_kill_c17_adm: 'Pinewood Hotel',
-    meh_44_eastLight_kill: 'Lighthouse Island',
-    quest_zone_keeper5: 'Woods Mountain',
-    quest_zone_keeper6_kiba_kill: 'Around Kiba Arms store',
+    eger_barracks_area_1: {
+        en: 'Black Pawn',
+    },
+    eger_barracks_area_2: {
+        en: 'White Pawn',
+    },
+    huntsman_013: {
+        en: 'Dorms',
+    },
+    huntsman_020: {
+        en: 'Office',
+    },
+    lijnik_storage_area_1: {
+        en: 'Underground Warehouse',
+    },
+    mechanik_exit_area_1: {
+        en: 'D-2 Extract'
+    },
+    meh_44_eastLight_kill: {
+        en: 'Lighthouse Island',
+    },
+    place_merch_022_1: {
+        en: 'Inside ULTRA Mall'
+    },
+    place_merch_022_2: {
+        en: 'Inside ULTRA Mall',
+    },
+    place_merch_022_3: {
+        en: 'Inside ULTRA Mall',
+    },
+    place_merch_022_4: {
+        en: 'Inside ULTRA Mall',
+    },
+    place_merch_022_5: {
+        en: 'Inside ULTRA Mall',
+    },
+    place_merch_022_6: {
+        en: 'Inside ULTRA Mall',
+    },
+    place_merch_022_7: {
+        en: 'Inside ULTRA Mall',
+    },
+    prapor_27_1: {
+        en: 'Stronghold (Customs)',
+    },
+    prapor_27_2: {
+        en: 'Medical Camp (Woods)',
+    },
+    prapor_27_3: {
+        en: 'Pier (Shoreline)',
+    },
+    prapor_27_4: {
+        en: 'Pier (Shoreline)',
+    },
+    prapor_hq_area_check_1: {
+        en: 'Command Bunker',
+    },
+    qlight_br_secure_road: {
+        en: 'Highway',
+    },
+    qlight_pr1_heli2_kill: {
+        en: 'Helicopter at Water Treatment Plant',
+    },
+    qlight_pc1_ucot_kill: {
+        en: 'Chalets',
+    },
+    quest_zone_kill_c17_adm: {
+        en: 'Pinewood Hotel',
+    },
+    quest_zone_keeper5: {
+        en: 'Woods Mountain',
+    },
+    quest_zone_keeper6_kiba_kill: {
+        en: 'Around Kiba Arms store',
+    },
 };
 
 const factionMap = {
