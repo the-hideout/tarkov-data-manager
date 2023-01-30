@@ -220,13 +220,13 @@
                 ]
             }
         ],
-        "taskRequirementsRemoved": [
+        "___taskRequirementsRemoved": [
             {
                 "id": "597a0e5786f77426d66c0636",
                 "name": "Chemical - Part 3"
             }
         ],
-        "objectivesRemoved": [
+        "___objectivesRemoved": [
             "60e827a20c492412897c688f",
             "60e827a20c492412897c688g",
             "60e827a20c492412897c688h",
@@ -240,7 +240,7 @@
             "60e827a20c492412897c688p",
             "60e827a20c492412897c688q"
         ],
-        "objectiveIdsChanged": {
+        "___objectiveIdsChanged": {
             "60e827faf09904268a4dbc41": "62a6ff004de19a4c3422ea5d",
             "60e827faf09904268a4dbc42": "62a6ff141c307729c3264f96",
             "60e827faf09904268a4dbc43": "62a6ff203e015d7ce1151d8a",
@@ -279,6 +279,7 @@
     "5edac63b930f5454f51e128b" : {
         "name": "TerraGroup Employee",
         "propertiesChanged" : {
+            "minPlayerLevel": 23,
             "taskRequirements": [
                 {
                     "task": "5edac020218d181e29451446",
@@ -291,14 +292,13 @@
                     "task": "5edab4b1218d181e29451435",
                     "name": "The Huntsman Path - Sadist",
                     "status": [
-                        "complete",
-                        "failed"
+                        "complete"
                     ]
                 }
             ]
         }
     },
-    "60e71b9bbd90872cb85440f3": {
+    "___60e71b9bbd90872cb85440f3": {
         "name": "Capturing Outposts",
         "objectivesChanged": {
             "60ec1e72d7b7cb55e94c1764": {
@@ -309,7 +309,7 @@
             }
         }
     },
-    "60e71c48c1bfa3050473b8e5": {
+    "___60e71c48c1bfa3050473b8e5": {
         "name": "Crisis",
         "objectivesAdded": [
             {
@@ -566,6 +566,18 @@
             {
                 "id": "596760e186f7741e11214d58",
                 "name": "Postman Pat - Part 2"
+            }
+        ]
+    },
+    "639136e84ed9512be67647db": {
+        "name": "Cease Fire!",
+        "taskRequirementsAdded": [
+            {
+                "task": "63a88045abf76d719f42d715",
+                "name": "The Delicious Sausage",
+                "status": [
+                    "complete"
+                ]
             }
         ]
     }

@@ -723,9 +723,9 @@ class UpdateQuestsJob extends DataJob {
         for (const objective of quest.conditions.AvailableForFinish) {
             let objectiveId = objective._props.id;
             if (this.changedQuests[questData.id]?.objectiveIdsChanged && this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId]) {
-                if (quest.raw) {
+                //if (quest.raw) {
                     logger.warn(`Changing objective id ${objectiveId} to ${this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId]}`);
-                }
+                //}
                 objectiveId = this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId];
                 delete this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId];
             }
@@ -1118,17 +1118,15 @@ class UpdateQuestsJob extends DataJob {
         if (this.missingQuests[questData.id]) delete this.missingQuests[questData.id];
     
         if (this.changedQuests[questData.id]) {
-            if (quest.raw) {
-                this.logger.warn(`${questData.locale.en.name} ${questData.id} has manaul changes, but appears in raw quest dump`);
-            }
             if (this.changedQuests[questData.id].propertiesChanged) {
                 for (const key of Object.keys(this.changedQuests[questData.id].propertiesChanged)) {
-                    if (quest.raw && key === 'taskRequirements' && questData.taskRequirements.length > 0) {
+                    if (key === 'taskRequirements' && questData.taskRequirements.length > 0) {
                         this.logger.warn(`Overwriting existing task requirements with:`);
                         this.logger.warn(JSON.stringify(this.changedQuests[questData.id].propertiesChanged[key], null, 4));
-                    } else if (quest.raw && key === 'taskRequirements' && questData.taskRequirements.length === 0) {
+                    } else if (key === 'taskRequirements' && questData.taskRequirements.length === 0) {
                         this.logger.warn(`Adding missing task requirements`);
-                    } else if (quest.raw) {
+                        this.logger.warn(JSON.stringify(this.changedQuests[questData.id].propertiesChanged[key], null, 4));
+                    } else {
                         this.logger.warn(`Changing ${key} property to: ${JSON.stringify(this.changedQuests[questData.id].propertiesChanged[key], null, 4)}`);
                     }
                     questData[key] = this.changedQuests[questData.id].propertiesChanged[key];
@@ -1149,7 +1147,7 @@ class UpdateQuestsJob extends DataJob {
             }
             if (this.changedQuests[questData.id].taskRequirementsRemoved) {
                 const reqsCount = questData.taskRequirements.length;
-                questData.taskRequirements.filter(questReq => {
+                questData.taskRequirements = questData.taskRequirements.filter(questReq => {
                     const reqRemoved = this.changedQuests[questData.id].taskRequirementsRemoved.find(req => req.id === questReq.task);
                     if (reqRemoved) {
                         this.logger.warn('Removing quest requirement');
@@ -1170,9 +1168,7 @@ class UpdateQuestsJob extends DataJob {
                         continue;
                     }
                     for (const key of Object.keys(this.changedQuests[questData.id].objectivesChanged[obj.id])) {
-                        if (quest.raw) {
-                            this.logger.warn(`Changing objective ${key} to ${JSON.stringify(this.changedQuests[questData.id].objectivesChanged[obj.id], null, 4)}`);
-                        }
+                        this.logger.warn(`Changing objective ${objId} ${key} to ${JSON.stringify(this.changedQuests[questData.id].objectivesChanged[obj.id], null, 4)}`);
                         obj[key] = this.changedQuests[questData.id].objectivesChanged[obj.id][key];
                     }
                 }
@@ -1197,7 +1193,7 @@ class UpdateQuestsJob extends DataJob {
             }
             if (this.changedQuests[questData.id].objectivesRemoved) {
                 const oldObjCount = questData.objectives.length;
-                questData.objectives.filter(obj => {
+                questData.objectives = questData.objectives.filter(obj => {
                     const objRemoved = this.changedQuests[questData.id].objectivesRemoved.find(remId => remId === obj.id);
                     if (objRemoved) {
                         this.logger.warn('Removing quest objective');
@@ -1211,9 +1207,8 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
             if (this.changedQuests[questData.id].finishRewardsAdded) {
-                if (quest.raw) {
-                    this.logger.warn('Adding finish rewards');
-                }
+                this.logger.warn('Adding finish rewards');
+                this.logger.warn(JSON.stringify(this.changedQuests[questData.id].finishRewardsAdded), null, 4);
                 for (const rewardType in this.changedQuests[questData.id].finishRewardsAdded) {
                     for (const reward of this.changedQuests[questData.id].finishRewardsAdded[rewardType]) {
                         if (reward.locale_map) {
@@ -1224,10 +1219,8 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
             if (this.changedQuests[questData.id].finishRewardsChanged) {
-                if (quest.raw) {
-                    this.logger.warn('Changing finish rewards');
-                    this.logger.warn(JSON.stringify(this.changedQuests[questData.id].finishRewardsChanged), null, 4);
-                }
+                this.logger.warn('Changing finish rewards');
+                this.logger.warn(JSON.stringify(this.changedQuests[questData.id].finishRewardsChanged), null, 4);
                 for (const rewardType in this.changedQuests[questData.id].finishRewardsChanged) {
                     questData.finishRewards[rewardType] = this.changedQuests[questData.id].finishRewardsChanged[rewardType];
                 }
@@ -1275,6 +1268,7 @@ const zoneMap = {
     quest_zone_kill_c17_adm: 'Pinewood Hotel',
     meh_44_eastLight_kill: 'Lighthouse Island',
     quest_zone_keeper5: 'Woods Mountain',
+    quest_zone_keeper6_kiba_kill: 'Around Kiba Arms store',
 };
 
 const factionMap = {
