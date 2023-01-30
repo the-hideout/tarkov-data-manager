@@ -775,9 +775,12 @@ class UpdateQuestsJob extends DataJob {
                         obj.count = parseInt(objective._props.value);
                         obj.shotType = 'kill';
                         if (cond._parent === 'Shots') obj.shotType = 'hit';
-                        obj.bodyParts = [];
+                        //obj.bodyParts = [];
                         if (cond._props.bodyPart) {
                             obj.bodyParts = cond._props.bodyPart;
+                            obj.locale = addTranslations(obj.locale, {bodyParts: lang => {
+                                return cond._props.bodyPart.map(part => lang[`QuestCondition/Elimination/Kill/BodyPart/${part}`]);
+                            }}, this.logger);
                         }
                         obj.usingWeapon = [];
                         obj.usingWeaponMods = [];
@@ -823,7 +826,20 @@ class UpdateQuestsJob extends DataJob {
                         if (cond._props.enemyHealthEffects) {
                             obj.enemyHealthEffect = {
                                 ...cond._props.enemyHealthEffects[0],
-                                time: null
+                                time: null,
+                                locale: getTranslations({
+                                    bodyParts: lang => {
+                                        if (!cond._props.enemyHealthEffects[0].bodyParts) {
+                                            return undefined;
+                                        }
+                                        return cond._props.enemyHealthEffects[0].bodyParts.map(part => lang[`QuestCondition/Elimination/Kill/BodyPart/${part}`]);
+                                    }, effects: lang => {
+                                        if (!cond._props.enemyHealthEffects[0].effects) {
+                                            return undefined;
+                                        }
+                                        return cond._props.enemyHealthEffects[0].effects.map(eff => lang[eff]);
+                                    }
+                                }, this.logger),
                             };
                         }
                         let targetCode = cond._props.target;
@@ -853,6 +869,9 @@ class UpdateQuestsJob extends DataJob {
                         }
                     } else if (cond._parent === 'ExitStatus') {
                         obj.exitStatus = cond._props.status;
+                        obj.locale = addTranslations(obj.locale, {exitStatus: lang => {
+                            return cond._props.status.map(stat => lang[`ExpBonus${stat}`]);
+                        }}, this.logger);
                         obj.zoneNames = [];
                     } else if (cond._parent === 'ExitName') {
                         obj.locale = addTranslations(obj.locale, {exitName: cond._props.exitName}, this.logger);
@@ -889,7 +908,20 @@ class UpdateQuestsJob extends DataJob {
                         obj.healthEffect = {
                             bodyParts: cond._props.bodyPartsWithEffects[0].bodyParts,
                             effects: cond._props.bodyPartsWithEffects[0].effects,
-                            time: null
+                            time: null,
+                            locale: getTranslations({
+                                bodyParts: lang => {
+                                    if (!cond._props.bodyPartsWithEffects[0].bodyParts) {
+                                        return undefined;
+                                    }
+                                    return cond._props.bodyPartsWithEffects[0].bodyParts.map(part => lang[part]);
+                                }, effects: lang => {
+                                    if (!cond._props.bodyPartsWithEffects[0].effects) {
+                                        return undefined;
+                                    }
+                                    return cond._props.bodyPartsWithEffects[0].effects.map(eff => lang[eff]);
+                                }
+                            }, this.logger),
                         };
                         if (cond._props.time) obj.healthEffect.time = cond._props.time;
                     } else {
