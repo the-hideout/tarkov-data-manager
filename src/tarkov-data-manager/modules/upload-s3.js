@@ -63,12 +63,13 @@ async function upload(image, imageType, id) {
     const imageLink = `https://${uploadParams.Bucket}/${uploadParams.Key}`;
     let purgeNeeded = false;
     if (typeInfo.field) {
-        purgeNeeded = await remoteData.setProperty(id, typeInfo.field, imageLink);
+        purgeNeeded = !Boolean(await remoteData.setProperty(id, typeInfo.field, imageLink));
     }
     if (purgeNeeded) {
-        return cloudflare.purgeCache(imageLink);
+        await cloudflare.purgeCache(imageLink);
+        return true;
     }
-    return;
+    return false;
 }
 
 async function downloadFromId(item) {

@@ -719,7 +719,7 @@ const getJson = (options) => {
 };
 
 const submitImage = (request, user) => {
-    const response = {errors: [], warnings: [], data: {}};
+    const response = {errors: [], warnings: [], data: []};
     const form = formidable({
         multiples: true,
         uploadDir: path.join(__dirname, '..', 'cache'),
@@ -773,7 +773,7 @@ const submitImage = (request, user) => {
                     }
                 }
                 try {
-                    await createAndUploadFromSource(files[fields.type].filepath, fields.id);
+                    response.data = await createAndUploadFromSource(files[fields.type].filepath, fields.id);
                 } catch (error) {
                     console.error(error);
                     if (Array.isArray(error)) {
@@ -783,7 +783,6 @@ const submitImage = (request, user) => {
                     }
                     return finish(response, files);
                 }
-                response.data = 'ok;'
                 return finish(response, files);
             }
     
@@ -802,7 +801,10 @@ const submitImage = (request, user) => {
             }
     
             try {
-                response.purged = Boolean(await uploadToS3(files[fields.type].filepath, fields.type, fields.id));
+                response.data.push({
+                    type: fields.type,
+                    purged: await uploadToS3(files[fields.type].filepath, fields.type, fields.id)
+                });
             } catch (error) {
                 console.error(error);
                 if (Array.isArray(error)) {
@@ -814,8 +816,6 @@ const submitImage = (request, user) => {
             }
     
             console.log(`${fields.id} ${fields.type} updated`);
-    
-            response.data = 'ok';
             return finish(response, files);
         });
     });
