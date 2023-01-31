@@ -22,10 +22,6 @@ class UpdateQuestsJob extends DataJob {
             responseType: 'json',
             resolveBodyOnly: true,
         });
-        const oldQuests = await got('https://dev.sp-tarkov.com/SPT-AKI/Server/raw/commit/4e0192f21ed557b78d3e65a1c7c5f380c0dcfa96/project/assets/database/templates/quests.json', {
-            responseType: 'json',
-            resolveBodyOnly: true,
-        });
         const data = await tarkovData.quests(true);
         this.items = await tarkovData.items();
         this.locales = await tarkovData.locales();
@@ -58,6 +54,9 @@ class UpdateQuestsJob extends DataJob {
         const quests = {
             Task: [],
         };
+        if (!Object.values(data).some(q => q.raw)) {
+            this.logger.warn('No raw quest input provided.');
+        }
         for (const questId in data) {
             if (removedQuests[questId]) continue;
             quests.Task.push(this.formatRawQuest(data[questId]));
@@ -93,12 +92,12 @@ class UpdateQuestsJob extends DataJob {
             quests.Task.push(quest);
         }
 
-        for (const oldQuestId in oldQuests) {
-            const foundQuest = quests.Task.find(q => q.id === oldQuestId);
-            if (!foundQuest && !removedQuests[oldQuestId]) {
-                this.logger.warn(`Old quest ${this.locales.en[`${oldQuestId} name`]} ${oldQuestId} is missing from current quests`);
-                quests.Task.push(this.formatRawQuest(oldQuests[oldQuestId]));
+        for (const changedId in this.changedQuests) {
+            if (!this.changedQuests[changedId].objectiveIdsChanged) {
                 continue;
+            }
+            if (Object.keys(this.changedQuests[changedId].objectiveIdsChanged).length > 0) {
+                this.logger.warn(`Changed quest ${changedId} has unused objectiveIdsChanged`);
             }
         }
 
@@ -722,12 +721,13 @@ class UpdateQuestsJob extends DataJob {
             locale: getTranslations({name: `${questId} name`}, this.logger)
         };
         for (const objective of quest.conditions.AvailableForFinish) {
-            if (this.changedQuests[questData.id]?.objectivesRemoved?.includes(objective._props.id)) {
-                continue;
-            }
             let objectiveId = objective._props.id;
             if (this.changedQuests[questData.id]?.objectiveIdsChanged && this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId]) {
+                //if (quest.raw) {
+                    logger.warn(`Changing objective id ${objectiveId} to ${this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId]}`);
+                //}
                 objectiveId = this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId];
+                delete this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId];
             }
             let optional = false;
             if (objective._props.parentId) {
@@ -766,7 +766,7 @@ class UpdateQuestsJob extends DataJob {
                 }
             } else if (objective._parent === 'CounterCreator') {
                 const counter = objective._props.counter;
-                const zoneKeys = [];
+                let zoneKeys = [];
                 for (const cond of counter.conditions) {
                     if (cond._parent === 'VisitPlace') {
                         //obj.description = en.quest[questId].conditions[objective._props.id];
@@ -775,9 +775,12 @@ class UpdateQuestsJob extends DataJob {
                         obj.count = parseInt(objective._props.value);
                         obj.shotType = 'kill';
                         if (cond._parent === 'Shots') obj.shotType = 'hit';
-                        obj.bodyParts = [];
+                        //obj.bodyParts = [];
                         if (cond._props.bodyPart) {
                             obj.bodyParts = cond._props.bodyPart;
+                            obj.locale = addTranslations(obj.locale, {bodyParts: lang => {
+                                return cond._props.bodyPart.map(part => lang[`QuestCondition/Elimination/Kill/BodyPart/${part}`]);
+                            }}, this.logger);
                         }
                         obj.usingWeapon = [];
                         obj.usingWeaponMods = [];
@@ -823,7 +826,20 @@ class UpdateQuestsJob extends DataJob {
                         if (cond._props.enemyHealthEffects) {
                             obj.enemyHealthEffect = {
                                 ...cond._props.enemyHealthEffects[0],
-                                time: null
+                                time: null,
+                                locale: getTranslations({
+                                    bodyParts: lang => {
+                                        if (!cond._props.enemyHealthEffects[0].bodyParts) {
+                                            return undefined;
+                                        }
+                                        return cond._props.enemyHealthEffects[0].bodyParts.map(part => lang[`QuestCondition/Elimination/Kill/BodyPart/${part}`]);
+                                    }, effects: lang => {
+                                        if (!cond._props.enemyHealthEffects[0].effects) {
+                                            return undefined;
+                                        }
+                                        return cond._props.enemyHealthEffects[0].effects.map(eff => lang[eff]);
+                                    }
+                                }, this.logger),
                             };
                         }
                         let targetCode = cond._props.target;
@@ -853,6 +869,9 @@ class UpdateQuestsJob extends DataJob {
                         }
                     } else if (cond._parent === 'ExitStatus') {
                         obj.exitStatus = cond._props.status;
+                        obj.locale = addTranslations(obj.locale, {exitStatus: lang => {
+                            return cond._props.status.map(stat => lang[`ExpBonus${stat}`]);
+                        }}, this.logger);
                         obj.zoneNames = [];
                     } else if (cond._parent === 'ExitName') {
                         obj.locale = addTranslations(obj.locale, {exitName: cond._props.exitName}, this.logger);
@@ -889,7 +908,20 @@ class UpdateQuestsJob extends DataJob {
                         obj.healthEffect = {
                             bodyParts: cond._props.bodyPartsWithEffects[0].bodyParts,
                             effects: cond._props.bodyPartsWithEffects[0].effects,
-                            time: null
+                            time: null,
+                            locale: getTranslations({
+                                bodyParts: lang => {
+                                    if (!cond._props.bodyPartsWithEffects[0].bodyParts) {
+                                        return undefined;
+                                    }
+                                    return cond._props.bodyPartsWithEffects[0].bodyParts.map(part => lang[part]);
+                                }, effects: lang => {
+                                    if (!cond._props.bodyPartsWithEffects[0].effects) {
+                                        return undefined;
+                                    }
+                                    return cond._props.bodyPartsWithEffects[0].effects.map(eff => lang[eff]);
+                                }
+                            }, this.logger),
                         };
                         if (cond._props.time) obj.healthEffect.time = cond._props.time;
                     } else {
@@ -907,11 +939,59 @@ class UpdateQuestsJob extends DataJob {
                     obj.type = 'visit';
                 }
                 if (obj.type === 'shoot' || obj.type === 'extract') {
-                    for (const key of zoneKeys) {
-                        if (zoneMap[key]) {
-                            obj.zoneNames.push(zoneMap[key]);
-                        } else {
-                            this.logger.warn(`Unrecognized zone ${key} for objective ${objective._props.id} of ${questData.name}`)
+                    if (zoneKeys.length > 0) {
+                        zoneKeys = zoneKeys.filter(key => {
+                            if (!zoneMap[key]) {
+                                this.logger.warn(`Unrecognized zone ${key} for objective ${objective._props.id} of ${questData.name}`);
+                                return false;
+                            }
+                            return true;
+                        });
+                        if (zoneKeys.length > 0) {
+                            if (!obj.zoneNames.includes())
+                            obj.zoneNames = zoneKeys.map(key => zoneMap[key].en);
+                            obj.zoneNames = obj.zoneNames.reduce((allZones, current) => {
+                                if (!allZones.includes(current)) {
+                                    allZones.push(current);
+                                }
+                                return allZones;
+                            }, []);
+                            obj.locale.zoneNames = {};
+                            for (const key of zoneKeys) {
+                                for (const lang in this.locales) {
+                                    if (!obj.locale.zoneNames[lang]) {
+                                        obj.locale.zoneNames[lang] = [];
+                                    }
+                                    if (zoneMap[key][lang]) {
+                                        obj.locale.zoneNames[lang].push(zoneMap[key][lang]);
+                                    } else {
+                                        obj.locale.zoneNames[lang].push(zoneMap[key].en);
+                                    }
+                                }
+                            }
+                            for (const lang in obj.locale.zoneNames) {
+                                obj.locale.zoneNames[lang] = obj.locale.zoneNames[lang].reduce((allZones, current) => {
+                                    if (!allZones.includes(current)) {
+                                        allZones.push(current);
+                                    }
+                                    return allZones;
+                                }, []);
+                            }
+                            for (const lang in obj.locale.zoneNames) {
+                                if (lang === 'en') {
+                                    continue;
+                                }
+                                let different = false;
+                                for (const index in obj.locale.zoneNames[lang]) {
+                                    if (obj.locale.zoneNames[lang][index] !==obj.locale.zoneNames.en[index]) {
+                                        different = true;
+                                        break;
+                                    }
+                                }
+                                if (!different) {
+                                    delete obj.locale.zoneNames[lang];
+                                }
+                            }
                         }
                     }
                 }
@@ -1059,34 +1139,8 @@ class UpdateQuestsJob extends DataJob {
                 this.logger.warn(`Unrecognized type "${objective._parent}" for objective ${objective._props.id} of ${questData.name}`);
                 continue;
             }
-            if (this.changedQuests[questData.id]?.objectivesChanged && this.changedQuests[questData.id]?.objectivesChanged[obj.id]) {
-                for (const key of Object.keys(this.changedQuests[questData.id].objectivesChanged[obj.id])) {
-                    obj[key] = this.changedQuests[questData.id].objectivesChanged[obj.id][key];
-                }
-            }
             this.addMapFromDescription(obj);
             questData.objectives.push(obj);
-        }
-        if (this.changedQuests[questData.id] && this.changedQuests[questData.id].objectivesAdded) {
-            for (const newObj of this.changedQuests[questData.id].objectivesAdded) {
-                if (questData.objectives.some(obj => obj.id === newObj.id)) {
-                    continue;
-                }
-                if (!newObj.locale_map) {
-                    newObj.locale_map = {};
-                }
-                newObj.locale_map.description = newObj.id;
-                newObj.locale = getTranslations(newObj.locale_map, this.logger);
-                questData.objectives.push(newObj);
-            }
-        }
-        if (this.changedQuests[questData.id] && this.changedQuests[questData.id].taskRequirementsAdded) {
-            for (const newReq of this.changedQuests[questData.id].taskRequirementsAdded) {
-                if (questData.taskRequirements.some(req => req.task === newReq.task)) {
-                    continue;
-                }
-                questData.taskRequirements.push(newReq);
-            }
         }
         for (const req of quest.conditions.AvailableForStart) {
             if (req._parent === 'Level') {
@@ -1097,11 +1151,6 @@ class UpdateQuestsJob extends DataJob {
                     name: this.locales.en[`${req._props.target} name`],
                     status: []
                 };
-                if (this.changedQuests[questData.id] && this.changedQuests[questData.id].taskRequirementsRemoved) {
-                    if (this.changedQuests[questData.id].taskRequirementsRemoved.some(req => req.id === questReq.task)) {
-                        continue;
-                    }
-                }
                 for (const statusCode of req._props.status) {
                     if (!questStatusMap[statusCode]) {
                         this.logger.warn(`Unrecognized quest status "${statusCode}" for quest requirement ${this.locales.en[req._props.target]} ${req._props.target} of ${questData.name}`);
@@ -1123,21 +1172,6 @@ class UpdateQuestsJob extends DataJob {
         }
         this.loadRewards(questData, 'finishRewards', quest.rewards.Success);
         this.loadRewards(questData, 'startRewards', quest.rewards.Started);
-        if (this.changedQuests[questData.id] && this.changedQuests[questData.id].finishRewardsAdded) {
-            for (const rewardType in this.changedQuests[questData.id].finishRewardsAdded) {
-                for (const reward of this.changedQuests[questData.id].finishRewardsAdded[rewardType]) {
-                    if (reward.locale_map) {
-                        reward.locale = getTranslations(reward.locale_map, this.logger);
-                    }
-                    questData.finishRewards[rewardType].push(reward);
-                }
-            }
-        }
-        if (this.changedQuests[questData.id] && this.changedQuests[questData.id].finishRewardsChanged) {
-            for (const rewardType in this.changedQuests[questData.id].finishRewardsChanged) {
-                questData.finishRewards[rewardType] = this.changedQuests[questData.id].finishRewardsChanged[rewardType];
-            }
-        }
         let nameMatch = undefined;
         for (const tdQuest of this.tdQuests) {
             if (questData.id == tdQuest.gameId) {
@@ -1163,9 +1197,113 @@ class UpdateQuestsJob extends DataJob {
         if (factionMap[questData.id]) questData.factionName = factionMap[questData.id];
         if (this.missingQuests[questData.id]) delete this.missingQuests[questData.id];
     
-        if (this.changedQuests[questData.id]?.propertiesChanged) {
-            for (const key of Object.keys(this.changedQuests[questData.id].propertiesChanged)) {
-                questData[key] = this.changedQuests[questData.id].propertiesChanged[key];
+        if (this.changedQuests[questData.id]) {
+            if (this.changedQuests[questData.id].propertiesChanged) {
+                for (const key of Object.keys(this.changedQuests[questData.id].propertiesChanged)) {
+                    if (key === 'taskRequirements' && questData.taskRequirements.length > 0) {
+                        this.logger.warn(`Overwriting existing task requirements with:`);
+                        this.logger.warn(JSON.stringify(this.changedQuests[questData.id].propertiesChanged[key], null, 4));
+                    } else if (key === 'taskRequirements' && questData.taskRequirements.length === 0) {
+                        this.logger.warn(`Adding missing task requirements`);
+                        this.logger.warn(JSON.stringify(this.changedQuests[questData.id].propertiesChanged[key], null, 4));
+                    } else {
+                        this.logger.warn(`Changing ${key} property to: ${JSON.stringify(this.changedQuests[questData.id].propertiesChanged[key], null, 4)}`);
+                    }
+                    questData[key] = this.changedQuests[questData.id].propertiesChanged[key];
+                }
+            }
+            if (this.changedQuests[questData.id].taskRequirementsAdded) {
+                let addedCount = 0;
+                for (const newReq of this.changedQuests[questData.id].taskRequirementsAdded) {
+                    if (questData.taskRequirements.some(req => req.task === newReq.task)) {
+                        continue;
+                    }
+                    questData.taskRequirements.push(newReq);
+                    addedCount++;
+                }
+                if (addedCount === 0) {
+                    this.logger.warn('Manually added task requirements already present');
+                }
+            }
+            if (this.changedQuests[questData.id].taskRequirementsRemoved) {
+                const reqsCount = questData.taskRequirements.length;
+                questData.taskRequirements = questData.taskRequirements.filter(questReq => {
+                    const reqRemoved = this.changedQuests[questData.id].taskRequirementsRemoved.find(req => req.id === questReq.task);
+                    if (reqRemoved) {
+                        this.logger.warn('Removing quest requirement');
+                        this.logger.warn(JSON.stringify(questReq, null, 4));
+                    }
+                    return !reqRemoved;
+                });
+                if (questData.taskRequirements.length === reqsCount) {
+                    this.logger.warn('No matching quest requirements to remove');
+                    this.logger.warn(JSON.stringify(this.changedQuests[questData.id].taskRequirementsRemoved, null, 4));
+                }
+            }
+            if (this.changedQuests[questData.id].objectivesChanged) {
+                for (const objId in this.changedQuests[questData.id].objectivesChanged) {
+                    const obj = questData.objectives.find(o => o.id === objId);
+                    if (!obj) {
+                        this.logger.warn(`Objective ${objId} not found in quest data`);
+                        continue;
+                    }
+                    for (const key of Object.keys(this.changedQuests[questData.id].objectivesChanged[obj.id])) {
+                        this.logger.warn(`Changing objective ${objId} ${key} to ${JSON.stringify(this.changedQuests[questData.id].objectivesChanged[obj.id], null, 4)}`);
+                        obj[key] = this.changedQuests[questData.id].objectivesChanged[obj.id][key];
+                    }
+                }
+            }
+            if (this.changedQuests[questData.id].objectivesAdded) {
+                let addedCount = 0;
+                for (const newObj of this.changedQuests[questData.id].objectivesAdded) {
+                    if (questData.objectives.some(obj => obj.id === newObj.id)) {
+                        continue;
+                    }
+                    if (!newObj.locale_map) {
+                        newObj.locale_map = {};
+                    }
+                    newObj.locale_map.description = newObj.id;
+                    newObj.locale = getTranslations(newObj.locale_map, this.logger);
+                    questData.objectives.push(newObj);
+                    addedCount++;
+                }
+                if (addedCount === 0) {
+                    this.logger.warn('Manually added objectives already present');
+                }
+            }
+            if (this.changedQuests[questData.id].objectivesRemoved) {
+                const oldObjCount = questData.objectives.length;
+                questData.objectives = questData.objectives.filter(obj => {
+                    const objRemoved = this.changedQuests[questData.id].objectivesRemoved.find(remId => remId === obj.id);
+                    if (objRemoved) {
+                        this.logger.warn('Removing quest objective');
+                        this.logger.warn(JSON.stringify(obj, null, 4));
+                    }
+                    return !objRemoved;
+                });
+                if (questData.objectives.length === oldObjCount) {
+                    this.logger.warn('No matching quest objective to remove');
+                    this.logger.warn(JSON.stringify(this.changedQuests[questData.id].objectivesRemoved, null, 4));
+                }
+            }
+            if (this.changedQuests[questData.id].finishRewardsAdded) {
+                this.logger.warn('Adding finish rewards');
+                this.logger.warn(JSON.stringify(this.changedQuests[questData.id].finishRewardsAdded), null, 4);
+                for (const rewardType in this.changedQuests[questData.id].finishRewardsAdded) {
+                    for (const reward of this.changedQuests[questData.id].finishRewardsAdded[rewardType]) {
+                        if (reward.locale_map) {
+                            reward.locale = getTranslations(reward.locale_map, this.logger);
+                        }
+                        questData.finishRewards[rewardType].push(reward);
+                    }
+                }
+            }
+            if (this.changedQuests[questData.id].finishRewardsChanged) {
+                this.logger.warn('Changing finish rewards');
+                this.logger.warn(JSON.stringify(this.changedQuests[questData.id].finishRewardsChanged), null, 4);
+                for (const rewardType in this.changedQuests[questData.id].finishRewardsChanged) {
+                    questData.finishRewards[rewardType] = this.changedQuests[questData.id].finishRewardsChanged[rewardType];
+                }
             }
         }
         return questData;
@@ -1186,30 +1324,81 @@ const targetKeyMap = {
 };
 
 const zoneMap = {
-    huntsman_013: 'Dorms',
-    huntsman_020: 'Office',
-    eger_barracks_area_1: 'Black Pawn',
-    eger_barracks_area_2: 'White Pawn',
-    qlight_br_secure_road: 'Highway',
-    prapor_27_1: 'Stronghold (Customs)',
-    prapor_27_2: 'Medical Camp (Woods)',
-    prapor_27_3: 'Pier (Shoreline)',
-    prapor_27_4: 'Pier (Shoreline)',
-    prapor_hq_area_check_1: 'Command Bunker',
-    mechanik_exit_area_1: 'D-2 Extract',
-    qlight_pr1_heli2_kill: 'Helicopter at Water Treatment Plant',
-    qlight_pc1_ucot_kill: 'Chalets',
-    place_merch_022_1: 'Inside ULTRA Mall',
-    place_merch_022_2: 'Inside ULTRA Mall',
-    place_merch_022_3: 'Inside ULTRA Mall',
-    place_merch_022_4: 'Inside ULTRA Mall',
-    place_merch_022_5: 'Inside ULTRA Mall',
-    place_merch_022_6: 'Inside ULTRA Mall',
-    place_merch_022_7: 'Inside ULTRA Mall',
-    lijnik_storage_area_1: 'Underground Warehouse',
-    quest_zone_kill_c17_adm: 'Pinewood Hotel',
-    meh_44_eastLight_kill: 'Lighthouse Island',
-    quest_zone_keeper5: 'Woods Mountain',
+    eger_barracks_area_1: {
+        en: 'Black Pawn',
+    },
+    eger_barracks_area_2: {
+        en: 'White Pawn',
+    },
+    huntsman_013: {
+        en: 'Dorms',
+    },
+    huntsman_020: {
+        en: 'Office',
+    },
+    lijnik_storage_area_1: {
+        en: 'Underground Warehouse',
+    },
+    mechanik_exit_area_1: {
+        en: 'D-2 Extract'
+    },
+    meh_44_eastLight_kill: {
+        en: 'Lighthouse Island',
+    },
+    place_merch_022_1: {
+        en: 'Inside ULTRA Mall'
+    },
+    place_merch_022_2: {
+        en: 'Inside ULTRA Mall',
+    },
+    place_merch_022_3: {
+        en: 'Inside ULTRA Mall',
+    },
+    place_merch_022_4: {
+        en: 'Inside ULTRA Mall',
+    },
+    place_merch_022_5: {
+        en: 'Inside ULTRA Mall',
+    },
+    place_merch_022_6: {
+        en: 'Inside ULTRA Mall',
+    },
+    place_merch_022_7: {
+        en: 'Inside ULTRA Mall',
+    },
+    prapor_27_1: {
+        en: 'Stronghold (Customs)',
+    },
+    prapor_27_2: {
+        en: 'Medical Camp (Woods)',
+    },
+    prapor_27_3: {
+        en: 'Pier (Shoreline)',
+    },
+    prapor_27_4: {
+        en: 'Pier (Shoreline)',
+    },
+    prapor_hq_area_check_1: {
+        en: 'Command Bunker',
+    },
+    qlight_br_secure_road: {
+        en: 'Highway',
+    },
+    qlight_pr1_heli2_kill: {
+        en: 'Helicopter at Water Treatment Plant',
+    },
+    qlight_pc1_ucot_kill: {
+        en: 'Chalets',
+    },
+    quest_zone_kill_c17_adm: {
+        en: 'Pinewood Hotel',
+    },
+    quest_zone_keeper5: {
+        en: 'Woods Mountain',
+    },
+    quest_zone_keeper6_kiba_kill: {
+        en: 'Around Kiba Arms store',
+    },
 };
 
 const factionMap = {

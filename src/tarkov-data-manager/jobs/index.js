@@ -73,12 +73,15 @@ const runJob = async (jobName, options, bumpSchedule = true) => {
     if (!jobs[jobName]) {
         return Promise.reject(new Error(`${jobName} is not a valid job`));
     }
-    if (bumpSchedule && scheduledJobs[jobName]) {
+    if (scheduledJobs[jobName]) {
         const scheduledJob = scheduledJobs[jobName];
-        const nextRunMinusFive = scheduledJob.nextInvocation().toDate();
-        nextRunMinusFive.setMinutes(nextRunMinusFive.getMinutes() - 5);
-        if (new Date() > nextRunMinusFive) {
-            scheduledJob.cancelNext(true);
+        if (bumpSchedule) {
+            const nextRunMinusFive = scheduledJob.nextInvocation().toDate();
+            nextRunMinusFive.setMinutes(nextRunMinusFive.getMinutes() - 5);
+            if (new Date() > nextRunMinusFive) {
+                scheduledJob.cancelNext(true);
+            }
+
         }
         jobs[jobName].nextInvocation = scheduledJob.nextInvocation().toDate();
     }
@@ -106,21 +109,10 @@ const jobOutput = async (jobName, parentJob, rawOutput = false) => {
             console.log(`Output ${outputFile} missing; running ${jobName} job`);
         }
     }
-    try {
-        //const keepAlive = connection.keepAlive;
-        //connection.keepAlive = true;
-        return runJob(jobName, {parent: parentJob}).then(result => {
-            if (!rawOutput) return result[Object.keys(result).find(key => key !== 'updated')];
-            return result;
-        });
-        //connection.keepAlive = keepAlive;
-    } catch (error) {
-        if (logger) {
-            logger.error(`Error running ${jobName}: ${error}`);
-        } else {
-            console.log(`Error running ${jobName}: ${error}`);
-        }
-    }
+    return runJob(jobName, {parent: parentJob}).then(result => {
+        if (!rawOutput) return result[Object.keys(result).find(key => key !== 'updated')];
+        return result;
+    });
 }
 
 for (const jobClassName in jobClasses) {
