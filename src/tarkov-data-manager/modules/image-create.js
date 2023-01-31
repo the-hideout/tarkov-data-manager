@@ -63,7 +63,12 @@ async function createAndUploadFromSource(sourceImage, id) {
     const createdImages = await createFromSource(sourceImage, id);
     const uploads = [];
     for (const result of createdImages) { 
-        uploads.push(uploadToS3(result.image, result.type, id));
+        uploads.push(uploadToS3(result.image, result.type, id).then(purged => {
+            return {
+                type: result.type,
+                purged: purged,
+            }
+        }));
     }
     const uploadResults = await Promise.allSettled(uploads);
     const errors = [];
@@ -75,7 +80,7 @@ async function createAndUploadFromSource(sourceImage, id) {
     if (errors.length > 0) {
         return Promise.reject(errors);
     }
-    return createdImages.map(img => img.type);
+    return uploadResults.map(result => result.value);
 }
 
 async function regenerateFromExisting(id, backgroundOnly = false) {
