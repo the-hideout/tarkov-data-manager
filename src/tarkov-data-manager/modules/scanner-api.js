@@ -802,7 +802,7 @@ const submitImage = (request, user) => {
             }
     
             try {
-                await uploadToS3(files[fields.type].filepath, fields.type, fields.id);
+                response.purged = Boolean(await uploadToS3(files[fields.type].filepath, fields.type, fields.id));
             } catch (error) {
                 console.error(error);
                 if (Array.isArray(error)) {

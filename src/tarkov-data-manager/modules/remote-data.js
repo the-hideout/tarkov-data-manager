@@ -223,7 +223,7 @@ const methods = {
     setProperty: async (id, property, value) => {
         const currentItemData = myData.get(id);
         if (currentItemData[property] === value)
-            return;
+            return false;
         console.log(`Setting ${property} to ${value} for ${id}`);
         currentItemData[property] = value;
         myData.set(id, currentItemData);
