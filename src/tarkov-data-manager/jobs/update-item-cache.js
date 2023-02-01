@@ -98,11 +98,7 @@ class UpdateItemCacheJob extends DataJob {
         initPresetSize(this.bsgItems, this.credits);
 
         await setItemPropertiesOptions({
-            logger: this.logger,
-            items: this.bsgItems,
-            presets: this.presets,
-            locales: this.locales, 
-            globals: this.globals,
+            job: this, 
             itemIds: [...itemMap.keys()],
             disabledItemIds: [...itemMap.values()].filter(item => item.types.includes('disabled')).map(item => item.id)
         });
