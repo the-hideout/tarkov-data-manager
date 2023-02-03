@@ -70,6 +70,9 @@ class DataJob {
         if (options && options.parent) {
             this.parent = options.parent;
         }
+        if (!this.selfLogger) {
+            this.logger.startTime = new Date();
+        }
         let returnValue;
         let throwError = false;
         try {
