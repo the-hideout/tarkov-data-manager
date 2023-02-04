@@ -113,6 +113,7 @@ class DataJob {
         if (!kvName) {
             return Promise.reject(new Error('Must set kvName property before calling cloudflarePut'));
         }
+        data.updated = new Date();
         if (this.nextInvocation) {
             const processTime = new Date() - this.startDate;
             const expireDate = new Date(this.nextInvocation);

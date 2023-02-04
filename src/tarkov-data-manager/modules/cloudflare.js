@@ -63,7 +63,6 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
 const putValue = async (key, value) => {
     const encoding = 'base64';
     if (typeof value === 'object'){
-        value.updated = new Date();
         value = JSON.stringify(value);
     } 
     return doRequest('PUT', 'values', key, zlib.gzipSync(value).toString(encoding), false, {compression: 'gzip', encoding: encoding}).then(response => {
