@@ -70,6 +70,9 @@ class DataJob {
         if (options && options.parent) {
             this.parent = options.parent;
         }
+        if (!this.selfLogger) {
+            this.logger.startTime = new Date();
+        }
         let returnValue;
         let throwError = false;
         try {
@@ -110,6 +113,7 @@ class DataJob {
         if (!kvName) {
             return Promise.reject(new Error('Must set kvName property before calling cloudflarePut'));
         }
+        //data.updated = new Date();
         if (this.nextInvocation) {
             const processTime = new Date() - this.startDate;
             const expireDate = new Date(this.nextInvocation);
