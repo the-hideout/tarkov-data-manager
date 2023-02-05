@@ -113,9 +113,9 @@ module.exports = async (outputFile, logger) => {
                 diffs[linkedTypes[dataType]] = [];
             }
         }
-        logger.log(`${outputFile} diff generated in ${new Date() - start} ms`);
+        logger.append(`${outputFile} diff generated in ${new Date() - start} ms`);
     } catch (error) {
-        logger.error(`Error getting KV delta: ${error.message}`);
+        logger.append(`Error getting KV delta: ${error.message}`);
     }
     return {purge: diffs, updated: new Date(newData.updated)};
 };
