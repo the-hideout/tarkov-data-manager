@@ -61,7 +61,7 @@ class UpdateMapsJob extends DataJob {
                     id: spawn.BossName,
                     //name: spawn.BossName,
                     //normalizedName: normalizeName(this.getEnemyName(spawn.BossName, this.locales.en)),
-                    spawnChance: parseInt(spawn.BossChance) / 100,
+                    spawnChance: parseFloat(spawn.BossChance) / 100,
                     spawnLocations: [],
                     escorts: [],
                     supports: [],
