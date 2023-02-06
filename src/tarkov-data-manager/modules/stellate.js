@@ -17,7 +17,7 @@ async function purgeTypes(dataName, logger = false) {
         return;
     }
     if (Object.keys(purge).length === 0) {
-        logger.append('Nothing to purge from cache');
+        logger.log('Nothing to purge from cache');
         return;
     }
     for (const t in purge) {
@@ -26,10 +26,10 @@ async function purgeTypes(dataName, logger = false) {
     let url = 'https://admin.stellate.co/tarkov-dev-api';
     if (process.env.NODE_ENV === 'dev') {
         url += '-dev';
-        //delay = 0; // if we're in dev mode, don't delay the purge
+        delay = 0; // if we're in dev mode, don't delay the purge
     }
     if (delay) {
-        logger.append(`Purging cache in ${delay} ms`)
+        logger.log(`Purging cache in ${delay} ms`)
     }
     return new Promise(resolve => {
         setTimeout(async () => {
@@ -53,10 +53,10 @@ async function purgeTypes(dataName, logger = false) {
                 };
             }
             if (response.errors && response.errors.length > 0) {
-                logger.append(`Error purging cache: ${response.errors.map(err => err.message).join(', ')}`);
+                logger.error(`Error purging cache: ${response.errors.map(err => err.message).join(', ')}`);
             }
             if (response.data) {
-                logger.append(`Purged cache for: ${Object.keys(response.data).map(key => key.replace(/^purge/, '')).map(type => `${type}${purge[type].length > 0 ? ` (${purge[type].length})` : '' }`).join(', ')}`);
+                logger.log(`Purged cache for: ${Object.keys(response.data).map(key => key.replace(/^purge/, '')).map(type => `${type}${purge[type].length > 0 ? ` (${purge[type].length})` : '' }`).join(', ')}`);
             }
             resolve();
         }, delay);
