@@ -71,7 +71,7 @@ class DataJob {
             this.parent = options.parent;
         }
         if (!this.selfLogger) {
-            this.logger.startTime = new Date();
+            this.logger.start();
         }
         let returnValue;
         let throwError = false;
@@ -113,7 +113,7 @@ class DataJob {
         if (!kvName) {
             return Promise.reject(new Error('Must set kvName property before calling cloudflarePut'));
         }
-        //data.updated = new Date();
+        data.updated = new Date();
         if (this.nextInvocation) {
             const processTime = new Date() - this.startDate;
             const expireDate = new Date(this.nextInvocation);
@@ -130,7 +130,7 @@ class DataJob {
         });
         if (response.success) {
             this.logger.success(`Successful Cloudflare put of ${kvName}`);
-            await stellate.purgeTypes(kvName, this.logger);
+            stellate.purgeTypes(kvName, this.logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 this.logger.error(response.errors[i]);

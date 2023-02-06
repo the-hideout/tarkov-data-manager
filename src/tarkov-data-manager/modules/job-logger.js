@@ -21,7 +21,7 @@ const writeLog = (jobName, messages) => {
 class JobLogger {
     constructor(jobName, writeLog = true) {
         this.jobName = jobName;
-        this.startTime = new Date();
+        this.startTime = 0;
         this.messages = [];
         this.timers = {};
         this.writeLog = writeLog;
@@ -33,7 +33,7 @@ class JobLogger {
         if (typeof message === 'object') {
             message = JSON.stringify(message, null, 4);
         }
-        this.messages.push(message);
+        this.addMessage(message);
     }
 
     error(message) {
@@ -47,7 +47,7 @@ class JobLogger {
             }
         }
         if (this.verbose) console.log(message);
-        this.messages.push(message);
+        this.addMessage(message);
     }
 
     fail(message) {
@@ -61,7 +61,7 @@ class JobLogger {
             message = JSON.stringify(message, null, 4);
         }
         if (this.verbose) console.log(message);
-        this.messages.push(message);
+        this.addMessage(message);
     }
 
     succeed(message) {
@@ -71,11 +71,15 @@ class JobLogger {
             message = JSON.stringify(message, null, 4);
         }
         if (this.verbose) console.log(message);
-        this.messages.push(message);
+        this.addMessage(message);
     }
 
     success(message) {
         this.succeed(message);
+    }
+
+    start() {
+        this.startTime = new Date();
     }
 
     end() {
@@ -84,6 +88,7 @@ class JobLogger {
         //if (this.verbose) console.log(endMessage);
         if (this.writeLog) writeLog(this.jobName, this.messages);
         this.messages.length = 0;
+        this.startTime = 0;
     }
 
     time(label) {
@@ -106,6 +111,28 @@ class JobLogger {
         }
         this.log(customMessage);
         writeLog(this.jobName, this.messages);
+    }
+
+    addMessage(message) {
+        if (this.startTime !== 0 || this.messages.length > 0) {
+            // logger is active
+            this.messages.push(message);
+            return;
+        }
+        let oldMessages = [];
+        try {
+            oldMessages = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'logs', this.jobName+'.log')));
+        } catch (error) {
+            if (error.code !== 'ENOENT') {
+                console.log(error);
+            }
+        }
+        try {
+            oldMessages.push(message);
+            writeLog(this.jobName, oldMessages);
+        } catch (error) {
+            console.log(`Error appending to log file for ${this.jobName}`, error);
+        }
     }
 }
 

@@ -17,9 +17,7 @@ async function purgeTypes(dataName, logger = false) {
         return;
     }
     if (Object.keys(purge).length === 0) {
-        if (logger) {
-            logger.log('Nothing to purge from cache');
-        }
+        logger.log('Nothing to purge from cache');
         return;
     }
     for (const t in purge) {
@@ -61,7 +59,7 @@ async function purgeTypes(dataName, logger = false) {
                 logger.log(`Purged cache for: ${Object.keys(response.data).map(key => key.replace(/^purge/, '')).map(type => `${type}${purge[type].length > 0 ? ` (${purge[type].length})` : '' }`).join(', ')}`);
             }
             resolve();
-        }, delay * 1000);
+        }, delay);
     });
 }
 
