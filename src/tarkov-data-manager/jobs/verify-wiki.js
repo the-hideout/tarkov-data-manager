@@ -1,54 +1,26 @@
 const got = require('got');
 const webhook = require('../modules/webhook');
 
-const {query, jobComplete} = require('../modules/db-connection');
-const JobLogger = require('../modules/job-logger');
-const {alert} = require('../modules/webhook');
+const { query } = require('../modules/db-connection');
 const tarkovData = require('../modules/tarkov-data');
-const jobOutput = require('../modules/job-output');
+const DataJob = require('../modules/data-job');
 
-let logger = false;
-let presets = {};
-
-const nameToWikiLink = (name) => {
-    const formattedName = name
-        .replace(/\s/g, '_')
-        .replace(/&/, '%26')
-        .replace(/'/, '%27');
-
-    return `https://escapefromtarkov.fandom.com/wiki/${formattedName}`;
-};
-
-const postMessage = (item, foundNewLink) => {
-    const messageData = {
-        title: 'Broken wiki link',
-        message: item.name
-    };
-
-    if (foundNewLink) {
-        logger.succeed(`${item.id} | ${foundNewLink} | ${item.name}`);
-
-        messageData.title = 'Updated wiki link';
-        messageData.message = item.name;
-    } else {
-        logger.fail(`${item.id} | ${foundNewLink} | ${item.name}`);
+class VerifyWikiJob extends DataJob {
+    constructor() {
+        super('verify-wiki');
     }
 
-    return webhook.alert(messageData);
-};
-
-module.exports = async () => {
-    logger = new JobLogger('verify-wiki');
-    try {
+    async run() {
+        this.presets = {};
         try {
-            presets = await jobOutput('update-presets', './cache/presets.json', logger);
+            this.presets = await this.jobManager.jobOutput('update-presets', this, true);
         } catch (error) {
-            logger.error(error);
+            this.logger.error(error);
         }
         const en = await tarkovData.locale('en');
         let missing = 0;
         const promises = [];
-        logger.log('Verifying wiki links');
+        this.logger.log('Verifying wiki links');
         const results = await query(`
             SELECT 
                 item_data.*
@@ -67,7 +39,7 @@ module.exports = async () => {
             }
             promises.push(new Promise(async (resolve) => {
                 const result = results[i];
-                //logger.log(`${i + 1}/${results.length} ${result.name}`);
+                //this.logger.log(`${i + 1}/${results.length} ${result.name}`);
 
                 let shouldRemoveCurrentLink = false;
                 let newWikiLink = false;
@@ -91,7 +63,7 @@ module.exports = async () => {
                 }
 
                 // We don't have a wiki link, let's try retrieving from the id
-                if(!newWikiLink && !presets[result.id]){
+                if(!newWikiLink && !this.presets[result.id]){
                     try {
                         const templatePage = await got(`https://escapefromtarkov.fandom.com/wiki/Template:${result.id}`);
                         const matches = templatePage.body.match(/<div class="mw-parser-output"><p><a href="(?<link>[^"]+)"/);
@@ -106,21 +78,21 @@ module.exports = async () => {
 
                 // We still don't have a wiki link, let's try to guess one
                 if(!newWikiLink){
-                    if (!presets[result.id]) {
+                    if (!this.presets[result.id]) {
                         newWikiLink = nameToWikiLink(result.name);
                     } else {
-                        newWikiLink = nameToWikiLink(en[`${presets[result.id].baseId} Name`]);
+                        newWikiLink = nameToWikiLink(en[`${this.presets[result.id].baseId} Name`]);
                     }
 
                     try {
                         await got.head(newWikiLink);
                     } catch (requestError){
                         // console.log(requestError);
-                        // postMessage(result.id, result.name, newWikiLink, 'broken');
+                        // this.postMessage(result.id, result.name, newWikiLink, 'broken');
 
                         missing = missing + 1;
                         newWikiLink = false;
-                        logger.warn(`${result.name} (${result.id}) missing wiki link`);
+                        this.logger.warn(`${result.name} (${result.id}) missing wiki link`);
                     }
                 }
 
@@ -129,12 +101,12 @@ module.exports = async () => {
                 }
 
                 if(shouldRemoveCurrentLink && result.wiki_link){
-                    postMessage(result, newWikiLink);
+                    this.postMessage(result, newWikiLink);
                     await query(`UPDATE item_data SET wiki_link = ? WHERE id = ?`, ['', result.id]);
                 }
 
                 if(newWikiLink){
-                    postMessage(result, newWikiLink);
+                    this.postMessage(result, newWikiLink);
                     await query(`UPDATE item_data SET wiki_link = ? WHERE id = ?`, [newWikiLink, result.id]);
                 }
                 return resolve();
@@ -142,14 +114,35 @@ module.exports = async () => {
         }
         await Promise.all(promises);
         // Possibility to POST to a Discord webhook here with cron status details
-        logger.log(`${missing} items still missing a valid wiki link`);
-    } catch (error) {
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.toString()
-        });
+        this.logger.log(`${missing} items still missing a valid wiki link`);
     }
-    logger.end();
-    await jobComplete();
+
+    postMessage = (item, foundNewLink) => {
+        const messageData = {
+            title: 'Broken wiki link',
+            message: item.name
+        };
+    
+        if (foundNewLink) {
+            this.logger.succeed(`${item.id} | ${foundNewLink} | ${item.name}`);
+    
+            messageData.title = 'Updated wiki link';
+            messageData.message = item.name;
+        } else {
+            this.logger.fail(`${item.id} | ${foundNewLink} | ${item.name}`);
+        }
+    
+        return webhook.alert(messageData);
+    }
+}
+
+const nameToWikiLink = (name) => {
+    const formattedName = name
+        .replace(/\s/g, '_')
+        .replace(/&/, '%26')
+        .replace(/'/, '%27');
+
+    return `https://escapefromtarkov.fandom.com/wiki/${formattedName}`;
 };
+
+module.exports = VerifyWikiJob;

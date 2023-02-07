@@ -1,28 +1,16 @@
+// Cron job to update the cloudflare KV store with crowd-sourced queue times
 const moment = require('moment');
-const got = require('got');
 
-const cloudflare = require('../modules/cloudflare');
-const { query, jobComplete } = require('../modules/db-connection');
-const JobLogger = require('../modules/job-logger');
-const { alert } = require('../modules/webhook');
-const jobOutput = require('../modules/job-output');
+const { query } = require('../modules/db-connection');
+const DataJob = require('../modules/data-job');
 
-// Helper function which creates a fresh map array
-const setupMapArray = (allMaps) => {
-    // Create a dictionary of all in-game maps with their time set to zero and totalEntries set to 0
-    var maps = {};
-    for (const map of allMaps) {
-        // add the map to the maps object and set the time to 0 - make sure it is lowercase
-        maps[map.name.toLowerCase()] = {map_id: map.id, time: 0, totalEntries: 0 };
+class UpdateQueueTimesJob extends DataJob {
+    constructor() {
+        super('update-queue-times');
+        this.kvName = 'queue_data';
     }
 
-    return maps;
-}
-
-// Cron job to update the cloudflare KV store with crowd-sourced queue times
-module.exports = async () => {
-    logger = new JobLogger('update-queue-times');
-    try {
+    async run() {
         // Get times to filter by
         var timestamps = [];
         timestamps.push({ details: 'last 1 hour', timestamp: moment().subtract(1, 'hours').format('YYYY-MM-DD HH:mm:ss')});
@@ -32,11 +20,11 @@ module.exports = async () => {
         timestamps.push({ details: 'last 7 days', timestamp: moment().subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss')});
 
         // Fetch all current maps
-        const allMaps = await jobOutput('update-maps', './dumps/map_data.json', logger);
+        const allMaps = await this.jobManager.jobOutput('update-maps', this);
 
         const queueTimes = {};
         for (const timestamp of timestamps) {
-            var maps = await setupMapArray(allMaps.body.data.maps)
+            var maps = setupMapArray(allMaps.body.data.maps)
 
             // Query the database for records with the given timestamp
             const result = await queueQuery(timestamp.timestamp);
@@ -100,36 +88,28 @@ module.exports = async () => {
             }
         }
 
-        console.log(JSON.stringify(queueTimeData));
+        //console.log(JSON.stringify(queueTimeData));
 
         // PUT the queueTimes data to the cloudflare KV store
-        const queueData = {
+        const kvData = {
             updated: new Date(),
             data: queueTimeData,
         };
-        let response = await cloudflare.put('queue_data', JSON.stringify(queueData)).catch(error => {
-            logger.error(error);
-            return {success: false, errors: [], messages: []};
-        });
-        if (response.success) {
-            logger.success('Successful Cloudflare put of queue_data');
-        } else {
-            for (const error of response.errors) {
-                logger.error(error);
-            }
-            for (const warning of response.messages) {
-                logger.error(warning);
-            }
-        }
-
-    } catch (error) {
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.toString()
-        });
+        await this.cloudflarePut(kvData);
+        return kvData;
     }
-    await jobComplete();
-    logger.end();
-    logger = false;
-};
+}
+
+// Helper function which creates a fresh map array
+const setupMapArray = (allMaps) => {
+    // Create a dictionary of all in-game maps with their time set to zero and totalEntries set to 0
+    var maps = {};
+    for (const map of allMaps) {
+        // add the map to the maps object and set the time to 0 - make sure it is lowercase
+        maps[map.name.toLowerCase()] = {map_id: map.id, time: 0, totalEntries: 0 };
+    }
+
+    return maps;
+}
+
+module.exports = UpdateQueueTimesJob;

@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: github/branch-deploy@32a0085d9de430d4614bf6ceff687f4cb615f0d6 # pin@v3.1.0
+      - uses: github/branch-deploy@59cb87ca11d478e3aefc58737799879d270bd49d # pin@v4.1.0
         id: branch-deploy
         with:
           admins: the-hideout/core-contributors
@@ -25,11 +25,11 @@ jobs:
 
       - name: Checkout
         if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
-        uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # pin@v3.2.0
+        uses: actions/checkout@v3 # pin@v3+
         with:
           ref: ${{ steps.branch-deploy.outputs.ref }}
 
-      - uses: azure/login@ec3c14589bd3e9312b3cc8c41e6860e258df9010 # pin@v1
+      - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # pin@v1.4.6
         if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -74,14 +74,13 @@ jobs:
         continue-on-error: true
 
       # Post comment on PR with development plan info
-      - uses: actions/github-script@d556feaca394842dc55e4734bf3bb9f685482fa0 # pin@v6.3.3
+      - uses: thollander/actions-comment-pull-request@v2
         if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop == 'true' }}
         env:
           PLAN: "terraform ${{ steps.plan.outputs.stdout }}"
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const output = `### Terraform Plan - Production (noop) 🪐
+          message: |
+            `### Terraform Plan - Production (noop) 🪐
             - Terraform Format and Style 🖌: \`${{ steps.fmt.outcome }}\`
             - Terraform Initialization ⚙️: \`${{ steps.init.outcome }}\`
             - Terraform Validation 🤖: \`${{ steps.validate.outcome }}\`
@@ -96,13 +95,6 @@ jobs:
             In addition to the plan, the branch: \`${{ steps.branch-deploy.outputs.ref }}\` would have been deployed
 
             > Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`terraform/\`, Workflow: \`${{ github.workflow }}\``;
-
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
 
       #####################
 
@@ -121,7 +113,7 @@ jobs:
 
       - name: SSH Remote Deploy
         if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
-        uses: appleboy/ssh-action@4a03da89e5c43da56e502053be4bbcb293411883 # pin@v0.1.6
+        uses: appleboy/ssh-action@d91a1af6f57cd4478ceee14d7705601dafabaa19 # pin@v0.1.6
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
@@ -130,7 +122,7 @@ jobs:
           script_stop: true
           script: ~/tarkov-data-manager/script/deploy -r="${{ steps.branch-deploy.outputs.ref }}" -f="${{ steps.branch-deploy.outputs.fork_checkout }}" -d="tarkov-data-manager" -n="${{ steps.branch-deploy.outputs.fork_full_name }}"
 
-      - uses: actions/setup-python@5ccb29d8773c3f3f653e1705f474dfaa8a06a912 # pin@v4.4.0
+      - uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435 # pin@v4.5.0
         if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
         with:
           python-version: '3.10'

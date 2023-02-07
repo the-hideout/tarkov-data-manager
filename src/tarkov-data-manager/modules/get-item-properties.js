@@ -1,14 +1,8 @@
-const tarkovData = require('../modules/tarkov-data');
-const JobLogger = require('../modules/job-logger');
-const jobOutput = require('../modules/job-output');
 const { setLocales, getTranslations } = require('./get-translation');
 
-let globals = false;
-let items = false;
-let presets = false;
-let logger = false;
 let itemIds = false;
 let disabledItemIds = false;
+let job = false;
 
 const topCategories = [
     '54009119af1c881c07000029', // Item
@@ -17,52 +11,24 @@ const topCategories = [
     '566168634bdc2d144c8b456c', // Searchable item
 ];
 
-const setGlobals = async (glob = false) => {
-    if (glob) {
-        globals = glob;
-    } else {
-        globals = await tarkovData.globals();
-    }
-};
-
-const setItems = async (it = false) => {
-    if (it) {
-        items = it;
-    } else {
-        items = await tarkovData.items();
-    }
-}
-
-const setPresets = async (pr = false) => {
-    if (pr) {
-        presets = pr;
-    } else {
-        presets = await jobOutput('update-presets', './cache/presets.json', logger);
-    }
-}
-
 const setAll = async (options) => {
     const optionMap = {
-        items: setItems,
-        presets: setPresets,
-        locales: setLocales,
-        globals: setGlobals,
-        logger: lgr => {
-            logger = lgr;
-        },
         itemIds: ids => {
             itemIds = ids;
         },
         disabledItemIds: ids => {
             disabledItemIds = ids;
-        }
+        },
+        job: j => {
+            job = j;
+            setLocales(j.locales);
+        },
     };
     for (const key in options) {
         if (optionMap[key]) {
             await optionMap[key](options[key]);
         } 
     }
-    if (!logger) logger = new JobLogger('get-item-properties', false);
 };
 
 const hasCategory = (item, catId) => {
@@ -75,7 +41,7 @@ const hasCategory = (item, catId) => {
         return false;
     }
     if (item._id === catId) return true;
-    const parent = items[item._parent];
+    const parent = job.bsgItems[item._parent];
     if (parent) return hasCategory(parent, catId);
     return false;
 };
@@ -87,14 +53,14 @@ const getFilterConstraints = (item, grid) => {
         excludedCategories: [],
         excludedItems: []
     };
-    //if (grid._props.filters.length !== 1) logger.warn(`${item._props.Name} (${item._id}) contains ${grid._props.filters.length} filter sets`)
+    //if (grid._props.filters.length !== 1) job.logger.warn(`${item._props.Name} (${item._id}) contains ${grid._props.filters.length} filter sets`)
     for (const filterSet of grid._props.filters) {
         for (const allowed of filterSet.Filter) {
             if (itemIds.includes(allowed)) {
                 if (!disabledItemIds.includes(allowed)) constraints.allowedItems.push(allowed);
                 continue;
             }
-            if (items[allowed]._type === 'Item') continue;
+            if (job.bsgItems[allowed]._type === 'Item') continue;
             constraints.allowedCategories.push(allowed);
         }
         if (!filterSet.ExcludedFilter) continue;
@@ -103,7 +69,7 @@ const getFilterConstraints = (item, grid) => {
                 if (!disabledItemIds.includes(excluded)) constraints.excludedItems.push(excluded);
                 continue;
             }
-            if (items[excluded]._type === 'Item') continue;
+            if (job.bsgItems[excluded]._type === 'Item') continue;
             constraints.excludedCategories.push(excluded);
         }
     }
@@ -153,9 +119,9 @@ const getSlots = (item) => {
                         return substr.toLowerCase();
                     });
                 }
-            }}, logger),
+            }}, job.logger),
         };
-        if (missingTranslations.length > 0) logger.warn(`Could not find ${missingTranslations.join(', ')} label for ${nameKey} slot of ${item._id}`);
+        if (missingTranslations.length > 0) job.logger.warn(`Could not find ${missingTranslations.join(', ')} label for ${nameKey} slot of ${item._id}`);
         return formattedSlot;
     });
 };
@@ -166,8 +132,8 @@ const effectMap = {
 
 const getStimEffects = (item) => {
     const stimEffects = [];
-    if (item._props.StimulatorBuffs && globals.config.Health.Effects.Stimulator.Buffs[item._props.StimulatorBuffs]) {
-        const buffs = globals.config.Health.Effects.Stimulator.Buffs[item._props.StimulatorBuffs];
+    if (item._props.StimulatorBuffs && job.globals.config.Health.Effects.Stimulator.Buffs[item._props.StimulatorBuffs]) {
+        const buffs = job.globals.config.Health.Effects.Stimulator.Buffs[item._props.StimulatorBuffs];
         for (const buff of buffs) {
             let effectKey = effectMap[buff.BuffType] || buff.BuffType;
             const effect = {
@@ -183,7 +149,7 @@ const getStimEffects = (item) => {
                     skillName: lang => {
                         return buff.SkillName ? lang[buff.SkillName] : undefined;
                     }
-                }, logger),
+                }, job.logger),
             };
             stimEffects.push(effect);
         }
@@ -200,6 +166,9 @@ const grenadeMap = {
 };
 
 const getItemProperties = async (item) => {
+    if (!job.presets) {
+        return Promise.reject(new Error('Must set presets before calling getItemProperties'));
+    }
     let properties = null;
     if (item._parent === '5485a8684bdc2da71d8b4567') {
         // ammo
@@ -225,7 +194,8 @@ const getItemProperties = async (item) => {
             heavyBleedModifier: item._props.HeavyBleedingDelta,
             lightBleedModifier: item._props.LightBleedingDelta,
             durabilityBurnFactor: item._props.DurabilityBurnModificator,
-            heatFactor: item._props.HeatFactor
+            heatFactor: item._props.HeatFactor,
+            staminaBurnPerDamage: item._props.StaminaBurnPerDamage,
         };
         if (item._props.IsLightAndSoundShot) {
             properties.ammoType = 'flashbang';
@@ -256,7 +226,7 @@ const getItemProperties = async (item) => {
                     return item._props.armorZone.map(key => {
                         return lang[key];
                     });
-                }}, logger),
+                }}, job.logger),
             };
         }
     } else if (item._parent === '5448e53e4bdc2d60728b4567') {
@@ -320,9 +290,12 @@ const getItemProperties = async (item) => {
                 armor_material_id: item._props.ArmorMaterial,
                 locale: getTranslations({headZones: lang => {
                     return item._props.headSegments.map(key => {
-                        return lang[key];
+                        if (key === 'LowerNape') {
+                            key = key.toLowerCase();
+                        }
+                        return lang[`HeadSegment/${key}`];
                     });
-                }}, logger),
+                }}, job.logger),
             };
             if (hasCategory(item, ['5a341c4086f77401f2541505', '5a341c4686f77469e155819e'])) {
                 properties.propertiesType = 'ItemPropertiesHelmet';
@@ -359,7 +332,7 @@ const getItemProperties = async (item) => {
                 return itemIds.includes(id) && !disabledItemIds.includes(id);
             }) || [],
             slots: getSlots(item),
-            defaultPreset: Object.values(presets).filter(preset => {
+            defaultPreset: Object.values(job.presets).filter(preset => {
                 return preset.default && preset.baseId === item._id;
             }).reduce((previousValue, currentValue) => {
                 return currentValue.id;
@@ -368,7 +341,7 @@ const getItemProperties = async (item) => {
                 return item._props.weapFireType.map(mode => {
                     return lang[mode];
                 });
-            }}, logger),
+            }}, job.logger),
         };
     } else if (item._parent === '5a2c3a9486f774688b05e574') {
         // night vision
@@ -445,14 +418,22 @@ const getItemProperties = async (item) => {
             }
         }
     } else if (item._parent === '5448f3a14bdc2d27728b4569') {
+        let effects_damage = item._props.effects_damage;
+        if (Array.isArray(effects_damage)) {
+            // some effects_damage are arrays (544fb3f34bdc2d03748b456a), others are dictionaries
+            effects_damage = effects_damage.reduce((effects, current) => {
+                effects[current.type] = current;
+                return effects;
+            }, {});
+        }
         properties = {
             propertiesType: 'ItemPropertiesPainkiller',
             uses: item._props.MaxHpResource | 1,
             useTime: item._props.medUseTime,
-            cures: Object.keys(item._props.effects_damage).filter(status => {
+            cures: Object.keys(effects_damage).filter(status => {
                 return status !== 'RadExposure';
             }),
-            painkillerDuration: item._props.effects_damage.Pain.duration,
+            painkillerDuration: effects_damage.Pain.duration,
             energyImpact: 0,
             hydrationImpact: 0
         };

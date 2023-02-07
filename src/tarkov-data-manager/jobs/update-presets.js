@@ -3,19 +3,20 @@ const path = require('path');
 
 const normalizeName = require('../modules/normalize-name');
 const { initPresetSize, getPresetSize } = require('../modules/preset-size');
-const { connection, query, jobComplete} = require('../modules/db-connection');
-const JobLogger = require('../modules/job-logger');
-const {alert} = require('../modules/webhook');
 const tarkovData = require('../modules/tarkov-data');
 const { getTranslations, setLocales } = require('../modules/get-translation');
 const remoteData = require('../modules/remote-data');
+const DataJob = require('../modules/data-job');
 
-let logger = false;
+class UpdatePresetsJob extends DataJob {
+    constructor() {
+        super('update-presets');
+        this.writeFolder = 'cache';
+        this.kvName = 'presets';
+    }
 
-module.exports = async (externalLogger = false) => {
-    logger = externalLogger || new JobLogger('update-presets');
-    try {
-        logger.log('Updating presets');
+    run = async () => {
+        this.logger.log('Updating presets');
         const [presets, items, locales, credits, localItems] = await Promise.all([
             tarkovData.globals().then(glob => glob['ItemPresets']),
             tarkovData.items(),
@@ -42,7 +43,7 @@ module.exports = async (externalLogger = false) => {
             const preset = presets[presetId];
             const baseItem = items[preset._items[0]._tpl];
             if (!baseItem) {
-                logger.warn(`Found no base item for preset ${preset._name} ${presetId}`);
+                this.logger.warn(`Found no base item for preset ${preset._name} ${presetId}`);
                 continue;
             }
             const firstItem = {
@@ -73,7 +74,7 @@ module.exports = async (externalLogger = false) => {
             presetData.locale = getTranslations({
                 name: `${baseItem._id} Name`,
                 shortName: `${baseItem._id} ShortName`
-            }, logger);
+            }, this.logger);
             for (let i = 1; i < preset._items.length; i++) {
                 const part = preset._items[i];
                 const partData = {
@@ -104,13 +105,13 @@ module.exports = async (externalLogger = false) => {
                     shortName: (lang) => {
                         return lang[`${firstItem.id} ShortName`] + ' ' + lang[presetId];
                     }
-                }, logger);
+                }, this.logger);
             }
             if (preset._encyclopedia !== presetData.baseId) {
                 presetData.default = false;
             }
             presetData.normalized_name = normalizeName(presetData.name);
-            let itemPresetSize = await getPresetSize(presetData, logger);
+            let itemPresetSize = await getPresetSize(presetData, this.logger);
             if (itemPresetSize) {
                 presetData.width = itemPresetSize.width;
                 presetData.height = itemPresetSize.height;
@@ -126,9 +127,9 @@ module.exports = async (externalLogger = false) => {
                 defaults[firstItem.id] = presetData;
             } else if (presetData.default) {
                 existingDefault = defaults[firstItem.id];
-                logger.warn(`Preset ${presetData.name} ${presetId} cannot replace ${existingDefault.name} ${existingDefault.id} as default preset`);
+                this.logger.warn(`Preset ${presetData.name} ${presetId} cannot replace ${existingDefault.name} ${existingDefault.id} as default preset`);
             }
-            logger.succeed(`Completed ${presetData.name} preset (${presetData.containsItems.length+1} parts)`);
+            this.logger.succeed(`Completed ${presetData.name} preset (${presetData.containsItems.length+1} parts)`);
         }
         // add manual presets
         for (const presetData of manualPresets) {
@@ -137,7 +138,7 @@ module.exports = async (externalLogger = false) => {
             presetData.bsgCategoryId = baseItem._parent;
             presetData.types = ['preset'];
 
-            let itemPresetSize = await getPresetSize(presetData, logger);
+            let itemPresetSize = await getPresetSize(presetData, this.logger);
             if (itemPresetSize) {
                 presetData.width = itemPresetSize.width;
                 presetData.height = itemPresetSize.height;
@@ -158,32 +159,18 @@ module.exports = async (externalLogger = false) => {
 
             presetData.locale = getTranslations({
                 name: (lang) => {
-                    let appendName = presetData.appendName;
-                    if (Array.isArray(appendName)) {
-                        appendName = lang;
-                        for (const key of presetData.appendName) {
-                            appendName = appendName[key];
-                        }
-                    }
-                    return lang[`${baseItem._id} Name`] + ' ' + appendName;
+                    return lang[`${baseItem._id} Name`] + ' ' + lang[presetData.appendName] || locales.en[presetData.appendName];
                 },
                 shortName: (lang) => {
-                    let appendName = presetData.appendName;
-                    if (Array.isArray(appendName)) {
-                        appendName = lang;
-                        for (const key of presetData.appendName) {
-                            appendName = appendName[key];
-                        }
-                    }
-                    return lang[`${baseItem._id} ShortName`] + ' ' + appendName;
+                    return lang[`${baseItem._id} ShortName`] + ' ' + locales.en[presetData.appendName];
                 }
-            }, logger);
+            }, this.logger);
             presetData.name = presetData.locale.en.name;
             presetData.shortName = presetData.locale.en.shortName;
             presetData.normalized_name = normalizeName(presetData.name);
             delete presetData.appendName;
             presetsData[presetData.id] = presetData;
-            logger.succeed(`Completed ${presetData.name} manual preset (${presetData.containsItems.length+1} parts)`);
+            this.logger.succeed(`Completed ${presetData.name} manual preset (${presetData.containsItems.length+1} parts)`);
         }
         // add dog tag preset
         const bearTag = items['59f32bb586f774757e1e8442'];
@@ -221,7 +208,7 @@ module.exports = async (externalLogger = false) => {
                     count: 1
                 }
             ],
-            locale: getTranslations({name: getDogTagName, shortName: getDogTagName}, logger)
+            locale: getTranslations({name: getDogTagName, shortName: getDogTagName}, this.logger)
         };
 
         // check for missing default presets
@@ -248,7 +235,7 @@ module.exports = async (externalLogger = false) => {
                 }
             }
             if (!defaultId && items[item.id]._props.Slots.length > 0) {
-                logger.log(`${item.id} ${item.name} missing preset`);
+                this.logger.log(`${item.id} ${item.name} missing preset`);
             }
         }
 
@@ -271,51 +258,42 @@ module.exports = async (externalLogger = false) => {
                 shortName: (lang) => {
                     return lang[`${preset.baseId} ShortName`] + ' ' + lang.Default;
                 }
-            }, logger);
+            }, this.logger);
         }
-        logger.log('Updating presets in DB...');
+        this.logger.log('Updating presets in DB...');
         const queries = [];
         for (const presetId in presetsData) {
+            break;
             const p = presetsData[presetId];
-            queries.push(query(`
-                INSERT INTO 
-                    item_data (id, name, short_name, normalized_name, properties)
-                VALUES (
-                    '${p.id}',
-                    ${connection.escape(p.name)},
-                    ${connection.escape(p.shortName)},
-                    ${connection.escape(p.normalized_name)},
-                    ${connection.escape(JSON.stringify({backgroundColor: p.backgroundColor}))}
-                )
-                ON DUPLICATE KEY UPDATE
-                    name=${connection.escape(p.name)},
-                    short_name=${connection.escape(p.shortName)},
-                    normalized_name=${connection.escape(p.normalized_name)},
-                    properties=${connection.escape(JSON.stringify({backgroundColor: p.backgroundColor}))}
-            `).then(results => {
-                if(results.changedRows > 0){
-                    logger.log(`${p.name} updated`);
+            queries.push(remoteData.addItem({
+                id: p.id,
+                name: p.name,
+                short_name: p.shortName,
+                normalized_name: p.normalized_name,
+                width: p.width,
+                height: p.height,
+                properties: {backgroundColor: p.backgroundColor},
+            }).then(results => {
+                /*if (results.affectedRows > 0) {
+                    this.logger.log(`${p.name} updated`);
+                }*/
+                if (results.insertId !== 0) {
+                    this.logger.log(`${p.name} added`);
                 }
-                if(results.insertId !== 0){
-                    logger.log(`${p.name} added`);
-                }
+            }).catch(error => {
+                this.logger.error(`Error updating preset in DB`);
+                this.logger.error(error);
             }));
-            queries.push(query(`INSERT IGNORE INTO types (item_id, type) VALUES (?, ?)`, [p.id, 'preset']).catch(error => {
-                logger.error(`Error inerting preset type for ${p.name} ${p.id}`);
-                logger.error(error);
+            queries.push(remoteData.addType(p.id, 'preset').catch(error => {
+                this.logger.error(`Error inserting preset type for ${p.name} ${p.id}`);
+                this.logger.error(error);
             }));
         }
 
-        fs.writeFileSync(path.join(__dirname, '..', 'cache', 'presets.json'), JSON.stringify(presetsData, null, 4));
+        fs.writeFileSync(path.join(__dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(presetsData, null, 4));
         await Promise.allSettled(queries);
-    } catch (error) {
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.stack
-        });
+        return presetsData;
     }
-    logger.end();
-    await jobComplete();
-    logger = false;
-};
+}
+
+module.exports = UpdatePresetsJob;

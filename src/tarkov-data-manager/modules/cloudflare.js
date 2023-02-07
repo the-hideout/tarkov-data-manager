@@ -21,7 +21,8 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
         headers: {
             'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
         },
-        responseType: 'json'
+        responseType: 'json',
+        resolveBodyOnly: true,
     };
 
     if(extraHeaders){
@@ -50,21 +51,29 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
         }
     }
 
-    let response;
-
-    try {
-        response = await got(`${BASE_URL}${fullCloudflarePath}`, requestOptions);
-    } catch (requestError){
-        console.log(requestError);
-    }
-
-    return response.body;
+    return got(`${BASE_URL}${fullCloudflarePath}`, requestOptions).catch(error => {
+        return {
+            success: false,
+            errors: [error],
+            messages: [],
+        }
+    });
 };
 
 const putValue = async (key, value) => {
     const encoding = 'base64';
+    if (typeof value === 'object'){
+        value = JSON.stringify(value);
+    } 
     return doRequest('PUT', 'values', key, zlib.gzipSync(value).toString(encoding), false, {compression: 'gzip', encoding: encoding}).then(response => {
-        fs.writeFileSync(path.join(__dirname, '..', 'dumps', `${key.split("/").pop().toLowerCase()}.json`), JSON.stringify(JSON.parse(value), null, 4));
+        const newName = path.join(__dirname, '..', 'dumps', `${key.split("/").pop().toLowerCase()}.json`);
+        const oldName = newName.replace('.json', '_old.json');
+        try {
+            fs.renameSync(newName, oldName);
+        } catch (error) {
+            // do nothing
+        }
+        fs.writeFileSync(newName, JSON.stringify(JSON.parse(value), null, 4));
         return response;
     });
 };
@@ -163,9 +172,36 @@ const deleteValues = async (keys) => {
     return response.body;
 };
 
+const purgeCache = async (urls) => {
+    if (typeof urls === 'string') {
+        urls = [urls];
+    }
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
+        },
+        responseType: 'json',
+        //resolveBodyOnly: true,
+        json: {
+            files: urls
+        },
+        throwHttpErrors: false,
+        resolveBodyOnly: true,
+    };
+    return got(`${BASE_URL}zones/a17204c79af55fcf05e4975f66e2490e/purge_cache`, requestOptions).then(response => {
+        if (response.success === false && response.errors) {
+            //console.log(`Error purging ${urls.join(', ')}: ${response.errors.map(err => err.message).join(', ')}`);
+            return Promise.reject(new Error(`${response.errors[0].message} (${response.errors[0].code}) purging ${urls.join(', ')}: `));
+        }
+        return response;
+    });
+};
+
 module.exports = {
     put: putValue,
     getKeys: getKeys,
+    purgeCache: purgeCache,
     //getOldKeys: getOldKeys,
     //delete: deleteValue,
     //deleteBulk: deleteValues

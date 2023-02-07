@@ -1,62 +1,35 @@
 const fs = require('fs');
 const path = require('path');
 
-const { S3Client, ListObjectsV2Command } = require("@aws-sdk/client-s3");
-const {fromEnv} = require('@aws-sdk/credential-provider-env');
 const { imageFunctions } = require('tarkov-dev-image-generator');
 
-const JobLogger = require('../modules/job-logger');
-const {alert} = require('../modules/webhook');
-const { jobComplete } = require('../modules/db-connection');
 const remoteData = require('../modules/remote-data');
+const DataJob = require('../modules/data-job');
+const { getBucketContents } = require('../modules/upload-s3');
 
-const s3 = new S3Client({
-    region: 'us-east-1',
-    credentials: fromEnv(),
-});
-
-const getBucketContents = async (continuationToken = false) => {
-    const input = {
-        Bucket: process.env.S3_BUCKET,
-    };
-
-    if(continuationToken){
-        input.ContinuationToken = continuationToken;
+class CheckImageLinksJob extends DataJob {
+    constructor() {
+        super('check-image-links');
     }
 
-    console.log('Loading 1000 items');
-
-    let responseKeys = [];
-
-    const command = new ListObjectsV2Command(input);
-    const response = await s3.send(command);
-
-    responseKeys = response.Contents.map(item => item.Key);
-
-    if(response.NextContinuationToken){
-        responseKeys = responseKeys.concat(await getBucketContents(response.NextContinuationToken));
-    }
-
-    return responseKeys;
-}
-
-module.exports = async () => {
-    const logger = new JobLogger('check-image-links');
-    try {
+    async run() {
         const itemData = await remoteData.get();
 
         const activeItems = [...itemData.values()].filter(item => !item.types.includes('disabled'));
 
         if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-            logger.log('aws variables not configured; skipping check-image-links job');
-            logger.end();
+            this.logger.log('aws variables not configured; skipping check-image-links job');
+            this.logger.end();
             return;
         }
         const allKeys = await getBucketContents();
 
+        this.logger.log(`Retrieved ${allKeys.length} S3 bucket images`);
+
         const baseKeys = [];
 
         let deadLinks = 0;
+        let oldImages = 0;
 
         const imageSizes = imageFunctions.imageSizes;
 
@@ -91,34 +64,30 @@ module.exports = async () => {
                 imgType = false;
             }
             if (!imgType) {
-                logger.warn(`Unrecognized image type ${appendType} for ${filename}`);
+                //this.logger.warn(`Unrecognized image type ${appendType} for ${filename}`);
                 continue;
             }
             const item = itemData.get(id);
             if (!item) {
-                logger.warn(`Could not find item with id ${id}`);
+                this.logger.warn(`Could not find item with id ${id}`);
                 continue;
             }
             const imageLink = item[imgType.field];
             if (!imageLink) {
-                logger.warn(`Item ${item.name} ${item.id} does not have ${imgType.field}, but image exists in S3`);
+                this.logger.warn(`Item ${item.name} ${item.id} does not have ${imgType.field}, but image exists in S3`);
                 continue;
             }
             if (imageLink !== `https://${process.env.S3_BUCKET}/${filename}`) {
-                logger.warn(`Item ${item.name} ${item.id} ${imgType.field} ${item[imgType.field]} does not match filename is S3 ${filename}`);
+                //this.logger.warn(`Item ${item.name} ${item.id} ${imgType.field} ${item[imgType.field]} does not match filename in S3 ${filename}`);
+                oldImages++;
             }
         }
 
-        logger.log(`${deadLinks} dead image links found`);
-        logger.log(`${baseKeys.length} of ${activeItems.length} active items have base images`);
+        this.logger.log(`${deadLinks} dead item image links found`);
+        this.logger.log(`${oldImages} old item image links found`);
+        this.logger.log(`${baseKeys.length} of ${activeItems.length} active items have base images`);
         fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json'), JSON.stringify(baseKeys, null, 4));
-    } catch (error) {
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.toString()
-        });
     }
-    logger.end();
-    await jobComplete();
 }
+
+module.exports = CheckImageLinksJob;

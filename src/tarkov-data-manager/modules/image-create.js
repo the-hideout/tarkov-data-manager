@@ -3,43 +3,46 @@ const sharp = require('sharp');
 const axios = require('axios');
 const { imageFunctions } = require('tarkov-dev-image-generator');
 
+const remoteData = require('../modules/remote-data');
 const { uploadToS3 } = require('./upload-s3');
-const jobOutput = require('./job-output');
-const tarkovData = require('./tarkov-data');
+
+function itemFromDb(itemData) {
+    return {
+        id: itemData.id,
+        name: itemData.name,
+        shortName: itemData.short_name,
+        backgroundColor: itemData.properties.backgroundColor,
+        width: itemData.width,
+        height: itemData.height,
+        types: itemData.types,
+        image8xLink: itemData.image_8x_link,
+        baseImageLink: itemData.base_image_link,
+    };
+}
 
 async function createFromSource(sourceImage, id) {
-    const itemData = await jobOutput('update-item-cache', './dumps/item_data.json');
-    const taskData = await jobOutput('update-quests', './dumps/quest_data.json', false, true);
-    let item = itemData[id] || taskData.items[id];
-    if (!item) {
-        const items = await tarkovData.items();
-        const en = await tarkovData.locale('en');
-        if (!items[id] || !en.templates[id])
-            return Promise.reject(`Item ${id} not found in item data`);
-        item = {
-            id: id,
-            name: en.templates[id].Name,
-            shortName: en.templates[id].ShortName,
-            backgroundColor: items[id]._props.BackgroundColor,
-            width: items[id]._props.Width,
-            height: items[id]._props.Height,
-            types: []
-        }
+    const items = await remoteData.get();
+    const itemData = items.get(id);
+    if (!itemData) {
+        return Promise.reject(`Item ${id} not found in item data`);
     }
-    if (item.types.includes('gun')) {
-        item.width = item.properties.defaultWidth;
-        item.height = item.properties.defaultHeight;
-    }
+    const item = itemFromDb(itemData);
     if (typeof sourceImage === 'string') {
         sourceImage = sharp(sourceImage);
     }
     const imageResults = await Promise.allSettled([
-        imageFunctions.createIcon(sourceImage, item).then(result => {return {image: result, type: 'icon'}}),
-        imageFunctions.createBaseImage(sourceImage, item).then(result => {return {image: result, type: 'base-image'}}),
-        imageFunctions.createGridImage(sourceImage, item).then(result => {return {image: result, type: 'grid-image'}}),
-        imageFunctions.createInspectImage(sourceImage, item).then(result => {return {image: result, type: 'image'}}).catch(() => false),
-        imageFunctions.create512Image(sourceImage, item).then(result => {return {image: result, type: '512'}}).catch(() => false),
-        imageFunctions.create8xImage(sourceImage, item).then(result => {return {image: result, type: '8x'}}).catch(() => false),
+        imageFunctions.createIcon(sourceImage, item)
+            .then(result => {return {image: result, type: 'icon'}}),
+        imageFunctions.createBaseImage(sourceImage, item)
+            .then(result => {return {image: result, type: 'base-image'}}),
+        imageFunctions.createGridImage(sourceImage, item)
+            .then(result => {return {image: result, type: 'grid-image'}}),
+        imageFunctions.createInspectImage(sourceImage, item)
+            .then(result => {return {image: result, type: 'image'}}).catch(() => false),
+        imageFunctions.create512Image(sourceImage, item)
+            .then(result => {return {image: result, type: '512'}}).catch(() => false),
+        imageFunctions.create8xImage(sourceImage, item)
+            .then(result => {return {image: result, type: '8x'}}).catch(() => false),
     ]);
     const createdImages = [];
     const errors = [];
@@ -60,7 +63,12 @@ async function createAndUploadFromSource(sourceImage, id) {
     const createdImages = await createFromSource(sourceImage, id);
     const uploads = [];
     for (const result of createdImages) { 
-        uploads.push(uploadToS3(result.image, result.type, id));
+        uploads.push(uploadToS3(result.image, result.type, id).then(purged => {
+            return {
+                type: result.type,
+                purged: purged,
+            }
+        }));
     }
     const uploadResults = await Promise.allSettled(uploads);
     const errors = [];
@@ -72,15 +80,16 @@ async function createAndUploadFromSource(sourceImage, id) {
     if (errors.length > 0) {
         return Promise.reject(errors);
     }
-    return createdImages.map(img => img.type);
+    return uploadResults.map(result => result.value);
 }
 
-async function regenerateFromExisting(id) {
-    const itemData = await jobOutput('update-item-cache', './dumps/item_data.json');
-    const item = itemData[id];
-    if (!item) {
-        return Promise.reject(new Error(`Item ${id} not found in processed item data`));
+async function regenerateFromExisting(id, backgroundOnly = false) {
+    const items = await remoteData.get();
+    const itemData = items.get(id);
+    if (!itemData) {
+        return Promise.reject(`Item ${id} not found in item data`);
     }
+    const item = itemFromDb(itemData);
     let regenSource = '8x';
     let sourceUrl = item.image8xLink;
     if (item.image8xLink.includes('unknown-item')) {
@@ -90,31 +99,41 @@ async function regenerateFromExisting(id) {
         sourceUrl = `https://${process.env.S3_BUCKET}/${id}-base-image.png`;
         regenSource = 'base';
     }
-    if (item.types.includes('gun')) {
-        item.width = item.properties.defaultWidth;
-        item.height = item.properties.defaultHeight;
-    }
     const imageData = (await axios({ url: sourceUrl, responseType: 'arraybuffer' })).data;
     const sourceImage = sharp(await sharp(imageData).png().toBuffer());
     const imageJobs = [
-        imageFunctions.createIcon(sourceImage, item).then(result => {return {image: result, type: 'icon'}}),
-        imageFunctions.createGridImage(sourceImage, item).then(result => {return {image: result, type: 'grid-image'}}),
+        imageFunctions.createIcon(sourceImage, item)
+            .then(result => {return {image: result, type: 'icon'}})
+            .catch(error => {return Promise.reject({type: 'icon', error: error})}),
+        imageFunctions.createGridImage(sourceImage, item)
+            .then(result => {return {image: result, type: 'grid-image'}})
+            .catch(error => {return Promise.reject({type: 'grid', error: error})}),
     ];
-    if (regenSource === '8x') {
-        imageJobs.push(
-            imageFunctions.createInspectImage(sourceImage, item).then(result => {return {image: result, type: 'image'}})
-        );
-        imageJobs.push(
-            imageFunctions.createBaseImage(sourceImage, item).then(result => {return {image: result, type: 'base-image'}})
-        );
-        imageJobs.push(
-            imageFunctions.create512Image(sourceImage, item).then(result => {return {image: result, type: '512'}})
-        );
-    } else {
-        if (await imageFunctions.canCreateInspectImage(sourceImage)) {
+    if (!backgroundOnly) {
+        if (regenSource === '8x') {
             imageJobs.push(
-                imageFunctions.createInspectImage(sourceImage, item).then(result => {return {image: result, type: 'image'}})
+                imageFunctions.createInspectImage(sourceImage, item)
+                    .then(result => {return {image: result, type: 'image'}})
+                    .catch(error => {return Promise.reject({type: 'inspect', error: error})})
             );
+            imageJobs.push(
+                imageFunctions.createBaseImage(sourceImage, item)
+                    .then(result => {return {image: result, type: 'base-image'}})
+                    .catch(error => {return Promise.reject({type: 'base', error: error})})
+            );
+            imageJobs.push(
+                imageFunctions.create512Image(sourceImage, item)
+                    .then(result => {return {image: result, type: '512'}})
+                    .catch(error => {return Promise.reject({type: '512', error: error})})
+            );
+        } else {
+            if (await imageFunctions.canCreateInspectImage(sourceImage)) {
+                imageJobs.push(
+                    imageFunctions.createInspectImage(sourceImage, item)
+                        .then(result => {return {image: result, type: 'image'}})
+                        .catch(error => {return Promise.reject({type: 'inspect', error: error})})
+                );
+            }
         }
     }
     const imageResults = await Promise.allSettled(imageJobs);
@@ -122,7 +141,9 @@ async function regenerateFromExisting(id) {
     const errors = [];
     for (const result of imageResults) {
         if (result.status === 'rejected') {
-            errors.push(result.reason);
+            const error = result.reason.error;
+            error.message = `${result.reason.type} image error: ${error.message}`;
+            errors.push(error);
         } else {
             createdImages.push(result.value);
         }

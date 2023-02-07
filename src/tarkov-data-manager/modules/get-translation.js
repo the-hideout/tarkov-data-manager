@@ -21,6 +21,24 @@ const getTranslation = (langCode, translationTarget, logger, errorOnNotFound = t
     }
 };
 
+const getTranslationFromKey = (translationKey, translation) => {
+    if (translation[translationKey]) {
+        return translation[translationKey];
+    }
+    if (translation[translationKey.toLowerCase()]) {
+        return translation[translationKey.toLowerCase()];
+    }
+    if (translation[translationKey.charAt(0).toUpperCase() + translationKey.slice(1).toLowerCase()]) {
+        return translation[translationKey.charAt(0).toUpperCase() + translationKey.slice(1).toLowerCase()];
+    }
+    for (const key in translation) {
+        if (key.toLowerCase() === translationKey.toLowerCase()) {
+            return translation[key];
+        }
+    }
+    return undefined;
+};
+
 const translatePath = (langCode, path, logger, errorOnNotFound = true) => {
     if (!locales) {
         throw new Error('Must call setLocales before translatePath');
@@ -36,7 +54,7 @@ const translatePath = (langCode, path, logger, errorOnNotFound = true) => {
         throw new Error(`English translation localization missing`);
     }
     for (const pathPart of path) {
-        translation = translation[pathPart];
+        translation = getTranslationFromKey(pathPart, translation);
         if (!translation) {
             if (langCode !== 'en') {
                 //if (logger) logger.warn(`Translation for ${langCode}.${path.join('.')} not found; defaulting to en`);
@@ -53,7 +71,7 @@ const translatePath = (langCode, path, logger, errorOnNotFound = true) => {
         const enTran = translatePath('en', path, logger, errorOnNotFound);
         if (translation === enTran) return undefined;
     }
-    return translation;
+    return translation.replaceAll('\n', '');
 };
 
 const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
@@ -64,7 +82,11 @@ const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
     for (const langCode in locales) {
         translation[langCode] = {};
         for (const fieldName in translationTarget) {
-            if (Array.isArray(translationTarget[fieldName]) || typeof translationTarget[fieldName] === 'string') {
+            if (Array.isArray(translationTarget[fieldName])) {
+                translation[langCode][fieldName] = translationTarget[fieldName].map(element => {
+                    return translatePath(langCode, element, logger, errorOnNotFound);
+                });
+            } else if (typeof translationTarget[fieldName] === 'string') {
                 translation[langCode][fieldName] = translatePath(langCode, translationTarget[fieldName], logger, errorOnNotFound);
             } else if (typeof translationTarget[fieldName] === 'function') {
                 try {
@@ -81,6 +103,12 @@ const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
             }
             if (typeof translation[langCode][fieldName] === 'undefined') {
                 delete translation[langCode][fieldName];
+            }
+            if (Array.isArray(translation[langCode][fieldName])) {
+                translation[langCode][fieldName] = translation[langCode][fieldName].filter(val => val !== undefined);
+                if (translation[langCode][fieldName].length === 0) {
+                    delete translation[langCode][fieldName];
+                }
             }
         }
     }

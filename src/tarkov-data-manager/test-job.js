@@ -5,6 +5,7 @@ if (process.env.NODE_ENV !== 'production') {
     process.env.NODE_ENV = 'dev';
     process.env.VERBOSE_LOGS = 'true';
 }
-const jobModule = require(`./jobs/${process.argv[2]}`);
+process.env.TEST_JOB = 'true';
 console.log(`Running ${process.argv[2]}`);
-jobModule();
+const jobs = require('./jobs');
+jobs.runJob(process.argv[2]);

@@ -57,7 +57,7 @@ const methods = {
         const start = new Date();
         try {
             const allDataTimer = timer('item-data-query');
-            const resultsPromise = query(`
+            const results = await query(`
                 SELECT
                     item_data.*,
                     GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
@@ -71,6 +71,35 @@ const methods = {
                 allDataTimer.end();
                 return rows;
             });
+
+            const returnData = new Map();
+
+            for(const result of results){
+                Reflect.deleteProperty(result, 'item_id');
+                Reflect.deleteProperty(result, 'base_price');
+
+                const preparedData = {
+                    ...result,
+                    types: result.types?.split(',') || [],
+                    updated: result.last_update,
+                };
+                if (!preparedData.properties) preparedData.properties = {};
+                returnData.set(result.id, preparedData);
+            }
+
+            myData = returnData;
+            lastRefresh = new Date();
+            return Promise.resolve(returnData);
+        } catch (error) {
+            return Promise.reject(error);
+        }
+    },
+    getWithPrices: async (refreshItems = false) => {
+        console.log('Loading price data');
+
+        const start = new Date();
+        try {
+            const resultsPromise = methods.get(refreshItems);
             
             const priceTimer = timer('price-query');
             const pricePromise = new Promise(async (resolve, reject) => {
@@ -108,7 +137,6 @@ const methods = {
             [results, priceResults] = await Promise.all([resultsPromise, pricePromise]);
             console.log(`All queries completed in ${new Date() - start}ms`);
 
-            const returnData = new Map();
             const itemPrices = {};
 
             priceResults.forEach((resultRow) => {
@@ -134,33 +162,22 @@ const methods = {
                 }
             });
 
-            for(const result of results){
-                Reflect.deleteProperty(result, 'item_id');
-                Reflect.deleteProperty(result, 'base_price');
+            for(const [itemId, result] of results){
                 itemPrices[result.id]?.prices.sort();
-
-                const preparedData = {
-                    ...result,
-                    types: result.types?.split(',') || [],
-                    avg24hPrice: getPercentile(itemPrices[result.id]?.prices || []),
-                    low24hPrice: itemPrices[result.id]?.prices[0],
-                    high24hPrice: itemPrices[result.id]?.prices[itemPrices[result.id]?.prices.length - 1],
-                    updated: itemPrices[result.id]?.lastUpdated || result.last_update,
-                    lastLowPrice: itemPrices[result.id]?.lastLowPrice,
-                };
-                if (!preparedData.properties) preparedData.properties = {};
-                returnData.set(result.id, preparedData);
+                result.avg24hPrice = getPercentile(itemPrices[result.id]?.prices || []);
+                result.low24hPrice = itemPrices[result.id]?.prices[0];
+                result.high24hPrice = itemPrices[result.id]?.prices[itemPrices[result.id]?.prices.length - 1];
+                result.lastLowPrice = itemPrices[result.id]?.lastLowPrice;
+                result.updated = itemPrices[result.id]?.lastUpdated || result.last_update;
+                results.set(itemId, result);
             }
-
-            myData = returnData;
-            lastRefresh = new Date();
-            return Promise.resolve(returnData);
+            return results;
         } catch (error) {
             return Promise.reject(error);
         }
     },
     updateTypes: async updateObject => {
-        //const updateData = await methods.get();
+        await methods.get();
         const currentItemData = myData.get(updateObject.id);
 
         if(updateObject.active === false && !currentItemData.types.includes(updateObject.type)){
@@ -180,21 +197,125 @@ const methods = {
         myData.set(updateObject.id, currentItemData);
     },
     addType: async (id, type) => {
-        console.log(`Adding ${type} for ${id}`);
-        return query(`INSERT IGNORE INTO types (item_id, type) VALUES (?, ?)`, [id, type]);
+        //console.log(`Adding ${type} for ${id}`);
+        const [itemData, insertResult] = await Promise.all([
+            methods.get(),
+            query(`INSERT IGNORE INTO types (item_id, type) VALUES (?, ?)`, [id, type]),
+        ]);
+        const item = myData.get(id);
+        if (item && !item.types.includes(type)) {
+            item.types.push(type);
+        }
+        return insertResult;
     },
     removeType: async (id, type) => {
-        console.log(`Removing ${type} for ${id}`);
-        return query(`DELETE FROM types WHERE item_id = ? AND type= ?`, [id, type]);
+        //console.log(`Removing ${type} for ${id}`);
+        const [itemData, deleteResult] = await Promise.all([
+            methods.get(),
+            query(`DELETE FROM types WHERE item_id = ? AND type= ?`, [id, type])
+        ]);
+        const item = myData.get(id);
+        if (item) {
+            item.types = item.types.filter(t => t !== type);
+        }
+        return deleteResult;
     },
     setProperty: async (id, property, value) => {
         const currentItemData = myData.get(id);
         if (currentItemData[property] === value)
-            return;
+            return false;
         console.log(`Setting ${property} to ${value} for ${id}`);
         currentItemData[property] = value;
         myData.set(id, currentItemData);
         return query(`UPDATE item_data SET ${property} = ? WHERE id = ?`, [value, id]);
+    },
+    setProperties: async (id, properties) => {
+        const currentItemData = myData.get(id);
+        const changeValues = {};
+        for (const property in properties) {
+            if (property === 'id') {
+                continue;
+            }
+            if (property === 'types') {
+                console.log('Cannot set types via setProperties');
+                continue;
+            }
+            let value = properties[property];
+            let currentValue = currentItemData[property];
+            if (property === 'properties') {
+                currentValue = JSON.stringify(currentValue);
+                value = JSON.stringify(value);
+            }
+            if (currentValue !== value) {
+                changeValues[property]  = value;
+            }
+        }
+        if (Object.keys(changeValues) === 0) {
+            return;
+        }
+        console.log(`Setting ${id} properties to`, changeValues);
+        const propertyNames = [];
+        const propertyValues = [];
+        for (const property in changeValues) {
+            if (property === 'properties') {
+                currentItemData[property] = properties[property];
+            } else {
+                currentItemData[property] = changeValues[property];
+            }
+            propertyNames.push(`${property} = ?`);
+            propertyValues.push(changeValues[property])
+        }
+        myData.set(id, currentItemData);
+        return query(`UPDATE item_data SET ${propertyNames.join(', ')} WHERE id = ?`, [...propertyValues, id]);
+    },
+    addItem: async (values) => {
+        if (!values.id) {
+            return Promise.reject(new Error('You must provide id to add an item'));
+        }
+        await methods.get();
+        const insertFields = [];
+        const insertValues = [];
+        const updateFields = [];
+        const updateValues = [];
+        for (const property in values) {
+            if (property === 'types') {
+                continue;
+            }
+            let value = values[property];
+            if (property === 'properties') {
+                value = JSON.stringify(value);
+            }
+            insertFields.push(property);
+            insertValues.push(value);
+            if (property !== 'id') {
+                updateFields.push(`${property}=?`);
+                updateValues.push(value);
+            }
+        }
+        return query(`
+            INSERT INTO 
+                item_data (${insertFields.join(', ')})
+            VALUES (
+                ${insertValues.map(() => '?')}
+            )
+            ON DUPLICATE KEY UPDATE
+                ${updateFields.join(', ')}
+        `, [...insertValues, ...updateValues]).then(insertResult => {
+            if (insertResult.insertId !== 0){
+                myData.set(values.id, {
+                    ...values,
+                    types: [],
+                    updated: new Date(),
+                });
+            }
+            if (insertResult.affectedRows > 0) {
+                myData.set(values.id, {
+                    ...myData.get(values.id),
+                    ...values,
+                });
+            }
+            return insertResult;
+        });
     },
 };
 

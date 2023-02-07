@@ -220,13 +220,13 @@
                 ]
             }
         ],
-        "taskRequirementsRemoved": [
+        "___taskRequirementsRemoved": [
             {
                 "id": "597a0e5786f77426d66c0636",
                 "name": "Chemical - Part 3"
             }
         ],
-        "objectivesRemoved": [
+        "___objectivesRemoved": [
             "60e827a20c492412897c688f",
             "60e827a20c492412897c688g",
             "60e827a20c492412897c688h",
@@ -240,7 +240,7 @@
             "60e827a20c492412897c688p",
             "60e827a20c492412897c688q"
         ],
-        "objectiveIdsChanged": {
+        "___objectiveIdsChanged": {
             "60e827faf09904268a4dbc41": "62a6ff004de19a4c3422ea5d",
             "60e827faf09904268a4dbc42": "62a6ff141c307729c3264f96",
             "60e827faf09904268a4dbc43": "62a6ff203e015d7ce1151d8a",
@@ -279,6 +279,7 @@
     "5edac63b930f5454f51e128b" : {
         "name": "TerraGroup Employee",
         "propertiesChanged" : {
+            "minPlayerLevel": 23,
             "taskRequirements": [
                 {
                     "task": "5edac020218d181e29451446",
@@ -291,14 +292,13 @@
                     "task": "5edab4b1218d181e29451435",
                     "name": "The Huntsman Path - Sadist",
                     "status": [
-                        "complete",
-                        "failed"
+                        "complete"
                     ]
                 }
             ]
         }
     },
-    "60e71b9bbd90872cb85440f3": {
+    "___60e71b9bbd90872cb85440f3": {
         "name": "Capturing Outposts",
         "objectivesChanged": {
             "60ec1e72d7b7cb55e94c1764": {
@@ -309,7 +309,7 @@
             }
         }
     },
-    "60e71c48c1bfa3050473b8e5": {
+    "___60e71c48c1bfa3050473b8e5": {
         "name": "Crisis",
         "objectivesAdded": [
             {
@@ -434,6 +434,171 @@
         "name": "The Choice",
         "propertiesChanged": {
             "minPlayerLevel": 50
+        }
+    },
+    "5a27c99a86f7747d2c6bdd8e": {
+        "name": "Friend from the West - Part 1",
+        "propertiesChanged" : {
+            "minPlayerLevel": 0,
+            "traderLevelRequirements": [
+                {
+                    "id": "5a27c99a86f7747d2c6bdd8e-58330581ace78e27b8b10cee",
+                    "trader_id": "58330581ace78e27b8b10cee",
+                    "name": "Skier",
+                    "level": 2
+                }
+            ]
+        }
+    },
+    "5eda19f0edce541157209cee": {
+        "name": "Anesthesia",
+        "propertiesChanged" : {
+            "minPlayerLevel": 21
+        }
+    },
+    "5d4bec3486f7743cac246665": {
+        "name": "Regulated Materials",
+        "propertiesChanged" : {
+            "minPlayerLevel": 25
+        }
+    },
+    "5edab736cc183c769d778bc2": {
+        "name": "Colleagues - Part 1",
+        "propertiesChanged" : {
+            "minPlayerLevel": 21
+        }
+    },
+    "5edabd13218d181e29451442": {
+        "name": "Rigged Game",
+        "propertiesChanged" : {
+            "minPlayerLevel": 0
+        }
+    },
+    "5bc4776586f774512d07cf05": {
+        "name": "The Tarkov Shooter - Part 1",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "5d24b81486f77439c92d6ba8",
+                    "name": "Acquaintance",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "5ae4493486f7744efa289417": {
+        "name": "Database - Part 1",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "5ae448bf86f7744d733e55ee",
+                    "name": "Make ULTRA Great Again",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "5ae448f286f77448d73c0131": {
+        "name": "The Blood of War - Part 1",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "5ae448bf86f7744d733e55ee",
+                    "name": "Make ULTRA Great Again",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "6086c852c945025d41566124": {
+        "name": "Revision - Reserve",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "5a27b87686f77460de0252a8",
+                    "name": "Humanitarian Supplies",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "6179b4d1bca27a099552e04e": {
+        "name": "Revision - Lighthouse",
+        "taskRequirementsRemoved": [
+            {
+                "id": "5a27b80086f774429a5d7e20",
+                "name": "Eagle Eye"
+            }
+        ]
+    },
+    "639135f286e646067c176a87": {
+        "name": "Revision - Streets of Tarkov",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "5a27b87686f77460de0252a8",
+                    "name": "Humanitarian Supplies",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "5a27d2af86f7744e1115b323",
+                    "name": "Friend from the West - Part 2",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "__6179b3a12153c15e937d52bc": {
+        "name": "Energy Crisis",
+        "taskRequirementsRemoved": [
+            {
+                "id": "596760e186f7741e11214d58",
+                "name": "Postman Pat - Part 2"
+            }
+        ]
+    },
+    "639136e84ed9512be67647db": {
+        "name": "Cease Fire!",
+        "taskRequirementsAdded": [
+            {
+                "task": "63a88045abf76d719f42d715",
+                "name": "The Delicious Sausage",
+                "status": [
+                    "complete"
+                ]
+            }
+        ]
+    },
+    "60e71dc0a94be721b065bbfc": {
+        "name": "Long Line",
+        "propertiesChanged" : {
+            "minPlayerLevel": 45
+        }
+    },
+    "63966fe7ea74a47c2d3fc0e6": {
+        "name": "Return the Favor",
+        "propertiesChanged": {
+            "location_id": "5704e3c2d2720bac5b8b4567",
+            "locationName": "Woods"
+        }
+    },
+    "6396700fea19ac7ed845db32": {
+        "name": "Spotter",
+        "propertiesChanged": {
+            "location_id": "5714dc692459777137212e12",
+            "locationName": "Streets of Tarkov"
         }
     }
 }

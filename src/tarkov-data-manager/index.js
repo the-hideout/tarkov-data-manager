@@ -4,7 +4,7 @@ const vm = require('vm');
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const session = require('express-session');
+const session = require('cookie-session');
 const chalk = require('chalk');
 const Sentry = require("@sentry/node");
 const formidable = require('formidable');
@@ -33,7 +33,7 @@ const timer = require('./modules/console-timer');
 const scannerApi = require('./modules/scanner-api');
 const webhookApi = require('./modules/webhook-api');
 const queueApi = require('./modules/queue-api');
-const { uploadToS3, getImages } = require('./modules/upload-s3');
+const { uploadToS3, getImages, getLocalBucketContents, addFileToBucket, deleteFromBucket } = require('./modules/upload-s3');
 const { createAndUploadFromSource, regenerateFromExisting } = require('./modules/image-create');
 
 vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
@@ -81,6 +81,11 @@ function maybe(fn) {
         fn(req, res, next);
     }
 };
+
+const validJsonDirs = [
+    'cache',
+    'dumps',
+];
 
 const users = {
     "admin": process.env.AUTH_PASSWORD
@@ -253,6 +258,8 @@ const getHeader = (req, options) => {
                         <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
                         <li class="${req.url === '/webhooks' ? 'active' : ''}"><a href="/webhooks">Webhooks</a></li>
                         <li class="${req.url === '/crons' ? 'active' : ''}"><a href="/crons">Crons</a></li>
+                        <li class="${req.url === '/json' ? 'active' : ''}"><a href="/json">JSON</a></li>
+                        <li class="${req.url === '/s3-bucket' ? 'active' : ''}"><a href="/s3-bucket">S3 Bucket</a></li>
                         <li class="${req.url === '/wipes' ? 'active' : ''}"><a href="/wipes">Wipes</a></li>
                         <!--li class="${req.url === '/trader-prices' ? 'active' : ''}"><a href="/trader-prices">Trader Prices</a></li-->
                     </ul>
@@ -264,6 +271,8 @@ const getHeader = (req, options) => {
                 <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
                 <li class="${req.url === '/webhooks' ? 'active' : ''}"><a href="/webhooks">Webhooks</a></li>
                 <li class="${req.url === '/crons' ? 'active' : ''}"><a href="/crons">Crons</a></li>
+                <li class="${req.url === '/json' ? 'active' : ''}"><a href="/json">JSON</a></li>
+                <li class="${req.url === '/s3-bucket' ? 'active' : ''}"><a href="/s3-bucket">S3 Bucket</a></li>
                 <li class="${req.url === '/wipes' ? 'active' : ''}"><a href="/crons">Wipes</a></li>
                 <!--li class="${req.url === '/trader-prices' ? 'active' : ''}"><a href="/trader-prices">Trader Prices</a></li-->
             </ul>
@@ -361,11 +370,15 @@ app.get('/', async (req, res) => {
     res.send(allData);
 });*/
 
-app.post('/update', (request, response) => {
-    console.log(request.body);
+app.post('/items/update-types/:id', async (request, response) => {
+    //console.log(request.body, request.params.id);
     const res = {errors: [], message: ''};
     try {
-        remoteData.updateTypes(request.body);
+        if (request.body.active) {
+            await remoteData.addType(request.params.id, request.body.type);
+        } else {
+            await remoteData.removeType(request.params.id, request.body.type);
+        }
         res.message = 'ok';
     } catch (error) {
         res.errors.push(error.message);
@@ -428,7 +441,7 @@ app.post('/items/edit/:id', async (req, res) => {
             form.parse(req, async (err, fields, files) => {
                 if (err) {
                     finish(files);
-                    return reject(error);
+                    return reject(err);
                 }
                 let sourceUpload = false;
                 for (const field in files) {
@@ -564,9 +577,9 @@ app.get('/items', async (req, res) => {
                             <th>
                                 Tags
                             </th>
-                            <th>
+                            <!--th>
                                 Price
-                            </th>
+                            </th-->
                         </tr>
                     </thead>
                     <tbody>
@@ -1379,7 +1392,7 @@ app.get('/crons/get', async (req, res) => {
 
 app.get('/crons/get/:name', async (req, res) => {
     try {
-        const logMessages = JSON.parse(fs.readFileSync(path.join(__dirname, 'logs', req.params.name+'.log')));
+        const logMessages = JSON.parse(fs.readFileSync(path.join(__dirname, 'logs', req.params.name+'.log'), {encoding: 'utf8'}));
         res.json(logMessages);
         return;
     } catch (error) {
@@ -1412,12 +1425,293 @@ app.get('/crons/run/:name', async (req, res) => {
         errors: []
     };
     try {
-        jobs.runJob(req.params.name);
+        const startDate = new Date();
+        await jobs.runJob(req.params.name);
+        response.message = `${req.params.name} job finished in ${new Date - startDate} ms`;
     } catch (error) {
         console.log(chalk.red(`Error running ${req.params.name} job`), error);
         response.success = false;
         response.message = `Error running ${req.params.name} job`;
         response.errors.push(error.toString());
+    }
+    res.json(response);
+});
+
+app.get('/json', async (req, res) => {
+    res.send(`${getHeader(req, {include: 'datatables'})}
+        <script src="/ansi_up.js"></script>
+        <script src="/json.js"></script>
+        <div class="row">
+            <div class="col s10 offset-s1">
+                <div>
+                    <form class="col s12 post-url json-upload id" data-attribute="action" method="post" action="">
+                        <span>Upload: </span><input id="json-upload" class="single-upload" type="file" name="file" />
+                        <a href="#" class="waves-effect waves-light btn json-upload tooltipped" data-tooltip="Upload"><i class="material-icons">file_upload</i></a>
+                    </form>
+                </div>
+                <div>
+                    <label>
+                        <input name="json-dir" type="radio" id="dir-cache" value="cache" checked />
+                        <span>cache</span>
+                    </label>
+                    <label>
+                        <input name="json-dir" type="radio" id="dir-dumps" value="dumps" />
+                        <span>dumps</span>
+                    </label>
+                </div>
+                <table class="highlight main">
+                    <thead>
+                        <tr>
+                            <th>
+                                File
+                            </th>
+                            <th>
+                                Size (kb)
+                            </th>
+                            <th>
+                                Modified
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="modal-delete-confirm" class="modal">
+            <div class="modal-content">
+                <h4>Confirm Delete</h4>
+                <div>Are you sure you want to delete <span class="modal-delete-confirm-file"></span>?</div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat delete-confirm">Yes</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat delete-cancel">No</a>
+            </div>
+        </div>
+    ${getFooter(req)}`);
+});
+
+app.get('/json/:dir', async (req, res) => {
+    const response = {json: [], errors: []};
+    const dir = req.params.dir;
+    if (!validJsonDirs.includes(dir)) {
+        response.errors.push(`${dir} is not a valid JSON directory`);
+        return res.json(response);
+    }
+    const jsonFiles = fs.readdirSync(`./${dir}`).filter(file => file.endsWith('.json'));
+
+    for (const file of jsonFiles) {
+        var stats = fs.statSync(`./${dir}/${file}`);
+        response.json.push({
+            name: file,
+            size: stats.size,
+            modified: stats.mtime,
+        });
+    }
+    response.json = response.json.sort((a, b) => a.name.localeCompare(b.name));
+    res.json(response);
+});
+
+app.get('/json/:dir/:file', async (req, res) => {
+    const dir = req.params.dir;
+    let file = req.params.file;
+    file = file.split('/').pop();
+    file = file.split('\\').pop();
+    if (!validJsonDirs.includes(dir) || !file.endsWith('.json')) {
+        return res.status(404).send('Not found');
+    }
+    try {
+        const jsonFile = fs.readFileSync(`./${dir}/${file}`);
+        res.send(jsonFile);
+    } catch (error) {
+        return res.status(404).send(error.message);
+    }
+});
+
+app.delete('/json/:dir/:file', async (req, res) => {
+    const dir = req.params.dir;
+    let file = req.params.file;
+    file = file.split('/').pop();
+    file = file.split('\\').pop();
+    const response = {message: `${file} deleted`, errors: []};
+    if (!validJsonDirs.includes(dir) || !file.endsWith('.json')) {
+        response.message = 'Error deleting '+file;
+        response.errors.push(`${dir} is not a valid directory`);
+        return res.json(response);
+    }
+    try {
+        fs.unlinkSync(`./${dir}/${file}`);
+        res.send(response);
+    } catch (error) {
+        response.message = 'Error deleting '+file;
+        response.errors.push(error.message);
+        return res.json(response);
+    }
+});
+
+app.post('/json/:dir', async (req, res) => {
+    const response = {json: [], errors: []};
+    const dir = req.params.dir;
+    if (!validJsonDirs.includes(dir)) {
+        response.errors.push(`${dir} is not a valid JSON directory`);
+        return res.json(response);
+    }
+    const form = formidable({
+        multiples: true,
+        uploadDir: path.join(__dirname, 'cache'),
+    });
+    const finish = (files) => {
+        if (files) {
+            for (const key in files) {
+                //console.log('removing', files[key].filepath);
+                fs.rm(files[key].filepath, error => {
+                    if (error) console.log(`Error deleting ${files[key].filepath}`, error);
+                });
+            }
+        }
+    };
+
+    try {
+        await new Promise((resolve, reject) => {
+            form.parse(req, async (error, fields, files) => {
+                if (error) {
+                    finish(files);
+                    return reject(error);
+                }
+                let file = files.file.originalFilename;
+                file = file.split('/').pop();
+                file = file.split('\\').pop();
+                if (!file.endsWith('.json')) {
+                    return reject(new Error(`File name must end in .json`));
+                }
+                fs.renameSync(files.file.filepath, `./${dir}/${file}`);
+                delete files.file;
+                finish(files);
+                response.message = `${file} uploaded`;
+                resolve();
+            });
+        });
+    } catch (error) {
+        if (Array.isArray(error)) {
+            for (const err of error) {
+                console.log(err);
+                response.errors.push(err.message);
+            }
+        } else {
+            console.log(error);
+            response.errors.push(error.message);
+        }
+    }
+    res.json(response);
+});
+
+app.get('/s3-bucket', async (req, res) => {
+    res.send(`${getHeader(req, {include: 'datatables'})}
+        <script src="/ansi_up.js"></script>
+        <script src="/s3-bucket.js"></script>
+        <div class="row">
+            <div class="col s10 offset-s1">
+                <div>
+                    <form class="col s12 post-url file-upload id" data-attribute="action" method="post" action="">
+                        <span>Upload: </span><input id="file-upload" class="single-upload" type="file" name="file" />
+                        <a href="#" class="waves-effect waves-light btn file-upload tooltipped" data-tooltip="Upload"><i class="material-icons">file_upload</i></a>
+                    </form>
+                </div>
+                <table class="highlight main">
+                    <thead>
+                        <tr>
+                            <th>
+                                File
+                            </th>
+                            <th>
+                                Image
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="modal-delete-confirm" class="modal">
+            <div class="modal-content">
+                <h4>Confirm Delete</h4>
+                <div>Are you sure you want to delete <span class="modal-delete-confirm-file"></span>?</div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat delete-confirm">Yes</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat delete-cancel">No</a>
+            </div>
+        </div>
+    ${getFooter(req)}`);
+});
+
+app.get('/s3-bucket/get', async (req, res) => {
+    const response = {json: [], errors: []};
+    for (const key of getLocalBucketContents()) {
+        response.json.push({
+            name: key,
+            link: `https://${process.env.S3_BUCKET}/${key}`,
+        });
+    }
+    res.json(response);
+});
+
+app.delete('/s3-bucket/:file', async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        await deleteFromBucket(req.params.file);
+        response.message = `${req.params.file} deleted from S3`;
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.json(response);
+});
+
+app.post('/s3-bucket', async (req, res) => {
+    const response = {json: [], errors: []};
+    const dir = req.params.dir;
+    const form = formidable({
+        multiples: true,
+        uploadDir: path.join(__dirname, 'cache'),
+    });
+    const finish = (files) => {
+        if (files) {
+            for (const key in files) {
+                //console.log('removing', files[key].filepath);
+                fs.rm(files[key].filepath, error => {
+                    if (error) console.log(`Error deleting ${files[key].filepath}`, error);
+                });
+            }
+        }
+    };
+
+    try {
+        await new Promise((resolve, reject) => {
+            form.parse(req, async (error, fields, files) => {
+                if (error) {
+                    finish(files);
+                    return reject(error);
+                }
+                let file = files.file.originalFilename;
+                file = file.split('/').pop();
+                file = file.split('\\').pop();
+                await addFileToBucket(files.file.filepath, file);
+                finish(files);
+                response.message = `${file} uploaded to S3`;
+                resolve();
+            });
+        });
+    } catch (error) {
+        if (Array.isArray(error)) {
+            for (const err of error) {
+                console.log(err);
+                response.errors.push(err.message);
+            }
+        } else {
+            console.log(error);
+            response.errors.push(error.message);
+        }
     }
     res.json(response);
 });

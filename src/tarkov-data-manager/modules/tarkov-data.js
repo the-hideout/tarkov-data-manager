@@ -1,10 +1,37 @@
+const fs = require('fs');
+
 const tarkovChanges = require('./tarkov-changes');
 const tarkovBot = require('./tarkov-bot');
 const spt = require('./tarkov-spt');
 
+let manualTranslations = {};
+try {
+    const langFiles = fs.readdirSync('./translations').filter(file => file.endsWith('.json'));
+    for (const file of langFiles) {
+        const langCode = file.split('.')[0];
+        manualTranslations[langCode] = JSON.parse(fs.readFileSync(`./translations/${file}`));
+    }
+} catch (error) {
+    console.error('Error parsing manual language file:', error);
+}
+
+async function addManualTranslations(lang, langCode) {
+    lang = await lang;
+    if (!manualTranslations[langCode]) {
+        return lang;
+    }
+    return {
+        ...manualTranslations[langCode],
+        ...lang,
+    };
+}
+
 module.exports = {
     areas: (download = false) => {
         return tarkovChanges.areas(download);
+    },
+    botInfo: (botKey, download = true) => {
+        return spt.botInfo(botKey, download);
     },
     crafts: (download = false) => {
         return tarkovChanges.crafts(download);
@@ -22,15 +49,22 @@ module.exports = {
         return tarkovChanges.items(download);
     },
     locale: (lang = 'en', download = false) => {
-        if (lang == 'en') return tarkovChanges.locale_en(download);
+        if (lang == 'en') return addManualTranslations(tarkovChanges.locale_en(download), lang);
         //if (lang == 'ru') return tarkovBot.locale('ru', download);
-        return spt.locale(lang, download);
+        return addManualTranslations(spt.locale(lang, download), lang);
     },
     locales: async (download = false) => {
         const [en, ru, others] = await Promise.all([
-            tarkovChanges.locale_en(download),
-            tarkovBot.locale('ru', download),
-            spt.locales(download),
+            addManualTranslations(tarkovChanges.locale_en(download), 'en'),
+            addManualTranslations(tarkovBot.locale('ru', download), 'ru'),
+            spt.locales(download).then(async langs => {
+                mergedLangs = {};
+                const langCodes = Object.keys(langs);
+                for (const langCode of langCodes) {
+                    mergedLangs[langCode] = await addManualTranslations(langs[langCode], langCode);
+                }
+                return mergedLangs;
+            }),
         ]);
         return {
             en: en,

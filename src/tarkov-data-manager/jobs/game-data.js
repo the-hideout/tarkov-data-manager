@@ -1,46 +1,36 @@
-const tcData = require('./update-tc-data');
-const updateNewItems = require('./update-new-items');
-const updateItemNames = require('./update-item-names');
-const updateTypes = require('./update-types');
-const { connection, jobComplete } = require('../modules/db-connection');
-const JobLogger = require('../modules/job-logger');
+const { connection } = require('../modules/db-connection');
 const tarkovData = require('../modules/tarkov-data');
-const {alert} = require('../modules/webhook');
+const DataJob = require('../modules/data-job');
 
-module.exports = async () => {
-    const logger = new JobLogger('game-data');
-    const keepAlive = connection.keepAlive;
-    connection.keepAlive = true;
-    try {
-        logger.log('Running update-tc-data...');
-        await tcData(logger);
-        logger.log('Completed update-tc-data');
-
-        logger.log('Running updateNewItems...');
-        await updateNewItems(logger);
-        logger.log('Completed updateNewItems');
-
-        logger.log('Running updateItemNames...');
-        await updateItemNames(logger);
-        logger.log('Completed updateItemNames');
-
-        logger.log('Running updateTypes...');
-        await updateTypes(logger);
-        logger.log('Completed updateTypes');
-
-        logger.log('Updating handbook...');
-        await tarkovData.handbook(true);
-        logger.log('Completed updating handbook')
-    } catch (error){
-        logger.error(error);
-        alert({
-            title: `Error running ${logger.jobName} job`,
-            message: error.toString()
-        });
+class GameDataJob extends DataJob {
+    constructor() {
+        super('game-data');
     }
-    connection.keepAlive = keepAlive;
 
-    // Possibility to POST to a Discord webhook here with cron status details
-    await jobComplete();
-    logger.end();
+    async run() {
+        const keepAlive = connection.keepAlive;
+        connection.keepAlive = true;
+        this.logger.log('Running update-tc-data...');
+        await this.jobManager.runJob('update-tc-data', {parent: this});
+        this.logger.log('Completed update-tc-data');
+
+        this.logger.log('Running updateNewItems...');
+        await this.jobManager.runJob('update-new-items', {parent: this});
+        this.logger.log('Completed updateNewItems');
+
+        this.logger.log('Running updateItemNames...');
+        await this.jobManager.runJob('update-item-names', {parent: this});
+        this.logger.log('Completed updateItemNames');
+
+        this.logger.log('Running updateTypes...');
+        await this.jobManager.runJob('update-types', {parent: this});
+        this.logger.log('Completed updateTypes');
+
+        this.logger.log('Updating handbook...');
+        await tarkovData.handbook(true);
+        this.logger.log('Completed updating handbook');
+        connection.keepAlive = keepAlive;
+    }
 }
+
+module.exports = GameDataJob;
