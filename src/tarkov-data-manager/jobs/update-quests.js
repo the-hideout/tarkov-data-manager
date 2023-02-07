@@ -1290,9 +1290,9 @@ class UpdateQuestsJob extends DataJob {
                     if (!Array.isArray(mapIds)) {
                         mapIds = [mapIds];
                     }
-                    for (const map of mapIds) {
-                        if (!obj.map_ids.includes(mapIds)) {
-                            obj.map_ids.push(mapIds);
+                    for (const mapId of mapIds) {
+                        if (!obj.map_ids.includes(mapId)) {
+                            obj.map_ids.push(mapId);
                         } 
                     }
                 });
