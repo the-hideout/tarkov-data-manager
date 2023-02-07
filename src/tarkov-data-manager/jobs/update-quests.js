@@ -1094,7 +1094,6 @@ class UpdateQuestsJob extends DataJob {
                 const reducedZones = obj.zoneKeys.reduce((reducedKeys, key) => {
                     if (!this.locales.en[key]) {
                         if (obj.type === 'shoot' || obj.type === 'extract') {
-                            console.log(objective._parent )
                             this.logger.warn(`No translation for zone ${key} for objective ${objective._props.id} of ${questData.name}`);
                         }
                         return reducedKeys;
@@ -1285,8 +1284,11 @@ class UpdateQuestsJob extends DataJob {
         for (const obj of questData.objectives) {
             if (obj.zoneKeys?.length > 0) {
                 obj.zoneKeys.forEach(zoneKey => {
-                    if (!zoneMap[zoneKey] && !questData.location_id) {
-                        this.logger.warn(`Zone key ${zoneKey} is not associated with a map`);
+                    this.logger.log(zoneKey)
+                    if (!zoneMap[zoneKey]) {
+                        if (!questData.location_id) {
+                            this.logger.warn(`Zone key ${zoneKey} is not associated with a map`);
+                        }
                         return;
                     }
                     let mapIds = zoneMap[zoneKey];
@@ -1352,6 +1354,22 @@ const zoneMap = {
     mechanik_exit_area_1: '5704e5fad2720bc05b8b4567',
     meh_44_eastLight_kill: '5704e4dad2720bb55b8b4567', //lighthouse
     place_merch_022_1: '5714dbc024597771384a510d', //interchange
+    place_pacemaker_SCOUT_01: [
+        '55f2d3fd4bdc2d5f408b4567', 
+        '59fc81d786f774390775787e', 
+    ],
+    place_pacemaker_SCOUT_02: [
+        '55f2d3fd4bdc2d5f408b4567', 
+        '59fc81d786f774390775787e', 
+    ],
+    place_pacemaker_SCOUT_03: [
+        '55f2d3fd4bdc2d5f408b4567', 
+        '59fc81d786f774390775787e', 
+    ],
+    place_pacemaker_SCOUT_04: [
+        '55f2d3fd4bdc2d5f408b4567', 
+        '59fc81d786f774390775787e', 
+    ],
     place_SADOVOD_01_1: [
         '55f2d3fd4bdc2d5f408b4567', 
         '59fc81d786f774390775787e', 
