@@ -1,12 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
-const { ListObjectsV2Command } = require("@aws-sdk/client-s3");
 const { imageFunctions } = require('tarkov-dev-image-generator');
 
 const remoteData = require('../modules/remote-data');
 const DataJob = require('../modules/data-job');
-const { client: s3 } = require('../modules/upload-s3');
+const { getBucketContents } = require('../modules/upload-s3');
 
 class CheckImageLinksJob extends DataJob {
     constructor() {
@@ -24,6 +23,8 @@ class CheckImageLinksJob extends DataJob {
             return;
         }
         const allKeys = await getBucketContents();
+
+        this.logger.log(`Retrieved ${allKeys.length} S3 bucket images`);
 
         const baseKeys = [];
 
@@ -84,31 +85,6 @@ class CheckImageLinksJob extends DataJob {
         this.logger.log(`${baseKeys.length} of ${activeItems.length} active items have base images`);
         fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json'), JSON.stringify(baseKeys, null, 4));
     }
-}
-
-const getBucketContents = async (continuationToken = false) => {
-    const input = {
-        Bucket: process.env.S3_BUCKET,
-    };
-
-    if(continuationToken){
-        input.ContinuationToken = continuationToken;
-    }
-
-    console.log('Loading 1000 items');
-
-    let responseKeys = [];
-
-    const command = new ListObjectsV2Command(input);
-    const response = await s3.send(command);
-
-    responseKeys = response.Contents.map(item => item.Key);
-
-    if(response.NextContinuationToken){
-        responseKeys = responseKeys.concat(await getBucketContents(response.NextContinuationToken));
-    }
-
-    return responseKeys;
 }
 
 module.exports = CheckImageLinksJob;

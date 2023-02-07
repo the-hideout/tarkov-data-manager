@@ -10,6 +10,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 const remoteData = require('./modules/remote-data');
 const cloudflare = require('./modules/cloudflare');
+const s3 = require('./modules/upload-s3');
 const {jobComplete, query} = require('./modules/db-connection');
 
 (async () => {

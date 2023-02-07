@@ -1,5 +1,8 @@
+const fs = require('fs');
+const path = require('path');
+
 const sharp = require('sharp');
-const { S3Client, PutObjectCommand, GetObjectCommand } = require("@aws-sdk/client-s3");
+const { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command, HeadObjectCommand, DeleteObjectCommand, Delete } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
 
 const cloudflare = require('./cloudflare');
@@ -68,6 +71,8 @@ async function upload(image, imageType, id) {
     if (purgeNeeded) {
         await cloudflare.purgeCache(imageLink);
         return true;
+    } else {
+        addToLocalBucket(imageLink);
     }
     return false;
 }
@@ -115,9 +120,105 @@ async function downloadFromId(item) {
     return {images: imageResponses, errors: errors};
 }
 
+async function fileExistsInS3(filename) {
+    const input = {
+        Bucket: process.env.S3_BUCKET,
+        Key: filename,
+    };
+    try {
+        await s3.send(new HeadObjectCommand(input));
+        return true;
+    } catch (error) {
+        if (error.name === 'NotFound') {
+            console.log(filename, 'not found')
+            return false;
+        }
+        return Promise.reject(error);
+    }
+}
+
+const getBucketContents = async (continuationToken = false) => {
+    const input = {
+        Bucket: process.env.S3_BUCKET,
+    };
+
+    if(continuationToken){
+        input.ContinuationToken = continuationToken;
+    }
+
+    let responseKeys = [];
+
+    const command = new ListObjectsV2Command(input);
+    const response = await s3.send(command);
+
+    responseKeys = response.Contents.map(item => item.Key);
+
+    if(response.NextContinuationToken){
+        responseKeys = responseKeys.concat(await getBucketContents(response.NextContinuationToken));
+    }
+
+    fs.writeFileSync(path.join(__dirname, '..', 'cache', 's3-bucket-contents.json'), JSON.stringify(responseKeys, null, 4));
+    return responseKeys;
+}
+
+const getLocalBucketContents = () => {
+    try {
+        return JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', 's3-bucket-contents.json')));
+    } catch (error) {
+        return [];
+    }
+};
+
+const addToLocalBucket = filename => {
+    const contents = getLocalBucketContents();
+    if (!contents.includes(filename)) {
+        contents.push(filename);
+        fs.writeFileSync(path.join(__dirname, '..', 'cache', 's3-bucket-contents.json'), JSON.stringify(contents, null, 4));
+    }
+};
+
+const removeFromLocalBucket = filename => {
+    let contents = getLocalBucketContents();
+    if (contents.includes(filename)) {
+        contents = contents.filter(fn => fn !== filename);
+        fs.writeFileSync(path.join(__dirname, '..', 'cache', 's3-bucket-contents.json'), JSON.stringify(contents, null, 4));
+    }
+};
+
+async function addFileToBucket(localFilePath, fileName) {
+    const uploadParams = {
+        Bucket: process.env.S3_BUCKET,
+        Key: fileName,
+        //ContentType: typeInfo.contentType,
+        Body: fs.readFileSync(localFilePath)
+    };
+    const fileExists = await fileExistsInS3(fileName);
+    await s3.send(new PutObjectCommand(uploadParams));
+    if (fileExists) {
+        await cloudflare.purgeCache(fileName);
+    }
+    addToLocalBucket(fileName);
+}
+
+async function deleteFromBucket(key) {
+    const params = {
+        Bucket: process.env.S3_BUCKET,
+        Key: key,
+    };
+    await s3.send(new DeleteObjectCommand(params));
+    removeFromLocalBucket(key);
+}
+
 module.exports = {
     uploadToS3: upload,
     getImages: downloadFromId,
     uploadAnyImage: uploadAnyImage,
     client: s3,
+    fileExistsInS3,
+    getBucketContents,
+    getLocalBucketContents,
+    addToLocalBucket,
+    removeFromLocalBucket,
+    addFileToBucket,
+    deleteFromBucket,
 };
