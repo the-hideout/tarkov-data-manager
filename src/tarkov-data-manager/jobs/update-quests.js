@@ -943,10 +943,6 @@ class UpdateQuestsJob extends DataJob {
                     obj.type = 'experience';
                 } else {
                     obj.type = 'visit';
-                    if (obj.map_ids.length === 0 && questData.location_id) {
-                        obj.locationNames.push(questData.locationName);
-                        obj.map_ids.push(questData.location_id);
-                    }
                 }
                 if (obj.type === 'shoot' || obj.type === 'extract') {
                     if (zoneKeys.length > 0) {
@@ -963,6 +959,17 @@ class UpdateQuestsJob extends DataJob {
                         if (zoneKeys.length > 0) {
                             addTranslations(obj.locale, {zoneNames: zoneKeys}, this.logger);
                         }
+                    }
+                }
+                locationTypes = [
+                    'visit',
+                    'findQuestItem',
+                    'plantItem'
+                ];
+                if (locationTypes.includes(obj.type)) {
+                    if (obj.map_ids.length === 0 && questData.location_id) {
+                        obj.locationNames.push(questData.locationName);
+                        obj.map_ids.push(questData.location_id);
                     }
                 }
             } else if (objective._parent === 'PlaceBeacon') {
