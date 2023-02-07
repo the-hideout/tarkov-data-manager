@@ -29,6 +29,7 @@ class CheckImageLinksJob extends DataJob {
         const baseKeys = [];
 
         let deadLinks = 0;
+        let oldImages = 0;
 
         const imageSizes = imageFunctions.imageSizes;
 
@@ -63,7 +64,7 @@ class CheckImageLinksJob extends DataJob {
                 imgType = false;
             }
             if (!imgType) {
-                this.logger.warn(`Unrecognized image type ${appendType} for ${filename}`);
+                //this.logger.warn(`Unrecognized image type ${appendType} for ${filename}`);
                 continue;
             }
             const item = itemData.get(id);
@@ -77,11 +78,13 @@ class CheckImageLinksJob extends DataJob {
                 continue;
             }
             if (imageLink !== `https://${process.env.S3_BUCKET}/${filename}`) {
-                this.logger.warn(`Item ${item.name} ${item.id} ${imgType.field} ${item[imgType.field]} does not match filename is S3 ${filename}`);
+                //this.logger.warn(`Item ${item.name} ${item.id} ${imgType.field} ${item[imgType.field]} does not match filename in S3 ${filename}`);
+                oldImages++;
             }
         }
 
-        this.logger.log(`${deadLinks} dead image links found`);
+        this.logger.log(`${deadLinks} dead item image links found`);
+        this.logger.log(`${oldImages} old item image links found`);
         this.logger.log(`${baseKeys.length} of ${activeItems.length} active items have base images`);
         fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json'), JSON.stringify(baseKeys, null, 4));
     }
