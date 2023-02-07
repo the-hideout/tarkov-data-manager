@@ -82,7 +82,11 @@ const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
     for (const langCode in locales) {
         translation[langCode] = {};
         for (const fieldName in translationTarget) {
-            if (Array.isArray(translationTarget[fieldName]) || typeof translationTarget[fieldName] === 'string') {
+            if (Array.isArray(translationTarget[fieldName])) {
+                translation[langCode][fieldName] = translationTarget[fieldName].map(element => {
+                    return translatePath(langCode, element, logger, errorOnNotFound);
+                });
+            } else if (typeof translationTarget[fieldName] === 'string') {
                 translation[langCode][fieldName] = translatePath(langCode, translationTarget[fieldName], logger, errorOnNotFound);
             } else if (typeof translationTarget[fieldName] === 'function') {
                 try {
@@ -99,6 +103,12 @@ const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
             }
             if (typeof translation[langCode][fieldName] === 'undefined') {
                 delete translation[langCode][fieldName];
+            }
+            if (Array.isArray(translation[langCode][fieldName])) {
+                translation[langCode][fieldName] = translation[langCode][fieldName].filter(val => val !== undefined);
+                if (translation[langCode][fieldName].length === 0) {
+                    delete translation[langCode][fieldName];
+                }
             }
         }
     }

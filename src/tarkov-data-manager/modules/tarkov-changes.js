@@ -97,7 +97,7 @@ module.exports = {
         for (const file in availableFiles) {
             if (availableFiles[file].skip) continue;
             const fileSource = availableFiles[file].requestName;
-            console.log(fileSource);
+            //console.log(fileSource);
             //promises.push(module.exports.get(fileSource, true, availableFiles[file]).then(data => {return {name: availableFiles[fileSource] || fileSource, data: data}}));
             promises.push(module.exports[file](true, availableFiles[file]).then(data => {return {name: availableFiles[fileSource] || fileSource, data: data}}));
         }

@@ -63,12 +63,10 @@ class UpdateQuestsJob extends DataJob {
         }
         
         for (const questId in this.missingQuests) {
-            const quest = this.missingQuests[questId];
-            for (const q of quests.Task) {
-                if (q.id === quest.id) {
-                    continue;
-                }
+            if (quests.Task.some(q => q.id === questId)) {
+                continue;
             }
+            const quest = this.missingQuests[questId];
             this.logger.warn(`Adding missing quest ${quest.name} ${quest.id}...`);
             quest.locale = getTranslations({name: `${questId} name`}, this.logger);
             quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.locales.en[`${questId} name`].replaceAll(' ', '_'))}`;
@@ -78,6 +76,14 @@ class UpdateQuestsJob extends DataJob {
                     this.questItems[obj.item_id] = {
                         id: obj.item_id
                     };
+                }
+                if (obj.type === 'extract') {
+                    obj.locale = addTranslations(obj.locale, {exitStatus: lang => {
+                        return obj.exitStatus.map(stat => lang[`ExpBonus${stat}`]);
+                    }}, this.logger);
+                }
+                if (obj.type === 'shoot') {
+                    obj.locale = addTranslations(obj.locale, {target: obj.target}, this.logger);
                 }
                 this.addMapFromDescription(obj);
             }
@@ -345,7 +351,7 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
             if (matchingParts == preset.containsItems.length) {
-                this.logger.success('successfully matched '+preset.name);
+                this.logger.success('Reward matches preset '+preset.name);
                 rewardData.item = preset.id;
                 rewardData.item_name = preset.name;
                 rewardData.base_item_id = preset.baseId;
@@ -739,6 +745,7 @@ class UpdateQuestsJob extends DataJob {
                 optional: optional,
                 locationNames: [],
                 map_ids: [],
+                zoneKeys: [],
                 locale: getTranslations({description: objectiveId}, this.logger, false)
             };
             if (objective._parent === 'FindItem' || objective._parent === 'HandoverItem') {
@@ -766,10 +773,10 @@ class UpdateQuestsJob extends DataJob {
                 }
             } else if (objective._parent === 'CounterCreator') {
                 const counter = objective._props.counter;
-                let zoneKeys = [];
                 for (const cond of counter.conditions) {
                     if (cond._parent === 'VisitPlace') {
                         //obj.description = en.quest[questId].conditions[objective._props.id];
+                        obj.zoneKeys.push(cond._props.target);
                     } else if (cond._parent === 'Kills' || cond._parent === 'Shots') {
                         obj.target = this.locales.en[`QuestCondition/Elimination/Kill/Target/${cond._props.target}`] || cond._props.target;
                         obj.count = parseInt(objective._props.value);
@@ -901,7 +908,7 @@ class UpdateQuestsJob extends DataJob {
                             }
                         }
                     } else if (cond._parent === 'InZone') {
-                        zoneKeys.push(...cond._props.zoneIds);
+                        obj.zoneKeys.push(...cond._props.zoneIds);
                     } else if (cond._parent === 'Shots') {
                         //already handled with Kills
                     } else if (cond._parent === 'HealthEffect') {
@@ -938,63 +945,6 @@ class UpdateQuestsJob extends DataJob {
                 } else {
                     obj.type = 'visit';
                 }
-                if (obj.type === 'shoot' || obj.type === 'extract') {
-                    if (zoneKeys.length > 0) {
-                        zoneKeys = zoneKeys.filter(key => {
-                            if (!zoneMap[key]) {
-                                this.logger.warn(`Unrecognized zone ${key} for objective ${objective._props.id} of ${questData.name}`);
-                                return false;
-                            }
-                            return true;
-                        });
-                        if (zoneKeys.length > 0) {
-                            if (!obj.zoneNames.includes())
-                            obj.zoneNames = zoneKeys.map(key => zoneMap[key].en);
-                            obj.zoneNames = obj.zoneNames.reduce((allZones, current) => {
-                                if (!allZones.includes(current)) {
-                                    allZones.push(current);
-                                }
-                                return allZones;
-                            }, []);
-                            obj.locale.zoneNames = {};
-                            for (const key of zoneKeys) {
-                                for (const lang in this.locales) {
-                                    if (!obj.locale.zoneNames[lang]) {
-                                        obj.locale.zoneNames[lang] = [];
-                                    }
-                                    if (zoneMap[key][lang]) {
-                                        obj.locale.zoneNames[lang].push(zoneMap[key][lang]);
-                                    } else {
-                                        obj.locale.zoneNames[lang].push(zoneMap[key].en);
-                                    }
-                                }
-                            }
-                            for (const lang in obj.locale.zoneNames) {
-                                obj.locale.zoneNames[lang] = obj.locale.zoneNames[lang].reduce((allZones, current) => {
-                                    if (!allZones.includes(current)) {
-                                        allZones.push(current);
-                                    }
-                                    return allZones;
-                                }, []);
-                            }
-                            for (const lang in obj.locale.zoneNames) {
-                                if (lang === 'en') {
-                                    continue;
-                                }
-                                let different = false;
-                                for (const index in obj.locale.zoneNames[lang]) {
-                                    if (obj.locale.zoneNames[lang][index] !==obj.locale.zoneNames.en[index]) {
-                                        different = true;
-                                        break;
-                                    }
-                                }
-                                if (!different) {
-                                    delete obj.locale.zoneNames[lang];
-                                }
-                            }
-                        }
-                    }
-                }
             } else if (objective._parent === 'PlaceBeacon') {
                 obj.type = 'mark';
                 obj.item = objective._props.target[0];
@@ -1002,6 +952,7 @@ class UpdateQuestsJob extends DataJob {
                 obj.item_name = this.locales.en[`${objective._props.target[0]} Name`];
             } else if (objective._parent === 'LeaveItemAtLocation') {
                 obj.count = parseInt(objective._props.value);
+                obj.zoneKeys = [objective._props.zoneId];
                 if (this.items[objective._props.target[0]]._props.QuestItem) {
                     obj.type = 'plantQuestItem';
                     obj.item_id = objective._props.target[0];
@@ -1138,6 +1089,24 @@ class UpdateQuestsJob extends DataJob {
             } else {
                 this.logger.warn(`Unrecognized type "${objective._parent}" for objective ${objective._props.id} of ${questData.name}`);
                 continue;
+            }
+            if (obj.zoneKeys.length > 0) {
+                const reducedZones = obj.zoneKeys.reduce((reducedKeys, key) => {
+                    if (!this.locales.en[key]) {
+                        if (obj.type === 'shoot' || obj.type === 'extract') {
+                            console.log(objective._parent )
+                            this.logger.warn(`No translation for zone ${key} for objective ${objective._props.id} of ${questData.name}`);
+                        }
+                        return reducedKeys;
+                    }
+                    if (!reducedKeys.some(savedKey => this.locales.en[savedKey] === this.locales.en[key])) {
+                        reducedKeys.push(key);
+                    }
+                    return reducedKeys;
+                }, []);
+                addTranslations(obj.locale, {zoneNames: reducedZones}, this.logger);
+            } else {
+                delete obj.zoneKeys;
             }
             this.addMapFromDescription(obj);
             questData.objectives.push(obj);
@@ -1306,9 +1275,124 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
         }
+        const locationTypes = [
+            'visit',
+            'findQuestItem',
+            'plantItem',
+            'mark',
+            'shoot',
+        ];
+        for (const obj of questData.objectives) {
+            if (obj.zoneKeys?.length > 0) {
+                obj.zoneKeys.forEach(zoneKey => {
+                    if (!zoneMap[zoneKey] && !questData.location_id) {
+                        this.logger.warn(`Zone key ${zoneKey} is not associated with a map`);
+                        return;
+                    }
+                    let mapIds = zoneMap[zoneKey];
+                    if (!Array.isArray(mapIds)) {
+                        mapIds = [mapIds];
+                    }
+                    for (const mapId of mapIds) {
+                        if (!obj.map_ids.includes(mapId)) {
+                            obj.map_ids.push(mapId);
+                        } 
+                    }
+                });
+            }
+            if (obj.map_ids.length === 0 && locationTypes.includes(obj.type)) {
+                if (obj.map_ids.length === 0 && questData.location_id) {
+                    obj.locationNames.push(questData.locationName);
+                    obj.map_ids.push(questData.location_id);
+                }
+            }
+        }
+        questData.objectives.forEach(obj => {
+            if (obj.type !== 'findQuestItem') {
+                return;
+            }
+            if (!obj.map_ids.length > 0) {
+                if (!questItemLocations[obj.item_id]) {
+                    this.logger.warn(`Objective ${obj.id} missing location for quest item ${obj.item_name} ${obj.item_id}`);
+                    return;
+                }
+                obj.map_ids.push(questItemLocations[obj.item_id]);
+            }
+        });
         return questData;
     }
 }
+
+const zoneMap = {
+    case_extraction: [
+        '55f2d3fd4bdc2d5f408b4567', //day factory
+        '59fc81d786f774390775787e', //night
+    ],
+    eger_barracks_area_1: '5704e5fad2720bc05b8b4567', //reserve
+    eger_barracks_area_2: '5704e5fad2720bc05b8b4567',
+    huntsman_013: [
+        '55f2d3fd4bdc2d5f408b4567', //day factory
+        '59fc81d786f774390775787e', //night
+    ],
+    huntsman_020: '56f40101d2720b2a4d8b45d6', //customs
+    lijnik_storage_area_1: '5704e5fad2720bc05b8b4567',
+    locked_office: [
+        '55f2d3fd4bdc2d5f408b4567', //day factory
+        '59fc81d786f774390775787e', //night
+    ],
+    mech_41_1: '56f40101d2720b2a4d8b45d6',
+    mech_41_2: '56f40101d2720b2a4d8b45d6',
+    mechanik_exit_area_1: '5704e5fad2720bc05b8b4567',
+    meh_44_eastLight_kill: '5704e4dad2720bb55b8b4567', //lighthouse
+    place_merch_022_1: '5714dbc024597771384a510d', //interchange
+    place_SADOVOD_01_1: [
+        '55f2d3fd4bdc2d5f408b4567', 
+        '59fc81d786f774390775787e', 
+    ],
+    place_SADOVOD_01_2: [
+        '55f2d3fd4bdc2d5f408b4567', 
+        '59fc81d786f774390775787e', 
+    ],
+    place_skier_11_1: '56f40101d2720b2a4d8b45d6', //woods
+    place_skier_11_2: '56f40101d2720b2a4d8b45d6',
+    place_skier_11_3: '5714dbc024597771384a510d',
+    place_skier_12_1: '5714dbc024597771384a510d',
+    place_skier_12_2: '56f40101d2720b2a4d8b45d6', 
+    place_skier_12_3: '56f40101d2720b2a4d8b45d6',
+    prapor_27_2: '5704e3c2d2720bac5b8b4567', 
+    prapor_27_1: '56f40101d2720b2a4d8b45d6',
+    prapor_27_2: '5704e3c2d2720bac5b8b4567',
+    prapor_27_3: '5704e554d2720bac5b8b456e', //shoreline
+    prapor_27_4: '5704e554d2720bac5b8b456e',
+    prapor_hq_area_check_1: '5704e5fad2720bc05b8b4567',
+    qlight_br_secure_road: '5704e4dad2720bb55b8b4567',
+    qlight_pr1_heli2_kill: '5704e4dad2720bb55b8b4567',
+    qlight_pc1_ucot_kill: '5704e4dad2720bb55b8b4567',
+    quest_zone_kill_c17_adm: '5714dc692459777137212e12', //streets
+    quest_zone_keeper5: '5704e3c2d2720bac5b8b4567',
+    quest_zone_keeper6_kiba_kill: '5714dbc024597771384a510d',
+    quest_zone_keeper7_saferoom: '5b0fc42d86f7744a585f9105', //labs
+    quest_zone_keeper7_test: '5b0fc42d86f7744a585f9105',
+    tadeush_bmp2_area_mark_12: '5704e5fad2720bc05b8b4567',
+};
+
+const questItemLocations = {
+    '5968929e86f7740d121082d3': '56f40101d2720b2a4d8b45d6', // customs
+    '6398a4cfb5992f573c6562b3': '5b0fc42d86f7744a585f9105', //labs
+    '6398a0861c712b1e1d4dadf1': '5704e4dad2720bb55b8b4567', //lighthouse
+    '6398a072e301557ae24cec92': '5704e5fad2720bc05b8b4567', // reserve
+    '5af04c0b86f774138708f78e': '56f40101d2720b2a4d8b45d6', //woods
+    '5b4c72b386f7745b453af9c0': '5704e554d2720bac5b8b456e', // shoreline
+    '5b4c72c686f77462ac37e907': '5704e554d2720bac5b8b456e',
+    '5af04e0a86f7743a532b79e2': '56f40101d2720b2a4d8b45d6',
+    '5b4c72fb86f7745cef1cffc5': '5704e554d2720bac5b8b456e',
+    '5b43237186f7742f3a4ab252': '5704e554d2720bac5b8b456e',
+    '5b4c81a086f77417d26be63f': '5714dbc024597771384a510d', // interchange
+    '5b4c81bd86f77418a75ae159': '5714dbc024597771384a510d',
+    '591092ef86f7747bb8703422': '56f40101d2720b2a4d8b45d6',
+    '5938188786f77474f723e87f': '56f40101d2720b2a4d8b45d6',
+    '6398a0861c712b1e1d4dadf1': '5704e4dad2720bb55b8b4567',
+};
 
 const questStatusMap = {
     2: 'active',
@@ -1321,84 +1405,6 @@ const targetKeyMap = {
     pmcBot: 'PmcBot',
     marksman: 'Marksman',
     exUsec: 'ExUsec'
-};
-
-const zoneMap = {
-    eger_barracks_area_1: {
-        en: 'Black Pawn',
-    },
-    eger_barracks_area_2: {
-        en: 'White Pawn',
-    },
-    huntsman_013: {
-        en: 'Dorms',
-    },
-    huntsman_020: {
-        en: 'Office',
-    },
-    lijnik_storage_area_1: {
-        en: 'Underground Warehouse',
-    },
-    mechanik_exit_area_1: {
-        en: 'D-2 Extract'
-    },
-    meh_44_eastLight_kill: {
-        en: 'Lighthouse Island',
-    },
-    place_merch_022_1: {
-        en: 'Inside ULTRA Mall'
-    },
-    place_merch_022_2: {
-        en: 'Inside ULTRA Mall',
-    },
-    place_merch_022_3: {
-        en: 'Inside ULTRA Mall',
-    },
-    place_merch_022_4: {
-        en: 'Inside ULTRA Mall',
-    },
-    place_merch_022_5: {
-        en: 'Inside ULTRA Mall',
-    },
-    place_merch_022_6: {
-        en: 'Inside ULTRA Mall',
-    },
-    place_merch_022_7: {
-        en: 'Inside ULTRA Mall',
-    },
-    prapor_27_1: {
-        en: 'Stronghold (Customs)',
-    },
-    prapor_27_2: {
-        en: 'Medical Camp (Woods)',
-    },
-    prapor_27_3: {
-        en: 'Pier (Shoreline)',
-    },
-    prapor_27_4: {
-        en: 'Pier (Shoreline)',
-    },
-    prapor_hq_area_check_1: {
-        en: 'Command Bunker',
-    },
-    qlight_br_secure_road: {
-        en: 'Highway',
-    },
-    qlight_pr1_heli2_kill: {
-        en: 'Helicopter at Water Treatment Plant',
-    },
-    qlight_pc1_ucot_kill: {
-        en: 'Chalets',
-    },
-    quest_zone_kill_c17_adm: {
-        en: 'Pinewood Hotel',
-    },
-    quest_zone_keeper5: {
-        en: 'Woods Mountain',
-    },
-    quest_zone_keeper6_kiba_kill: {
-        en: 'Around Kiba Arms store',
-    },
 };
 
 const factionMap = {

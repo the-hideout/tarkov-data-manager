@@ -4,6 +4,7 @@ const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
 const DataJob = require('../modules/data-job');
+const s3 = require('../modules/upload-s3');
 
 class UpdateTradersJob extends DataJob {
     constructor() {
@@ -24,6 +25,7 @@ class UpdateTradersJob extends DataJob {
         const traders = {
             Trader: [],
         };
+        const s3Images = s3.getLocalBucketContents();
         this.logger.log('Processing traders...');
         for (const traderId in tradersData) {
             const trader = tradersData[traderId];
@@ -44,6 +46,12 @@ class UpdateTradersJob extends DataJob {
                 items_buy: trader.items_buy,
                 items_buy_prohibited: trader.items_buy_prohibited,
             };
+            if (s3Images.includes(`${traderData.id}.webp`)) {
+                traderData.imageLink = `https://${process.env.S3_BUCKET}/${traderData.id}.webp`;
+            }
+            if (s3Images.includes(`${traderData.id}-4x.webp`)) {
+                traderData.image4xLink = `https://${process.env.S3_BUCKET}/${traderData.id}-4x.webp`;
+            }
             if (!locales.en[`${trader._id} Nickname`]) {
                 this.logger.warn(`No trader id ${trader._id} found in locale_en.json`);
                 traderData.name = trader.nickname;
@@ -73,6 +81,12 @@ class UpdateTradersJob extends DataJob {
                 }
                 if (trader.repair.availability) {
                     levelData.repairCostMultiplier = 1 + (parseInt(level.repair_price_coef) / 100);
+                }
+                if (s3Images.includes(`${traderData.id}-${levelData.level}.webp`)) {
+                    levelData.imageLink = `https://${process.env.S3_BUCKET}/${traderData.id}-${levelData.level}.webp`;
+                }
+                if (s3Images.includes(`${traderData.id}-${levelData.level}-4x.webp`)) {
+                    levelData.image4xLink = `https://${process.env.S3_BUCKET}/${traderData.id}-${levelData.level}-4x.webp`;
                 }
                 traderData.levels.push(levelData);
             }
