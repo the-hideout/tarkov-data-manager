@@ -63,12 +63,10 @@ class UpdateQuestsJob extends DataJob {
         }
         
         for (const questId in this.missingQuests) {
-            const quest = this.missingQuests[questId];
-            for (const q of quests.Task) {
-                if (q.id === quest.id) {
-                    continue;
-                }
+            if (quests.Task.some(q => q.id === questId)) {
+                continue;
             }
+            const quest = this.missingQuests[questId];
             this.logger.warn(`Adding missing quest ${quest.name} ${quest.id}...`);
             quest.locale = getTranslations({name: `${questId} name`}, this.logger);
             quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.locales.en[`${questId} name`].replaceAll(' ', '_'))}`;
