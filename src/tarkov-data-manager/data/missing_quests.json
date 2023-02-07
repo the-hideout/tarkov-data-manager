@@ -336,5 +336,106 @@
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
+    },
+    "639136d68ba6894d155e77cf": {
+        "id": "639136d68ba6894d155e77cf",
+        "name": "Green Corridor",
+        "trader": "54cb50c76803fa8b248b4571",
+        "location_id": "5714dc692459777137212e12",
+        "locationName": "Streets of Tarkov",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "5a27bafb86f7741c73584017",
+                "name": "Spa Tour - Part 7",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderLevelRequirements": [],
+        "objectives": [
+            {
+                "id": "63a7d53904d3dc28a52a2100",
+                "type": "visit",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": []
+            },
+            {
+                "id": "63a7d58004d3dc28a52a2102",
+                "type": "visit",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": []
+            },
+            {
+                "id": "639cee16f5765f47cc7f0ea1",
+                "type": "extract",
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "exitStatus": [
+                    "Survived"
+                ],
+                "zoneNames": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "name": "Prapor",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 62000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "63986a38608a960125446db5",
+                    "item_name": "SR-2M \"Veresk\" 9x21 submachine gun Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "633a98eab8b0506e48497c1a",
+                    "item_name": "SR-2M 9x21 20-round magazine",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5a26abfac4a28232980eabff",
+                    "item_name": "9x21mm P gzh",
+                    "count": 80,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 10400,
+        "tarkovDataId": null,
+        "factionName": "Any"
     }
 }

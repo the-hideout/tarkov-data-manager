@@ -79,6 +79,11 @@ class UpdateQuestsJob extends DataJob {
                         id: obj.item_id
                     };
                 }
+                if (obj.type === 'extract') {
+                    obj.locale = addTranslations(obj.locale, {
+                        exitStatus: obj.exitStatus,
+                    }, this.logger);
+                }
                 this.addMapFromDescription(obj);
             }
             for (const tdQuest of this.tdQuests) {
