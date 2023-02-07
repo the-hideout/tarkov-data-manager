@@ -351,7 +351,7 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
             if (matchingParts == preset.containsItems.length) {
-                this.logger.success('successfully matched '+preset.name);
+                this.logger.success('Matched reward preset '+preset.name);
                 rewardData.item = preset.id;
                 rewardData.item_name = preset.name;
                 rewardData.base_item_id = preset.baseId;
