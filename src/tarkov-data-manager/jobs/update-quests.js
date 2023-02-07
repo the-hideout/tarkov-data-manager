@@ -1399,6 +1399,7 @@ const zoneMap = {
     quest_zone_keeper7_saferoom: '5b0fc42d86f7744a585f9105', //labs
     quest_zone_keeper7_test: '5b0fc42d86f7744a585f9105',
     tadeush_bmp2_area_mark_12: '5704e5fad2720bc05b8b4567',
+    ter_017_area_1: '59fc81d786f774390775787e',
 };
 
 const questItemLocations = {
