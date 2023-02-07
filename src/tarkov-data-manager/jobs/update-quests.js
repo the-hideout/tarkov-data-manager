@@ -944,33 +944,18 @@ class UpdateQuestsJob extends DataJob {
                 } else {
                     obj.type = 'visit';
                 }
-                if (obj.type === 'shoot' || obj.type === 'extract') {
-                    if (zoneKeys.length > 0) {
-                        zoneKeys = zoneKeys.reduce((reducedKeys, key) => {
-                            if (!this.locales.en[key]) {
-                                this.logger.warn(`Unrecognized zone ${key} for objective ${objective._props.id} of ${questData.name}`);
-                                return reducedKeys;
-                            }
-                            if (!reducedKeys.some(savedKey => this.locales.en[savedKey] === this.locales.en[key])) {
-                                reducedKeys.push(key);
-                            }
+                if (zoneKeys.length > 0) {
+                    obj.zoneKeys = zoneKeys.reduce((reducedKeys, key) => {
+                        if (!this.locales.en[key]) {
+                            this.logger.warn(`Unrecognized zone ${key} for objective ${objective._props.id} of ${questData.name}`);
                             return reducedKeys;
-                        }, []);
-                        if (zoneKeys.length > 0) {
-                            addTranslations(obj.locale, {zoneNames: zoneKeys}, this.logger);
                         }
-                    }
-                }
-                const locationTypes = [
-                    'visit',
-                    'findQuestItem',
-                    'plantItem'
-                ];
-                if (locationTypes.includes(obj.type)) {
-                    if (obj.map_ids.length === 0 && questData.location_id) {
-                        obj.locationNames.push(questData.locationName);
-                        obj.map_ids.push(questData.location_id);
-                    }
+                        if (!reducedKeys.some(savedKey => this.locales.en[savedKey] === this.locales.en[key])) {
+                            reducedKeys.push(key);
+                        }
+                        return reducedKeys;
+                    }, []);
+                    addTranslations(obj.locale, {zoneNames: obj.zoneKeys}, this.logger);
                 }
             } else if (objective._parent === 'PlaceBeacon') {
                 obj.type = 'mark';
@@ -1283,9 +1268,64 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
         }
+        const locationTypes = [
+            'visit',
+            'findQuestItem',
+            'plantItem'
+        ];
+        for (const obj of questData.objectives) {
+            if (locationTypes.includes(obj.type)) {
+                if (obj.map_ids.length === 0 && questData.location_id) {
+                    obj.locationNames.push(questData.locationName);
+                    obj.map_ids.push(questData.location_id);
+                }
+            }
+            if (obj.map_ids.length === 0 && obj.zoneKeys?.length > 0) {
+                obj.zoneKeys.forEach(zoneKey => {
+                    if (!zoneMap[zoneKey]) {
+                        this.logger.warn(`Zone key ${zoneKey} is not associated with a map`);
+                        return;
+                    }
+                    let mapIds = zoneMap[zoneKey];
+                    if (!Array.isArray(mapIds)) {
+                        mapIds = [mapIds];
+                    }
+                    for (const map of mapIds) {
+                        if (!obj.map_ids.includes(mapIds)) {
+                            obj.map_ids.push(mapIds);
+                        } 
+                    }
+                });
+            }
+        }
         return questData;
     }
 }
+
+const zoneMap = {
+    eger_barracks_area_1: '5704e5fad2720bc05b8b4567', //reserve
+    eger_barracks_area_2: '5704e5fad2720bc05b8b4567',
+    huntsman_013: [
+        '55f2d3fd4bdc2d5f408b4567', //day factory
+        '59fc81d786f774390775787e', //night
+    ],
+    huntsman_020: '56f40101d2720b2a4d8b45d6', //customs
+    place_merch_022_1: '5714dbc024597771384a510d', //interchange
+    lijnik_storage_area_1: '5704e5fad2720bc05b8b4567',
+    mechanik_exit_area_1: '5704e5fad2720bc05b8b4567',
+    meh_44_eastLight_kill: '5704e4dad2720bb55b8b4567', //lighthouse
+    prapor_27_1: '56f40101d2720b2a4d8b45d6',
+    prapor_27_2: '5704e3c2d2720bac5b8b4567', //woods
+    prapor_27_3: '5704e554d2720bac5b8b456e', //shoreline
+    prapor_27_4: '5704e554d2720bac5b8b456e',
+    prapor_hq_area_check_1: '5704e5fad2720bc05b8b4567',
+    qlight_br_secure_road: '5704e4dad2720bb55b8b4567',
+    qlight_pr1_heli2_kill: '5704e4dad2720bb55b8b4567',
+    qlight_pc1_ucot_kill: '5704e4dad2720bb55b8b4567',
+    quest_zone_kill_c17_adm: '5714dc692459777137212e12', //streets
+    quest_zone_keeper5: '5704e3c2d2720bac5b8b4567',
+    quest_zone_keeper6_kiba_kill: '5714dbc024597771384a510d',
+};
 
 const questStatusMap = {
     2: 'active',
