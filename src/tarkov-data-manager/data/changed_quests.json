@@ -593,5 +593,12 @@
             "location_id": "5704e3c2d2720bac5b8b4567",
             "locationName": "Woods"
         }
+    },
+    "6396700fea19ac7ed845db32": {
+        "name": "Spotter",
+        "propertiesChanged": {
+            "location_id": "5714dc692459777137212e12",
+            "locationName": "Streets of Tarkov"
+        }
     }
 }
