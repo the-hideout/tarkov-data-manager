@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@755da8c3cf115ac066823e79a1e1788f8940201b # pin@v3.2.0
+      - uses: actions/checkout@v3 # pin@v3
 
-      - uses: azure/login@77f1b2e3fb80c0e8645114159d17008b8a2e475a # pin@v1
+      - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # pin@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -37,7 +37,7 @@ jobs:
         run: terraform apply -auto-approve
 
       - name: SSH Remote Deploy
-        uses: appleboy/ssh-action@4a03da89e5c43da56e502053be4bbcb293411883 # pin@v0.1.6
+        uses: appleboy/ssh-action@d91a1af6f57cd4478ceee14d7705601dafabaa19 # pin@v0.1.6
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
@@ -46,7 +46,7 @@ jobs:
           script_stop: true
           script: ~/tarkov-data-manager/script/deploy -r="main" -d="tarkov-data-manager"
 
-      - uses: actions/setup-python@5ccb29d8773c3f3f653e1705f474dfaa8a06a912 # pin@v4.4.0
+      - uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435 # pin@v4.4.0
         with:
           python-version: '3.10'
           cache: 'pip'
