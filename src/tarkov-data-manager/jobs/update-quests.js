@@ -84,6 +84,9 @@ class UpdateQuestsJob extends DataJob {
                         return obj.exitStatus.map(stat => lang[`ExpBonus${stat}`]);
                     }}, this.logger);
                 }
+                if (obj.type === 'shoot') {
+                    obj.locale = addTranslations(obj.locale, {target: obj.target}, this.logger);
+                }
                 this.addMapFromDescription(obj);
             }
             for (const tdQuest of this.tdQuests) {
