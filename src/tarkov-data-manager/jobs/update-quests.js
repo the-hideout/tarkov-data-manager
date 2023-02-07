@@ -1284,7 +1284,6 @@ class UpdateQuestsJob extends DataJob {
         for (const obj of questData.objectives) {
             if (obj.zoneKeys?.length > 0) {
                 obj.zoneKeys.forEach(zoneKey => {
-                    this.logger.log(zoneKey)
                     if (!zoneMap[zoneKey]) {
                         if (!questData.location_id) {
                             this.logger.warn(`Zone key ${zoneKey} is not associated with a map`);
