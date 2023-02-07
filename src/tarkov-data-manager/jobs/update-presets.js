@@ -159,24 +159,10 @@ class UpdatePresetsJob extends DataJob {
 
             presetData.locale = getTranslations({
                 name: (lang) => {
-                    let appendName = presetData.appendName;
-                    if (Array.isArray(appendName)) {
-                        appendName = lang;
-                        for (const key of presetData.appendName) {
-                            appendName = appendName[key];
-                        }
-                    }
-                    return lang[`${baseItem._id} Name`] + ' ' + appendName;
+                    return lang[`${baseItem._id} Name`] + ' ' + lang[presetData.appendName] || locales.en[presetData.appendName];
                 },
                 shortName: (lang) => {
-                    let appendName = presetData.appendName;
-                    if (Array.isArray(appendName)) {
-                        appendName = lang;
-                        for (const key of presetData.appendName) {
-                            appendName = appendName[key];
-                        }
-                    }
-                    return lang[`${baseItem._id} ShortName`] + ' ' + appendName;
+                    return lang[`${baseItem._id} ShortName`] + ' ' + locales.en[presetData.appendName];
                 }
             }, this.logger);
             presetData.name = presetData.locale.en.name;
@@ -277,6 +263,7 @@ class UpdatePresetsJob extends DataJob {
         this.logger.log('Updating presets in DB...');
         const queries = [];
         for (const presetId in presetsData) {
+            break;
             const p = presetsData[presetId];
             queries.push(remoteData.addItem({
                 id: p.id,
