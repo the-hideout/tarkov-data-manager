@@ -2,7 +2,7 @@ const remoteData = require('../modules/remote-data');
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 //const mapQueueTimes = require('../modules/map-queue-times');
-const { setLocales, getTranslations } = require('../modules/get-translation');
+const { setLocales, getTranslations, addTranslations } = require('../modules/get-translation');
 const DataJob = require('../modules/data-job');
 
 class UpdateMapsJob extends DataJob {
@@ -122,10 +122,12 @@ class UpdateMapsJob extends DataJob {
                     }
                 }
 
-                if (spawn.TriggerId && triggers[id]) {
-                    if (triggers[id][spawn.TriggerId]) {
-                        bossData.spawnTrigger = triggers[id][spawn.TriggerId];
+                if (spawn.TriggerId) {
+                    if (this.locales.en[spawn.TriggerId]) {
+                        bossData.spawnTrigger = this.locales.en[spawn.TriggerId];
+                        addTranslations(bossData.locale, {spawnTrigger: spawn.TriggerId}, this.logger);
                     } else if (spawn.TriggerId.includes('EXFIL')) {
+                        addTranslations(bossData.locale, {spawnTrigger: 'ExfilActivation'}, this.logger);
                         bossData.spawnTrigger = 'Exfil Activation';
                     }
                 }
@@ -205,8 +207,11 @@ class UpdateMapsJob extends DataJob {
             }
             return this.locales.en[enemyMap[enemy]];
         }
-        if (manualNames[enemy]) {
-            return manualNames[enemy];
+        if (lang[enemy]) {
+            return lang[enemy];
+        }
+        if (this.locales.en[enemy]) {
+            return this.locales.en[enemy];
         }
         if (enemy.includes('follower')) {
             const nameParts = [];
@@ -448,19 +453,6 @@ const enemyMap = {
     'bossTagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla',
     'bossZryachiy': '63626d904aa74b8fe30ab426 ShortName',
     'guard': 'ScavRole/Follower',
-};
-
-const manualNames = {
-    'bossKnight': 'Death Knight',
-    'followerBigPipe': 'Big Pipe',
-    'followerBirdEye': 'Birdeye'
-};
-
-const triggers = {
-    '5704e5fad2720bc05b8b4567' : {
-        'autoId_00000_D2_LEVER': 'D-2 Power Switch',
-        'autoId_00632_EXFIL': 'Bunker Hermetic Door Power Switch'
-    }
 };
 
 const getChances = (input, nameLabel = 'name', labelInt = false) => {

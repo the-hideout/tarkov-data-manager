@@ -336,5 +336,506 @@
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
+    },
+    "639136d68ba6894d155e77cf": {
+        "id": "639136d68ba6894d155e77cf",
+        "name": "Green Corridor",
+        "trader": "54cb50c76803fa8b248b4571",
+        "location_id": "5714dc692459777137212e12",
+        "locationName": "Streets of Tarkov",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "5a27bafb86f7741c73584017",
+                "name": "Spa Tour - Part 7",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderLevelRequirements": [],
+        "objectives": [
+            {
+                "id": "63a7d53904d3dc28a52a2100",
+                "type": "visit",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": []
+            },
+            {
+                "id": "63a7d58004d3dc28a52a2102",
+                "type": "visit",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": []
+            },
+            {
+                "id": "639cee16f5765f47cc7f0ea1",
+                "type": "extract",
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "exitStatus": [
+                    "Survived"
+                ],
+                "zoneNames": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "name": "Prapor",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 62000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "63986a38608a960125446db5",
+                    "item_name": "SR-2M \"Veresk\" 9x21 submachine gun Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "633a98eab8b0506e48497c1a",
+                    "item_name": "SR-2M 9x21 20-round magazine",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5a26abfac4a28232980eabff",
+                    "item_name": "9x21mm P gzh",
+                    "count": 80,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 10400,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "626148251ed3bb5bcc5bd9ed": {
+        "id": "626148251ed3bb5bcc5bd9ed",
+        "name": "Make Amends - Buyout",
+        "trader": "5a7c2eca46aef81a7ca2145d",
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "625d700cc48e6c62a440fab5",
+                "name": "Getting Acquainted",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderLevelRequirements": [
+            {
+                "id": "626148251ed3bb5bcc5bd9ed-638f541a29ffd1183d187f57",
+                "trader_id": "638f541a29ffd1183d187f57",
+                "name": "Lightkeeper",
+                "level": -1
+            }
+        ],
+        "objectives": [
+            {
+                "id": "62616a9ca4eb80027c4f2e12",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item": "5449016a4bdc2d6f028b456f",
+                "item_name": "Roubles",
+                "count": 1000000,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "638f541a29ffd1183d187f57",
+                    "name": "Lightkeeper",
+                    "standing": 0.01
+                }
+            ],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "6261482fa4eb80027c4f2e11": {
+        "id": "6261482fa4eb80027c4f2e11",
+        "name": "Make Amends - Equipment",
+        "trader": "5a7c2eca46aef81a7ca2145d",
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "626148251ed3bb5bcc5bd9ed",
+                "name": "Make Amends - Buyout",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderLevelRequirements": [],
+        "objectives": [
+            {
+                "id": "62616b17e7578c305945c9c9",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item": "5c46fbd72e2216398b5a8c9c",
+                "item_name": "SVDS 7.62x54R sniper rifle",
+                "count": 4,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "638f541a29ffd1183d187f57",
+                    "name": "Lightkeeper",
+                    "standing": 0.01
+                }
+            ],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "626148334149f1149b5b12ca": {
+        "id": "626148334149f1149b5b12ca",
+        "name": "Make Amends - Security",
+        "trader": "5a7c2eca46aef81a7ca2145d",
+        "location_id": "5704e4dad2720bb55b8b4567",
+        "locationName": "Lighthouse",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "6261482fa4eb80027c4f2e11",
+                "name": "Make Amends - Equipment",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderLevelRequirements": [],
+        "objectives": [
+            {
+                "id": "63ca9ffa9ca47f0e03035bab",
+                "type": "plantItem",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "item": "5b4391a586f7745321235ab2",
+                "item_name": "WI-FI Camera",
+                "count": 1,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "63caa01f36708dc7f80c138b",
+                "type": "plantItem",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "item": "5b4391a586f7745321235ab2",
+                "item_name": "WI-FI Camera",
+                "count": 1,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "63caa0367b2aee263d0f018c",
+                "type": "plantItem",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "item": "5b4391a586f7745321235ab2",
+                "item_name": "WI-FI Camera",
+                "count": 1,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "63caa0439ca47f0e03035bac",
+                "type": "plantItem",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "item": "5b4391a586f7745321235ab2",
+                "item_name": "WI-FI Camera",
+                "count": 1,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "638f541a29ffd1183d187f57",
+                    "name": "Lightkeeper",
+                    "standing": 0.01
+                }
+            ],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "62614836f7308432be1d44cc": {
+        "id": "62614836f7308432be1d44cc",
+        "name": "Make Amends - Sweep Up",
+        "trader": "5a7c2eca46aef81a7ca2145d",
+        "location_id": "5704e5fad2720bc05b8b4567",
+        "locationName": "Reserve",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "626148334149f1149b5b12ca",
+                "name": "Make Amends - Security",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderLevelRequirements": [],
+        "objectives": [
+            {
+                "id": "626171a0f7308432be1d44cd",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [
+                    "Reserve"
+                ],
+                "map_ids": [
+                    "5704e5fad2720bc05b8b4567"
+                ],
+                "target": "ScavRole/PmcBot",
+                "count": 25,
+                "shotType": "kill",
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "638f541a29ffd1183d187f57",
+                    "name": "Lightkeeper",
+                    "standing": 0.01
+                }
+            ],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "6391d90f4ed9512be67647df": {
+        "id": "6391d90f4ed9512be67647df",
+        "name": "Make Amends",
+        "trader": "5a7c2eca46aef81a7ca2145d",
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "62614836f7308432be1d44cc",
+                "name": "Make Amends - Sweep Up",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderLevelRequirements": [],
+        "objectives": [
+            {
+                "id": "6391d9ba4b15ca31f76bc325",
+                "type": "findQuestItem",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "item_id": "6331bb0d1aa9f42b804997a6",
+                "item_name": "Secure Flash drive V3",
+                "count": 1
+            },
+            {
+                "id": "6391d9e7ee79ee703e3012e5",
+                "type": "findItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62e910aaf957f2915e0a5e36",
+                "item_name": "Digital secure DSP radio transmitter",
+                "count": 1,
+                "item": "62e910aaf957f2915e0a5e36",
+                "dogTagLevel": 0,
+                "maxDurability": "100",
+                "minDurability": "0",
+                "foundInRaid": false
+            },
+            {
+                "id": "6391d9fd8ba6894d155e77db",
+                "type": "giveQuestItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "6331bb0d1aa9f42b804997a6",
+                "item_name": "Secure Flash drive V3",
+                "count": 1
+            },
+            {
+                "id": "63ab6a89e842787ad2135719",
+                "type": "visit",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ]
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "638f541a29ffd1183d187f57",
+                    "name": "Lightkeeper",
+                    "standing": 0.01
+                },
+                {
+                    "trader_id": "5a7c2eca46aef81a7ca2145d",
+                    "name": "Mechanic",
+                    "standing": 0.01
+                }
+            ],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
     }
 }
