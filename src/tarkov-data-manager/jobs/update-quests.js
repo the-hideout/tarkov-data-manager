@@ -961,7 +961,7 @@ class UpdateQuestsJob extends DataJob {
                         }
                     }
                 }
-                locationTypes = [
+                const locationTypes = [
                     'visit',
                     'findQuestItem',
                     'plantItem'
