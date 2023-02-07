@@ -1360,12 +1360,12 @@ const zoneMap = {
         '55f2d3fd4bdc2d5f408b4567', 
         '59fc81d786f774390775787e', 
     ],
-    place_skier_11_1: '56f40101d2720b2a4d8b45d6', //woods
+    place_skier_11_1: '5704e3c2d2720bac5b8b4567', //woods
     place_skier_11_2: '56f40101d2720b2a4d8b45d6',
     place_skier_11_3: '5714dbc024597771384a510d',
     place_skier_12_1: '5714dbc024597771384a510d',
     place_skier_12_2: '56f40101d2720b2a4d8b45d6', 
-    place_skier_12_3: '56f40101d2720b2a4d8b45d6',
+    place_skier_12_3: '5704e3c2d2720bac5b8b4567',
     prapor_27_2: '5704e3c2d2720bac5b8b4567', 
     prapor_27_1: '56f40101d2720b2a4d8b45d6',
     prapor_27_2: '5704e3c2d2720bac5b8b4567',
@@ -1388,10 +1388,10 @@ const questItemLocations = {
     '6398a4cfb5992f573c6562b3': '5b0fc42d86f7744a585f9105', //labs
     '6398a0861c712b1e1d4dadf1': '5704e4dad2720bb55b8b4567', //lighthouse
     '6398a072e301557ae24cec92': '5704e5fad2720bc05b8b4567', // reserve
-    '5af04c0b86f774138708f78e': '56f40101d2720b2a4d8b45d6', //woods
+    '5af04c0b86f774138708f78e': '5704e3c2d2720bac5b8b4567', //woods
     '5b4c72b386f7745b453af9c0': '5704e554d2720bac5b8b456e', // shoreline
     '5b4c72c686f77462ac37e907': '5704e554d2720bac5b8b456e',
-    '5af04e0a86f7743a532b79e2': '56f40101d2720b2a4d8b45d6',
+    '5af04e0a86f7743a532b79e2': '5704e3c2d2720bac5b8b4567',
     '5b4c72fb86f7745cef1cffc5': '5704e554d2720bac5b8b456e',
     '5b43237186f7742f3a4ab252': '5704e554d2720bac5b8b456e',
     '5b4c81a086f77417d26be63f': '5714dbc024597771384a510d', // interchange
