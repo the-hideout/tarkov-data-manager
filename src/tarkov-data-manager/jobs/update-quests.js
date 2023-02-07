@@ -1319,6 +1319,13 @@ class UpdateQuestsJob extends DataJob {
                 obj.map_ids.push(questItemLocations[obj.item_id]);
             }
         });
+        if (questData.trader === '638f541a29ffd1183d187f57') {
+            for (const obj of questData.objectives) {
+                if (obj.type.startsWith('give') && obj.map_ids.length === 0) {
+                    obj.map_ids.push('5704e4dad2720bb55b8b4567');
+                }
+            }
+        }
         return questData;
     }
 }
