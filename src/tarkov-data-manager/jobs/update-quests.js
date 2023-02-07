@@ -80,9 +80,9 @@ class UpdateQuestsJob extends DataJob {
                     };
                 }
                 if (obj.type === 'extract') {
-                    obj.locale = addTranslations(obj.locale, {
-                        exitStatus: obj.exitStatus,
-                    }, this.logger);
+                    obj.locale = addTranslations(obj.locale, {exitStatus: lang => {
+                        return obj.exitStatus.map(stat => lang[`ExpBonus${stat}`]);
+                    }}, this.logger);
                 }
                 this.addMapFromDescription(obj);
             }
