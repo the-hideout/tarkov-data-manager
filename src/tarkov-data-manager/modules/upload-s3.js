@@ -195,7 +195,7 @@ async function addFileToBucket(localFilePath, fileName) {
     const fileExists = await fileExistsInS3(fileName);
     await s3.send(new PutObjectCommand(uploadParams));
     if (fileExists) {
-        await cloudflare.purgeCache(fileName);
+        await cloudflare.purgeCache(`https://${uploadParams.Bucket}/${uploadParams.Key}`);
     }
     addToLocalBucket(fileName);
 }
