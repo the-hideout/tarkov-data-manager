@@ -22,12 +22,11 @@ class VerifyWikiJob extends DataJob {
         const promises = [];
         this.logger.log('Verifying wiki links');
         const results = await remoteData.get();
-        for (const [i, result] of results) {
+        for (const result of results.values()) {
             if (promises.length >= 10) {
                 await Promise.all(promises);
                 promises.length = 0;
             }
-            //this.logger.log(`${i + 1}/${results.length} ${result.name}`);
             if (result.types.includes('disabled') || result.types.includes('quest')) {
                 continue;
             }
