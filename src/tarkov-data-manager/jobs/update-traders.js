@@ -45,6 +45,8 @@ class UpdateTradersJob extends DataJob {
                 }, this.logger),
                 items_buy: trader.items_buy,
                 items_buy_prohibited: trader.items_buy_prohibited,
+                imageLink: `https://${process.env.S3_BUCKET}/unknown-trader.webp`,
+                image4xLink: `https://${process.env.S3_BUCKET}/unknown-trader-4x.webp`,
             };
             if (s3Images.includes(`${traderData.id}.webp`)) {
                 traderData.imageLink = `https://${process.env.S3_BUCKET}/${traderData.id}.webp`;
@@ -74,7 +76,9 @@ class UpdateTradersJob extends DataJob {
                     requiredCommerce: parseInt(level.minSalesSum),
                     payRate: buyCoef ? (100 - buyCoef) / 100 : 0.0001,
                     insuranceRate: null,
-                    repairCostMultiplier: null
+                    repairCostMultiplier: null,
+                    imageLink: `https://${process.env.S3_BUCKET}/unknown-trader.webp`,
+                    image4xLink: `https://${process.env.S3_BUCKET}/unknown-trader-4x.webp`,
                 };
                 if (trader.insurance.availability){
                     levelData.insuranceRate = parseInt(level.insurance_price_coef) / 100;

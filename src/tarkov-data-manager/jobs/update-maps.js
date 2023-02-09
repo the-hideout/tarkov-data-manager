@@ -4,6 +4,7 @@ const normalizeName = require('../modules/normalize-name');
 //const mapQueueTimes = require('../modules/map-queue-times');
 const { setLocales, getTranslations, addTranslations } = require('../modules/get-translation');
 const DataJob = require('../modules/data-job');
+const s3 = require('../modules/upload-s3');
 
 class UpdateMapsJob extends DataJob {
     constructor() {
@@ -22,6 +23,7 @@ class UpdateMapsJob extends DataJob {
         this.bossLoadouts = {};
         this.processedBosses = {};
         const locations = await tarkovData.locations();
+        this.s3Images = s3.getLocalBucketContents();
         const maps = {
             Map: [],
         };
@@ -332,6 +334,8 @@ class UpdateMapsJob extends DataJob {
         const bossInfo = {
             id: bossKey,
             normalizedName: normalizeName(this.getEnemyName(bossKey, this.locales.en)),
+            imagePortraitLink: `https://${process.env.S3_BUCKET}/unknown-mob-portrait.webp`,
+            imagePosterLink: `https://${process.env.S3_BUCKET}/unknown-mob-poster.webp`,
             equipment: [],
             items: [],
             locale: getTranslations({
@@ -340,6 +344,21 @@ class UpdateMapsJob extends DataJob {
                 }
             }, this.logger),
         };
+        const extensions = [
+            'webp',
+            'png',
+            'jpg',
+        ];
+        const imageSizes = ['Portrait', 'Poster'];
+        for (const imageSize of imageSizes) {
+            for (const ext of extensions) {
+                const fileName = `${bossInfo.normalizedName}-${imageSize.toLowerCase()}.${ext}`;
+                if (this.s3Images.includes(fileName)) {
+                    bossInfo[`image${imageSize}Link`] = `https://${process.env.S3_BUCKET}/${fileName}`;
+                    break;
+                }
+            }
+        }
         if (!bossData) {
             this.processedBosses[bossKey] = bossInfo;
             return bossInfo;

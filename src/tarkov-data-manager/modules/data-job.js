@@ -130,7 +130,7 @@ class DataJob {
         });
         if (response.success) {
             this.logger.success(`Successful Cloudflare put of ${kvName}`);
-            stellate.purgeTypes(kvName, this.logger);
+            stellate.purge(kvName, this.logger);
         } else {
             for (let i = 0; i < response.errors.length; i++) {
                 this.logger.error(response.errors[i]);
