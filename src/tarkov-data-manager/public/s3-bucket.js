@@ -148,7 +148,6 @@ $(document).ready( function () {
 
     $('#modal-rename-confirm .rename-cancel').click(event => {
         const fileName = $('#modal-rename-confirm .rename-confirm').data('file');
-        console.log(fileName)
         $('.rename-file').each((index, el) => {
             if (el.dataset.file === fileName) {
                 $(el).removeClass('disabled');
