@@ -209,9 +209,9 @@ async function deleteFromBucket(key) {
     removeFromLocalBucket(key);
 }
 
-async function renameFile(oldName, newName) {
+async function copyFile(oldName, newName) {
     if (oldName === newName) {
-        return Promise.reject(new Error(`Cannot rename ${oldName} to the same name`));
+        return Promise.reject(new Error(`Cannot copy ${oldName} to the same name`));
     }
     const params = {
         Bucket: process.env.S3_BUCKET,
@@ -220,6 +220,10 @@ async function renameFile(oldName, newName) {
     };
     await s3.send((new CopyObjectCommand(params)));
     addToLocalBucket(newName);
+}
+
+async function renameFile(oldName, newName) {
+    await copyFile(oldName, newName);
     await deleteFromBucket(oldName);
 }
 
@@ -235,5 +239,6 @@ module.exports = {
     removeFromLocalBucket,
     addFileToBucket,
     deleteFromBucket,
+    copyFile,
     renameFile,
 };

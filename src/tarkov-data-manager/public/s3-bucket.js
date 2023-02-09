@@ -14,6 +14,7 @@ $(document).ready( function () {
                         <div>
                             <a href="#" class="waves-effect waves-light btn delete-file tooltipped" data-tooltip="Delete" data-file="${data}"><i class="material-icons">delete</i></a>
                             <a href="#" class="waves-effect waves-light btn rename-file tooltipped" data-tooltip="Rename" data-file="${data}"><i class="material-icons">text_fields</i></a>
+                            <a href="#" class="waves-effect waves-light btn copy-file tooltipped" data-tooltip="Copy" data-file="${data}"><i class="material-icons">file_copy</i></a>
                         </div>
                     `;
                 }
@@ -64,11 +65,25 @@ $(document).ready( function () {
                 target.addClass('disabled');
                 const fileName = target.data('file');
                 $('#modal-rename-confirm h4 .filename').text(fileName);
-                $('#modal-rename-confirm input#old-file-name').val(fileName);
-                $('#modal-rename-confirm #new-file-name').val(fileName);
+                $('#modal-rename-confirm input.old-file-name').val(fileName);
+                $('#modal-rename-confirm input.new-file-name').val(fileName);
                 $('#modal-rename-confirm .rename-confirm').data('file', fileName);
                 M.Modal.getInstance(document.getElementById('modal-rename-confirm')).open();
-                $('#modal-rename-confirm #new-file-name').focus();
+                $('#modal-rename-confirm input.new-file-name').focus();
+            });
+
+            $('.copy-file').off('click');
+            $('.copy-file').click(function (event) {
+                let target = $(event.target);
+                if (target[0].nodeName === 'I') target = target.parent();
+                target.addClass('disabled');
+                const fileName = target.data('file');
+                $('#modal-copy-confirm h4 .filename').text(fileName);
+                $('#modal-copy-confirm input.old-file-name').val(fileName);
+                $('#modal-copy-confirm input.new-file-name').val(fileName);
+                $('#modal-copy-confirm .copy-confirm').data('file', fileName);
+                M.Modal.getInstance(document.getElementById('modal-copy-confirm')).open();
+                $('#modal-copy-confirm input.new-file-name').focus();
             });
         }
     });
@@ -110,7 +125,7 @@ $(document).ready( function () {
         const form = $('#modal-rename-confirm').find('form').first();
         const formData = form.serialize();
         $.ajax({
-            method: 'PATCH',
+            method: 'PUT',
             dataType: "json",
             url: `/s3-bucket/${fileName}`,
             data: formData,
@@ -133,7 +148,43 @@ $(document).ready( function () {
 
     $('#modal-rename-confirm .rename-cancel').click(event => {
         const fileName = $('#modal-rename-confirm .rename-confirm').data('file');
+        console.log(fileName)
         $('.rename-file').each((index, el) => {
+            if (el.dataset.file === fileName) {
+                $(el).removeClass('disabled');
+            }
+        });
+    });
+
+    $('#modal-copy-confirm .copy-confirm').click(event => {
+        const fileName = $('#modal-copy-confirm .copy-confirm').data('file');
+        const form = $('#modal-copy-confirm').find('form').first();
+        const formData = form.serialize();
+        $.ajax({
+            method: 'POST',
+            dataType: "json",
+            url: `/s3-bucket/${fileName}`,
+            data: formData,
+        }).done(function (data) {
+            M.toast({html: data.message});
+            $('.copy-file').each((index, el) => {
+                if (el.dataset.file === fileName) {
+                    $(el).removeClass('disabled');
+                }
+            });
+            if (data.errors.length > 0) {
+                for (let i = 0; i < data.errors.length; i++) {
+                    M.toast({html: data.errors[i]});
+                }
+                return;
+            }
+            table.ajax.reload();
+        });
+    });
+
+    $('#modal-copy-confirm .copy-cancel').click(event => {
+        const fileName = $('#modal-copy-confirm .copy-confirm').data('file');
+        $('.copy-file').each((index, el) => {
             if (el.dataset.file === fileName) {
                 $(el).removeClass('disabled');
             }

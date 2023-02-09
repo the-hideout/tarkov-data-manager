@@ -33,7 +33,7 @@ const timer = require('./modules/console-timer');
 const scannerApi = require('./modules/scanner-api');
 const webhookApi = require('./modules/webhook-api');
 const queueApi = require('./modules/queue-api');
-const { uploadToS3, getImages, getLocalBucketContents, addFileToBucket, deleteFromBucket, renameFile } = require('./modules/upload-s3');
+const { uploadToS3, getImages, getLocalBucketContents, addFileToBucket, deleteFromBucket, renameFile, copyFile } = require('./modules/upload-s3');
 const { createAndUploadFromSource, regenerateFromExisting } = require('./modules/image-create');
 
 vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
@@ -1600,20 +1600,40 @@ app.get('/s3-bucket', async (req, res) => {
             <div class="modal-content">
                 <h4>Rename <span class="filename"></span></h4>
                 <div class="row">
-                    <form class="col s12" method="patch" action="">
+                    <form class="col s12" method="put" action="">
                         <div class="row">
                             <div class="input-field col s12">
-                                <input value="" id="new-file-name" type="text" class="validate new-file-name" name="new-file-name">
+                                <input value="" type="text" class="validate new-file-name" name="new-file-name">
                                 <label for="new-file-name">New Name</label>
                             </div>
                         </div>
-                        <input type="hidden" name="old-file-name" id="old-file-name"/>
+                        <input type="hidden" name="old-file-name" class="old-file-name"/>
                     </form>
                 </div>
             </div>
             <div class="modal-footer">
-                <a href="#!" class="modal-close waves-effect waves-green btn-flat rename-confirm">Save</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat rename-confirm">Rename</a>
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat rename-cancel">Cancel</a>
+            </div>
+        </div>
+        <div id="modal-copy-confirm" class="modal">
+            <div class="modal-content">
+                <h4>Copy <span class="filename"></span></h4>
+                <div class="row">
+                    <form class="col s12" method="post" action="">
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input value="" type="text" class="validate new-file-name" name="new-file-name">
+                                <label for="new-file-name">New Name</label>
+                            </div>
+                        </div>
+                        <input type="hidden" name="old-file-name" class="old-file-name"/>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat copy-confirm">Copy</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat copy-cancel">Cancel</a>
             </div>
         </div>
     ${getFooter(req)}`);
@@ -1641,7 +1661,18 @@ app.delete('/s3-bucket/:file', async (req, res) => {
     res.json(response);
 });
 
-app.patch('/s3-bucket/:file', async (req, res) => {
+app.post('/s3-bucket/:file', async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        await copyFile(req.params.file, req.body['new-file-name']);
+        response.message = `${req.params.file} copied to ${req.body['new-file-name']}`;
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.json(response);
+});
+
+app.put('/s3-bucket/:file', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
         await renameFile(req.params.file, req.body['new-file-name']);
