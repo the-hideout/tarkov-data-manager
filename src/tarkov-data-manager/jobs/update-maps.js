@@ -335,6 +335,7 @@ class UpdateMapsJob extends DataJob {
             id: bossKey,
             normalizedName: normalizeName(this.getEnemyName(bossKey, this.locales.en)),
             imagePortraitLink: `https://${process.env.S3_BUCKET}/unknown-mob-portrait.webp`,
+            imagePosterLink: `https://${process.env.S3_BUCKET}/unknown-mob-poster.webp`,
             equipment: [],
             items: [],
             locale: getTranslations({
@@ -348,12 +349,14 @@ class UpdateMapsJob extends DataJob {
             'png',
             'jpg',
         ];
-        for (const ext of extensions) {
-            const fileName = `${bossInfo.normalizedName}-portrait.${ext}`;
-            if (this.s3Images.includes(fileName)) {
-                console.log(fileName)
-                bossInfo.imagePortraitLink = `https://${process.env.S3_BUCKET}/${fileName}`;
-                break;
+        const imageSizes = ['Portrait', 'Poster'];
+        for (const imageSize of imageSizes) {
+            for (const ext of extensions) {
+                const fileName = `${bossInfo.normalizedName}-${imageSize.toLowerCase()}.${ext}`;
+                if (this.s3Images.includes(fileName)) {
+                    bossInfo[`image${imageSize}Link`] = `https://${process.env.S3_BUCKET}/${fileName}`;
+                    break;
+                }
             }
         }
         if (!bossData) {
