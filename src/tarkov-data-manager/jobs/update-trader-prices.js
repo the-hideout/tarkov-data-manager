@@ -3,6 +3,7 @@ const moment = require('moment');
 const { query } = require('../modules/db-connection');
 const tarkovData = require('../modules/tarkov-data');
 const DataJob = require('../modules/data-job');
+const remoteData = require('../modules/remote-data')
 
 class UpdateTraderPricesJob extends DataJob {
     constructor() {
@@ -13,7 +14,7 @@ class UpdateTraderPricesJob extends DataJob {
     async run() {
         [this.tasks, this.items] = await Promise.all([
             this.jobManager.jobOutput('update-quests', this.logger),
-            this.jobManager.jobOutput('update-item-cache', this.logger),
+            remoteData.get(),
         ]);
         const outputData = {};
         const junkboxLastScan = await query(`
@@ -239,7 +240,7 @@ class UpdateTraderPricesJob extends DataJob {
                     };
                 }
             }
-            throw new Error(`Could not find quest unlock for trader offer ${traderItem.id}: ${traderItem.trader_name} ${this.items[traderItem.item_id].name} ${traderItem.item_id}`);
+            throw new Error(`Could not find quest unlock for trader offer ${traderItem.id}: ${traderItem.trader_name} ${this.items.get(traderItem.item_id).name} ${traderItem.item_id}`);
         }
         return false;
     }
