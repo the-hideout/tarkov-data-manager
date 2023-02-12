@@ -27,7 +27,7 @@ const typesQueries = {
     FleaMarket: ['fleaMarket'],
     HideoutStation: ['hideoutStations'],
     historicalItemPricePoint: ['historicalItemPrices'],
-    Item: ['items', 'itemsByIds', 'ItemsByType', 'itemsByName', 'itemByNormalizedName', 'itemsByBsgCategory'],
+    Item: ['items', 'itemsByIDs', 'ItemsByType', 'itemsByName', 'itemByNormalizedName', 'itemsByBsgCategory'],
     ItemCategory: ['itemCategories', 'handbookCategories'],
     Map: ['maps'],
     MobInfo: ['bosses'],
