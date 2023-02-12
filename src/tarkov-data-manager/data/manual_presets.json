@@ -780,6 +780,13 @@
             },
             {
                 "item": {
+                    "id": "5bae13ded4351e44f824bf38",
+                    "name": "Mosin Rifle 7.62x54R ProMag Archangel OPFOR 10-round magazine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
                     "id": "5bae13bad4351e00320204af",
                     "name": "Mosin Rifle ProMag Archangel OPFOR PRS stock"
                 },
