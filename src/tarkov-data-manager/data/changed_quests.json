@@ -439,13 +439,13 @@
     "5a27c99a86f7747d2c6bdd8e": {
         "name": "Friend from the West - Part 1",
         "propertiesChanged" : {
-            "minPlayerLevel": 0,
-            "traderLevelRequirements": [
+            "taskRequirements": [
                 {
-                    "id": "5a27c99a86f7747d2c6bdd8e-58330581ace78e27b8b10cee",
-                    "trader_id": "58330581ace78e27b8b10cee",
-                    "name": "Skier",
-                    "level": 2
+                    "task": "5979eee086f774311955e614",
+                    "name": "Supplier",
+                    "status": [
+                        "complete"
+                    ]
                 }
             ]
         }
