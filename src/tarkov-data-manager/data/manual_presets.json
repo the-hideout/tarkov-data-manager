@@ -568,6 +568,13 @@
             {
                 "item": {
                     "id": "58d39d3d86f77445bb794ae7",
+                    "name": "Aimpoint Micro Standard Mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "58d399e486f77442e0016fe7",
                     "name": "Aimpoint Micro T-1 reflex sight"
                 },
                 "count": 1
@@ -624,6 +631,13 @@
             {
                 "item": {
                     "id": "58d2912286f7744e27117493",
+                    "name": "Magpul MOE Carbine rubber buttpad"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "56ea7165d2720b6e518b4583",
                     "name": "AR-15 Badger Ordnance Tactical Charging Handle Latch"
                 },
                 "count": 1
