@@ -13,9 +13,7 @@ const ignoreTypes = [
 ];
 
 const ignoreId = [
-    'Barter',
     'HideoutModule',
-    'MobInfo',
     'TraderCashOffer',
 ];
 
