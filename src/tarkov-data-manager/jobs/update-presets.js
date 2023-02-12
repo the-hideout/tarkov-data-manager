@@ -263,7 +263,6 @@ class UpdatePresetsJob extends DataJob {
         this.logger.log('Updating presets in DB...');
         const queries = [];
         for (const presetId in presetsData) {
-            break;
             const p = presetsData[presetId];
             queries.push(remoteData.addItem({
                 id: p.id,

@@ -81,4 +81,10 @@ module.exports = {
     traders: (download = false) => {
         return tarkovChanges.traders(download);
     },
+    traderAssorts: async (traderId) => {
+        return spt.traderAssorts(traderId);
+    },
+    traderQuestAssorts: async (traderId) => {
+        return spt.traderQuestAssorts(traderId);
+    },
 };

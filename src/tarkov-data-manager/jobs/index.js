@@ -13,6 +13,7 @@ const defaultJobs = {
     'game-data': '*/10 * * * *',
     'update-historical-prices': '30 * * * *',
     'update-trader-prices': '25 9,21 * * *',
+    'update-trader-assorts': '15 9,21 * * *',
     'clear-checkouts': '5,35 * * * *',
     'verify-wiki': '5 9 * * *',
     'update-hideout': '1-59/10 * * * *',

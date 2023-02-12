@@ -124,6 +124,27 @@
                     "name": "Trijicon RMR reflex sight"
                 },
                 "count": 1
+            },
+            {
+                "item": {
+                    "id": "5a6f5d528dc32e00094b97d9",
+                    "name": "Glock rear sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5a6f58f68dc32e000a311390",
+                    "name": "Glock front sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5a718b548dc32e000d46d262",
+                    "name": "Glock 9x19 17-round magazine"
+                },
+                "count": 1
             }
         ]
     },
@@ -449,6 +470,282 @@
                 "item": {
                     "id": "5b099b7d5acfc400186331e4",
                     "name": "SA-58 3-Prong Trident 7.62x51 flash hider"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "m4a1sopmodiiflash0000001",
+        "appendName": "SOPMOD II Flash",
+        "baseId": "5b0bbe4e5acfc40dc528a72d",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "5447a9cd4bdc2dbd208b4567",
+                    "name": "Colt M4A1 5.56x45 assault rifle"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "571659bb2459771fb2755a12",
+                    "name": "AR-15 Damage Industries ECS pistol grip (FDE)"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "55802d5f4bdc2dac148b458e",
+                    "name": "5.56x45 Magpul PMAG 30 GEN M3 W STANAG 30-round magazine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "54527a984bdc2d4e668b4567",
+                    "name": "5.56x45mm M855"
+                },
+                "count": 30
+            },
+            {
+                "item": {
+                    "id": "55d355e64bdc2d962f8b4569",
+                    "name": "M4A1 5.56x45 upper receiver"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "57aca93d2459771f2c7e26db",
+                    "name": "ELCAN SpecterDR 1x/4x scope (FDE)"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "55d35ee94bdc2d61338b4568",
+                    "name": "AR-15 5.56x45 260mm barrel"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "56ea8180d2720bf2698b456a",
+                    "name": "AR-15 KAC QDC 5.56x45 Flash Suppressor Kit"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "57da93632459771cb65bf83f",
+                    "name": "KAC QDSS NT-4 5.56x45 sound suppressor (Black)"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "56eabcd4d2720b66698b4574",
+                    "name": "AR-15 Daniel Defense MK12 Low Profile Gas Block"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "55f84c3c4bdc2d5f408b4576",
+                    "name": "AR-15 Daniel Defense RIS II 9.5 handguard (Coyote Brown)"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5649a2464bdc2d91118b45a8",
+                    "name": "NcSTAR MPR45 Backup mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "58d39d3d86f77445bb794ae7",
+                    "name": "Aimpoint Micro T-1 reflex sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "57d17e212459775a1179a0f5",
+                    "name": "Kiba Arms 25mm accessory ring mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "57d17c5e2459775a5c57d17d",
+                    "name": "Ultrafire WF-501B flashlight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "544909bb4bdc2d6f028b4577",
+                    "name": "AN/PEQ-15 tactical device"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "638f1ff84822287cad04be9d",
+                    "name": "AR-15 Daniel Defense RIS II 9.5 lower handguard (Coyote Brown)"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "58c157be86f77403c74b2bb6",
+                    "name": "TangoDown Stubby BGV-MK46K foregrip (FDE)"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5649be884bdc2d79388b4577",
+                    "name": "Colt Carbine buffer tube"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "58d2946386f774496974c37e",
+                    "name": "Magpul MOE Carbine stock (FDE)"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "58d2912286f7744e27117493",
+                    "name": "AR-15 Badger Ordnance Tactical Charging Handle Latch"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "sa58xfal0000000000000001",
+        "appendName": "5b7bef9c5acfc43d102852ec ShortName",
+        "baseId": "5b0bbe4e5acfc40dc528a72d",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "5b0bbe4e5acfc40dc528a72d",
+                    "name": "DS Arms SA-58 7.62x51 assault rifle"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b7d679f5acfc4001a5c4024",
+                    "name": "SA-58 FAB Defense AG-FAL pistol grip"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b7bef9c5acfc43d102852ec",
+                    "name": "SA-58/FAL 7.62x51 X Products X-FAL 50-round drum magazine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b7bee755acfc400196d5383",
+                    "name": "SA-58/FAL Vltor CASV-FAS handguard"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b7be46e5acfc400170e2dcf",
+                    "name": "Vltor CASV 5 inch rail"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "59fc48e086f77463b1118392",
+                    "name": "Magpul RVG foregrip (Black)"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b7be4645acfc400170e2dcc",
+                    "name": "Vltor CASV 4 inch rail"
+                },
+                "count": 2
+            },
+            {
+                "item": {
+                    "id": "5b099a765acfc47a8607efe3",
+                    "name": "SA-58 7.62x51 11 inch barrel"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b7d693d5acfc43bca706a3d",
+                    "name": "AR-10 2A Armanent X3 7.62x51 compensator"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b0bc22d5acfc47a8607f085",
+                    "name": "SA-58 Holland Type rear sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b099bb25acfc400186331e8",
+                    "name": "SA-58 Extreme Duty dust cover"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b7d64555acfc4001876c8e2",
+                    "name": "SA-58 BRS stock"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "vssvintorezstripped00001",
+        "appendName": "Stripped",
+        "baseId": "57838ad32459774a17445cd2",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "57838ad32459774a17445cd2",
+                    "name": "VSS Vintorez 9x39 special sniper rifle"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "57838c962459774a1651ec63",
+                    "name": "VSS 9x39 integral barrel-suppressor"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "578395e82459774a0e553c7b",
+                    "name": "VSS wooden stock"
                 },
                 "count": 1
             }
