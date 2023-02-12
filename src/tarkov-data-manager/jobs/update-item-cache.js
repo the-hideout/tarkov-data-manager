@@ -342,6 +342,25 @@ class UpdateItemCacheJob extends DataJob {
             });
         }
 
+        //add flea prices from base items to default presets
+        for (const item of Object.values(itemData)) {
+            if (!item.types.includes('preset')) {
+                continue;
+            }
+            const baseItem = itemData[item.properties.base_item_id];
+            if (baseItem.properties?.defaultPreset !== item.id) {
+                continue;
+            }
+            item.updated = baseItem.updated;
+            item.lastLowPrice = baseItem.lastLowPrice;
+            item.avg24hPrice = baseItem.avg24hPrice;
+            item.low24hPrice = baseItem.low24hPrice;
+            item.high24hPrice = baseItem.high24hPrice;
+            item.changeLast48h = baseItem.changeLast48h;
+            item.changeLast48hPercent = baseItem.changeLast48hPercent;
+            item.lastOfferCount = baseItem.lastOfferCount;
+        }
+
         // populate child ids for tempalte categories
         Object.values(this.bsgCategories).forEach(cat => {
             this.bsgCategories[cat.parent_id]?.child_ids.push(cat.id);
