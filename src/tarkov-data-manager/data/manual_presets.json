@@ -764,5 +764,260 @@
                 "count": 1
             }
         ]
+    },
+    {
+        "id": "mosinsniperatacr00000001",
+        "appendName": "5aa66be6e5b5b0214e506e97 ShortName",
+        "baseId": "5ae08f0a5acfc408fb1398a1",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "5ae08f0a5acfc408fb1398a1",
+                    "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5bae13bad4351e00320204af",
+                    "name": "Mosin Rifle ProMag Archangel OPFOR PRS stock"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5ae09bff5acfc4001562219d",
+                    "name": "Mosin Rifle 7.62x54R 730mm regular barrel"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5ae099875acfc4001714e593",
+                    "name": "Mosin Rifle front sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5bbdb811d4351e45020113c7",
+                    "name": "Mosin Rifle AIM Sports Tri-Rail mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5aa66a9be5b5b0214e506e89",
+                    "name": "Nightforce Magmount 34mm ring scope mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5aa66be6e5b5b0214e506e97",
+                    "name": "Nightforce ATACR 7-35x56 34mm riflescope"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b86a0e586f7745b600ccb23",
+                    "name": "Mosin Rifle Bramit 7.62x54R sound suppressor"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "m4a1kacrisii000000000001",
+        "appendName": "55d459824bdc2d892f8b4573 ShortName",
+        "baseId": "5447a9cd4bdc2dbd208b4567",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "5447a9cd4bdc2dbd208b4567",
+                    "name": "Colt M4A1 5.56x45 assault rifle"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "55d4b9964bdc2d1d4e8b456e",
+                    "name": "AR-15 Colt A2 pistol grip"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "55d4887d4bdc2d962f8b4570",
+                    "name": "5.56x45 Colt AR-15 STANAG 30-round magazine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "55d355e64bdc2d962f8b4569",
+                    "name": "M4A1 5.56x45 upper receiver"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "55d3632e4bdc2d972f8b4569",
+                    "name": "AR-15 5.56x45 370mm barrel"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "544a38634bdc2d58388b4568",
+                    "name": "AR-15 Colt USGI A2 5.56x45 flash hider"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "56ea8d2fd2720b7c698b4570",
+                    "name": "AR-15 Windham Weaponry Rail Gas Block"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "55d4af3a4bdc2d972f8b456f",
+                    "name": "AR-15 Leapers UTG Low Profile A2 front sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "55d459824bdc2d892f8b4573",
+                    "name": "AR-15 KAC RIS handguard"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "637f57b78d137b27f70c496a",
+                    "name": "AR-15 KAC RIS lower handguard"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "55d5f46a4bdc2d1b198b4567",
+                    "name": "AR-15 Colt A2 rear sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5649be884bdc2d79388b4577",
+                    "name": "Colt Carbine buffer tube"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "55d4ae6c4bdc2d8b2f8b456e",
+                    "name": "High Standard M4SS Stock"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "55d44fd14bdc2d962f8b456e",
+                    "name": "AR-15 Colt charging handle"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "m1areapir000000000000001",
+        "appendName": "5a1eaa87fcdbcb001865f75e ShortName",
+        "baseId": "5aafa857e5b5b00018480968",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "5aafa857e5b5b00018480968",
+                    "name": "Springfield Armory M1A 7.62x51 rifle"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5addcce35acfc4001a5fc635",
+                    "name": "M14 7.62x51 30-round magazine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5addbf175acfc408fb13965b",
+                    "name": "M1A ProMag Archangel stock"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5addbfbb5acfc400194dbcf7",
+                    "name": "M14 UltiMAK M8 Forward Optic mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5addbac75acfc400194dbc56",
+                    "name": "M1A 7.62x51 22 inch barrel"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "59bffc1f86f77435b128b872",
+                    "name": "SilencerCo Hybrid 46 Direct Thread Mount adapter"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "59bffbb386f77435b379b9c2",
+                    "name": "SilencerCo Hybrid 46 multi-caliber sound suppressor"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5abcbb20d8ce87001773e258",
+                    "name": "M14 SA Enlarged Military Aperture rear sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5addbfef5acfc400185c2857",
+                    "name": "M14 Leapers UTG 4-Point Locking Deluxe mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5a1ead28fcdbcb001912fa9f",
+                    "name": "UNV DLOC-IRD sight mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5a1eaa87fcdbcb001865f75e",
+                    "name": "Trijicon REAP-IR thermal scope"
+                },
+                "count": 1
+            }
+        ]
     }
 ]
