@@ -196,6 +196,12 @@ class UpdateQuestsJob extends DataJob {
             quest.taskRequirements = quest.taskRequirements.filter(req => !removeReqs.includes(req.task));
 
             quest.minPlayerLevel = getQuestMinLevel(quest.id);
+
+            const trader = traders.find(t => t.name === quest.name);
+            const map = this.maps.find(m => m.name === quest.name);
+            if (trader || map) {
+                quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(quest.name.replaceAll(' ', '_'))}_(quest)`;
+            }
         }
 
         const ignoreQuests = [
