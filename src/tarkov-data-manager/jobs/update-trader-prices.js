@@ -240,8 +240,8 @@ class UpdateTraderPricesJob extends DataJob {
                     offer.id = matchedOffer.item;
                     offer.item_name = matchedOffer.itemName;
                 }
-                //offer.price = Math.ceil(matchedOffer.cost[0].count);
-                //offer.priceRUB = Math.round(matchedOffer.cost[0].count * currenciesNow[currencyISO[matchedOffer.cost[0].item]]);
+                offer.price = Math.ceil(matchedOffer.cost[0].count);
+                offer.priceRUB = Math.round(matchedOffer.cost[0].count * currenciesNow[currencyISO[matchedOffer.cost[0].item]]);
                 offer.restockAmount = matchedOffer.stock;
                 offer.buyLimit = matchedOffer.buyLimit;
                 offer.traderOfferId = matchedOffer.id;
