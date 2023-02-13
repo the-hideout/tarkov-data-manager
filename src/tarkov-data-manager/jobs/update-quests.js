@@ -275,7 +275,39 @@ class UpdateQuestsJob extends DataJob {
             if (neededForLightkeeper.has(task.id)) {
                 task.lightkeeperRequired = true;
             }
+
+            // sort task requirements by the minimum level required for each
+            task.taskREquirements = task.taskRequirements.sort((a, b) => {
+                const taskA = quests.Task.find(q => q.id === a.task);
+                const taskB = quests.Task.find(q => q.id === b.task);
+                return taskA.minPlayerLevel - taskB.minPlayerLevel;
+            });
         }
+
+        // sort all tasks so lowest level tasks are first
+        quests.Task = quests.Task.sort((taskA,taskB) => {
+            let aMinLevel = taskA.minPlayerLevel;
+            let bMinLevel = taskB.minPlayerLevel;
+            if (!aMinLevel) {
+                aMinLevel = 100;
+            }
+            if (!bMinLevel) {
+                bMinLevel = 100;
+            }
+            if (aMinLevel === bMinLevel) {
+                aMinLevel = taskA.taskRequirements.reduce((totalMinLevel, req) => {
+                    const reqTask = quests.Task.find(q => q.id === req.task);
+                    totalMinLevel += reqTask.minPlayerLevel;
+                    return totalMinLevel;
+                }, aMinLevel);
+                bMinLevel = taskB.taskRequirements.reduce((totalMinLevel, req) => {
+                    const reqTask = quests.Task.find(q => q.id === req.task);
+                    totalMinLevel += reqTask.minPlayerLevel;
+                    return totalMinLevel;
+                }, bMinLevel);
+            }
+            return aMinLevel - bMinLevel;
+        });
 
         for (const id in this.questItems) {
             if (this.items[id]) {
