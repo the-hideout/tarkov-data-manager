@@ -225,6 +225,13 @@
                 "status": [
                     "complete"
                 ]
+            },
+            {
+                "task": "5b47825886f77468074618d3",
+                "name": "Gunsmith - Part 22",
+                "status": [
+                    "complete"
+                ]
             }
         ],
         "___taskRequirementsRemoved": [
