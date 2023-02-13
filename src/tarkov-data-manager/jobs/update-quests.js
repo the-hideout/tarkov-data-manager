@@ -228,18 +228,8 @@ class UpdateQuestsJob extends DataJob {
             }
         }
 
-        const ignoreQuests = [
-            '5d25dae186f77443e55d2f78',
-            '61bb475467f83663e155e26a',
-            '61bb468b8d7cac1532300ccc',
-            '61bb47481908c67d4249a205',
-            '61bb474b1ab5304c3817a53a',
-            '61bb474f8b8d2a79d012cd6e',
-            '61bb474dce7374453b45dfd2',
-            '61bb47516b70332c062ca7b9',
-            '61bb47578d7cac1532300ccd',
-            '61bb4756883b2c16a163870a',
-            '61bfa784f4378605ca5598e1',
+        const ignoreMissingQuests = [
+            '613708a7f8333a5d15594368',
         ];
         for (const key in this.locales.en) {
             const match = key.match(/(?<id>[a-f0-9]{24}) name/);
@@ -254,12 +244,12 @@ class UpdateQuestsJob extends DataJob {
                     break;
                 };
             }
-            if (found || ignoreQuests.includes(questId)) continue;
+            if (found || ignoreMissingQuests.includes(questId)) continue;
             if (!this.locales.en[`${questId} name`]) {
                 continue;
             }
             if (removedQuests[questId]) {
-                this.logger.warn(`Quest ${this.locales.en[`${questId} name`]} ${questId} has been removed`);
+                //this.logger.warn(`Quest ${this.locales.en[`${questId} name`]} ${questId} has been removed`);
                 continue;
             }
             this.logger.warn(`No quest data found for ${this.locales.en[`${questId} name`]} ${questId}`);
