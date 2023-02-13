@@ -600,5 +600,40 @@
             "location_id": "5714dc692459777137212e12",
             "locationName": "Streets of Tarkov"
         }
+    },
+    "5d25e4d586f77443e625e388": {
+        "name": "Reserve",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "63a88045abf76d719f42d715",
+                    "name": "The Delicious Sausage",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "60e71ccb5688f6424c7bfec4": {
+        "name": "Trophies",
+        "propertiesChanged" : {
+            "minPlayerLevel": 55,
+            "taskRequirements": [
+                {
+                    "task": "60e71c9ad54b755a3b53eb66",
+                    "name": "The Cleaner",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "60e71d23c1bfa3050473b8e6": {
+        "name": "Calibration",
+        "propertiesChanged" : {
+            "minPlayerLevel": 47
+        }
     }
 }
