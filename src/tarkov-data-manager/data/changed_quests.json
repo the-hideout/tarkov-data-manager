@@ -1040,5 +1040,11 @@
                 }
             ]
         }
+    },
+    "5967733e86f774602332fc84": {
+        "name": "Shortage",
+        "propertiesChanged" : {
+            "minPlayerLevel": 1
+        }
     }
 }
