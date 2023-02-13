@@ -38,13 +38,6 @@
                 ]
             },
             {
-                "task": "5d25e29d86f7740a22516326",
-                "name": "The Survivalist Path - Eagle-Owl",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
                 "task": "5d4bec3486f7743cac246665",
                 "name": "Regulated Materials",
                 "status": [
@@ -108,13 +101,6 @@
                 ]
             },
             {
-                "task": "608a768d82e40b3c727fd17d",
-                "name": "Pest Control",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
                 "task": "6179b3bdc7560e13d23eeb8d",
                 "name": "Corporate Secrets",
                 "status": [
@@ -173,13 +159,6 @@
             {
                 "task": "6089743983426423753cd58a",
                 "name": "Safe Corridor",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
-                "task": "5d25bfd086f77442734d3007",
-                "name": "The Survivalist Path - Zhivchik",
                 "status": [
                     "complete"
                 ]

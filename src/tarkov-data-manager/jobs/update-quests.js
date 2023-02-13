@@ -205,6 +205,27 @@ class UpdateQuestsJob extends DataJob {
 
             quest.kappaRequired = false;
             quest.lightkeeperRequired = false;
+
+            const earlierTasks = new Set();
+            const addEarlier = (id) => {
+                quests.Task.find(q => q.id === id).taskRequirements.map(req => req.task).forEach(reqId => {
+                    earlierTasks.add(reqId);
+                    addEarlier(reqId);
+                });
+            };
+            const required = quest.taskRequirements.map(req => req.task);
+            for (const reqId of required) {
+                quests.Task.find(q => q.id === reqId).taskRequirements.forEach(req => {
+                    addEarlier(req.task);
+                });
+            }
+            for (const reqId of required) {
+                if (earlierTasks.has(reqId)) {
+                    const requiredTask = quests.Task.find(q => q.id === reqId);
+                    this.logger.warn(`${quest.name} ${quest.id} required task ${requiredTask.name} ${requiredTask.id} is a precursor to another required task`);
+                    quest.taskRequirements - quest.taskRequirements.filter(req => req.task !== reqId);
+                }
+            }
         }
 
         const ignoreQuests = [
@@ -260,6 +281,8 @@ class UpdateQuestsJob extends DataJob {
         for (const task of quests.Task) {
             if (neededForKappa.has(task.id)) {
                 task.kappaRequired = true;
+            }
+            if (neededForLightkeeper.has(task.id)) {
                 task.lightkeeperRequired = true;
             }
         }
