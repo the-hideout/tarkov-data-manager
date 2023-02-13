@@ -333,38 +333,43 @@ class UpdateQuestsJob extends DataJob {
             if (item.upd) {
                 containedItem.count = item.upd.StackObjectsCount;
             }
-            rewardData.contains.push(containedItem);
+            const existingItem = rewardData.contains.find(c => c.item === containedItem.item);
+            if (existingItem) {
+                existingItem.count += containedItem.count;
+            } else {
+                rewardData.contains.push(containedItem);
+            }
         }
-        for (const presetId in this.presets) {
-            const preset = this.presets[presetId];
-            if (preset.default) continue;
-            if (preset.baseId !== rewardData.item) continue;
-            if (!preset.containsItems.length == rewardData.contains.length+1) continue;
-            let matchingParts = 1;
-            for (let i = 1; i < preset.containsItems.length; i++) {
-                const presetPart = preset.containsItems[i];
-                for (const rewardPart of rewardData.contains) {
-                    if (rewardPart.item === presetPart.item.id) {
-                        matchingParts++;
-                        break;
-                    }
+        if (!rewardData.contains.length > 0) {
+            return rewardData;
+        }
+        const matchedPreset = Object.values(this.presets).find(preset => {
+            if (preset.baseId !== rewardData.item) return false;
+            if (preset.containsItems.length !== rewardData.contains.length+1) return false;
+            for (const part of preset.containsItems) {
+                if (part.item.id === preset.baseId) continue;
+                if (!rewardData.contains.some(rewardPart => rewardPart.item === part.item.id)) {
+                    return false;
                 }
             }
-            if (matchingParts == preset.containsItems.length) {
-                this.logger.success('Reward matches preset '+preset.name);
-                rewardData.item = preset.id;
-                rewardData.item_name = preset.name;
-                rewardData.base_item_id = preset.baseId;
-                rewardData.contains = [];
-                for (const part of preset.containsItems) {
-                    rewardData.contains.push({
-                        item: part.item.id,
-                        name: part.item.name,
-                        count: part.count
-                    });
-                }
-                break;
+            return true;
+        });
+        if (matchedPreset) {
+            this.logger.success('Reward matches preset '+matchedPreset.name);
+            rewardData.item = matchedPreset.id;
+            rewardData.item_name = matchedPreset.name;
+            rewardData.base_item_id = matchedPreset.baseId;
+            rewardData.contains = [];
+            for (const part of matchedPreset.containsItems) {
+                rewardData.contains.push({
+                    item: part.item.id,
+                    name: part.item.name,
+                    count: part.count
+                });
             }
+        } else {
+            this.logger.warn('Could not match preset to reward');
+            this.logger.log(JSON.stringify(rewardData, null, 4));
         }
         return rewardData;
     }

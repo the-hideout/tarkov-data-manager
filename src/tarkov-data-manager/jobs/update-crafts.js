@@ -18,6 +18,7 @@ class UpdateCraftsJob extends DataJob {
         ]);
         const areas = await this.jobManager.jobOutput('update-hideout', this);
         const tasks = await this.jobManager.jobOutput('update-quests', this);
+        const presets = await this.jobManager.jobOutput('update-presets', this, true);
         const crafts = {
             Craft: [],
         };
@@ -34,7 +35,7 @@ class UpdateCraftsJob extends DataJob {
                 inactiveStations[en[`hideout_area_${craft.areaType}_name`]]++;
                 continue;
             }
-            const endProduct = processedItems.get(craft.endProduct);
+            let endProduct = processedItems.get(craft.endProduct);
             if (!endProduct) {
                 this.logger.warn(`${id}: No end product item with id ${craft.endProduct} found in items`);
                 continue;
@@ -47,6 +48,12 @@ class UpdateCraftsJob extends DataJob {
                 this.logger.warn(`${id}: End product ${endProduct.name} ${craft.endProduct} is a quest item`);
                 continue;
             }
+            if (endProduct.types.includes('gun')) {
+                const preset = Object.values(presets).find(p => p.baseId === endProduct.id && p.default);
+                if (preset) {
+                    endProduct = processedItems.get(preset.id);
+                }
+            }
             if (!stations[station.locale.en.name]) {
                 stations[station.locale.en.name] = 0;
             }
@@ -56,7 +63,7 @@ class UpdateCraftsJob extends DataJob {
                 requiredQuestItems: [],
                 rewardItems: [{
                     name: endProduct.name,
-                    item: craft.endProduct,
+                    item: endProduct.id,
                     count: craft.count,
                     attributes: []
                 }],

@@ -159,10 +159,10 @@ class UpdatePresetsJob extends DataJob {
 
             presetData.locale = getTranslations({
                 name: (lang) => {
-                    return lang[`${baseItem._id} Name`] + ' ' + lang[presetData.appendName] || locales.en[presetData.appendName];
+                    return lang[`${baseItem._id} Name`] + ' ' + (lang[presetData.appendName] || locales.en[presetData.appendName]);
                 },
                 shortName: (lang) => {
-                    return lang[`${baseItem._id} ShortName`] + ' ' + locales.en[presetData.appendName];
+                    return lang[`${baseItem._id} ShortName`] + ' ' + (lang[presetData.appendName] || locales.en[presetData.appendName]);
                 }
             }, this.logger);
             presetData.name = presetData.locale.en.name;
@@ -170,7 +170,7 @@ class UpdatePresetsJob extends DataJob {
             presetData.normalized_name = normalizeName(presetData.name);
             delete presetData.appendName;
             presetsData[presetData.id] = presetData;
-            this.logger.succeed(`Completed ${presetData.name} manual preset (${presetData.containsItems.length+1} parts)`);
+            this.logger.succeed(`Completed ${presetData.name} manual preset (${presetData.containsItems.length} parts)`);
         }
         // add dog tag preset
         const bearTag = items['59f32bb586f774757e1e8442'];
@@ -263,7 +263,6 @@ class UpdatePresetsJob extends DataJob {
         this.logger.log('Updating presets in DB...');
         const queries = [];
         for (const presetId in presetsData) {
-            break;
             const p = presetsData[presetId];
             queries.push(remoteData.addItem({
                 id: p.id,

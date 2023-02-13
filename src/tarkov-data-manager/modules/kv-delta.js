@@ -13,9 +13,7 @@ const ignoreTypes = [
 ];
 
 const ignoreId = [
-    'Barter',
     'HideoutModule',
-    'MobInfo',
     'TraderCashOffer',
 ];
 
@@ -27,7 +25,7 @@ const typesQueries = {
     FleaMarket: ['fleaMarket'],
     HideoutStation: ['hideoutStations'],
     historicalItemPricePoint: ['historicalItemPrices'],
-    Item: ['items', 'itemsById', 'ItemsByType', 'itemsByName', 'itemByNormalizedName', 'itemsByBsgCategory'],
+    Item: ['items', 'itemsByIDs', 'ItemsByType', 'itemsByName', 'itemByNormalizedName', 'itemsByBsgCategory'],
     ItemCategory: ['itemCategories', 'handbookCategories'],
     Map: ['maps'],
     MobInfo: ['bosses'],
