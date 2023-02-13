@@ -202,6 +202,8 @@ class UpdateQuestsJob extends DataJob {
             if (trader || map) {
                 quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(quest.name.replaceAll(' ', '_'))}_(quest)`;
             }
+
+            quest.kappaRequired = false;
         }
 
         const ignoreQuests = [
@@ -239,6 +241,23 @@ class UpdateQuestsJob extends DataJob {
                 continue;
             }
             this.logger.warn(`No quest data found for ${this.locales.en[`${questId} name`]} ${questId}`);
+        }
+
+        const neededForKappa = new Set();
+        const addKappaRequirements = (taskId, hardRequired) => {
+            if (hardRequired){
+                neededForKappa.add(taskId);
+            }
+            const task = quests.Task.find(task => task.id === taskId);
+            for (const req of task.taskRequirements) {
+                addKappaRequirements(req.task, req.status.length === 1 && req.status[0] === 'complete');
+            }
+        };
+        addKappaRequirements('5c51aac186f77432ea65c552', true);
+        for (const task of quests.Task) {
+            if (neededForKappa.has(task.id)) {
+                task.kappaRequired = true;
+            }
         }
 
         for (const id in this.questItems) {
