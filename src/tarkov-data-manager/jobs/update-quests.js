@@ -204,6 +204,7 @@ class UpdateQuestsJob extends DataJob {
             }
 
             quest.kappaRequired = false;
+            quest.lightkeeperRequired = false;
         }
 
         const ignoreQuests = [
@@ -244,19 +245,22 @@ class UpdateQuestsJob extends DataJob {
         }
 
         const neededForKappa = new Set();
-        const addKappaRequirements = (taskId, hardRequired) => {
+        const neededForLightkeeper = new Set();
+        const addPreviousRequirements = (neededSet, taskId, hardRequired) => {
             if (hardRequired){
-                neededForKappa.add(taskId);
+                neededSet.add(taskId);
             }
             const task = quests.Task.find(task => task.id === taskId);
             for (const req of task.taskRequirements) {
-                addKappaRequirements(req.task, req.status.length === 1 && req.status[0] === 'complete');
+                addPreviousRequirements(neededSet, req.task, req.status.length === 1 && req.status[0] === 'complete');
             }
         };
-        addKappaRequirements('5c51aac186f77432ea65c552', true);
+        addPreviousRequirements(neededForKappa, '5c51aac186f77432ea65c552', true);
+        addPreviousRequirements(neededForLightkeeper, '625d7005a4eb80027c4f2e09', true);
         for (const task of quests.Task) {
             if (neededForKappa.has(task.id)) {
                 task.kappaRequired = true;
+                task.lightkeeperRequired = true;
             }
         }
 
