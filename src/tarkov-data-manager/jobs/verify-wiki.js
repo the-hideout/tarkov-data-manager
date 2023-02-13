@@ -1,7 +1,7 @@
 const got = require('got');
 const webhook = require('../modules/webhook');
 
-const { query } = require('../modules/db-connection');
+const remoteData = require('../modules/remote-data');
 const tarkovData = require('../modules/tarkov-data');
 const DataJob = require('../modules/data-job');
 
@@ -21,26 +21,16 @@ class VerifyWikiJob extends DataJob {
         let missing = 0;
         const promises = [];
         this.logger.log('Verifying wiki links');
-        const results = await query(`
-            SELECT 
-                item_data.*
-            FROM 
-                item_data
-            LEFT JOIN types ON
-                types.item_id = item_data.id
-            WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
-            NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest')
-            GROUP BY item_data.id
-        `);
-        for(let i = 0; i < results.length; i++){
+        const results = await remoteData.get();
+        for (const result of results.values()) {
             if (promises.length >= 10) {
                 await Promise.all(promises);
                 promises.length = 0;
             }
+            if (result.types.includes('disabled') || result.types.includes('quest')) {
+                continue;
+            }
             promises.push(new Promise(async (resolve) => {
-                const result = results[i];
-                //this.logger.log(`${i + 1}/${results.length} ${result.name}`);
-
                 let shouldRemoveCurrentLink = false;
                 let newWikiLink = false;
 
@@ -102,12 +92,12 @@ class VerifyWikiJob extends DataJob {
 
                 if(shouldRemoveCurrentLink && result.wiki_link){
                     this.postMessage(result, newWikiLink);
-                    await query(`UPDATE item_data SET wiki_link = ? WHERE id = ?`, ['', result.id]);
+                    remoteData.setProperty(result.id, 'wiki_link', '');
                 }
 
                 if(newWikiLink){
                     this.postMessage(result, newWikiLink);
-                    await query(`UPDATE item_data SET wiki_link = ? WHERE id = ?`, [newWikiLink, result.id]);
+                    remoteData.setProperty(result.id, 'wiki_link', newWikiLink);
                 }
                 return resolve();
             }));

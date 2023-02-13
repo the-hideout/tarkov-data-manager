@@ -27,13 +27,15 @@ const cachePath = (filename) => {
     return path.join(__dirname, '..', 'cache', filename);   
 }
 
-const downloadJson = async (fileName, path, download = false) => {
+const downloadJson = async (fileName, path, download = false, writeFile = true) => {
     if (download) {
         returnValue = await got(path, {
             responseType: 'json',
             resolveBodyOnly: true,
         });
-        fs.writeFileSync(cachePath(fileName), JSON.stringify(returnValue, null, 4));
+        if (writeFile) {
+            fs.writeFileSync(cachePath(fileName), JSON.stringify(returnValue, null, 4));
+        }
         return returnValue;
     }
     try {
@@ -126,5 +128,25 @@ module.exports = {
     botInfo: (botKey, download = true) => {
         botKey = botKey.toLowerCase();
         return downloadJson(`${botKey}.json`, `${sptPath}bots/types/${botKey}.json`, download);
+    },
+    traderAssorts: async (traderId) => {
+        return downloadJson(null, `${sptPath}traders/${traderId}/assort.json`, true, false).catch(error => {
+            if (!error.message.includes('Response code 404')) {
+                return Promise.reject(error);
+            }
+            return {
+                items: [],
+                barter_scheme: {},
+                loyal_level_items: {},
+            };
+        });
+    },
+    traderQuestAssorts: async (traderId) => {
+        return downloadJson(null, `${sptPath}traders/${traderId}/questassort.json`, true, false).catch(error => {
+            if (!error.message.includes('Response code 404')) {
+                return Promise.reject(error);
+            }
+            return {};
+        });
     },
 };

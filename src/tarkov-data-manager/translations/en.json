@@ -1,6 +1,7 @@
 {
     "autoId_00000_D2_LEVER": "D-2 Power Switch",
     "autoId_00632_EXFIL": "Bunker Hermetic Door Power Switch",
+    "bossGifter": "Santa Claus",
     "bossKnight": "Death Knight",
     "Drum": "Drum",
     "eger_barracks_area_1": "White Pawn",
@@ -33,6 +34,8 @@
     "quest_zone_kill_c17_adm": "Pinewood Hotel",
     "quest_zone_keeper5": "Woods Mountain",
     "quest_zone_keeper6_kiba_kill": "Around Kiba Arms store",
+    "SOPMOD II Flash": "SOPMOD II Flash",
     "SPR": "SPR",
+    "Stripped": "Stripped",
     "UAS": "UAS"
 }

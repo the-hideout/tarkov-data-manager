@@ -6,22 +6,29 @@ const ignoreData = [
     'schema_data'
 ];
 
-async function purgeTypes(dataName, logger = false) {
+async function purge(dataName, logger = false) {
     if (ignoreData.includes(dataName)) {
         return;
     }
-    const {purge, updated} = await kvDelta(dataName, logger);
+    const {types, queries, updated} = await kvDelta(dataName, logger);
     let delay = 60000 - (new Date() - updated);
     delay = delay > 0 ? delay : 0;
     if (!process.env.STELLATE_PURGE_TOKEN) {
         return;
     }
-    if (Object.keys(purge).length === 0) {
+    if (Object.keys(types).length === 0 && queries.length === 0) {
         logger.log('Nothing to purge from cache');
         return;
     }
-    for (const t in purge) {
-        purge[t] = purge[t].map(val => `"${val}"`);
+    const purgeBody = [];
+    if (Object.keys(types).length > 0) {
+        for (const t in types) {
+            types[t] = types[t].map(val => `"${val}"`);
+        }
+        purgeBody.push(`${Object.keys(types).map(t => `purge${t}(${types[t].length > 0 ? `id: [${types[t].join(', ')}] ` : ''}soft: true)`).join(' ')}`);
+    }
+    if (queries.length > 0) {
+        purgeBody.push((`_purgeQuery(queries: [${queries.join(', ')}], soft: true)`));
     }
     let url = 'https://admin.stellate.co/tarkov-dev-api';
     if (process.env.NODE_ENV === 'dev') {
@@ -43,7 +50,7 @@ async function purgeTypes(dataName, logger = false) {
                         'Content-Type': 'application/json',
                         'stellate-token': process.env.STELLATE_PURGE_TOKEN,
                     },
-                    body: JSON.stringify({ query: `mutation { ${Object.keys(purge).map(t => `purge${t}(${purge[t].length > 0 ? `id: [${purge[t].join(', ')}] ` : ''}soft: true)`).join(' ')} }` }),
+                    body: JSON.stringify({ query: `mutation { ${purgeBody.join(' ')} }` }),
                     responseType: 'json',
                     resolveBodyOnly: true,
                 });
@@ -56,7 +63,18 @@ async function purgeTypes(dataName, logger = false) {
                 logger.error(`Error purging cache: ${response.errors.map(err => err.message).join(', ')}`);
             }
             if (response.data) {
-                logger.log(`Purged cache for: ${Object.keys(response.data).map(key => key.replace(/^purge/, '')).map(type => `${type}${purge[type].length > 0 ? ` (${purge[type].length})` : '' }`).join(', ')}`);
+                const purgeSummary = [];
+                for (const purgeAction in response.data) {
+                    if (purgeAction === '_purgeQuery') {
+                        if (response.data[purgeAction]) {
+                            purgeSummary.push('queries');
+                        }
+                        continue;
+                    }
+                    const dataType = purgeAction.replace(/^purge/, '');
+                    purgeSummary.push(`${dataType}${types[dataType].length > 0 ? ` (${types[dataType].length})` : '' }`);
+                }
+                logger.log(`Purged cache for: ${purgeSummary.join(', ')}`);
             }
             resolve();
         }, delay);
@@ -64,5 +82,5 @@ async function purgeTypes(dataName, logger = false) {
 }
 
 module.exports = {
-    purgeTypes
+    purge
 };

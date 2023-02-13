@@ -1,4 +1,3 @@
-//const { fork } = require('child_process');
 const fs = require('fs');
 
 const aliases = {
@@ -14,25 +13,58 @@ const ignoreTypes = [
 ];
 
 const ignoreId = [
-    'Barter',
-    'MobInfo',
+    'HideoutModule',
     'TraderCashOffer',
 ];
+
+const typesQueries = {
+    Ammo: ['ammo'],
+    ArmorMaterial: ['armorMaterials'],
+    Barter: ['barters'],
+    Craft: ['crafts'],
+    FleaMarket: ['fleaMarket'],
+    HideoutStation: ['hideoutStations'],
+    historicalItemPricePoint: ['historicalItemPrices'],
+    Item: ['items', 'itemsByIDs', 'ItemsByType', 'itemsByName', 'itemByNormalizedName', 'itemsByBsgCategory'],
+    ItemCategory: ['itemCategories', 'handbookCategories'],
+    Map: ['maps'],
+    MobInfo: ['bosses'],
+    PlayerLevel: ['playerLevels'],
+    QuestItem: ['questItems'],
+    ServerStatus: ['status'],
+    Task: ['task', 'tasks'],
+    Trader: ['traders'],
+    HideoutModule: ['hideoutModules'],
+    Quest: ['quests'],
+    TraderResetTime: ['traderResetTimes'],
+};
 
 const linkedTypes = {
     TraderCashOffer: ['ItemPrice'],
 };
 
-function addDiff(diffs, dataType, value = false) {
+function addTypePurge(purgeData, dataType, value = false) {
     const purgeName = aliases[dataType] ? aliases[dataType] : dataType;
-    if (!diffs[purgeName]) {
-        diffs[purgeName] = [];
+    if (!purgeData.types[purgeName]) {
+        purgeData.types[purgeName] = [];
     }
     if (ignoreId.includes(purgeName)) {
         return;
     }
     if (value) {
-        diffs[purgeName].push(value);
+        purgeData.types[purgeName].push(value);
+    }
+}
+
+function addQueryPurge(purgeData, dataType) {
+    const queries = typesQueries[dataType];
+    if (!queries) {
+        return;
+    }
+    for (const query of queries) {
+        if (!purgeData.queries.includes(query)) {
+            purgeData.queries.push(query);
+        }
     }
 }
 
@@ -46,7 +78,7 @@ module.exports = async (outputFile, logger) => {
     let newData = {};
     let oldData = {};
 
-    let diffs = {};
+    const purgeData = {types: {}, queries: []};
     const start = new Date();
     try {
         oldData = JSON.parse(fs.readFileSync(`./dumps/${outputFile}_old.json`));
@@ -55,6 +87,7 @@ module.exports = async (outputFile, logger) => {
     }
     try {
         newData = JSON.parse(fs.readFileSync(`./dumps/${outputFile}.json`));
+        purgeData.updated =  new Date(newData.updated);
         for (const dataType in oldData) {
             if (ignoreTypes.includes(dataType)) {
                 continue;
@@ -62,7 +95,10 @@ module.exports = async (outputFile, logger) => {
             const oldD = oldData[dataType];
             const newD = newData[dataType];
             if (!newD) {
-                diffs[dataType] = [];
+                // data type has been removed, so purge the type and queries potentially listing this type
+                //console.log('data type removed', dataType);
+                addTypePurge(purgeData, dataType);
+                addQueryPurge(purgeData, dataType);
                 continue;
             }
             for (const key in oldD) {
@@ -80,13 +116,15 @@ module.exports = async (outputFile, logger) => {
                     newValue = newD.find(val => val.id === id);
                 }
                 if (!newValue) {
+                    // an item has been removed from the data, so purge this item
                     //console.log('newValue does not exist for', oldValue);
-                    addDiff(diffs, dataType, id);
+                    addTypePurge(purgeData, dataType, id);
                     continue;
                 }
                 if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+                    // the new item is different from the old item, so purge this item
                     //console.log('newValue !== oldValue', id, newValue, oldValue);
-                    addDiff(diffs, dataType, id);
+                    addTypePurge(purgeData, dataType, id);
                 }
             }
             for (const key in newD) {
@@ -104,84 +142,31 @@ module.exports = async (outputFile, logger) => {
                     oldValue = oldD.find(val => val.id === id);
                 }
                 if (!oldValue) {
-                    addDiff(diffs, dataType, id);
+                    // a new item has been added, so purge queries potentially listing this type
+                    //console.log('oldValue does not exist for', newValue);
+                    addQueryPurge(purgeData, dataType);
                 }
             }
         }
-        for (const dataType in diffs) {
-            if (linkedTypes[dataType] && !diffs[linkedTypes[dataType]]) {
-                diffs[linkedTypes[dataType]] = [];
+        for (const dataType in newData) {
+            if (ignoreTypes.includes(dataType)) {
+                continue;
+            }
+            if (!oldData[dataType]) {
+                // this type has been added, purge previous instances of it
+                //console.log('dataType added', dataType);
+                addTypePurge(purgeData, dataType);
+                addQueryPurge(purgeData, dataType);
+            }
+        }
+        for (const dataType in purgeData.types) {
+            if (linkedTypes[dataType] && !purgeData.types[linkedTypes[dataType]]) {
+                purgeData.types[linkedTypes[dataType]] = [];
             }
         }
         logger.log(`${outputFile} diff generated in ${new Date() - start} ms`);
     } catch (error) {
         logger.error(`Error getting KV delta: ${error.message}`);
     }
-    return {purge: diffs, updated: new Date(newData.updated)};
+    return purgeData;
 };
-
-/*module.exports = async (outputFile, logger) => {
-    if (!logger) {
-        logger = {
-            ...console,
-            success: console.log,
-        };
-    } else {
-        logger.write('Processed main data in', true);
-    }
-    return new Promise((resolve, reject) => {
-        const controller = new AbortController();
-        const child = fork('./modules/diff-worker.js', { 
-            signal: controller.signal,
-            env: {
-                outputFile,
-            }
-        });
-        child.on('error', (err) => {
-            logger.error(err.message);
-            reject(err);
-        });
-        child.on('message', (message) => {
-            if (message.level === 'error') {
-                logger.error(message.message);
-                return;
-            }
-            if (message.level === 'warn') {
-                logger.warn(message.messsage);
-            }
-            if (message.level === 'log') {
-                if (message.message === 'complete') {
-                    const purge = {};
-                    for (const rawType in message.diff) {
-                        const match = rawType.match(/(?<fieldName>[a-zA-Z0-9]+)(__(?<diffType>[a-z]+))?/);
-                        const typeName = match.groups.fieldName;
-                        if (ignoreTypes.includes(typeName)) {
-                            continue;
-                        }
-                        const purgeName = aliases[typeName] ? aliases[typeName] : typeName;
-                        if (!purge[purgeName]) {
-                            purge[purgeName] = [];
-                        }
-                        if (linkedTypes[typeName]) {
-                            for (const linkedType of linkedTypes[typeName]) {
-                                if (!purge[linkedType]) {
-                                    purge[linkedType] = [];
-                                }
-                            }
-                        }
-                        if (ignoreId.includes(typeName)) {
-                            continue;
-                        }
-                        for (const diff of message.diff[rawType]) {
-                            if (diff.id) {
-                                purge[purgeName].push(diff.id);
-                            }
-                        }
-                    }
-                    return resolve({purge, updated: new Date(message.updated)});
-                }
-                logger.log(message.message);
-            }
-        });
-    });
-};*/

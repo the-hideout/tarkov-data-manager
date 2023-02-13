@@ -222,11 +222,10 @@ const getItemProperties = async (item) => {
                 turnPenalty: parseInt(item._props.mousePenalty) / 100,
                 ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
                 armor_material_id: item._props.ArmorMaterial,
-                locale: getTranslations({zones: lang => {
-                    return item._props.armorZone.map(key => {
-                        return lang[key];
-                    });
-                }}, job.logger),
+                locale: getTranslations({
+                    zones: item._props.armorZone,
+                    armorType: item._props.ArmorType,
+                }),
             };
         }
     } else if (item._parent === '5448e53e4bdc2d60728b4567') {
@@ -288,14 +287,17 @@ const getItemProperties = async (item) => {
                 ricochetY: item._props.RicochetParams.y,
                 ricochetZ: item._props.RicochetParams.z,
                 armor_material_id: item._props.ArmorMaterial,
-                locale: getTranslations({headZones: lang => {
-                    return item._props.headSegments.map(key => {
-                        if (key === 'LowerNape') {
-                            key = key.toLowerCase();
-                        }
-                        return lang[`HeadSegment/${key}`];
-                    });
-                }}, job.logger),
+                locale: getTranslations({
+                    headZones: lang => {
+                        return item._props.headSegments.map(key => {
+                            if (key === 'LowerNape') {
+                                key = key.toLowerCase();
+                            }
+                            return lang[`HeadSegment/${key}`];
+                        });
+                    },
+                    armorType: item._props.ArmorType,
+                }, job.logger),
             };
             if (hasCategory(item, ['5a341c4086f77401f2541505', '5a341c4686f77469e155819e'])) {
                 properties.propertiesType = 'ItemPropertiesHelmet';

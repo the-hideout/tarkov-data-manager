@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const sharp = require('sharp');
-const { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command, HeadObjectCommand, DeleteObjectCommand, Delete } = require("@aws-sdk/client-s3");
+const { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command, HeadObjectCommand, DeleteObjectCommand, CopyObjectCommand } = require("@aws-sdk/client-s3");
 const {fromEnv} = require('@aws-sdk/credential-provider-env');
 
 const cloudflare = require('./cloudflare');
@@ -195,7 +195,7 @@ async function addFileToBucket(localFilePath, fileName) {
     const fileExists = await fileExistsInS3(fileName);
     await s3.send(new PutObjectCommand(uploadParams));
     if (fileExists) {
-        await cloudflare.purgeCache(fileName);
+        await cloudflare.purgeCache(`https://${uploadParams.Bucket}/${uploadParams.Key}`);
     }
     addToLocalBucket(fileName);
 }
@@ -207,6 +207,24 @@ async function deleteFromBucket(key) {
     };
     await s3.send(new DeleteObjectCommand(params));
     removeFromLocalBucket(key);
+}
+
+async function copyFile(oldName, newName) {
+    if (oldName === newName) {
+        return Promise.reject(new Error(`Cannot copy ${oldName} to the same name`));
+    }
+    const params = {
+        Bucket: process.env.S3_BUCKET,
+        CopySource: `${process.env.S3_BUCKET}/${oldName}`,
+        Key: newName,
+    };
+    await s3.send((new CopyObjectCommand(params)));
+    addToLocalBucket(newName);
+}
+
+async function renameFile(oldName, newName) {
+    await copyFile(oldName, newName);
+    await deleteFromBucket(oldName);
 }
 
 module.exports = {
@@ -221,4 +239,6 @@ module.exports = {
     removeFromLocalBucket,
     addFileToBucket,
     deleteFromBucket,
+    copyFile,
+    renameFile,
 };

@@ -36,8 +36,19 @@ class UpdateBartersJob extends DataJob {
         this.itemData = allResults[0];
         const wikiResponse = allResults[1];
         this.oldTasks = allResults[2].body;
-        this.presetData = await this.jobManager.jobOutput('update-presets', this, true);//JSON.parse(fs.readFileSync('./cache/presets.json'));
+        this.presets = await this.jobManager.jobOutput('update-presets', this, true);
         this.tasks = await this.jobManager.jobOutput('update-quests', this);
+        this.barterAssort = await this.jobManager.jobOutput('update-trader-assorts', this, true).then(assorts => {
+            for (const traderId in assorts) {
+                assorts[traderId] = assorts[traderId].reduce((foundBarters, offer) => {
+                    if (offer.barter) {
+                        foundBarters.push(offer);
+                    }
+                    return foundBarters;
+                }, []);
+            }
+            return assorts;
+        });
         this.$ = cheerio.load(wikiResponse.body);
         this.gunVariants = {};
 
@@ -61,6 +72,36 @@ class UpdateBartersJob extends DataJob {
         this.logger.log('Parsing barters table...');
         const trades = {
             Barter: (await Promise.all(traderRows.map(this.parseTradeRow))).filter(Boolean),
+        }
+
+        for (const barter of trades.Barter) {
+            const matchedBarter = this.barterAssort[barter.trader_id].find(offer => {
+                if (barter.level !== offer.minLevel) {
+                    return false;
+                }
+                if (barter.rewardItems[0].item !== offer.item) {
+                    return false;
+                }
+                if (barter.requiredItems.length !== offer.cost.length) {
+                    return false;
+                }
+                for (const reqItem of barter.requiredItems) {
+                    const requirementMatch = offer.cost.some(costItem => {
+                        return costItem.item === reqItem.item && costItem.count === reqItem.count;
+                    });
+                    if (!requirementMatch) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+            if (!matchedBarter) {
+                this.logger.warn('Could not find matching barter assort for:');
+                this.logger.log(JSON.stringify(barter, null, 4));
+                barter.id = `${barter.rewardItems[0].item}-${barter.trader_id}-${barter.level}-${barter.requiredItems.map(req => req.item).join('-')}`;
+            } else {
+                barter.id = matchedBarter.id;
+            }
         }
         
         this.logger.succeed(`Processed ${trades.Barter.length} barters`);
@@ -162,8 +203,8 @@ class UpdateBartersJob extends DataJob {
             }
         }
         const attachments = variant.attachments;
-        for (const presetId in this.presetData) {
-            const preset = this.presetData[presetId];
+        for (const presetId in this.presets) {
+            const preset = this.presets[presetId];
             if (preset.baseId !== baseItem.id) continue;
             if (preset.containsItems.length - 1 !== attachments.length) continue;
             const presetParts = preset.containsItems.filter(contained => contained.item.id !== baseItem.id);
@@ -190,8 +231,8 @@ class UpdateBartersJob extends DataJob {
     }
 
     getPresetByShortName = (shortName) => {
-        for (const presetId in this.presetData) {
-            const preset = this.presetData[presetId];
+        for (const presetId in this.presets) {
+            const preset = this.presets[presetId];
             if (preset.shortName === shortName) return preset;
         }
         return false;
@@ -288,6 +329,13 @@ class UpdateBartersJob extends DataJob {
             }
             if (baseId === rewardItem.id) {
                 //this.logger.warn(`Could not find matching preset for ${gunImage}`);
+                // If no variants match, assume it's the default preset
+                for (const preset of (Object.values(this.presets))) {
+                    if (preset.baseId === rewardItem.id && preset.default) {
+                        rewardItem = preset;
+                        break;
+                    }
+                }
             }
         }
         //this.logger.log(`Parsing ${rewardItem.name} (${traderRequirement})`);
