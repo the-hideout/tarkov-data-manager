@@ -218,6 +218,13 @@
                 "status": [
                     "complete"
                 ]
+            },
+            {
+                "task": "5d25e45e86f77408251c4bfa",
+                "name": "The Huntsman Path - Eraser - Part 2",
+                "status": [
+                    "complete"
+                ]
             }
         ],
         "___taskRequirementsRemoved": [
@@ -567,7 +574,10 @@
                 "id": "596760e186f7741e11214d58",
                 "name": "Postman Pat - Part 2"
             }
-        ]
+        ],
+        "propertiesChanged" : {
+            "minPlayerLevel": 25
+        }
     },
     "639136e84ed9512be67647db": {
         "name": "Cease Fire!",
@@ -634,6 +644,93 @@
         "name": "Calibration",
         "propertiesChanged" : {
             "minPlayerLevel": 47
+        }
+    },
+    "60e71c48c1bfa3050473b8e5": {
+        "name": "Crisis",
+        "propertiesChanged" : {
+            "minPlayerLevel": 48
+        }
+    },
+    "5eaaaa7c93afa0558f3b5a1c": {
+        "name": "The Survivalist Path - Junkie",
+        "taskRequirementsRemoved": [
+            {
+                "id": "5d25d2c186f77443e35162e5",
+                "name": "The Survivalist Path - Cold Blooded"
+            }
+        ]
+    },
+    "6179b3a12153c15e937d52bc": {
+        "name": "Energy Crisis",
+        "propertiesChanged" : {
+            "minPlayerLevel": 25
+        }
+    },
+    "6089736efa70fc097863b8f6": {
+        "name": "Back Door",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5ac3477486f7741d651d6885",
+                    "name": "Scout",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "6089732b59b92115597ad789": {
+        "name": "Surplus GOods",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "6089736efa70fc097863b8f6",
+                    "name": "Back Door",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "60e71b9bbd90872cb85440f3": {
+        "name": "Capturing Outposts",
+        "propertiesChanged" : {
+            "minPlayerLevel": 42
+        }
+    },
+    "60e71b62a0beca400d69efc4": {
+        "name": "Escort",
+        "propertiesChanged" : {
+            "minPlayerLevel": 60
+        }
+    },
+    "60e71bb4e456d449cd47ca75": {
+        "name": "Intimidator",
+        "propertiesChanged" : {
+            "minPlayerLevel": 60
+        }
+    },
+    "639282134ed9512be67647ed": {
+        "name": "Road Closed",
+        "propertiesChanged" : {
+            "factionName": "USEC"
+        }
+    },
+    "608a768d82e40b3c727fd17d": {
+        "name": "Pest Control",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5d25e4d586f77443e625e388",
+                    "name": "Reserve",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
         }
     }
 }
