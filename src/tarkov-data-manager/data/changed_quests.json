@@ -1046,5 +1046,14 @@
         "propertiesChanged" : {
             "minPlayerLevel": 1
         }
+    },
+    "5ae3277186f7745973054106": {
+        "name": "Gunsmith - Part 8",
+        "taskRequirementsRemoved": [
+            {
+                "id": "5ae3270f86f77445ba41d4dd",
+                "name": "Gunsmith - Part 6"
+            }
+        ]
     }
 }
