@@ -152,7 +152,7 @@ class UpdateQuestsJob extends DataJob {
             }
             let actualMinLevel = quest.minPlayerLevel;
             for (const req of quest.traderRequirements) {
-                if (req.requiredAttribute !== 'level') {
+                if (req.requirementType !== 'level') {
                     continue;
                 }
                 const traderMinPlayerLevel = getMinPlayerLevelForTraderLevel(req.trader_id, req.level);
