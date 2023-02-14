@@ -151,7 +151,10 @@ class UpdateQuestsJob extends DataJob {
                 return 0;
             }
             let actualMinLevel = quest.minPlayerLevel;
-            for (const req of quest.traderLevelRequirements) {
+            for (const req of quest.traderRequirements) {
+                if (req.requiredAttribute !== 'level') {
+                    continue;
+                }
                 const traderMinPlayerLevel = getMinPlayerLevelForTraderLevel(req.trader_id, req.level);
                 if (traderMinPlayerLevel > actualMinLevel) {
                     actualMinLevel = traderMinPlayerLevel;
@@ -277,11 +280,13 @@ class UpdateQuestsJob extends DataJob {
             }
 
             // sort task requirements by the minimum level required for each
-            task.taskREquirements = task.taskRequirements.sort((a, b) => {
+            task.taskRequirements.sort((a, b) => {
                 const taskA = quests.Task.find(q => q.id === a.task);
                 const taskB = quests.Task.find(q => q.id === b.task);
                 return taskA.minPlayerLevel - taskB.minPlayerLevel;
             });
+
+            task.traderLevelRequirements = task.traderRequirements.filter(req => req.requirementType === 'level');
         }
 
         // sort all tasks so lowest level tasks are first
@@ -564,6 +569,7 @@ class UpdateQuestsJob extends DataJob {
             minPlayerLevel: quest.require.level,
             taskRequirements: [],
             traderLevelRequirements: [],
+            traderRequirements: [],
             objectives: [],
             startRewards: {
                 traderStanding: [],
@@ -765,6 +771,7 @@ class UpdateQuestsJob extends DataJob {
             minPlayerLevel: 0,
             taskRequirements: [],
             traderLevelRequirements: [],
+            traderRequirements: [],
             objectives: [],/*{
                 findItem: [],
                 findQuestItem: [],
@@ -1207,11 +1214,18 @@ class UpdateQuestsJob extends DataJob {
                 }
                 questData.taskRequirements.push(questReq);
             } else if (req._parent === 'TraderLoyalty' || req._parent === 'TraderStanding') {
-                questData.traderLevelRequirements.push({
+                const requirementTypes = {
+                    TraderLoyalty: 'level',
+                    TraderStanding: 'reputation',
+                };
+                questData.traderRequirements.push({
                     id: req._props.id,
                     trader_id: req._props.target,
                     name: this.locales.en[`${req._props.target} Nickname`],
-                    level: parseInt(req._props.value)
+                    requirementType: requirementTypes[req._parent],
+                    compareMethod: req._props.compareMethod,
+                    value: parseInt(req._props.value),
+                    level: parseInt(req._props.value),
                 });
             } else {
                 this.logger.warn(`Unrecognized quest prerequisite type ${req._parent} for quest requirement ${req._props.id} of ${questData.name}`)

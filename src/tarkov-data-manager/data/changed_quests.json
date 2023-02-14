@@ -1055,5 +1055,73 @@
                 "name": "Gunsmith - Part 6"
             }
         ]
+    },
+    "61e6e615eea2935bc018a2c5": {
+        "name": "Compensation For Damage - Barkeep",
+        "propertiesChanged" : {
+            "traderLevelRequirements": [],
+            "traderRequirements": [
+                {
+                    "id": "410303b7sfge7348ec67f18c",
+                    "trader_id": "579dc571d53a0658a154fbec",
+                    "name": "Fence",
+                    "requirementType": "reputation",
+                    "compareMethod": "<=",
+                    "value": -1,
+                    "level": -1
+                }
+            ]
+        }
+    },
+    "61e6e60223374d168a4576a6": {
+        "name": "Compensation for Damage - Wager",
+        "propertiesChanged" : {
+            "traderLevelRequirements": [],
+            "traderRequirements": [
+                {
+                    "id": "410303b7sfge7348ec67f18c",
+                    "trader_id": "579dc571d53a0658a154fbec",
+                    "name": "Fence",
+                    "requirementType": "reputation",
+                    "compareMethod": "<=",
+                    "value": -1,
+                    "level": -1
+                }
+            ]
+        }
+    },
+    "61e6e5e0f5b9633f6719ed95": {
+        "name": "Compensation for Damage - Trust",
+        "propertiesChanged" : {
+            "traderLevelRequirements": [],
+            "traderRequirements": [
+                {
+                    "id": "410303b7sfge7348ec67f18c",
+                    "trader_id": "579dc571d53a0658a154fbec",
+                    "name": "Fence",
+                    "requirementType": "reputation",
+                    "compareMethod": "<=",
+                    "value": -1,
+                    "level": -1
+                }
+            ]
+        }
+    },
+    "61e6e621bfeab00251576265": {
+        "name": "Compensation for Damage - Collection",
+        "propertiesChanged" : {
+            "traderLevelRequirements": [],
+            "traderRequirements": [
+                {
+                    "id": "410303b7sfge7348ec67f18c",
+                    "trader_id": "579dc571d53a0658a154fbec",
+                    "name": "Fence",
+                    "requirementType": "reputation",
+                    "compareMethod": "<=",
+                    "value": -1,
+                    "level": -1
+                }
+            ]
+        }
     }
 }
