@@ -151,7 +151,10 @@ class UpdateQuestsJob extends DataJob {
                 return 0;
             }
             let actualMinLevel = quest.minPlayerLevel;
-            for (const req of quest.traderLevelRequirements) {
+            for (const req of quest.traderRequirements) {
+                if (req.requirementType !== 'level') {
+                    continue;
+                }
                 const traderMinPlayerLevel = getMinPlayerLevelForTraderLevel(req.trader_id, req.level);
                 if (traderMinPlayerLevel > actualMinLevel) {
                     actualMinLevel = traderMinPlayerLevel;
@@ -196,20 +199,40 @@ class UpdateQuestsJob extends DataJob {
             quest.taskRequirements = quest.taskRequirements.filter(req => !removeReqs.includes(req.task));
 
             quest.minPlayerLevel = getQuestMinLevel(quest.id);
+
+            const trader = traders.find(t => t.name === quest.name);
+            const map = this.maps.find(m => m.name === quest.name);
+            if (trader || map) {
+                quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(quest.name.replaceAll(' ', '_'))}_(quest)`;
+            }
+
+            quest.kappaRequired = false;
+            quest.lightkeeperRequired = false;
+
+            const earlierTasks = new Set();
+            const addEarlier = (id) => {
+                quests.Task.find(q => q.id === id).taskRequirements.map(req => req.task).forEach(reqId => {
+                    earlierTasks.add(reqId);
+                    addEarlier(reqId);
+                });
+            };
+            const required = quest.taskRequirements.map(req => req.task);
+            for (const reqId of required) {
+                quests.Task.find(q => q.id === reqId).taskRequirements.forEach(req => {
+                    addEarlier(req.task);
+                });
+            }
+            for (const reqId of required) {
+                if (earlierTasks.has(reqId)) {
+                    const requiredTask = quests.Task.find(q => q.id === reqId);
+                    this.logger.warn(`${quest.name} ${quest.id} required task ${requiredTask.name} ${requiredTask.id} is a precursor to another required task`);
+                    quest.taskRequirements - quest.taskRequirements.filter(req => req.task !== reqId);
+                }
+            }
         }
 
-        const ignoreQuests = [
-            '5d25dae186f77443e55d2f78',
-            '61bb475467f83663e155e26a',
-            '61bb468b8d7cac1532300ccc',
-            '61bb47481908c67d4249a205',
-            '61bb474b1ab5304c3817a53a',
-            '61bb474f8b8d2a79d012cd6e',
-            '61bb474dce7374453b45dfd2',
-            '61bb47516b70332c062ca7b9',
-            '61bb47578d7cac1532300ccd',
-            '61bb4756883b2c16a163870a',
-            '61bfa784f4378605ca5598e1',
+        const ignoreMissingQuests = [
+            '613708a7f8333a5d15594368',
         ];
         for (const key in this.locales.en) {
             const match = key.match(/(?<id>[a-f0-9]{24}) name/);
@@ -224,16 +247,72 @@ class UpdateQuestsJob extends DataJob {
                     break;
                 };
             }
-            if (found || ignoreQuests.includes(questId)) continue;
+            if (found || ignoreMissingQuests.includes(questId)) continue;
             if (!this.locales.en[`${questId} name`]) {
                 continue;
             }
             if (removedQuests[questId]) {
-                this.logger.warn(`Quest ${this.locales.en[`${questId} name`]} ${questId} has been removed`);
+                //this.logger.warn(`Quest ${this.locales.en[`${questId} name`]} ${questId} has been removed`);
                 continue;
             }
             this.logger.warn(`No quest data found for ${this.locales.en[`${questId} name`]} ${questId}`);
         }
+
+        const neededForKappa = new Set();
+        const neededForLightkeeper = new Set();
+        const addPreviousRequirements = (neededSet, taskId, hardRequired) => {
+            if (hardRequired){
+                neededSet.add(taskId);
+            }
+            const task = quests.Task.find(task => task.id === taskId);
+            for (const req of task.taskRequirements) {
+                addPreviousRequirements(neededSet, req.task, req.status.length === 1 && req.status[0] === 'complete');
+            }
+        };
+        addPreviousRequirements(neededForKappa, '5c51aac186f77432ea65c552', true);
+        addPreviousRequirements(neededForLightkeeper, '625d7005a4eb80027c4f2e09', true);
+        for (const task of quests.Task) {
+            if (neededForKappa.has(task.id)) {
+                task.kappaRequired = true;
+            }
+            if (neededForLightkeeper.has(task.id)) {
+                task.lightkeeperRequired = true;
+            }
+
+            // sort task requirements by the minimum level required for each
+            task.taskRequirements.sort((a, b) => {
+                const taskA = quests.Task.find(q => q.id === a.task);
+                const taskB = quests.Task.find(q => q.id === b.task);
+                return taskA.minPlayerLevel - taskB.minPlayerLevel;
+            });
+
+            task.traderLevelRequirements = task.traderRequirements.filter(req => req.requirementType === 'level');
+        }
+
+        // sort all tasks so lowest level tasks are first
+        quests.Task = quests.Task.sort((taskA,taskB) => {
+            let aMinLevel = taskA.minPlayerLevel;
+            let bMinLevel = taskB.minPlayerLevel;
+            if (!aMinLevel) {
+                aMinLevel = 100;
+            }
+            if (!bMinLevel) {
+                bMinLevel = 100;
+            }
+            if (aMinLevel === bMinLevel) {
+                aMinLevel = taskA.taskRequirements.reduce((totalMinLevel, req) => {
+                    const reqTask = quests.Task.find(q => q.id === req.task);
+                    totalMinLevel += reqTask.minPlayerLevel;
+                    return totalMinLevel;
+                }, aMinLevel);
+                bMinLevel = taskB.taskRequirements.reduce((totalMinLevel, req) => {
+                    const reqTask = quests.Task.find(q => q.id === req.task);
+                    totalMinLevel += reqTask.minPlayerLevel;
+                    return totalMinLevel;
+                }, bMinLevel);
+            }
+            return aMinLevel - bMinLevel;
+        });
 
         for (const id in this.questItems) {
             if (this.items[id]) {
@@ -490,6 +569,7 @@ class UpdateQuestsJob extends DataJob {
             minPlayerLevel: quest.require.level,
             taskRequirements: [],
             traderLevelRequirements: [],
+            traderRequirements: [],
             objectives: [],
             startRewards: {
                 traderStanding: [],
@@ -691,6 +771,7 @@ class UpdateQuestsJob extends DataJob {
             minPlayerLevel: 0,
             taskRequirements: [],
             traderLevelRequirements: [],
+            traderRequirements: [],
             objectives: [],/*{
                 findItem: [],
                 findQuestItem: [],
@@ -1133,11 +1214,18 @@ class UpdateQuestsJob extends DataJob {
                 }
                 questData.taskRequirements.push(questReq);
             } else if (req._parent === 'TraderLoyalty' || req._parent === 'TraderStanding') {
-                questData.traderLevelRequirements.push({
+                const requirementTypes = {
+                    TraderLoyalty: 'level',
+                    TraderStanding: 'reputation',
+                };
+                questData.traderRequirements.push({
                     id: req._props.id,
                     trader_id: req._props.target,
                     name: this.locales.en[`${req._props.target} Nickname`],
-                    level: parseInt(req._props.value)
+                    requirementType: requirementTypes[req._parent],
+                    compareMethod: req._props.compareMethod,
+                    value: parseInt(req._props.value),
+                    level: parseInt(req._props.value),
                 });
             } else {
                 this.logger.warn(`Unrecognized quest prerequisite type ${req._parent} for quest requirement ${req._props.id} of ${questData.name}`)

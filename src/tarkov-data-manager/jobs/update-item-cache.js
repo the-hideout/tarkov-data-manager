@@ -233,6 +233,7 @@ class UpdateItemCacheJob extends DataJob {
                     recoilVertical: preset.verticalRecoil,
                     recoilHorizontal: preset.horizontalRecoil,
                     moa: preset.moa,
+                    default: preset.default,
                 };
                 if ((itemData[preset.baseId]?.types.includes('noFlea') || itemData[preset.baseId]?.types.includes('no-flea')) && !itemData[key].types.includes('noFlea')) {
                     itemData[key].types.push('noFlea');
