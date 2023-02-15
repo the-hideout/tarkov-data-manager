@@ -15,7 +15,7 @@
                 ]
             }
         ],
-        "traderLevelRequirements": [],
+        "traderRequirements": [],
         "objectives": [
             {
                 "id": "60e7434ed1a062318d3d2260",
@@ -216,11 +216,14 @@
         "locationName": "any",
         "minPlayerLevel": 0,
         "taskRequirements": [],
-        "traderLevelRequirements": [
+        "traderRequirements": [
             {
                 "id": "61e6e615eea2935bc018a2c5-579dc571d53a0658a154fbec",
                 "trader_id": "579dc571d53a0658a154fbec",
                 "name": "Fence",
+                "requirementType": "reputation",
+                "compareMethod": "<=",
+                "value": -2,
                 "level": -2
             }
         ],
@@ -288,11 +291,14 @@
         "locationName": "any",
         "minPlayerLevel": 0,
         "taskRequirements": [],
-        "traderLevelRequirements": [
+        "traderRequirements": [
             {
                 "id": "61e6e60c5ca3b3783662be27-579dc571d53a0658a154fbec",
                 "trader_id": "579dc571d53a0658a154fbec",
                 "name": "Fence",
+                "requirementType": "reputation",
+                "compareMethod": "<=",
+                "value": -3,
                 "level": -3
             }
         ],
@@ -353,7 +359,7 @@
                 ]
             }
         ],
-        "traderLevelRequirements": [],
+        "traderRequirements": [],
         "objectives": [
             {
                 "id": "63a7d53904d3dc28a52a2100",
@@ -454,12 +460,15 @@
                 ]
             }
         ],
-        "traderLevelRequirements": [
+        "traderRequirements": [
             {
                 "id": "626148251ed3bb5bcc5bd9ed-638f541a29ffd1183d187f57",
                 "trader_id": "638f541a29ffd1183d187f57",
                 "name": "Lightkeeper",
-                "level": -1
+                "requirementType": "level",
+                "compareMethod": "<",
+                "value": 0,
+                "level": 0
             }
         ],
         "objectives": [
@@ -518,7 +527,7 @@
                 ]
             }
         ],
-        "traderLevelRequirements": [],
+        "traderRequirements": [],
         "objectives": [
             {
                 "id": "62616b17e7578c305945c9c9",
@@ -575,7 +584,7 @@
                 ]
             }
         ],
-        "traderLevelRequirements": [],
+        "traderRequirements": [],
         "objectives": [
             {
                 "id": "63ca9ffa9ca47f0e03035bab",
@@ -690,7 +699,7 @@
                 ]
             }
         ],
-        "traderLevelRequirements": [],
+        "traderRequirements": [],
         "objectives": [
             {
                 "id": "626171a0f7308432be1d44cd",
@@ -756,7 +765,7 @@
                 ]
             }
         ],
-        "traderLevelRequirements": [],
+        "traderRequirements": [],
         "objectives": [
             {
                 "id": "6391d9ba4b15ca31f76bc325",
