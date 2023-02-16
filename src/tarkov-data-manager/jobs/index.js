@@ -18,7 +18,6 @@ const defaultJobs = {
     'verify-wiki': '5 9 * * *',
     'update-hideout': '1-59/10 * * * *',
     'update-quests': '6-59/10 * * * *',
-    'update-presets': '*/10 * * * *',
     'update-maps': '*/20 * * * *',
     // Too much memory :'(
     // 'update-longtime-data': '49 8 * * *'
