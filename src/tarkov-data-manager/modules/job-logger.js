@@ -81,6 +81,9 @@ class JobLogger {
 
     start() {
         this.startTime = new Date();
+        if (this.parentLogger) {
+            this.messages.push(`Running as child job of ${this.parentLogger.jobName} job`);
+        }
     }
 
     end() {
