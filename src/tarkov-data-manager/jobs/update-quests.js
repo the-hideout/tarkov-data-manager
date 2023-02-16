@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('fs/promises');
 const path = require('path');
 
 const got = require('got');
@@ -22,44 +22,44 @@ class UpdateQuestsJob extends DataJob {
             responseType: 'json',
             resolveBodyOnly: true,
         });
-        const data = await tarkovData.quests(true);
-        this.items = await tarkovData.items();
-        this.locales = await tarkovData.locales();
+        [this.rawQuestData, this.items, this.locales, this.itemResults, this.missingQuests, this.changedQuests, this.removedQuests] = await Promise.all([
+            tarkovData.quests(true),
+            tarkovData.items(),
+            tarkovData.locales(),
+            remoteData.get(),
+            fs.readFile(path.join(__dirname, '..', 'data', 'missing_quests.json')).then(json => JSON.parse(json)),
+            fs.readFile(path.join(__dirname, '..', 'data', 'changed_quests.json')).then(json => JSON.parse(json)),
+            fs.readFile(path.join(__dirname, '..', 'data', 'removed_quests.json')).then(json => JSON.parse(json)),
+        ]);
+        setLocales(this.locales);
         this.maps = await this.jobManager.jobOutput('update-maps', this);
         this.hideout = await this.jobManager.jobOutput('update-hideout', this);
         const traders = await this.jobManager.jobOutput('update-traders', this);
+        this.presets = await this.jobManager.jobOutput('update-presets', this, true);
+        this.itemMap = await this.jobManager.jobOutput('update-item-cache', this);
         this.traderIdMap = {};
         for (const trader of traders) {
             this.traderIdMap[trader.tarkovDataId] = trader.id;
         }
-        setLocales(this.locales);
-        this.itemMap = await this.jobManager.jobOutput('update-item-cache', this);
-        const itemResults = await remoteData.get();
+
         const questItemMap = new Map();
-        for (const [id, item] of itemResults) {
+        for (const [id, item] of this.itemResults) {
             if (item.types.includes('quest')) {
                 questItemMap.set(id, item);
             }
         }
-        this.missingQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'missing_quests.json')));
-        this.changedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'changed_quests.json')));
-        const removedQuests = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'removed_quests.json')));
-        try {
-            this.presets = await this.jobManager.jobOutput('update-presets', this, true);
-        } catch (error) {
-            this.logger.error(error);
-        }
+
         this.tdMatched = [];
         this.questItems = {};
         const quests = {
             Task: [],
         };
-        if (!Object.values(data).some(q => q.raw)) {
+        if (!Object.values(this.rawQuestData).some(q => q.raw)) {
             this.logger.warn('No raw quest input provided.');
         }
-        for (const questId in data) {
-            if (removedQuests[questId]) continue;
-            quests.Task.push(this.formatRawQuest(data[questId]));
+        for (const questId in this.rawQuestData) {
+            if (this.removedQuests[questId]) continue;
+            quests.Task.push(this.formatRawQuest(this.rawQuestData[questId]));
         }
         
         for (const questId in this.missingQuests) {
@@ -109,7 +109,7 @@ class UpdateQuestsJob extends DataJob {
 
         for (const tdQuest of this.tdQuests) {
             try {
-                if (tdQuest.gameId && removedQuests[tdQuest.gameId]) continue;
+                if (tdQuest.gameId && this.removedQuests[tdQuest.gameId]) continue;
                 if (!this.tdMatched.includes(tdQuest.id)) {
                     this.logger.warn(`Adding TarkovData quest ${tdQuest.title} ${tdQuest.id}...`);
                     if (!this.tdTraders) {
@@ -251,7 +251,7 @@ class UpdateQuestsJob extends DataJob {
             if (!this.locales.en[`${questId} name`]) {
                 continue;
             }
-            if (removedQuests[questId]) {
+            if (this.removedQuests[questId]) {
                 //this.logger.warn(`Quest ${this.locales.en[`${questId} name`]} ${questId} has been removed`);
                 continue;
             }

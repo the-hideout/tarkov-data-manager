@@ -13,15 +13,16 @@ class UpdateTradersJob extends DataJob {
     }
 
     async run() {
-        this.logger.log('Loading trader data...');
-        const tradersData = await tarkovData.traders();
-        this.logger.log('Loading locales...');
-        const locales = await tarkovData.locales();
+        this.logger.log('Loading trader data, locales, TarkovData traders.json...');
+        const [tradersData, locales, tdTraders] = await Promise.all([
+            tarkovData.traders(),
+            tarkovData.locales(),
+            got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
+                responseType: 'json',
+                resolveBodyOnly: true,
+            }),
+        ]);
         setLocales(locales);
-        this.logger.log('Loading TarkovData traders.json...');
-        const tdTraders = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
-            responseType: 'json',
-        })).body;
         const traders = {
             Trader: [],
         };

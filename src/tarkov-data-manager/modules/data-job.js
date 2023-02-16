@@ -52,8 +52,7 @@ class DataJob {
     async start(options) {
         this.startDate = new Date();
         if (options && options.parent) {
-            this.selfLogger = this.logger;
-            this.logger = options.parent.logger;
+            this.logger.parentLogger = options.parent.logger;
         }
         if (this.running) {
             if (options && options.parent) {
@@ -70,9 +69,7 @@ class DataJob {
         if (options && options.parent) {
             this.parent = options.parent;
         }
-        if (!this.selfLogger) {
-            this.logger.start();
-        }
+        this.logger.start();
         let returnValue;
         let throwError = false;
         try {
@@ -91,13 +88,10 @@ class DataJob {
         }
         //this.running = false;
         this.cleanup();
+        this.logger.end();
         if (!options?.parent) {
-            this.logger.end();
             await jobComplete();
-        } else {
-            this.logger = this.selfLogger;
-            delete this.selfLogger;
-        }
+        } 
         if (throwError) {
             return Promise.reject(throwError);
         }

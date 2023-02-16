@@ -26,7 +26,7 @@ $(document).ready( function () {
                 if (type !== 'display') {
                     return data;
                 }
-                return `<span class="tooltipped" data-tooltip="${window.cronstrue.toString(data)}">${data}</span>`
+                return `<span class="tooltipped" data-tooltip="${data ? window.cronstrue.toString(data) : ''}">${data}</span>`
             }
         },
         {
