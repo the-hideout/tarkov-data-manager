@@ -1182,7 +1182,12 @@ class UpdateQuestsJob extends DataJob {
                                     if (!cond._props.enemyHealthEffects[0].effects) {
                                         return undefined;
                                     }
-                                    return cond._props.enemyHealthEffects[0].effects.map(eff => lang[eff]);
+                                    return cond._props.enemyHealthEffects[0].effects.map(eff => {
+                                        if (eff === 'Stimulator') {
+                                            return lang['5448f3a64bdc2d60728b456a Name'];
+                                        }
+                                        return lang[eff];
+                                    });
                                 }
                             }, this.logger),
                         };
@@ -1259,12 +1264,17 @@ class UpdateQuestsJob extends DataJob {
                                 if (!cond._props.bodyPartsWithEffects[0].bodyParts) {
                                     return undefined;
                                 }
-                                return cond._props.bodyPartsWithEffects[0].bodyParts.map(part => lang[part]);
+                                return cond._props.bodyPartsWithEffects[0].bodyParts.map(part => lang[`QuestCondition/Elimination/Kill/BodyPart/${part}`]);
                             }, effects: lang => {
                                 if (!cond._props.bodyPartsWithEffects[0].effects) {
                                     return undefined;
                                 }
-                                return cond._props.bodyPartsWithEffects[0].effects.map(eff => lang[eff]);
+                                return cond._props.bodyPartsWithEffects[0].effects.map(eff => {
+                                    if (eff === 'Stimulator') {
+                                        return lang['5448f3a64bdc2d60728b456a Name'];
+                                    }
+                                    return lang[eff];
+                                });
                             }
                         }, this.logger),
                     };
