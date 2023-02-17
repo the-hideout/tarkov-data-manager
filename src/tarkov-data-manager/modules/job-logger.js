@@ -26,6 +26,7 @@ class JobLogger {
         this.timers = {};
         this.writeLog = writeLog;
         this.verbose = process.env.VERBOSE_LOGS == 'true';
+        this.parentLogger = false;
     }
 
     log(message) {
@@ -80,6 +81,9 @@ class JobLogger {
 
     start() {
         this.startTime = new Date();
+        if (this.parentLogger) {
+            this.messages.push(`Running as child job of ${this.parentLogger.jobName} job`);
+        }
     }
 
     end() {
@@ -89,6 +93,9 @@ class JobLogger {
         if (this.writeLog) writeLog(this.jobName, this.messages);
         this.messages.length = 0;
         this.startTime = 0;
+        if (this.parentLogger) {
+            this.parentLogger = false;
+        }
     }
 
     time(label) {
@@ -116,6 +123,9 @@ class JobLogger {
     addMessage(message) {
         if (this.startTime !== 0 || this.messages.length > 0) {
             // logger is active
+            if (this.parentLogger) {
+                this.parentLogger.addMessage(message);
+            }
             this.messages.push(message);
             return;
         }

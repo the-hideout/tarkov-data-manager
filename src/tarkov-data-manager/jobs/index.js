@@ -18,7 +18,6 @@ const defaultJobs = {
     'verify-wiki': '5 9 * * *',
     'update-hideout': '1-59/10 * * * *',
     'update-quests': '6-59/10 * * * *',
-    'update-presets': '*/10 * * * *',
     'update-maps': '*/20 * * * *',
     // Too much memory :'(
     // 'update-longtime-data': '49 8 * * *'
@@ -76,7 +75,7 @@ const runJob = async (jobName, options, bumpSchedule = true) => {
     }
     if (scheduledJobs[jobName]) {
         const scheduledJob = scheduledJobs[jobName];
-        if (bumpSchedule) {
+        if (scheduledJob && bumpSchedule) {
             const nextRunMinusFive = scheduledJob.nextInvocation().toDate();
             nextRunMinusFive.setMinutes(nextRunMinusFive.getMinutes() - 5);
             if (new Date() > nextRunMinusFive) {
@@ -122,6 +121,13 @@ for (const jobClassName in jobClasses) {
 }
 
 const scheduleJob = function(name, cronSchedule) {
+    if (!cronSchedule) {
+        console.log(`Unscheduling ${name} job`);
+        if (scheduledJobs[name]) {
+            scheduledJobs[name].cancel();
+        }
+        return;
+    }
     console.log(`Setting up ${name} job to run ${cronSchedule}`);
 
     const job = schedule.scheduleJob(cronSchedule, async () => {
@@ -206,14 +212,24 @@ module.exports = {
         return schedule.gracefulShutdown();
     },
     schedules: () => {
+        const ignoreJobs = [
+            'update-hideout-legacy',
+            'update-longtime-data',
+            'update-quests-legacy',
+            'update-queue-times',
+            'update-reset-timers',
+        ];
         const jobResults = [];
-        for (const jobName in allJobs) {
+        for (const jobName in jobClasses) {
+            if (ignoreJobs.includes(jobName)) {
+                continue;
+            }
             const jobResult = {
                 name: jobName,
-                schedule: allJobs[jobName],
+                schedule: allJobs[jobName] || '',
                 lastRun: false,
                 nextRun: false,
-                running: jobs[jobName].running,
+                running: jobs[jobName]?.running,
             };
             try {
                 const stats = fs.statSync(path.join(__dirname, '..', 'logs', `${jobName}.log`));
@@ -229,16 +245,24 @@ module.exports = {
         return jobResults;
     },
     setSchedule: (jobName, cronSchedule) => {
+        if (!cronSchedule) {
+            cronSchedule = undefined;
+        }
+        if (cronSchedule === 'default') {
+            if (!defaultJobs[jobName]) {
+                cronSchedule = undefined;
+            } else {
+                cronSchedule = defaultJobs[jobName];
+            }
+        }
         scheduleJob(jobName, cronSchedule);
         allJobs[jobName] = cronSchedule;
         const customJobs = {};
-        for (jobName in allJobs) {
-            console.log(`${allJobs[jobName]} : ${defaultJobs[jobName]}`);
-            if (allJobs[jobName] !== defaultJobs[jobName]) {
-                customJobs[jobName] = allJobs[jobName];
+        for (const job in allJobs) {
+            if (allJobs[job] !== defaultJobs[job]) {
+                customJobs[job] = allJobs[job];
             }
         }
-        console.log(customJobs);
         fs.writeFileSync(path.join(__dirname, '..', 'settings', 'crons.json'), JSON.stringify(customJobs, null, 4));
     },
     runJob: runJob,

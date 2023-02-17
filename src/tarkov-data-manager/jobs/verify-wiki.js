@@ -2,7 +2,6 @@ const got = require('got');
 const webhook = require('../modules/webhook');
 
 const remoteData = require('../modules/remote-data');
-const tarkovData = require('../modules/tarkov-data');
 const DataJob = require('../modules/data-job');
 
 class VerifyWikiJob extends DataJob {
@@ -11,18 +10,14 @@ class VerifyWikiJob extends DataJob {
     }
 
     async run() {
-        this.presets = {};
-        try {
-            this.presets = await this.jobManager.jobOutput('update-presets', this, true);
-        } catch (error) {
-            this.logger.error(error);
-        }
-        const en = await tarkovData.locale('en');
+        [this.items, this.presets] = await Promise.all([
+            remoteData.get(),
+            this.jobManager.jobOutput('update-presets', this, true),
+        ]);
         let missing = 0;
         const promises = [];
         this.logger.log('Verifying wiki links');
-        const results = await remoteData.get();
-        for (const result of results.values()) {
+        for (const result of this.items.values()) {
             if (promises.length >= 10) {
                 await Promise.all(promises);
                 promises.length = 0;
@@ -53,7 +48,7 @@ class VerifyWikiJob extends DataJob {
                 }
 
                 // We don't have a wiki link, let's try retrieving from the id
-                if(!newWikiLink && !this.presets[result.id]){
+                if(!newWikiLink && !result.types.includes('preset')){
                     try {
                         const templatePage = await got(`https://escapefromtarkov.fandom.com/wiki/Template:${result.id}`);
                         const matches = templatePage.body.match(/<div class="mw-parser-output"><p><a href="(?<link>[^"]+)"/);
@@ -68,10 +63,11 @@ class VerifyWikiJob extends DataJob {
 
                 // We still don't have a wiki link, let's try to guess one
                 if(!newWikiLink){
-                    if (!this.presets[result.id]) {
+                    if (!result.types.includes('preset')) {
                         newWikiLink = nameToWikiLink(result.name);
                     } else {
-                        newWikiLink = nameToWikiLink(en[`${this.presets[result.id].baseId} Name`]);
+                        const baseItem = this.items.get(this.presets[result.id].baseId);
+                        newWikiLink = nameToWikiLink(baseItem.name);
                     }
 
                     try {
