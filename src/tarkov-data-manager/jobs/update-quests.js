@@ -1201,10 +1201,17 @@ class UpdateQuestsJob extends DataJob {
                             return `${lang['QuestCondition/Elimination/Kill/BotRole/bossBully']} ${lang['ScavRole/Follower']}`;
                         }
                         if (targetKeyMap[targetCode]) targetCode = targetKeyMap[targetCode];
-                        return lang[`QuestCondition/Elimination/Kill/BotRole/${targetCode}`] 
+                        let name = lang[`QuestCondition/Elimination/Kill/BotRole/${targetCode}`] 
                             || lang[`QuestCondition/Elimination/Kill/Target/${targetCode}`] 
-                            || lang[`ScavRole/${targetCode}`] 
-                            || targetCode;
+                            || lang[`ScavRole/${targetCode}`];
+                        if (!name && lang[targetCode]) {
+                            return lang[targetCode];
+                        } else if (!name && this.locales.en[targetCode]) {
+                            return this.locales.en[targetCode];
+                        } else if (!name) {
+                            name = targetCode;
+                        }
+                        return name;
                     }}, this.logger);
                 } else if (cond._parent === 'Location') {
                     for (const loc of cond._props.target) {
