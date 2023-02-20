@@ -823,13 +823,13 @@ class UpdateQuestsJob extends DataJob {
             locale: getTranslations({name: `${questId} name`}, this.logger)
         };
         for (const objective of quest.conditions.AvailableForFinish) {
-            const obj = this.formatObjective(objective, questData);
+            const obj = this.formatObjective(objective);
             if (obj) {
                 questData.objectives.push(obj);
             }
         }
         for (const objective of quest.conditions.Fail) {
-            const obj = this.formatObjective(objective, questData);
+            const obj = this.formatObjective(objective);
             if (obj) {
                 questData.failConditions.push(obj);
             }
@@ -1062,14 +1062,18 @@ class UpdateQuestsJob extends DataJob {
         return questData;
     }
 
-    formatObjective(objective, questData) {
+    formatObjective(objective) {
         let objectiveId = objective._props.id;
-        if (this.changedQuests[questData.id]?.objectiveIdsChanged && this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId]) {
-            //if (quest.raw) {
-                logger.warn(`Changing objective id ${objectiveId} to ${this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId]}`);
-            //}
-            objectiveId = this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId];
-            delete this.changedQuests[questData.id]?.objectiveIdsChanged[objectiveId];
+        for (const questId in this.changedQuests) {
+            if (!this.changedQuests[questId].objectiveIdsChanged) {
+                continue;
+            }
+            if (!this.changedQuests[questId].objectiveIdsChanged[objectiveId]) {
+                continue;
+            }
+            logger.warn(`Changing objective id ${objectiveId} to ${this.changedQuests[questId].objectiveIdsChanged[objectiveId]}`);
+            objectiveId = this.changedQuests[questId]?.objectiveIdsChanged[objectiveId];
+            delete this.changedQuests[questId].objectiveIdsChanged[objectiveId];
         }
         let optional = false;
         if (objective._props.parentId) {
@@ -1153,11 +1157,11 @@ class UpdateQuestsJob extends DataJob {
                             const modSet = [];
                             for (const itemId of modArray) {
                                 if (!this.locales.en[`${itemId} Name`]) {
-                                    this.logger.warn(`Unrecognized weapon mod ${itemId} for objective ${obj.id} of ${questData.name}`);
+                                    this.logger.warn(`Unrecognized weapon mod ${itemId} for objective ${obj.id}`);
                                     continue;
                                 }
                                 if (!this.itemMap[itemId] || this.itemMap[itemId].types.includes('disabled')) {
-                                    this.logger.warn(`Disabled weapon mod ${itemId} for objective ${obj.id} of ${questData.name}`);
+                                    this.logger.warn(`Disabled weapon mod ${itemId} for objective ${obj.id}`);
                                     continue;
                                 }
                                 modSet.push({
@@ -1221,7 +1225,7 @@ class UpdateQuestsJob extends DataJob {
                             obj.locationNames.push(map.name);
                             obj.map_ids.push(map.id);
                         } else {
-                            this.logger.warn(`Unrecognized map name ${loc} for objective ${obj.id} of ${questData.name} ${questData.id}`);
+                            this.logger.warn(`Unrecognized map name ${loc} for objective ${obj.id}`);
                         }
                     }
                 } else if (cond._parent === 'ExitStatus') {
@@ -1297,15 +1301,18 @@ class UpdateQuestsJob extends DataJob {
                     obj.useAny = cond._props.target.filter(id => this.itemMap[id]);
                     obj.compareMethod = cond._props.compareMethod;
                     obj.count = cond._props.value;
+                    obj.zoneNames = [];
                 } else if (cond._parent === 'LaunchFlare') {
                     obj.useAny = [
                         '624c0b3340357b5f566e8766',
                         '62389be94d5d474bf712e709',
                     ];
                     obj.count = 1;
+                    obj.compareMethod = '>=';
                     obj.zoneKeys.push(cond._props.target);
+                    obj.zoneNames = [];
                 } else {
-                    this.logger.warn(`Unrecognized counter condition type "${cond._parent}" for objective ${objective._props.id} of ${questData.name}`);
+                    this.logger.warn(`Unrecognized counter condition type "${cond._parent}" for objective ${objective._props.id}`);
                 }
             }
             if (obj.shotType) {
@@ -1459,7 +1466,7 @@ class UpdateQuestsJob extends DataJob {
             obj.status = [];
             for (const statusCode of objective._props.status) {
                 if (!questStatusMap[statusCode]) {
-                    this.logger.warn(`Unrecognized quest status "${statusCode}" for quest objective ${this.locales.en[`${req._props.target}`]} ${req._props.target} of ${questData.name}`);
+                    this.logger.warn(`Unrecognized quest status "${statusCode}" for quest objective ${this.locales.en[`${req._props.target}`]} ${req._props.target}`);
                     continue;
                 }
                 obj.status.push(questStatusMap[statusCode]);
@@ -1468,14 +1475,14 @@ class UpdateQuestsJob extends DataJob {
             obj.type = 'playerLevel';
             obj.playerLevel = parseInt(objective._props.value);
         } else {
-            this.logger.warn(`Unrecognized type "${objective._parent}" for objective ${objective._props.id} of ${questData.name}`);
+            this.logger.warn(`Unrecognized type "${objective._parent}" for objective ${objective._props.id}`);
             return;
         }
         if (obj.zoneKeys.length > 0) {
             const reducedZones = obj.zoneKeys.reduce((reducedKeys, key) => {
                 if (!this.locales.en[key]) {
                     if (obj.type === 'shoot' || obj.type === 'extract' || obj.type === 'useItem') {
-                        this.logger.warn(`No translation for zone ${key} for objective ${objective._props.id} of ${questData.name}`);
+                        this.logger.warn(`No translation for zone ${key} for objective ${objective._props.id}`);
                     }
                     return reducedKeys;
                 }
