@@ -482,7 +482,9 @@ class UpdateItemCacheJob extends DataJob {
     }
 
     addCategory(id) {
-        if (!id || this.bsgCategories[id]) return;
+        if (!id || this.bsgCategories[id]) {
+            return;
+        }
         this.bsgCategories[id] = {
             id: id,
             parent_id: this.bsgItems[id]._parent,
@@ -492,6 +494,12 @@ class UpdateItemCacheJob extends DataJob {
                     if (lang[`${id} Name`]) {
                         return lang[`${id} Name`];
                     } else {
+                        if (langCode === 'en') {
+                            this.logger.warn(`${id} ${this.bsgItems[id]._name} category mising translation`);
+                        }
+                        if (langCode !== 'en' && this.locales.en[`${id} Name`]) {
+                            return this.locales.en[`${id} Name`];
+                        }
                         return camelCaseToTitleCase(this.bsgItems[id]._name);
                     }
                 }
