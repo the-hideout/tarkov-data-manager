@@ -63,10 +63,14 @@ class UpdateQuestsJob extends DataJob {
         }
         
         for (const questId in this.missingQuests) {
-            if (quests.Task.some(q => q.id === questId)) {
+            if (questId.startsWith('_')) {
                 continue;
             }
             const quest = this.missingQuests[questId];
+            if (quests.Task.some(q => q.id === questId)) {
+                this.logger.warn(`Missing quest ${quest.name} ${quest.id} already exists...`);
+                continue;
+            }
             this.logger.warn(`Adding missing quest ${quest.name} ${quest.id}...`);
             quest.locale = getTranslations({name: `${questId} name`}, this.logger);
             quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.locales.en[`${questId} name`].replaceAll(' ', '_'))}`;
@@ -829,7 +833,7 @@ class UpdateQuestsJob extends DataJob {
             }
         }
         for (const objective of quest.conditions.Fail) {
-            const obj = this.formatObjective(objective);
+            const obj = this.formatObjective(objective, false);
             if (obj) {
                 questData.failConditions.push(obj);
             }
@@ -1062,7 +1066,7 @@ class UpdateQuestsJob extends DataJob {
         return questData;
     }
 
-    formatObjective(objective) {
+    formatObjective(objective, logNotFound = true) {
         let objectiveId = objective._props.id;
         for (const questId in this.changedQuests) {
             if (!this.changedQuests[questId].objectiveIdsChanged) {
@@ -1086,7 +1090,7 @@ class UpdateQuestsJob extends DataJob {
             locationNames: [],
             map_ids: [],
             zoneKeys: [],
-            locale: getTranslations({description: objectiveId}, this.logger, false)
+            locale: getTranslations({description: objectiveId}, this.logger, false, logNotFound)
         };
         if (objective._parent === 'FindItem' || objective._parent === 'HandoverItem') {
             const targetItem = this.items[objective._props.target[0]];

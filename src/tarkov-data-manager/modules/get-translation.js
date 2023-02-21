@@ -39,7 +39,7 @@ const getTranslationFromKey = (translationKey, translation) => {
     return undefined;
 };
 
-const translatePath = (langCode, path, logger, errorOnNotFound = true) => {
+const translatePath = (langCode, path, logger, errorOnNotFound = true, logNotFound = true) => {
     if (!locales) {
         throw new Error('Must call setLocales before translatePath');
     }
@@ -62,8 +62,12 @@ const translatePath = (langCode, path, logger, errorOnNotFound = true) => {
                 return undefined;
             }
             if (errorOnNotFound)
+            {
                 throw new Error(`Translation for ${langCode}.${path.join('.')} not found`);
-            logger.warn(`Translation for ${langCode}.${path.join('.')} not found`);
+            }
+            if (logNotFound) {
+                logger.warn(`Translation for ${langCode}.${path.join('.')} not found`);
+            }
             return '';
         }
     }
@@ -74,7 +78,7 @@ const translatePath = (langCode, path, logger, errorOnNotFound = true) => {
     return translation.replaceAll('\n', '');
 };
 
-const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
+const getTranslations = (translationTarget, logger, errorOnNotFound = true, logNotFound = true) => {
     if (!locales) {
         return Promise.reject(new Error('Must call setLocales before getTranslations'));
     }
@@ -84,10 +88,10 @@ const getTranslations = (translationTarget, logger, errorOnNotFound = true) => {
         for (const fieldName in translationTarget) {
             if (Array.isArray(translationTarget[fieldName])) {
                 translation[langCode][fieldName] = translationTarget[fieldName].map(element => {
-                    return translatePath(langCode, element, logger, errorOnNotFound);
+                    return translatePath(langCode, element, logger, errorOnNotFound, logNotFound);
                 });
             } else if (typeof translationTarget[fieldName] === 'string') {
-                translation[langCode][fieldName] = translatePath(langCode, translationTarget[fieldName], logger, errorOnNotFound);
+                translation[langCode][fieldName] = translatePath(langCode, translationTarget[fieldName], logger, errorOnNotFound, logNotFound);
             } else if (typeof translationTarget[fieldName] === 'function') {
                 try {
                     translation[langCode][fieldName] = translationTarget[fieldName](locales[langCode], langCode);
