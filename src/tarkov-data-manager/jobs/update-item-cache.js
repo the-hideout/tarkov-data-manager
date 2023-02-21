@@ -4,7 +4,7 @@ const dataMaps = require('../modules/data-map');
 const remoteData = require('../modules/remote-data');
 const { query } = require('../modules/db-connection');
 const tarkovData = require('../modules/tarkov-data');
-const {dashToCamelCase} = require('../modules/string-functions');
+const {dashToCamelCase, camelCaseToTitleCase} = require('../modules/string-functions');
 const { setItemPropertiesOptions, getSpecialItemProperties } = require('../modules/get-item-properties');
 const { initPresetSize, getPresetSize } = require('../modules/preset-size');
 const normalizeName = require('../modules/normalize-name');
@@ -482,17 +482,25 @@ class UpdateItemCacheJob extends DataJob {
     }
 
     addCategory(id) {
-        if (!id || this.bsgCategories[id]) return;
+        if (!id || this.bsgCategories[id]) {
+            return;
+        }
         this.bsgCategories[id] = {
             id: id,
             parent_id: this.bsgItems[id]._parent,
             child_ids: [],
             locale: getTranslations({
-                name: lang => {
+                name: (lang, langCode) => {
                     if (lang[`${id} Name`]) {
                         return lang[`${id} Name`];
                     } else {
-                        return this.bsgItems[id]._name;
+                        if (langCode === 'en') {
+                            this.logger.warn(`${id} ${this.bsgItems[id]._name} category mising translation`);
+                        }
+                        if (langCode !== 'en' && this.locales.en[`${id} Name`]) {
+                            return this.locales.en[`${id} Name`];
+                        }
+                        return camelCaseToTitleCase(this.bsgItems[id]._name);
                     }
                 }
             }, this.logger)

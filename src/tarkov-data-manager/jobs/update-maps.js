@@ -77,17 +77,29 @@ class UpdateMapsJob extends DataJob {
                     continue;
                 }
                 const locationCount = {};
-                const locations = spawn.BossZone.split(',').map(zone => {
+                const spawnKeys = spawn.BossZone.split(',');
+                const locations = spawnKeys.map(zone => {
                     let locationName = zone.replace(/Zone_?/, '').replace(/Bot/, '');
                     if (!locationName) locationName = 'Anywhere';
-                    if (typeof locationCount[locationName] === 'undefined') locationCount[locationName] = 0;
-                    locationCount[locationName]++;
+                    if (typeof locationCount[locationName] === 'undefined') locationCount[locationName] = {key: zone, count: 0};
+                    locationCount[locationName].count++;
                     return locationName;
                 });
                 for (const locationName in locationCount) {
                     bossData.spawnLocations.push({
                         name: locationName,
-                        chance: Math.round((locationCount[locationName] / locations.length) * 100) / 100
+                        chance: Math.round((locationCount[locationName].count / locations.length) * 100) / 100,
+                        spawnKey: locationCount[locationName].key,
+                        locale: getTranslations({name: (lang, langCode) => {
+                            if (lang[locationCount[locationName].key]) {
+                                return lang[locationCount[locationName].key];
+                            }
+                            if (langCode !== 'en' && this.locales.en[locationCount[locationName].key]) {
+                                return this.locales.en[locationCount[locationName].key];
+                            }
+                            this.logger.warn(`No translation found for spawn location ${locationCount[locationName].key}`);
+                            return locationName;
+                        }}, this.logger),
                     });
                 }
                 if (spawn.BossEscortAmount !== '0') {

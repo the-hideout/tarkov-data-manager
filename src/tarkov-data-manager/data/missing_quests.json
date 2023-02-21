@@ -204,6 +204,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 177000,
         "factionName": "Any",
         "neededKeys": []
@@ -279,6 +288,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
@@ -339,6 +357,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
@@ -440,6 +467,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 10400,
         "tarkovDataId": null,
         "factionName": "Any"
@@ -507,6 +543,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
@@ -564,6 +609,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
@@ -679,6 +733,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
@@ -745,6 +808,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
@@ -843,6 +915,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"

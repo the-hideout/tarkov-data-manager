@@ -76,12 +76,14 @@ const runJob = async (jobName, options, bumpSchedule = true) => {
     if (scheduledJobs[jobName]) {
         const scheduledJob = scheduledJobs[jobName];
         if (scheduledJob && bumpSchedule) {
-            const nextRunMinusFive = scheduledJob.nextInvocation().toDate();
-            nextRunMinusFive.setMinutes(nextRunMinusFive.getMinutes() - 5);
-            if (new Date() > nextRunMinusFive) {
-                scheduledJob.cancelNext(true);
+            const nextInvocation = scheduledJob.nextInvocation();
+            if (nextInvocation) {
+                const nextRunMinusFive = nextInvocation.toDate();
+                nextRunMinusFive.setMinutes(nextRunMinusFive.getMinutes() - 5);
+                if (new Date() > nextRunMinusFive) {
+                    scheduledJob.cancelNext(true);
+                }
             }
-
         }
         jobs[jobName].nextInvocation = scheduledJob.nextInvocation().toDate();
     }

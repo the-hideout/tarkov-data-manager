@@ -347,6 +347,7 @@ class UpdateBartersJob extends DataJob {
                 item: rewardItem.id,
                 baseId: baseId,
                 count: 1,
+                attributes: []
             }],
             trader: traderRequirement,
             requirements: [],
