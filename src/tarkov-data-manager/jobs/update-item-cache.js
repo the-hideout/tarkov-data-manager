@@ -4,7 +4,7 @@ const dataMaps = require('../modules/data-map');
 const remoteData = require('../modules/remote-data');
 const { query } = require('../modules/db-connection');
 const tarkovData = require('../modules/tarkov-data');
-const {dashToCamelCase} = require('../modules/string-functions');
+const {dashToCamelCase, camelCaseToTitleCase} = require('../modules/string-functions');
 const { setItemPropertiesOptions, getSpecialItemProperties } = require('../modules/get-item-properties');
 const { initPresetSize, getPresetSize } = require('../modules/preset-size');
 const normalizeName = require('../modules/normalize-name');
@@ -488,11 +488,11 @@ class UpdateItemCacheJob extends DataJob {
             parent_id: this.bsgItems[id]._parent,
             child_ids: [],
             locale: getTranslations({
-                name: lang => {
+                name: (lang, langCode) => {
                     if (lang[`${id} Name`]) {
                         return lang[`${id} Name`];
                     } else {
-                        return this.bsgItems[id]._name;
+                        return camelCaseToTitleCase(this.bsgItems[id]._name);
                     }
                 }
             }, this.logger)
