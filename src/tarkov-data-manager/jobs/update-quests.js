@@ -1298,7 +1298,12 @@ class UpdateQuestsJob extends DataJob {
                     };
                     if (cond._props.time) obj.healthEffect.time = cond._props.time;
                 } else if (cond._parent === 'UseItem') {
-                    obj.useAny = cond._props.target.filter(id => this.itemMap[id]);
+                    obj.useAny = cond._props.target.filter(id => this.itemMap[id]).reduce((allItems, current) => {
+                        if (!allItems.includes(current)) {
+                            allItems.push(current);
+                        }
+                        return allItems;
+                    }, []);
                     obj.compareMethod = cond._props.compareMethod;
                     obj.count = cond._props.value;
                     obj.zoneNames = [];
