@@ -71,35 +71,43 @@ class UpdateQuestsJob extends DataJob {
                 this.logger.warn(`Missing quest ${quest.name} ${quest.id} already exists...`);
                 continue;
             }
-            this.logger.warn(`Adding missing quest ${quest.name} ${quest.id}...`);
-            quest.locale = getTranslations({name: `${questId} name`}, this.logger);
-            quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.locales.en[`${questId} name`].replaceAll(' ', '_'))}`;
-            for (const obj of quest.objectives) {
-                obj.locale = getTranslations({description: obj.id}, this.logger);
-                if (obj.type.endsWith('QuestItem')) {
-                    this.questItems[obj.item_id] = {
-                        id: obj.item_id
-                    };
+            try {
+                this.logger.warn(`Adding missing quest ${quest.name} ${quest.id}...`);
+                quest.locale = getTranslations({name: `${questId} name`}, this.logger);
+                quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.locales.en[`${questId} name`].replaceAll(' ', '_'))}`;
+                for (const obj of quest.objectives) {
+                    obj.locale = getTranslations({description: obj.id}, this.logger);
+                    if (obj.type.endsWith('QuestItem')) {
+                        this.questItems[obj.item_id] = {
+                            id: obj.item_id
+                        };
+                    }
+                    if (obj.type === 'extract') {
+                        obj.locale = addTranslations(obj.locale, {exitStatus: lang => {
+                            return obj.exitStatus.map(stat => lang[`ExpBonus${stat}`]);
+                        }}, this.logger);
+                    }
+                    if (obj.type === 'shoot') {
+                        obj.locale = addTranslations(obj.locale, {target: obj.target}, this.logger);
+                    }
+                    this.addMapFromDescription(obj);
                 }
-                if (obj.type === 'extract') {
-                    obj.locale = addTranslations(obj.locale, {exitStatus: lang => {
-                        return obj.exitStatus.map(stat => lang[`ExpBonus${stat}`]);
-                    }}, this.logger);
+                for (const tdQuest of this.tdQuests) {
+                    if (quest.id == tdQuest.gameId || quest.name === tdQuest.title) {
+                        quest.tarkovDataId = tdQuest.id;
+                        this.tdMatched.push(tdQuest.id);
+                        this.mergeTdQuest(quest, tdQuest);
+                        break;
+                    }
                 }
-                if (obj.type === 'shoot') {
-                    obj.locale = addTranslations(obj.locale, {target: obj.target}, this.logger);
-                }
-                this.addMapFromDescription(obj);
+                quests.Task.push(quest);
+            } catch (error) {
+                this.logger.error(error);
+                this.discordAlert({
+                    title: `Error running ${this.name} job`,
+                    message: `Error adding missing quest ${quest.name} ${questId}\n${error.stack}`
+                });
             }
-            for (const tdQuest of this.tdQuests) {
-                if (quest.id == tdQuest.gameId || quest.name === tdQuest.title) {
-                    quest.tarkovDataId = tdQuest.id;
-                    this.tdMatched.push(tdQuest.id);
-                    this.mergeTdQuest(quest, tdQuest);
-                    break;
-                }
-            }
-            quests.Task.push(quest);
         }
 
         for (const changedId in this.changedQuests) {
