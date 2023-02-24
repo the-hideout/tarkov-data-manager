@@ -512,7 +512,9 @@ class UpdateItemCacheJob extends DataJob {
     }
 
     addHandbookCategory(id) {
-        if (!id || this.handbookCategories[id]) return;
+        if (!id || this.handbookCategories[id]) {
+            return;
+        }
         this.handbookCategories[id] = {
             id: id,
             name: this.locales.en[id],

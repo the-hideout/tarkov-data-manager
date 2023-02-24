@@ -1,5 +1,4 @@
 const moment = require('moment');
-;
 const { query } = require('../modules/db-connection');
 const tarkovData = require('../modules/tarkov-data');
 const remoteData = require('../modules/remote-data');

@@ -134,6 +134,10 @@ class DataJob {
             }
         }
     }
+
+    discordAlert = async (options) => {
+        return alert(options);
+    }
 }
 
 module.exports = DataJob;

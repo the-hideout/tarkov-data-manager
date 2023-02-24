@@ -641,7 +641,7 @@
         "traderRequirements": [],
         "objectives": [
             {
-                "id": "63ca9ffa9ca47f0e03035bab",
+                "id": "62668b98ddc94657c21a1628",
                 "type": "plantItem",
                 "optional": false,
                 "locationNames": [
@@ -659,7 +659,7 @@
                 "foundInRaid": false
             },
             {
-                "id": "63caa01f36708dc7f80c138b",
+                "id": "62668ba11ed3bb5bcc5bd9ef",
                 "type": "plantItem",
                 "optional": false,
                 "locationNames": [
@@ -677,7 +677,7 @@
                 "foundInRaid": false
             },
             {
-                "id": "63caa0367b2aee263d0f018c",
+                "id": "62668ba4aa168e51321d69e0",
                 "type": "plantItem",
                 "optional": false,
                 "locationNames": [
@@ -695,7 +695,7 @@
                 "foundInRaid": false
             },
             {
-                "id": "63caa0439ca47f0e03035bac",
+                "id": "62668ba9a4eb80027c4f2e16",
                 "type": "plantItem",
                 "optional": false,
                 "locationNames": [
