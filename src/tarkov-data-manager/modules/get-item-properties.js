@@ -231,6 +231,9 @@ const getItemProperties = async (item) => {
     } else if (item._parent === '5448e53e4bdc2d60728b4567') {
         properties = {
             propertiesType: 'ItemPropertiesBackpack',
+            speedPenalty: parseInt(item._props.speedPenaltyPercent) / 100,
+            turnPenalty: parseInt(item._props.mousePenalty) / 100,
+            ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
             ...getGrids(item)
         };
     } else if (item._parent === '543be6564bdc2df4348b4568') {
