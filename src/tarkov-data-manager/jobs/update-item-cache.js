@@ -317,9 +317,16 @@ class UpdateItemCacheJob extends DataJob {
                 }
                 let currency = trader.currency;
                 let priceRUB = Math.floor(this.getTraderMultiplier(trader.id) * itemData[key].basePrice);
-                const priceCUR = Math.round(priceRUB / currenciesNow[currency]);
-                if (priceCUR === 0) {
-                    priceRUB = 0;
+                let priceCUR = priceRUB;
+                if (currency !== 'RUB') {
+                    // for if we ever switch the price field to a float
+                    //priceCUR = Math.round((priceRUB / currenciesNow[currency]) * 100) / 100;
+                    priceCUR = priceRUB / currenciesNow[currency];
+                    if (priceCUR > 0) {
+                        priceCUR = Math.round(priceCUR);
+                    } else {
+                        priceCUR = 0;
+                    }
                 }
                 itemData[key].traderPrices.push({
                     name: trader.name,
