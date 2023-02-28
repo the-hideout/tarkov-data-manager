@@ -321,7 +321,12 @@ class UpdateItemCacheJob extends DataJob {
                 if (currency !== 'RUB') {
                     // for if we ever switch the price field to a float
                     //priceCUR = Math.round((priceRUB / currenciesNow[currency]) * 100) / 100;
-                    priceCUR = Math.floor(priceRUB / currenciesNow[currency]);
+                    priceCUR = priceRUB / currenciesNow[currency];
+                    if (priceCUR > 0) {
+                        priceCUR = Math.round(priceCUR);
+                    } else {
+                        priceCUR = 0;
+                    }
                 }
                 itemData[key].traderPrices.push({
                     name: trader.name,
