@@ -751,20 +751,6 @@
             "minPlayerLevel": 50
         }
     },
-    "5a27c99a86f7747d2c6bdd8e": {
-        "name": "Friend from the West - Part 1",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5979eee086f774311955e614",
-                    "name": "Supplier",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        }
-    },
     "5eda19f0edce541157209cee": {
         "name": "Anesthesia",
         "propertiesChanged" : {
