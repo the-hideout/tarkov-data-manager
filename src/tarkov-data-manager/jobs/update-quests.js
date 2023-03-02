@@ -23,7 +23,11 @@ class UpdateQuestsJob extends DataJob {
             resolveBodyOnly: true,
         });
         [this.rawQuestData, this.items, this.locales, this.itemResults, this.missingQuests, this.changedQuests, this.removedQuests] = await Promise.all([
-            tarkovData.quests(true),
+            tarkovData.quests(true).catch(error => {
+                this.logger.error('Error getting quests');
+                this.logger.error(error);
+                return tarkovData.quests(false);
+            }),
             tarkovData.items(),
             tarkovData.locales(),
             remoteData.get(),

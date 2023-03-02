@@ -29,8 +29,14 @@ class UpdateTraderAssortsJob extends DataJob {
         for (const trader of this.traders) {
             const traderId = trader.id;
             traderAssortPromises.push(Promise.all([
-                tarkovData.traderAssorts(traderId),
-                tarkovData.traderQuestAssorts(traderId).then(questAssort => {
+                tarkovData.traderAssorts(traderId).catch(error => {
+                    this.logger.error(`Error downloading assorts: ${error.message}`);
+                    return tarkovData.traderAssorts(traderId, false);
+                }),
+                tarkovData.traderQuestAssorts(traderId).catch(error => {
+                    this.logger.error(`Error downloading quest assorts: ${error.message}`);
+                    return tarkovData.traderQuestAssorts(traderId, false);
+                }).then(questAssort => {
                     return Object.keys(questAssort).reduce((allUnlocks, questStatus) => {
                         for (const assortId of Object.keys(questAssort[questStatus])) {
                             allUnlocks[assortId] = questAssort[questStatus][assortId];
