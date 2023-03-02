@@ -73,8 +73,7 @@ async function purge(dataName, logger = false) {
                         }
                         continue;
                     }
-                    const dataType = purgeAction.replace(/^purge/, '');
-                    purgeSummary.push(`${dataType}${types[dataType].length > 0 ? ` (${types[dataType].length})` : '' }`);
+                    purgeSummary.push(`${purgeAction}${types[purgeAction].length > 0 ? ` (${types[purgeAction].length})` : '' }`);
                 }
                 logger.log(`Purged cache for: ${purgeSummary.join(', ')}`);
             }
