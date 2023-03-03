@@ -29,11 +29,11 @@ class UpdateTraderAssortsJob extends DataJob {
         for (const trader of this.traders) {
             const traderId = trader.id;
             traderAssortPromises.push(Promise.all([
-                tarkovData.traderAssorts(traderId).catch(error => {
+                tarkovData.traderAssorts(traderId, true).catch(error => {
                     this.logger.error(`Error downloading assorts: ${error.message}`);
                     return tarkovData.traderAssorts(traderId, false);
                 }),
-                tarkovData.traderQuestAssorts(traderId).catch(error => {
+                tarkovData.traderQuestAssorts(traderId, true).catch(error => {
                     this.logger.error(`Error downloading quest assorts: ${error.message}`);
                     return tarkovData.traderQuestAssorts(traderId, false);
                 }).then(questAssort => {
@@ -108,7 +108,9 @@ class UpdateTraderAssortsJob extends DataJob {
             }));
         };
         await Promise.all(traderAssortPromises);
+        let totalOffers = 0;
         for (const traderId in assorts) {
+            totalOffers += assorts[traderId].length;
             for (const offer of assorts[traderId]) {
                 offer.barter = !this.isCashOffer(offer);
                 const preset = this.offerMatchesPreset(offer);
@@ -121,12 +123,16 @@ class UpdateTraderAssortsJob extends DataJob {
                 }
             }
         }
+        if (totalOffers === 0) {
+            return Promise.reject(new Error('No trader offers found'));
+        }
         for (const traderId in assorts) {
             const trader = this.traders.find(t => t.id === traderId);
             this.logger.log(`✔️ ${trader.name}: ${assorts[traderId].length} offers`);
         }
         fs.writeFileSync(path.join(__dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(assorts, null, 4));
         this.logger.success(`Successful processing of trader offers`);
+        return assorts;
     }
 
     isCashOffer = (offer) => {
