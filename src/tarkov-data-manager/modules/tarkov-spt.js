@@ -129,8 +129,8 @@ module.exports = {
         botKey = botKey.toLowerCase();
         return downloadJson(`${botKey}.json`, `${sptPath}bots/types/${botKey}.json`, download);
     },
-    traderAssorts: async (traderId) => {
-        return downloadJson(null, `${sptPath}traders/${traderId}/assort.json`, true, false).catch(error => {
+    traderAssorts: async (traderId, download) => {
+        return downloadJson(null, `${sptPath}traders/${traderId}/assort.json`, download).catch(error => {
             if (!error.message.includes('Response code 404')) {
                 return Promise.reject(error);
             }
@@ -141,8 +141,8 @@ module.exports = {
             };
         });
     },
-    traderQuestAssorts: async (traderId) => {
-        return downloadJson(null, `${sptPath}traders/${traderId}/questassort.json`, true, false).catch(error => {
+    traderQuestAssorts: async (traderId, download) => {
+        return downloadJson(null, `${sptPath}traders/${traderId}/questassort.json`, download).catch(error => {
             if (!error.message.includes('Response code 404')) {
                 return Promise.reject(error);
             }

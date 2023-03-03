@@ -22,7 +22,10 @@ class GameDataJob extends DataJob {
         await this.jobManager.runJob('update-presets', {parent: this});
 
         this.logger.log('Updating handbook...');
-        await tarkovData.handbook(true);
+        await tarkovData.handbook(true).catch(error => {
+            this.logger.error(error);
+            return tarkovData.handbook(false);
+        });
         this.logger.log('Completed updating handbook');
 
         connection.keepAlive = keepAlive;

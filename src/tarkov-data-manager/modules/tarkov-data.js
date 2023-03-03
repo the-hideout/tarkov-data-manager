@@ -30,7 +30,7 @@ module.exports = {
     areas: (download = false) => {
         return tarkovChanges.areas(download);
     },
-    botInfo: (botKey, download = true) => {
+    botInfo: (botKey, download = false) => {
         return spt.botInfo(botKey, download);
     },
     crafts: (download = false) => {
@@ -81,10 +81,10 @@ module.exports = {
     traders: (download = false) => {
         return tarkovChanges.traders(download);
     },
-    traderAssorts: async (traderId) => {
-        return spt.traderAssorts(traderId);
+    traderAssorts: async (traderId, download = false) => {
+        return spt.traderAssorts(traderId, download);
     },
-    traderQuestAssorts: async (traderId) => {
-        return spt.traderQuestAssorts(traderId);
+    traderQuestAssorts: async (traderId, download = false) => {
+        return spt.traderQuestAssorts(traderId, download);
     },
 };
