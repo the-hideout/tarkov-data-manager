@@ -3,7 +3,7 @@ const path = require('path');
 
 const got = require('got');
 
-const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/development/project/assets/database/';
+const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/src/branch/master/project/assets/database/';
 
 const sptLangs = {
     //'en': 'en',
