@@ -142,7 +142,7 @@ module.exports = {
         });
     },
     traderQuestAssorts: async (traderId, download) => {
-        return downloadJson(`${traderId}_questassort.json, `${sptPath}traders/${traderId}/questassort.json`, download).catch(error => {
+        return downloadJson(`${traderId}_questassort.json`, `${sptPath}traders/${traderId}/questassort.json`, download).catch(error => {
             if (!error.message.includes('Response code 404')) {
                 return Promise.reject(error);
             }
