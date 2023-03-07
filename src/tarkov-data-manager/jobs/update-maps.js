@@ -224,9 +224,6 @@ class UpdateMapsJob extends DataJob {
         if (lang[enemy]) {
             return lang[enemy];
         }
-        if (this.locales.en[enemy]) {
-            return this.locales.en[enemy];
-        }
         if (enemy.includes('follower')) {
             const nameParts = [];
             const guardTypePattern = /Assault|Security|Scout/;
@@ -235,9 +232,17 @@ class UpdateMapsJob extends DataJob {
             nameParts.push(this.getEnemyName('guard', lang));
             const guardTypeMatch = enemy.match(guardTypePattern);
             if (guardTypeMatch) {
-                nameParts.push(guardTypeMatch[0]);
+                console.log(`follower${guardTypeMatch[0]}`);
+                if (lang[`follower${guardTypeMatch[0]}`]) {
+                    nameParts.push(`(${lang[`follower${guardTypeMatch[0]}`]})`);
+                } else {
+                    nameParts.push(`(${guardTypeMatch[0]})`);
+                }
             }
             return nameParts.join(' ')
+        }
+        if (this.locales.en[enemy]) {
+            return this.locales.en[enemy];
         }
         return enemy.replace('boss', '');
     }
