@@ -276,6 +276,9 @@ class UpdateTraderPricesJob extends DataJob {
                     this.logger.log('could not match preset for', item.name, trader.name, offer);
                     return;
                 }
+                if (!item.types.includes('preset') && !item.types.includes('gun')) {
+                    return;
+                }
                 if (outputData[itemId]) {
                     const matchedOffer = outputData[itemId].some(o => {
                         if (o.vendor.trader !== traderId) {
