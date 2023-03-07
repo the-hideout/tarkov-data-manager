@@ -13,16 +13,18 @@ class CheckImageLinksJob extends DataJob {
     }
 
     async run() {
-        const itemData = await remoteData.get();
-
-        const activeItems = [...itemData.values()].filter(item => !item.types.includes('disabled'));
-
         if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
             this.logger.log('aws variables not configured; skipping check-image-links job');
             this.logger.end();
             return;
         }
-        const allKeys = await getBucketContents();
+
+        const [itemData, allKeys] = await Promise.all([
+            remoteData.get(),
+            getBucketContents()
+        ]);
+
+        const activeItems = [...itemData.values()].filter(item => !item.types.includes('disabled'));
 
         this.logger.log(`Retrieved ${allKeys.length} S3 bucket images`);
 

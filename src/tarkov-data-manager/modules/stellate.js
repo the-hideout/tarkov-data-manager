@@ -25,7 +25,9 @@ async function purge(dataName, logger = false) {
         for (const t in types) {
             types[t] = types[t].map(val => `"${val}"`);
         }
-        purgeBody.push(`${Object.keys(types).map(t => `purge${t}(${types[t].length > 0 ? `id: [${types[t].join(', ')}] ` : ''}soft: true)`).join(' ')}`);
+        purgeBody.push(`${Object.keys(types).map(t => 
+            `${t}: _purgeType(type: "${t}",${types[t].length > 0 ? ` keyFields: [${types[t].map(val => `{name: "id", value: ${val}}`).join(', ')}],` : ''} soft: true)`).join(' ')}`
+        );
     }
     if (queries.length > 0) {
         purgeBody.push((`_purgeQuery(queries: [${queries.join(', ')}], soft: true)`));
@@ -71,8 +73,7 @@ async function purge(dataName, logger = false) {
                         }
                         continue;
                     }
-                    const dataType = purgeAction.replace(/^purge/, '');
-                    purgeSummary.push(`${dataType}${types[dataType].length > 0 ? ` (${types[dataType].length})` : '' }`);
+                    purgeSummary.push(`${purgeAction}${types[purgeAction].length > 0 ? ` (${types[purgeAction].length})` : '' }`);
                 }
                 logger.log(`Purged cache for: ${purgeSummary.join(', ')}`);
             }

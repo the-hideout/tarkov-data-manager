@@ -86,13 +86,15 @@ class UpdateTypesJob extends DataJob {
             },
         };
 
-        this.allItems = await remoteData.get();
-        this.bsgData = await tarkovData.items();
-        const presets = await this.jobManager.jobOutput('update-presets', this, true);
+        [this.allItems, this.bsgData, this.presets] = await Promise.all([
+            remoteData.get(),
+            tarkovData.items(),
+            this.jobManager.jobOutput('update-presets', this, true),
+        ]);;
 
         this.logger.log(`Updating types`);
         for (const [itemId, item] of this.allItems.entries()) {
-            if (presets[item.id] || item.types.includes('preset')) {
+            if (this.presets[item.id] || item.types.includes('preset')) {
                 if (!item.types.includes('preset')) {
                     this.logger.warn(`${itemId} ${item.name} is not marked as a preset`);
                     await remoteData.addType(itemId, 'preset').then(results => {
@@ -116,6 +118,7 @@ class UpdateTypesJob extends DataJob {
                 continue;
             }
             if(!this.bsgData[itemId]?._props){
+                this.logger.warn(`${itemId} ${item.name} lacks item properties`);
                 continue;
             }
             if(item.types.includes('no-flea') && this.bsgData[itemId]._props.CanSellOnRagfair){

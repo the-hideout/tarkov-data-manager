@@ -28,14 +28,14 @@ class UpdateBartersJob extends DataJob {
 
     run = async () => {
         this.logger.log('Retrieving barters data...');
-        const wikiPromise = got(TRADES_URL);
-        const oldTasksPromise = got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
-            responseType: 'json',
-        });
-        const allResults = await Promise.all([remoteData.get(), wikiPromise, oldTasksPromise]);
-        this.itemData = allResults[0];
-        const wikiResponse = allResults[1];
-        this.oldTasks = allResults[2].body;
+        [this.itemData, this.$, this.oldTasks] = await Promise.all([
+            remoteData.get(),
+            got(TRADES_URL).then(response => cheerio.load(response.body)),
+            got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
+                responseType: 'json',
+                resolveBodyOnly: true,
+            }),
+        ]);
         this.presets = await this.jobManager.jobOutput('update-presets', this, true);
         this.tasks = await this.jobManager.jobOutput('update-quests', this);
         this.barterAssort = await this.jobManager.jobOutput('update-trader-assorts', this, true).then(assorts => {
@@ -49,7 +49,6 @@ class UpdateBartersJob extends DataJob {
             }
             return assorts;
         });
-        this.$ = cheerio.load(wikiResponse.body);
         this.gunVariants = {};
 
         this.logger.succeed('Barters data retrieved');
@@ -348,6 +347,7 @@ class UpdateBartersJob extends DataJob {
                 item: rewardItem.id,
                 baseId: baseId,
                 count: 1,
+                attributes: []
             }],
             trader: traderRequirement,
             requirements: [],

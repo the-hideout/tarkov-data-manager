@@ -1,5 +1,4 @@
 const moment = require('moment');
-;
 const { query } = require('../modules/db-connection');
 const tarkovData = require('../modules/tarkov-data');
 const remoteData = require('../modules/remote-data');
@@ -240,8 +239,10 @@ class UpdateTraderPricesJob extends DataJob {
                     offer.id = matchedOffer.item;
                     offer.item_name = matchedOffer.itemName;
                 }
-                offer.price = Math.ceil(matchedOffer.cost[0].count);
-                offer.priceRUB = Math.round(matchedOffer.cost[0].count * currenciesNow[currencyISO[matchedOffer.cost[0].item]]);
+                if (item.types.includes('preset') || item.types.includes('gun')) {
+                    offer.price = Math.ceil(matchedOffer.cost[0].count);
+                    offer.priceRUB = Math.round(matchedOffer.cost[0].count * currenciesNow[currencyISO[matchedOffer.cost[0].item]]);
+                }
                 offer.restockAmount = matchedOffer.stock;
                 offer.buyLimit = matchedOffer.buyLimit;
                 offer.traderOfferId = matchedOffer.id;
@@ -273,6 +274,9 @@ class UpdateTraderPricesJob extends DataJob {
                 if (!item.types.includes('preset') && offer.contains.length > 0) {
                     const trader = this.traders.find(t => t.id == traderId);
                     this.logger.log('could not match preset for', item.name, trader.name, offer);
+                    return;
+                }
+                if (!item.types.includes('preset') && !item.types.includes('gun')) {
                     return;
                 }
                 if (outputData[itemId]) {

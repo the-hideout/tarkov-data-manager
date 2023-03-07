@@ -38,13 +38,6 @@
                 ]
             },
             {
-                "task": "5d25e29d86f7740a22516326",
-                "name": "The Survivalist Path - Eagle-Owl",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
                 "task": "5d4bec3486f7743cac246665",
                 "name": "Regulated Materials",
                 "status": [
@@ -103,13 +96,6 @@
             {
                 "task": "608974af4b05530f55550c21",
                 "name": "Inventory Check",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
-                "task": "608a768d82e40b3c727fd17d",
-                "name": "Pest Control",
                 "status": [
                     "complete"
                 ]
@@ -178,13 +164,6 @@
                 ]
             },
             {
-                "task": "5d25bfd086f77442734d3007",
-                "name": "The Survivalist Path - Zhivchik",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
                 "task": "60c0c018f7afb4354815096a",
                 "name": "The Huntsman Path - Factory Chief",
                 "status": [
@@ -218,12 +197,348 @@
                 "status": [
                     "complete"
                 ]
+            },
+            {
+                "task": "5d25e45e86f77408251c4bfa",
+                "name": "The Huntsman Path - Eraser - Part 2",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5b47825886f77468074618d3",
+                "name": "Gunsmith - Part 22",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5ae448e586f7744dcf0c2a67",
+                "name": "Big Sale",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c1128e386f7746565181106",
+                "name": "Fertilizers",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c139eb686f7747878361a6f",
+                "name": "Import",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5ae4499a86f77449783815db",
+                "name": "Charisma Brings Success",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5ac346e886f7741d6118b99b",
+                "name": "Signal - Part 4",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5ae449a586f7744bde357696",
+                "name": "No Fuss Needed",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5ac3475486f7741d6224abd3",
+                "name": "Bad Habit",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5ac3479086f7742880308199",
+                "name": "Insider",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c112d7e86f7740d6f647486",
+                "name": "Scavenger",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5b478d0f86f7744d190d91b5",
+                "name": "Minibus",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5d25d2c186f77443e35162e5",
+                "name": "The Survivalist Path - Cold Blooded",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c1141f386f77430ff393792",
+                "name": "Living High is Not a Crime - Part 2",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5eaaaa7c93afa0558f3b5a1c",
+                "name": "The Survivalist Path - Junkie",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5d25e2d886f77442734d335e",
+                "name": "The Huntsman Path - Controller",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5d25e43786f7740a212217fa",
+                "name": "The Huntsman Path - Justice",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5d25e4ca86f77409dd5cdf2c",
+                "name": "Hunting Trip",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5d25e44386f77409453bce7b",
+                "name": "The Huntsman Path - Evil Watchman",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5d25e46e86f77409453bce7c",
+                "name": "Ambulance",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5d25e4b786f77408251c4bfc",
+                "name": "Fishing Place",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "626bd75e47ea7f506e5493c5",
+                "name": "Broadcast - Part 1",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "626bd75c71bd851e971b82a5",
+                "name": "Reconnaissance",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "626bd75b05f287031503c7f6",
+                "name": "Drug Trafficking",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "596b455186f77457cb50eccb",
+                "name": "Stirrup",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5b478ff486f7744d184ecbbf",
+                "name": "Vitamins - Part 2",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c0bdb5286f774166e38eed4",
+                "name": "Flint",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c1234c286f77406fa13baeb",
+                "name": "Setup",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c0bde0986f77479cf22c2f8",
+                "name": "A Shooter Born in Heaven",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c0be13186f7746f016734aa",
+                "name": "Psycho Sniper",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "6089732b59b92115597ad789",
+                "name": "Surplus Goods",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5a27ba1c86f77461ea5a3c56",
+                "name": "The Cult - Part 2",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c0d4e61d09282029f53920e",
+                "name": "The Guide",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c0d4c12d09282029f539173",
+                "name": "Peacekeeping Mission",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "596760e186f7741e11214d58",
+                "name": "Postman Pat - Part 2",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c0bd01e86f7747cdd799e56",
+                "name": "Insomnia",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c12452c86f7744b83469073",
+                "name": "Perfect Mediator",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c0bd94186f7747a727f09b2",
+                "name": "Test Drive - Part 1",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "60e71bb4e456d449cd47ca75",
+                "name": "Intimidator",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "6179ad0a6e9dd54ac275e3f2",
+                "name": "The Huntsman Path - Outcasts",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5bc4893c86f774626f5ebf3e",
+                "name": "The Tarkov Shooter - Part 8",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5968eb3186f7741dde183a4d",
+                "name": "Operation Aquarius - Part 2",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c0d1c4cd0928202a02a6f5c",
+                "name": "Decontamination Service",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "5c0d0d5086f774363760aef2",
+                "name": "Athlete",
+                "status": [
+                    "complete"
+                ]
             }
         ],
         "___taskRequirementsRemoved": [
             {
                 "id": "597a0e5786f77426d66c0636",
                 "name": "Chemical - Part 3"
+            },
+            {
+                "id": "6179afd0bca27a099552e040",
+                "name": "Lost Contact"
+            },
+            {
+                "id": "5d25e29d86f7740a22516326",
+                "name": "The Survivalist Path - Eagle-Owl"
+            },
+            {
+                "id": "6089736efa70fc097863b8f6",
+                "name": "Back Door"
+            },
+            {
+                "id": "608a768d82e40b3c727fd17d",
+                "name": "Pest Control"
+            },
+            {
+                "id": "5c0d0f1886f77457b8210226",
+                "name": "Lend-Lease - Part 2"
+            },
+            {
+                "id": "5ae4497b86f7744cf402ed00",
+                "name": "Sew it Good - Part 4"
+            },
+            {
+                "id": "5d25bfd086f77442734d3007",
+                "name": "The Survivalist Path - Zhivchik"
             }
         ],
         "___objectivesRemoved": [
@@ -436,20 +751,6 @@
             "minPlayerLevel": 50
         }
     },
-    "5a27c99a86f7747d2c6bdd8e": {
-        "name": "Friend from the West - Part 1",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5979eee086f774311955e614",
-                    "name": "Supplier",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        }
-    },
     "5eda19f0edce541157209cee": {
         "name": "Anesthesia",
         "propertiesChanged" : {
@@ -567,7 +868,10 @@
                 "id": "596760e186f7741e11214d58",
                 "name": "Postman Pat - Part 2"
             }
-        ]
+        ],
+        "propertiesChanged" : {
+            "minPlayerLevel": 25
+        }
     },
     "639136e84ed9512be67647db": {
         "name": "Cease Fire!",
@@ -634,6 +938,176 @@
         "name": "Calibration",
         "propertiesChanged" : {
             "minPlayerLevel": 47
+        }
+    },
+    "60e71c48c1bfa3050473b8e5": {
+        "name": "Crisis",
+        "propertiesChanged" : {
+            "minPlayerLevel": 48
+        }
+    },
+    "5eaaaa7c93afa0558f3b5a1c": {
+        "name": "The Survivalist Path - Junkie",
+        "taskRequirementsRemoved": [
+            {
+                "id": "5d25d2c186f77443e35162e5",
+                "name": "The Survivalist Path - Cold Blooded"
+            }
+        ]
+    },
+    "6179b3a12153c15e937d52bc": {
+        "name": "Energy Crisis",
+        "propertiesChanged" : {
+            "minPlayerLevel": 25
+        }
+    },
+    "6089736efa70fc097863b8f6": {
+        "name": "Back Door",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5ac3477486f7741d651d6885",
+                    "name": "Scout",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "6089732b59b92115597ad789": {
+        "name": "Surplus Goods",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "6089736efa70fc097863b8f6",
+                    "name": "Back Door",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "60e71b9bbd90872cb85440f3": {
+        "name": "Capturing Outposts",
+        "propertiesChanged" : {
+            "minPlayerLevel": 42
+        }
+    },
+    "60e71b62a0beca400d69efc4": {
+        "name": "Escort",
+        "propertiesChanged" : {
+            "minPlayerLevel": 60
+        }
+    },
+    "60e71bb4e456d449cd47ca75": {
+        "name": "Intimidator",
+        "propertiesChanged" : {
+            "minPlayerLevel": 60
+        }
+    },
+    "639282134ed9512be67647ed": {
+        "name": "Road Closed",
+        "propertiesChanged" : {
+            "factionName": "USEC"
+        }
+    },
+    "608a768d82e40b3c727fd17d": {
+        "name": "Pest Control",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5d25e4d586f77443e625e388",
+                    "name": "Reserve",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "5967733e86f774602332fc84": {
+        "name": "Shortage",
+        "propertiesChanged" : {
+            "minPlayerLevel": 1
+        }
+    },
+    "5ae3277186f7745973054106": {
+        "name": "Gunsmith - Part 8",
+        "taskRequirementsRemoved": [
+            {
+                "id": "5ae3270f86f77445ba41d4dd",
+                "name": "Gunsmith - Part 6"
+            }
+        ]
+    },
+    "61e6e615eea2935bc018a2c5": {
+        "name": "Compensation For Damage - Barkeep",
+        "propertiesChanged" : {
+            "traderLevelRequirements": [],
+            "traderRequirements": [
+                {
+                    "id": "410303b7sfge7348ec67f18c",
+                    "trader_id": "579dc571d53a0658a154fbec",
+                    "name": "Fence",
+                    "requirementType": "reputation",
+                    "compareMethod": "<=",
+                    "value": -1,
+                    "level": -1
+                }
+            ]
+        }
+    },
+    "61e6e60223374d168a4576a6": {
+        "name": "Compensation for Damage - Wager",
+        "propertiesChanged" : {
+            "traderLevelRequirements": [],
+            "traderRequirements": [
+                {
+                    "id": "410303b7sfge7348ec67f18c",
+                    "trader_id": "579dc571d53a0658a154fbec",
+                    "name": "Fence",
+                    "requirementType": "reputation",
+                    "compareMethod": "<=",
+                    "value": -1,
+                    "level": -1
+                }
+            ]
+        }
+    },
+    "61e6e5e0f5b9633f6719ed95": {
+        "name": "Compensation for Damage - Trust",
+        "propertiesChanged" : {
+            "traderLevelRequirements": [],
+            "traderRequirements": [
+                {
+                    "id": "410303b7sfge7348ec67f18c",
+                    "trader_id": "579dc571d53a0658a154fbec",
+                    "name": "Fence",
+                    "requirementType": "reputation",
+                    "compareMethod": "<=",
+                    "value": -1,
+                    "level": -1
+                }
+            ]
+        }
+    },
+    "61e6e621bfeab00251576265": {
+        "name": "Compensation for Damage - Collection",
+        "propertiesChanged" : {
+            "traderLevelRequirements": [],
+            "traderRequirements": [
+                {
+                    "id": "410303b7sfge7348ec67f18c",
+                    "trader_id": "579dc571d53a0658a154fbec",
+                    "name": "Fence",
+                    "requirementType": "reputation",
+                    "compareMethod": "<=",
+                    "value": -1,
+                    "level": -1
+                }
+            ]
         }
     }
 }

@@ -10,25 +10,24 @@ class GameDataJob extends DataJob {
     async run() {
         const keepAlive = connection.keepAlive;
         connection.keepAlive = true;
-        this.logger.log('Running update-tc-data...');
+        
         await this.jobManager.runJob('update-tc-data', {parent: this});
-        this.logger.log('Completed update-tc-data');
 
-        this.logger.log('Running updateNewItems...');
         await this.jobManager.runJob('update-new-items', {parent: this});
-        this.logger.log('Completed updateNewItems');
 
-        this.logger.log('Running updateItemNames...');
         await this.jobManager.runJob('update-item-names', {parent: this});
-        this.logger.log('Completed updateItemNames');
 
-        this.logger.log('Running updateTypes...');
         await this.jobManager.runJob('update-types', {parent: this});
-        this.logger.log('Completed updateTypes');
+
+        await this.jobManager.runJob('update-presets', {parent: this});
 
         this.logger.log('Updating handbook...');
-        await tarkovData.handbook(true);
+        await tarkovData.handbook(true).catch(error => {
+            this.logger.error(error);
+            return tarkovData.handbook(false);
+        });
         this.logger.log('Completed updating handbook');
+
         connection.keepAlive = keepAlive;
     }
 }

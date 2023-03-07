@@ -15,7 +15,7 @@
                 ]
             }
         ],
-        "traderLevelRequirements": [],
+        "traderRequirements": [],
         "objectives": [
             {
                 "id": "60e7434ed1a062318d3d2260",
@@ -204,6 +204,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 177000,
         "factionName": "Any",
         "neededKeys": []
@@ -216,11 +225,14 @@
         "locationName": "any",
         "minPlayerLevel": 0,
         "taskRequirements": [],
-        "traderLevelRequirements": [
+        "traderRequirements": [
             {
                 "id": "61e6e615eea2935bc018a2c5-579dc571d53a0658a154fbec",
                 "trader_id": "579dc571d53a0658a154fbec",
                 "name": "Fence",
+                "requirementType": "reputation",
+                "compareMethod": "<=",
+                "value": -2,
                 "level": -2
             }
         ],
@@ -276,6 +288,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
@@ -288,11 +309,14 @@
         "locationName": "any",
         "minPlayerLevel": 0,
         "taskRequirements": [],
-        "traderLevelRequirements": [
+        "traderRequirements": [
             {
                 "id": "61e6e60c5ca3b3783662be27-579dc571d53a0658a154fbec",
                 "trader_id": "579dc571d53a0658a154fbec",
                 "name": "Fence",
+                "requirementType": "reputation",
+                "compareMethod": "<=",
+                "value": -3,
                 "level": -3
             }
         ],
@@ -333,6 +357,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
@@ -353,7 +386,7 @@
                 ]
             }
         ],
-        "traderLevelRequirements": [],
+        "traderRequirements": [],
         "objectives": [
             {
                 "id": "63a7d53904d3dc28a52a2100",
@@ -434,6 +467,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 10400,
         "tarkovDataId": null,
         "factionName": "Any"
@@ -454,12 +496,15 @@
                 ]
             }
         ],
-        "traderLevelRequirements": [
+        "traderRequirements": [
             {
                 "id": "626148251ed3bb5bcc5bd9ed-638f541a29ffd1183d187f57",
                 "trader_id": "638f541a29ffd1183d187f57",
                 "name": "Lightkeeper",
-                "level": -1
+                "requirementType": "level",
+                "compareMethod": "<",
+                "value": 0,
+                "level": 0
             }
         ],
         "objectives": [
@@ -498,6 +543,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
@@ -518,7 +572,7 @@
                 ]
             }
         ],
-        "traderLevelRequirements": [],
+        "traderRequirements": [],
         "objectives": [
             {
                 "id": "62616b17e7578c305945c9c9",
@@ -555,6 +609,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
@@ -575,10 +638,10 @@
                 ]
             }
         ],
-        "traderLevelRequirements": [],
+        "traderRequirements": [],
         "objectives": [
             {
-                "id": "63ca9ffa9ca47f0e03035bab",
+                "id": "62668b98ddc94657c21a1628",
                 "type": "plantItem",
                 "optional": false,
                 "locationNames": [
@@ -596,7 +659,7 @@
                 "foundInRaid": false
             },
             {
-                "id": "63caa01f36708dc7f80c138b",
+                "id": "62668ba11ed3bb5bcc5bd9ef",
                 "type": "plantItem",
                 "optional": false,
                 "locationNames": [
@@ -614,7 +677,7 @@
                 "foundInRaid": false
             },
             {
-                "id": "63caa0367b2aee263d0f018c",
+                "id": "62668ba4aa168e51321d69e0",
                 "type": "plantItem",
                 "optional": false,
                 "locationNames": [
@@ -632,7 +695,7 @@
                 "foundInRaid": false
             },
             {
-                "id": "63caa0439ca47f0e03035bac",
+                "id": "62668ba9a4eb80027c4f2e16",
                 "type": "plantItem",
                 "optional": false,
                 "locationNames": [
@@ -670,6 +733,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
@@ -690,7 +762,7 @@
                 ]
             }
         ],
-        "traderLevelRequirements": [],
+        "traderRequirements": [],
         "objectives": [
             {
                 "id": "626171a0f7308432be1d44cd",
@@ -736,6 +808,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
@@ -756,7 +837,7 @@
                 ]
             }
         ],
-        "traderLevelRequirements": [],
+        "traderRequirements": [],
         "objectives": [
             {
                 "id": "6391d9ba4b15ca31f76bc325",
@@ -834,6 +915,15 @@
             "skillLevelReward": [],
             "traderUnlock": []
         },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"

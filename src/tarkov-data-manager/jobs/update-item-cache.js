@@ -4,7 +4,7 @@ const dataMaps = require('../modules/data-map');
 const remoteData = require('../modules/remote-data');
 const { query } = require('../modules/db-connection');
 const tarkovData = require('../modules/tarkov-data');
-const {dashToCamelCase} = require('../modules/string-functions');
+const {dashToCamelCase, camelCaseToTitleCase} = require('../modules/string-functions');
 const { setItemPropertiesOptions, getSpecialItemProperties } = require('../modules/get-item-properties');
 const { initPresetSize, getPresetSize } = require('../modules/preset-size');
 const normalizeName = require('../modules/normalize-name');
@@ -233,6 +233,7 @@ class UpdateItemCacheJob extends DataJob {
                     recoilVertical: preset.verticalRecoil,
                     recoilHorizontal: preset.horizontalRecoil,
                     moa: preset.moa,
+                    default: preset.default,
                 };
                 if ((itemData[preset.baseId]?.types.includes('noFlea') || itemData[preset.baseId]?.types.includes('no-flea')) && !itemData[key].types.includes('noFlea')) {
                     itemData[key].types.push('noFlea');
@@ -316,9 +317,16 @@ class UpdateItemCacheJob extends DataJob {
                 }
                 let currency = trader.currency;
                 let priceRUB = Math.floor(this.getTraderMultiplier(trader.id) * itemData[key].basePrice);
-                const priceCUR = Math.round(priceRUB / currenciesNow[currency]);
-                if (priceCUR === 0) {
-                    priceRUB = 0;
+                let priceCUR = priceRUB;
+                if (currency !== 'RUB') {
+                    // for if we ever switch the price field to a float
+                    //priceCUR = Math.round((priceRUB / currenciesNow[currency]) * 100) / 100;
+                    priceCUR = priceRUB / currenciesNow[currency];
+                    if (priceCUR > 0) {
+                        priceCUR = Math.round(priceCUR);
+                    } else {
+                        priceCUR = 0;
+                    }
                 }
                 itemData[key].traderPrices.push({
                     name: trader.name,
@@ -481,17 +489,25 @@ class UpdateItemCacheJob extends DataJob {
     }
 
     addCategory(id) {
-        if (!id || this.bsgCategories[id]) return;
+        if (!id || this.bsgCategories[id]) {
+            return;
+        }
         this.bsgCategories[id] = {
             id: id,
             parent_id: this.bsgItems[id]._parent,
             child_ids: [],
             locale: getTranslations({
-                name: lang => {
+                name: (lang, langCode) => {
                     if (lang[`${id} Name`]) {
                         return lang[`${id} Name`];
                     } else {
-                        return this.bsgItems[id]._name;
+                        if (langCode === 'en') {
+                            this.logger.warn(`${id} ${this.bsgItems[id]._name} category mising translation`);
+                        }
+                        if (langCode !== 'en' && this.locales.en[`${id} Name`]) {
+                            return this.locales.en[`${id} Name`];
+                        }
+                        return camelCaseToTitleCase(this.bsgItems[id]._name);
                     }
                 }
             }, this.logger)
@@ -503,7 +519,9 @@ class UpdateItemCacheJob extends DataJob {
     }
 
     addHandbookCategory(id) {
-        if (!id || this.handbookCategories[id]) return;
+        if (!id || this.handbookCategories[id]) {
+            return;
+        }
         this.handbookCategories[id] = {
             id: id,
             name: this.locales.en[id],

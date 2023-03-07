@@ -13,12 +13,13 @@ class UpdateNewItemsJob extends DataJob {
     }
 
     run = async () => {
-        const currentItems = await remoteData.get();
+        const [currentItems, bsgData, en] = await Promise.all([
+            remoteData.get(),
+            tarkovData.items(),
+            tarkovData.locale('en'),
+        ]);
 
-        const bsgData = await tarkovData.items();
-        const en = await tarkovData.locale('en');
-
-        this.logger.log('Updating game data');
+        this.logger.log('Checking for new items');
 
         const items = Object.values(bsgData).filter((bsgObject) => {
             if(!bsgObject._props){
@@ -78,10 +79,13 @@ class UpdateNewItemsJob extends DataJob {
             return true;
         });
 
+        const foundItems = [];
+
         const doNotUse = /DO[ _]NOT[ _]USE|translation_pending/;
         for (const item of items) {
             // Skip existing items to speed things up
             if (currentItems.has(item._id)){
+                foundItems.push(item._id);
                 continue;
             }
 
@@ -122,20 +126,20 @@ class UpdateNewItemsJob extends DataJob {
             }
         }
 
-        for (const itemId in currentItems.keys()){
-            if (items.find(bsgItem => bsgItem._id === itemId)){
-                continue;
-            }
-            if (currentItems.get(itemId).types.includes('disabled')) {
+        for (const itemId of currentItems.keys()){
+            if (bsgData[itemId]) {
                 continue;
             }
             if (currentItems.get(itemId).types.includes('preset')) {
                 continue;
             }
+            /*if (currentItems.get(itemId).types.includes('disabled')) {
+                continue;
+            }*/
             this.logger.warn(`${currentItems.get(itemId).name} (${currentItems.get(itemId).id}) is no longer available in the game`);
         }
 
-        this.logger.succeed('Game data update complete');
+        this.logger.succeed('New item check complete');
     }
 }
 

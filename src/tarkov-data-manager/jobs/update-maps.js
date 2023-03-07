@@ -77,17 +77,29 @@ class UpdateMapsJob extends DataJob {
                     continue;
                 }
                 const locationCount = {};
-                const locations = spawn.BossZone.split(',').map(zone => {
+                const spawnKeys = spawn.BossZone.split(',');
+                const locations = spawnKeys.map(zone => {
                     let locationName = zone.replace(/Zone_?/, '').replace(/Bot/, '');
                     if (!locationName) locationName = 'Anywhere';
-                    if (typeof locationCount[locationName] === 'undefined') locationCount[locationName] = 0;
-                    locationCount[locationName]++;
+                    if (typeof locationCount[locationName] === 'undefined') locationCount[locationName] = {key: zone, count: 0};
+                    locationCount[locationName].count++;
                     return locationName;
                 });
                 for (const locationName in locationCount) {
                     bossData.spawnLocations.push({
                         name: locationName,
-                        chance: Math.round((locationCount[locationName] / locations.length) * 100) / 100
+                        chance: Math.round((locationCount[locationName].count / locations.length) * 100) / 100,
+                        spawnKey: locationCount[locationName].key,
+                        locale: getTranslations({name: (lang, langCode) => {
+                            if (lang[locationCount[locationName].key]) {
+                                return lang[locationCount[locationName].key];
+                            }
+                            if (langCode !== 'en' && this.locales.en[locationCount[locationName].key]) {
+                                return this.locales.en[locationCount[locationName].key];
+                            }
+                            this.logger.warn(`No translation found for spawn location ${locationCount[locationName].key}`);
+                            return locationName;
+                        }}, this.logger),
                     });
                 }
                 if (spawn.BossEscortAmount !== '0') {
@@ -212,9 +224,6 @@ class UpdateMapsJob extends DataJob {
         if (lang[enemy]) {
             return lang[enemy];
         }
-        if (this.locales.en[enemy]) {
-            return this.locales.en[enemy];
-        }
         if (enemy.includes('follower')) {
             const nameParts = [];
             const guardTypePattern = /Assault|Security|Scout/;
@@ -223,9 +232,17 @@ class UpdateMapsJob extends DataJob {
             nameParts.push(this.getEnemyName('guard', lang));
             const guardTypeMatch = enemy.match(guardTypePattern);
             if (guardTypeMatch) {
-                nameParts.push(guardTypeMatch[0]);
+                console.log(`follower${guardTypeMatch[0]}`);
+                if (lang[`follower${guardTypeMatch[0]}`]) {
+                    nameParts.push(`(${lang[`follower${guardTypeMatch[0]}`]})`);
+                } else {
+                    nameParts.push(`(${guardTypeMatch[0]})`);
+                }
             }
             return nameParts.join(' ')
+        }
+        if (this.locales.en[enemy]) {
+            return this.locales.en[enemy];
         }
         return enemy.replace('boss', '');
     }
@@ -323,8 +340,11 @@ class UpdateMapsJob extends DataJob {
         }
         if (!this.bossLoadouts[bossKey]) {
             this.bossLoadouts[bossKey] = await tarkovData.botInfo(bossKey, true).catch(error => {
-                this.logger.error(`Error getting ${bossKey} boss info: ${error.messsage}`);
-                //return false;
+                this.logger.error(`Error getting ${bossKey} boss info: ${error.message}`);
+                return tarkovData.botInfo(bossKey, false).catch(err => {
+                    this.logger.error`Error reading local ${bossKey} boss info: ${err.messsage}`;
+                    return false;
+                });
             });
             /*if (!this.bossLoadouts[bossKey]) {
                 return undefined;
