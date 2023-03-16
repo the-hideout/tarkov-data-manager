@@ -9,6 +9,7 @@ permissions:
   pull-requests: write
   deployments: write
   contents: write
+  checks: read
 
 jobs:
   deploy:
@@ -17,15 +18,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: github/branch-deploy@e0b8fec9f3b1c48ea3dddeedca59af02e4d69a53 # pin@v4.3.0
+      - uses: github/branch-deploy@v5.1.0
         id: branch-deploy
         with:
           admins: the-hideout/core-contributors
           admins_pat: ${{ secrets.BRANCH_DEPLOY_ADMINS_PAT }}
+          environment_targets: production
 
-      - name: Checkout
+      - name: checkout
         if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
-        uses: actions/checkout@v3 # pin@v3+
+        uses: actions/checkout@v3.3.0
         with:
           ref: ${{ steps.branch-deploy.outputs.ref }}
 
