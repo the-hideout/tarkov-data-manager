@@ -336,6 +336,7 @@ const getItemProperties = async (item) => {
             recoilDispersion: item._props.RecolDispersion,
             cameraRecoil: item._props.CameraRecoil,
             cameraSnap: item._props.CameraSnap,
+            convergence: item._props.Convergence,
             allowedAmmo: item._props.Chambers[0]?._props.filters[0].Filter.filter(id => {
                 return itemIds.includes(id) && !disabledItemIds.includes(id);
             }) || [],
