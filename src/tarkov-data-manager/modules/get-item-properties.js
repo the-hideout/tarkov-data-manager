@@ -334,6 +334,7 @@ const getItemProperties = async (item) => {
             deviationCurve: item._props.DeviationCurve,
             deviationMax: item._props.DeviationMax,
             recoilDispersion: item._props.RecolDispersion,
+            recoilAngle: item._props.RecoilAngle,
             cameraRecoil: item._props.CameraRecoil,
             cameraSnap: item._props.CameraSnap,
             convergence: item._props.Convergence,
