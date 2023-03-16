@@ -3,7 +3,7 @@ const path = require('path');
 
 const got = require('got');
 
-const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/database/';
+const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/media/branch/master/project/assets/database/';
 
 const sptLangs = {
     //'en': 'en',
@@ -27,12 +27,15 @@ const cachePath = (filename) => {
     return path.join(__dirname, '..', 'cache', filename);   
 }
 
-const downloadJson = async (fileName, path, download = false, writeFile = true) => {
+const downloadJson = async (fileName, path, download = false, writeFile = true, saveElement = false) => {
     if (download) {
-        returnValue = await got(path, {
+        let returnValue = await got(path, {
             responseType: 'json',
             resolveBodyOnly: true,
         });
+        if (saveElement) {
+            returnValue = returnValue[saveElement];
+        }
         if (writeFile) {
             fs.writeFileSync(cachePath(fileName), JSON.stringify(returnValue, null, 4));
         }
@@ -124,6 +127,9 @@ module.exports = {
             }
             return sptQuests;
         });
+    },
+    mapLoot: (mapNameId, download = true) => {
+        return downloadJson(`${mapNameId.toLowerCase()}_loot.json`, `${sptPath}locations/${mapNameId.toLowerCase()}/looseLoot.json`, download, true, 'spawnpointsForced');
     },
     botInfo: (botKey, download = true) => {
         botKey = botKey.toLowerCase();

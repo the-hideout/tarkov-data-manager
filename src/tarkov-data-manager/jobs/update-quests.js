@@ -22,13 +22,14 @@ class UpdateQuestsJob extends DataJob {
             responseType: 'json',
             resolveBodyOnly: true,
         });
-        [this.rawQuestData, this.items, this.locales, this.itemResults, this.missingQuests, this.changedQuests, this.removedQuests] = await Promise.all([
+        [this.rawQuestData, this.items, this.locations, this.locales, this.itemResults, this.missingQuests, this.changedQuests, this.removedQuests] = await Promise.all([
             tarkovData.quests(true).catch(error => {
                 this.logger.error('Error getting quests');
                 this.logger.error(error);
                 return tarkovData.quests(false);
             }),
             tarkovData.items(),
+            tarkovData.locations(),
             tarkovData.locales(),
             remoteData.get(),
             fs.readFile(path.join(__dirname, '..', 'data', 'missing_quests.json')).then(json => JSON.parse(json)),
@@ -37,6 +38,12 @@ class UpdateQuestsJob extends DataJob {
         ]);
         setLocales(this.locales);
         this.maps = await this.jobManager.jobOutput('update-maps', this);
+        this.mapLoot = {};
+        await Promise.all(this.maps.map(mapData => {
+            return tarkovData.mapLoot(mapData.nameId).then(loot => {
+                this.mapLoot[mapData.id] = loot;
+            });
+        }));
         this.hideout = await this.jobManager.jobOutput('update-hideout', this);
         const traders = await this.jobManager.jobOutput('update-traders', this);
         this.presets = await this.jobManager.jobOutput('update-presets', this, true);
@@ -245,6 +252,52 @@ class UpdateQuestsJob extends DataJob {
                     quest.taskRequirements - quest.taskRequirements.filter(req => req.task !== reqId);
                 }
             }
+
+            // add objective maps from quest items
+            for (const obj of quest.objectives) {
+                if (obj.type !== 'findQuestItem') {
+                    continue;
+                }
+                const itemInfo = this.getQuestItemLocation(obj.item_id, obj.id);
+                if (itemInfo) {
+                    for (const spawn of itemInfo) {
+                        obj.coordinates = spawn.coordiantes;
+                        if (!obj.map_ids.includes(spawn.mapId)) {
+                            obj.map_ids.push(spawn.mapId);
+                        }
+                    }
+                } else if (questItemLocations[obj.item_id]) {       
+                    const mapId = questItemLocations[obj.item_id];
+                    if (!obj.map_ids.includes(mapId)) {
+                        obj.map_ids.push(mapId);
+                    }
+                    this.logger.warn(`${quest.name} objective ${obj.id} item ${obj.item_id} has no known coordinates`);
+                } else {
+                    this.logger.warn(`${quest.name} objective ${obj.id} item ${obj.item_id} has no known spawn`);
+                }
+            }
+
+            // add objective maps from extracts
+            for (const obj of quest.objectives) {
+                if (obj.type !== 'extract' || !obj.exitName) {
+                    continue;
+                }
+                let mapId = this.getMapFromExtractName(obj.exitName) || extractMap[obj.exitName];
+                if (mapId && !obj.map_ids.includes(mapId)) {
+                    obj.map_ids.push(mapId);
+                } else if (!mapId) {
+                    this.logger.warn(`${quest.name} objective ${obj.id} has no known map for extract ${obj.exitName}`);
+                }
+            }
+    
+            // add lighthouse map if turning in items to Lightkeeper
+            if (quest.trader === '638f541a29ffd1183d187f57') {
+                for (const obj of quest.objectives) {
+                    if (obj.type.startsWith('give') && !obj.map_ids.includes('5704e4dad2720bb55b8b4567')) {
+                        obj.map_ids.push('5704e4dad2720bb55b8b4567');
+                    }
+                }
+            }
         }
 
         const ignoreMissingQuests = [
@@ -363,6 +416,39 @@ class UpdateQuestsJob extends DataJob {
         await this.cloudflarePut(quests);
         this.logger.success(`Finished processing ${quests.Task.length} quests`);
         return quests;
+    }
+
+    getQuestItemLocation = (questItemId, objectiveId) => {
+        const foundItems = [];
+        const forceMap = objectiveMap[objectiveId];
+        for (const mapId in this.mapLoot) {
+            if (forceMap && forceMap !== mapId) {
+                continue;
+            }
+            const spawns = this.mapLoot[mapId];
+            const spawn = spawns.find(lootInfo => {
+                return lootInfo.template.Items.some(lootItem => lootItem._tpl === questItemId);
+            });
+            if (spawn) {
+                foundItems.push({mapId, coordiantes: spawn.template.Position});
+                continue;
+            }
+        }
+        if (foundItems.length > 0) {
+            return foundItems;
+        }
+        return false;
+    }
+
+    getMapFromExtractName = extractName => {
+        for (const mapData of this.maps) {
+            for (const exit of this.locations.locations[mapData.id].exits) {
+                if (exit.Name === extractName) {
+                    return mapData.id;
+                }
+            }
+        }
+        return undefined;
     }
 
     getMapFromNameId = nameId => {
@@ -1056,25 +1142,6 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
         }
-        questData.objectives.forEach(obj => {
-            if (obj.type !== 'findQuestItem') {
-                return;
-            }
-            if (!obj.map_ids.length > 0) {
-                if (!questItemLocations[obj.item_id]) {
-                    this.logger.warn(`Objective ${obj.id} missing location for quest item ${obj.item_name} ${obj.item_id}`);
-                    return;
-                }
-                obj.map_ids.push(questItemLocations[obj.item_id]);
-            }
-        });
-        if (questData.trader === '638f541a29ffd1183d187f57') {
-            for (const obj of questData.objectives) {
-                if (obj.type.startsWith('give') && obj.map_ids.length === 0) {
-                    obj.map_ids.push('5704e4dad2720bb55b8b4567');
-                }
-            }
-        }
         return questData;
     }
 
@@ -1252,13 +1319,7 @@ class UpdateQuestsJob extends DataJob {
                     obj.zoneNames = [];
                 } else if (cond._parent === 'ExitName') {
                     obj.locale = addTranslations(obj.locale, {exitName: cond._props.exitName}, this.logger);
-                    if (cond._props.exitName && obj.map_ids.length === 0) {
-                        if (extractMap[cond._props.exitName]) {
-                            obj.map_ids.push(extractMap[cond._props.exitName]);
-                        } else {
-                            this.logger.warn(`No map found for extract ${cond._props.exitName}`);
-                        }
-                    }
+                    obj.exitName = cond._props.exitName;
                 } else if (cond._parent === 'Equipment') {
                     if (!obj.wearing) obj.wearing = [];
                     if (!obj.notWearing) obj.notWearing = [];
@@ -1594,31 +1655,13 @@ const zoneMap = {
     ter_017_area_1: '59fc81d786f774390775787e',
 };
 
-const questItemLocations = {
-    '5968929e86f7740d121082d3': '56f40101d2720b2a4d8b45d6', // customs
-    '6398a4cfb5992f573c6562b3': '5b0fc42d86f7744a585f9105', //labs
-    '6398a0861c712b1e1d4dadf1': '5704e4dad2720bb55b8b4567', //lighthouse
-    '6398a072e301557ae24cec92': '5704e5fad2720bc05b8b4567', // reserve
-    '5af04c0b86f774138708f78e': '5704e3c2d2720bac5b8b4567', //woods
-    '5b4c72b386f7745b453af9c0': '5704e554d2720bac5b8b456e', // shoreline
-    '5b4c72c686f77462ac37e907': '5704e554d2720bac5b8b456e',
-    '5af04e0a86f7743a532b79e2': '5704e3c2d2720bac5b8b4567',
-    '5b4c72fb86f7745cef1cffc5': '5704e554d2720bac5b8b456e',
-    '5b43237186f7742f3a4ab252': '5704e554d2720bac5b8b456e',
-    '5b4c81a086f77417d26be63f': '5714dbc024597771384a510d', // interchange
-    '5b4c81bd86f77418a75ae159': '5714dbc024597771384a510d',
-    '591092ef86f7747bb8703422': '56f40101d2720b2a4d8b45d6',
-    '5938188786f77474f723e87f': '56f40101d2720b2a4d8b45d6',
-    '6398a0861c712b1e1d4dadf1': '5704e4dad2720bb55b8b4567',
-};
+const questItemLocations = {};
 
-const extractMap = {
-    'Alpinist': '5704e5fad2720bc05b8b4567',
-    'Dorms V-Ex': '56f40101d2720b2a4d8b45d6',
-    'E7_car': '5714dc692459777137212e12',
-    'E9_sniper': '5714dc692459777137212e12',
-    'PP Exfil': '5714dbc024597771384a510d',
-    'South V-Ex': '5704e3c2d2720bac5b8b4567',
+const extractMap = {};
+
+const objectiveMap = {
+    '5a2819c886f77460ba564f38': '5704e554d2720bac5b8b456e',
+    '5979fc2686f77426d702a0f2': '56f40101d2720b2a4d8b45d6',
 };
 
 const questStatusMap = {

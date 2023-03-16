@@ -75,6 +75,9 @@ module.exports = {
     locations: (download = false) => {
         return tarkovChanges.locations(download);
     },
+    mapLoot: (mapNameId, download = false) => {
+        return spt.mapLoot(mapNameId, download);
+    },
     quests: (download = false) => {
         return spt.quests(download);
     },

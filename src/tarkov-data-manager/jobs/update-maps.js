@@ -181,6 +181,17 @@ class UpdateMapsJob extends DataJob {
             this.logger.log(`✔️ ${mapData.name} ${id}`);
         }
 
+        await Promise.allSettled(maps.Map.map(mapData => {
+            return tarkovData.mapLoot(mapData.nameId, true);
+        })).then(results => {
+            results.forEach(result => {
+                if (result.status === 'fulfilled') {
+                    return;
+                }
+                this.logger.error(`Error downloading map loot: ${result.reason}`);
+            });
+        });
+
         //const queueTimes = await mapQueueTimes(maps.data, this.logger);
         maps.Map = maps.Map.sort((a, b) => a.name.localeCompare(b.name)).map(map => {
             return {
@@ -232,7 +243,6 @@ class UpdateMapsJob extends DataJob {
             nameParts.push(this.getEnemyName('guard', lang));
             const guardTypeMatch = enemy.match(guardTypePattern);
             if (guardTypeMatch) {
-                console.log(`follower${guardTypeMatch[0]}`);
                 if (lang[`follower${guardTypeMatch[0]}`]) {
                     nameParts.push(`(${lang[`follower${guardTypeMatch[0]}`]})`);
                 } else {
