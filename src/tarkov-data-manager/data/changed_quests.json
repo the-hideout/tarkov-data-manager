@@ -944,6 +944,14 @@
         "name": "Crisis",
         "propertiesChanged" : {
             "minPlayerLevel": 48
+        },
+        "objectivesChanged": {
+            "60e866175d67b234af3d392a": {
+                "count": 3
+            },
+            "60e867265d67b234af3d392c": {
+                "count": 3
+            }
         }
     },
     "5eaaaa7c93afa0558f3b5a1c": {
@@ -1114,6 +1122,11 @@
         "name": "Swift One",
         "propertiesChanged": {
             "minPlayerLevel": 50
+        },
+        "objectivesChanged": {
+            "60e729cf5698ee7b0505743c": {
+                "count": 15
+            }
         }
     },
     "5f04886a3937dc337a6b8238": {
@@ -1224,6 +1237,14 @@
                     "compareMethod": ">=",
                     "value": 350
                 }
+            }
+        }
+    },
+    "600302d73b897b11364cd161": {
+        "name": "Hunter",
+        "objectivesChanged": {
+            "600303250b79c6604058ce30": {
+                "count": 20
             }
         }
     }
