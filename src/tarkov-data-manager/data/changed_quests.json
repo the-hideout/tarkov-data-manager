@@ -1141,5 +1141,90 @@
                 }
             ]
         }
+    },
+    "5edac34d0bb72a50635c2bfa": {
+        "name": "Colleagues - Part 3",
+        "objectivesRemoved": [
+            "5f0702c3d9d49120185e6323",
+            "5f04944b69ef785df740a8c9"
+        ],
+        "objectivesChanged": {
+            "5f07025e27cec53d5d24fe25": {
+                "item_id": "5c94bbff86f7747ee735c08f",
+                "item_name": "TerraGroup Labs access keycard",
+                "count": 10,
+                "item": "5c94bbff86f7747ee735c08f"
+            },
+            "5f04935cde3b9e0ecf03d864": {
+                "item_id": "5c94bbff86f7747ee735c08f",
+                "item_name": "TerraGroup Labs access keycard",
+                "count": 10,
+                "item": "5c94bbff86f7747ee735c08f"
+            }
+        },
+        "finishRewardsChanged": {
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 150000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5ed515e03a40a50460332579",
+                    "item_name": "L1 (Norepinephrine) injector",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5ed5160a87bb8443d10680b5",
+                    "item_name": "Meldonin injector",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "637b60c3b7afa97bfc3d7001",
+                    "item_name": "Obdolbos 2",
+                    "count": 5,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "590c657e86f77412b013051d",
+                    "item_name": "Grizzly medical kit",
+                    "count": 4,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5c1d0f4986f7744bb01837fa",
+                    "item_name": "TerraGroup Labs keycard (Black)",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5aafbcd986f7745e590fff23",
+                    "item_name": "Medicine case",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "6396701b9113f06a7c3b2379": {
+        "name": "Make an Impression",
+        "objectivesChanged": {
+            "6397ac912e519e69d2139b26": {
+                "distance": {
+                    "compareMethod": ">=",
+                    "value": 350
+                }
+            }
+        }
     }
 }
