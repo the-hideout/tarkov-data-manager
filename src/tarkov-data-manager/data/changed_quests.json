@@ -1004,7 +1004,7 @@
     "60e71bb4e456d449cd47ca75": {
         "name": "Intimidator",
         "propertiesChanged" : {
-            "minPlayerLevel": 60
+            "minPlayerLevel": 45
         }
     },
     "639282134ed9512be67647ed": {
@@ -1109,5 +1109,23 @@
                 }
             ]
         }
+    },
+    "60e729cf5698ee7b05057439": {
+        "name": "Swift One",
+        "propertiesChanged": {
+            "minPlayerLevel": 50
+        }
+    },
+    "5f04886a3937dc337a6b8238": {
+        "name": "Chemistry Closet",
+        "taskRequirementsAdded": [
+            {
+                "task": "5eda19f0edce541157209cee",
+                "name": "Anesthesia",
+                "status": [
+                    "complete"
+                ]
+            }
+        ]
     }
 }
