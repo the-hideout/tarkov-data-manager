@@ -1127,5 +1127,19 @@
                 ]
             }
         ]
+    },
+    "596b455186f77457cb50eccb": {
+        "name": "Stirrup",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "596b36c586f77450d6045ad2",
+                    "name": "Supplier",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
     }
 }
