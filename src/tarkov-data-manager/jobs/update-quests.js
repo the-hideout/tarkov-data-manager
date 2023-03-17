@@ -1149,6 +1149,8 @@ class UpdateQuestsJob extends DataJob {
                     obj.usingWeaponMods = [];
                     obj.zoneNames = [];
                     obj.distance = null;
+                    obj.timeFromHour = null;
+                    obj.timeUntilHour = null;
                     if (!obj.wearing) obj.wearing = [];
                     if (!obj.notWearing) obj.notWearing = [];
                     if (!obj.healthEffect) obj.healthEffect = null;
@@ -1215,6 +1217,10 @@ class UpdateQuestsJob extends DataJob {
                     let targetCode = cond._props.target;
                     if (cond._props.savageRole) {
                         targetCode = cond._props.savageRole[0];
+                    }
+                    if (cond._props.daytime) {
+                        obj.timeFromHour = cond._props.daytime.from;
+                        obj.timeUntilHour = cond._props.daytime.to;
                     }
                     obj.locale = addTranslations(obj.locale, {target: lang => {
                         if (targetCode == 'followerBully') {
