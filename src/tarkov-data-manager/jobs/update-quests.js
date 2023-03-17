@@ -1019,6 +1019,11 @@ class UpdateQuestsJob extends DataJob {
                 //this.logger.warn(JSON.stringify(this.changedQuests[questData.id].finishRewardsChanged), null, 4);
                 for (const rewardType in this.changedQuests[questData.id].finishRewardsChanged) {
                     questData.finishRewards[rewardType] = this.changedQuests[questData.id].finishRewardsChanged[rewardType];
+                    if (rewardType === 'skillLevelReward') {
+                        for (const reward of questData.finishRewards[rewardType]) {
+                            reward.locale = getTranslations({name: reward.name}, this.logger);
+                        }
+                    }
                 }
             }
         }

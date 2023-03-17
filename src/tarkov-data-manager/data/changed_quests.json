@@ -896,6 +896,11 @@
         "propertiesChanged": {
             "location_id": "5704e3c2d2720bac5b8b4567",
             "locationName": "Woods"
+        },
+        "objectivesChanged": {
+            "639914b61c712b1e1d4dafcb": {
+                "count": 15
+            }
         }
     },
     "6396700fea19ac7ed845db32": {
@@ -952,6 +957,45 @@
             "60e867265d67b234af3d392c": {
                 "count": 3
             }
+        },
+        "finishRewardsChanged": {
+            "items": [
+                {
+                    "item": "60098ad7c2240c0fe85c570a",
+                    "item_name": "AFAK tactical individual first aid kit",
+                    "count": 5,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5fca13ca637ee0341a484f46",
+                    "item_name": "SJ9 TGLabs combat stimulant injector",
+                    "count": 5,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5aafbcd986f7745e590fff23",
+                    "item_name": "Medicine case",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "skillLevelReward": [
+                {
+                    "name": "Immunity",
+                    "level": 2
+                },
+                {
+                    "name": "Vitality",
+                    "level": 2
+                },
+                {
+                    "name": "Surgery",
+                    "level": 2
+                }
+            ]
         }
     },
     "5eaaaa7c93afa0558f3b5a1c": {
@@ -1245,6 +1289,67 @@
         "objectivesChanged": {
             "600303250b79c6604058ce30": {
                 "count": 20
+            }
+        }
+    },
+    "63966ff54c3ef01b6f3ffad8": {
+        "name": "Provocation",
+        "objectivesChanged": {
+            "639a76e3e4aa7349085cb6e3": {
+                "count": 20
+            }
+        },
+        "finishRewardsChanged": {
+            "items": [
+                {
+                    "item": "619bddffc9546643a67df6f0",
+                    "item_name": "Train Hard armband",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5fc382a9d724d907e2077dab",
+                    "item_name": ".338 Lapua Magnum AP",
+                    "count": 40,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "601aa3d2b2bcb34913271e6d",
+                    "item_name": "7.62x39mm MAI AP",
+                    "count": 100,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "60e71c9ad54b755a3b53eb66": {
+        "name": "The Cleaner",
+        "objectivesChanged": {
+            "60e745d6479eef59b01b0bdc": {
+                "count": 40
+            }
+        },
+        "finishRewardsChanged": {
+            "skillLevelReward": [
+                {
+                    "name": "SMG",
+                    "level": 2
+                },
+                {
+                    "name": "AssaultRifle",
+                    "level": 2
+                }
+            ]
+        }
+    },
+    "63966fd9ea19ac7ed845db30": {
+        "name": "Payback",
+        "objectivesChanged": {
+            "6397ae672e519e69d2139b28": {
+                "count": 6
             }
         }
     }
