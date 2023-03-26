@@ -150,13 +150,6 @@
                 ]
             },
             {
-                "task": "60e71b9bbd90872cb85440f3",
-                "name": "Capturing Outposts",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
                 "task": "6089743983426423753cd58a",
                 "name": "Safe Corridor",
                 "status": [
@@ -575,8 +568,8 @@
         "propertiesChanged" : {
             "taskRequirements": [
                 {
-                    "task": "5d25e2b486f77409de05bba0",
-                    "name": "The Huntsman Path - Secured Perimeter",
+                    "task": "5d25e2cc86f77443e47ae019",
+                    "name": "The Huntsman Path - Forest Cleaning",
                     "status": [
                         "complete"
                     ]
