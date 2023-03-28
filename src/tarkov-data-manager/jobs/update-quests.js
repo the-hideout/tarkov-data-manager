@@ -260,8 +260,9 @@ class UpdateQuestsJob extends DataJob {
                 }
                 const itemInfo = this.getQuestItemLocations(obj.item_id, obj.id);
                 if (itemInfo) {
+                    obj.itemLocations = [];
                     for (const spawn of itemInfo) {
-                        obj.coordinates = spawn.coordiantes;
+                        obj.itemLocations.push(spawn);
                         if (!obj.map_ids.includes(spawn.mapId)) {
                             obj.map_ids.push(spawn.mapId);
                         }
@@ -431,10 +432,9 @@ class UpdateQuestsJob extends DataJob {
                     allSpawns.push(lootInfo.template.Position);
                 }
                 return allSpawns;
-                return lootInfo.template.Items.some(lootItem => lootItem._tpl === questItemId);
             }, []);
             if (spawns.length > 0) {
-                foundItems.push({mapId, coordiantes: spawns});
+                foundItems.push({mapId, coordinates: spawns});
                 continue;
             }
         }
