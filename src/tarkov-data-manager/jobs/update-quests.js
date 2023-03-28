@@ -258,7 +258,7 @@ class UpdateQuestsJob extends DataJob {
                 if (obj.type !== 'findQuestItem') {
                     continue;
                 }
-                const itemInfo = this.getQuestItemLocation(obj.item_id, obj.id);
+                const itemInfo = this.getQuestItemLocations(obj.item_id, obj.id);
                 if (itemInfo) {
                     for (const spawn of itemInfo) {
                         obj.coordinates = spawn.coordiantes;
@@ -418,19 +418,23 @@ class UpdateQuestsJob extends DataJob {
         return quests;
     }
 
-    getQuestItemLocation = (questItemId, objectiveId) => {
+    getQuestItemLocations = (questItemId, objectiveId) => {
         const foundItems = [];
         const forceMap = objectiveMap[objectiveId];
         for (const mapId in this.mapLoot) {
             if (forceMap && forceMap !== mapId) {
                 continue;
             }
-            const spawns = this.mapLoot[mapId];
-            const spawn = spawns.find(lootInfo => {
+            const mapSpawns = this.mapLoot[mapId];
+            const spawns = mapSpawns.reduce((allSpawns, lootInfo) => {
+                if (lootInfo.template.Items.some(lootItem => lootItem._tpl === questItemId)) {
+                    allSpawns.push(lootInfo.template.Position);
+                }
+                return allSpawns;
                 return lootInfo.template.Items.some(lootItem => lootItem._tpl === questItemId);
-            });
-            if (spawn) {
-                foundItems.push({mapId, coordiantes: spawn.template.Position});
+            }, []);
+            if (spawns.length > 0) {
+                foundItems.push({mapId, coordiantes: spawns});
                 continue;
             }
         }
