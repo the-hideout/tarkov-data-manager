@@ -37,7 +37,7 @@ jobs:
         run: terraform apply -auto-approve
 
       - name: SSH Remote Deploy
-        uses: appleboy/ssh-action@d91a1af6f57cd4478ceee14d7705601dafabaa19 # pin@v0.1.6
+        uses: appleboy/ssh-action@b60142998894e495c513803efc6d5d72a72c968a # pin@v0.1.6
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
