@@ -59,15 +59,14 @@ class UpdateTradersJob extends DataJob {
                         minimumReputation: parseInt(minRepLevel),
                         scavCooldownModifier: lvl.SavageCooldownModifier,
                         scavCaseTimeModifier: lvl.ScavCaseTimeModifier,
-                        paidExitCostModifier: lvl.PaidExitCostModifier,
-                        exfilPriceModifier: lvl.ExfiltrationPriceModifier,
+                        extractPriceModifier: lvl.ExfiltrationPriceModifier,
                         scavFollowChance: lvl.BotFollowChance / 100,
                         scavEquipmentSpawnChanceModifier: lvl.ScavEquipmentSpawnChanceModifier,
                         priceModifier: lvl.PriceModifier,
                         hostileBosses: lvl.HostileBosses,
                         hostileScavs: lvl.HostileScavs,
                         scavAttackSupport: lvl.ScavAttackSupport,
-                        availableScavExits: lvl.AvailableExits,
+                        availableScavExtracts: lvl.AvailableExits,
                     });
                 }
                 traderData.reputationLevels.sort((a, b) => {

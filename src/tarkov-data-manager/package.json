@@ -34,7 +34,6 @@
     "form-data": "^4.0.0",
     "formidable": "^2.1.1",
     "got": "^11.8.5",
-    "json-diff": "^1.0.0",
     "moment": "^2.29.4",
     "mysql2": "^3.0.1",
     "node-schedule": "^2.1.0",
