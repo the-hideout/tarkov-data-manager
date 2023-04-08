@@ -14,9 +14,10 @@ class UpdateTradersJob extends DataJob {
 
     async run() {
         this.logger.log('Loading trader data, locales, TarkovData traders.json...');
-        const [tradersData, locales, tdTraders] = await Promise.all([
+        const [tradersData, locales, globals, tdTraders] = await Promise.all([
             tarkovData.traders(),
             tarkovData.locales(),
+            tarkovData.globals(),
             got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
                 responseType: 'json',
                 resolveBodyOnly: true,
@@ -40,6 +41,7 @@ class UpdateTradersJob extends DataJob {
                 resetTime: date,
                 discount: parseInt(trader.discount) / 100,
                 levels: [],
+                reputationLevels: [],
                 locale: getTranslations({
                     name: `${trader._id} Nickname`,
                     description: `${trader._id} Description`,
@@ -49,6 +51,28 @@ class UpdateTradersJob extends DataJob {
                 imageLink: `https://${process.env.S3_BUCKET}/unknown-trader.webp`,
                 image4xLink: `https://${process.env.S3_BUCKET}/unknown-trader-4x.webp`,
             };
+            if (traderData.id === globals.config.FenceSettings.FenceId) {
+                for (const minRepLevel in globals.config.FenceSettings.Levels) {
+                    const lvl = globals.config.FenceSettings.Levels[minRepLevel];
+                    traderData.reputationLevels.push({
+                        __typename: 'TraderReputationLevelFence',
+                        minimumReputation: parseInt(minRepLevel),
+                        scavCooldownModifier: lvl.SavageCooldownModifier,
+                        scavCaseTimeModifier: lvl.ScavCaseTimeModifier,
+                        extractPriceModifier: lvl.ExfiltrationPriceModifier,
+                        scavFollowChance: lvl.BotFollowChance / 100,
+                        scavEquipmentSpawnChanceModifier: lvl.ScavEquipmentSpawnChanceModifier,
+                        priceModifier: lvl.PriceModifier,
+                        hostileBosses: lvl.HostileBosses,
+                        hostileScavs: lvl.HostileScavs,
+                        scavAttackSupport: lvl.ScavAttackSupport,
+                        availableScavExtracts: lvl.AvailableExits,
+                    });
+                }
+                traderData.reputationLevels.sort((a, b) => {
+                    return a.minimumReputation - b.minimumReputation;
+                });
+            }
             if (s3Images.includes(`${traderData.id}.webp`)) {
                 traderData.imageLink = `https://${process.env.S3_BUCKET}/${traderData.id}.webp`;
             }
