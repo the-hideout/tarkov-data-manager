@@ -480,9 +480,6 @@ const getItemProperties = async (item) => {
             units: item._props.MaxResource,
         }
     }
-    if (properties) {
-        properties.__typename = properties.propertiesType;
-    }
     return properties;
 };
 
