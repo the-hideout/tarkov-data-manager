@@ -1,5 +1,3 @@
-const roundTo = require('round-to');
-
 const dataMaps = require('../modules/data-map');
 const remoteData = require('../modules/remote-data');
 const { query } = require('../modules/db-connection');
@@ -158,7 +156,7 @@ class UpdateItemCacheJob extends DataJob {
                 } else {
                     itemData[key].changeLast48h = Math.round(itemData[key].avg24hPrice - itemPriceYesterday.priceYesterday);
                     const percentOfDayBefore = itemData[key].avg24hPrice / itemPriceYesterday.priceYesterday;
-                    itemData[key].changeLast48hPercent = roundTo((percentOfDayBefore - 1) * 100, 2);
+                    itemData[key].changeLast48hPercent = Math.round((percentOfDayBefore - 1) * 100 * 100) / 100;
                 }
 
                 if (!itemData[key].lastLowPrice) {
