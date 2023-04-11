@@ -41,7 +41,7 @@
     "object-path": "^0.11.8",
     "parse-duration": "^1.0.2",
     "sharp": "0.31.0",
-    "tarkov-dev-image-generator": "^2.1.18",
+    "tarkov-dev-image-generator": "^2.1.19",
     "unidecode": "^0.1.8"
   }
 }
