@@ -569,7 +569,7 @@ class UpdateItemCacheJob extends DataJob {
         const currencyId = dataMaps.currencyIsoId;
 
         for (const trader of this.traderData) {
-            if (trader.items_buy_prohibited.id_list.includes(item.id)) {
+            if (trader.items_buy_prohibited.id_list.includes(item.id) || dataMaps.sellToTrader[trader.name]?.prohibitedAdded?.ids.includes(item.id)) {
                 continue;
             }
             if (trader.items_buy_prohibited.category.some(bannedCatId => item.categories.includes(bannedCatId))) {
