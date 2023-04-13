@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const normalizeName = require('../modules/normalize-name');
-const { initPresetSize, getPresetSize } = require('../modules/preset-size');
+const { initPresetData, getPresetData } = require('../modules/preset-data');
 const tarkovData = require('../modules/tarkov-data');
 const { getTranslations, setLocales } = require('../modules/get-translation');
 const remoteData = require('../modules/remote-data');
@@ -27,7 +27,7 @@ class UpdatePresetsJob extends DataJob {
 
         setLocales(locales);
 
-        initPresetSize(items, credits);
+        initPresetData(items, credits);
 
         const manualPresets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'manual_presets.json')));
 
@@ -111,16 +111,16 @@ class UpdatePresetsJob extends DataJob {
                 presetData.default = false;
             }
             presetData.normalized_name = normalizeName(presetData.name);
-            let itemPresetSize = await getPresetSize(presetData, this.logger);
-            if (itemPresetSize) {
-                presetData.width = itemPresetSize.width;
-                presetData.height = itemPresetSize.height;
-                presetData.weight = itemPresetSize.weight;
-                presetData.baseValue = itemPresetSize.baseValue;//credits[baseItem._id];
-                presetData.ergonomics = itemPresetSize.ergonomics;
-                presetData.verticalRecoil = itemPresetSize.verticalRecoil;
-                presetData.horizontalRecoil = itemPresetSize.horizontalRecoil;
-                presetData.moa = itemPresetSize.moa;
+            let itemPresetData = await getPresetData(presetData, this.logger);
+            if (itemPresetData) {
+                presetData.width = itemPresetData.width;
+                presetData.height = itemPresetData.height;
+                presetData.weight = itemPresetData.weight;
+                presetData.baseValue = itemPresetData.baseValue;//credits[baseItem._id];
+                presetData.ergonomics = itemPresetData.ergonomics;
+                presetData.verticalRecoil = itemPresetData.verticalRecoil;
+                presetData.horizontalRecoil = itemPresetData.horizontalRecoil;
+                presetData.moa = itemPresetData.moa;
             }
             presetsData[presetId] = presetData;
             if (presetData.default && !defaults[firstItem.id]) {
@@ -138,15 +138,15 @@ class UpdatePresetsJob extends DataJob {
             presetData.bsgCategoryId = baseItem._parent;
             presetData.types = ['preset'];
 
-            let itemPresetSize = await getPresetSize(presetData, this.logger);
-            if (itemPresetSize) {
-                presetData.width = itemPresetSize.width;
-                presetData.height = itemPresetSize.height;
-                presetData.weight = itemPresetSize.weight;
-                presetData.baseValue = itemPresetSize.baseValue;
-                presetData.ergonomics = itemPresetSize.ergonomics;
-                presetData.verticalRecoil = itemPresetSize.verticalRecoil;
-                presetData.horizontalRecoil = itemPresetSize.horizontalRecoil;
+            let itemPresetData = await getPresetData(presetData, this.logger);
+            if (itemPresetData) {
+                presetData.width = itemPresetData.width;
+                presetData.height = itemPresetData.height;
+                presetData.weight = itemPresetData.weight;
+                presetData.baseValue = itemPresetData.baseValue;
+                presetData.ergonomics = itemPresetData.ergonomics;
+                presetData.verticalRecoil = itemPresetData.verticalRecoil;
+                presetData.horizontalRecoil = itemPresetData.horizontalRecoil;
             } else {
                 presetData.width = baseItem._props.Width;
                 presetData.height = baseItem._props.Height;

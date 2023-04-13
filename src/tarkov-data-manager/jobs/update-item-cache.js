@@ -4,7 +4,7 @@ const { query } = require('../modules/db-connection');
 const tarkovData = require('../modules/tarkov-data');
 const {dashToCamelCase, camelCaseToTitleCase} = require('../modules/string-functions');
 const { setItemPropertiesOptions, getSpecialItemProperties } = require('../modules/get-item-properties');
-const { initPresetSize, getPresetSize } = require('../modules/preset-size');
+const { initPresetData, getPresetData } = require('../modules/preset-data');
 const normalizeName = require('../modules/normalize-name');
 const { setLocales, getTranslations } = require('../modules/get-translation');
 const DataJob = require('../modules/data-job');
@@ -93,7 +93,7 @@ class UpdateItemCacheJob extends DataJob {
         const itemTypesSet = new Set();
         this.bsgCategories = {};
         this.handbookCategories = {};
-        initPresetSize(this.bsgItems, this.credits);
+        initPresetData(this.bsgItems, this.credits);
 
         await setItemPropertiesOptions({
             job: this, 
@@ -198,13 +198,13 @@ class UpdateItemCacheJob extends DataJob {
                         }, []);
                     }
 
-                    const defaultSize = await getPresetSize(itemData[key], this.logger);
-                    itemData[key].properties.defaultWidth = defaultSize.width;
-                    itemData[key].properties.defaultHeight = defaultSize.height;
-                    itemData[key].properties.defaultErgonomics = defaultSize.ergonomics;
-                    itemData[key].properties.defaultRecoilVertical = defaultSize.verticalRecoil;
-                    itemData[key].properties.defaultRecoilHorizontal = defaultSize.horizontalRecoil;
-                    itemData[key].properties.defaultWeight = defaultSize.weight;
+                    const defaultData = await getPresetData(itemData[key], this.logger);
+                    itemData[key].properties.defaultWidth = defaultData.width;
+                    itemData[key].properties.defaultHeight = defaultData.height;
+                    itemData[key].properties.defaultErgonomics = defaultData.ergonomics;
+                    itemData[key].properties.defaultRecoilVertical = defaultData.verticalRecoil;
+                    itemData[key].properties.defaultRecoilHorizontal = defaultData.horizontalRecoil;
+                    itemData[key].properties.defaultWeight = defaultData.weight;
                 }
                 // add ammo box contents
                 if (itemData[key].bsgCategoryId === '543be5cb4bdc2deb348b4568') {
@@ -293,59 +293,38 @@ class UpdateItemCacheJob extends DataJob {
                 }
             }
 
-            // Add trader prices
-            itemData[key].traderPrices = [];
-            const currenciesNow = {
-                'RUB': 1,
-                'USD': this.credits['5696686a4bdc2da3298b456a'],
-                'EUR': this.credits['569668774bdc2da2298b4568']
-                //'USD': Math.round(this.credits['5696686a4bdc2da3298b456a'] * 1.1045104510451),
-                //'EUR': Math.round(this.credits['569668774bdc2da2298b4568'] * 1.1530984204131)
-            };
-            const currencyId = dataMaps.currencyIsoId;
-            for (const trader of this.traderData) {
-                if (trader.items_buy_prohibited.id_list.includes(key)) {
-                    continue;
-                }
-                if (trader.items_buy_prohibited.category.some(bannedCatId => itemData[key].categories.includes(bannedCatId))) {
-                    continue;
-                }
-                if (!trader.items_buy.id_list.includes(key) && !trader.items_buy.category.some(buyCatId => itemData[key].categories.includes(buyCatId))) {
-                    continue;
-                }
-                let currency = trader.currency;
-                let priceRUB = Math.floor(this.getTraderMultiplier(trader.id) * itemData[key].basePrice);
-                let priceCUR = priceRUB;
-                if (currency !== 'RUB') {
-                    // for if we ever switch the price field to a float
-                    //priceCUR = Math.round((priceRUB / currenciesNow[currency]) * 100) / 100;
-                    priceCUR = priceRUB / currenciesNow[currency];
-                    if (priceCUR > 0) {
-                        priceCUR = Math.round(priceCUR);
-                    } else {
-                        priceCUR = 0;
+            itemData[key].types.forEach(itemType => {
+                itemTypesSet.add(itemType);
+            });
+        }
+
+        // Add trader prices
+        for (const id in itemData) {
+            if (itemData[id].types.includes('preset')) {
+                itemData[id].traderPrices = itemData[id].containsItems.reduce((traderPrices, part) => {
+                    const partPrices = this.getTraderPrices(itemData[part.item]);
+                    for (const partPrice of partPrices) {
+                        const totalPrice = traderPrices.find(price => price.trader === partPrice.trader);
+                        if (totalPrice) {
+                            totalPrice.price += (partPrice.price * part.count);
+                            totalPrice.priceRUB += (partPrice.priceRUB * part.count);
+                            continue;
+                        }
+                        traderPrices.push(partPrice);
                     }
-                }
-                itemData[key].traderPrices.push({
-                    name: trader.name,
-                    price: priceCUR,
-                    currency: currency,
-                    currencyItem: currencyId[currency],
-                    priceRUB: priceRUB,
-                    trader: trader.id
-                });
+                    return traderPrices;
+                }, []);
+            } else {
+                itemData[id].traderPrices = this.getTraderPrices(itemData[id]);
             }
+            
             const ignoreCategories = [
                 '543be5dd4bdc2deb348b4569', // currency
                 '5448bf274bdc2dfc2f8b456a', // secure container
             ];
-            if (itemData[key].traderPrices.length === 0 && !ignoreCategories.includes(itemData[key].bsgCategoryId)) {
-                this.logger.log(`No trader sell prices mapped for ${itemData[key].name} (${itemData[key].id}) with category id ${itemData[key].bsgCategoryId}`);
+            if (itemData[id].traderPrices.length === 0 && !ignoreCategories.includes(itemData[id].bsgCategoryId)) {
+                this.logger.warn(`No trader sell prices mapped for ${itemData[id].name} (${id}) with category id ${itemData[id].bsgCategoryId}`);
             }
-
-            itemData[key].types.forEach(itemType => {
-                itemTypesSet.add(itemType);
-            });
         }
 
         //add flea prices from base items to default presets
@@ -576,6 +555,52 @@ class UpdateItemCacheJob extends DataJob {
         if(grid && grid.totalSize > 0){
             item.hasGrid = true;
         }  
+    }
+
+    getTraderPrices(item) {
+        const traderPrices = [];
+        const currenciesNow = {
+            'RUB': 1,
+            'USD': this.credits['5696686a4bdc2da3298b456a'],
+            'EUR': this.credits['569668774bdc2da2298b4568']
+            //'USD': Math.round(this.credits['5696686a4bdc2da3298b456a'] * 1.1045104510451),
+            //'EUR': Math.round(this.credits['569668774bdc2da2298b4568'] * 1.1530984204131)
+        };
+        const currencyId = dataMaps.currencyIsoId;
+
+        for (const trader of this.traderData) {
+            if (trader.items_buy_prohibited.id_list.includes(item.id)) {
+                continue;
+            }
+            if (trader.items_buy_prohibited.category.some(bannedCatId => item.categories.includes(bannedCatId))) {
+                continue;
+            }
+            if (!trader.items_buy.id_list.includes(item.id) && !trader.items_buy.category.some(buyCatId => item.categories.includes(buyCatId))) {
+                continue;
+            }
+            let currency = trader.currency;
+            let priceRUB = Math.floor(this.getTraderMultiplier(trader.id) * item.basePrice);
+            let priceCUR = priceRUB;
+            if (currency !== 'RUB') {
+                // for if we ever switch the price field to a float
+                //priceCUR = Math.round((priceRUB / currenciesNow[currency]) * 100) / 100;
+                priceCUR = priceRUB / currenciesNow[currency];
+                if (priceCUR > 0) {
+                    priceCUR = Math.round(priceCUR);
+                } else {
+                    priceCUR = 0;
+                }
+            }
+            traderPrices.push({
+                name: trader.name,
+                price: priceCUR,
+                currency: currency,
+                currencyItem: currencyId[currency],
+                priceRUB: priceRUB,
+                trader: trader.id
+            });
+        }
+        return traderPrices;
     }
 }
 
