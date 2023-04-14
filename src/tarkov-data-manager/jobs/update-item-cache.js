@@ -215,7 +215,7 @@ class UpdateItemCacheJob extends DataJob {
                         item: round,
                         count: count,
                         attributes: []
-                    })
+                    });
                 }
             } else if (this.presets[key]) {
                 const preset = this.presets[key];
