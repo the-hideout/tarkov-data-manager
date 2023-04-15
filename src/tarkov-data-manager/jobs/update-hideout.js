@@ -138,6 +138,7 @@ class UpdateHideoutJob extends DataJob {
                 }
                 //ensure all modules require the previous module
                 if (stageData.level > 1 && !stageData.stationLevelRequirements.some(req => req.station === stationData.id)) {
+                    this.logger.warn(`Added level ${stageData.level-1} as requirement for level ${stageData.level}`);
                     stageData.stationLevelRequirements.push({
                         id: `${stationData.id}-${i}-${stage.requirements.length}`,
                         station: stationData.id,
