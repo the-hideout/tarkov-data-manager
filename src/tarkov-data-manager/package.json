@@ -37,7 +37,7 @@
     "moment": "^2.29.4",
     "mysql2": "^3.2.0",
     "node-schedule": "^2.1.0",
-    "nodemon": "^2.0.19",
+    "nodemon": "^2.0.22",
     "object-path": "^0.11.8",
     "parse-duration": "^1.0.2",
     "sharp": "0.31.0",
