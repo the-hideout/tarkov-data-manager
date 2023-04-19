@@ -921,15 +921,7 @@
         "name": "Trophies",
         "propertiesChanged" : {
             "minPlayerLevel": 55,
-            "taskRequirements": [
-                {
-                    "task": "5c0d4e61d09282029f53920e",
-                    "name": "The Guide",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
+            "taskRequirements": []
         }
     },
     "60e71d23c1bfa3050473b8e6": {
