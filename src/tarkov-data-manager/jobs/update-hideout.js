@@ -136,6 +136,16 @@ class UpdateHideoutJob extends DataJob {
                         continue;
                     }
                 }
+                //ensure all modules require the previous module
+                if (stageData.level > 1 && !stageData.stationLevelRequirements.some(req => req.station === stationData.id)) {
+                    this.logger.warn(`Added level ${stageData.level-1} as requirement for level ${stageData.level}`);
+                    stageData.stationLevelRequirements.push({
+                        id: `${stationData.id}-${i}-${stage.requirements.length}`,
+                        station: stationData.id,
+                        name: stationData.name,
+                        level: stageData.level - 1,
+                    });
+                }
                 stationData.levels.push(stageData);
             }
             hideoutData.HideoutStation.push(stationData);

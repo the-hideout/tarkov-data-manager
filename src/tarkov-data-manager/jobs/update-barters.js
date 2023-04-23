@@ -4,6 +4,7 @@ const cheerio = require('cheerio');
 const remoteData = require('../modules/remote-data');
 const oldNames = require('../old-names.json');
 const fixName = require('../modules/wiki-replacements');
+const tarkovData = require('../modules/tarkov-data');
 const DataJob = require('../modules/data-job');
 
 const WIKI_URL = 'https://escapefromtarkov.fandom.com'
@@ -28,13 +29,14 @@ class UpdateBartersJob extends DataJob {
 
     run = async () => {
         this.logger.log('Retrieving barters data...');
-        [this.itemData, this.$, this.oldTasks] = await Promise.all([
+        [this.itemData, this.$, this.oldTasks, this.items] = await Promise.all([
             remoteData.get(),
             got(TRADES_URL).then(response => cheerio.load(response.body)),
             got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
                 responseType: 'json',
                 resolveBodyOnly: true,
             }),
+            tarkovData.items(),
         ]);
         this.presets = await this.jobManager.jobOutput('update-presets', this, true);
         this.tasks = await this.jobManager.jobOutput('update-quests', this);
@@ -104,6 +106,31 @@ class UpdateBartersJob extends DataJob {
         }
         
         this.logger.succeed(`Processed ${trades.Barter.length} barters`);
+
+        let ammoPacks = 0;
+        for (const barter of trades.Barter) {
+            const rewardItem = this.itemData.get(barter.rewardItems[0].item);
+            if (!rewardItem.types.includes('ammo-box')) {
+                continue;
+            }
+            const ammoContents = this.items[rewardItem.id]._props.StackSlots[0];
+            const count = ammoContents._max_count;
+            const roundId = ammoContents._props.filters[0].Filter[0];
+            trades.Barter.push({
+                ...barter,
+                id: `${barter.id}-${roundId}`,
+                rewardItems: [{
+                    name: rewardItem.name,
+                    item: roundId,
+                    baseId: roundId,
+                    count: count,
+                    attributes: []
+                }],
+            });
+            ammoPacks++;
+        }
+
+        this.logger.log(`Unpacked ${ammoPacks} ammo pack barters`);
 
         await this.cloudflarePut(trades);
         return trades;
