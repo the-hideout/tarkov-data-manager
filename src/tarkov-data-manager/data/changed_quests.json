@@ -921,15 +921,7 @@
         "name": "Trophies",
         "propertiesChanged" : {
             "minPlayerLevel": 55,
-            "taskRequirements": [
-                {
-                    "task": "60e71c9ad54b755a3b53eb66",
-                    "name": "The Cleaner",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
+            "taskRequirements": []
         }
     },
     "60e71d23c1bfa3050473b8e6": {

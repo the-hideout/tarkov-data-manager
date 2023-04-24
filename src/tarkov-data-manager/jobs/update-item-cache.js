@@ -215,7 +215,7 @@ class UpdateItemCacheJob extends DataJob {
                         item: round,
                         count: count,
                         attributes: []
-                    })
+                    });
                 }
             } else if (this.presets[key]) {
                 const preset = this.presets[key];
@@ -300,7 +300,7 @@ class UpdateItemCacheJob extends DataJob {
 
         // Add trader prices
         for (const id in itemData) {
-            if (itemData[id].types.includes('preset')) {
+            if (itemData[id].types.includes('preset') && id !== 'customdogtags12345678910') {
                 itemData[id].traderPrices = itemData[id].containsItems.reduce((traderPrices, part) => {
                     const partPrices = this.getTraderPrices(itemData[part.item]);
                     for (const partPrice of partPrices) {
