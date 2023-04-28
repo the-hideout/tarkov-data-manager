@@ -845,16 +845,10 @@
         "propertiesChanged": {
             "taskRequirements": [
                 {
-                    "task": "5a27b87686f77460de0252a8",
-                    "name": "Humanitarian Supplies",
+                    "task": "6086c852c945025d41566124",
+                    "name": "Revision - Reserve",
                     "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "5a27d2af86f7744e1115b323",
-                    "name": "Friend from the West - Part 2",
-                    "status": [
+                        "active",
                         "complete"
                     ]
                 }
