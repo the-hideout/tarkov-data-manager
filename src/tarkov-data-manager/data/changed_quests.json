@@ -815,6 +815,13 @@
         "propertiesChanged": {
             "taskRequirements": [
                 {
+                    "task": "5a27d2af86f7744e1115b323",
+                    "name": "Friend from the West - Part 2",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
                     "task": "5a27b87686f77460de0252a8",
                     "name": "Humanitarian Supplies",
                     "status": [
@@ -1336,6 +1343,48 @@
             "6397ae672e519e69d2139b28": {
                 "count": 6
             }
+        }
+    },
+    "5a03153686f77442d90e2171": {
+        "name": "Spa Tour - Part 1",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5a27d2af86f7744e1115b323",
+                    "name": "Friend from the West - Part 2",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "5a27b87686f77460de0252a8",
+                    "name": "Humanitarian Supplies",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "5a27b9de86f77464e5044585": {
+        "name": "The Cult - Part 1",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5a27d2af86f7744e1115b323",
+                    "name": "Friend from the West - Part 2",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "5a27b87686f77460de0252a8",
+                    "name": "Humanitarian Supplies",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
         }
     }
 }
