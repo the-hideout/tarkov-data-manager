@@ -58,7 +58,7 @@ class UpdateHideoutJob extends DataJob {
                 }
             }
             if (typeof stationData.tarkovDataId === 'undefined') {
-                this.logger.warn(`Could not find TarkovData id for ${stationData.name}`);
+                //this.logger.warn(`Could not find TarkovData id for ${stationData.name}`);
             }
             for (let i = 1; i < Object.keys(station.stages).length; i++) {
                 if (!station.stages[String(i)]) {
@@ -87,7 +87,7 @@ class UpdateHideoutJob extends DataJob {
                     }
                 }
                 if (typeof stageData.tarkovDataId === 'undefined') {
-                    this.logger.warn(`Could not find tarkovData id for ${stationData.name} level ${stageData.level}`);
+                    //this.logger.warn(`Could not find tarkovData id for ${stationData.name} level ${stageData.level}`);
                 }
                 if (i === 1 && station.requirements.length > 0) {
                     stage.requirements = [
@@ -114,10 +114,6 @@ class UpdateHideoutJob extends DataJob {
                         };
                         stageData.skillRequirements.push(skillReq);
                     } else if (req.type === 'Area') {
-                        if (req.requiredLevel < 1) {
-                            this.logger.warn(`Skipping ${en[`hideout_area_${req.areaType}_name`]} level ${req.requiredLevel} requirement for ${en[`hideout_area_${station.type}_name`]} level ${i}`);
-                            continue;
-                        }
                         stageData.stationLevelRequirements.push({
                             id: `${stationData.id}-${i}-${r}`,
                             station: areasByType[req.areaType],
