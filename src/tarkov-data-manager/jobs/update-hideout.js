@@ -58,7 +58,7 @@ class UpdateHideoutJob extends DataJob {
                 }
             }
             if (typeof stationData.tarkovDataId === 'undefined') {
-                this.logger.warn(`Could not find TarkovData id for ${stationData.name}`);
+                //this.logger.warn(`Could not find TarkovData id for ${stationData.name}`);
             }
             for (let i = 1; i < Object.keys(station.stages).length; i++) {
                 if (!station.stages[String(i)]) {
@@ -87,7 +87,7 @@ class UpdateHideoutJob extends DataJob {
                     }
                 }
                 if (typeof stageData.tarkovDataId === 'undefined') {
-                    this.logger.warn(`Could not find tarkovData id for ${stationData.name} level ${stageData.level}`);
+                    //this.logger.warn(`Could not find tarkovData id for ${stationData.name} level ${stageData.level}`);
                 }
                 if (i === 1 && station.requirements.length > 0) {
                     stage.requirements = [
@@ -114,10 +114,6 @@ class UpdateHideoutJob extends DataJob {
                         };
                         stageData.skillRequirements.push(skillReq);
                     } else if (req.type === 'Area') {
-                        if (req.requiredLevel < 1) {
-                            this.logger.warn(`Skipping ${en[`hideout_area_${req.areaType}_name`]} level ${req.requiredLevel} requirement for ${en[`hideout_area_${station.type}_name`]} level ${i}`);
-                            continue;
-                        }
                         stageData.stationLevelRequirements.push({
                             id: `${stationData.id}-${i}-${r}`,
                             station: areasByType[req.areaType],
@@ -137,14 +133,20 @@ class UpdateHideoutJob extends DataJob {
                     }
                 }
                 //ensure all modules require the previous module
-                if (stageData.level > 1 && !stageData.stationLevelRequirements.some(req => req.station === stationData.id)) {
-                    this.logger.warn(`Added level ${stageData.level-1} as requirement for level ${stageData.level}`);
-                    stageData.stationLevelRequirements.push({
-                        id: `${stationData.id}-${i}-${stage.requirements.length}`,
-                        station: stationData.id,
-                        name: stationData.name,
-                        level: stageData.level - 1,
-                    });
+                if (stageData.level > 1) {
+                    const prevReq = stageData.stationLevelRequirements.find(req => req.station === stationData.id);
+                    if (!prevReq) {
+                        this.logger.warn(`Added level ${stageData.level-1} as requirement for level ${stageData.level}`);
+                        stageData.stationLevelRequirements.push({
+                            id: `${stationData.id}-${i}-${stage.requirements.length}`,
+                            station: stationData.id,
+                            name: stationData.name,
+                            level: stageData.level - 1,
+                        });
+                    } else if (prevReq.level !== i -1) {
+                        this.logger.warn(`Changed level ${prevReq.level} to ${i - 1} as requirement for level ${stageData.level}`);
+                        prevReq.level = i - 1;
+                    }
                 }
                 stationData.levels.push(stageData);
             }
