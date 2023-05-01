@@ -715,14 +715,16 @@
         "propertiesChanged" : {
             "taskRequirements": [
                 {
-                    "task": "5d25cf2686f77443e75488d4",
-                    "name": "The Survivalist Path - Tough Guy",
+                    "task": "5d25e48186f77443e625e386",
+                    "name": "Courtesy Visit",
                     "status": [
-                        "complete"
+                        "complete",
+                        "active"
                     ]
                 }
             ]
-        }
+        },
+        "comment": "confirmed by razz 4/30/2023"
     },
     "5dc53acb86f77469c740c893": {
         "name": "The Stylish One",
