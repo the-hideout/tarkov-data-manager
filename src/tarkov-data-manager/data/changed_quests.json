@@ -678,15 +678,17 @@
         "propertiesChanged" : {
             "taskRequirements": [
                 {
-                    "task": "5969f9e986f7741dde183a50",
-                    "name": "Pharmacist",
+                    "task": "60896e28e4a85c72ef3fa301",
+                    "name": "Disease History",
                     "status": [
-                        "complete"
+                        "complete",
+                        "active"
                     ]
                 }
             ],
             "minPlayerLevel": 17
-        }
+        },
+        "comment": "confirmed by razz 5/1/2023"
     },
     "5d25e2ee86f77443e35162ea": {
         "name": "The Huntsman Path - Woods Keeper",
@@ -791,6 +793,13 @@
                 {
                     "task": "5ae448bf86f7744d733e55ee",
                     "name": "Make ULTRA Great Again",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "5ae448e586f7744dcf0c2a67",
+                    "name": "Big Sale",
                     "status": [
                         "complete"
                     ]
