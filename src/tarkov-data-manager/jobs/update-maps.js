@@ -232,7 +232,6 @@ class UpdateMapsJob extends DataJob {
             nameParts.push(this.getEnemyName('guard', lang));
             const guardTypeMatch = enemy.match(guardTypePattern);
             if (guardTypeMatch) {
-                console.log(`follower${guardTypeMatch[0]}`);
                 if (lang[`follower${guardTypeMatch[0]}`]) {
                     nameParts.push(`(${lang[`follower${guardTypeMatch[0]}`]})`);
                 } else {
