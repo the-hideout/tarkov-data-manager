@@ -65,7 +65,8 @@ const putValue = async (key, value) => {
     if (typeof value === 'object'){
         value = JSON.stringify(value);
     } 
-    return doRequest('PUT', 'values', key, zlib.gzipSync(value).toString(encoding), false, {compression: 'gzip', encoding: encoding}).then(response => {
+    //return doRequest('PUT', 'values', key, zlib.gzipSync(value).toString(encoding), false, {compression: 'gzip', encoding: encoding}).then(response => {
+    return doRequest('PUT', 'values', key, value, false, {}).then(response => {
         const newName = path.join(__dirname, '..', 'dumps', `${key.split("/").pop().toLowerCase()}.json`);
         const oldName = newName.replace('.json', '_old.json');
         try {

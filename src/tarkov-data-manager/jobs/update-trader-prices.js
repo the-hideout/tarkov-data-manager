@@ -12,15 +12,15 @@ class UpdateTraderPricesJob extends DataJob {
     }
 
     async run() {
-        [this.tasks, this.traders, this.traderOffers, this.presets, this.items] = await Promise.all([
+        [this.tasks, this.traders, this.traderAssorts, this.presets, this.items] = await Promise.all([
             this.jobManager.jobOutput('update-quests', this),
             this.jobManager.jobOutput('update-traders', this),
             this.jobManager.jobOutput('update-trader-assorts', this, true),
             this.jobManager.jobOutput('update-presets', this, true),
             remoteData.get(),
         ]);
-        for (const traderId in this.traderOffers) {
-            this.traderOffers[traderId] = this.traderOffers[traderId].filter(offer => !offer.barter);
+        for (const traderId in this.traderAssorts) {
+            this.traderAssorts[traderId] = this.traderAssorts[traderId].filter(offer => !offer.barter);
         }
         const outputData = {};
         const junkboxLastScan = await query(`
@@ -162,8 +162,8 @@ class UpdateTraderPricesJob extends DataJob {
             };
         }
 
-        for(const traderItem of traderItems){
-            if(!latestTraderPrices[traderItem.id]){
+        for (const traderItem of traderItems){
+            if (!latestTraderPrices[traderItem.id]) {
                 continue;
             }
 
@@ -217,7 +217,7 @@ class UpdateTraderPricesJob extends DataJob {
                     stringValue: questUnlock.id
                 });
             }
-            const matchingTraderOffers = this.traderOffers[trader.id].reduce((matches, traderOffer) => {
+            const matchingTraderOffers = this.traderAssorts[trader.id].reduce((matches, traderOffer) => {
                 if (traderOffer.item !== offer.id && traderOffer.baseItem !== offer.id) {
                     return matches;
                 }
@@ -257,14 +257,15 @@ class UpdateTraderPricesJob extends DataJob {
             outputData[offer.id].push(offer);
         }
         this.logger.log('Checking assorts for missing offers...');
-        for (const traderId in this.traderOffers) {
-            this.traderOffers[traderId].forEach(offer => {
+        for (const traderId in this.traderAssorts) {
+            this.traderAssorts[traderId].forEach(offer => {
                 const traderOfferUsed = Object.keys(outputData).some(id => {
                     for (const to of outputData[id]) {
                         if (to.traderOfferId === offer.id) {
                             return true;
                         }
                     }
+                    return false;
                 });
                 if (traderOfferUsed) {
                     return;
