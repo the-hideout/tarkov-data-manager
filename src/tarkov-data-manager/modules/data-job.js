@@ -112,7 +112,7 @@ class DataJob {
             const processTime = new Date() - this.startDate;
             const expireDate = new Date(this.nextInvocation);
             expireDate.setMilliseconds(expireDate.getMilliseconds() + processTime);
-            expireDate.setMinutes(expireDate.getMinutes() + 1);
+            expireDate.setMinutes(expireDate.getMinutes() + 2);
             data.expiration = expireDate;
         }
         if (typeof data !== 'string') {
