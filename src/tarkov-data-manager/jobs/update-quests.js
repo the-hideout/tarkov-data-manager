@@ -281,8 +281,16 @@ class UpdateQuestsJob extends DataJob {
                 neededSet.add(taskId);
             }
             const task = quests.Task.find(task => task.id === taskId);
+            for (const failOn of task.failConditions) {
+                if (failOn.type !== 'taskStatus' || failOn.status[0] !== 'complete') {
+                    continue;
+                }
+                console.log(failOn.quest_name)
+                neededSet.add(failOn.task);
+            }
             for (const req of task.taskRequirements) {
-                addPreviousRequirements(neededSet, req.task, req.status.length === 1 && req.status[0] === 'complete');
+                //addPreviousRequirements(neededSet, req.task, req.status.length === 1 && req.status[0] === 'complete');
+                addPreviousRequirements(neededSet, req.task, true);
             }
         };
         addPreviousRequirements(neededForKappa, '5c51aac186f77432ea65c552', true);
