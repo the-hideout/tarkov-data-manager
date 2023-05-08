@@ -285,7 +285,6 @@ class UpdateQuestsJob extends DataJob {
                 if (failOn.type !== 'taskStatus' || failOn.status[0] !== 'complete') {
                     continue;
                 }
-                console.log(failOn.quest_name)
                 neededSet.add(failOn.task);
             }
             for (const req of task.taskRequirements) {
