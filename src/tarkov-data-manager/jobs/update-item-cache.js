@@ -280,6 +280,8 @@ class UpdateItemCacheJob extends DataJob {
 
             // translations
             if (this.locales.en[`${key} Name`]) { 
+                itemData[key].name = this.addTranslation(`${key} Name`);
+                itemData[key].shortName = this.addTranslation(`${key} ShortName`);
                 itemData[key].description = this.addTranslation(`${key} Description`);
             } else if (this.presets[key]) {
                 for (const langCode in this.presets[key].locale) {
@@ -582,7 +584,7 @@ class UpdateItemCacheJob extends DataJob {
                 }
             }
             traderPrices.push({
-                name: trader.name,
+                name: this.locales.en[trader.name],
                 price: priceCUR,
                 currency: currency,
                 currencyItem: currencyId[currency],
