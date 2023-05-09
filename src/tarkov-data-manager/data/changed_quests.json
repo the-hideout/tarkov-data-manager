@@ -17,13 +17,6 @@
                 ]
             },
             {
-                "task": "6179afd0bca27a099552e040",
-                "name": "Lost Contact",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
                 "task": "61904daa7d0d857927447b9c",
                 "name": "The Hermit",
                 "status": [
@@ -60,7 +53,7 @@
             },
             {
                 "task": "6179b4d1bca27a099552e04e",
-                "name": "Revision - Part 2",
+                "name": "Revision - Lighthouse",
                 "status": [
                     "complete"
                 ]
@@ -82,13 +75,6 @@
             {
                 "task": "61958c366726521dd96828ec",
                 "name": "Cargo X - Part 4",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
-                "task": "6089736efa70fc097863b8f6",
-                "name": "Back Door",
                 "status": [
                     "complete"
                 ]
@@ -124,20 +110,6 @@
             {
                 "task": "6179ad56c760af5ad2053587",
                 "name": "Seaside Vacation",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
-                "task": "5c0d0f1886f77457b8210226",
-                "name": "Lend-Lease - Part 2",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
-                "task": "5ae4497b86f7744cf402ed00",
-                "name": "Sew it Good - Part 4",
                 "status": [
                     "complete"
                 ]
@@ -201,13 +173,6 @@
             {
                 "task": "5b47825886f77468074618d3",
                 "name": "Gunsmith - Part 22",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
-                "task": "5ae448e586f7744dcf0c2a67",
-                "name": "Big Sale",
                 "status": [
                     "complete"
                 ]
@@ -1047,6 +1012,21 @@
                 {
                     "task": "5968eb3186f7741dde183a4d",
                     "name": "Operation Aquarius - Part 2",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        },
+        "comment": "per Wiki 5/8/2023"
+    },
+    "5d25e45e86f77408251c4bfa": {
+        "name": "The Huntsman Path - Eraser - Part 2",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5d25e44f86f77443e625e385",
+                    "name": "The Huntsman Path - Eraser - Part 1",
                     "status": [
                         "complete"
                     ]
