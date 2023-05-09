@@ -1628,6 +1628,7 @@ const factionMap = {
     '5e381b0286f77420e3417a74': 'USEC',
     '5e4d4ac186f774264f758336': 'USEC',
     '6179b5eabca27a099552e052': 'USEC',
+    '639282134ed9512be67647ed': 'USEC',
     '5e383a6386f77465910ce1f3': 'BEAR',
     '5e4d515e86f77438b2195244': 'BEAR',
     '6179b5b06e9dd54ac275e409': 'BEAR'
