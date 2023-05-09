@@ -268,7 +268,7 @@ class UpdateItemCacheJob extends DataJob {
             const handbookItemId = itemData[key].types.includes('preset') ? itemData[key].properties.base_item_id : key;
             const handbookItem = this.handbook.Items.find(hbi => hbi.Id === handbookItemId);
             if (!handbookItem) {
-                this.logger.warn(`Item ${itemData[key].name} ${key} has no handbook entry`);
+                this.logger.warn(`Item ${this.locales.en[itemData[key].name]} ${key} has no handbook entry`);
             } else {
                 this.addHandbookCategory(handbookItem.ParentId);
                 let parent = this.handbookCategories[handbookItem.ParentId];
@@ -320,7 +320,7 @@ class UpdateItemCacheJob extends DataJob {
                 '5448bf274bdc2dfc2f8b456a', // secure container
             ];
             if (itemData[id].traderPrices.length === 0 && !ignoreCategories.includes(itemData[id].bsgCategoryId)) {
-                this.logger.warn(`No trader sell prices mapped for ${itemData[id].name} (${id}) with category id ${itemData[id].bsgCategoryId}`);
+                this.logger.warn(`No trader sell prices mapped for ${this.locales.en[itemData[id].name]} (${id}) with category id ${itemData[id].bsgCategoryId}`);
             }
         }
 
@@ -385,7 +385,7 @@ class UpdateItemCacheJob extends DataJob {
                 } else if (this.bsgItems[id]) {
                     //this.logger.log(`${conId} is probably disabled`);
                 } else {
-                    this.logger.log(`${item.name} ${item.id} could not categorize conflicting item id ${conId}`);
+                    this.logger.log(`${this.locales.en[item.name]} ${item.id} could not categorize conflicting item id ${conId}`);
                 }
             });
         }
