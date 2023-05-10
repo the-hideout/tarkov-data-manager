@@ -5,6 +5,7 @@ const stellate = require('../modules/stellate');
 const {jobComplete} = require('../modules/db-connection');
 const JobLogger = require('./job-logger');
 const {alert} = require('./webhook');
+const tarkovData = require('./tarkov-data');
 
 class DataJob {
     constructor(options) {
@@ -51,6 +52,9 @@ class DataJob {
 
     async start(options) {
         this.startDate = new Date();
+        this.kvData = {};
+        this.locales = await tarkovData.locales();
+        this.translationKeys = new Set();
         if (options && options.parent) {
             this.logger.parentLogger = options.parent.logger;
         }
@@ -103,6 +107,10 @@ class DataJob {
     }
 
     cloudflarePut = async (data, kvOverride) => {
+        if (!data) {
+            data = this.kvData;
+        }
+        await this.fillTranslations(data);
         let kvName = kvOverride || this.kvName;
         if (!kvName) {
             return Promise.reject(new Error('Must set kvName property before calling cloudflarePut'));
@@ -137,6 +145,93 @@ class DataJob {
 
     discordAlert = async (options) => {
         return alert(options);
+    }
+
+    cleanTranslation = (key) => {
+
+    }
+
+    addTranslation = (key, langCode, value) => {
+        if (!this.kvData.locale) {
+            this.kvData.locale = {};
+        }
+        if (typeof langCode === 'function') {
+            if (typeof key === 'string') {
+                for (const langC in this.locales) {    
+                    if (!this.kvData.locale[langC]) {
+                        this.kvData.locale[langC] = {};
+                    }
+                    this.kvData.locale[langC][key] = langCode(this.locales[langC], langC);
+                }
+            } else if (Array.isArray(key)) {
+                for (const k of key) {    
+                    for (const langC in this.locales) {   
+                        if (!this.kvData.locale[langC]) {
+                            this.kvData.locale[langC] = {};
+                        }
+                        this.kvData.locale[langC][k] = langCode(k, this.locales[langC], langC);
+                    }
+                }
+            } else {
+                this.logger.warn(`${typeof key} is not a valid translation key`);
+            }
+            return key;
+        }
+        if (Array.isArray(key)) {
+            for (const k of key) {
+                if (!this.kvData.locale[k]){
+                    this.kvData.locale[k] = {};
+                }
+                if (langCode && value) {
+                    if (!this.kvData.local[langCode]) {
+                        this.kvData.locale[langCode] = {};
+                    }
+                    this.kvData.locale[langCode][key] = value;
+                } else {
+                    this.translationKeys.add(k);
+                }
+            }
+            return key;
+        }
+        if (langCode && value) {
+            this.kvData.locale[langCode][key] = value;
+        } else {
+            this.translationKeys.add(key);
+        }
+        return key;
+    }
+
+    fillTranslations = async (target) => {
+        if (!target) {
+            target = this.kvData;
+        }
+        if (!target.locale) {
+            return;
+        }
+        for (const langCode in this.locales) {
+            if (!target.locale[langCode]) {
+                target.locale[langCode] = {};
+            }
+            for (const key of this.translationKeys) {
+                if (target.locale[langCode][key]) {
+                    continue;
+                }
+                target.locale[langCode][key] = this.locales[langCode][key];
+            }
+        }
+        for (const langCode in target.locale) {
+            if (langCode === 'en') {
+                continue;
+            }
+            for (const key in target.locale[langCode]) {
+                if (target.locale.en[key] === target.locale[langCode][key]) {
+                    delete target.locale[langCode][key];
+                }
+            }
+            if (Object.keys(target.locale[langCode]).length < 1) {
+                delete target.locale[langCode];
+            }
+        }
     }
 }
 

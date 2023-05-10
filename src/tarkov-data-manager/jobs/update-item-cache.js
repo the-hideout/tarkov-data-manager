@@ -6,7 +6,6 @@ const {dashToCamelCase, camelCaseToTitleCase} = require('../modules/string-funct
 const { setItemPropertiesOptions, getSpecialItemProperties } = require('../modules/get-item-properties');
 const { initPresetData, getPresetData } = require('../modules/preset-data');
 const normalizeName = require('../modules/normalize-name');
-const { setLocales, getTranslations } = require('../modules/get-translation');
 const DataJob = require('../modules/data-job');
 
 class UpdateItemCacheJob extends DataJob {
@@ -100,7 +99,6 @@ class UpdateItemCacheJob extends DataJob {
             itemIds: [...itemMap.keys()],
             disabledItemIds: [...itemMap.values()].filter(item => item.types.includes('disabled')).map(item => item.id)
         });
-        setLocales(this.locales);
         for (const [key, value] of itemMap.entries()) {
             if (value.types.includes('disabled') || value.types.includes('quest'))
                 continue;
@@ -109,7 +107,8 @@ class UpdateItemCacheJob extends DataJob {
 
             itemData[key] = {
                 ...value,
-                shortName: value.short_name,
+                name: `${key} Name`,
+                shortName: `${key} ShortName`,
                 normalizedName: value.normalized_name,
                 lastOfferCount: value.last_offer_count,
                 types: value.types.map(type => dashToCamelCase(type)).filter(type => type !== 'onlyFlea'),
@@ -269,7 +268,7 @@ class UpdateItemCacheJob extends DataJob {
             const handbookItemId = itemData[key].types.includes('preset') ? itemData[key].properties.base_item_id : key;
             const handbookItem = this.handbook.Items.find(hbi => hbi.Id === handbookItemId);
             if (!handbookItem) {
-                this.logger.warn(`Item ${itemData[key].name} ${key} has no handbook entry`);
+                this.logger.warn(`Item ${this.locales.en[itemData[key].name]} ${key} has no handbook entry`);
             } else {
                 this.addHandbookCategory(handbookItem.ParentId);
                 let parent = this.handbookCategories[handbookItem.ParentId];
@@ -281,15 +280,13 @@ class UpdateItemCacheJob extends DataJob {
 
             // translations
             if (this.locales.en[`${key} Name`]) { 
-                itemData[key].locale = getTranslations({
-                    name: `${key} Name`,
-                    shortName: `${key} ShortName`,
-                    description: `${key} Description`,
-                }, this.logger);
+                itemData[key].name = this.addTranslation(`${key} Name`);
+                itemData[key].shortName = this.addTranslation(`${key} ShortName`);
+                itemData[key].description = this.addTranslation(`${key} Description`);
             } else if (this.presets[key]) {
-                itemData[key].locale = {};
-                for (const code in this.locales) {
-                    itemData[key].locale[code] = this.presets[key].locale[code];
+                for (const langCode in this.presets[key].locale) {
+                    this.addTranslation(`${key} Name`, langCode, this.presets[key].locale[langCode].name);
+                    this.addTranslation(`${key} ShortName`, langCode, this.presets[key].locale[langCode].shortName);
                 }
             }
 
@@ -323,7 +320,7 @@ class UpdateItemCacheJob extends DataJob {
                 '5448bf274bdc2dfc2f8b456a', // secure container
             ];
             if (itemData[id].traderPrices.length === 0 && !ignoreCategories.includes(itemData[id].bsgCategoryId)) {
-                this.logger.warn(`No trader sell prices mapped for ${itemData[id].name} (${id}) with category id ${itemData[id].bsgCategoryId}`);
+                this.logger.warn(`No trader sell prices mapped for ${this.locales.en[itemData[id].name]} (${id}) with category id ${itemData[id].bsgCategoryId}`);
             }
         }
 
@@ -388,25 +385,25 @@ class UpdateItemCacheJob extends DataJob {
                 } else if (this.bsgItems[id]) {
                     //this.logger.log(`${conId} is probably disabled`);
                 } else {
-                    this.logger.log(`${item.name} ${item.id} could not categorize conflicting item id ${conId}`);
+                    this.logger.log(`${this.locales.en[item.name]} ${item.id} could not categorize conflicting item id ${conId}`);
                 }
             });
         }
 
         const fleaData = {
-            name: 'Flea Market',
+            name: 'FleaMarket',
             normalizedName: 'flea-market',
             minPlayerLevel: this.globals.config.RagFair.minUserLevel,
             enabled: this.globals.config.RagFair.enabled,
             sellOfferFeeRate: (this.globals.config.RagFair.communityItemTax / 100),
             sellRequirementFeeRate: (this.globals.config.RagFair.communityRequirementTax / 100),
             reputationLevels: [],
-            locale: getTranslations({name: lang => {
-                return lang['RAG FAIR'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
-                    return substr.toLowerCase();
-                });
-            }}, this.logger),
         };
+        for (const langCode in this.locales) {
+            this.addTranslation('FleaMarket', langCode, this.locales[langCode]['RAG FAIR'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
+                return substr.toLowerCase();
+            }));
+        }
         for (const offerCount of this.globals.config.RagFair.maxActiveOfferCount) {
             if (fleaData.reputationLevels.length > 0 && fleaData.reputationLevels[fleaData.reputationLevels.length-1].offers == offerCount.count) {
                 fleaData.reputationLevels[fleaData.reputationLevels.length-1].maxRep = offerCount.to;
@@ -424,8 +421,7 @@ class UpdateItemCacheJob extends DataJob {
             const armorType = this.globals.config.ArmorMaterials[armorTypeId];
             armorData[armorTypeId] = {
                 id: armorTypeId,
-                name: this.locales.en['Mat'+armorTypeId],
-                locale: getTranslations({name: `Mat${armorTypeId}`}, this.logger),
+                name: this.addTranslation('Mat'+armorTypeId),
             };
             for (const key in armorType) {
                 armorData[armorTypeId][key.charAt(0).toLocaleLowerCase()+key.slice(1)] = armorType[key];
@@ -449,7 +445,8 @@ class UpdateItemCacheJob extends DataJob {
             FleaMarket: fleaData,
             ArmorMaterial: armorData,
             PlayerLevel: levelData,
-            LanguageCode: Object.keys(this.locales).sort()
+            LanguageCode: Object.keys(this.locales).sort(),
+            ...this.kvData,
         };
         await this.cloudflarePut(itemsData);
 
@@ -473,24 +470,22 @@ class UpdateItemCacheJob extends DataJob {
             id: id,
             parent_id: this.bsgItems[id]._parent,
             child_ids: [],
-            locale: getTranslations({
-                name: (lang, langCode) => {
-                    if (lang[`${id} Name`]) {
-                        return lang[`${id} Name`];
-                    } else {
-                        if (langCode === 'en') {
-                            this.logger.warn(`${id} ${this.bsgItems[id]._name} category mising translation`);
-                        }
-                        if (langCode !== 'en' && this.locales.en[`${id} Name`]) {
-                            return this.locales.en[`${id} Name`];
-                        }
-                        return camelCaseToTitleCase(this.bsgItems[id]._name);
+            name: this.addTranslation(`${id} Name`, (lang, langCode) => {
+                if (lang[`${id} Name`]) {
+                    return lang[`${id} Name`];
+                } else {
+                    if (langCode === 'en') {
+                        this.logger.warn(`${id} ${this.bsgItems[id]._name} category mising translation`);
                     }
+                    if (langCode !== 'en' && this.locales.en[`${id} Name`]) {
+                        return this.locales.en[`${id} Name`];
+                    }
+                    return camelCaseToTitleCase(this.bsgItems[id]._name);
                 }
-            }, this.logger)
+            }),
         };
-        this.bsgCategories[id].normalizedName = normalizeName(this.bsgCategories[id].locale.en.name);
-        this.bsgCategories[id].enumName = catNameToEnum(this.bsgCategories[id].locale.en.name);
+        this.bsgCategories[id].normalizedName = normalizeName(this.kvData.locale.en[this.bsgCategories[id].name]);
+        this.bsgCategories[id].enumName = catNameToEnum(this.kvData.locale.en[this.bsgCategories[id].name]);
     
         this.addCategory(this.bsgCategories[id].parent_id);
     }
@@ -501,14 +496,11 @@ class UpdateItemCacheJob extends DataJob {
         }
         this.handbookCategories[id] = {
             id: id,
-            name: this.locales.en[id],
+            name: this.addTranslation(id),
             normalizedName: normalizeName(this.locales.en[id]),
             enumName: catNameToEnum(this.locales.en[id]),
             parent_id: null,
             child_ids: [],
-            locale: getTranslations({
-                name: id,
-            }, this.logger),
         };
     
         const category = this.handbook.Categories.find(cat => cat.Id === id);
@@ -592,7 +584,7 @@ class UpdateItemCacheJob extends DataJob {
                 }
             }
             traderPrices.push({
-                name: trader.name,
+                name: this.locales.en[trader.name],
                 price: priceCUR,
                 currency: currency,
                 currencyItem: currencyId[currency],
