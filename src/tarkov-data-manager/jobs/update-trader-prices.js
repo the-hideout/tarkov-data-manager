@@ -361,7 +361,7 @@ class UpdateTraderPricesJob extends DataJob {
     }
 
     getTraderByName = (traderName) => {
-        return this.traders.find(t => t.name.toLowerCase() === traderName.toLowerCase());
+        return this.traders.find(t => this.locales.en[t.name].toLowerCase() === traderName.toLowerCase());
     }
 }
 

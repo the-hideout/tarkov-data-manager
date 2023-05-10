@@ -2,7 +2,6 @@ const got = require('got');
 
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
-const { setLocales, getTranslations, addTranslations } = require('../modules/get-translation');
 const DataJob = require('../modules/data-job');
 
 const skipChristmasTree = true;
@@ -14,9 +13,8 @@ class UpdateHideoutJob extends DataJob {
     }
 
     async run() {
-        [this.data, this.locales, this.items, this.tdHideout] = await Promise.all([
+        [this.data, this.items, this.tdHideout] = await Promise.all([
             tarkovData.areas(),
-            tarkovData.locales(),
             tarkovData.items(),
             got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/hideout.json', {
                 responseType: 'json',
@@ -24,10 +22,7 @@ class UpdateHideoutJob extends DataJob {
             })
         ]);
         const en = this.locales.en;
-        setLocales(this.locales);
-        const hideoutData = {
-            HideoutStation: [],
-        };
+        this.kvData.HideoutStation = [];
         const areasByType = {};
         for (const stationId in this.data) {
             areasByType[this.data[stationId].type] = stationId;
@@ -40,19 +35,18 @@ class UpdateHideoutJob extends DataJob {
             }
             const stationData = {
                 id: station._id,
-                name: en[`hideout_area_${station.type}_name`],
+                name: this.addTranslation(`hideout_area_${station.type}_name`),
                 normalizedName: normalizeName(en[`hideout_area_${station.type}_name`]),
                 areaType: station.type,
                 levels: [],
-                locale: getTranslations({name: `hideout_area_${station.type}_name`}, this.logger),
             };
             if (!station.enabled || (skipChristmasTree && stationId === '5df8a81f8f77747fcf5f5702')) {
-                this.logger.log(`❌ ${stationData.name}`);
+                this.logger.log(`❌ ${en[stationData.name]}`);
                 continue;
             }
-            this.logger.log(`✔️ ${stationData.name}`);
+            this.logger.log(`✔️ ${en[stationData.name]}`);
             for (const tdStation of this.tdHideout.stations) {
-                if (tdStation.locales.en.toLowerCase() === stationData.name.toLowerCase()) {
+                if (tdStation.locales.en.toLowerCase() === en[stationData.name].toLowerCase()) {
                     stationData.tarkovDataId = tdStation.id;
                     break;
                 }
@@ -62,11 +56,11 @@ class UpdateHideoutJob extends DataJob {
             }
             for (let i = 1; i < Object.keys(station.stages).length; i++) {
                 if (!station.stages[String(i)]) {
-                    this.logger.warn(`No stage found for ${stationData.name} level ${i}`);
+                    this.logger.warn(`No stage found for ${en[stationData.name]} level ${i}`);
                     continue;
                 }
                 if (!en[`hideout_area_${station.type}_stage_${i}_description`]) {
-                    this.logger.warn(`No stage ${i} description found for ${stationData.name}`);
+                    this.logger.warn(`No stage ${i} description found for ${en[stationData.name]}`);
                 }
                 const stage = station.stages[String(i)];
                 const stageData = {
@@ -78,7 +72,7 @@ class UpdateHideoutJob extends DataJob {
                     itemRequirements: [],
                     skillRequirements: [],
                     bonuses: this.getBonuses(stage.bonuses),
-                    locale: getTranslations({description: `hideout_area_${station.type}_stage_${i}_description`}),
+                    description: this.addTranslation(`hideout_area_${station.type}_stage_${i}_description`),
                 };
                 for (const tdModule of this.tdHideout.modules) {
                     if (tdModule.stationId === stationData.tarkovDataId && tdModule.level === stageData.level) {
@@ -108,9 +102,8 @@ class UpdateHideoutJob extends DataJob {
                     } else if (req.type === 'Skill') {
                         const skillReq = {
                             id: `${stationData.id}-${i}-${r}`,
-                            name: en[req.skillName] || req.skillName,
+                            name: this.addTranslation(req.skillName),
                             level: req.skillLevel,
-                            locale: getTranslations({name: req.skillName}),
                         };
                         stageData.skillRequirements.push(skillReq);
                     } else if (req.type === 'Area') {
@@ -150,14 +143,14 @@ class UpdateHideoutJob extends DataJob {
                 }
                 stationData.levels.push(stageData);
             }
-            hideoutData.HideoutStation.push(stationData);
+            this.kvData.HideoutStation.push(stationData);
         }
-        this.logger.success(`Processed ${hideoutData.HideoutStation.length} hideout stations`);
+        this.logger.success(`Processed ${this.kvData.HideoutStation.length} hideout stations`);
 
-        hideoutData.HideoutModule = await this.jobManager.runJob('update-hideout-legacy', {data: this.tdHideout, parent: this});
+        this.kvData.HideoutModule = await this.jobManager.runJob('update-hideout-legacy', {data: this.tdHideout, parent: this});
 
-        await this.cloudflarePut(hideoutData);
-        return hideoutData;
+        await this.cloudflarePut();
+        return this.kvData;
     }
 
     getBonuses(bonuses) {
@@ -168,16 +161,16 @@ class UpdateHideoutJob extends DataJob {
             }
             const bonusData = {
                 type: bonus.type,
+                name: this.addTranslation(`hideout_${bonus.id || bonus.type}`),
                 value: this.bonusValueFilter(bonus),
                 passive: bonus.passive,
                 production: bonus.production,
-                locale: getTranslations({name: `hideout_${bonus.id || bonus.type}`}),
             };
             if (bonus.filter) {
                 bonusData.slotItems = bonus.filter;
             }
             if (bonus.skillType) {
-                addTranslations(bonusData.locale, {skillName: bonus.skillType}, this.logger);
+                bonusData.skillName = this.addTranslation(bonus.skillType);
             }
             bonusesData.push(bonusData);
         }

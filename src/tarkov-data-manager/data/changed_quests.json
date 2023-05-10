@@ -17,13 +17,6 @@
                 ]
             },
             {
-                "task": "6179afd0bca27a099552e040",
-                "name": "Lost Contact",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
                 "task": "61904daa7d0d857927447b9c",
                 "name": "The Hermit",
                 "status": [
@@ -60,7 +53,7 @@
             },
             {
                 "task": "6179b4d1bca27a099552e04e",
-                "name": "Revision - Part 2",
+                "name": "Revision - Lighthouse",
                 "status": [
                     "complete"
                 ]
@@ -82,13 +75,6 @@
             {
                 "task": "61958c366726521dd96828ec",
                 "name": "Cargo X - Part 4",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
-                "task": "6089736efa70fc097863b8f6",
-                "name": "Back Door",
                 "status": [
                     "complete"
                 ]
@@ -124,20 +110,6 @@
             {
                 "task": "6179ad56c760af5ad2053587",
                 "name": "Seaside Vacation",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
-                "task": "5c0d0f1886f77457b8210226",
-                "name": "Lend-Lease - Part 2",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
-                "task": "5ae4497b86f7744cf402ed00",
-                "name": "Sew it Good - Part 4",
                 "status": [
                     "complete"
                 ]
@@ -201,13 +173,6 @@
             {
                 "task": "5b47825886f77468074618d3",
                 "name": "Gunsmith - Part 22",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
-                "task": "5ae448e586f7744dcf0c2a67",
-                "name": "Big Sale",
                 "status": [
                     "complete"
                 ]
@@ -479,13 +444,6 @@
                 ]
             },
             {
-                "task": "5968eb3186f7741dde183a4d",
-                "name": "Operation Aquarius - Part 2",
-                "status": [
-                    "complete"
-                ]
-            },
-            {
                 "task": "5c0d1c4cd0928202a02a6f5c",
                 "name": "Decontamination Service",
                 "status": [
@@ -582,96 +540,8 @@
                     ]
                 }
             ]
-        }
-    },
-    "5edac63b930f5454f51e128b" : {
-        "name": "TerraGroup Employee",
-        "propertiesChanged" : {
-            "minPlayerLevel": 23,
-            "taskRequirements": [
-                {
-                    "task": "5edac020218d181e29451446",
-                    "name": "Samples",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "5edab4b1218d181e29451435",
-                    "name": "The Huntsman Path - Sadist",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        }
-    },
-    "___60e71b9bbd90872cb85440f3": {
-        "name": "Capturing Outposts",
-        "objectivesChanged": {
-            "60ec1e72d7b7cb55e94c1764": {
-                "count": 12
-            },
-            "60ec2229fd1bf4491c4e4552": {
-                "count": 12
-            }
-        }
-    },
-    "___60e71c48c1bfa3050473b8e5": {
-        "name": "Crisis",
-        "objectivesAdded": [
-            {
-                "id": "62a701587230237f257cac30",
-                "type": "findItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a0a043cf4a99369e2624a5",
-                "item_name": "Bottle of OLOLO Multivitamins",
-                "count": 10,
-                "item": "62a0a043cf4a99369e2624a5",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "62a70168eb3cb46d9a0bba7a",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "62a0a043cf4a99369e2624a5",
-                "item_name": "Bottle of OLOLO Multivitamins",
-                "count": 10,
-                "item": "62a0a043cf4a99369e2624a5",
-                "dogTagLevel": 0,
-                "maxDurability": 0,
-                "minDurability": 0,
-                "foundInRaid": true
-            }
-        ]
-    },
-    "5d25e2e286f77444001e2e48": {
-        "name": "The Huntsman Path - Sellout",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5d25e2b486f77409de05bba0",
-                    "name": "The Huntsman Path - Secured Perimeter",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "5ae449c386f7744bde357697",
-                    "name": "Sales Night",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        }
+        },
+        "comment": "per Wiki 5/8/2023"
     },
     "6179ad56c760af5ad2053587": {
         "name": "Seaside Vacation",
@@ -689,28 +559,6 @@
             "minPlayerLevel": 17
         },
         "comment": "confirmed by razz 5/1/2023"
-    },
-    "5d25e2ee86f77443e35162ea": {
-        "name": "The Huntsman Path - Woods Keeper",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5d25e2b486f77409de05bba0",
-                    "name": "The Huntsman Path - Secured Perimeter",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "596a0e1686f7741ddf17dbee",
-                    "name": "Supply Plans",
-                    "status": [
-                        "complete",
-                        "failed"
-                    ]
-                }
-            ]
-        }
     },
     "61904daa7d0d857927447b9c": {
         "name": "The Hermit",
@@ -733,6 +581,13 @@
         "propertiesChanged" : {
             "taskRequirements": [
                 {
+                    "task": "5ae4498786f7744bde357695",
+                    "name": "The Key to Success",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
                     "task": "5d25e2e286f77444001e2e48",
                     "name": "The Huntsman Path - Sellout",
                     "status": [
@@ -740,37 +595,43 @@
                     ]
                 }
             ]
-        }
+        },
+        "comment": "per Wiki 5/8/2023"
     },
     "60effd818b669d08a35bfad5": {
         "name": "The Choice",
         "propertiesChanged": {
             "minPlayerLevel": 50
-        }
+        },
+        "comment":"per Wiki 5/8/2023"
     },
     "5eda19f0edce541157209cee": {
         "name": "Anesthesia",
         "propertiesChanged" : {
             "minPlayerLevel": 21
-        }
+        },
+        "comment":"per Wiki 5/8/2023"
     },
     "5d4bec3486f7743cac246665": {
         "name": "Regulated Materials",
         "propertiesChanged" : {
             "minPlayerLevel": 25
-        }
+        },
+        "comment":"per Wiki 5/8/2023"
     },
     "5edab736cc183c769d778bc2": {
         "name": "Colleagues - Part 1",
         "propertiesChanged" : {
             "minPlayerLevel": 21
-        }
+        },
+        "comment":"per Wiki 5/8/2023"
     },
     "5edabd13218d181e29451442": {
         "name": "Rigged Game",
         "propertiesChanged" : {
             "minPlayerLevel": 0
-        }
+        },
+        "comment":"per Wiki 5/8/2023"
     },
     "5bc4776586f774512d07cf05": {
         "name": "The Tarkov Shooter - Part 1",
@@ -784,7 +645,8 @@
                     ]
                 }
             ]
-        }
+        },
+        "comment":"per Wiki 5/8/2023"
     },
     "5ae4493486f7744efa289417": {
         "name": "Database - Part 1",
@@ -805,7 +667,8 @@
                     ]
                 }
             ]
-        }
+        },
+        "comment":"per Wiki 5/8/2023"
     },
     "5ae448f286f77448d73c0131": {
         "name": "The Blood of War - Part 1",
@@ -817,9 +680,17 @@
                     "status": [
                         "complete"
                     ]
+                },
+                {
+                    "task": "5ae448e586f7744dcf0c2a67",
+                    "name": "Big Sale",
+                    "status": [
+                        "complete"
+                    ]
                 }
             ]
-        }
+        },
+        "comment":"per Wiki 5/8/2023"
     },
     "6086c852c945025d41566124": {
         "name": "Revision - Reserve",
@@ -840,16 +711,24 @@
                     ]
                 }
             ]
-        }
+        },
+        "comment":"per Wiki 5/8/2023"
     },
     "6179b4d1bca27a099552e04e": {
         "name": "Revision - Lighthouse",
-        "taskRequirementsRemoved": [
-            {
-                "id": "5a27b80086f774429a5d7e20",
-                "name": "Eagle Eye"
-            }
-        ]
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "6086c852c945025d41566124",
+                    "name": "Revision - Reserve",
+                    "status": [
+                        "active",
+                        "complete"
+                    ]
+                }
+            ]
+        },
+        "comment":"confirmed by razz 5/8/2023"
     },
     "639135f286e646067c176a87": {
         "name": "Revision - Streets of Tarkov",
@@ -864,60 +743,28 @@
                     ]
                 }
             ]
-        }
+        },
+        "comment":"confirmed by razz 5/8/2023"
     },
-    "__6179b3a12153c15e937d52bc": {
+    "6179b3a12153c15e937d52bc": {
         "name": "Energy Crisis",
-        "taskRequirementsRemoved": [
-            {
-                "id": "596760e186f7741e11214d58",
-                "name": "Postman Pat - Part 2"
-            }
-        ],
         "propertiesChanged" : {
-            "minPlayerLevel": 25
-        }
+            "minPlayerLevel": 25,
+            "taskRequirements": [
+                {
+                    "task": "5ac3462b86f7741d6118b983",
+                    "name": "Farming - Part 3",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        },
+        "comment": "per Wiki 5/8/2023"
     },
     "639136e84ed9512be67647db": {
         "name": "Cease Fire!",
-        "taskRequirementsAdded": [
-            {
-                "task": "63a88045abf76d719f42d715",
-                "name": "The Delicious Sausage",
-                "status": [
-                    "complete"
-                ]
-            }
-        ]
-    },
-    "60e71dc0a94be721b065bbfc": {
-        "name": "Long Line",
         "propertiesChanged" : {
-            "minPlayerLevel": 45
-        }
-    },
-    "63966fe7ea74a47c2d3fc0e6": {
-        "name": "Return the Favor",
-        "propertiesChanged": {
-            "location_id": "5704e3c2d2720bac5b8b4567",
-            "locationName": "Woods"
-        },
-        "objectivesChanged": {
-            "639914b61c712b1e1d4dafcb": {
-                "count": 15
-            }
-        }
-    },
-    "6396700fea19ac7ed845db32": {
-        "name": "Spotter",
-        "propertiesChanged": {
-            "location_id": "5714dc692459777137212e12",
-            "locationName": "Streets of Tarkov"
-        }
-    },
-    "5d25e4d586f77443e625e388": {
-        "name": "Reserve",
-        "propertiesChanged": {
             "taskRequirements": [
                 {
                     "task": "63a88045abf76d719f42d715",
@@ -927,88 +774,68 @@
                     ]
                 }
             ]
-        }
+        },
+        "comment": "per Wiki 5/8/2023"
+    },
+    "60e71dc0a94be721b065bbfc": {
+        "name": "Long Line",
+        "propertiesChanged" : {
+            "minPlayerLevel": 45
+        },
+        "comment": "per Wiki 5/8/2023"
+    },
+    "63966fe7ea74a47c2d3fc0e6": {
+        "name": "Return the Favor",
+        "propertiesChanged": {
+            "location_id": "5704e3c2d2720bac5b8b4567",
+            "locationName": "Woods"
+        },
+        "comment": "per Wiki 5/8/2023"
+    },
+    "6396700fea19ac7ed845db32": {
+        "name": "Spotter",
+        "propertiesChanged": {
+            "location_id": "5714dc692459777137212e12",
+            "locationName": "Streets of Tarkov"
+        },
+        "comment": "per Wiki 5/8/2023"
     },
     "60e71ccb5688f6424c7bfec4": {
         "name": "Trophies",
         "propertiesChanged" : {
             "minPlayerLevel": 55,
             "taskRequirements": []
-        }
+        },
+        "comment": "per Wiki 5/8/2023"
     },
     "60e71d23c1bfa3050473b8e6": {
         "name": "Calibration",
         "propertiesChanged" : {
             "minPlayerLevel": 47
-        }
+        },
+        "comment": "per Wiki 5/8/2023"
     },
     "60e71c48c1bfa3050473b8e5": {
         "name": "Crisis",
         "propertiesChanged" : {
             "minPlayerLevel": 48
         },
-        "objectivesChanged": {
-            "60e866175d67b234af3d392a": {
-                "count": 3
-            },
-            "60e867265d67b234af3d392c": {
-                "count": 3
-            }
-        },
-        "finishRewardsChanged": {
-            "items": [
-                {
-                    "item": "60098ad7c2240c0fe85c570a",
-                    "item_name": "AFAK tactical individual first aid kit",
-                    "count": 5,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "item": "5fca13ca637ee0341a484f46",
-                    "item_name": "SJ9 TGLabs combat stimulant injector",
-                    "count": 5,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "item": "5aafbcd986f7745e590fff23",
-                    "item_name": "Medicine case",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ],
-            "skillLevelReward": [
-                {
-                    "name": "Immunity",
-                    "level": 2
-                },
-                {
-                    "name": "Vitality",
-                    "level": 2
-                },
-                {
-                    "name": "Surgery",
-                    "level": 2
-                }
-            ]
-        }
+        "comment": "per Wiki 5/8/2023"
     },
     "5eaaaa7c93afa0558f3b5a1c": {
         "name": "The Survivalist Path - Junkie",
-        "taskRequirementsRemoved": [
-            {
-                "id": "5d25d2c186f77443e35162e5",
-                "name": "The Survivalist Path - Cold Blooded"
-            }
-        ]
-    },
-    "6179b3a12153c15e937d52bc": {
-        "name": "Energy Crisis",
         "propertiesChanged" : {
-            "minPlayerLevel": 25
-        }
+            "taskRequirements": [
+                {
+                    "task": "5d25e2a986f77409dd5cdf2a",
+                    "name": "The Survivalist Path - Combat Medic",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        },
+        "comment": "per Wiki 5/8/2023"
     },
     "6089736efa70fc097863b8f6": {
         "name": "Back Door",
@@ -1022,45 +849,29 @@
                     ]
                 }
             ]
-        }
-    },
-    "6089732b59b92115597ad789": {
-        "name": "Surplus Goods",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "6089736efa70fc097863b8f6",
-                    "name": "Back Door",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        }
+        },
+        "comment": "per Wiki 5/8/2023"
     },
     "60e71b9bbd90872cb85440f3": {
         "name": "Capturing Outposts",
         "propertiesChanged" : {
             "minPlayerLevel": 42
-        }
+        },
+        "comment": "per Wiki 5/8/2023"
     },
     "60e71b62a0beca400d69efc4": {
         "name": "Escort",
         "propertiesChanged" : {
             "minPlayerLevel": 60
-        }
+        },
+        "comment": "per Wiki 5/8/2023"
     },
     "60e71bb4e456d449cd47ca75": {
         "name": "Intimidator",
         "propertiesChanged" : {
             "minPlayerLevel": 45
-        }
-    },
-    "639282134ed9512be67647ed": {
-        "name": "Road Closed",
-        "propertiesChanged" : {
-            "factionName": "USEC"
-        }
+        },
+        "comment": "per Wiki 5/8/2023"
     },
     "608a768d82e40b3c727fd17d": {
         "name": "Pest Control",
@@ -1074,113 +885,59 @@
                     ]
                 }
             ]
-        }
+        },
+        "comment": "per Wiki 5/8/2023"
     },
     "5967733e86f774602332fc84": {
         "name": "Shortage",
         "propertiesChanged" : {
             "minPlayerLevel": 1
-        }
+        },
+        "comment":"confirmed by razz 5/8/2023"
     },
     "5ae3277186f7745973054106": {
         "name": "Gunsmith - Part 8",
-        "taskRequirementsRemoved": [
-            {
-                "id": "5ae3270f86f77445ba41d4dd",
-                "name": "Gunsmith - Part 6"
-            }
-        ]
-    },
-    "61e6e615eea2935bc018a2c5": {
-        "name": "Compensation For Damage - Barkeep",
         "propertiesChanged" : {
-            "traderLevelRequirements": [],
-            "traderRequirements": [
+            "taskRequirements": [
                 {
-                    "id": "410303b7sfge7348ec67f18c",
-                    "trader_id": "579dc571d53a0658a154fbec",
-                    "name": "Fence",
-                    "requirementType": "reputation",
-                    "compareMethod": "<=",
-                    "value": -1,
-                    "level": -1
+                    "task": "5ac244eb86f7741356335af1",
+                    "name": "Gunsmith - Part 7",
+                    "status": [
+                        "complete"
+                    ]
                 }
             ]
-        }
-    },
-    "61e6e60223374d168a4576a6": {
-        "name": "Compensation for Damage - Wager",
-        "propertiesChanged" : {
-            "traderLevelRequirements": [],
-            "traderRequirements": [
-                {
-                    "id": "410303b7sfge7348ec67f18c",
-                    "trader_id": "579dc571d53a0658a154fbec",
-                    "name": "Fence",
-                    "requirementType": "reputation",
-                    "compareMethod": "<=",
-                    "value": -1,
-                    "level": -1
-                }
-            ]
-        }
-    },
-    "61e6e5e0f5b9633f6719ed95": {
-        "name": "Compensation for Damage - Trust",
-        "propertiesChanged" : {
-            "traderLevelRequirements": [],
-            "traderRequirements": [
-                {
-                    "id": "410303b7sfge7348ec67f18c",
-                    "trader_id": "579dc571d53a0658a154fbec",
-                    "name": "Fence",
-                    "requirementType": "reputation",
-                    "compareMethod": "<=",
-                    "value": -1,
-                    "level": -1
-                }
-            ]
-        }
-    },
-    "61e6e621bfeab00251576265": {
-        "name": "Compensation for Damage - Collection",
-        "propertiesChanged" : {
-            "traderLevelRequirements": [],
-            "traderRequirements": [
-                {
-                    "id": "410303b7sfge7348ec67f18c",
-                    "trader_id": "579dc571d53a0658a154fbec",
-                    "name": "Fence",
-                    "requirementType": "reputation",
-                    "compareMethod": "<=",
-                    "value": -1,
-                    "level": -1
-                }
-            ]
-        }
+        },
+        "comment": "per Wiki 5/8/2023"
     },
     "60e729cf5698ee7b05057439": {
         "name": "Swift One",
         "propertiesChanged": {
             "minPlayerLevel": 50
         },
-        "objectivesChanged": {
-            "60e729cf5698ee7b0505743c": {
-                "count": 15
-            }
-        }
+        "comment": "per Wiki 5/8/2023"
     },
     "5f04886a3937dc337a6b8238": {
         "name": "Chemistry Closet",
-        "taskRequirementsAdded": [
-            {
-                "task": "5eda19f0edce541157209cee",
-                "name": "Anesthesia",
-                "status": [
-                    "complete"
-                ]
-            }
-        ]
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5edab736cc183c769d778bc2",
+                    "name": "Colleagues - Part 1",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "5eda19f0edce541157209cee",
+                    "name": "Anesthesia",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        },
+        "comment": "per Wiki 5/8/2023"
     },
     "596b455186f77457cb50eccb": {
         "name": "Stirrup",
@@ -1194,161 +951,8 @@
                     ]
                 }
             ]
-        }
-    },
-    "5edac34d0bb72a50635c2bfa": {
-        "name": "Colleagues - Part 3",
-        "objectivesRemoved": [
-            "5f0702c3d9d49120185e6323",
-            "5f04944b69ef785df740a8c9"
-        ],
-        "objectivesChanged": {
-            "5f07025e27cec53d5d24fe25": {
-                "item_id": "5c94bbff86f7747ee735c08f",
-                "item_name": "TerraGroup Labs access keycard",
-                "count": 10,
-                "item": "5c94bbff86f7747ee735c08f"
-            },
-            "5f04935cde3b9e0ecf03d864": {
-                "item_id": "5c94bbff86f7747ee735c08f",
-                "item_name": "TerraGroup Labs access keycard",
-                "count": 10,
-                "item": "5c94bbff86f7747ee735c08f"
-            }
         },
-        "finishRewardsChanged": {
-            "items": [
-                {
-                    "item": "5449016a4bdc2d6f028b456f",
-                    "item_name": "Roubles",
-                    "count": 150000,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "item": "5ed515e03a40a50460332579",
-                    "item_name": "L1 (Norepinephrine) injector",
-                    "count": 3,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "item": "5ed5160a87bb8443d10680b5",
-                    "item_name": "Meldonin injector",
-                    "count": 3,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "item": "637b60c3b7afa97bfc3d7001",
-                    "item_name": "Obdolbos 2",
-                    "count": 5,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "item": "590c657e86f77412b013051d",
-                    "item_name": "Grizzly medical kit",
-                    "count": 4,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "item": "5c1d0f4986f7744bb01837fa",
-                    "item_name": "TerraGroup Labs keycard (Black)",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "item": "5aafbcd986f7745e590fff23",
-                    "item_name": "Medicine case",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
-    "6396701b9113f06a7c3b2379": {
-        "name": "Make an Impression",
-        "objectivesChanged": {
-            "6397ac912e519e69d2139b26": {
-                "distance": {
-                    "compareMethod": ">=",
-                    "value": 350
-                }
-            }
-        }
-    },
-    "600302d73b897b11364cd161": {
-        "name": "Hunter",
-        "objectivesChanged": {
-            "600303250b79c6604058ce30": {
-                "count": 20
-            }
-        }
-    },
-    "63966ff54c3ef01b6f3ffad8": {
-        "name": "Provocation",
-        "objectivesChanged": {
-            "639a76e3e4aa7349085cb6e3": {
-                "count": 20
-            }
-        },
-        "finishRewardsChanged": {
-            "items": [
-                {
-                    "item": "619bddffc9546643a67df6f0",
-                    "item_name": "Train Hard armband",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "item": "5fc382a9d724d907e2077dab",
-                    "item_name": ".338 Lapua Magnum AP",
-                    "count": 40,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "item": "601aa3d2b2bcb34913271e6d",
-                    "item_name": "7.62x39mm MAI AP",
-                    "count": 100,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
-    "60e71c9ad54b755a3b53eb66": {
-        "name": "The Cleaner",
-        "objectivesChanged": {
-            "60e745d6479eef59b01b0bdc": {
-                "count": 40
-            }
-        },
-        "finishRewardsChanged": {
-            "skillLevelReward": [
-                {
-                    "name": "SMG",
-                    "level": 2
-                },
-                {
-                    "name": "AssaultRifle",
-                    "level": 2
-                }
-            ]
-        }
-    },
-    "63966fd9ea19ac7ed845db30": {
-        "name": "Payback",
-        "objectivesChanged": {
-            "6397ae672e519e69d2139b28": {
-                "count": 6
-            }
-        }
+        "comment": "per Wiki 5/8/2023"
     },
     "5a03153686f77442d90e2171": {
         "name": "Spa Tour - Part 1",
@@ -1369,7 +973,8 @@
                     ]
                 }
             ]
-        }
+        },
+        "comment": "per Wiki 5/8/2023"
     },
     "5a27b9de86f77464e5044585": {
         "name": "The Cult - Part 1",
@@ -1390,6 +995,44 @@
                     ]
                 }
             ]
-        }
+        },
+        "comment": "per Wiki 5/8/2023"
+    },
+    "596a204686f774576d4c95de": {
+        "name": "Sanitary Standards - Part 2",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "59689ee586f7740d1570bbd5",
+                    "name": "Sanitary Standards - Part 1",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "5968eb3186f7741dde183a4d",
+                    "name": "Operation Aquarius - Part 2",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        },
+        "comment": "per Wiki 5/8/2023"
+    },
+    "5d25e45e86f77408251c4bfa": {
+        "name": "The Huntsman Path - Eraser - Part 2",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5d25e44f86f77443e625e385",
+                    "name": "The Huntsman Path - Eraser - Part 1",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        },
+        "comment": "per Wiki 5/8/2023"
     }
 }

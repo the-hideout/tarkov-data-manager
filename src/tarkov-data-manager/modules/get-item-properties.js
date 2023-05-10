@@ -1,5 +1,3 @@
-const { setLocales, getTranslations } = require('./get-translation');
-
 let itemIds = false;
 let disabledItemIds = false;
 let job = false;
@@ -21,7 +19,6 @@ const setAll = async (options) => {
         },
         job: j => {
             job = j;
-            setLocales(j.locales);
         },
     };
     for (const key in options) {
@@ -108,7 +105,7 @@ const getSlots = (item) => {
             nameId: slot._name,
             required: slot._required,
             filters: getFilterConstraints(item, slot),
-            locale: getTranslations({name: (lang, code) => {
+            name: job.addTranslation(nameKey, (lang, code) => {
                 if (lang[nameKey]) {
                     return lang[nameKey].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
                         return substr.toLowerCase();
@@ -119,7 +116,7 @@ const getSlots = (item) => {
                         return substr.toLowerCase();
                     });
                 }
-            }}, job.logger),
+            }),
         };
         if (missingTranslations.length > 0) job.logger.warn(`Could not find ${missingTranslations.join(', ')} label for ${nameKey} slot of ${item._id}`);
         return formattedSlot;
@@ -142,14 +139,8 @@ const getStimEffects = (item) => {
                 duration: buff.Duration,
                 value: buff.Value,
                 percent: !buff.AbsoluteValue,
-                locale: getTranslations({
-                    type: lang => {
-                        return buff.SkillName ? lang.Skill : lang[effectKey];
-                    },
-                    skillName: lang => {
-                        return buff.SkillName ? lang[buff.SkillName] : undefined;
-                    }
-                }, job.logger),
+                type: buff.SkillName ? job.addTranslation('Skill') : job.addTranslation(effectKey),
+                skillName: buff.SkillName ? job.addTranslation(buff.SkillName) : undefined
             };
             stimEffects.push(effect);
         }
@@ -222,10 +213,8 @@ const getItemProperties = async (item) => {
                 turnPenalty: parseInt(item._props.mousePenalty) / 100,
                 ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
                 armor_material_id: item._props.ArmorMaterial,
-                locale: getTranslations({
-                    zones: item._props.armorZone,
-                    armorType: item._props.ArmorType,
-                }),
+                zones: job.addTranslation(item._props.armorZone),
+                armorType: job.addTranslation(item._props.ArmorType)
             };
         }
     } else if (item._parent === '5448e53e4bdc2d60728b4567') {
@@ -290,17 +279,13 @@ const getItemProperties = async (item) => {
                 ricochetY: item._props.RicochetParams.y,
                 ricochetZ: item._props.RicochetParams.z,
                 armor_material_id: item._props.ArmorMaterial,
-                locale: getTranslations({
-                    headZones: lang => {
-                        return item._props.headSegments.map(key => {
-                            if (key === 'LowerNape') {
-                                key = key.toLowerCase();
-                            }
-                            return lang[`HeadSegment/${key}`];
-                        });
-                    },
-                    armorType: item._props.ArmorType,
-                }, job.logger),
+                headZones: job.addTranslation(item._props.headSegments.map(key => {
+                    if (key === 'LowerNape') {
+                        key = key.toLowerCase();
+                    }
+                    key;
+                })),
+                armorType: job.addTranslation(item._props.ArmorType),
             };
             if (hasCategory(item, ['5a341c4086f77401f2541505', '5a341c4686f77469e155819e'])) {
                 properties.propertiesType = 'ItemPropertiesHelmet';
@@ -347,11 +332,7 @@ const getItemProperties = async (item) => {
             }).reduce((previousValue, currentValue) => {
                 return currentValue.id;
             }, null),
-            locale: getTranslations({fireModes: lang => {
-                return item._props.weapFireType.map(mode => {
-                    return lang[mode];
-                });
-            }}, job.logger),
+            fireModes: job.addTranslation(item._props.weapFireType),
         };
     } else if (item._parent === '5a2c3a9486f774688b05e574') {
         // night vision

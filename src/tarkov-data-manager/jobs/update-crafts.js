@@ -10,12 +10,12 @@ class UpdateCraftsJob extends DataJob {
 
     run = async () => {
         this.logger.log('Loading json files...');
-        const [items, json, en, processedItems] = await Promise.all([
+        const [items, json, processedItems] = await Promise.all([
             tarkovData.items(),
             tarkovData.crafts(),
-            tarkovData.locale('en'),
             remoteData.get(),
         ]);
+        const en = this.locales.en;
         const areas = await this.jobManager.jobOutput('update-hideout', this);
         const tasks = await this.jobManager.jobOutput('update-quests', this);
         const presets = await this.jobManager.jobOutput('update-presets', this, true);
@@ -54,8 +54,8 @@ class UpdateCraftsJob extends DataJob {
                     endProduct = processedItems.get(preset.id);
                 }
             }
-            if (!stations[station.locale.en.name]) {
-                stations[station.locale.en.name] = 0;
+            if (!stations[en[station.name]]) {
+                stations[en[station.name]] = 0;
             }
             const craftData = {
                 id: id,
@@ -69,7 +69,7 @@ class UpdateCraftsJob extends DataJob {
                 }],
                 station: station.id,
                 station_id: station.id,
-                sourceName: station.locale.en.name,
+                sourceName: en[station.name],
                 duration: craft.productionTime,
                 requirements: []
             };
@@ -188,9 +188,9 @@ class UpdateCraftsJob extends DataJob {
                 });
                 craftData.level = 1;
             }
-            craftData.source = `${station.locale.en.name} level ${craftData.level}`;
+            craftData.source = `${en[station.name]} level ${craftData.level}`;
             crafts.Craft.push(craftData);
-            stations[station.locale.en.name]++;
+            stations[en[station.name]]++;
         }
         for (const stationName in stations) {
             this.logger.log(`✔️ ${stationName}: ${stations[stationName]}`);
