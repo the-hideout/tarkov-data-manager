@@ -8,6 +8,7 @@ const ignoreTypes = [
     'updated',
     'data',
     'expiration',
+    'locale',
     'ItemType',
     'LanguageCode',
 ];
@@ -25,7 +26,7 @@ const typesQueries = {
     FleaMarket: ['fleaMarket'],
     HideoutStation: ['hideoutStations'],
     historicalItemPricePoint: ['historicalItemPrices'],
-    Item: ['items', 'itemsByIDs', 'ItemsByType', 'itemsByName', 'itemByNormalizedName', 'itemsByBsgCategory'],
+    Item: ['items', 'itemsByIDs', 'itemsByType', 'itemsByName', 'itemByNormalizedName', 'itemsByBsgCategoryId'],
     ItemCategory: ['itemCategories', 'handbookCategories'],
     Map: ['maps'],
     MobInfo: ['bosses'],
@@ -38,6 +39,19 @@ const typesQueries = {
     Quest: ['quests'],
     TraderResetTime: ['traderResetTimes'],
 };
+
+const localeTypes = [
+    'ArmorMaterial',
+    'FleaMarket',
+    'HideoutStation',
+    'Item',
+    'ItemCategory',
+    'Map',
+    'MobInfo',
+    'QuestItem',
+    'Task',
+    'Trader',
+];
 
 const linkedTypes = {
     TraderCashOffer: ['ItemPrice'],
@@ -88,8 +102,19 @@ module.exports = async (outputFile, logger) => {
     try {
         newData = JSON.parse(fs.readFileSync(`./dumps/${outputFile}.json`));
         purgeData.updated =  new Date(newData.updated);
+        let localeChanged = false;
+        if (newData.locale) {
+            if (JSON.stringify(oldData.locale) !== JSON.stringify(newData.locale)) {
+                localeChanged = true;
+            }
+        }
         for (const dataType in oldData) {
             if (ignoreTypes.includes(dataType)) {
+                continue;
+            }
+            if (localeChanged && localeTypes[dataType]) {
+                addTypePurge(purgeData, dataType);
+                addQueryPurge(purgeData, dataType);
                 continue;
             }
             const oldD = oldData[dataType];

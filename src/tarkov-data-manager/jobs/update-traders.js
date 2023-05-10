@@ -2,7 +2,6 @@ const got = require('got');
 
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
-const { setLocales, getTranslations } = require('../modules/get-translation');
 const DataJob = require('../modules/data-job');
 const s3 = require('../modules/upload-s3');
 
@@ -14,48 +13,65 @@ class UpdateTradersJob extends DataJob {
 
     async run() {
         this.logger.log('Loading trader data, locales, TarkovData traders.json...');
-        const [tradersData, locales, tdTraders] = await Promise.all([
+        [this.tradersData, this.globals, this.tdTraders] = await Promise.all([
             tarkovData.traders(),
-            tarkovData.locales(),
+            tarkovData.globals(),
             got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
                 responseType: 'json',
                 resolveBodyOnly: true,
             }),
         ]);
-        setLocales(locales);
-        const traders = {
-            Trader: [],
-        };
+        this.kvData.Trader = [];
         const s3Images = s3.getLocalBucketContents();
         this.logger.log('Processing traders...');
-        for (const traderId in tradersData) {
-            const trader = tradersData[traderId];
+        for (const traderId in this.tradersData) {
+            const trader = this.tradersData[traderId];
             const date = new Date(trader.nextResupply*1000);
             //date.setHours(date.getHours() +5);
             const traderData = {
                 id: trader._id,
-                name: locales.en[`${trader._id} Nickname`],
-                normalizedName: normalizeName(locales.en[`${trader._id} Nickname`]),
+                name: this.addTranslation(`${trader._id} Nickname`),
+                description: this.addTranslation(`${trader._id} Description`),
+                normalizedName: normalizeName(this.locales.en[`${trader._id} Nickname`]),
                 currency: trader.currency,
                 resetTime: date,
                 discount: parseInt(trader.discount) / 100,
                 levels: [],
-                locale: getTranslations({
-                    name: `${trader._id} Nickname`,
-                    description: `${trader._id} Description`,
-                }, this.logger),
+                reputationLevels: [],
                 items_buy: trader.items_buy,
                 items_buy_prohibited: trader.items_buy_prohibited,
                 imageLink: `https://${process.env.S3_BUCKET}/unknown-trader.webp`,
                 image4xLink: `https://${process.env.S3_BUCKET}/unknown-trader-4x.webp`,
             };
+            if (traderData.id === this.globals.config.FenceSettings.FenceId) {
+                for (const minRepLevel in this.globals.config.FenceSettings.Levels) {
+                    const lvl = this.globals.config.FenceSettings.Levels[minRepLevel];
+                    traderData.reputationLevels.push({
+                        __typename: 'TraderReputationLevelFence',
+                        minimumReputation: parseInt(minRepLevel),
+                        scavCooldownModifier: lvl.SavageCooldownModifier,
+                        scavCaseTimeModifier: lvl.ScavCaseTimeModifier,
+                        extractPriceModifier: lvl.ExfiltrationPriceModifier,
+                        scavFollowChance: lvl.BotFollowChance / 100,
+                        scavEquipmentSpawnChanceModifier: lvl.ScavEquipmentSpawnChanceModifier,
+                        priceModifier: lvl.PriceModifier,
+                        hostileBosses: lvl.HostileBosses,
+                        hostileScavs: lvl.HostileScavs,
+                        scavAttackSupport: lvl.ScavAttackSupport,
+                        availableScavExtracts: lvl.AvailableExits,
+                    });
+                }
+                traderData.reputationLevels.sort((a, b) => {
+                    return a.minimumReputation - b.minimumReputation;
+                });
+            }
             if (s3Images.includes(`${traderData.id}.webp`)) {
                 traderData.imageLink = `https://${process.env.S3_BUCKET}/${traderData.id}.webp`;
             }
             if (s3Images.includes(`${traderData.id}-4x.webp`)) {
                 traderData.image4xLink = `https://${process.env.S3_BUCKET}/${traderData.id}-4x.webp`;
             }
-            if (!locales.en[`${trader._id} Nickname`]) {
+            if (!this.locales.en[`${trader._id} Nickname`]) {
                 this.logger.warn(`No trader id ${trader._id} found in locale_en.json`);
                 traderData.name = trader.nickname;
                 traderData.normalizedName = normalizeName(trader.nickname);
@@ -96,15 +112,15 @@ class UpdateTradersJob extends DataJob {
                 traderData.levels.push(levelData);
             }
             this.logger.log(`   - Levels: ${traderData.levels.length}`);
-            if (tdTraders[traderData.name.toLowerCase()]) {
-                traderData.tarkovDataId = tdTraders[traderData.name.toLowerCase()].id;
+            if (this.tdTraders[traderData.name.toLowerCase()]) {
+                traderData.tarkovDataId = this.tdTraders[traderData.name.toLowerCase()].id;
             }
-            traders.Trader.push(traderData);
+            this.kvData.Trader.push(traderData);
         }
-        this.logger.log(`Processed ${traders.Trader.length} traders`);
+        this.logger.log(`Processed ${this.kvData.Trader.length} traders`);
 
-        await this.cloudflarePut(traders);
-        return traders;
+        await this.cloudflarePut();
+        return this.kvData;
     }
 }
 

@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: github/branch-deploy@v5.1.1
+      - uses: github/branch-deploy@v5.2.1
         id: branch-deploy
         with:
           admins: the-hideout/core-contributors
@@ -27,7 +27,7 @@ jobs:
 
       - name: checkout
         if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
-        uses: actions/checkout@v3.5.0
+        uses: actions/checkout@v3.5.2
         with:
           ref: ${{ steps.branch-deploy.outputs.ref }}
 
@@ -124,7 +124,7 @@ jobs:
           script_stop: true
           script: ~/tarkov-data-manager/script/deploy -r="${{ steps.branch-deploy.outputs.ref }}" -f="${{ steps.branch-deploy.outputs.fork_checkout }}" -d="tarkov-data-manager" -n="${{ steps.branch-deploy.outputs.fork_full_name }}"
 
-      - uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435 # pin@v4.5.0
+      - uses: actions/setup-python@57ded4d7d5e986d7296eab16560982c6dd7c923b # pin@v4.6.0
         if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
         with:
           python-version: '3.10'

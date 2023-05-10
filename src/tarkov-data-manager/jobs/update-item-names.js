@@ -194,7 +194,11 @@ class UpdateItemNamesJob extends DataJob {
             for (const id of regnerateImages) {
                 this.logger.log(`Regerating images for ${id}`);
                 await regenerateFromExisting(id, true).catch(errors => {
-                    this.logger.error(`Error regenerating images for ${id}: ${errors.map(error => error.message).join(', ')}`);
+                    if (Array.isArray(errors)) {
+                        this.logger.error(`Error regenerating images for ${id}: ${errors.map(error => error.message).join(', ')}`);
+                    } else {
+                        this.logger.error(`Error regenerating images for ${id}: ${errors.message}`);
+                    }
                 });
             }
             this.logger.succeed('Finished regenerating images');

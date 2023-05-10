@@ -5,7 +5,6 @@ const got = require('got');
 
 const remoteData = require('../modules/remote-data');
 const tarkovData = require('../modules/tarkov-data');
-const { setLocales, getTranslations, addTranslations } = require('../modules/get-translation');
 const normalizeName = require('../modules/normalize-name');
 const DataJob = require('../modules/data-job');
 
@@ -36,7 +35,6 @@ class UpdateQuestsJob extends DataJob {
             fs.readFile(path.join(__dirname, '..', 'data', 'changed_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(__dirname, '..', 'data', 'removed_quests.json')).then(json => JSON.parse(json)),
         ]);
-        setLocales(this.locales);
         this.maps = await this.jobManager.jobOutput('update-maps', this);
         this.mapLoot = {};
         await Promise.all(this.maps.map(mapData => {
@@ -79,27 +77,25 @@ class UpdateQuestsJob extends DataJob {
             }
             const quest = this.missingQuests[questId];
             if (quests.Task.some(q => q.id === questId)) {
-                this.logger.warn(`Missing quest ${quest.name} ${quest.id} already exists...`);
+                this.logger.warn(`Missing quest ${this.locales.en[quest.name]} ${quest.id} already exists...`);
                 continue;
             }
             try {
                 this.logger.warn(`Adding missing quest ${quest.name} ${quest.id}...`);
-                quest.locale = getTranslations({name: `${questId} name`}, this.logger);
+                quest.name = this.addTranslation(`${questId} name`);
                 quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.locales.en[`${questId} name`].replaceAll(' ', '_'))}`;
                 for (const obj of quest.objectives) {
-                    obj.locale = getTranslations({description: obj.id}, this.logger);
+                    obj.description = this.addTranslation(obj.id);
                     if (obj.type.endsWith('QuestItem')) {
                         this.questItems[obj.item_id] = {
                             id: obj.item_id
                         };
                     }
                     if (obj.type === 'extract') {
-                        obj.locale = addTranslations(obj.locale, {exitStatus: lang => {
-                            return obj.exitStatus.map(stat => lang[`ExpBonus${stat}`]);
-                        }}, this.logger);
+                        obj.exitStatus = this.addTranslation(obj.exitStatus.map(stat => `ExpBonus${stat}`));
                     }
                     if (obj.type === 'shoot') {
-                        obj.locale = addTranslations(obj.locale, {target: obj.target}, this.logger);
+                        obj.target = this.addTranslation(obj.target);
                     }
                     this.addMapFromDescription(obj);
                 }
@@ -133,20 +129,24 @@ class UpdateQuestsJob extends DataJob {
         for (const tdQuest of this.tdQuests) {
             try {
                 if (tdQuest.gameId && this.removedQuests[tdQuest.gameId]) continue;
-                if (!this.tdMatched.includes(tdQuest.id)) {
-                    this.logger.warn(`Adding TarkovData quest ${tdQuest.title} ${tdQuest.id}...`);
-                    if (!this.tdTraders) {
-                        this.logger.log('Retrieving TarkovTracker traders.json...');
-                        this.tdTraders = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
-                            responseType: 'json',
-                        })).body;
-                        this.logger.log('Retrieving TarkovTracker maps.json...');
-                        this.tdMaps = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/maps.json', {
-                            responseType: 'json',
-                        })).body;
-                    }
-                    quests.Task.push(this.formatTdQuest(tdQuest));
+                if (this.tdMatched.includes(tdQuest.id)) {
+                    continue;
                 }
+                if (tdQuest.gameId && quests.Task.some(t => t.id === tdQuest.gameId)) {
+                    continue;
+                }
+                this.logger.warn(`Adding TarkovData quest ${tdQuest.title} ${tdQuest.id}...`);
+                if (!this.tdTraders) {
+                    this.logger.log('Retrieving TarkovTracker traders.json...');
+                    this.tdTraders = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
+                        responseType: 'json',
+                    })).body;
+                    this.logger.log('Retrieving TarkovTracker maps.json...');
+                    this.tdMaps = (await got('https://github.com/TarkovTracker/tarkovdata/raw/master/maps.json', {
+                        responseType: 'json',
+                    })).body;
+                }
+                quests.Task.push(this.formatTdQuest(tdQuest));
             } catch (error) {
                 this.logger.error('Error processing missing TarkovData quests');
                 this.logger.error(error);
@@ -208,7 +208,7 @@ class UpdateQuestsJob extends DataJob {
             quest.startMessageId = this.locales.en.quest[quest.id]?.startedMessageText;
             quest.successMessageId = this.locales.en.quest[quest.id]?.successMessageText;
             quest.failMessageId = this.locales.en.quest[quest.id]?.failMessageText;*/
-            quest.normalizedName = normalizeName(quest.name)+(quest.factionName !== 'Any' ? `-${normalizeName(quest.factionName)}` : '');
+            quest.normalizedName = normalizeName(this.locales.en[quest.name])+(quest.factionName !== 'Any' ? `-${normalizeName(quest.factionName)}` : '');
 
             const removeReqs = [];
             for (const req of quest.taskRequirements) {
@@ -335,8 +335,15 @@ class UpdateQuestsJob extends DataJob {
                 neededSet.add(taskId);
             }
             const task = quests.Task.find(task => task.id === taskId);
+            for (const failOn of task.failConditions) {
+                if (failOn.type !== 'taskStatus' || failOn.status[0] !== 'complete') {
+                    continue;
+                }
+                neededSet.add(failOn.task);
+            }
             for (const req of task.taskRequirements) {
-                addPreviousRequirements(neededSet, req.task, req.status.length === 1 && req.status[0] === 'complete');
+                //addPreviousRequirements(neededSet, req.task, req.status.length === 1 && req.status[0] === 'complete');
+                addPreviousRequirements(neededSet, req.task, true);
             }
         };
         addPreviousRequirements(neededForKappa, '5c51aac186f77432ea65c552', true);
@@ -390,11 +397,9 @@ class UpdateQuestsJob extends DataJob {
                 //questItems[id].backgroundColor = items[id]._props.BackgroundColor;
                 this.questItems[id].width = this.items[id]._props.Width;
                 this.questItems[id].height = this.items[id]._props.Height;
-                this.questItems[id].locale = getTranslations({
-                    name: `${id} Name`,
-                    shortName: `${id} ShortName`,
-                    description: `${id} Description`
-                }, this.logger);
+                this.questItems[id].name = this.addTranslation(`${id} Name`);
+                this.questItems[id].shortName = this.addTranslation(`${id} ShortName`);
+                this.questItems[id].description = this.addTranslation(`${id} Description`);
             }
             if (questItemMap.has(id)) {
                 const itemData = questItemMap.get(id);
@@ -407,12 +412,14 @@ class UpdateQuestsJob extends DataJob {
             } else {
                 this.logger.warn(`Quest item ${id} not found in DB`);
             }
-            this.questItems[id].normalizedName = normalizeName(this.questItems[id].locale.en.name);
+            this.questItems[id].normalizedName = normalizeName(this.locales.en[this.questItems[id].name]);
         }
 
         quests.QuestItem = this.questItems;
 
         quests.Quest = await this.jobManager.runJob('update-quests-legacy', {data: this.tdQuests, parent: this});
+
+        quests.locale = this.kvData.locale;
 
         await this.cloudflarePut(quests);
         this.logger.success(`Finished processing ${quests.Task.length} quests`);
@@ -600,11 +607,10 @@ class UpdateQuestsJob extends DataJob {
                 questData[rewardsType].offerUnlock.push(unlock);
             } else if (reward.type === 'Skill') {
                 const skillLevel = {
-                    name: this.locales.en[reward.target],
-                    level: parseInt(reward.value) / 100,
-                    locale: getTranslations({name: lang => {
+                    name: this.addTranslation(reward.target, (lang) => {
                         return lang[reward.target] || reward.target;
-                    }}, this.logger)
+                    }),
+                    level: parseInt(reward.value) / 100,
                 };
                 questData[rewardsType].skillLevelReward.push(skillLevel);
             } else if (reward.type === 'TraderUnlock') {
@@ -868,7 +874,7 @@ class UpdateQuestsJob extends DataJob {
         }
         const questData = {
             id: questId,
-            name: this.locales.en[`${questId} name`],
+            name: this.addTranslation(`${questId} name`),
             trader: quest.traderId,
             traderName: this.locales.en[`${quest.traderId} Nickname`],
             location_id: locationId,
@@ -926,7 +932,6 @@ class UpdateQuestsJob extends DataJob {
             tarkovDataId: undefined,
             factionName: 'Any',
             neededKeys: [],
-            locale: getTranslations({name: `${questId} name`}, this.logger)
         };
         for (const objective of quest.conditions.AvailableForFinish) {
             const obj = this.formatObjective(objective);
@@ -1069,7 +1074,6 @@ class UpdateQuestsJob extends DataJob {
                         newObj.locale_map = {};
                     }
                     newObj.locale_map.description = newObj.id;
-                    newObj.locale = getTranslations(newObj.locale_map, this.logger);
                     questData.objectives.push(newObj);
                     addedCount++;
                 }
@@ -1097,9 +1101,6 @@ class UpdateQuestsJob extends DataJob {
                 //this.logger.warn(JSON.stringify(this.changedQuests[questData.id].finishRewardsAdded), null, 4);
                 for (const rewardType in this.changedQuests[questData.id].finishRewardsAdded) {
                     for (const reward of this.changedQuests[questData.id].finishRewardsAdded[rewardType]) {
-                        if (reward.locale_map) {
-                            reward.locale = getTranslations(reward.locale_map, this.logger);
-                        }
                         questData.finishRewards[rewardType].push(reward);
                     }
                 }
@@ -1111,7 +1112,7 @@ class UpdateQuestsJob extends DataJob {
                     questData.finishRewards[rewardType] = this.changedQuests[questData.id].finishRewardsChanged[rewardType];
                     if (rewardType === 'skillLevelReward') {
                         for (const reward of questData.finishRewards[rewardType]) {
-                            reward.locale = getTranslations({name: reward.name}, this.logger);
+                            reward.name = this.addTranslation(reward.name);
                         }
                     }
                 }
@@ -1173,12 +1174,12 @@ class UpdateQuestsJob extends DataJob {
         }
         const obj = {
             id: objectiveId,
+            description: this.addTranslation(objectiveId),
             type: null,
             optional: optional,
             locationNames: [],
             map_ids: [],
             zoneKeys: [],
-            locale: getTranslations({description: objectiveId}, this.logger, false, logNotFound)
         };
         if (objective._parent === 'FindItem' || objective._parent === 'HandoverItem') {
             const targetItem = this.items[objective._props.target[0]];
@@ -1216,10 +1217,7 @@ class UpdateQuestsJob extends DataJob {
                     if (cond._parent === 'Shots') obj.shotType = 'hit';
                     //obj.bodyParts = [];
                     if (cond._props.bodyPart) {
-                        obj.bodyParts = cond._props.bodyPart;
-                        obj.locale = addTranslations(obj.locale, {bodyParts: lang => {
-                            return cond._props.bodyPart.map(part => lang[`QuestCondition/Elimination/Kill/BodyPart/${part}`]);
-                        }}, this.logger);
+                        obj.bodyParts = this.addTranslation(cond._props.bodyPart.map(part => `QuestCondition/Elimination/Kill/BodyPart/${part}`));
                     }
                     obj.usingWeapon = [];
                     obj.usingWeaponMods = [];
@@ -1270,25 +1268,18 @@ class UpdateQuestsJob extends DataJob {
                         obj.enemyHealthEffect = {
                             ...cond._props.enemyHealthEffects[0],
                             time: null,
-                            locale: getTranslations({
-                                bodyParts: lang => {
-                                    if (!cond._props.enemyHealthEffects[0].bodyParts) {
-                                        return undefined;
-                                    }
-                                    return cond._props.enemyHealthEffects[0].bodyParts.map(part => lang[`QuestCondition/Elimination/Kill/BodyPart/${part}`]);
-                                }, effects: lang => {
-                                    if (!cond._props.enemyHealthEffects[0].effects) {
-                                        return undefined;
-                                    }
-                                    return cond._props.enemyHealthEffects[0].effects.map(eff => {
-                                        if (eff === 'Stimulator') {
-                                            return lang['5448f3a64bdc2d60728b456a Name'];
-                                        }
-                                        return lang[eff];
-                                    });
-                                }
-                            }, this.logger),
                         };
+                        if (cond._props.enemyHealthEffects[0].bodyParts) {
+                            obj.bodyParts = this.addTranslation(cond._props.enemyHealthEffects[0].bodyParts.map(part => `QuestCondition/Elimination/Kill/BodyPart/${part}`));
+                        }
+                        if (cond._props.enemyHealthEffects[0].effects) {
+                            obj.effects = this.addTranslation(cond._props.enemyHealthEffects[0].effects.map(eff => {
+                                if (eff === 'Stimulator') {
+                                    return '5448f3a64bdc2d60728b456a Name';
+                                }
+                                return eff;
+                            }))
+                        }
                     }
                     let targetCode = cond._props.target;
                     if (cond._props.savageRole) {
@@ -1298,7 +1289,7 @@ class UpdateQuestsJob extends DataJob {
                         obj.timeFromHour = cond._props.daytime.from;
                         obj.timeUntilHour = cond._props.daytime.to;
                     }
-                    obj.locale = addTranslations(obj.locale, {target: lang => {
+                    obj.target = this.addTranslation(targetCode, (lang) => {
                         if (targetCode == 'followerBully') {
                             return `${lang['QuestCondition/Elimination/Kill/BotRole/bossBully']} ${lang['ScavRole/Follower']}`;
                         }
@@ -1314,7 +1305,7 @@ class UpdateQuestsJob extends DataJob {
                             name = targetCode;
                         }
                         return name;
-                    }}, this.logger);
+                    });
                 } else if (cond._parent === 'Location') {
                     for (const loc of cond._props.target) {
                         if (loc === 'develop') continue;
@@ -1327,14 +1318,17 @@ class UpdateQuestsJob extends DataJob {
                         }
                     }
                 } else if (cond._parent === 'ExitStatus') {
-                    obj.exitStatus = cond._props.status;
-                    obj.locale = addTranslations(obj.locale, {exitStatus: lang => {
-                        return cond._props.status.map(stat => lang[`ExpBonus${stat}`]);
-                    }}, this.logger);
+                    obj.exitStatus = this.addTranslation(cond._props.status.map(stat => `ExpBonus${stat}`));
                     obj.zoneNames = [];
                 } else if (cond._parent === 'ExitName') {
-                    obj.locale = addTranslations(obj.locale, {exitName: cond._props.exitName}, this.logger);
-                    obj.exitName = cond._props.exitName;
+                    obj.exitName = this.addTranslation(cond._props.exitName)
+                    if (cond._props.exitName && obj.map_ids.length === 0) {
+                        if (extractMap[cond._props.exitName]) {
+                            obj.map_ids.push(extractMap[cond._props.exitName]);
+                        } else {
+                            this.logger.warn(`No map found for extract ${cond._props.exitName}`);
+                        }
+                    }
                 } else if (cond._parent === 'Equipment') {
                     if (!obj.wearing) obj.wearing = [];
                     if (!obj.notWearing) obj.notWearing = [];
@@ -1369,25 +1363,18 @@ class UpdateQuestsJob extends DataJob {
                         bodyParts: cond._props.bodyPartsWithEffects[0].bodyParts,
                         effects: cond._props.bodyPartsWithEffects[0].effects,
                         time: null,
-                        locale: getTranslations({
-                            bodyParts: lang => {
-                                if (!cond._props.bodyPartsWithEffects[0].bodyParts) {
-                                    return undefined;
-                                }
-                                return cond._props.bodyPartsWithEffects[0].bodyParts.map(part => lang[`QuestCondition/Elimination/Kill/BodyPart/${part}`]);
-                            }, effects: lang => {
-                                if (!cond._props.bodyPartsWithEffects[0].effects) {
-                                    return undefined;
-                                }
-                                return cond._props.bodyPartsWithEffects[0].effects.map(eff => {
-                                    if (eff === 'Stimulator') {
-                                        return lang['5448f3a64bdc2d60728b456a Name'];
-                                    }
-                                    return lang[eff];
-                                });
-                            }
-                        }, this.logger),
                     };
+                    if (cond._props.bodyPartsWithEffects[0].bodyParts) {
+                        obj.bodyParts = this.addTranslation(cond._props.bodyPartsWithEffects[0].bodyParts.map(part => `QuestCondition/Elimination/Kill/BodyPart/${part}`));
+                    }
+                    if (cond._props.bodyPartsWithEffects[0].effects) {
+                        obj.effects = this.addTranslation(cond._props.bodyPartsWithEffects[0].effects.map(eff => {
+                            if (eff === 'Stimulator') {
+                                return '5448f3a64bdc2d60728b456a Name';
+                            }
+                            return eff;
+                        }))
+                    }
                     if (cond._props.time) obj.healthEffect.time = cond._props.time;
                 } else if (cond._parent === 'UseItem') {
                     obj.useAny = cond._props.target.filter(id => this.itemMap[id]).reduce((allItems, current) => {
@@ -1450,9 +1437,8 @@ class UpdateQuestsJob extends DataJob {
         } else if (objective._parent === 'Skill') {
             obj.type = 'skill';
             obj.skillLevel = {
-                name: this.locales.en[objective._props.target],
+                name: this.addTranslation(objective._props.target),
                 level: objective._props.value,
-                locale: getTranslations({name: objective._props.target}, this.logger)
             };
         } else if (objective._parent === 'WeaponAssembly') {
             obj.type = 'buildWeapon';
@@ -1588,7 +1574,7 @@ class UpdateQuestsJob extends DataJob {
                 }
                 return reducedKeys;
             }, []);
-            addTranslations(obj.locale, {zoneNames: reducedZones}, this.logger);
+            obj.zoneNames = this.addTranslation(reducedZones);
         } else {
             delete obj.zoneKeys;
         }
@@ -1696,6 +1682,7 @@ const factionMap = {
     '5e381b0286f77420e3417a74': 'USEC',
     '5e4d4ac186f774264f758336': 'USEC',
     '6179b5eabca27a099552e052': 'USEC',
+    '639282134ed9512be67647ed': 'USEC',
     '5e383a6386f77465910ce1f3': 'BEAR',
     '5e4d515e86f77438b2195244': 'BEAR',
     '6179b5b06e9dd54ac275e409': 'BEAR'

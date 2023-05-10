@@ -31,5 +31,20 @@ module.exports = {
         RUB: '5449016a4bdc2d6f028b456f',
         USD: '5696686a4bdc2da3298b456a',
         EUR: '569668774bdc2da2298b4568'
+    },
+    sellToTrader: {
+        Skier: {
+            allowedAdded: {
+                ids: [],
+                categories: [],
+            },
+            prohibitedAdded: {
+                ids: [
+                    '5a33a8ebc4a282000c5a950d',
+                    '5644bd2b4bdc2d3b4c8b4572',
+                ],
+                categories: [],
+            }
+        }
     }
 };

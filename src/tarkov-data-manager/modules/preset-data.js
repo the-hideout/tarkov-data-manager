@@ -1,9 +1,9 @@
-const tarkovData = require('../modules/tarkov-data');
+const tarkovData = require('./tarkov-data');
 
 let itemData = false;
 let credits = false;
 
-const getPresetSize = async (item, logger = false) => {
+const getPresetData = async (item, logger = false) => {
     if(!itemData){
         itemData = await tarkovData.items();
     }
@@ -94,9 +94,9 @@ const getPresetSize = async (item, logger = false) => {
 };
 
 module.exports = {
-    initPresetSize:( bsgItemsData, creditsData) => {
+    initPresetData:( bsgItemsData, creditsData) => {
         itemData = bsgItemsData;
         credits = creditsData;
     },
-    getPresetSize: getPresetSize
+    getPresetData
 }

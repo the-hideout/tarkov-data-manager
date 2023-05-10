@@ -2,7 +2,6 @@ const got = require('got');
 
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
-const { setLocales, getTranslations } = require('../modules/get-translation');
 const DataJob = require('../modules/data-job');
 
 const skipChristmasTree = true;
@@ -14,58 +13,54 @@ class UpdateHideoutJob extends DataJob {
     }
 
     async run() {
-        const [data, locales, tdHideout] = await Promise.all([
+        [this.data, this.items, this.tdHideout] = await Promise.all([
             tarkovData.areas(),
-            tarkovData.locales(),
+            tarkovData.items(),
             got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/hideout.json', {
                 responseType: 'json',
                 resolveBodyOnly: true,
             })
         ]);
-        const en = locales.en;
-        setLocales(locales);
-        const hideoutData = {
-            HideoutStation: [],
-        };
+        const en = this.locales.en;
+        this.kvData.HideoutStation = [];
         const areasByType = {};
-        for (const stationId in data) {
-            areasByType[data[stationId].type] = stationId;
+        for (const stationId in this.data) {
+            areasByType[this.data[stationId].type] = stationId;
         }
-        for (const stationId in data) {
-            const station = data[stationId];
+        for (const stationId in this.data) {
+            const station = this.data[stationId];
             if (!en[`hideout_area_${station.type}_name`]) {
                 this.logger.warn(`❌ ${station.type} not found in locale_en.json`);
                 continue;
             }
             const stationData = {
                 id: station._id,
-                name: en[`hideout_area_${station.type}_name`],
+                name: this.addTranslation(`hideout_area_${station.type}_name`),
                 normalizedName: normalizeName(en[`hideout_area_${station.type}_name`]),
                 areaType: station.type,
                 levels: [],
-                locale: getTranslations({name: `hideout_area_${station.type}_name`}, this.logger),
             };
             if (!station.enabled || (skipChristmasTree && stationId === '5df8a81f8f77747fcf5f5702')) {
-                this.logger.log(`❌ ${stationData.name}`);
+                this.logger.log(`❌ ${en[stationData.name]}`);
                 continue;
             }
-            this.logger.log(`✔️ ${stationData.name}`);
-            for (const tdStation of tdHideout.stations) {
-                if (tdStation.locales.en.toLowerCase() === stationData.name.toLowerCase()) {
+            this.logger.log(`✔️ ${en[stationData.name]}`);
+            for (const tdStation of this.tdHideout.stations) {
+                if (tdStation.locales.en.toLowerCase() === en[stationData.name].toLowerCase()) {
                     stationData.tarkovDataId = tdStation.id;
                     break;
                 }
             }
             if (typeof stationData.tarkovDataId === 'undefined') {
-                this.logger.warn(`Could not find TarkovData id for ${stationData.name}`);
+                //this.logger.warn(`Could not find TarkovData id for ${stationData.name}`);
             }
             for (let i = 1; i < Object.keys(station.stages).length; i++) {
                 if (!station.stages[String(i)]) {
-                    this.logger.warn(`No stage found for ${stationData.name} level ${i}`);
+                    this.logger.warn(`No stage found for ${en[stationData.name]} level ${i}`);
                     continue;
                 }
                 if (!en[`hideout_area_${station.type}_stage_${i}_description`]) {
-                    this.logger.warn(`No stage ${i} description found for ${stationData.name}`);
+                    this.logger.warn(`No stage ${i} description found for ${en[stationData.name]}`);
                 }
                 const stage = station.stages[String(i)];
                 const stageData = {
@@ -76,16 +71,17 @@ class UpdateHideoutJob extends DataJob {
                     stationLevelRequirements: [],
                     itemRequirements: [],
                     skillRequirements: [],
-                    locale: getTranslations({description: `hideout_area_${station.type}_stage_${i}_description`}),
+                    bonuses: this.getBonuses(stage.bonuses),
+                    description: this.addTranslation(`hideout_area_${station.type}_stage_${i}_description`),
                 };
-                for (const tdModule of tdHideout.modules) {
+                for (const tdModule of this.tdHideout.modules) {
                     if (tdModule.stationId === stationData.tarkovDataId && tdModule.level === stageData.level) {
                         stageData.tarkovDataId = tdModule.id;
                         break;
                     }
                 }
                 if (typeof stageData.tarkovDataId === 'undefined') {
-                    this.logger.warn(`Could not find tarkovData id for ${stationData.name} level ${stageData.level}`);
+                    //this.logger.warn(`Could not find tarkovData id for ${stationData.name} level ${stageData.level}`);
                 }
                 if (i === 1 && station.requirements.length > 0) {
                     stage.requirements = [
@@ -106,16 +102,11 @@ class UpdateHideoutJob extends DataJob {
                     } else if (req.type === 'Skill') {
                         const skillReq = {
                             id: `${stationData.id}-${i}-${r}`,
-                            name: en[req.skillName] || req.skillName,
+                            name: this.addTranslation(req.skillName),
                             level: req.skillLevel,
-                            locale: getTranslations({name: req.skillName}),
                         };
                         stageData.skillRequirements.push(skillReq);
                     } else if (req.type === 'Area') {
-                        if (req.requiredLevel < 1) {
-                            this.logger.warn(`Skipping ${en[`hideout_area_${req.areaType}_name`]} level ${req.requiredLevel} requirement for ${en[`hideout_area_${station.type}_name`]} level ${i}`);
-                            continue;
-                        }
                         stageData.stationLevelRequirements.push({
                             id: `${stationData.id}-${i}-${r}`,
                             station: areasByType[req.areaType],
@@ -134,16 +125,74 @@ class UpdateHideoutJob extends DataJob {
                         continue;
                     }
                 }
+                //ensure all modules require the previous module
+                if (stageData.level > 1) {
+                    const prevReq = stageData.stationLevelRequirements.find(req => req.station === stationData.id);
+                    if (!prevReq) {
+                        this.logger.warn(`Added level ${stageData.level-1} as requirement for level ${stageData.level}`);
+                        stageData.stationLevelRequirements.push({
+                            id: `${stationData.id}-${i}-${stage.requirements.length}`,
+                            station: stationData.id,
+                            name: stationData.name,
+                            level: stageData.level - 1,
+                        });
+                    } else if (prevReq.level !== i -1) {
+                        this.logger.warn(`Changed level ${prevReq.level} to ${i - 1} as requirement for level ${stageData.level}`);
+                        prevReq.level = i - 1;
+                    }
+                }
                 stationData.levels.push(stageData);
             }
-            hideoutData.HideoutStation.push(stationData);
+            this.kvData.HideoutStation.push(stationData);
         }
-        this.logger.success(`Processed ${hideoutData.HideoutStation.length} hideout stations`);
+        this.logger.success(`Processed ${this.kvData.HideoutStation.length} hideout stations`);
 
-        hideoutData.HideoutModule = await this.jobManager.runJob('update-hideout-legacy', {data: tdHideout, parent: this});
+        this.kvData.HideoutModule = await this.jobManager.runJob('update-hideout-legacy', {data: this.tdHideout, parent: this});
 
-        await this.cloudflarePut(hideoutData);
-        return hideoutData;
+        await this.cloudflarePut();
+        return this.kvData;
+    }
+
+    getBonuses(bonuses) {
+        const bonusesData = [];
+        for (const bonus of bonuses) {
+            if (bonus.type === 'TextBonus') {
+                continue;
+            }
+            const bonusData = {
+                type: bonus.type,
+                name: this.addTranslation(`hideout_${bonus.id || bonus.type}`),
+                value: this.bonusValueFilter(bonus),
+                passive: bonus.passive,
+                production: bonus.production,
+            };
+            if (bonus.filter) {
+                bonusData.slotItems = bonus.filter;
+            }
+            if (bonus.skillType) {
+                bonusData.skillName = this.addTranslation(bonus.skillType);
+            }
+            bonusesData.push(bonusData);
+        }
+        return bonusesData;
+    }
+
+    bonusValueFilter(bonus) {
+        if (bonus.type === 'StashSize') {
+            const stashGridProps = this.items[bonus.templateId]._props.Grids[0]._props;
+            return stashGridProps.cellsH * stashGridProps.cellsV;
+        }
+        const absoluteTypes = [
+            'AdditionalSlots',
+            'MaximumEnergyReserve',
+            'UnlockArmorRepair',
+            'UnlockWeaponModification',
+            'UnlockWeaponRepair',
+        ];
+        if (absoluteTypes.includes(bonus.type)) {
+            return bonus.value;
+        }
+        return bonus.value / 100;
     }
 }
 

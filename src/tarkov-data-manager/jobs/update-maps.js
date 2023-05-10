@@ -2,7 +2,6 @@ const remoteData = require('../modules/remote-data');
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 //const mapQueueTimes = require('../modules/map-queue-times');
-const { setLocales, getTranslations, addTranslations } = require('../modules/get-translation');
 const DataJob = require('../modules/data-job');
 const s3 = require('../modules/upload-s3');
 
@@ -14,19 +13,15 @@ class UpdateMapsJob extends DataJob {
 
     run = async () => {
         this.logger.log('Getting maps data...');
-        [this.locales, this.items, this.presets] = await Promise.all([
-            tarkovData.locales(),
+        [this.items, this.presets] = await Promise.all([
             remoteData.get(),
             this.jobManager.jobOutput('update-presets', this, true),
         ]);
-        setLocales(this.locales);
         this.bossLoadouts = {};
         this.processedBosses = {};
         const locations = await tarkovData.locations();
         this.s3Images = s3.getLocalBucketContents();
-        const maps = {
-            Map: [],
-        };
+        this.kvData.Map = [];
         this.logger.log('Processing maps...');
         for (const id in locations.locations) {
             const map = locations.locations[id];
@@ -37,7 +32,7 @@ class UpdateMapsJob extends DataJob {
             const mapData = {
                 id: id,
                 tarkovDataId: null,
-                name: this.locales.en[`${id} Name`],
+                name: this.addTranslation(`${id} Name`),
                 normalizedName: normalizeName(this.locales.en[`${id} Name`]),
                 nameId: map.Id,
                 description: this.locales.en[`${id} Description`],
@@ -90,7 +85,7 @@ class UpdateMapsJob extends DataJob {
                         name: locationName,
                         chance: Math.round((locationCount[locationName].count / locations.length) * 100) / 100,
                         spawnKey: locationCount[locationName].key,
-                        locale: getTranslations({name: (lang, langCode) => {
+                        name: this.addTranslation(locationCount[locationName].key, (lang, langCode) => {
                             if (lang[locationCount[locationName].key]) {
                                 return lang[locationCount[locationName].key];
                             }
@@ -99,7 +94,7 @@ class UpdateMapsJob extends DataJob {
                             }
                             this.logger.warn(`No translation found for spawn location ${locationCount[locationName].key}`);
                             return locationName;
-                        }}, this.logger),
+                        }),
                     });
                 }
                 if (spawn.BossEscortAmount !== '0') {
@@ -138,11 +133,9 @@ class UpdateMapsJob extends DataJob {
 
                 if (spawn.TriggerId) {
                     if (this.locales.en[spawn.TriggerId]) {
-                        bossData.spawnTrigger = this.locales.en[spawn.TriggerId];
-                        addTranslations(bossData.locale, {spawnTrigger: spawn.TriggerId}, this.logger);
+                        bossData.spawnTrigger = this.addTranslation(spawn.TriggerId);
                     } else if (spawn.TriggerId.includes('EXFIL')) {
-                        addTranslations(bossData.locale, {spawnTrigger: 'ExfilActivation'}, this.logger);
-                        bossData.spawnTrigger = 'Exfil Activation';
+                        bossData.spawnTrigger = this.addTranslation('ExfilActivation');
                     }
                 }
                 /*bossData.locale = getTranslations({
@@ -159,26 +152,19 @@ class UpdateMapsJob extends DataJob {
                 }*/
                 mapData.bosses.push(bossData);
             }
-            mapData.enemies = [...enemySet];
-            mapData.locale = getTranslations({
-                name: lang => {
-                    if (id === '59fc81d786f774390775787e' && lang.factory4_night) {
-                        return lang.factory4_night;
-                    }
-                    return lang[`${id} Name`];
-                },
-                description: `${id} Description`,
-                enemies: lang => {
-                    const enemies = new Set(mapData.enemies.map(enemy => {
-                        return this.getEnemyName(enemy, lang);
-                    }));
-                    return [...enemies];
+            mapData.enemies = this.addTranslation([...enemySet], (enemy, lang) => {
+                return this.getEnemyName(enemy, lang);
+            });
+            mapData.name = this.addTranslation(`${id} Name`, (lang) => {
+                if (id === '59fc81d786f774390775787e' && lang.factory4_night) {
+                    return lang.factory4_night;
                 }
-            }, this.logger);
-            mapData.name = mapData.locale.en.name;
-            mapData.normalizedName = normalizeName(mapData.name);
-            maps.Map.push(mapData);
-            this.logger.log(`✔️ ${mapData.name} ${id}`);
+                return lang[`${id} Name`];
+            }),
+            mapData.description = this.addTranslation(`${id} Description`),
+            mapData.normalizedName = normalizeName(this.kvData.locale.en[mapData.name]);
+            this.kvData.Map.push(mapData);
+            this.logger.log(`✔️ ${this.kvData.locale.en[mapData.name]} ${id}`);
         }
 
         await Promise.allSettled(maps.Map.map(mapData => {
@@ -193,22 +179,22 @@ class UpdateMapsJob extends DataJob {
         });
 
         //const queueTimes = await mapQueueTimes(maps.data, this.logger);
-        maps.Map = maps.Map.sort((a, b) => a.name.localeCompare(b.name)).map(map => {
+        this.kvData.Map = this.kvData.Map.sort((a, b) => a.name.localeCompare(b.name)).map(map => {
             return {
                 ...map,
                 //queueTimes: queueTimes[map.id]
             };
         });
-        this.logger.log(`Processed ${maps.Map.length} maps`);
+        this.logger.log(`Processed ${this.kvData.Map.length} maps`);
 
-        maps.MobInfo = this.processedBosses;
-        this.logger.log(`Processed ${Object.keys(maps.MobInfo).length} mobs`);
-        for (const mob of Object.values(maps.MobInfo)) {
-            this.logger.log(`✔️ ${mob.locale.en.name}`);
+        this.kvData.MobInfo = this.processedBosses;
+        this.logger.log(`Processed ${Object.keys(this.kvData.MobInfo).length} mobs`);
+        for (const mob of Object.values(this.kvData.MobInfo)) {
+            this.logger.log(`✔️ ${this.kvData.locale.en[mob.name]}`);
         }
 
-        await this.cloudflarePut(maps);
-        return maps;
+        await this.cloudflarePut();
+        return this.kvData;
     }
 
     isValidItem = (id) => {
@@ -235,7 +221,7 @@ class UpdateMapsJob extends DataJob {
         if (lang[enemy]) {
             return lang[enemy];
         }
-        if (enemy.includes('follower')) {
+        if (enemy.includes('follower') && !enemy.includes('BigPipe') && !enemy.includes('BirdEye')) {
             const nameParts = [];
             const guardTypePattern = /Assault|Security|Scout/;
             const bossKey = enemy.replace('follower', 'boss').replace(guardTypePattern, '');
@@ -363,16 +349,14 @@ class UpdateMapsJob extends DataJob {
         const bossData = this.bossLoadouts[bossKey];
         const bossInfo = {
             id: bossKey,
+            name: this.addTranslation(bossKey, (lang) => {
+                return this.getEnemyName(bossKey, lang);
+            }),
             normalizedName: normalizeName(this.getEnemyName(bossKey, this.locales.en)),
             imagePortraitLink: `https://${process.env.S3_BUCKET}/unknown-mob-portrait.webp`,
             imagePosterLink: `https://${process.env.S3_BUCKET}/unknown-mob-poster.webp`,
             equipment: [],
             items: [],
-            locale: getTranslations({
-                name: lang => {
-                    return this.getEnemyName(bossKey, lang);
-                }
-            }, this.logger),
         };
         const extensions = [
             'webp',
@@ -396,8 +380,8 @@ class UpdateMapsJob extends DataJob {
         bossInfo.health = Object.keys(bossData.health.BodyParts[0]).map(bodyPart => {
             return {
                 id: bodyPart,
+                bodyPart: this.addTranslation(bodyPart),
                 max: bossData.health.BodyParts[0][bodyPart].max,
-                locale: getTranslations({bodyPart: bodyPart}, this.logger),
             };
         });
         for (const slotName in bossData.inventory.equipment) {
