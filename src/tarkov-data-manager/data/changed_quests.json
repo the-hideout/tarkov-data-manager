@@ -521,45 +521,6 @@
             "60e827faf09904268a4dbc52": "62a6ffbcec21e50cad3b6708"
         }
     },
-    "60c0c018f7afb4354815096a": {
-        "name": "The Huntsman Path - Factory Chief",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5d25e2cc86f77443e47ae019",
-                    "name": "The Huntsman Path - Forest Cleaning",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "5ac3477486f7741d651d6885",
-                    "name": "Scout",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "6179ad56c760af5ad2053587": {
-        "name": "Seaside Vacation",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "60896e28e4a85c72ef3fa301",
-                    "name": "Disease History",
-                    "status": [
-                        "complete",
-                        "active"
-                    ]
-                }
-            ],
-            "minPlayerLevel": 17
-        },
-        "comment": "confirmed by razz 5/1/2023"
-    },
     "61904daa7d0d857927447b9c": {
         "name": "The Hermit",
         "propertiesChanged" : {
@@ -575,144 +536,6 @@
             ]
         },
         "comment": "confirmed by razz 4/30/2023"
-    },
-    "5dc53acb86f77469c740c893": {
-        "name": "The Stylish One",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5ae4498786f7744bde357695",
-                    "name": "The Key to Success",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "5d25e2e286f77444001e2e48",
-                    "name": "The Huntsman Path - Sellout",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "60effd818b669d08a35bfad5": {
-        "name": "The Choice",
-        "propertiesChanged": {
-            "minPlayerLevel": 50
-        },
-        "comment":"per Wiki 5/8/2023"
-    },
-    "5eda19f0edce541157209cee": {
-        "name": "Anesthesia",
-        "propertiesChanged" : {
-            "minPlayerLevel": 21
-        },
-        "comment":"per Wiki 5/8/2023"
-    },
-    "5d4bec3486f7743cac246665": {
-        "name": "Regulated Materials",
-        "propertiesChanged" : {
-            "minPlayerLevel": 25
-        },
-        "comment":"per Wiki 5/8/2023"
-    },
-    "5edab736cc183c769d778bc2": {
-        "name": "Colleagues - Part 1",
-        "propertiesChanged" : {
-            "minPlayerLevel": 21
-        },
-        "comment":"per Wiki 5/8/2023"
-    },
-    "5edabd13218d181e29451442": {
-        "name": "Rigged Game",
-        "propertiesChanged" : {
-            "minPlayerLevel": 0
-        },
-        "comment":"per Wiki 5/8/2023"
-    },
-    "5bc4776586f774512d07cf05": {
-        "name": "The Tarkov Shooter - Part 1",
-        "propertiesChanged": {
-            "taskRequirements": [
-                {
-                    "task": "5d24b81486f77439c92d6ba8",
-                    "name": "Acquaintance",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment":"per Wiki 5/8/2023"
-    },
-    "5ae4493486f7744efa289417": {
-        "name": "Database - Part 1",
-        "propertiesChanged": {
-            "taskRequirements": [
-                {
-                    "task": "5ae448bf86f7744d733e55ee",
-                    "name": "Make ULTRA Great Again",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "5ae448e586f7744dcf0c2a67",
-                    "name": "Big Sale",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment":"per Wiki 5/8/2023"
-    },
-    "5ae448f286f77448d73c0131": {
-        "name": "The Blood of War - Part 1",
-        "propertiesChanged": {
-            "taskRequirements": [
-                {
-                    "task": "5ae448bf86f7744d733e55ee",
-                    "name": "Make ULTRA Great Again",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "5ae448e586f7744dcf0c2a67",
-                    "name": "Big Sale",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment":"per Wiki 5/8/2023"
-    },
-    "6086c852c945025d41566124": {
-        "name": "Revision - Reserve",
-        "propertiesChanged": {
-            "taskRequirements": [
-                {
-                    "task": "5a27d2af86f7744e1115b323",
-                    "name": "Friend from the West - Part 2",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "5a27b87686f77460de0252a8",
-                    "name": "Humanitarian Supplies",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment":"per Wiki 5/8/2023"
     },
     "6179b4d1bca27a099552e04e": {
         "name": "Revision - Lighthouse",
@@ -746,44 +569,6 @@
         },
         "comment":"confirmed by razz 5/8/2023"
     },
-    "6179b3a12153c15e937d52bc": {
-        "name": "Energy Crisis",
-        "propertiesChanged" : {
-            "minPlayerLevel": 25,
-            "taskRequirements": [
-                {
-                    "task": "5ac3462b86f7741d6118b983",
-                    "name": "Farming - Part 3",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "639136e84ed9512be67647db": {
-        "name": "Cease Fire!",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "63a88045abf76d719f42d715",
-                    "name": "The Delicious Sausage",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "60e71dc0a94be721b065bbfc": {
-        "name": "Long Line",
-        "propertiesChanged" : {
-            "minPlayerLevel": 45
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
     "63966fe7ea74a47c2d3fc0e6": {
         "name": "Return the Favor",
         "propertiesChanged": {
@@ -800,94 +585,6 @@
         },
         "comment": "per Wiki 5/8/2023"
     },
-    "60e71ccb5688f6424c7bfec4": {
-        "name": "Trophies",
-        "propertiesChanged" : {
-            "minPlayerLevel": 55,
-            "taskRequirements": []
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "60e71d23c1bfa3050473b8e6": {
-        "name": "Calibration",
-        "propertiesChanged" : {
-            "minPlayerLevel": 47
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "60e71c48c1bfa3050473b8e5": {
-        "name": "Crisis",
-        "propertiesChanged" : {
-            "minPlayerLevel": 48
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "5eaaaa7c93afa0558f3b5a1c": {
-        "name": "The Survivalist Path - Junkie",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5d25e2a986f77409dd5cdf2a",
-                    "name": "The Survivalist Path - Combat Medic",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "6089736efa70fc097863b8f6": {
-        "name": "Back Door",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5ac3477486f7741d651d6885",
-                    "name": "Scout",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "60e71b9bbd90872cb85440f3": {
-        "name": "Capturing Outposts",
-        "propertiesChanged" : {
-            "minPlayerLevel": 42
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "60e71b62a0beca400d69efc4": {
-        "name": "Escort",
-        "propertiesChanged" : {
-            "minPlayerLevel": 60
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "60e71bb4e456d449cd47ca75": {
-        "name": "Intimidator",
-        "propertiesChanged" : {
-            "minPlayerLevel": 45
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "608a768d82e40b3c727fd17d": {
-        "name": "Pest Control",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5d25e4d586f77443e625e388",
-                    "name": "Reserve",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
     "5967733e86f774602332fc84": {
         "name": "Shortage",
         "propertiesChanged" : {
@@ -895,62 +592,10 @@
         },
         "comment":"confirmed by razz 5/8/2023"
     },
-    "5ae3277186f7745973054106": {
-        "name": "Gunsmith - Part 8",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5ac244eb86f7741356335af1",
-                    "name": "Gunsmith - Part 7",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
     "60e729cf5698ee7b05057439": {
         "name": "Swift One",
         "propertiesChanged": {
             "minPlayerLevel": 50
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "5f04886a3937dc337a6b8238": {
-        "name": "Chemistry Closet",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5edab736cc183c769d778bc2",
-                    "name": "Colleagues - Part 1",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "5eda19f0edce541157209cee",
-                    "name": "Anesthesia",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "596b455186f77457cb50eccb": {
-        "name": "Stirrup",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "596b36c586f77450d6045ad2",
-                    "name": "Supplier",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
         },
         "comment": "per Wiki 5/8/2023"
     },
@@ -968,65 +613,6 @@
                 {
                     "task": "5a27b87686f77460de0252a8",
                     "name": "Humanitarian Supplies",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "5a27b9de86f77464e5044585": {
-        "name": "The Cult - Part 1",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5a27d2af86f7744e1115b323",
-                    "name": "Friend from the West - Part 2",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "5a27b87686f77460de0252a8",
-                    "name": "Humanitarian Supplies",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "596a204686f774576d4c95de": {
-        "name": "Sanitary Standards - Part 2",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "59689ee586f7740d1570bbd5",
-                    "name": "Sanitary Standards - Part 1",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "5968eb3186f7741dde183a4d",
-                    "name": "Operation Aquarius - Part 2",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "5d25e45e86f77408251c4bfa": {
-        "name": "The Huntsman Path - Eraser - Part 2",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5d25e44f86f77443e625e385",
-                    "name": "The Huntsman Path - Eraser - Part 1",
                     "status": [
                         "complete"
                     ]
