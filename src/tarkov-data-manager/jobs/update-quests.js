@@ -241,7 +241,7 @@ class UpdateQuestsJob extends DataJob {
                 if (earlierTasks.has(reqId)) {
                     const requiredTask = quests.Task.find(q => q.id === reqId);
                     this.logger.warn(`${quest.name} ${quest.id} required task ${requiredTask.name} ${requiredTask.id} is a precursor to another required task`);
-                    quest.taskRequirements - quest.taskRequirements.filter(req => req.task !== reqId);
+                    quest.taskRequirements = quest.taskRequirements.filter(req => req.task !== reqId);
                 }
             }
         }
