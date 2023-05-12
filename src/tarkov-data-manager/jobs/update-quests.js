@@ -195,6 +195,7 @@ class UpdateQuestsJob extends DataJob {
             return actualMinLevel;
         };
 
+        let filteredPrerequisiteTaskCount = 0;
         for (const quest of quests.Task) {
             /*quest.descriptionMessageId = this.locales.en.quest[quest.id]?.description;
             quest.startMessageId = this.locales.en.quest[quest.id]?.startedMessageText;
@@ -239,11 +240,15 @@ class UpdateQuestsJob extends DataJob {
             }
             for (const reqId of required) {
                 if (earlierTasks.has(reqId)) {
-                    const requiredTask = quests.Task.find(q => q.id === reqId);
-                    this.logger.warn(`${quest.name} ${quest.id} required task ${requiredTask.name} ${requiredTask.id} is a precursor to another required task`);
+                    //const requiredTask = quests.Task.find(q => q.id === reqId);
+                    //this.logger.warn(`${this.locales.en[quest.name]} ${quest.id} required task ${this.locales.en[requiredTask.name]} ${requiredTask.id} is a precursor to another required task`);
                     quest.taskRequirements = quest.taskRequirements.filter(req => req.task !== reqId);
+                    filteredPrerequisiteTaskCount++;
                 }
             }
+        }
+        if (filteredPrerequisiteTaskCount > 0) {
+            this.logger.warn(`Filtered out ${filteredPrerequisiteTaskCount} redundant prerequisite tasks`);
         }
 
         const ignoreMissingQuests = [
@@ -933,16 +938,19 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
             if (this.changedQuests[questData.id].taskRequirementsAdded) {
-                let addedCount = 0;
+                let skippedAdditions = [];
                 for (const newReq of this.changedQuests[questData.id].taskRequirementsAdded) {
                     if (questData.taskRequirements.some(req => req.task === newReq.task)) {
+                        skippedAdditions.push(newReq)
                         continue;
                     }
                     questData.taskRequirements.push(newReq);
-                    addedCount++;
                 }
-                if (addedCount === 0) {
+                if (skippedAdditions.length > 0) {
                     this.logger.warn('Manually added task requirements already present');
+                    for(const req of skippedAdditions) {
+                        console.log(req);
+                    }
                 }
             }
             if (this.changedQuests[questData.id].taskRequirementsRemoved) {
