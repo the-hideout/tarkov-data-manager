@@ -262,6 +262,7 @@ class UpdateQuestsJob extends DataJob {
         const ignoreMissingQuests = [
             '613708a7f8333a5d15594368',
         ];
+        const noQuestData = [];
         for (const key in this.locales.en) {
             const match = key.match(/(?<id>[a-f0-9]{24}) name/);
             if (!match) {
@@ -283,7 +284,13 @@ class UpdateQuestsJob extends DataJob {
                 //this.logger.warn(`Quest ${this.locales.en[`${questId} name`]} ${questId} has been removed`);
                 continue;
             }
-            this.logger.warn(`No quest data found for ${this.locales.en[`${questId} name`]} ${questId}`);
+            noQuestData.push(`${this.locales.en[`${questId} name`]} ${questId}`);
+        }
+        if (noQuestData.length > 0) {
+            this.logger.warn(`No quest data found for:`);
+            for (const noData of noQuestData) {
+                this.logger.warn(noData);
+            }
         }
 
         const neededForKappa = new Set();
