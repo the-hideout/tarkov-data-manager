@@ -7,6 +7,7 @@ const remoteData = require('../modules/remote-data');
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 const DataJob = require('../modules/data-job');
+const { filter } = require('domutils');
 
 class UpdateQuestsJob extends DataJob {
     constructor() {
@@ -195,7 +196,7 @@ class UpdateQuestsJob extends DataJob {
             return actualMinLevel;
         };
 
-        let filteredPrerequisiteTaskCount = 0;
+        const filteredPrerequisiteTasks = {};
         for (const quest of quests.Task) {
             /*quest.descriptionMessageId = this.locales.en.quest[quest.id]?.description;
             quest.startMessageId = this.locales.en.quest[quest.id]?.startedMessageText;
@@ -242,13 +243,20 @@ class UpdateQuestsJob extends DataJob {
                 if (earlierTasks.has(reqId)) {
                     //const requiredTask = quests.Task.find(q => q.id === reqId);
                     //this.logger.warn(`${this.locales.en[quest.name]} ${quest.id} required task ${this.locales.en[requiredTask.name]} ${requiredTask.id} is a precursor to another required task`);
-                    quest.taskRequirements = quest.taskRequirements.filter(req => req.task !== reqId);
-                    filteredPrerequisiteTaskCount++;
+                    quest.taskRequirements = quest.taskRequirements.filter(req => req.task !== reqId); 
+                    if (!(quest.id in filteredPrerequisiteTasks)) {
+                        filteredPrerequisiteTasks[quest.id] = 0;
+                    }
+                    filteredPrerequisiteTasks[quest.id]++;
                 }
             }
         }
-        if (filteredPrerequisiteTaskCount > 0) {
-            this.logger.warn(`Filtered out ${filteredPrerequisiteTaskCount} redundant prerequisite tasks`);
+        if (Object.keys(filteredPrerequisiteTasks).length > 0) {
+            this.logger.warn('Filtered out redundant prerequisite tasks:');
+            for (const questId in filteredPrerequisiteTasks) {
+                const quest = quests.Task.find(q => q.id === questId);
+                this.logger.warn(`${this.locales.en[quest.name]} ${questId}: ${filteredPrerequisiteTasks[questId]}`);
+            }
         }
 
         const ignoreMissingQuests = [
