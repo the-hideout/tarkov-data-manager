@@ -82,7 +82,7 @@ module.exports = {
     locales: getLocales,
     quests: (download) => {
         return downloadJson('quests.json', `${sptPath}templates/quests.json`, download).then(sptQuests => {
-            try {
+            /*try {
                 let rawFile = false;
                 let rawFileDate = new Date(0);
                 let backupRaw = false;
@@ -121,7 +121,7 @@ module.exports = {
                 }
             } catch (error) {
                 console.log(error);
-            }
+            }*/
             return sptQuests;
         });
     },

@@ -11,7 +11,8 @@
     "dev": "node -r dotenv/config --trace-warnings index.js",
     "start": "node --max-old-space-size=3000 index.js",
     "job": "node -r dotenv/config --trace-warnings test-job.js",
-    "put-kvs": "node -r dotenv/config --trace-warnings populate-kvs.js"
+    "put-kvs": "node -r dotenv/config --trace-warnings populate-kvs.js",
+    "kv-locale": "node -r dotenv/config --trace-warnings ./scripts/generate-kv-locale.js"
   },
   "keywords": [],
   "author": "",
