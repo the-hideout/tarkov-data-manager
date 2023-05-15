@@ -7,6 +7,7 @@ const remoteData = require('../modules/remote-data');
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 const DataJob = require('../modules/data-job');
+const { filter } = require('domutils');
 
 class UpdateQuestsJob extends DataJob {
     constructor() {
@@ -195,6 +196,7 @@ class UpdateQuestsJob extends DataJob {
             return actualMinLevel;
         };
 
+        const filteredPrerequisiteTasks = {};
         for (const quest of quests.Task) {
             /*quest.descriptionMessageId = this.locales.en.quest[quest.id]?.description;
             quest.startMessageId = this.locales.en.quest[quest.id]?.startedMessageText;
@@ -239,16 +241,28 @@ class UpdateQuestsJob extends DataJob {
             }
             for (const reqId of required) {
                 if (earlierTasks.has(reqId)) {
-                    const requiredTask = quests.Task.find(q => q.id === reqId);
-                    this.logger.warn(`${quest.name} ${quest.id} required task ${requiredTask.name} ${requiredTask.id} is a precursor to another required task`);
-                    quest.taskRequirements - quest.taskRequirements.filter(req => req.task !== reqId);
+                    //const requiredTask = quests.Task.find(q => q.id === reqId);
+                    //this.logger.warn(`${this.locales.en[quest.name]} ${quest.id} required task ${this.locales.en[requiredTask.name]} ${requiredTask.id} is a precursor to another required task`);
+                    quest.taskRequirements = quest.taskRequirements.filter(req => req.task !== reqId); 
+                    if (!(quest.id in filteredPrerequisiteTasks)) {
+                        filteredPrerequisiteTasks[quest.id] = 0;
+                    }
+                    filteredPrerequisiteTasks[quest.id]++;
                 }
+            }
+        }
+        if (Object.keys(filteredPrerequisiteTasks).length > 0) {
+            this.logger.warn('Filtered out redundant prerequisite tasks:');
+            for (const questId in filteredPrerequisiteTasks) {
+                const quest = quests.Task.find(q => q.id === questId);
+                this.logger.warn(`${this.locales.en[quest.name]} ${questId}: ${filteredPrerequisiteTasks[questId]}`);
             }
         }
 
         const ignoreMissingQuests = [
             '613708a7f8333a5d15594368',
         ];
+        const noQuestData = [];
         for (const key in this.locales.en) {
             const match = key.match(/(?<id>[a-f0-9]{24}) name/);
             if (!match) {
@@ -270,7 +284,13 @@ class UpdateQuestsJob extends DataJob {
                 //this.logger.warn(`Quest ${this.locales.en[`${questId} name`]} ${questId} has been removed`);
                 continue;
             }
-            this.logger.warn(`No quest data found for ${this.locales.en[`${questId} name`]} ${questId}`);
+            noQuestData.push(`${this.locales.en[`${questId} name`]} ${questId}`);
+        }
+        if (noQuestData.length > 0) {
+            this.logger.warn(`No quest data found for:`);
+            for (const noData of noQuestData) {
+                this.logger.warn(noData);
+            }
         }
 
         const neededForKappa = new Set();
@@ -933,16 +953,19 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
             if (this.changedQuests[questData.id].taskRequirementsAdded) {
-                let addedCount = 0;
+                let skippedAdditions = [];
                 for (const newReq of this.changedQuests[questData.id].taskRequirementsAdded) {
                     if (questData.taskRequirements.some(req => req.task === newReq.task)) {
+                        skippedAdditions.push(newReq)
                         continue;
                     }
                     questData.taskRequirements.push(newReq);
-                    addedCount++;
                 }
-                if (addedCount === 0) {
+                if (skippedAdditions.length > 0) {
                     this.logger.warn('Manually added task requirements already present');
+                    for(const req of skippedAdditions) {
+                        console.log(req);
+                    }
                 }
             }
             if (this.changedQuests[questData.id].taskRequirementsRemoved) {
