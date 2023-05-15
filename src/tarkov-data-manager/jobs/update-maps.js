@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const remoteData = require('../modules/remote-data');
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
@@ -17,6 +19,7 @@ class UpdateMapsJob extends DataJob {
             remoteData.get(),
             this.jobManager.jobOutput('update-presets', this, true),
         ]);
+        this.mapRotationData = JSON.parse(fs.readFileSync('./data/map_coordinates.json'));
         this.bossLoadouts = {};
         this.processedBosses = {};
         const locations = await tarkovData.locations();
@@ -41,8 +44,12 @@ class UpdateMapsJob extends DataJob {
                 raidDuration: map.EscapeTimeLimit,
                 players: map.MinPlayers+'-'+map.MaxPlayers,
                 bosses: [],
+                coordinateToCardinalRotation: 180,
                 locale: {}
             };
+            if (this.mapRotationData[id]) {
+                mapData.coordinateToCardinalRotation = this.mapRotationData[id].rotation;
+            }
             if (typeof idMap[id] !== 'undefined') mapData.tarkovDataId = idMap[id];
             const enemySet = new Set();
             for (const wave of map.waves) {
@@ -167,7 +174,7 @@ class UpdateMapsJob extends DataJob {
             this.logger.log(`✔️ ${this.kvData.locale.en[mapData.name]} ${id}`);
         }
 
-        await Promise.allSettled(maps.Map.map(mapData => {
+        await Promise.allSettled(this.kvData.Map.map(mapData => {
             return tarkovData.mapLoot(mapData.nameId, true);
         })).then(results => {
             results.forEach(result => {
