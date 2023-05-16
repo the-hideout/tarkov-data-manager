@@ -1654,7 +1654,8 @@ const factionMap = {
     '639282134ed9512be67647ed': 'USEC',
     '5e383a6386f77465910ce1f3': 'BEAR',
     '5e4d515e86f77438b2195244': 'BEAR',
-    '6179b5b06e9dd54ac275e409': 'BEAR'
+    '6179b5b06e9dd54ac275e409': 'BEAR',
+    '639136d68ba6894d155e77cf': 'BEAR',
 };
 
 module.exports = UpdateQuestsJob;
