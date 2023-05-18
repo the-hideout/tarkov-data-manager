@@ -179,5 +179,20 @@
             "minPlayerLevel": 29
         },
         "comment": "per Wiki 5/15/2023"
+    },
+    "5d25e4ad86f77443e625e387": {
+        "name": "Nostalgia",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5d25e48186f77443e625e386",
+                    "name": "Courtesy Visit",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        },
+        "comment": "confirmed Spa Tour 1-3 not required by Shebuka 5/18/2023"
     }
 }
