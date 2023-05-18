@@ -45,7 +45,10 @@ class UpdateMapsJob extends DataJob {
                 players: map.MinPlayers+'-'+map.MaxPlayers,
                 bosses: [],
                 coordinateToCardinalRotation: 180,
-                locale: {}
+                minPlayerLevel: map.RequiredPlayerLevelMin,
+                maxPlayerLevel: map.RequiredPlayerLevelMax,
+                accessKeys: map.AccessKeys,
+                minPlayLevelAccessKeys: map.MinPlayerLvlAccessKeys,
             };
             if (this.mapRotationData[id]) {
                 mapData.coordinateToCardinalRotation = this.mapRotationData[id].rotation;
@@ -72,7 +75,6 @@ class UpdateMapsJob extends DataJob {
                     spawnTime: spawn.Time,
                     spawnTimeRandom: spawn.RandomTimeSpawn,
                     spawnTrigger: null,
-                    locale: {}
                 };
                 await this.getBossInfo(spawn.BossName);
                 if (bossData.spawnChance === 0) {
@@ -115,7 +117,6 @@ class UpdateMapsJob extends DataJob {
                         //name: enemyKey,
                         //normalizedName: normalizeName(this.getEnemyName(enemyKey, this.locales.en)),
                         amount: getChances(spawn.BossEscortAmount, 'count', true), 
-                        locale: {}
                     });
                     await this.getBossInfo(spawn.BossEscortType);
                 }
@@ -132,7 +133,6 @@ class UpdateMapsJob extends DataJob {
                             //name: enemyKey,
                             //normalizedName: normalizeName(this.getEnemyName(enemyKey, this.locales.en)),
                             amount: getChances(support.BossEscortAmount, 'count', true), 
-                            locale: {}
                         });
                         await this.getBossInfo(support.BossEscortType);
                     }
