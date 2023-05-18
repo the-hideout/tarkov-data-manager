@@ -869,7 +869,7 @@ class UpdateQuestsJob extends DataJob {
             }
         }
         for (const objective of quest.conditions.Fail) {
-            const obj = this.formatObjective(objective);
+            const obj = this.formatObjective(objective, true);
             if (obj) {
                 questData.failConditions.push(obj);
             }
@@ -1106,7 +1106,7 @@ class UpdateQuestsJob extends DataJob {
         return questData;
     }
 
-    formatObjective(objective) {
+    formatObjective(objective, failConditions = false) {
         let objectiveId = objective._props.id;
         for (const questId in this.changedQuests) {
             if (!this.changedQuests[questId].objectiveIdsChanged) {
@@ -1125,7 +1125,7 @@ class UpdateQuestsJob extends DataJob {
         }
         const obj = {
             id: objectiveId,
-            description: this.addTranslation(objectiveId),
+            description: (!failConditions || this.locales.en[objectiveId]) ? this.addTranslation(objectiveId) : this.addTranslation(objectiveId, 'en', ''),
             type: null,
             optional: optional,
             locationNames: [],

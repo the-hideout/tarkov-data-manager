@@ -189,7 +189,7 @@ class DataJob {
             }
             return key;
         }
-        if (langCode && value) {
+        if (langCode && typeof value !== 'undefined') {
             this.kvData.locale[langCode][key] = value;
         } else {
             this.translationKeys.add(key);
@@ -212,8 +212,16 @@ class DataJob {
                 if (target.locale[langCode][key]) {
                     continue;
                 }
-                target.locale[langCode][key] = this.locales[langCode][key] || this.locales[langCode][key.toLowerCase()];
-                if (typeof target.locale[langCode][key] == 'undefined' && langCode === 'en') {
+                target.locale[langCode][key] = this.locales[langCode][key];
+                if (typeof target.locale[langCode][key] === 'undefined') {
+                    for (const dictKey in this.locales[langCode]) {
+                        if (dictKey.toLowerCase() === key.toLowerCase()) {
+                            target.localep[langCode][key] = this.locales[langCode][dictKey];
+                            break;
+                        }
+                    }
+                }
+                if (typeof target.locale[langCode][key] === 'undefined' && langCode === 'en') {
                     this.logger.error(`Missing translation for ${key}`);
                 }
             }
