@@ -147,10 +147,6 @@ class DataJob {
         return alert(options);
     }
 
-    cleanTranslation = (key) => {
-
-    }
-
     addTranslation = (key, langCode, value) => {
         if (!this.kvData.locale) {
             this.kvData.locale = {};
@@ -216,7 +212,10 @@ class DataJob {
                 if (target.locale[langCode][key]) {
                     continue;
                 }
-                target.locale[langCode][key] = this.locales[langCode][key];
+                target.locale[langCode][key] = this.locales[langCode][key] || this.locales[langCode][key.toLowerCase()];
+                if (typeof target.locale[langCode][key] == 'undefined' && langCode === 'en') {
+                    this.logger.error(`Missing translation for ${key}`);
+                }
             }
         }
         for (const langCode in target.locale) {
