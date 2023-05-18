@@ -172,5 +172,12 @@
             ]
         },
         "comment": "per Wiki 5/8/2023"
+    },
+    "5ae3280386f7742a41359364": {
+        "name": "Gunsmith - Part 15",
+        "propertiesChanged": {
+            "minPlayerLevel": 29
+        },
+        "comment": "per Wiki 5/15/2023"
     }
 }
