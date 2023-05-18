@@ -216,7 +216,7 @@ class DataJob {
                 if (typeof target.locale[langCode][key] === 'undefined') {
                     for (const dictKey in this.locales[langCode]) {
                         if (dictKey.toLowerCase() === key.toLowerCase()) {
-                            target.localep[langCode][key] = this.locales[langCode][dictKey];
+                            target.locale[langCode][key] = this.locales[langCode][dictKey];
                             break;
                         }
                     }
