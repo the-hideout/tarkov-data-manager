@@ -41,7 +41,10 @@ class UpdateMapsJob extends DataJob {
                 raidDuration: map.EscapeTimeLimit,
                 players: map.MinPlayers+'-'+map.MaxPlayers,
                 bosses: [],
-                locale: {}
+                minPlayerLevel: map.RequiredPlayerLevelMin,
+                maxPlayerLevel: map.RequiredPlayerLevelMax,
+                accessKeys: map.AccessKeys,
+                minPlayLevelAccessKeys: map.MinPlayerLvlAccessKeys,
             };
             if (typeof idMap[id] !== 'undefined') mapData.tarkovDataId = idMap[id];
             const enemySet = new Set();
@@ -65,7 +68,6 @@ class UpdateMapsJob extends DataJob {
                     spawnTime: spawn.Time,
                     spawnTimeRandom: spawn.RandomTimeSpawn,
                     spawnTrigger: null,
-                    locale: {}
                 };
                 await this.getBossInfo(spawn.BossName);
                 if (bossData.spawnChance === 0) {
@@ -108,7 +110,6 @@ class UpdateMapsJob extends DataJob {
                         //name: enemyKey,
                         //normalizedName: normalizeName(this.getEnemyName(enemyKey, this.locales.en)),
                         amount: getChances(spawn.BossEscortAmount, 'count', true), 
-                        locale: {}
                     });
                     await this.getBossInfo(spawn.BossEscortType);
                 }
@@ -125,7 +126,6 @@ class UpdateMapsJob extends DataJob {
                             //name: enemyKey,
                             //normalizedName: normalizeName(this.getEnemyName(enemyKey, this.locales.en)),
                             amount: getChances(support.BossEscortAmount, 'count', true), 
-                            locale: {}
                         });
                         await this.getBossInfo(support.BossEscortType);
                     }

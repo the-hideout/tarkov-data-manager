@@ -869,7 +869,7 @@ class UpdateQuestsJob extends DataJob {
             }
         }
         for (const objective of quest.conditions.Fail) {
-            const obj = this.formatObjective(objective, false);
+            const obj = this.formatObjective(objective, true);
             if (obj) {
                 questData.failConditions.push(obj);
             }
@@ -1106,7 +1106,7 @@ class UpdateQuestsJob extends DataJob {
         return questData;
     }
 
-    formatObjective(objective, logNotFound = true) {
+    formatObjective(objective, failConditions = false) {
         let objectiveId = objective._props.id;
         for (const questId in this.changedQuests) {
             if (!this.changedQuests[questId].objectiveIdsChanged) {
@@ -1125,7 +1125,7 @@ class UpdateQuestsJob extends DataJob {
         }
         const obj = {
             id: objectiveId,
-            description: this.addTranslation(objectiveId),
+            description: (!failConditions || this.locales.en[objectiveId]) ? this.addTranslation(objectiveId) : this.addTranslation(objectiveId, 'en', ''),
             type: null,
             optional: optional,
             locationNames: [],
@@ -1222,6 +1222,7 @@ class UpdateQuestsJob extends DataJob {
                         };
                         if (cond._props.enemyHealthEffects[0].bodyParts) {
                             obj.bodyParts = this.addTranslation(cond._props.enemyHealthEffects[0].bodyParts.map(part => `QuestCondition/Elimination/Kill/BodyPart/${part}`));
+                            obj.enemyHealthEffect.bodyParts = obj.bodyParts;
                         }
                         if (cond._props.enemyHealthEffects[0].effects) {
                             obj.effects = this.addTranslation(cond._props.enemyHealthEffects[0].effects.map(eff => {
@@ -1229,7 +1230,8 @@ class UpdateQuestsJob extends DataJob {
                                     return '5448f3a64bdc2d60728b456a Name';
                                 }
                                 return eff;
-                            }))
+                            }));
+                            obj.enemyHealthEffect.effects = obj.effects;
                         }
                     }
                     let targetCode = cond._props.target;
@@ -1317,6 +1319,7 @@ class UpdateQuestsJob extends DataJob {
                     };
                     if (cond._props.bodyPartsWithEffects[0].bodyParts) {
                         obj.bodyParts = this.addTranslation(cond._props.bodyPartsWithEffects[0].bodyParts.map(part => `QuestCondition/Elimination/Kill/BodyPart/${part}`));
+                        obj.healthEffect.bodyParts = obj.bodyParts;
                     }
                     if (cond._props.bodyPartsWithEffects[0].effects) {
                         obj.effects = this.addTranslation(cond._props.bodyPartsWithEffects[0].effects.map(eff => {
@@ -1324,7 +1327,8 @@ class UpdateQuestsJob extends DataJob {
                                 return '5448f3a64bdc2d60728b456a Name';
                             }
                             return eff;
-                        }))
+                        }));
+                        obj.healthEffect.effects = obj.effects;
                     }
                     if (cond._props.time) obj.healthEffect.time = cond._props.time;
                 } else if (cond._parent === 'UseItem') {
