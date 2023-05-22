@@ -213,8 +213,15 @@ const getItemProperties = async (item) => {
                 turnPenalty: parseInt(item._props.mousePenalty) / 100,
                 ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
                 armor_material_id: item._props.ArmorMaterial,
-                zones: job.addTranslation(item._props.armorZone),
-                armorType: job.addTranslation(item._props.ArmorType)
+                zones: job.addTranslation(item._props.armorZone.map(zone => `QuestCondition/Elimination/Kill/BodyPart/${zone}`)),
+                armorType: job.addTranslation(item._props.ArmorType, (lang) => {
+                    if (item._props.ArmorType !== 'None') {
+                        return lang[item._props.ArmorType];
+                    }
+                    return lang['NONE'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
+                        return substr.toLowerCase();
+                    });
+                }),
             };
         }
     } else if (item._parent === '5448e53e4bdc2d60728b4567') {
@@ -283,9 +290,16 @@ const getItemProperties = async (item) => {
                     if (key === 'LowerNape') {
                         key = key.toLowerCase();
                     }
-                    key;
+                    return `HeadSegment/${key}`;
                 })),
-                armorType: job.addTranslation(item._props.ArmorType),
+                armorType: job.addTranslation(item._props.ArmorType, (lang) => {
+                    if (item._props.ArmorType !== 'None') {
+                        return lang[item._props.ArmorType];
+                    }
+                    return lang['NONE'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
+                        return substr.toLowerCase();
+                    });
+                }),
             };
             if (hasCategory(item, ['5a341c4086f77401f2541505', '5a341c4686f77469e155819e'])) {
                 properties.propertiesType = 'ItemPropertiesHelmet';
