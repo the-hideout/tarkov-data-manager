@@ -44,7 +44,7 @@ class UpdateMapsJob extends DataJob {
                 minPlayerLevel: map.RequiredPlayerLevelMin,
                 maxPlayerLevel: map.RequiredPlayerLevelMax,
                 accessKeys: map.AccessKeys,
-                minPlayLevelAccessKeys: map.MinPlayerLvlAccessKeys,
+                accessKeysMinPlayerLevel: map.MinPlayerLvlAccessKeys,
             };
             if (typeof idMap[id] !== 'undefined') mapData.tarkovDataId = idMap[id];
             const enemySet = new Set();
