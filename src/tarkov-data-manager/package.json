@@ -22,7 +22,7 @@
     "@aws-sdk/credential-provider-env": "^3.29.0",
     "@sentry/node": "^7.52.1",
     "@sentry/tracing": "^7.47.0",
-    "adm-zip": "^0.5.9",
+    "adm-zip": "^0.5.10",
     "axios": "1.4.0",
     "body-parser": "^1.20.0",
     "chalk": "^4.1.2",
