@@ -119,6 +119,7 @@ class UpdateHideoutJob extends DataJob {
                             trader_id: req.traderId,
                             name: en[`${req.traderId} Nickname`],
                             requirementType: 'level',
+                            compareMethod: '>=',
                             value: req.loyaltyLevel,
                             level: req.loyaltyLevel,
                         });
