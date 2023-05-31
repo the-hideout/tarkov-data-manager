@@ -47,8 +47,8 @@ class CheckScansJob extends DataJob {
 
             //logger.log(JSON.stringify(scanner));
             // Db timestamps are off so we add an hour
-            let lastScan = new Date(scanner.last_scan.setTime(scanner.last_scan.getTime() + 3600000));
-            const traderLastScan = new Date(scanner.trader_last_scan.setTime(scanner.trader_last_scan.getTime() + 3600000));
+            let lastScan = new Date(scanner.last_scan?.setTime(scanner.last_scan.getTime() + 3600000));
+            const traderLastScan = new Date(scanner.trader_last_scan?.setTime(scanner.trader_last_scan.getTime() + 3600000));
             if (traderLastScan > lastScan) {
                 lastScan = traderLastScan;
             }
