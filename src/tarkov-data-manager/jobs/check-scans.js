@@ -25,14 +25,14 @@ class CheckScansJob extends DataJob {
         }
 
         const scanners = await query(`
-            select scanner.id, name, last_scan, username, scanner.flags, scanner_user.flags as user_flags, disabled 
+            select scanner.id, name, last_scan, trader_last_scan, username, scanner.flags, scanner_user.flags as user_flags, disabled 
             from scanner 
             left join scanner_user on scanner_user.id = scanner.scanner_user_id
         `);
         const userFlags = scannerApi.getUserFlags();
         const scannerFlags = scannerApi.getScannerFlags();
         for (const scanner of scanners) {
-            if (!scanner.last_scan || scanner.disabled || userFlags.skipPriceInsert & scanner.user_flags) {
+            if ((!scanner.last_scan && !scanner.trader_last_scan) || scanner.disabled || userFlags.skipPriceInsert & scanner.user_flags) {
                 // ignore scanners that have never inserted a price
                 continue;
             }
@@ -47,7 +47,11 @@ class CheckScansJob extends DataJob {
 
             //logger.log(JSON.stringify(scanner));
             // Db timestamps are off so we add an hour
-            const lastScan = new Date(scanner.last_scan.setTime(scanner.last_scan.getTime() + 3600000));
+            let lastScan = new Date(scanner.last_scan.setTime(scanner.last_scan.getTime() + 3600000));
+            const traderLastScan = new Date(scanner.trader_last_scan.setTime(scanner.trader_last_scan.getTime() + 3600000));
+            if (traderLastScan > lastScan) {
+                lastScan = traderLastScan;
+            }
 
             // console.log(lastScan);
             // console.log(new Date());

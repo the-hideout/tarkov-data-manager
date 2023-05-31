@@ -665,7 +665,7 @@ const releaseItem = async (options) => {
             if (setLastScan) {
                 query(`
                     UPDATE scanner
-                    SET last_scan = NOW()
+                    SET ${trader}last_scan = NOW()
                     WHERE id = ?
                 `, [options.scanner.id]);
             }
