@@ -36,7 +36,7 @@ class ClearCheckoutsJob extends DataJob {
                     SET
                         trader_checkout_scanner_id = NULL
                     WHERE
-                    trader_checkout_scanner_id = ?;
+                        trader_checkout_scanner_id = ?;
                 `, [scanner.id]);
             }
         }
