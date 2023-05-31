@@ -53,8 +53,6 @@ class UpdateItemCacheJob extends DataJob {
                     item_id
                 FROM
                     (SELECT * FROM price_data WHERE id > ${lastWipe.cuttoff_price_id}) prices
-                WHERE
-                    timestamp > ?
                 GROUP BY
                     item_id
             ) b
@@ -62,7 +60,7 @@ class UpdateItemCacheJob extends DataJob {
                 a.timestamp = b.timestamp
             GROUP BY
                 item_id, timestamp, price;
-        `, [lastWipe.start_date]).then(results => {
+        `).then(results => {
             this.logger.timeEnd('last-low-price-query');
             return results;
         });
