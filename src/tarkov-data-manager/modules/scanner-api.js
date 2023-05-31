@@ -607,7 +607,7 @@ insertPrices = async (options) => {
     }
     try {
         if (response.errors.length < 1) {
-            await releaseItem({...options, scanned: true});
+            await releaseItem({...options, scanned: true, scanDate: dateToMysqlFormat(dateTime)});
         }
     } catch (error) {
         response.errors.push(String(error));
@@ -625,6 +625,10 @@ insertPrices = async (options) => {
 //To release all items, include the attribtue offersFrom
 // on success, response.data is the number of items released
 const releaseItem = async (options) => {
+    options = {
+        scanDate: dateToMysqlFormat(new Date()),
+        ...options,
+    };
     const response = {errors: [], warnings: [], data: 0};
     if (options.imageOnly) {
         return response;
@@ -641,7 +645,8 @@ const releaseItem = async (options) => {
         trader = 'trader_'
     }
     if (itemScanned && itemId && !skipInsert) {
-        scanned = `, ${trader}last_scan = CURRENT_TIMESTAMP()`;
+        scanned = `, ${trader}last_scan = ?`;
+        escapedValues.push(options.scanDate);
         if (options.offerCount) {
             scanned += `, last_offer_count = ?`;
             escapedValues.push(options.offerCount);
@@ -665,9 +670,9 @@ const releaseItem = async (options) => {
             if (setLastScan) {
                 query(`
                     UPDATE scanner
-                    SET ${trader}last_scan = NOW()
+                    SET ${trader}last_scan = ?
                     WHERE id = ?
-                `, [options.scanner.id]);
+                `, [options.scanDate, options.scanner.id]);
             }
             return result;
         });
