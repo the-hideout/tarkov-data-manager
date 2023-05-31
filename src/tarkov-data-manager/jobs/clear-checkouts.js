@@ -7,17 +7,11 @@ class ClearCheckoutsJob extends DataJob {
     }
 
     async run() {
-        const scanners = await query('SELECT * FROM scanner').then(results => {
-            const scannerMap = {};
-            for (const scanner of results) {
-                scannerMap[scanner.id] = scanner;
-            }
-            return scannerMap;
-        });
+        const scanners = await query('SELECT * FROM scanner');
         const now = new Date();
         const scanCutoff = (now.getTime() / 1000) - 21600 - (now.getTimezoneOffset() * 60);
         for (const scanner of scanners) {
-            if (scanner.last_scan.getTime() / 1000 < scanCutoff) {
+            if (scanner.last_scan?.getTime() / 1000 < scanCutoff) {
                 this.logger.log(`${scanner.name} hasn't worked since ${scanner.last_scan}; releasing any batches`);
                 await query(`
                     UPDATE
@@ -28,9 +22,9 @@ class ClearCheckoutsJob extends DataJob {
                         checkout_scanner_id = ?;
                 `, [scanner.id]);
             }
-            if ((scanner.trader_last_scan.getTime() / 1000) < scanCutoff) {
+            if (scanner.trader_last_scan?.getTime() / 1000 < scanCutoff) {
                 this.logger.log(`${scanner.name} hasn't worked since ${scanner.trader_last_scan}; releasing any trader batches`);
-                return query(`
+                await query(`
                     UPDATE
                         item_data
                     SET

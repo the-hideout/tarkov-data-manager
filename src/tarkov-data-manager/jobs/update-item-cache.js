@@ -15,13 +15,19 @@ class UpdateItemCacheJob extends DataJob {
     }
 
     run = async () => {
+        let lastWipe = await query('SELECT * FROM wipe ORDER BY start_date DESC LIMIT 1');
+        if (lastWipe.length < 1) {
+            lastWipe = {start_date: 0, cutoff_price_id: 0};
+        } else {
+            lastWipe = lastWipe[0];
+        }
         this.logger.time('price-yesterday-query');
         const avgPriceYesterdayPromise = query(`
             SELECT
                 avg(price) AS priceYesterday,
                 item_id
             FROM
-                price_data
+                (SELECT * FROM price_data WHERE id > ${lastWipe.cuttoff_price_id}) prices
             WHERE
                 timestamp > DATE_SUB(NOW(), INTERVAL 2 DAY)
             AND
@@ -33,11 +39,6 @@ class UpdateItemCacheJob extends DataJob {
             return results;
         });
 
-        const lastWipe = await query('SELECT start_date FROM wipe ORDER BY start_date DESC LIMIT 1');
-        if (lastWipe.length < 1) {
-            lastWipe.push({start_date: 0});
-        }
-
         this.logger.time('last-low-price-query');
         const lastKnownPriceDataPromise = query(`
             SELECT
@@ -45,13 +46,13 @@ class UpdateItemCacheJob extends DataJob {
                 a.timestamp,
                 a.item_id
             FROM
-                price_data a
+                (SELECT * FROM price_data WHERE id > ${lastWipe.cuttoff_price_id}) a
             INNER JOIN (
                 SELECT
                     max(timestamp) as timestamp,
                     item_id
                 FROM
-                    price_data
+                    (SELECT * FROM price_data WHERE id > ${lastWipe.cuttoff_price_id}) prices
                 WHERE
                     timestamp > ?
                 GROUP BY
@@ -61,7 +62,7 @@ class UpdateItemCacheJob extends DataJob {
                 a.timestamp = b.timestamp
             GROUP BY
                 item_id, timestamp, price;
-        `, [lastWipe[0].start_date]).then(results => {
+        `, [lastWipe.start_date]).then(results => {
             this.logger.timeEnd('last-low-price-query');
             return results;
         });
