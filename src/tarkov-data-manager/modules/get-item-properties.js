@@ -470,10 +470,10 @@ const getItemProperties = async (item) => {
             hitRadius: item._props.knifeHitRadius
         };
     } else if (item._parent === '5645bcb74bdc2ded0b8b4578') {
-        properties = {
+        /*properties = {
             propertiesType: 'ItemPropertiesHeadphone',
             hearingRangeModifier: item._props.RolloffMultiplier,
-        };
+        };*/
     } else if (item._props.MaxResource) {
         properties = {
             propertiesType: 'ItemPropertiesResource',
