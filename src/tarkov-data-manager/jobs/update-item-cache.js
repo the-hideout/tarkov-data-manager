@@ -33,9 +33,11 @@ class UpdateItemCacheJob extends DataJob {
             return results;
         });
 
-        const lastWipe = await query('SELECT start_date FROM wipe ORDER BY start_date DESC LIMIT 1');
+        let lastWipe = await query('SELECT start_date FROM wipe ORDER BY start_date DESC LIMIT 1');
         if (lastWipe.length < 1) {
-            lastWipe.push({start_date: 0});
+            lastWipe = {start_date: 0};
+        } else {
+            lastWipe = lastWipe[0];
         }
 
         this.logger.time('last-low-price-query');
@@ -61,7 +63,7 @@ class UpdateItemCacheJob extends DataJob {
                 a.timestamp = b.timestamp
             GROUP BY
                 item_id, timestamp, price;
-        `, [lastWipe[0].start_date]).then(results => {
+        `, [lastWipe.start_date]).then(results => {
             this.logger.timeEnd('last-low-price-query');
             return results;
         });

@@ -1822,7 +1822,13 @@ app.post('/wipes', async (req, res) => {
     }
     try {
         console.log(`creating wipe: ${req.body.start_date} ${req.body.version}`);
-        await query('INSERT INTO wipe (start_date, version) VALUES (?, ?)', [req.body.start_date, req.body.version]);
+        const result = await query('INSERT INTO wipe (start_date, version) VALUES (?, ?)', [req.body.start_date, req.body.version]);
+        let lastPriceId = 0;
+        const lastPrice = await query('SELECT id FROM price_data ORDER BY id DESC LIMIT 1');
+        if (lastPrice.length > 0) {
+            lastPriceId = lastPrice[0].id;
+        }
+        await query('UPDATE wipe SET cuttoff_price_id=? WHERE id=?', [lastPriceId, result.insertId]);
         response.message = `Created wipe ${req.body.start_date} ${req.body.version}`;
     } catch (error) {
         response.errors.push(error.message);

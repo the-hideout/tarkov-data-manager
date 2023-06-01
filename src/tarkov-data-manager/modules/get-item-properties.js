@@ -469,6 +469,11 @@ const getItemProperties = async (item) => {
             stabDamage: item._props.knifeHitStabDam,
             hitRadius: item._props.knifeHitRadius
         };
+    } else if (item._parent === '5645bcb74bdc2ded0b8b4578') {
+        properties = {
+            propertiesType: 'ItemPropertiesHeadphone',
+            hearingRangeModifier: item._props.RolloffMultiplier,
+        };
     } else if (item._props.MaxResource) {
         properties = {
             propertiesType: 'ItemPropertiesResource',
