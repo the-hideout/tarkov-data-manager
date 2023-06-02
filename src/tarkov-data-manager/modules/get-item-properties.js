@@ -472,7 +472,18 @@ const getItemProperties = async (item) => {
     } else if (item._parent === '5645bcb74bdc2ded0b8b4578') {
         properties = {
             propertiesType: 'ItemPropertiesHeadphone',
-            hearingRangeModifier: item._props.RolloffMultiplier,
+            ambientVolume: item._props.AmbientVolume,
+            compressorAttack: item._props.CompressorAttack,
+            compressorGain: item._props.CompressorGain,
+            compressorRelease: item._props.CompressorRelease,
+            compressorThreshold: item._props.CompressorTreshold,
+            compressorVolume: item._props.CompressorVolume,
+            cutoffFrequency: item._props.CutoffFreq,
+            distanceModifier: item._props.RolloffMultiplier,
+            distortion: item._props.Distortion,
+            dryVolume: item._props.DryVolume,
+            highFrequencyGain: item._props.HighFrequenciesGain,
+            resonance: item._props.Resonance,
         };
     } else if (item._props.MaxResource) {
         properties = {
