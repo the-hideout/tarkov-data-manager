@@ -37,7 +37,7 @@
     "got": "^11.8.6",
     "moment": "^2.29.4",
     "mysql2": "^3.3.3",
-    "node-schedule": "^2.1.0",
+    "node-schedule": "^2.1.1",
     "nodemon": "^2.0.22",
     "object-path": "^0.11.8",
     "parse-duration": "^1.0.2",
