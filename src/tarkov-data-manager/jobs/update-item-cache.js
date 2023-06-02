@@ -592,7 +592,7 @@ class UpdateItemCacheJob extends DataJob {
                 currencyItem: currencyId[currency],
                 priceRUB: priceRUB,
                 trader: trader.id,
-                name: trader.name,
+                source: trader.normalizedName,
             });
         }
         return traderPrices;
