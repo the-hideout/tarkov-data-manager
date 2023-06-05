@@ -48,7 +48,7 @@ class UpdateMapsJob extends DataJob {
                 minPlayerLevel: map.RequiredPlayerLevelMin,
                 maxPlayerLevel: map.RequiredPlayerLevelMax,
                 accessKeys: map.AccessKeys,
-                minPlayLevelAccessKeys: map.MinPlayerLvlAccessKeys,
+                accessKeysMinPlayerLevel: map.MinPlayerLvlAccessKeys,
             };
             if (this.mapRotationData[id]) {
                 mapData.coordinateToCardinalRotation = this.mapRotationData[id].rotation;

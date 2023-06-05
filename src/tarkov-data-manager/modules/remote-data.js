@@ -52,9 +52,8 @@ const methods = {
         return myData;
     },
     refresh: async () => {
-        console.log('Loading all data');
+        console.log('Loading item data');
 
-        const start = new Date();
         try {
             const allDataTimer = timer('item-data-query');
             const results = await query(`
@@ -82,6 +81,8 @@ const methods = {
                     ...result,
                     types: result.types?.split(',') || [],
                     updated: result.last_update,
+                    lastLowPrice: 0,
+                    avg24hPrice: 0,
                 };
                 if (!preparedData.properties) preparedData.properties = {};
                 returnData.set(result.id, preparedData);
@@ -89,7 +90,7 @@ const methods = {
 
             myData = returnData;
             lastRefresh = new Date();
-            return Promise.resolve(returnData);
+            return returnData;
         } catch (error) {
             return Promise.reject(error);
         }
@@ -97,19 +98,17 @@ const methods = {
     getWithPrices: async (refreshItems = false) => {
         console.log('Loading price data');
 
-        const start = new Date();
         try {
-            const resultsPromise = methods.get(refreshItems);
+            const itemsPromise = methods.get(refreshItems);
             
-            const priceTimer = timer('price-query');
-            const pricePromise = new Promise(async (resolve, reject) => {
+            const price24hTimer = timer('item-24h-price-query');
+            const price24hPromise = new Promise(async (resolve, reject) => {
                 const batchSize = 100000;
                 let offset = 0;
                 const priceSql = `
                     SELECT
                         price,
-                        item_id,
-                        timestamp
+                        item_id
                     FROM
                         price_data
                     WHERE
@@ -127,51 +126,96 @@ const methods = {
                             moreResults = false;
                         }
                     }
-                    priceTimer.end();
+                    price24hTimer.end();
                     resolve(priceResults);
                 } catch (error) {
                     reject(error);
                 }
             });
-            let results, priceResults;
-            [results, priceResults] = await Promise.all([resultsPromise, pricePromise]);
-            console.log(`All queries completed in ${new Date() - start}ms`);
 
-            const itemPrices = {};
-
-            priceResults.forEach((resultRow) => {
-                if(!itemPrices[resultRow.item_id]){
-                    itemPrices[resultRow.item_id] = {
-                        lastUpdated: resultRow.timestamp,
-                        prices: [],
-                    };
-                }
-
-                itemPrices[resultRow.item_id].prices.push(resultRow.price);
-                if(itemPrices[resultRow.item_id].lastUpdated.getTime() < resultRow.timestamp.getTime()){
-                    itemPrices[resultRow.item_id].lastUpdated = resultRow.timestamp;
-                    itemPrices[resultRow.item_id].lastLowPrice = resultRow.price;
-
-                    return;
-                }
-
-                if(itemPrices[resultRow.item_id].lastUpdated.getTime() === resultRow.timestamp.getTime()){
-                    if(itemPrices[resultRow.item_id].lastLowPrice > resultRow.price){
-                        itemPrices[resultRow.item_id].lastLowPrice = resultRow.price;
-                    }
-                }
+            const lastLowPriceTimer = timer('item-last-low-price-query');
+            const lastLowPricePromise = query(`
+                SELECT
+                    a.item_id,
+                    MIN(a.price) AS price,
+                    timestamp
+                FROM
+                    price_data a
+                INNER JOIN (
+                    SELECT
+                        MAX(timestamp) AS max_timestamp,
+                        item_id
+                    FROM 
+                        price_data
+                    GROUP BY
+                        item_id
+                ) b
+                ON
+                    a.item_id = b.item_id AND a.timestamp = b.max_timestamp
+                GROUP BY
+                    a.item_id, a.timestamp;
+            `).then(results => {
+                lastLowPriceTimer.end();
+                return results;
             });
 
-            for(const [itemId, result] of results){
-                itemPrices[result.id]?.prices.sort();
-                result.avg24hPrice = getPercentile(itemPrices[result.id]?.prices || []);
-                result.low24hPrice = itemPrices[result.id]?.prices[0];
-                result.high24hPrice = itemPrices[result.id]?.prices[itemPrices[result.id]?.prices.length - 1];
-                result.lastLowPrice = itemPrices[result.id]?.lastLowPrice;
-                result.updated = itemPrices[result.id]?.lastUpdated || result.last_update;
-                results.set(itemId, result);
+            const priceYesterdayTimer = timer('price-yesterday-query');
+            const avgPriceYesterdayPromise = query(`
+                SELECT
+                    avg(price) AS priceYesterday,
+                    item_id
+                FROM
+                    price_data
+                WHERE
+                    timestamp > DATE_SUB(NOW(), INTERVAL 2 DAY)
+                AND
+                    timestamp < DATE_SUB(NOW(), INTERVAL 1 DAY)
+                GROUP BY
+                    item_id
+            `).then(results => {
+                priceYesterdayTimer.end();
+                return results;
+            });
+
+            const [items, price24hResults, lastLowPriceResults, avgPriceYesterday] = await Promise.all([itemsPromise, price24hPromise, lastLowPricePromise, avgPriceYesterdayPromise]);
+
+            const item24hPrices = {};
+
+            price24hResults.forEach((resultRow) => {
+                if (!item24hPrices[resultRow.item_id]) {
+                    item24hPrices[resultRow.item_id] = [];
+                }
+                item24hPrices[resultRow.item_id].push(resultRow.price);
+            });
+
+            for (const [itemId, item] of items) {
+                item.updated = item.last_update;
+                if (item.types.includes('no-flea')) {    
+                    continue;
+                }
+
+                const lastLowData = lastLowPriceResults.find(row => row.item_id === itemId);
+                if (lastLowData) {
+                    item.lastLowPrice = lastLowData.price;
+                    item.updated = lastLowData.timestamp;
+                }
+
+                item24hPrices[itemId]?.sort();
+                item.avg24hPrice = getPercentile(item24hPrices[itemId] || []);
+                item.low24hPrice = item24hPrices[itemId]?.at(0);
+                item.high24hPrice = item24hPrices[itemId]?.at(item24hPrices[itemId]?.length - 1);
+
+                const itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === itemId);
+                if (!itemPriceYesterday || item.avg24hPrice === 0) {
+                    item.changeLast48h = 0;
+                    item.changeLast48hPercent = 0;
+                } else {
+                    item.changeLast48h = Math.round(item.avg24hPrice - itemPriceYesterday.priceYesterday);
+                    const percentOfDayBefore = item.avg24hPrice / itemPriceYesterday.priceYesterday;
+                    item.changeLast48hPercent = Math.round((percentOfDayBefore - 1) * 100 * 100) / 100;
+                }
             }
-            return results;
+            return items;
         } catch (error) {
             return Promise.reject(error);
         }

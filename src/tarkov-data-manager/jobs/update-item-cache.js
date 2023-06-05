@@ -1,6 +1,5 @@
 const dataMaps = require('../modules/data-map');
 const remoteData = require('../modules/remote-data');
-const { query } = require('../modules/db-connection');
 const tarkovData = require('../modules/tarkov-data');
 const {dashToCamelCase, camelCaseToTitleCase} = require('../modules/string-functions');
 const { setItemPropertiesOptions, getSpecialItemProperties } = require('../modules/get-item-properties');
@@ -15,75 +14,23 @@ class UpdateItemCacheJob extends DataJob {
     }
 
     run = async () => {
-        this.logger.time('price-yesterday-query');
-        const avgPriceYesterdayPromise = query(`
-            SELECT
-                avg(price) AS priceYesterday,
-                item_id
-            FROM
-                price_data
-            WHERE
-                timestamp > DATE_SUB(NOW(), INTERVAL 2 DAY)
-            AND
-                timestamp < DATE_SUB(NOW(), INTERVAL 1 DAY)
-            GROUP BY
-                item_id
-        `).then(results => {
-            this.logger.timeEnd('price-yesterday-query');
-            return results;
-        });
-
-        const lastWipe = await query('SELECT start_date FROM wipe ORDER BY start_date DESC LIMIT 1');
-        if (lastWipe.length < 1) {
-            lastWipe.push({start_date: 0});
-        }
-
-        this.logger.time('last-low-price-query');
-        const lastKnownPriceDataPromise = query(`
-            SELECT
-                price,
-                a.timestamp,
-                a.item_id
-            FROM
-                price_data a
-            INNER JOIN (
-                SELECT
-                    max(timestamp) as timestamp,
-                    item_id
-                FROM
-                    price_data
-                WHERE
-                    timestamp > ?
-                GROUP BY
-                    item_id
-            ) b
-            ON
-                a.timestamp = b.timestamp
-            GROUP BY
-                item_id, timestamp, price;
-        `, [lastWipe[0].start_date]).then(results => {
-            this.logger.timeEnd('last-low-price-query');
-            return results;
-        });
-
-        let avgPriceYesterday, lastKnownPriceData, itemMap;
+        this.logger.time('items-with-prices');
         [
             this.bsgItems, 
             this.credits, 
             this.locales, 
             this.globals, 
-            avgPriceYesterday, 
-            lastKnownPriceData, 
-            itemMap,
+            this.itemMap,
             this.handbook,
         ] = await Promise.all([
             tarkovData.items(), 
             tarkovData.credits(),
             tarkovData.locales(),
             tarkovData.globals(),
-            avgPriceYesterdayPromise,
-            lastKnownPriceDataPromise,
-            remoteData.getWithPrices(true),
+            remoteData.getWithPrices(true).then(results => {
+                this.logger.timeEnd('items-with-prices');
+                return results;
+            }),
             tarkovData.handbook(),
         ]);
         this.traderData = await this.jobManager.jobOutput('update-traders', this);
@@ -96,10 +43,10 @@ class UpdateItemCacheJob extends DataJob {
 
         await setItemPropertiesOptions({
             job: this, 
-            itemIds: [...itemMap.keys()],
-            disabledItemIds: [...itemMap.values()].filter(item => item.types.includes('disabled')).map(item => item.id)
+            itemIds: [...this.itemMap.keys()],
+            disabledItemIds: [...this.itemMap.values()].filter(item => item.types.includes('disabled')).map(item => item.id)
         });
-        for (const [key, value] of itemMap.entries()) {
+        for (const [key, value] of this.itemMap.entries()) {
             if (value.types.includes('disabled') || value.types.includes('quest'))
                 continue;
             if (!this.bsgItems[key] && !this.presets[key])
@@ -143,34 +90,6 @@ class UpdateItemCacheJob extends DataJob {
                 itemData[key].basePrice = this.credits[key];
             }  else {
                 this.logger.warn(`Unknown base value for ${itemData[key].name} ${key}`);
-            }
-
-            // Only add these if it's allowed on the flea market
-            if (!itemData[key].types.includes('no-flea')) {
-                let itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === key);
-
-                if (!itemPriceYesterday || itemData[key].avg24hPrice === 0) {
-                    itemData[key].changeLast48h = 0;
-                    itemData[key].changeLast48hPercent = 0;
-                } else {
-                    itemData[key].changeLast48h = Math.round(itemData[key].avg24hPrice - itemPriceYesterday.priceYesterday);
-                    const percentOfDayBefore = itemData[key].avg24hPrice / itemPriceYesterday.priceYesterday;
-                    itemData[key].changeLast48hPercent = Math.round((percentOfDayBefore - 1) * 100 * 100) / 100;
-                }
-
-                if (!itemData[key].lastLowPrice) {
-                    let lastKnownPrice = lastKnownPriceData.find(row => row.item_id === key);
-                    if (lastKnownPrice) {
-                        itemData[key].updated = lastKnownPrice.timestamp;
-                        itemData[key].lastLowPrice = lastKnownPrice.price;
-                    }
-                }
-            } else {
-                //remove flea price data if an item has been marked as no flea
-                //delete itemData[key].lastLowPrice;
-                //delete itemData[key].avg24hPrice;
-                itemData[key].lastLowPrice = 0;
-                itemData[key].avg24hPrice = 0;
             }
 
             // add item properties
@@ -589,7 +508,8 @@ class UpdateItemCacheJob extends DataJob {
                 currency: currency,
                 currencyItem: currencyId[currency],
                 priceRUB: priceRUB,
-                trader: trader.id
+                trader: trader.id,
+                source: trader.normalizedName,
             });
         }
         return traderPrices;

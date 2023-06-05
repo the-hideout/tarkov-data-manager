@@ -118,7 +118,10 @@ class UpdateHideoutJob extends DataJob {
                             id: `${stationData.id}-${i}-${r}`,
                             trader_id: req.traderId,
                             name: en[`${req.traderId} Nickname`],
-                            level: req.loyaltyLevel
+                            requirementType: 'level',
+                            compareMethod: '>=',
+                            value: req.loyaltyLevel,
+                            level: req.loyaltyLevel,
                         });
                     } else {
                         this.logger.warn(`Unrecognized requirement type ${req.type} for ${stationData.name} ${i}`);

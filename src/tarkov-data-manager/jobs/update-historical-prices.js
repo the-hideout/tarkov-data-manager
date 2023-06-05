@@ -15,7 +15,7 @@ class UpdateHistoricalPricesJob extends DataJob {
         aWeekAgo.setDate(aWeekAgo.getDate() - 7);
         const itemPriceData = await fs.readFile(path.join(__dirname, '..', 'dumps', 'historical_price_data.json')).then(buffer => {
             const parsed = JSON.parse(buffer);
-            return parsed.historicalPricePoint || parsed.data;
+            return parsed.historicalPricePoint;
         }).catch(error => {
             if (error.code !== 'ENOENT') {
                 console.log(error);

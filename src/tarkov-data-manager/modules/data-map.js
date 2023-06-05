@@ -39,10 +39,7 @@ module.exports = {
                 categories: [],
             },
             prohibitedAdded: {
-                ids: [
-                    '5a33a8ebc4a282000c5a950d',
-                    '5644bd2b4bdc2d3b4c8b4572',
-                ],
+                ids: [],
                 categories: [],
             }
         }
