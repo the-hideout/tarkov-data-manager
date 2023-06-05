@@ -43,15 +43,15 @@ class UpdateItemCacheJob extends DataJob {
         this.logger.time('last-low-price-query');
         const lastKnownPriceDataPromise = query(`
             SELECT
-                price,
+                MIN(a.price) AS price,
                 a.item_id
             FROM
                 price_data a
             INNER JOIN (
                 SELECT
-                    max(timestamp) as timestamp,
+                    MAX(timestamp) AS max_timestamp,
                     item_id
-                FROM
+                FROM 
                     price_data
                 WHERE
                     timestamp > ?
@@ -59,9 +59,9 @@ class UpdateItemCacheJob extends DataJob {
                     item_id
             ) b
             ON
-                a.timestamp = b.timestamp
+                a.item_id = b.item_id AND a.timestamp = b.max_timestamp
             GROUP BY
-                item_id, price;
+                a.item_id;
         `, [lastWipe.start_date]).then(results => {
             this.logger.timeEnd('last-low-price-query');
             return results;
