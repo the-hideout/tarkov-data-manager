@@ -130,13 +130,14 @@ class UpdateNewItemsJob extends DataJob {
             if (bsgData[itemId]) {
                 continue;
             }
-            if (currentItems.get(itemId).types.includes('preset')) {
+            const item = currentItems.get(itemId);
+            if (item.types.includes('preset')) {
                 continue;
             }
-            /*if (currentItems.get(itemId).types.includes('disabled')) {
+            if (item.types.includes('disabled')) {
                 continue;
-            }*/
-            this.logger.warn(`${currentItems.get(itemId).name} (${currentItems.get(itemId).id}) is no longer available in the game`);
+            }
+            this.logger.warn(`${item.name} (${item.id}) is no longer available in the game`);
         }
 
         this.logger.succeed('New item check complete');
