@@ -6,6 +6,7 @@ const { initPresetData, getPresetData } = require('../modules/preset-data');
 const tarkovData = require('../modules/tarkov-data');
 const { getTranslations, setLocales } = require('../modules/get-translation');
 const remoteData = require('../modules/remote-data');
+const { regenerateFromExisting } = require('../modules/image-create');
 const DataJob = require('../modules/data-job');
 
 class UpdatePresetsJob extends DataJob {
@@ -260,8 +261,24 @@ class UpdatePresetsJob extends DataJob {
                 }
             }, this.logger);
         }
+
+        const regnerateImages = [];
+        for (const item of Object.values(localItems)) {
+            if (!item.types.includes('preset')) {
+                continue;
+            }
+            if (!presetsData[item.id]) {
+                this.logger.warn(`DB preset no longer present: ${item.name} ${item.id}`);
+                continue;
+            }
+            const p = presetsData[item.id];
+            if (item.short_name !== p.shortName || item.width !== p.width || item.height !== p.height || item.properties.backgroundColor !== p.backgroundColor) {
+                regnerateImages.push(p);
+            }
+        }
         this.logger.log('Updating presets in DB...');
         const queries = [];
+        const newPresets = [];
         for (const presetId in presetsData) {
             const p = presetsData[presetId];
             queries.push(remoteData.addItem({
@@ -278,6 +295,7 @@ class UpdatePresetsJob extends DataJob {
                 }*/
                 if (results.insertId !== 0) {
                     this.logger.log(`${p.name} added`);
+                    newPresets.push(`${p.name} ${presetId}`);
                 }
             }).catch(error => {
                 this.logger.error(`Error updating preset in DB`);
@@ -287,6 +305,30 @@ class UpdatePresetsJob extends DataJob {
                 this.logger.error(`Error inserting preset type for ${p.name} ${p.id}`);
                 this.logger.error(error);
             }));
+        }
+        if (newPresets.length > 0) {
+            this.discordAlert({
+                title: 'Added preset(s)',
+                message: newPresets.join('\n'),
+            })
+        }
+        if (regnerateImages.length > 0) {
+            this.logger.log(`Regenerating ${regnerateImages.length} preset images`);
+            for (const item of regnerateImages) {
+                this.logger.log(`Regerating images for ${item.name} ${item.id}`);
+                await regenerateFromExisting(item.id, true).catch(errors => {
+                    if (Array.isArray(errors)) {
+                        this.logger.error(`Error regenerating images for ${item.id}: ${errors.map(error => error.message).join(', ')}`);
+                    } else {
+                        this.logger.error(`Error regenerating images for ${item.id}: ${errors.message}`);
+                    }
+                });
+            }
+            this.logger.succeed('Finished regenerating images');
+            this.discordAlert({
+                title: 'Regenerated images for preset(s) after name/size/background color change',
+                message: regnerateImages.map(item => `${item.name} ${item.id}`).join('\n'),
+            });
         }
 
         fs.writeFileSync(path.join(__dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(presetsData, null, 4));
