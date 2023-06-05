@@ -260,6 +260,14 @@ class UpdatePresetsJob extends DataJob {
                 }
             }, this.logger);
         }
+        for (const item of Object.values(localItems)) {
+            if (!item.types.includes('preset')) {
+                continue;
+            }
+            if (!presetsData[item.id]) {
+                this.logger.warn(`DB preset no longer present: ${item.name} ${item.id}`);
+            }
+        }
         this.logger.log('Updating presets in DB...');
         const queries = [];
         for (const presetId in presetsData) {
