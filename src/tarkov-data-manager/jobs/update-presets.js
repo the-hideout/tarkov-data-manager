@@ -316,7 +316,7 @@ class UpdatePresetsJob extends DataJob {
             this.logger.log(`Regenerating ${regnerateImages.length} preset images`);
             for (const item of regnerateImages) {
                 this.logger.log(`Regerating images for ${item.name} ${item.id}`);
-                await regenerateFromExisting(id, true).catch(errors => {
+                await regenerateFromExisting(item.id, true).catch(errors => {
                     if (Array.isArray(errors)) {
                         this.logger.error(`Error regenerating images for ${item.id}: ${errors.map(error => error.message).join(', ')}`);
                     } else {
