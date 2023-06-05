@@ -90,7 +90,7 @@ const methods = {
 
             myData = returnData;
             lastRefresh = new Date();
-            return Promise.resolve(returnData);
+            return returnData;
         } catch (error) {
             return Promise.reject(error);
         }
@@ -99,7 +99,7 @@ const methods = {
         console.log('Loading price data');
 
         try {
-            const resultsPromise = methods.get(refreshItems);
+            const itemsPromise = methods.get(refreshItems);
             
             const price24hTimer = timer('item-24h-price-query');
             const price24hPromise = new Promise(async (resolve, reject) => {
@@ -177,7 +177,7 @@ const methods = {
                 return results;
             });
 
-            const [results, price24hResults, lastLowPriceResults, avgPriceYesterday] = await Promise.all([resultsPromise, price24hPromise, lastLowPricePromise, avgPriceYesterdayPromise]);
+            const [items, price24hResults, lastLowPriceResults, avgPriceYesterday] = await Promise.all([itemsPromise, price24hPromise, lastLowPricePromise, avgPriceYesterdayPromise]);
 
             const item24hPrices = {};
 
@@ -188,34 +188,34 @@ const methods = {
                 item24hPrices[resultRow.item_id].push(resultRow.price);
             });
 
-            for (const [itemId, result] of results) {
-                item24hPrices[result.id]?.sort();
-                result.updated = result.last_update;
-                if (result.types.includes('no-flea')) {    
+            for (const [itemId, item] of items) {
+                item.updated = item.last_update;
+                if (item.types.includes('no-flea')) {    
                     continue;
                 }
+
                 const lastLowData = lastLowPriceResults.find(row => row.item_id === itemId);
                 if (lastLowData) {
-                    result.lastLowPrice = lastLowData.price;
-                    result.updated = lastLowData.timestamp;
+                    item.lastLowPrice = lastLowData.price;
+                    item.updated = lastLowData.timestamp;
                 }
-                result.avg24hPrice = getPercentile(item24hPrices[result.id] || []);
-                result.low24hPrice = item24hPrices[result.id]?.at(0);
-                result.high24hPrice = item24hPrices[result.id]?.at(item24hPrices[result.id]?.length - 1);
+
+                item24hPrices[itemId]?.sort();
+                item.avg24hPrice = getPercentile(item24hPrices[itemId] || []);
+                item.low24hPrice = item24hPrices[itemId]?.at(0);
+                item.high24hPrice = item24hPrices[itemId]?.at(item24hPrices[itemId]?.length - 1);
 
                 const itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === itemId);
-                if (!itemPriceYesterday || result.avg24hPrice === 0) {
-                    result.changeLast48h = 0;
-                    result.changeLast48hPercent = 0;
+                if (!itemPriceYesterday || item.avg24hPrice === 0) {
+                    item.changeLast48h = 0;
+                    item.changeLast48hPercent = 0;
                 } else {
-                    result.changeLast48h = Math.round(result.avg24hPrice - itemPriceYesterday.priceYesterday);
-                    const percentOfDayBefore = result.avg24hPrice / itemPriceYesterday.priceYesterday;
-                    result.changeLast48hPercent = Math.round((percentOfDayBefore - 1) * 100 * 100) / 100;
+                    item.changeLast48h = Math.round(item.avg24hPrice - itemPriceYesterday.priceYesterday);
+                    const percentOfDayBefore = item.avg24hPrice / itemPriceYesterday.priceYesterday;
+                    item.changeLast48hPercent = Math.round((percentOfDayBefore - 1) * 100 * 100) / 100;
                 }
-
-                results.set(itemId, result);
             }
-            return results;
+            return items;
         } catch (error) {
             return Promise.reject(error);
         }
