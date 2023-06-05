@@ -37,6 +37,8 @@ class UpdateItemNamesJob extends DataJob {
             quest: {},
         };
         const doNotUse = /DO[ _]NOT[ _]USE|translation_pending/;
+        const enabledItems = [];
+        const changedItems = [];
         let i = 0;
         for (const [itemId, localItem] of localItems.entries()) {
             i++;
@@ -98,6 +100,7 @@ class UpdateItemNamesJob extends DataJob {
                 height !== localItem.height) {
                 if (localItem.name.match(doNotUse) && !name.match(doNotUse)) {
                     query(`DELETE FROM types WHERE item_id = ? AND type = 'disabled'`, [itemId]);
+                    enabledItems.push(`${name} ${itemId} (was ${localItem.name})`);
                 }
                 try {
                     /*await query(`
@@ -121,6 +124,7 @@ class UpdateItemNamesJob extends DataJob {
                         properties: {backgroundColor: bgColor},
                     });
                     this.logger.succeed(`Updated ${i}/${localItems.size} ${itemId} ${shortname || name}`);            
+                    changedItems.push(`${name} ${itemId}`);
                 } catch (error) {
                     this.logger.error(`Error updating item names for ${itemId} ${name}`);
                     this.logger.error(error);
@@ -142,6 +146,19 @@ class UpdateItemNamesJob extends DataJob {
                     this.logger.error(redirectInsertError);
                 }
             }
+        }
+
+        if (enabledItems.length > 0) {
+            this.discordAlert({
+                title: 'Enabled item(s) after rename',
+                message: enabledItems.join('\n'),
+            });
+        }
+        if (changedItems.length > 0) {
+            this.discordAlert({
+                title: 'Changed item(s) name, shortName, background color, or size',
+                message: changedItems.join('\n'),
+            });
         }
 
         this.logger.log('Checking redirects');

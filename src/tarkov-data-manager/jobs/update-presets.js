@@ -270,6 +270,7 @@ class UpdatePresetsJob extends DataJob {
         }
         this.logger.log('Updating presets in DB...');
         const queries = [];
+        const newPresets = [];
         for (const presetId in presetsData) {
             const p = presetsData[presetId];
             queries.push(remoteData.addItem({
@@ -286,6 +287,7 @@ class UpdatePresetsJob extends DataJob {
                 }*/
                 if (results.insertId !== 0) {
                     this.logger.log(`${p.name} added`);
+                    newPresets.push(`${p.name} ${presetId}`);
                 }
             }).catch(error => {
                 this.logger.error(`Error updating preset in DB`);
@@ -295,6 +297,12 @@ class UpdatePresetsJob extends DataJob {
                 this.logger.error(`Error inserting preset type for ${p.name} ${p.id}`);
                 this.logger.error(error);
             }));
+        }
+        if (newPresets.length > 0) {
+            this.discordAlert({
+                title: 'Added preset(s)',
+                message: newPresets.join('\n'),
+            })
         }
 
         fs.writeFileSync(path.join(__dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(presetsData, null, 4));

@@ -80,6 +80,7 @@ class UpdateNewItemsJob extends DataJob {
         });
 
         const foundItems = [];
+        const addedItems = [];
 
         const doNotUse = /DO[ _]NOT[ _]USE|translation_pending/;
         for (const item of items) {
@@ -114,7 +115,9 @@ class UpdateNewItemsJob extends DataJob {
 
                 if (results.insertId !== 0){
                     console.log(`${name} added`);
+                    addedItems.push(`${name} ${item._id}`);
                 }
+
                 if (item._props.QuestItem){
                     await remoteData.addType(item._id, 'quest')
                 }
@@ -126,6 +129,14 @@ class UpdateNewItemsJob extends DataJob {
             }
         }
 
+        if (addedItems.length > 0) {
+            this.discordAlert({
+                title: 'New item(s) added',
+                message: addedItems.join('\n'),
+            });
+        }
+
+        const removedItems = [];
         for (const itemId of currentItems.keys()){
             if (bsgData[itemId]) {
                 continue;
@@ -137,7 +148,14 @@ class UpdateNewItemsJob extends DataJob {
             if (item.types.includes('disabled')) {
                 continue;
             }
+            removedItems.push(item);
             this.logger.warn(`${item.name} (${item.id}) is no longer available in the game`);
+        }
+        if (removedItems.length > 0) {
+            this.discordAlert({
+                title: `Item(s) removed from game`,
+                message: removedItems.map(item => `${item.name} ${item.id}`).join('\n'),
+            });
         }
 
         this.logger.succeed('New item check complete');
