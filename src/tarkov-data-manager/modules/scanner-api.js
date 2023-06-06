@@ -465,7 +465,7 @@ insertPrices = async (options) => {
                         response.warnings.push(`${tPrice.seller} had ${matchedOffers.length} matching offers for ${itemId}, skipping price insert`);
                     } else if (offerTest.length === 1) {
                         const offer = offerTest[0];
-                        if (offer.min_level && offer.min_level !== tPrice.minLevel) {
+                        if (offer.min_level && tPrice.minLevel && offer.min_level !== tPrice.minLevel & options.trustTraderUnlocks && userFlags.trustTraderUnlocks & user.flags) {
                             try {
                                 await query(`
                                     UPDATE trader_items
