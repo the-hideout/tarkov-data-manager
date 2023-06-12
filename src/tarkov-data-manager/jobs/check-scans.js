@@ -31,6 +31,7 @@ class CheckScansJob extends DataJob {
         `);
         const userFlags = scannerApi.getUserFlags();
         const scannerFlags = scannerApi.getScannerFlags();
+        const utcOffset = new Date().getTimezoneOffset() * 60000;
         for (const scanner of scanners) {
             if ((!scanner.last_scan && !scanner.trader_last_scan) || scanner.disabled || userFlags.skipPriceInsert & scanner.user_flags) {
                 // ignore scanners that have never inserted a price
@@ -45,19 +46,12 @@ class CheckScansJob extends DataJob {
                 continue;
             }
 
-            //logger.log(JSON.stringify(scanner));
-            // Db timestamps are off so we add an hour
-            let lastScan = new Date(scanner.last_scan?.setTime(scanner.last_scan.getTime() + 3600000));
-            const traderLastScan = new Date(scanner.trader_last_scan?.setTime(scanner.trader_last_scan.getTime() + 3600000));
+            // sync timezone offsets
+            let lastScan = new Date(scanner.last_scan?.setTime(scanner.last_scan.getTime() - utcOffset));
+            const traderLastScan = new Date(scanner.trader_last_scan?.setTime(scanner.trader_last_scan.getTime() - utcOffset));
             if (traderLastScan > lastScan) {
                 lastScan = traderLastScan;
             }
-
-            // console.log(lastScan);
-            // console.log(new Date());
-
-            // console.log(lastScan.getTimezoneOffset());
-            // console.log(new Date().getTimezoneOffset());
 
             const lastScanAge = Math.floor((new Date().getTime() - lastScan.getTime()) / 1000);
             this.logger.log(`${scanner.name}: ${lastScanAge}s`);
