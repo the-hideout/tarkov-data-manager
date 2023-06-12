@@ -39,7 +39,7 @@
     "mysql2": "^3.3.3",
     "node-schedule": "^2.1.1",
     "nodemon": "^2.0.22",
-    "sharp": "0.31.0",
+    "sharp": "0.32.1",
     "tarkov-dev-image-generator": "^2.1.19",
     "unidecode": "^0.1.8"
   }
