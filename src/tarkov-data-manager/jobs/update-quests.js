@@ -228,6 +228,7 @@ class UpdateQuestsJob extends DataJob {
 
             const earlierTasks = new Set();
             const addEarlier = (id) => {
+                earlierTasks.add(id);
                 quests.Task.find(q => q.id === id).taskRequirements.map(req => req.task).forEach(reqId => {
                     earlierTasks.add(reqId);
                     addEarlier(reqId);
@@ -236,7 +237,6 @@ class UpdateQuestsJob extends DataJob {
             const requiredIds = quest.taskRequirements.map(req => req.task);
             for (const reqId of requiredIds) {
                 quests.Task.find(q => q.id === reqId).taskRequirements.forEach(req => {
-                    earlierTasks.add(req.task);
                     addEarlier(req.task);
                 });
             }
