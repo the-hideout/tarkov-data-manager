@@ -475,6 +475,7 @@ const enemyMap = {
     'bossTagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla',
     'bossZryachiy': '63626d904aa74b8fe30ab426 ShortName',
     'guard': 'ScavRole/Follower',
+    'arenaFighterEvent': '64764abcd125ab430a14ccb5 name'
 };
 
 const getChances = (input, nameLabel = 'name', labelInt = false) => {
