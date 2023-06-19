@@ -18,10 +18,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.345.0",
-    "@aws-sdk/credential-provider-env": "^3.342.0",
-    "@sentry/node": "^7.53.1",
-    "@sentry/tracing": "^7.54.0",
+    "@aws-sdk/client-s3": "^3.354.0",
+    "@aws-sdk/credential-provider-env": "^3.353.0",
+    "@sentry/node": "^7.55.2",
+    "@sentry/tracing": "^7.55.2",
     "adm-zip": "^0.5.10",
     "axios": "1.4.0",
     "body-parser": "^1.20.2",
@@ -39,8 +39,8 @@
     "mysql2": "^3.3.3",
     "node-schedule": "^2.1.1",
     "nodemon": "^2.0.22",
-    "sharp": "0.31.0",
-    "tarkov-dev-image-generator": "^2.1.19",
+    "sharp": "0.32.1",
+    "tarkov-dev-image-generator": "^2.1.21",
     "unidecode": "^0.1.8"
   }
 }

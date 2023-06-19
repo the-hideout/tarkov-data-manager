@@ -130,13 +130,13 @@ class UpdateItemNamesJob extends DataJob {
         }
 
         if (enabledItems.length > 0) {
-            this.discordAlert({
+            await this.discordAlert({
                 title: 'Enabled item(s) after rename',
                 message: enabledItems.join('\n'),
             });
         }
         if (changedItems.length > 0) {
-            this.discordAlert({
+            await this.discordAlert({
                 title: 'Changed item(s) name, shortName, background color, or size',
                 message: changedItems.join('\n'),
             });
@@ -200,7 +200,7 @@ class UpdateItemNamesJob extends DataJob {
                 });
             }
             this.logger.succeed('Finished regenerating images');
-            this.discordAlert({
+            await this.discordAlert({
                 title: 'Regenerated images for item(s) after name/size/background color change',
                 message: regnerateImages.map(item => `${item.name} ${item.id}`).join('\n'),
             });
