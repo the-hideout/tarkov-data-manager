@@ -53,9 +53,9 @@ async function createFromSource(sourceImage, id) {
             createdImages.push(result.value);
         }
     }
-    /*if (errors.length > 0) {
+    if (errors.length > 0) {
         return Promise.reject(errors);
-    }*/
+    }
     return createdImages.filter(Boolean);
 }
 
