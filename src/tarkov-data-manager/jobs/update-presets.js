@@ -307,7 +307,7 @@ class UpdatePresetsJob extends DataJob {
             }));
         }
         if (newPresets.length > 0) {
-            this.discordAlert({
+            await this.discordAlert({
                 title: 'Added preset(s)',
                 message: newPresets.join('\n'),
             })
@@ -325,7 +325,7 @@ class UpdatePresetsJob extends DataJob {
                 });
             }
             this.logger.succeed('Finished regenerating images');
-            this.discordAlert({
+            await this.discordAlert({
                 title: 'Regenerated images for preset(s) after name/size/background color change',
                 message: regnerateImages.map(item => `${item.name} ${item.id}`).join('\n'),
             });
