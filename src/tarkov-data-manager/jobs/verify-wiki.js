@@ -1,5 +1,4 @@
 const got = require('got');
-const webhook = require('../modules/webhook');
 
 const remoteData = require('../modules/remote-data');
 const DataJob = require('../modules/data-job');
@@ -87,12 +86,12 @@ class VerifyWikiJob extends DataJob {
                 }
 
                 if(shouldRemoveCurrentLink && result.wiki_link){
-                    this.postMessage(result, newWikiLink);
+                    await this.postMessage(result, newWikiLink);
                     remoteData.setProperty(result.id, 'wiki_link', '');
                 }
 
                 if(newWikiLink){
-                    this.postMessage(result, newWikiLink);
+                    await this.postMessage(result, newWikiLink);
                     remoteData.setProperty(result.id, 'wiki_link', newWikiLink);
                 }
                 return resolve();
@@ -118,7 +117,7 @@ class VerifyWikiJob extends DataJob {
             this.logger.fail(`${item.id} | ${foundNewLink} | ${item.name}`);
         }
     
-        return webhook.alert(messageData);
+        return this.discordAlert(messageData);
     }
 }
 

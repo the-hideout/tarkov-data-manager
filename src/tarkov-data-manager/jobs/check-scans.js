@@ -1,8 +1,7 @@
 const got = require('got');
 
 const { query } = require('../modules/db-connection');
-const webhook = require('../modules/webhook');
-const scannerApi = require('../modules/scanner-api');
+ const scannerApi = require('../modules/scanner-api');
 const DataJob = require('../modules/data-job');
 
 class CheckScansJob extends DataJob {
@@ -66,7 +65,7 @@ class CheckScansJob extends DataJob {
             };
 
             this.logger.log('Sending alert');
-            webhook.alert(messageData);
+            await this.discordAlert(messageData);
         }
 
         // Possibility to POST to a Discord webhook here with cron status details

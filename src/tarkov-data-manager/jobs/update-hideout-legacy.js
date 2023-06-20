@@ -1,6 +1,5 @@
 const got = require('got');
-const JobLogger = require('../modules/job-logger');
-const {alert} = require('../modules/webhook');
+
 const DataJob = require('../modules/data-job');
 
 class UpdateHideoutLegacyJob extends DataJob {
