@@ -73,6 +73,7 @@ class DataJob {
         if (options && options.parent) {
             this.parent = options.parent;
         }
+        this.discordAlertQueue = [];
         this.logger.start();
         let returnValue;
         let throwError = false;
@@ -90,7 +91,13 @@ class DataJob {
                 });
             }
         }
-        //this.running = false;
+        const results = await Promise.allSettled(this.discordAlertQueue);
+        for (const messageResult of results) {
+            if (messageResult.status !== 'rejected') {
+                continue;
+            }
+            this.logger.error(`Error sending discord alert: ${messageResult.reason}`);
+        }
         this.cleanup();
         this.logger.end();
         if (!options?.parent) {
@@ -144,7 +151,9 @@ class DataJob {
     }
 
     discordAlert = async (options) => {
-        return alert(options);
+        const messagePromise = alert(options, this.logger);
+        this.discordAlertQueue.push(messagePromise);
+        return messagePromise;
     }
 
     addTranslation = (key, langCode, value) => {
