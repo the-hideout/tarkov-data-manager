@@ -130,7 +130,7 @@ class UpdateNewItemsJob extends DataJob {
         }
 
         if (addedItems.length > 0) {
-            await this.discordAlert({
+            this.discordAlert({
                 title: 'New item(s) added',
                 message: addedItems.join('\n'),
             });
@@ -152,7 +152,7 @@ class UpdateNewItemsJob extends DataJob {
             this.logger.warn(`${item.name} (${item.id}) is no longer available in the game`);
         }
         if (removedItems.length > 0) {
-            await this.discordAlert({
+            this.discordAlert({
                 title: `Item(s) removed from game`,
                 message: removedItems.map(item => `${item.name} ${item.id}`).join('\n'),
             });

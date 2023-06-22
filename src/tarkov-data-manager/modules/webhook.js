@@ -1,4 +1,4 @@
-const { WebhookClient, MessageEmbed } = require('discord.js');
+const { WebhookClient, EmbedBuilder } = require('discord.js');
 
 let webhookClient = false;
 
@@ -12,10 +12,13 @@ if (process.env.WEBHOOK_URL) {
     }
 }
 
-const sendWebhook = async (message) => {
+const sendWebhook = async (message, logger) => {
+    if (!logger) {
+        logger = console;
+    }
     if (!webhookClient) {
-        console.log("No webhook URL set, printing alert to console instead:");
-        console.log(message);
+        logger.log("No webhook URL for alert:");
+        logger.log(message);
         return;
     }
     if (typeof message === 'string') {
@@ -23,7 +26,7 @@ const sendWebhook = async (message) => {
             title: message
         };
     }
-    const embed = new MessageEmbed();
+    const embed = new EmbedBuilder();
     if (message.title) {
         if (message.title.length > 256) {
             if (!message.message) {

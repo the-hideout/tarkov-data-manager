@@ -65,7 +65,7 @@ class CheckScansJob extends DataJob {
             };
 
             this.logger.log('Sending alert');
-            await this.discordAlert(messageData);
+            this.discordAlert(messageData);
         }
 
         // Possibility to POST to a Discord webhook here with cron status details
