@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-const { query } = require('../modules/db-connection');
 const DataJob = require('../modules/data-job');
 
 class UpdateLangJob extends DataJob {
@@ -12,7 +11,7 @@ class UpdateLangJob extends DataJob {
     run = async () => {
         for(const map in keys){
             this.logger.time(`longtime-price-query-${map}`);
-            let historicalPriceData = await query(`SELECT
+            let historicalPriceData = await this.query(`SELECT
                 item_id, price, timestamp
             FROM
                 price_data
@@ -59,11 +58,11 @@ class UpdateLangJob extends DataJob {
                 timestamp > '2021-12-14'
             LIMIT ?, 100000
         `;
-        const historicalPriceData = await query(priceSql, [offset]);
+        const historicalPriceData = await this.query(priceSql, [offset]);
         let moreResults = historicalPriceData.length === 100000;
         while (moreResults) {
             offset += batchSize;
-            const moreData = await query(priceSql, [offset]);
+            const moreData = await this.query(priceSql, [offset]);
             historicalPriceData.push(...moreData);
             if (moreData.length < batchSize) {
                 moreResults = false;

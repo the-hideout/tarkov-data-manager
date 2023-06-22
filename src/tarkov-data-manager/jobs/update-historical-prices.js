@@ -1,7 +1,6 @@
 const fs = require('fs/promises');
 const  path = require('path');
 
-const { query } = require('../modules/db-connection');
 const DataJob = require('../modules/data-job');
 
 class UpdateHistoricalPricesJob extends DataJob {
@@ -36,7 +35,7 @@ class UpdateHistoricalPricesJob extends DataJob {
         const allPriceData = {};
 
         this.logger.time(`historical-price-query-items`);
-        const historicalPriceDataItemIds = await query(`SELECT
+        const historicalPriceDataItemIds = await this.query(`SELECT
             item_id
         FROM
             price_data
@@ -55,7 +54,7 @@ class UpdateHistoricalPricesJob extends DataJob {
             }
 
             //console.time(`historical-price-query-${itemId}`);
-            const historicalPriceDataPromise = query(`SELECT
+            const historicalPriceDataPromise = this.query(`SELECT
                 item_id, price, timestamp
             FROM
                 price_data

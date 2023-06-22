@@ -7,7 +7,6 @@ const remoteData = require('../modules/remote-data');
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 const DataJob = require('../modules/data-job');
-const { filter } = require('domutils');
 
 class UpdateQuestsJob extends DataJob {
     constructor() {

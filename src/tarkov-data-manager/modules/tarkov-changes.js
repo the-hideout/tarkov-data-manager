@@ -13,6 +13,12 @@ const jsonRequest = async (path) => {
             'Accept': 'application/json',
         },
         resolveBodyOnly: true,
+        retry: {
+            limit: 10,
+            calculateDelay: () => {
+                return 500;
+            }
+        },
     });
     if (!response) return Promise.reject(new Error(`Tarkov Changes returned null result for ${path}`));
     return response;
@@ -92,14 +98,14 @@ module.exports = {
     traders: async (download = false) => {
         return module.exports.get('traders_clean.json', download, 'traders.json');
     },
-    downloadAll: async () => {
+    downloadAll: async (returnPartial = false) => {
         const promises = [];
         for (const file in availableFiles) {
             if (availableFiles[file].skip) continue;
-            const fileSource = availableFiles[file].requestName;
+            const fileSource = availableFiles[file].fileName || availableFiles[file].requestName;
             //console.log(fileSource);
             //promises.push(module.exports.get(fileSource, true, availableFiles[file]).then(data => {return {name: availableFiles[fileSource] || fileSource, data: data}}));
-            promises.push(module.exports[file](true, availableFiles[file]).then(data => {return {name: availableFiles[fileSource] || fileSource, data: data}}));
+            promises.push(module.exports[file](true, availableFiles[file]).then(data => {return {name: availableFiles[fileSource] || file, data: data}}));
         }
         //promises.push(getSptLocales(true).then(data => {return {name: 'locales', data: data}}));
         const results = await Promise.allSettled(promises);
@@ -111,6 +117,10 @@ module.exports = {
             } else {
                 errors.push(results[i].reason.message);
             }
+        }
+        if (returnPartial) {
+            values.errors = errors;
+            return values;
         }
         if (errors.length > 0) {
             return Promise.reject(new Error(errors.join('; ')));
