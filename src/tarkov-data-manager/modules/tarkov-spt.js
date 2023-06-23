@@ -81,49 +81,7 @@ module.exports = {
     locale: getLocale,
     locales: getLocales,
     quests: (download) => {
-        return downloadJson('quests.json', `${sptPath}templates/quests.json`, download).then(sptQuests => {
-            /*try {
-                let rawFile = false;
-                let rawFileDate = new Date(0);
-                let backupRaw = false;
-                const jsonFiles = fs.readdirSync(path.join(__dirname, '..', 'cache'));
-                for (const fileName of jsonFiles) {
-                    const match = fileName.match(/\d+resp\.client\.quest\.list_(?<year>\d{4})-(?<month>\d{2})-(?<day>\d{2})_(?<hour>\d{2})-(?<minute>\d{2})-(?<second>\d{2}).json/);
-                    if (match) {
-                        const rawDate = new Date(match.groups.year, match.groups.month-1, match.groups.day, match.groups.hour, match.groups.minute, match.groups.second);
-                        if (rawDate > rawFileDate) {
-                            rawFile = fileName;
-                            rawFileDate = rawDate;
-                        }
-                    } else if (fileName === 'quests_raw.json') {
-                        backupRaw = fileName;
-                    }
-                }
-                if (!rawFile && backupRaw) {
-                    rawFile = backupRaw;
-                }
-                if (rawFile) {
-                    const rawQuests = JSON.parse(fs.readFileSync(cachePath(rawFile))).data;
-                    for (let rawQuest of rawQuests) {
-                        const spt = sptQuests[rawQuest._id];
-                        if (spt) {
-                            rawQuest = {
-                                ...rawQuest,
-                                conditions: {
-                                    ...rawQuest.conditions,
-                                    AvailableForStart: spt.conditions.AvailableForStart,
-                                }
-                            };
-                        } 
-                        sptQuests[rawQuest._id] = rawQuest;
-                        sptQuests[rawQuest._id].raw = true;
-                    }
-                }
-            } catch (error) {
-                console.log(error);
-            }*/
-            return sptQuests;
-        });
+        return downloadJson('quests.json', `${sptPath}templates/quests.json`, download);
     },
     botInfo: (botKey, download = true) => {
         botKey = botKey.toLowerCase();

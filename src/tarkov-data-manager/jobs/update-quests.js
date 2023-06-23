@@ -55,9 +55,7 @@ class UpdateQuestsJob extends DataJob {
         const quests = {
             Task: [],
         };
-        if (!Object.values(this.rawQuestData).some(q => q.raw)) {
-            this.logger.warn('No raw quest input provided.');
-        }
+        
         for (const questId in this.rawQuestData) {
             if (this.removedQuests[questId]) continue;
             quests.Task.push(this.formatRawQuest(this.rawQuestData[questId]));
