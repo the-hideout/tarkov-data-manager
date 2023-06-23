@@ -55,9 +55,12 @@ class UpdateQuestsJob extends DataJob {
         const quests = {
             Task: [],
         };
-        
+
         for (const questId in this.rawQuestData) {
-            if (this.removedQuests[questId]) continue;
+            if (this.removedQuests[questId]) {
+                this.logger.warn(`Skipping removed quest ${this.locales.en[`${questId} name`]} ${questId}`);
+                continue;
+            }
             quests.Task.push(this.formatRawQuest(this.rawQuestData[questId]));
         }
         
