@@ -2,9 +2,9 @@ const path = require('path');
 
 const cloudflare = require('../modules/cloudflare');
 const stellate = require('../modules/stellate');
-const {jobComplete} = require('../modules/db-connection');
+const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('./job-logger');
-const {alert} = require('./webhook');
+const { alert } = require('./webhook');
 const tarkovData = require('./tarkov-data');
 
 class DataJob {
@@ -73,6 +73,8 @@ class DataJob {
         if (options && options.parent) {
             this.parent = options.parent;
         }
+        this.discordAlertQueue = [];
+        this.queries = [];
         this.logger.start();
         let returnValue;
         let throwError = false;
@@ -90,7 +92,14 @@ class DataJob {
                 });
             }
         }
-        //this.running = false;
+        const webhookResults = await Promise.allSettled(this.discordAlertQueue);
+        for (const messageResult of webhookResults) {
+            if (messageResult.status !== 'rejected') {
+                continue;
+            }
+            this.logger.error(`Error sending discord alert: ${messageResult.reason}`);
+        }
+        await Promise.allSettled(this.queries);
         this.cleanup();
         this.logger.end();
         if (!options?.parent) {
@@ -116,9 +125,11 @@ class DataJob {
             return Promise.reject(new Error('Must set kvName property before calling cloudflarePut'));
         }
         data.updated = new Date();
-        if (this.nextInvocation) {
-            const processTime = new Date() - this.startDate;
-            const expireDate = new Date(this.nextInvocation);
+        const nextInvocation = this.parent ? this.parent.nextInvocation : this.nextInvocation;
+        if (nextInvocation) {
+            const startDate = this.parent ? this.parent.startDate : this.startDate;
+            const processTime = new Date() - startDate;
+            const expireDate = new Date(nextInvocation);
             expireDate.setMilliseconds(expireDate.getMilliseconds() + processTime);
             expireDate.setMinutes(expireDate.getMinutes() + 2);
             data.expiration = expireDate;
@@ -144,7 +155,9 @@ class DataJob {
     }
 
     discordAlert = async (options) => {
-        return alert(options);
+        const messagePromise = alert(options, this.logger);
+        this.discordAlertQueue.push(messagePromise);
+        return messagePromise;
     }
 
     addTranslation = (key, langCode, value) => {
@@ -239,6 +252,12 @@ class DataJob {
                 delete target.locale[langCode];
             }
         }
+    }
+
+    query = async (sql, params) => {
+        const queryPromise = query(sql, params);;
+        this.queries.push(queryPromise);
+        return queryPromise;
     }
 }
 

@@ -1,5 +1,4 @@
 const moment = require('moment');
-const { query } = require('../modules/db-connection');
 const tarkovData = require('../modules/tarkov-data');
 const remoteData = require('../modules/remote-data');
 const DataJob = require('../modules/data-job');
@@ -23,7 +22,7 @@ class UpdateTraderPricesJob extends DataJob {
             this.traderAssorts[traderId] = this.traderAssorts[traderId].filter(offer => !offer.barter);
         }
         const outputData = {};
-        const junkboxLastScan = await query(`
+        const junkboxLastScan = await this.query(`
             SELECT
                 trader_price_data.*
             FROM
@@ -96,7 +95,7 @@ class UpdateTraderPricesJob extends DataJob {
         }*/
 
         const [currenciesHistoricScan, traderItems, traderPriceData] = await Promise.all([
-            query(`
+            this.query(`
                 SELECT
                     item_id, trader_name, currency, min_level, quest_unlock_id,
                     price, trader_items.timestamp as offer_timestamp, trader_price_data.timestamp as price_timestamp
@@ -119,7 +118,7 @@ class UpdateTraderPricesJob extends DataJob {
                         LIMIT 1
                     );
             `, [junkboxLastScan[0].timestamp.getTime()/1000]),
-            query(`
+            this.query(`
                 SELECT
                     *
                 FROM
@@ -127,7 +126,7 @@ class UpdateTraderPricesJob extends DataJob {
                 WHERE
                     NOT EXISTS (SELECT type FROM types WHERE trader_items.item_id = types.item_id AND type = 'only-flea');
             `),
-            query(`
+            this.query(`
                 SELECT
                     *
                 FROM

@@ -7,7 +7,6 @@ const remoteData = require('../modules/remote-data');
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 const DataJob = require('../modules/data-job');
-const { filter } = require('domutils');
 
 class UpdateQuestsJob extends DataJob {
     constructor() {
@@ -236,18 +235,19 @@ class UpdateQuestsJob extends DataJob {
 
             const earlierTasks = new Set();
             const addEarlier = (id) => {
+                earlierTasks.add(id);
                 quests.Task.find(q => q.id === id).taskRequirements.map(req => req.task).forEach(reqId => {
                     earlierTasks.add(reqId);
                     addEarlier(reqId);
                 });
             };
-            const required = quest.taskRequirements.map(req => req.task);
-            for (const reqId of required) {
+            const requiredIds = quest.taskRequirements.map(req => req.task);
+            for (const reqId of requiredIds) {
                 quests.Task.find(q => q.id === reqId).taskRequirements.forEach(req => {
                     addEarlier(req.task);
                 });
             }
-            for (const reqId of required) {
+            for (const reqId of requiredIds) {
                 if (earlierTasks.has(reqId)) {
                     //const requiredTask = quests.Task.find(q => q.id === reqId);
                     //this.logger.warn(`${this.locales.en[quest.name]} ${quest.id} required task ${this.locales.en[requiredTask.name]} ${requiredTask.id} is a precursor to another required task`);

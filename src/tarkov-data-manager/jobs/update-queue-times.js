@@ -1,7 +1,6 @@
 // Cron job to update the cloudflare KV store with crowd-sourced queue times
 const moment = require('moment');
 
-const { query } = require('../modules/db-connection');
 const DataJob = require('../modules/data-job');
 
 class UpdateQueueTimesJob extends DataJob {
@@ -52,7 +51,7 @@ class UpdateQueueTimesJob extends DataJob {
         }
 
         // Query all queue times from the longest possible time window
-        const queueTimeResults = await query(`
+        const queueTimeResults = await this.query(`
             SELECT
                 *
             FROM

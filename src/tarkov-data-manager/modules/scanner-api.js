@@ -2,8 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const formidable = require('formidable');
 
-const {query, format} = require('./db-connection');
-const {dashToCamelCase} = require('./string-functions');
+const { query } = require('./db-connection');
+const { dashToCamelCase } = require('./string-functions');
 const remoteData = require('./remote-data');
 const { uploadToS3 } = require('./upload-s3');
 const { createAndUploadFromSource } = require('./image-create');
@@ -191,166 +191,144 @@ const queryResultToBatchItem = item => {
 const getItems = async(options) => {
     const user = options.user;
     const response = {errors: [], warnings: [], data: []};
-    let items = false;
-    if (options.limitItem) {
-        let itemIds = options.limitItem;
-        if (!Array.isArray(itemIds)) {
-            itemIds = [itemIds];
-        }
-        const placeholders = [];
-        for (let i=0; i < itemIds.length; i++) {
-            placeholders.push('?');
-        }
-        const sql = format(`
-            SELECT
-                item_data.id,
-                name,
-                short_name,
-                match_index,
-                width,
-                height,
-                properties,
-                image_link IS NULL OR image_link = '' AS needs_image,
-                base_image_link IS NULL OR base_image_link = '' as needs_base_image,
-                grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
-                icon_link IS NULL OR icon_link = '' AS needs_icon_image,
-                image_512_link IS NULL or image_512_link = '' as needs_512px_image,
-                image_8x_link IS NULL or image_8x_link = '' as needs_8x_image,
-                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
-            FROM
-                item_data
-            LEFT JOIN types ON
-                types.item_id = item_data.id
-            WHERE 
-                item_data.id IN (${placeholders.join(',')})
-            GROUP BY
-                item_data.id
-            `, itemIds);
-        try {
-            items = await query(sql);
-            response.data = items.map(queryResultToBatchItem);
-        } catch (error) {
-            response.errors.push(String(error));
-        }
-        return response;
-    }
-    if (options.imageOnly) {
-        const sql = `
-            SELECT
-                item_data.id,
-                name,
-                short_name,
-                match_index,
-                width,
-                height,
-                properties,
-                image_link IS NULL OR image_link = '' AS needs_image,
-                base_image_link IS NULL OR base_image_link = '' as needs_base_image,
-                grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
-                icon_link IS NULL OR icon_link = '' AS needs_icon_image,
-                image_512_link IS NULL or image_512_link = '' as needs_512px_image,
-                image_8x_link IS NULL or image_8x_link = '' as needs_8x_image,
-                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
-            FROM
-                item_data
-            LEFT JOIN types ON
-                types.item_id = item_data.id
-            WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
-                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
-                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') AND 
-                (item_data.image_link IS NULL OR item_data.image_link = '' OR 
-                item_data.base_image_link IS NULL OR item_data.base_image_link = '' OR 
-                item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' OR 
-                item_data.icon_link IS NULL OR item_data.icon_link = '' OR
-                item_data.image_512_link IS NULL or item_data.image_512_link = '' OR 
-                item_data.image_8x_link IS NULL or item_data.image_8x_link = '')
-            GROUP BY item_data.id
-            ORDER BY item_data.name
-        `;
-        try {
-            response.data = (await query(sql)).filter(item => {
-                if (!item.name) return false;
-                return true;
-            }).map(queryResultToBatchItem);
-        } catch (error) {
-            response.errors.push(String(error));
-        }
-        return response;
-    }
-
-    let conditions = [];
-    if (options.offersFrom == 2 || options.offersFrom == 0) {
-        // if just players, exclude no-flea
-        let nofleaCondition = '';
-        if (options.offersFrom == 2) {
-            nofleaCondition = 'AND NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = \'no-flea\')';
-        }
-        // player price checkout
-        // works if we include trader prices too
-        const checkoutSql = format(`
-            UPDATE item_data
-            SET checkout_scanner_id = ?
-            WHERE (checkout_scanner_id IS NULL OR checkout_scanner_id = ?) AND
-                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
-                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
-                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${nofleaCondition} 
-            ORDER BY last_scan, id
-            LIMIT ?
-        `, [options.scanner.id,options.scanner.id,options.batchSize]);
-        await query(checkoutSql);
-
-        conditions.push('item_data.checkout_scanner_id = ?');
-    } else {
-        // trader-only price checkout
-        let lastScanCondition = '';
-        if (options.limitTraderScan) {
-            lastScanCondition = 'AND (trader_last_scan <= DATE_SUB(now(), INTERVAL 1 DAY) OR trader_last_scan IS NULL)';
-        }
-        const checkoutSql = format(`
-            UPDATE item_data
-            SET trader_checkout_scanner_id = ?
-            WHERE ((trader_checkout_scanner_id IS NULL OR trader_checkout_scanner_id = ?) AND 
-                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
-                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
-                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'only-flea') AND 
-                NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${lastScanCondition} )
-            ORDER BY trader_last_scan, id
-            LIMIT ?
-        `, [options.scanner.id,options.scanner.id,options.batchSize]);
-        await query(checkoutSql);
-
-        conditions.push('item_data.trader_checkout_scanner_id = ?');
-    }
-
-    let where = '';
-    if (conditions.length > 0) {
-        where = `WHERE ${conditions.join(' AND ')}`;
-    }
-    const sql = format(`
-        SELECT
-            item_data.id,
-            name,
-            short_name,
-            match_index,
-            properties,
-            image_link IS NULL OR image_link = '' AS needs_image,
-            grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
-            icon_link IS NULL OR icon_link = '' AS needs_icon_image,
-            GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
-        FROM
-            item_data
-        LEFT JOIN types ON
-            types.item_id = item_data.id
-        ${where}
-        GROUP BY item_data.id
-        ORDER BY item_data.last_scan
-    `, [options.scanner.id]);
     try {
-        response.data = (await query(sql)).filter(item => {
-            if (!item.name) return false;
-            return true;
-        }).map(queryResultToBatchItem);
-        //console.log('retrieved items', response.data);
+        if (options.limitItem) {
+            let itemIds = options.limitItem;
+            if (!Array.isArray(itemIds)) {
+                itemIds = [itemIds];
+            }
+            response.data = await query(`
+                SELECT
+                    item_data.id,
+                    name,
+                    short_name,
+                    match_index,
+                    width,
+                    height,
+                    properties,
+                    image_link IS NULL OR image_link = '' AS needs_image,
+                    base_image_link IS NULL OR base_image_link = '' as needs_base_image,
+                    grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
+                    icon_link IS NULL OR icon_link = '' AS needs_icon_image,
+                    image_512_link IS NULL or image_512_link = '' as needs_512px_image,
+                    image_8x_link IS NULL or image_8x_link = '' as needs_8x_image,
+                    GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
+                FROM
+                    item_data
+                LEFT JOIN types ON
+                    types.item_id = item_data.id
+                WHERE 
+                    item_data.id IN (${itemIds.map(() => '?').join(',')})
+                GROUP BY
+                    item_data.id
+            `, itemIds).then(items => items.map(queryResultToBatchItem));
+            return response;
+        }
+        if (options.imageOnly) {
+            response.data = await query(`
+                SELECT
+                    item_data.id,
+                    name,
+                    short_name,
+                    match_index,
+                    width,
+                    height,
+                    properties,
+                    image_link IS NULL OR image_link = '' AS needs_image,
+                    base_image_link IS NULL OR base_image_link = '' as needs_base_image,
+                    grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
+                    icon_link IS NULL OR icon_link = '' AS needs_icon_image,
+                    image_512_link IS NULL or image_512_link = '' as needs_512px_image,
+                    image_8x_link IS NULL or image_8x_link = '' as needs_8x_image,
+                    GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
+                FROM
+                    item_data
+                LEFT JOIN types ON
+                    types.item_id = item_data.id
+                WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
+                    NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
+                    NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') AND 
+                    (item_data.image_link IS NULL OR item_data.image_link = '' OR 
+                    item_data.base_image_link IS NULL OR item_data.base_image_link = '' OR 
+                    item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' OR 
+                    item_data.icon_link IS NULL OR item_data.icon_link = '' OR
+                    item_data.image_512_link IS NULL or item_data.image_512_link = '' OR 
+                    item_data.image_8x_link IS NULL or item_data.image_8x_link = '')
+                GROUP BY item_data.id
+                ORDER BY item_data.name
+            `).then(items => {
+                return items.filter(item => Boolean(item.name)).map(queryResultToBatchItem);
+            });
+            return response;
+        }
+    
+        let conditions = [];
+        if (options.offersFrom == 2 || options.offersFrom == 0) {
+            // if just players, exclude no-flea
+            let nofleaCondition = '';
+            if (options.offersFrom == 2) {
+                nofleaCondition = 'AND NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = \'no-flea\')';
+            }
+            // player price checkout
+            // works if we include trader prices too
+            await query(`
+                UPDATE item_data
+                SET checkout_scanner_id = ?
+                WHERE (checkout_scanner_id IS NULL OR checkout_scanner_id = ?) AND
+                    NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
+                    NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
+                    NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${nofleaCondition} 
+                ORDER BY last_scan, id
+                LIMIT ?
+            `, [options.scanner.id,options.scanner.id,options.batchSize]);
+    
+            conditions.push('item_data.checkout_scanner_id = ?');
+        } else {
+            // trader-only price checkout
+            let lastScanCondition = '';
+            if (options.limitTraderScan) {
+                lastScanCondition = 'AND (trader_last_scan <= DATE_SUB(now(), INTERVAL 1 DAY) OR trader_last_scan IS NULL)';
+            }
+            await query(`
+                UPDATE item_data
+                SET trader_checkout_scanner_id = ?
+                WHERE ((trader_checkout_scanner_id IS NULL OR trader_checkout_scanner_id = ?) AND 
+                    NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
+                    NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
+                    NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'only-flea') AND 
+                    NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${lastScanCondition} )
+                ORDER BY trader_last_scan, id
+                LIMIT ?
+            `, [options.scanner.id,options.scanner.id,options.batchSize]);
+    
+            conditions.push('item_data.trader_checkout_scanner_id = ?');
+        }
+    
+        let where = '';
+        if (conditions.length > 0) {
+            where = `WHERE ${conditions.join(' AND ')}`;
+        }
+        response.data = await query(`
+            SELECT
+                item_data.id,
+                name,
+                short_name,
+                match_index,
+                properties,
+                image_link IS NULL OR image_link = '' AS needs_image,
+                grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
+                icon_link IS NULL OR icon_link = '' AS needs_icon_image,
+                GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
+            FROM
+                item_data
+            LEFT JOIN types ON
+                types.item_id = item_data.id
+            ${where}
+            GROUP BY item_data.id
+            ORDER BY item_data.last_scan
+        `, [options.scanner.id]).then(items => {
+            return items.filter(item => Boolean(item.name)).map(queryResultToBatchItem);
+        });
     } catch (error) {
         response.errors.push(String(error));
     }
@@ -438,7 +416,7 @@ insertPrices = async (options) => {
         if (skipInsert) {
             response.warnings.push(`Skipped insert of ${playerPrices.length} player prices`);
         } else {
-            playerInsert = query(format(`INSERT INTO price_data (item_id, price, scanner_id, timestamp) VALUES ${placeholders.join(', ')}`, values));
+            playerInsert = query(`INSERT INTO price_data (item_id, price, scanner_id, timestamp) VALUES ${placeholders.join(', ')}`, values);
         }
     } else if (playerPrices.length > 0) {
         playerInsert = Promise.reject(new Error('User not authorized to insert player prices'));
@@ -451,11 +429,10 @@ insertPrices = async (options) => {
         for (let i = 0; i < traderPrices.length; i++) {
             const tPrice = traderPrices[i];
             let offerId = false;
-            const testOfferSql = format(`
+            const offerTest = await query(`
                 SELECT id, currency, min_level, quest_unlock_id, quest_unlock_bsg_id FROM trader_items
                 WHERE item_id=? AND trader_name=?
             `, [itemId, tPrice.seller.toLowerCase()]);
-            const offerTest = await query(testOfferSql);
             if (offerTest.length > 0) {
                 // offer exists
                 if (options.trustTraderUnlocks && userFlags.trustTraderUnlocks & user.flags) {
@@ -464,15 +441,15 @@ insertPrices = async (options) => {
                     const matchedOffers = [];
                     for (const offer of offerTest) {
                         if (
-                            (tPrice.minLevel === null || offer.min_level === null || offer.min_level == tPrice.minLevel) && 
+                            (tPrice.minLevel === null || offer.min_level === null || offer.min_level === tPrice.minLevel) && 
                             (tPrice.quest === null || (offer.quest_unlock_id === null && offer.quest_unlock_bsg_id === null) || offer.quest_unlock_id == tPrice.quest || offer.quest_unlock_bsg_id == tPrice.quest)
                         ) {
                             matchedOffers.push(offer.id);
                         }
                     }
-                    if (matchedOffers.length == 1) {
+                    if (matchedOffers.length === 1) {
                         const matchedOffer = matchedOffers[0];
-                        offerId = matchedOffer;
+                        offerId = matchedOffer.id;
                         if (matchedOffer.min_level === null && tPrice.minLevel !== null) {
                             try {
                                 await query(`
@@ -486,8 +463,22 @@ insertPrices = async (options) => {
                         }
                     } else if (matchedOffers.length > 1) {
                         response.warnings.push(`${tPrice.seller} had ${matchedOffers.length} matching offers for ${itemId}, skipping price insert`);
+                    } else if (offerTest.length === 1) {
+                        const offer = offerTest[0];
+                        if (offer.min_level && tPrice.minLevel && offer.min_level !== tPrice.minLevel & options.trustTraderUnlocks && userFlags.trustTraderUnlocks & user.flags) {
+                            try {
+                                await query(`
+                                    UPDATE trader_items
+                                    SET min_level = ?, scanner_id = ?
+                                    WHERE id = ${offer.id}
+                                `, [tPrice.minLevel, options.scanner.id]);
+                                offerId = offer.id;
+                            } catch (error) {
+                                response.warnings.push(`Failed updating minimum level for trader offer ${offer.id} to ${tPrice.minLevel}: ${error}`);
+                            }
+                        }
                     }
-                } else if (offerTest.length == 1) {
+                } else if (offerTest.length === 1) {
                     // easy match
                     offerId = offerTest[0].id;
                 } else {
@@ -537,11 +528,10 @@ insertPrices = async (options) => {
                         // update this offer
                         offerUpdateVars.push(`scanner_id = ?`);
                         offerUpdateValues.push(options.scanner.id);
-                        const sql = format(`UPDATE trader_items
+                        await query(`UPDATE trader_items
                             SET ${offerUpdateVars.join(', ')}
                             WHERE id = '${offerId}'
                         `, offerUpdateValues);
-                        await query(sql);
                     }
                 }
             }
@@ -567,13 +557,12 @@ insertPrices = async (options) => {
                     offerValues.push(questId);
                 }
                 offerValues.push(options.scanner.id);
-                const createOfferSql = format(`
-                    INSERT INTO trader_items
-                    (item_id, trader_name, currency, min_level, ${questIdField}, timestamp, scanner_id) VALUES
-                    (?, ?, ?, ${minLevel}, ${quest}, CURRENT_TIMESTAMP(), ?)
-                `, offerValues);
                 try {
-                    const result = await query(createOfferSql);
+                    const result = await query(`
+                        INSERT INTO trader_items
+                        (item_id, trader_name, currency, min_level, ${questIdField}, timestamp, scanner_id) VALUES
+                        (?, ?, ?, ${minLevel}, ${quest}, CURRENT_TIMESTAMP(), ?)
+                    `, offerValues);
                     offerId = result.insertId;
                 } catch (error) {
                     response.errors.push(String(error));
@@ -588,7 +577,7 @@ insertPrices = async (options) => {
             if (skipInsert) {
                 response.warnings.push(`Skipped insert of ${traderValues.length} trader prices`);
             } else {
-                traderInsert = query(format(`INSERT INTO trader_price_data (trade_id, price, scanner_id, timestamp) VALUES ${placeholders.join(', ')}`, traderValues));
+                traderInsert = query(`INSERT INTO trader_price_data (trade_id, price, scanner_id, timestamp) VALUES ${placeholders.join(', ')}`, traderValues);
             }
         } else {
             traderInsert = Promise.reject(new Error(`Could not find any matching offers for ${itemId}`));
@@ -666,7 +655,7 @@ const releaseItem = async (options) => {
         WHERE ${where.join(' AND ')}
     `;
     try {
-        const result = await query(format(sql, escapedValues)).then(result => {
+        const result = await query(sql, escapedValues).then(result => {
             if (setLastScan) {
                 query(`
                     UPDATE scanner
@@ -697,7 +686,7 @@ const insertTraderRestock = async (options) => {
         return response;
     }
     try {
-        const result = await query(format(`INSERT INTO trader_reset (trader_name, reset_time) VALUES (?, ?)`, [trader, timer]));
+        const result = await query(`INSERT INTO trader_reset (trader_name, reset_time) VALUES (?, ?)`, [trader, timer]);
         response.data = result.affectedRows;
     } catch (error) {
         response.errors.push(String(error));
@@ -753,11 +742,11 @@ const submitImage = (request, user) => {
         form.parse(request, async (err, fields, files) => {
             if (err) {
                 console.log(err);
-                response.errors.push(String(error));
+                response.errors.push(String(err));
                 return resolve(response);
             }
     
-            console.log(fields);
+            // console.log(fields);
             // console.log(files);
     
             const allItemData = await remoteData.get();

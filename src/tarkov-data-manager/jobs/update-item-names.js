@@ -6,7 +6,6 @@ const path = require('path');
 const remoteData = require('../modules/remote-data');
 const normalizeName = require('../modules/normalize-name');
 
-const { query } = require('../modules/db-connection');
 const { regenerateFromExisting } = require('../modules/image-create');
 const tarkovData = require('../modules/tarkov-data');
 const DataJob = require('../modules/data-job');
@@ -117,7 +116,7 @@ class UpdateItemNamesJob extends DataJob {
 
             if (oldKey !== newKey && currentDestinations.includes(oldKey)){
                 try {
-                    await query(`
+                    await this.query(`
                         INSERT INTO
                             redirects (source, destination)
                         VALUES
@@ -143,7 +142,7 @@ class UpdateItemNamesJob extends DataJob {
         }
 
         this.logger.log('Checking redirects');
-        const results = await query(`SELECT source, destination FROM redirects`);
+        const results = await this.query(`SELECT source, destination FROM redirects`);
 
         let redirects = results
             .map(row => {
@@ -162,7 +161,7 @@ class UpdateItemNamesJob extends DataJob {
             }
 
             this.logger.warn(`${source} is not a valid redirect source`);
-            await query(`DELETE FROM redirects WHERE source = ?`, [source.replace(/^\/item\//, '')]);
+            await this.query(`DELETE FROM redirects WHERE source = ?`, [source.replace(/^\/item\//, '')]);
         }
 
         for (const source in redirects) {
@@ -177,7 +176,7 @@ class UpdateItemNamesJob extends DataJob {
             }
             if (startDestination !== redirects[source]) {
                 this.logger.warn(`${source} is both a redirect source and destination`);
-                await query(`UPDATE redirects SET destination = ? WHERE source = ?`, [
+                await this.query(`UPDATE redirects SET destination = ? WHERE source = ?`, [
                     redirects[source].replace(/^\/item\//, ''), 
                     source.replace(/^\/item\//, '')
                 ]);
