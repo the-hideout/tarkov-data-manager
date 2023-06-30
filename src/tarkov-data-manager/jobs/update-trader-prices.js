@@ -325,7 +325,7 @@ class UpdateTraderPricesJob extends DataJob {
                     outputData[itemId] = [];
                 }
                 outputData[itemId].push(newOffer);
-                this.logger.log(`Added ${newOffer.item_name} for ${trader.name} LL${newOffer.vendor.minTraderLevel}`);
+                this.logger.log(`Added ${newOffer.item_name} for ${trader.normalizedName} LL${newOffer.vendor.minTraderLevel}`);
             });
         }
 
