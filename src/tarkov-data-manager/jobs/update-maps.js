@@ -41,6 +41,27 @@ class UpdateMapsJob extends DataJob {
                 raidDuration: map.EscapeTimeLimit,
                 players: map.MinPlayers+'-'+map.MaxPlayers,
                 bosses: [],
+                spawns: map.SpawnPointParams.map(spawn => {
+                    if (spawn.Sides.includes('Usec') && spawn.Sides.includes('Bear')) {
+                        spawn.Sides = spawn.Sides.filter(side => !['Usec', 'Bear', 'Pmc'].includes(side));
+                        spawn.Sides.push('Pmc');
+                    }
+                    spawn.Categories = spawn.Categories.filter(cat => !['Coop', 'Opposite', 'Group'].includes(cat));
+                    if (spawn.Categories.length === 0) {
+                        return false;
+                    }
+                    return {
+                        position: spawn.Position,
+                        sides: spawn.Sides.map(side => {
+                            if (side === 'Savage') {
+                                return 'scav';
+                            }
+                            return side.toLowerCase();
+                        }),
+                        categories: spawn.Categories.map(cat => cat.toLowerCase()),
+                        zoneName: spawn.BotZoneName || spawn.Id,
+                    };
+                }).filter(Boolean),
                 minPlayerLevel: map.RequiredPlayerLevelMin,
                 maxPlayerLevel: map.RequiredPlayerLevelMax,
                 accessKeys: map.AccessKeys,
@@ -82,11 +103,30 @@ class UpdateMapsJob extends DataJob {
                     locationCount[locationName].count++;
                     return locationName;
                 });
+                for (const key of spawnKeys) {
+                    if (!mapData.spawns.some(spawn => spawn.categories.includes('boss') && spawn.zoneName === key)) {
+                        mapData.spawns.forEach(spawn => {
+                            if (spawn.zoneName !== key) {
+                                return;
+                            }
+                            spawn.categories.push('boss');
+                        });
+                    }
+                }
                 for (const locationName in locationCount) {
+                    let spawns = mapData.spawns.filter(spawn => spawn.zoneName === locationCount[locationName].key && (spawn.categories.includes('boss') || spawn.categories.includes('all')));
+                    if (spawns.length === 0 && locationCount[locationName].key !== 'BotZone') {
+                        const cleanKey = locationCount[locationName].key.replace('Zone', '');
+                        const foundSpawn = mapData.spawns.find(spawn => spawn.zoneName?.startsWith(cleanKey));
+                        if (foundSpawn) {
+                            foundSpawn.zoneName = locationCount[locationName].key;
+                            if (!foundSpawn.categories.includes('boss')) {
+                                foundSpawn.categories.push('boss');
+                            }
+                            spawns.push(foundSpawn);
+                        }
+                    }
                     bossData.spawnLocations.push({
-                        name: locationName,
-                        chance: Math.round((locationCount[locationName].count / locations.length) * 100) / 100,
-                        spawnKey: locationCount[locationName].key,
                         name: this.addTranslation(locationCount[locationName].key, (lang, langCode) => {
                             if (lang[locationCount[locationName].key]) {
                                 return lang[locationCount[locationName].key];
@@ -97,6 +137,9 @@ class UpdateMapsJob extends DataJob {
                             this.logger.warn(`No translation found for spawn location ${locationCount[locationName].key}`);
                             return locationName;
                         }),
+                        chance: Math.round((locationCount[locationName].count / locations.length) * 100) / 100,
+                        spawnKey: locationCount[locationName].key,
+                        positions: spawns.map(spawn => spawn.position),
                     });
                 }
                 if (spawn.BossEscortAmount !== '0') {
