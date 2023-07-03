@@ -143,34 +143,26 @@ class UpdateMapsJob extends DataJob {
                     });
                 }
                 if (spawn.BossEscortAmount !== '0') {
-                    let enemyKey = spawn.BossEscortType;
-                    /*if (!enemyMap[spawn.BossEscortType] && !manualNames[spawn.BossEscortType]) {
-                        enemyKey = 'guard';
-                    }*/
-                    enemySet.add(enemyKey);
+                    let enemyData = await this.getBossInfo(spawn.BossEscortType);
+                    enemySet.add(enemyData.id);
                     bossData.escorts.push({
-                        id: spawn.BossEscortType,
+                        id: enemyData.id,
                         //name: enemyKey,
-                        //normalizedName: normalizeName(this.getEnemyName(enemyKey, this.locales.en)),
+                        //normalizedName: normalizeName(this.getEnemyName(enemyData.id, this.locales.en)),
                         amount: getChances(spawn.BossEscortAmount, 'count', true), 
                     });
-                    await this.getBossInfo(spawn.BossEscortType);
                 }
                 if (spawn.Supports) {
                     for (const support of spawn.Supports) {
                         if (support.BossEscortAmount === '0') continue;
-                        let enemyKey = support.BossEscortType;
-                        /*if (!enemyMap[enemyKey] && !manualNames[enemyKey]) {
-                            enemyKey = 'guard';
-                        }*/
-                        enemySet.add(enemyKey);
+                        let enemyData = await this.getBossInfo(spawn.BossEscortType);
+                        enemySet.add(enemyData.id);
                         bossData.escorts.push({
                             id: support.BossEscortType,
-                            //name: enemyKey,
-                            //normalizedName: normalizeName(this.getEnemyName(enemyKey, this.locales.en)),
+                            //name: enemyData.id,
+                            //normalizedName: normalizeName(this.getEnemyName(enemyData.id, this.locales.en)),
                             amount: getChances(support.BossEscortAmount, 'count', true), 
                         });
-                        await this.getBossInfo(support.BossEscortType);
                     }
                 }
 
@@ -363,6 +355,10 @@ class UpdateMapsJob extends DataJob {
     }
 
     getBossInfo = async (bossKey) => {
+        const keySubs = {
+            followerTagilla: 'bossTagilla',
+        };
+        bossKey = keySubs[bossKey] || bossKey;
         if (this.processedBosses[bossKey]) {
             return this.processedBosses[bossKey];
         }
