@@ -155,10 +155,10 @@ class UpdateMapsJob extends DataJob {
                 if (spawn.Supports) {
                     for (const support of spawn.Supports) {
                         if (support.BossEscortAmount === '0') continue;
-                        let enemyData = await this.getBossInfo(spawn.BossEscortType);
+                        let enemyData = await this.getBossInfo(support.BossEscortType);
                         enemySet.add(enemyData.id);
                         bossData.escorts.push({
-                            id: support.BossEscortType,
+                            id: enemyData.id,
                             //name: enemyData.id,
                             //normalizedName: normalizeName(this.getEnemyName(enemyData.id, this.locales.en)),
                             amount: getChances(support.BossEscortAmount, 'count', true), 
@@ -362,19 +362,6 @@ class UpdateMapsJob extends DataJob {
         if (this.processedBosses[bossKey]) {
             return this.processedBosses[bossKey];
         }
-        if (!this.bossLoadouts[bossKey]) {
-            this.bossLoadouts[bossKey] = await tarkovData.botInfo(bossKey, true).catch(error => {
-                this.logger.error(`Error getting ${bossKey} boss info: ${error.message}`);
-                return tarkovData.botInfo(bossKey, false).catch(err => {
-                    this.logger.error`Error reading local ${bossKey} boss info: ${err.messsage}`;
-                    return false;
-                });
-            });
-            /*if (!this.bossLoadouts[bossKey]) {
-                return undefined;
-            }*/
-        }
-        const bossData = this.bossLoadouts[bossKey];
         const bossInfo = {
             id: bossKey,
             name: this.addTranslation(bossKey, (lang) => {
@@ -401,25 +388,35 @@ class UpdateMapsJob extends DataJob {
                 }
             }
         }
-        if (!bossData) {
+        if (!this.bossLoadouts[bossKey]) {
+            this.bossLoadouts[bossKey] = await tarkovData.botInfo(bossKey, true).catch(error => {
+                this.logger.error(`Error getting ${bossKey} boss info: ${error.message}`);
+                return tarkovData.botInfo(bossKey, false).catch(err => {
+                    this.logger.error`Error reading local ${bossKey} boss info: ${err.messsage}`;
+                    return false;
+                });
+            });
+        }
+        const bossExtraData = this.bossLoadouts[bossKey];
+        if (!bossExtraData) {
             this.processedBosses[bossKey] = bossInfo;
             return bossInfo;
         }
-        bossInfo.health = Object.keys(bossData.health.BodyParts[0]).map(bodyPart => {
+        bossInfo.health = Object.keys(bossExtraData.health.BodyParts[0]).map(bodyPart => {
             return {
                 id: bodyPart,
                 bodyPart: this.addTranslation(bodyPart),
-                max: bossData.health.BodyParts[0][bodyPart].max,
+                max: bossExtraData.health.BodyParts[0][bodyPart].max,
             };
         });
-        for (const slotName in bossData.inventory.equipment) {
-            const totalWeight = Object.keys(bossData.inventory.equipment[slotName]).reduce((total, id) => {
+        for (const slotName in bossExtraData.inventory.equipment) {
+            const totalWeight = Object.keys(bossExtraData.inventory.equipment[slotName]).reduce((total, id) => {
                 if (this.isValidItem(id)) {
-                    total += bossData.inventory.equipment[slotName][id];
+                    total += bossExtraData.inventory.equipment[slotName][id];
                 }
                 return total;
             }, 0);
-            for (const id in bossData.inventory.equipment[slotName]) {
+            for (const id in bossExtraData.inventory.equipment[slotName]) {
                 if (!this.isValidItem(id)) {
                     continue;
                 }
@@ -435,11 +432,11 @@ class UpdateMapsJob extends DataJob {
                         },
                         {
                             name: 'weightedChance',
-                            value: Math.round((bossData.inventory.equipment[slotName][id] / totalWeight) * 100) / 100,
+                            value: Math.round((bossExtraData.inventory.equipment[slotName][id] / totalWeight) * 100) / 100,
                         }
                     ]
                 };
-                this.getModsForItem(id, bossData.inventory.mods, equipmentItem.contains);
+                this.getModsForItem(id, bossExtraData.inventory.mods, equipmentItem.contains);
                 const preset = this.matchEquipmentItemToPreset(equipmentItem);
                 if (preset) {
                     equipmentItem.item = preset.id;
@@ -456,8 +453,8 @@ class UpdateMapsJob extends DataJob {
             }
         }
         bossInfo.items = [];
-        for (const slotName in bossData.inventory.items) {
-            for (const id of bossData.inventory.items[slotName]) {
+        for (const slotName in bossExtraData.inventory.items) {
+            for (const id of bossExtraData.inventory.items[slotName]) {
                 if (bossInfo.items.some(item => item.id === id)) {
                     continue;
                 }
