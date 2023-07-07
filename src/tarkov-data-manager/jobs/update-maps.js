@@ -80,8 +80,6 @@ class UpdateMapsJob extends DataJob {
                 enemySet.add(spawn.BossName);
                 const bossData = {
                     id: spawn.BossName,
-                    //name: spawn.BossName,
-                    //normalizedName: normalizeName(this.getEnemyName(spawn.BossName, this.locales.en)),
                     spawnChance: parseFloat(spawn.BossChance) / 100,
                     spawnLocations: [],
                     escorts: [],
@@ -147,8 +145,6 @@ class UpdateMapsJob extends DataJob {
                     enemySet.add(enemyData.id);
                     bossData.escorts.push({
                         id: enemyData.id,
-                        //name: enemyKey,
-                        //normalizedName: normalizeName(this.getEnemyName(enemyData.id, this.locales.en)),
                         amount: getChances(spawn.BossEscortAmount, 'count', true), 
                     });
                 }
@@ -159,8 +155,6 @@ class UpdateMapsJob extends DataJob {
                         enemySet.add(enemyData.id);
                         bossData.escorts.push({
                             id: enemyData.id,
-                            //name: enemyData.id,
-                            //normalizedName: normalizeName(this.getEnemyName(enemyData.id, this.locales.en)),
                             amount: getChances(support.BossEscortAmount, 'count', true), 
                         });
                     }
@@ -173,22 +167,10 @@ class UpdateMapsJob extends DataJob {
                         bossData.spawnTrigger = this.addTranslation('ExfilActivation');
                     }
                 }
-                /*bossData.locale = getTranslations({
-                    name: lang => {
-                        return this.getEnemyName(bossData.name, lang);
-                    }
-                }, this.logger);
-                for (const escort of bossData.escorts) {
-                    escort.locale = getTranslations({
-                        name: lang => {
-                            return this.getEnemyName(escort.name, lang);
-                        }
-                    }, this.logger);
-                }*/
                 mapData.bosses.push(bossData);
             }
-            mapData.enemies = this.addTranslation([...enemySet], (enemy, lang) => {
-                return this.getEnemyName(enemy, lang);
+            mapData.enemies = this.addTranslation([...enemySet], (enemy, lang, langCode) => {
+                return this.getMobName(enemy, lang, langCode);
             });
             mapData.name = this.addTranslation(`${id} Name`, (lang) => {
                 if (id === '59fc81d786f774390775787e' && lang.factory4_night) {
@@ -233,38 +215,6 @@ class UpdateMapsJob extends DataJob {
             return false;
         }
         return true;
-    }
-
-    getEnemyName = (enemy, lang) => {
-        if (enemyMap[enemy]) {
-            if (lang[enemyMap[enemy]]) {
-                return lang[enemyMap[enemy]];
-            }
-            return this.locales.en[enemyMap[enemy]];
-        }
-        if (lang[enemy]) {
-            return lang[enemy];
-        }
-        if (enemy.includes('follower') && !enemy.includes('BigPipe') && !enemy.includes('BirdEye')) {
-            const nameParts = [];
-            const guardTypePattern = /Assault|Security|Scout/;
-            const bossKey = enemy.replace('follower', 'boss').replace(guardTypePattern, '');
-            nameParts.push(this.getEnemyName(bossKey, lang));
-            nameParts.push(this.getEnemyName('guard', lang));
-            const guardTypeMatch = enemy.match(guardTypePattern);
-            if (guardTypeMatch) {
-                if (lang[`follower${guardTypeMatch[0]}`]) {
-                    nameParts.push(`(${lang[`follower${guardTypeMatch[0]}`]})`);
-                } else {
-                    nameParts.push(`(${guardTypeMatch[0]})`);
-                }
-            }
-            return nameParts.join(' ')
-        }
-        if (this.locales.en[enemy]) {
-            return this.locales.en[enemy];
-        }
-        return enemy.replace('boss', '');
     }
 
     matchEquipmentItemToPreset = (equipmentItem) => {
@@ -355,19 +305,16 @@ class UpdateMapsJob extends DataJob {
     }
 
     getBossInfo = async (bossKey) => {
-        const keySubs = {
-            followerTagilla: 'bossTagilla',
-        };
-        bossKey = keySubs[bossKey] || bossKey;
+        bossKey = this.getMobKey(bossKey);
         if (this.processedBosses[bossKey]) {
             return this.processedBosses[bossKey];
         }
         const bossInfo = {
             id: bossKey,
-            name: this.addTranslation(bossKey, (lang) => {
-                return this.getEnemyName(bossKey, lang);
+            name: this.addTranslation(bossKey, (lang, langCode) => {
+                return this.getMobName(bossKey, lang, langCode);
             }),
-            normalizedName: normalizeName(this.getEnemyName(bossKey, this.locales.en)),
+            normalizedName: normalizeName(this.getMobName(bossKey, this.locales.en, 'en')),
             imagePortraitLink: `https://${process.env.S3_BUCKET}/unknown-mob-portrait.webp`,
             imagePosterLink: `https://${process.env.S3_BUCKET}/unknown-mob-poster.webp`,
             equipment: [],
@@ -494,24 +441,6 @@ const idMap = {
     '5b0fc42d86f7744a585f9105': 5,
     '5704e5fad2720bc05b8b4567': 6,
     '5704e4dad2720bb55b8b4567': 7,
-};
-
-const enemyMap = {
-    'bossGluhar': 'QuestCondition/Elimination/Kill/BotRole/bossGluhar',
-    'bossKilla': 'QuestCondition/Elimination/Kill/BotRole/bossKilla',
-    'pmcBot': 'ScavRole/PmcBot',
-    'bossBully': 'QuestCondition/Elimination/Kill/BotRole/bossBully',
-    'exUsec': 'ScavRole/ExUsec',
-    'bossSanitar': 'QuestCondition/Elimination/Kill/BotRole/bossSanitar',
-    'scavs': 'QuestCondition/Elimination/Kill/Target/Savage',
-    'sniper': 'ScavRole/Marksman',
-    'sectantPriest': 'QuestCondition/Elimination/Kill/BotRole/sectantPriest',
-    'sectantWarrior': 'QuestCondition/Elimination/Kill/BotRole/cursedAssault',
-    'bossKojaniy': 'QuestCondition/Elimination/Kill/BotRole/bossKojaniy',
-    'bossTagilla': 'QuestCondition/Elimination/Kill/BotRole/bossTagilla',
-    'bossZryachiy': '63626d904aa74b8fe30ab426 ShortName',
-    'guard': 'ScavRole/Follower',
-    'arenaFighterEvent': '64764abcd125ab430a14ccb5 name'
 };
 
 const getChances = (input, nameLabel = 'name', labelInt = false) => {
