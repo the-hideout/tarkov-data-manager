@@ -1236,30 +1236,36 @@ class UpdateQuestsJob extends DataJob {
                         }
                     }
                     let targetCode = cond._props.target;
+                    obj.targetNames = [this.addTranslation(targetCode, (lang, langCode) => {
+                        return this.getMobName(this.getMobKey(targetCode), lang, langCode);
+                    })];
                     if (cond._props.savageRole) {
-                        targetCode = cond._props.savageRole[0];
+                        const ignoreRoles = [
+                            'assault',
+                            'cursedAssault',
+                        ];
+                        const allowedRoles = cond._props.savageRole.filter(role => !ignoreRoles.includes(role)).reduce((roles, role) => {
+                            const key = this.getMobKey(role);
+                            if (!roles.includes(key)) {
+                                roles.push(key);
+                            }
+                            return roles;
+                        }, []);
+                        if (allowedRoles.length < 1) {
+                            allowedRoles.push('savage');
+                        }
+                        targetCode = allowedRoles[0];
+                        obj.targetNames = allowedRoles.map(key => {
+                            return this.addTranslation(key, (lang, langCode) => {
+                                return this.getMobName(key, lang, langCode);
+                            });
+                        });
                     }
+                    obj.target = obj.targetNames[0];
                     if (cond._props.daytime) {
                         obj.timeFromHour = cond._props.daytime.from;
                         obj.timeUntilHour = cond._props.daytime.to;
                     }
-                    obj.target = this.addTranslation(targetCode, (lang) => {
-                        if (targetCode == 'followerBully') {
-                            return `${lang['QuestCondition/Elimination/Kill/BotRole/bossBully']} ${lang['ScavRole/Follower']}`;
-                        }
-                        if (targetKeyMap[targetCode]) targetCode = targetKeyMap[targetCode];
-                        let name = lang[`QuestCondition/Elimination/Kill/BotRole/${targetCode}`] 
-                            || lang[`QuestCondition/Elimination/Kill/Target/${targetCode}`] 
-                            || lang[`ScavRole/${targetCode}`];
-                        if (!name && lang[targetCode]) {
-                            return lang[targetCode];
-                        } else if (!name && this.locales.en[targetCode]) {
-                            return this.locales.en[targetCode];
-                        } else if (!name) {
-                            name = targetCode;
-                        }
-                        return name;
-                    });
                 } else if (cond._parent === 'Location') {
                     for (const loc of cond._props.target) {
                         if (loc === 'develop') continue;
@@ -1643,13 +1649,6 @@ const questStatusMap = {
     2: 'active',
     4: 'complete',
     5: 'failed'
-};
-
-const targetKeyMap = {
-    AnyPmc: 'AnyPMC',
-    pmcBot: 'PmcBot',
-    marksman: 'Marksman',
-    exUsec: 'ExUsec'
 };
 
 const factionMap = {
