@@ -6,6 +6,7 @@ const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('./job-logger');
 const { alert } = require('./webhook');
 const tarkovData = require('./tarkov-data');
+const { error } = require('console');
 
 class DataJob {
     constructor(options) {
@@ -145,11 +146,16 @@ class DataJob {
             this.logger.success(`Successful Cloudflare put of ${kvName}`);
             stellate.purge(kvName, this.logger);
         } else {
+            const errorMessages = [];
             for (let i = 0; i < response.errors.length; i++) {
                 this.logger.error(response.errors[i]);
+                errorMessages.push(response.errors[i]);
             }
             for (let i = 0; i < response.messages.length; i++) {
                 this.logger.error(response.messages[i]);
+            }
+            if (errorMessages.length > 0) {
+                return Promise.reject(new Error(`Error uploading kv data: ${errorMessages.join(', ')}`));
             }
         }
     }
