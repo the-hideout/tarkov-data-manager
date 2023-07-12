@@ -259,6 +259,8 @@ class UpdateQuestsJob extends DataJob {
             const imageLink = await this.getTaskImageLink(quest);
             if (imageLink) {
                 quest.taskImageLink = imageLink;
+            } else {
+                quest.taskImageLink = `https://${process.env.S3_BUCKET}/unknown-task.webp`;
             }
         }
         if (Object.keys(filteredPrerequisiteTasks).length > 0) {
@@ -819,7 +821,6 @@ class UpdateQuestsJob extends DataJob {
             location_id: locationId,
             locationName: locationName,
             wikiLink: `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.locales.en[`${questId} name`].replaceAll(' ', '_'))}`,
-            taskImageLink: null,
             minPlayerLevel: 0,
             taskRequirements: [],
             traderLevelRequirements: [],
