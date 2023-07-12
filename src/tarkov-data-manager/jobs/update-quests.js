@@ -1560,7 +1560,7 @@ class UpdateQuestsJob extends DataJob {
         if (this.s3Images.includes(s3FileName)) {
             return s3ImageLink;
         }
-        const extensions = ['png', 'jpg'];
+        /*const extensions = ['png', 'jpg'];
         for (const ext of extensions) {
             const response = await fetch(`https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/images/quests/${task.id}.${ext}`);
             if (!response.ok) {
@@ -1568,11 +1568,12 @@ class UpdateQuestsJob extends DataJob {
             }
             const image = sharp(await response.arrayBuffer()).webp({lossless: true});
             await uploadAnyImage(image, s3FileName, 'image/webp');
+            this.logger.log(`Retrieved ${this.locales.en[`${task.id} name`]} ${task.id} image from SPT`);
             return s3ImageLink;
         }
         if (!task.wikiLink) {
             return null;
-        }
+        }*/
         const pageResponse = await fetch(task.wikiLink);//.then(response => cheerio.load(response.body));
         if (!pageResponse.ok) {
             return null;
@@ -1585,6 +1586,7 @@ class UpdateQuestsJob extends DataJob {
         }
         const image = sharp(await imageResponse.arrayBuffer()).webp({lossless: true});
         await uploadAnyImage(image, s3FileName, 'image/webp');
+        this.logger.log(`Retrieved ${this.locales.en[`${task.id} name`]} ${task.id} image from wiki`);
         return s3ImageLink;
     }
 }
