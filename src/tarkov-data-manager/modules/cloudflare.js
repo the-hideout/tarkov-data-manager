@@ -23,6 +23,12 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
         },
         responseType: 'json',
         resolveBodyOnly: true,
+        retry: {
+            limit: 10,
+            calculateDelay: () => {
+                return 500;
+            }
+        },
     };
 
     if(extraHeaders){
