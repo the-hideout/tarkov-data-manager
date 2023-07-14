@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const zlib = require('zlib');
+//const zlib = require('zlib');
 
 const got = require('got');
 const FormData = require('form-data');
