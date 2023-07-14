@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const zlib = require('zlib');
+//const zlib = require('zlib');
 
 const got = require('got');
 const FormData = require('form-data');
@@ -23,6 +23,12 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
         },
         responseType: 'json',
         resolveBodyOnly: true,
+        retry: {
+            limit: 10,
+            calculateDelay: () => {
+                return 500;
+            }
+        },
     };
 
     if(extraHeaders){

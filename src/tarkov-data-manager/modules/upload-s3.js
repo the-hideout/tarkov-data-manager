@@ -3,7 +3,7 @@ const path = require('path');
 
 const sharp = require('sharp');
 const { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command, HeadObjectCommand, DeleteObjectCommand, CopyObjectCommand } = require("@aws-sdk/client-s3");
-const {fromEnv} = require('@aws-sdk/credential-provider-env');
+const { fromEnv } = require('@aws-sdk/credential-providers');
 
 const cloudflare = require('./cloudflare');
 const { imageFunctions } = require('tarkov-dev-image-generator');
@@ -30,6 +30,12 @@ async function uploadAnyImage(image, filename, contentType) {
         Body: await image.toBuffer()
     };
     await s3.send(new PutObjectCommand(uploadParams));
+    if (fileExistsInS3(filename)) {
+        await cloudflare.purgeCache(`https://${uploadParams.Bucket}/${uploadParams.Key}`);
+        return true;
+    }
+    addToLocalBucket(filename);
+    return false;
 }
 
 async function upload(image, imageType, id) {
@@ -72,7 +78,7 @@ async function upload(image, imageType, id) {
         await cloudflare.purgeCache(imageLink);
         return true;
     } else {
-        addToLocalBucket(imageLink);
+        addToLocalBucket(uploadParams.Key);
     }
     return false;
 }

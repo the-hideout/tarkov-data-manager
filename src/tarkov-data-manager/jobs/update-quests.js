@@ -2,11 +2,14 @@ const fs = require('fs/promises');
 const path = require('path');
 
 const got = require('got');
+const sharp = require('sharp');
+const cheerio = require('cheerio');
 
 const remoteData = require('../modules/remote-data');
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 const DataJob = require('../modules/data-job');
+const { getLocalBucketContents, uploadAnyImage } = require('../modules/upload-s3');
 
 class UpdateQuestsJob extends DataJob {
     constructor() {
@@ -46,6 +49,7 @@ class UpdateQuestsJob extends DataJob {
         const traders = await this.jobManager.jobOutput('update-traders', this);
         this.presets = await this.jobManager.jobOutput('update-presets', this, true);
         this.itemMap = await this.jobManager.jobOutput('update-item-cache', this);
+        this.s3Images = getLocalBucketContents();
         this.traderIdMap = {};
         for (const trader of traders) {
             this.traderIdMap[trader.tarkovDataId] = trader.id;
@@ -305,6 +309,13 @@ class UpdateQuestsJob extends DataJob {
                         obj.map_ids.push('5704e4dad2720bb55b8b4567');
                     }
                 }
+            }
+            
+            const imageLink = await this.getTaskImageLink(quest);
+            if (imageLink) {
+                quest.taskImageLink = imageLink;
+            } else {
+                quest.taskImageLink = `https://${process.env.S3_BUCKET}/unknown-task.webp`;
             }
         }
         if (Object.keys(filteredPrerequisiteTasks).length > 0) {
@@ -1308,30 +1319,36 @@ class UpdateQuestsJob extends DataJob {
                         }
                     }
                     let targetCode = cond._props.target;
+                    obj.targetNames = [this.addTranslation(targetCode, (lang, langCode) => {
+                        return this.getMobName(this.getMobKey(targetCode), lang, langCode);
+                    })];
                     if (cond._props.savageRole) {
-                        targetCode = cond._props.savageRole[0];
+                        const ignoreRoles = [
+                            'assault',
+                            'cursedAssault',
+                        ];
+                        const allowedRoles = cond._props.savageRole.filter(role => !ignoreRoles.includes(role)).reduce((roles, role) => {
+                            const key = this.getMobKey(role);
+                            if (!roles.includes(key)) {
+                                roles.push(key);
+                            }
+                            return roles;
+                        }, []);
+                        if (allowedRoles.length < 1) {
+                            allowedRoles.push('savage');
+                        }
+                        targetCode = allowedRoles[0];
+                        obj.targetNames = allowedRoles.map(key => {
+                            return this.addTranslation(key, (lang, langCode) => {
+                                return this.getMobName(key, lang, langCode);
+                            });
+                        });
                     }
+                    obj.target = obj.targetNames[0];
                     if (cond._props.daytime) {
                         obj.timeFromHour = cond._props.daytime.from;
                         obj.timeUntilHour = cond._props.daytime.to;
                     }
-                    obj.target = this.addTranslation(targetCode, (lang) => {
-                        if (targetCode == 'followerBully') {
-                            return `${lang['QuestCondition/Elimination/Kill/BotRole/bossBully']} ${lang['ScavRole/Follower']}`;
-                        }
-                        if (targetKeyMap[targetCode]) targetCode = targetKeyMap[targetCode];
-                        let name = lang[`QuestCondition/Elimination/Kill/BotRole/${targetCode}`] 
-                            || lang[`QuestCondition/Elimination/Kill/Target/${targetCode}`] 
-                            || lang[`ScavRole/${targetCode}`];
-                        if (!name && lang[targetCode]) {
-                            return lang[targetCode];
-                        } else if (!name && this.locales.en[targetCode]) {
-                            return this.locales.en[targetCode];
-                        } else if (!name) {
-                            name = targetCode;
-                        }
-                        return name;
-                    });
                 } else if (cond._parent === 'Location') {
                     for (const loc of cond._props.target) {
                         if (loc === 'develop') continue;
@@ -1609,6 +1626,42 @@ class UpdateQuestsJob extends DataJob {
         this.addMapFromDescription(obj);
         return obj;
     }
+
+    async getTaskImageLink(task) {
+        const s3FileName = `${task.id}.webp`;
+        const s3ImageLink = `https://${process.env.S3_BUCKET}/${s3FileName}`;
+        if (this.s3Images.includes(s3FileName)) {
+            return s3ImageLink;
+        }
+        /*const extensions = ['png', 'jpg'];
+        for (const ext of extensions) {
+            const response = await fetch(`https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/images/quests/${task.id}.${ext}`);
+            if (!response.ok) {
+                continue;
+            }
+            const image = sharp(await response.arrayBuffer()).webp({lossless: true});
+            await uploadAnyImage(image, s3FileName, 'image/webp');
+            this.logger.log(`Retrieved ${this.locales.en[`${task.id} name`]} ${task.id} image from SPT`);
+            return s3ImageLink;
+        }
+        if (!task.wikiLink) {
+            return null;
+        }*/
+        const pageResponse = await fetch(task.wikiLink);//.then(response => cheerio.load(response.body));
+        if (!pageResponse.ok) {
+            return null;
+        }
+        const $ = cheerio.load(await pageResponse.text());
+        const imageUrl = $('table.va-infobox-mainimage-cont img').first().attr('src');
+        const imageResponse = await fetch(imageUrl);
+        if (!imageResponse.ok) {
+            return null;
+        }
+        const image = sharp(await imageResponse.arrayBuffer()).webp({lossless: true});
+        await uploadAnyImage(image, s3FileName, 'image/webp');
+        this.logger.log(`Retrieved ${this.locales.en[`${task.id} name`]} ${task.id} image from wiki`);
+        return s3ImageLink;
+    }
 }
 
 const zoneMap = {
@@ -1697,13 +1750,6 @@ const questStatusMap = {
     2: 'active',
     4: 'complete',
     5: 'failed'
-};
-
-const targetKeyMap = {
-    AnyPmc: 'AnyPMC',
-    pmcBot: 'PmcBot',
-    marksman: 'Marksman',
-    exUsec: 'ExUsec'
 };
 
 const factionMap = {

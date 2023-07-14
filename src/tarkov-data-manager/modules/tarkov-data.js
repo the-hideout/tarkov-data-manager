@@ -81,6 +81,9 @@ module.exports = {
     quests: (download = false) => {
         return spt.quests(download);
     },
+    questConfig: (download = false) => {
+        return spt.questConfig(download);
+    },
     traders: (download = false) => {
         return tarkovChanges.traders(download);
     },

@@ -6,6 +6,7 @@ const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('./job-logger');
 const { alert } = require('./webhook');
 const tarkovData = require('./tarkov-data');
+const { error } = require('console');
 
 class DataJob {
     constructor(options) {
@@ -145,11 +146,16 @@ class DataJob {
             this.logger.success(`Successful Cloudflare put of ${kvName}`);
             stellate.purge(kvName, this.logger);
         } else {
+            const errorMessages = [];
             for (let i = 0; i < response.errors.length; i++) {
                 this.logger.error(response.errors[i]);
+                errorMessages.push(response.errors[i]);
             }
             for (let i = 0; i < response.messages.length; i++) {
                 this.logger.error(response.messages[i]);
+            }
+            if (errorMessages.length > 0) {
+                return Promise.reject(new Error(`Error uploading kv data: ${errorMessages.join(', ')}`));
             }
         }
     }
@@ -259,6 +265,67 @@ class DataJob {
         this.queries.push(queryPromise);
         return queryPromise;
     }
+
+    getMobKey = (enemy) => {
+        const keySubs = {
+            followerTagilla: 'bossTagilla',
+        };
+        return keySubs[enemy] || enemy;
+    }
+
+    getMobName = (enemy, lang, langCode, originalLang) => {
+        const originalEnemy = enemy;
+        if (enemyMap[enemy]) {
+            enemy = enemyMap[enemy];
+        }
+        if (lang[enemy]) {
+            return lang[enemy];
+        }
+        const enemyKeys = [
+            `QuestCondition/Elimination/Kill/BotRole/${enemy}`,
+            `QuestCondition/Elimination/Kill/Target/${enemy}`,
+            `ScavRole/${enemy}`,
+        ];
+        for (const enemyKey of enemyKeys) {
+            for (const key in lang) {
+                if (key.toLowerCase() === enemyKey.toLowerCase()) {
+                    return lang[key];
+                }
+            }
+        }
+        if (enemy.includes('follower') && !enemy.includes('BigPipe') && !enemy.includes('BirdEye')) {
+            const nameParts = [];
+            const guardTypePattern = /Assault|Security|Scout|Snipe/;
+            const bossKey = enemy.replace('follower', 'boss').replace(guardTypePattern, '');
+            nameParts.push(this.getMobName(bossKey, lang, langCode));
+            nameParts.push(this.getMobName('Follower', lang, langCode));
+            const guardTypeMatch = enemy.match(guardTypePattern);
+            if (guardTypeMatch) {
+                if (lang[`follower${guardTypeMatch[0]}`]) {
+                    nameParts.push(`(${lang[`follower${guardTypeMatch[0]}`]})`);
+                } else {
+                    nameParts.push(`(${guardTypeMatch[0]})`);
+                }
+            }
+            return nameParts.join(' ')
+        }
+        if (langCode === 'en') {
+            if (!originalLang) {
+                this.logger.warn(`Could not find translation for ${originalEnemy}, ${langCode}`);
+            }
+        } else {
+            return this.getMobName(originalEnemy, this.locales.en, 'en', langCode);
+        }
+        return enemy.replace('boss', '');
+    }
 }
+
+const enemyMap = {
+    'assault': 'ArenaFighterEvent',
+    'scavs': 'Savage',
+    'sniper': 'Marksman',
+    'sectantWarrior': 'cursedAssault',
+    'bossZryachiy': '63626d904aa74b8fe30ab426 ShortName',
+};
 
 module.exports = DataJob;

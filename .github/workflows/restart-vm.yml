@@ -1,0 +1,24 @@
+name: restart-vm
+
+on:
+  workflow_dispatch:
+  # schedule:
+  #   - cron: '15 15 * * 1-5'
+
+jobs:
+  restart-vm:
+    runs-on: ubuntu-latest
+    environment: production-secrets
+
+    steps:
+      - name: azure login
+        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # pin@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: restart vm
+        uses: azure/CLI@fa0f960f00db49b95fdb54328a767aee31e80105 # pin@v1.0.7
+        with:
+          azcliversion: 2.50.0
+          inlineScript: |
+            az vm restart --resource-group tdm_rg --name tdm_vm

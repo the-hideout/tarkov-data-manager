@@ -3,7 +3,9 @@ const path = require('path');
 
 const got = require('got');
 
-const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/media/branch/master/project/assets/database/';
+const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/';
+const sptDataPath = `${sptPath}database/`;
+const sptConfigPath = `${sptPath}configs/`;
 
 const sptLangs = {
     //'en': 'en',
@@ -55,7 +57,7 @@ const getLocale = async (locale, download) => {
     if (sptLangs[locale]) {
         locale = sptLangs[locale];
     }
-    return downloadJson(`locale_${locale}.json`, `${sptPath}locales/global/${locale}.json`, download);
+    return downloadJson(`locale_${locale}.json`, `${sptDataPath}locales/global/${locale}.json`, download);
 };
 
 const getLocales = async (download) => {
@@ -79,22 +81,25 @@ const getLocales = async (download) => {
 
 module.exports = {
     handbook: (download) => {
-        return downloadJson('handbook.json', `${sptPath}templates/handbook.json`, download);
+        return downloadJson('handbook.json', `${sptDataPath}templates/handbook.json`, download);
     },
     locale: getLocale,
     locales: getLocales,
     quests: (download) => {
-        return downloadJson('quests.json', `${sptPath}templates/quests.json`, download);
+        return downloadJson('quests.json', `${sptDataPath}templates/quests.json`, download);
+    },
+    questConfig: (download) => {
+        return downloadJson('questConfig.json', `${sptConfigPath}quest.json`, download);
     },
     mapLoot: (mapNameId, download = true) => {
         return downloadJson(`${mapNameId.toLowerCase()}_loot.json`, `${sptPath}locations/${mapNameId.toLowerCase()}/looseLoot.json`, download, true, 'spawnpointsForced');
     },
     botInfo: (botKey, download = true) => {
         botKey = botKey.toLowerCase();
-        return downloadJson(`${botKey}.json`, `${sptPath}bots/types/${botKey}.json`, download);
+        return downloadJson(`${botKey}.json`, `${sptDataPath}bots/types/${botKey}.json`, download);
     },
     traderAssorts: async (traderId, download) => {
-        return downloadJson(`${traderId}_assort.json`, `${sptPath}traders/${traderId}/assort.json`, download).catch(error => {
+        return downloadJson(`${traderId}_assort.json`, `${sptDataPath}traders/${traderId}/assort.json`, download).catch(error => {
             if (!error.message.includes('Response code 404')) {
                 return Promise.reject(error);
             }
@@ -106,7 +111,7 @@ module.exports = {
         });
     },
     traderQuestAssorts: async (traderId, download) => {
-        return downloadJson(`${traderId}_questassort.json`, `${sptPath}traders/${traderId}/questassort.json`, download).catch(error => {
+        return downloadJson(`${traderId}_questassort.json`, `${sptDataPath}traders/${traderId}/questassort.json`, download).catch(error => {
             if (!error.message.includes('Response code 404')) {
                 return Promise.reject(error);
             }
