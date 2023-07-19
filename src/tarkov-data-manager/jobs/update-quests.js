@@ -1556,6 +1556,9 @@ class UpdateQuestsJob extends DataJob {
     }
 
     async getTaskImageLink(task) {
+        if (Boolean(process.env.TEST_JOB)) {
+            return null;
+        }
         const s3FileName = `${task.id}.webp`;
         const s3ImageLink = `https://${process.env.S3_BUCKET}/${s3FileName}`;
         if (this.s3Images.includes(s3FileName)) {
