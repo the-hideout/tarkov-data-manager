@@ -3,7 +3,7 @@ const path = require('path');
 
 const got = require('got');
 
-const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/'
+const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/';
 const sptDataPath = `${sptPath}database/`;
 const sptConfigPath = `${sptPath}configs/`;
 

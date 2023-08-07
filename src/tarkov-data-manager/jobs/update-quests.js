@@ -256,7 +256,7 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
 
-            const imageLink = await this.getTaskImageLink(quest);
+            const imageLink = await this.getTaskImageLink(quest, this.rawQuestData[quest.id]?.image);
             if (imageLink) {
                 quest.taskImageLink = imageLink;
             } else {
@@ -1555,37 +1555,51 @@ class UpdateQuestsJob extends DataJob {
         return obj;
     }
 
-    async getTaskImageLink(task) {
+    async getTaskImageLink(task, imagePath) {
+        if (Boolean(process.env.TEST_JOB)) {
+            return null;
+        }
         const s3FileName = `${task.id}.webp`;
         const s3ImageLink = `https://${process.env.S3_BUCKET}/${s3FileName}`;
         if (this.s3Images.includes(s3FileName)) {
             return s3ImageLink;
         }
-        /*const extensions = ['png', 'jpg'];
-        for (const ext of extensions) {
-            const response = await fetch(`https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/images/quests/${task.id}.${ext}`);
-            if (!response.ok) {
-                continue;
+        if (imagePath) {
+            const imageId = imagePath.replace('/files/quest/icon/', '').split('.')[0];
+            const extensions = ['.png', '.jpg'];
+            for (const ext of extensions) {
+                const response = await fetch(`https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/images/quests/${imageId}${ext}`);
+                if (!response.ok) {
+                    continue;
+                }
+                const image = sharp(await response.arrayBuffer()).webp({lossless: true});
+                const metadata = await image.metadata();
+                if (metadata.width <= 1 || metadata.height <= 1) {
+                    continue;
+                }
+                await uploadAnyImage(image, s3FileName, 'image/webp');
+                this.logger.log(`Retrieved ${this.locales.en[`${task.id} name`]} ${task.id} image from SPT`);
+                return s3ImageLink;
             }
-            const image = sharp(await response.arrayBuffer()).webp({lossless: true});
-            await uploadAnyImage(image, s3FileName, 'image/webp');
-            this.logger.log(`Retrieved ${this.locales.en[`${task.id} name`]} ${task.id} image from SPT`);
-            return s3ImageLink;
         }
         if (!task.wikiLink) {
             return null;
-        }*/
+        }
         const pageResponse = await fetch(task.wikiLink);//.then(response => cheerio.load(response.body));
         if (!pageResponse.ok) {
             return null;
         }
         const $ = cheerio.load(await pageResponse.text());
-        const imageUrl = $('table.va-infobox-mainimage-cont img').first().attr('src');
+        const imageUrl = $('.va-infobox-mainimage-image img').first().attr('src');
         const imageResponse = await fetch(imageUrl);
         if (!imageResponse.ok) {
             return null;
         }
         const image = sharp(await imageResponse.arrayBuffer()).webp({lossless: true});
+        const metadata = await image.metadata();
+        if (metadata.width <= 1 || metadata.height <= 1) {
+            return null;
+        }
         await uploadAnyImage(image, s3FileName, 'image/webp');
         this.logger.log(`Retrieved ${this.locales.en[`${task.id} name`]} ${task.id} image from wiki`);
         return s3ImageLink;
@@ -1613,6 +1627,7 @@ const zoneMap = {
     mech_41_2: '56f40101d2720b2a4d8b45d6',
     mechanik_exit_area_1: '5704e5fad2720bc05b8b4567',
     meh_44_eastLight_kill: '5704e4dad2720bb55b8b4567', //lighthouse
+    meh_50_visit_area_check_1: '5704e4dad2720bb55b8b4567',
     place_merch_022_1: '5714dbc024597771384a510d', //interchange
     place_pacemaker_SCOUT_01: [
         '55f2d3fd4bdc2d5f408b4567', 
@@ -1653,6 +1668,21 @@ const zoneMap = {
     qlight_br_secure_road: '5704e4dad2720bb55b8b4567',
     qlight_pr1_heli2_kill: '5704e4dad2720bb55b8b4567',
     qlight_pc1_ucot_kill: '5704e4dad2720bb55b8b4567',
+    quest_st_1_zone: '5704e554d2720bac5b8b456e',
+    quest_st_4_visit: '5704e554d2720bac5b8b456e',
+    quest_st_9_shopping: '5714dbc024597771384a510d',
+    quest_st_9_factory: [
+        '55f2d3fd4bdc2d5f408b4567', //day factory
+        '59fc81d786f774390775787e', //night
+    ],
+    quest_st_9_custom: '56f40101d2720b2a4d8b45d6',
+    quest_st_9_wood: '5704e3c2d2720bac5b8b4567',
+    quest_st_9_rez: '5704e5fad2720bc05b8b4567',
+    quest_st_10_area: '5714dc692459777137212e12',
+    quest_st_10_hide: '5714dc692459777137212e12',
+    quest_st_15_item_lab: '5b0fc42d86f7744a585f9105',
+    quest_st_15_item_light: '5704e4dad2720bb55b8b4567',
+    quest_st_19_flare2: '5704e4dad2720bb55b8b4567',
     quest_zone_kill_c17_adm: '5714dc692459777137212e12', //streets
     quest_zone_keeper4_flare: '5704e5fad2720bc05b8b4567',
     quest_zone_keeper5: '5704e3c2d2720bac5b8b4567',
