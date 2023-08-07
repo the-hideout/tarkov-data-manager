@@ -1590,7 +1590,7 @@ class UpdateQuestsJob extends DataJob {
             return null;
         }
         const $ = cheerio.load(await pageResponse.text());
-        const imageUrl = $('table.va-infobox-mainimage-cont img').first().attr('src');
+        const imageUrl = $('.va-infobox-mainimage-image img').first().attr('src');
         const imageResponse = await fetch(imageUrl);
         if (!imageResponse.ok) {
             return null;
