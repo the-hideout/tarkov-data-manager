@@ -214,7 +214,7 @@ class UpdateQuestsJob extends DataJob {
                 if (questIncluded) {
                     continue;
                 }
-                this.logger.warn(`${quest.locale.en.name} (${quest.id}) task requirement ${req.name} (${req.task}) is not a valid task`);
+                this.logger.warn(`${this.locales.en[quest.name]} (${quest.id}) task requirement ${req.name} (${req.task}) is not a valid task`);
                 removeReqs.push(req.task);
             }
             quest.taskRequirements = quest.taskRequirements.filter(req => !removeReqs.includes(req.task));
@@ -233,7 +233,7 @@ class UpdateQuestsJob extends DataJob {
             const earlierTasks = new Set();
             const addEarlier = (id) => {
                 earlierTasks.add(id);
-                quests.Task.find(q => q.id === id).taskRequirements.map(req => req.task).forEach(reqId => {
+                quests.Task.find(q => q.id === id)?.taskRequirements.map(req => req.task).forEach(reqId => {
                     earlierTasks.add(reqId);
                     addEarlier(reqId);
                 });
