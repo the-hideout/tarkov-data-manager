@@ -151,6 +151,23 @@ class UpdateQuestsJob extends DataJob {
         }
         this.logger.log('Finished processing TarkovData quests');
 
+        // filter out invalid task ids
+        for (const task of quests.Task) {
+            task.taskRequirements = task.taskRequirements.filter(req => quests.Task.some(t => t.id === req.task));
+            task.failConditions = task.failConditions.filter(obj => {
+                if (obj.type !== 'taskStatus') {
+                    return true;
+                }
+                return quests.Task.some(t => t.id === obj.task);
+            });
+            task.objectives = task.objectives.filter(obj => {
+                if (obj.type !== 'taskStatus') {
+                    return true;
+                }
+                return quests.Task.some(t => t.id === obj.task);
+            });
+        }
+
         // add start, success, and fail message ids
         // validate task requirements
 
