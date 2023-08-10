@@ -53,11 +53,13 @@ class UpdateItemNamesJob extends DataJob {
             let height = localItem.height;
 
             if (!en[`${itemId} Name`]) {
-                this.discordAlert({
-                    title: 'Disabling Item',
-                    message: `Disabling item ${name} ${itemId} for not having a current translation`,
-                });
-                remoteData.addType(itemId, 'disabled');
+                if (!localItem.types.includes('disabled')) {
+                    this.discordAlert({
+                        title: 'Disabling Item',
+                        message: `Disabling item ${name} ${itemId} for not having a current translation`,
+                    });
+                    remoteData.addType(itemId, 'disabled');
+                }
                 this.logger.log(`No en translation found for ${itemId} ${item._name}`);
                 continue;
             }
