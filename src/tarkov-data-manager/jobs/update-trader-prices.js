@@ -247,8 +247,8 @@ class UpdateTraderPricesJob extends DataJob {
                 offer.traderOfferId = matchedOffer.id;
             } else {
                 offer.traderOfferId = `${offer.id}-${offer.vendor.trader}-${offer.vendor.traderLevel}-${offer.currencyItem}`;
-                this.logger.warn('Could not match assort for offer');
-                this.logger.log(JSON.stringify(offer, null, 4));
+                //this.logger.warn('Could not match assort for offer');
+                //this.logger.log(JSON.stringify(offer, null, 4));
             }
             if (!outputData[offer.id]) {
                 outputData[offer.id] = [];
