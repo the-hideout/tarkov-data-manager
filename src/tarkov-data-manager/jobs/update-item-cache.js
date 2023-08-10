@@ -470,6 +470,9 @@ class UpdateItemCacheJob extends DataJob {
 
     getTraderPrices(item) {
         const traderPrices = [];
+        if (!item) {
+            return traderPrices;
+        }
         const currenciesNow = {
             'RUB': 1,
             'USD': this.credits['5696686a4bdc2da3298b456a'],

@@ -96,7 +96,7 @@ class UpdateNewItemsJob extends DataJob {
             shortname = en[`${item._id} ShortName`] || shortname;
             name = String(name).trim();
             shortname = String(shortname).trim();
-            if (name.match(doNotUse)) continue;
+            if (name.match(doNotUse) || name === '') continue;
             const normalized = normalizeName(name);
 
             try {
