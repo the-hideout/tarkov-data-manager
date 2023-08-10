@@ -30,7 +30,7 @@ class UpdateHideoutJob extends DataJob {
         for (const stationId in this.data) {
             const station = this.data[stationId];
             if (!en[`hideout_area_${station.type}_name`]) {
-                this.logger.warn(`❌ ${station.type} not found in locale_en.json`);
+                this.logger.warn(`❌ Area type ${station.type} not found in locale_en.json`);
                 continue;
             }
             const stationData = {
@@ -164,7 +164,7 @@ class UpdateHideoutJob extends DataJob {
             }
             const bonusData = {
                 type: bonus.type,
-                name: this.addTranslation(`hideout_${bonus.id || bonus.type}`),
+                name: this.addTranslation(`hideout_${bonus.type || bonus.id}`),
                 value: this.bonusValueFilter(bonus),
                 passive: bonus.passive,
                 production: bonus.production,
