@@ -151,6 +151,23 @@ class UpdateQuestsJob extends DataJob {
         }
         this.logger.log('Finished processing TarkovData quests');
 
+        // filter out invalid task ids
+        for (const task of quests.Task) {
+            task.taskRequirements = task.taskRequirements.filter(req => quests.Task.some(t => t.id === req.task));
+            task.failConditions = task.failConditions.filter(obj => {
+                if (obj.type !== 'taskStatus') {
+                    return true;
+                }
+                return quests.Task.some(t => t.id === obj.task);
+            });
+            task.objectives = task.objectives.filter(obj => {
+                if (obj.type !== 'taskStatus') {
+                    return true;
+                }
+                return quests.Task.some(t => t.id === obj.task);
+            });
+        }
+
         // add start, success, and fail message ids
         // validate task requirements
 
@@ -214,7 +231,7 @@ class UpdateQuestsJob extends DataJob {
                 if (questIncluded) {
                     continue;
                 }
-                this.logger.warn(`${quest.locale.en.name} (${quest.id}) task requirement ${req.name} (${req.task}) is not a valid task`);
+                this.logger.warn(`${this.locales.en[quest.name]} (${quest.id}) task requirement ${req.name} (${req.task}) is not a valid task`);
                 removeReqs.push(req.task);
             }
             quest.taskRequirements = quest.taskRequirements.filter(req => !removeReqs.includes(req.task));
@@ -233,7 +250,7 @@ class UpdateQuestsJob extends DataJob {
             const earlierTasks = new Set();
             const addEarlier = (id) => {
                 earlierTasks.add(id);
-                quests.Task.find(q => q.id === id).taskRequirements.map(req => req.task).forEach(reqId => {
+                quests.Task.find(q => q.id === id)?.taskRequirements.map(req => req.task).forEach(reqId => {
                     earlierTasks.add(reqId);
                     addEarlier(reqId);
                 });
