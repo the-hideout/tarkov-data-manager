@@ -97,8 +97,8 @@ class UpdateBartersJob extends DataJob {
                 return true;
             });
             if (!matchedBarter) {
-                this.logger.warn('Could not find matching barter assort for:');
-                this.logger.log(JSON.stringify(barter, null, 4));
+                //this.logger.warn('Could not find matching barter assort for:');
+                //this.logger.log(JSON.stringify(barter, null, 4));
                 barter.id = `${barter.rewardItems[0].item}-${barter.trader_id}-${barter.level}-${barter.requiredItems.map(req => req.item).join('-')}`;
             } else {
                 barter.id = matchedBarter.id;
