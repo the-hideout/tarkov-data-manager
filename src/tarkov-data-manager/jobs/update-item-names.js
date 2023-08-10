@@ -58,7 +58,7 @@ class UpdateItemNamesJob extends DataJob {
                         title: 'Disabling Item',
                         message: `Disabling item ${name} ${itemId} for not having a current translation`,
                     });
-                    remoteData.addType(itemId, 'disabled');
+                    await remoteData.addType(itemId, 'disabled');
                 }
                 this.logger.log(`No en translation found for ${itemId} ${item._name}`);
                 continue;
