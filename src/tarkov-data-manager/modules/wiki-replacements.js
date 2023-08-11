@@ -38,6 +38,7 @@ const REPLACEMENTS = {
     'Kolpak-1S visor': 'Kolpak-1S face shield',
     'Burris FullField TAC30 1-4x24 riflescope': 'Burris FullField TAC30 1-4x24 30mm riflescope',
     'Torrey Pines Logic T12W thermal reflex sight': 'Torrey Pines Logic T12W 30Hz thermal reflex sight',
+    'MSA Sordin Supreme PRO-X/L active headset': 'MSA Sordin Supreme PRO-X/L headset'
 };
 
 const PARTIAL_REPLACEMENTS = {
