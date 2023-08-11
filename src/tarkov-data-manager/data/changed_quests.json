@@ -194,5 +194,17 @@
             ]
         },
         "comment": "confirmed Spa Tour 1-3 not required by Shebuka 5/18/2023"
+    },
+    "626148251ed3bb5bcc5bd9ed": {
+        "name": "Make Amends - Buyout",
+        "taskRequirementsAdded": [
+            {
+                "task": "625d7005a4eb80027c4f2e09",
+                "name": "Knock-Knock",
+                "status": [
+                    "complete"
+                ]
+            }
+        ]
     }
 }
