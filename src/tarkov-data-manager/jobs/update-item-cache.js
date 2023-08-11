@@ -214,6 +214,18 @@ class UpdateItemCacheJob extends DataJob {
             });
         }
 
+        // validate contained items
+        /*for (const id in itemData) {
+            itemData[id].containsItems = itemData[id].containsItems.reduce((allContents, contained) => {
+                if (itemData[contained.item.id]) {
+                    allContents.push(contained);
+                } else {
+                    this.logger.warn(`Item ${this.locales.en[`${id} Name`]} ${id} has non-existant contained item ${contained.item.id}`)
+                }
+                return allContents;
+            }, []);
+        }*/
+
         // Add trader prices
         for (const id in itemData) {
             if (itemData[id].types.includes('preset') && id !== 'customdogtags12345678910') {
@@ -470,6 +482,9 @@ class UpdateItemCacheJob extends DataJob {
 
     getTraderPrices(item) {
         const traderPrices = [];
+        if (!item) {
+            return traderPrices;
+        }
         const currenciesNow = {
             'RUB': 1,
             'USD': this.credits['5696686a4bdc2da3298b456a'],
