@@ -57,7 +57,6 @@ const apiRequest = async (request, searchParams) => {
         ...searchParams
     };
     const url = `https://dev.sp-tarkov.com/api/v1/repos/SPT-AKI/Server/${request}`;
-    console.log(url);
     return got(url, {
         responseType: 'json',
         resolveBodyOnly: true,
