@@ -16,14 +16,14 @@ const defaultJobs = {
     'update-trader-assorts': '15 9,21 * * *',
     'verify-wiki': '5 9 * * *',
     //'update-hideout': '1-59/10 * * * *',
-    'update-quests': '6-59/10 * * * *',
+    'update-quests': '7-59/10 * * * *',
     'update-maps': '*/10 * * * *',
     // Too much memory :'(
     // 'update-longtime-data': '49 8 * * *'
 };
 
 const nonDevJobs = {
-    'update-lang': '*/61 * * * *'
+    'update-spt-data': '*/61 * * * *'
 };
 
 const startupJobs = [
@@ -32,7 +32,7 @@ const startupJobs = [
 ];
 
 const nonDevStartupJobs = [
-    'update-lang'
+    'update-spt-data'
 ];
 
 let allJobs = {

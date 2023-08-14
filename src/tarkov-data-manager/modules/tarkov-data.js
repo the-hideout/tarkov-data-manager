@@ -33,6 +33,9 @@ module.exports = {
     botInfo: (botKey, download = false) => {
         return spt.botInfo(botKey, download);
     },
+    botsInfo: async (download = true) => {
+        return spt.botsInfo(download);
+    },
     crafts: (download = false) => {
         return tarkovChanges.crafts(download);
     },

@@ -4,7 +4,7 @@ const DataJob = require('../modules/data-job');
 
 class UpdateLangJob extends DataJob {
     constructor() {
-        super('update-lang');
+        super('update-spt-data');
     }
 
     run = async () => {
@@ -12,6 +12,10 @@ class UpdateLangJob extends DataJob {
         this.logger.time('lang-download');
         await spt.locales(true);
         this.logger.timeEnd('lang-download');
+        this.logger.log('Downloading bot data...');
+        this.logger.time('bot-download');
+        await spt.botsInfo(true);
+        this.logger.timeEnd('bot-download');
         this.logger.success('Successfully downloaded data');
     }
 }
