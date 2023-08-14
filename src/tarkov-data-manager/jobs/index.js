@@ -25,11 +25,6 @@ const defaultJobs = {
 
 const nonDevJobs = {};
 
-const validJobs = [
-    ...Object.keys(defaultJobs),
-    ...Object.keys(nonDevJobs),
-];
-
 const startupJobs = [
     'check-image-links',
     'update-tc-data',
@@ -133,7 +128,7 @@ const scheduleJob = function(name, cronSchedule) {
         }
         return;
     }
-    if (!validJobs.includes(name)) {
+    if (!jobs[name]) {
         return;
     }
     console.log(`Setting up ${name} job to run ${cronSchedule}`);
