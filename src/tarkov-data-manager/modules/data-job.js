@@ -6,7 +6,8 @@ const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('./job-logger');
 const { alert } = require('./webhook');
 const tarkovData = require('./tarkov-data');
-const { error } = require('console');
+
+const verbose = true;
 
 class DataJob {
     constructor(options) {
@@ -80,8 +81,18 @@ class DataJob {
         let returnValue;
         let throwError = false;
         try {
+            if (verbose) {
+                alert({
+                    title: `Starting ${this.name} job`,
+                });
+            }
             this.running = this.run(options);
             returnValue = await this.running;
+            if (verbose) {
+                alert({
+                    title: `Finished ${this.name} job`,
+                });
+            }
         } catch (error) {
             if (this.parent) {
                 throwError = error;
