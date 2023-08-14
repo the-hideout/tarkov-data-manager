@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const got = require('got');
+const { cache } = require('sharp');
 
 const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/';
 const sptDataPath = `${sptPath}database/`;
@@ -108,18 +109,27 @@ module.exports = {
         return await module.exports.botsInfo(download)[botKey.toLowerCase()];
     },
     botsInfo: async (download = true) => {
-        const botFiles = await apiRequest('contents/project/assets/database/bots/types');
+        let botIndex = {};
         const botData = {};
-        const exclude = [
-            'bear',
-            'test',
-            'usec',
-        ];
-        for (fileData of botFiles) {
-            if (exclude.some(ex => `${ex}.json` === fileData.name)) {
-                continue;
+        if (!fs.existsSync(cachePath('bots_index.json')) || download) {
+            const botFiles = await apiRequest('contents/project/assets/database/bots/types');
+            const exclude = [
+                'bear',
+                'test',
+                'usec',
+            ];
+            for (fileData of botFiles) {
+                if (exclude.some(ex => `${ex}.json` === fileData.name)) {
+                    continue;
+                }
+                botIndex[fileData.name] = fileData.download_url;
             }
-            botData[fileData.name.replace('.json', '')] = downloadJson(fileData.name, fileData.download_url, download);
+            fs.writeFileSync(cachePath('bots_index.json'), JSON.stringify(botIndex, null, 4));
+        } else {
+            botIndex = JSON.parse(fs.readFileSync(cachePath('bots_index.json')));
+        }
+        for (const filename in botIndex) {
+            botData[filename.replace('.json', '')] = downloadJson(filename, botIndex[filename], download);
         }
         for (botKey in botData) {
             botData[botKey] = await botData[botKey];
