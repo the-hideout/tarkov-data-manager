@@ -339,7 +339,7 @@ class UpdateMapsJob extends DataJob {
             this.bossLoadouts[bossKey] = await tarkovData.botInfo(bossKey, true).catch(error => {
                 this.logger.error(`Error getting ${bossKey} boss info: ${error.message}`);
                 return tarkovData.botInfo(bossKey, false).catch(err => {
-                    this.logger.error`Error reading local ${bossKey} boss info: ${err.messsage}`;
+                    this.logger.error(`Error reading local ${bossKey} boss info: ${err.message}`);
                     return false;
                 });
             });
