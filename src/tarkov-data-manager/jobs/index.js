@@ -18,13 +18,17 @@ const defaultJobs = {
     //'update-hideout': '1-59/10 * * * *',
     'update-quests': '7-59/10 * * * *',
     'update-maps': '*/10 * * * *',
+    'update-spt-data': '*/61 * * * *',
     // Too much memory :'(
     // 'update-longtime-data': '49 8 * * *'
 };
 
-const nonDevJobs = {
-    'update-spt-data': '*/61 * * * *'
-};
+const nonDevJobs = {};
+
+const validJobs = [
+    ...Object.keys(defaultJobs),
+    ...Object.keys(nonDevJobs),
+];
 
 const startupJobs = [
     'check-image-links',
@@ -127,6 +131,9 @@ const scheduleJob = function(name, cronSchedule) {
         if (scheduledJobs[name]) {
             scheduledJobs[name].cancel();
         }
+        return;
+    }
+    if (!validJobs.includes(name)) {
         return;
     }
     console.log(`Setting up ${name} job to run ${cronSchedule}`);
