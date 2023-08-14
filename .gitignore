@@ -26,3 +26,6 @@ terraform/.terraform/providers
 # container volume files
 data/*
 !data/.gitkeep
+
+tmp/
+.DS_Store
