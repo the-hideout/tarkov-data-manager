@@ -13,9 +13,10 @@ class UpdateMapsJob extends DataJob {
 
     run = async () => {
         this.logger.log('Getting maps data...');
-        [this.items, this.presets] = await Promise.all([
+        [this.items, this.presets, this.botInfo] = await Promise.all([
             remoteData.get(),
             this.jobManager.jobOutput('update-presets', this, true),
+            tarkovData.botsInfo(false),
         ]);
         this.bossLoadouts = {};
         this.processedBosses = {};
@@ -335,20 +336,7 @@ class UpdateMapsJob extends DataJob {
                 }
             }
         }
-        if (!this.bossLoadouts[bossKey]) {
-            this.bossLoadouts[bossKey] = await tarkovData.botInfo(bossKey, true).catch(error => {
-                this.logger.error(`Error getting ${bossKey} boss info: ${error.message}`);
-                return tarkovData.botInfo(bossKey, false).catch(err => {
-                    if (err.message !== error.message) {
-                        this.logger.error(`Error reading local ${bossKey} boss info: ${err.message}`);
-                    } else {
-                        this.logger.warn(`No local boss info available for ${bossKey}`);
-                    }
-                    return false;
-                });
-            });
-        }
-        const bossExtraData = this.bossLoadouts[bossKey];
+        const bossExtraData = this.botInfo[bossKey.toLowerCase()];
         if (!bossExtraData) {
             this.processedBosses[bossKey] = bossInfo;
             return bossInfo;

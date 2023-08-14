@@ -23,7 +23,7 @@ const defaultJobs = {
 };
 
 const nonDevJobs = {
-    'update-lang': '*/61 * * * *'
+    'update-spt-data': '*/61 * * * *'
 };
 
 const startupJobs = [
@@ -32,7 +32,7 @@ const startupJobs = [
 ];
 
 const nonDevStartupJobs = [
-    'update-lang'
+    'update-spt-data'
 ];
 
 let allJobs = {
