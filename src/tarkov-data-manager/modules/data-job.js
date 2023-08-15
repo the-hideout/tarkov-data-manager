@@ -236,7 +236,7 @@ class DataJob {
         }
         if (langCode && typeof value !== 'undefined') {
             this.kvData.locale[langCode][key] = value;
-        } else if (langCode === 'en') {
+        } else {
             if (typeof this.locales.en[key] !== 'undefined') {
                 this.translationKeys.add(key);
             } else {
