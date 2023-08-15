@@ -4,18 +4,18 @@ const fs = require('fs');
 const schedule = require('node-schedule');
 
 const defaultJobs = {
-    'check-scanners': '5,35 * * * *',
     'update-item-cache': '*/5 * * * *',
-    'update-barters': '2-59/10 * * * *',
-    //'check-image-links': '38 0,6,12,18 * * *',
     'game-data': '1-59/10 * * * *',
-    //'update-historical-prices': '27 * * * *',
-    //'update-trader-prices': '26 9,21 * * *',
-    //'update-trader-assorts': '16 9,21 * * *',
-    //'verify-wiki': '9 9 * * *',
+    'update-barters': '2-59/10 * * * *',
     'update-quests': '3-59/10 * * * *',
-    //'update-maps': '4-59/10 * * * *',
-    //'update-spt-data': '59 * * * *',
+    'update-maps': '4-59/10 * * * *',
+    'check-scanners': '6,36 * * * *',
+    'verify-wiki': '7 9 * * *',
+    'update-trader-assorts': '16 9,21 * * *',
+    'update-trader-prices': '26 9,21 * * *',
+    'check-image-links': '36 0,6,12,18 * * *',
+    'update-historical-prices': '46 * * * *',
+    'update-spt-data': '56 * * * *',
 };
 // Too much memory :'(
 // 'update-longtime-data': '49 8 * * *'
