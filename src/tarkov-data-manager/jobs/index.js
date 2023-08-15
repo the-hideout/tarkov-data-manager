@@ -8,7 +8,7 @@ const defaultJobs = {
     'update-item-cache': '*/5 * * * *',
     //'update-barters': '*/5 * * * *',
     //'check-image-links': '37 0,6,12,18 * * *',
-    //'game-data': '*/10 * * * *',
+    'game-data': '*/10 * * * *',
     //'update-historical-prices': '30 * * * *',
     //'update-trader-prices': '25 9,21 * * *',
     //'update-trader-assorts': '15 9,21 * * *',
