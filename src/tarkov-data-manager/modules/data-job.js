@@ -92,13 +92,6 @@ class DataJob {
             }
             this.running = this.run(options);
             returnValue = await this.running;
-            if (verbose) {
-                activeJobs.delete(this.name);
-                alert({
-                    title: `Finished ${this.name} job`,
-                    message: `Running jobs: ${[...activeJobs].join(', ')}`,
-                });
-            }
         } catch (error) {
             if (this.parent) {
                 throwError = error;
@@ -109,6 +102,13 @@ class DataJob {
                     message: error.stack
                 });
             }
+        }
+        if (verbose) {
+            activeJobs.delete(this.name);
+            alert({
+                title: `Finished ${this.name} job`,
+                message: `Running jobs: ${[...activeJobs].join(', ')}`,
+            });
         }
         const webhookResults = await Promise.allSettled(this.discordAlertQueue);
         for (const messageResult of webhookResults) {
