@@ -162,12 +162,14 @@ class DataJob {
         if (typeof data !== 'string') {
             data = JSON.stringify(data);
         }
+        const uploadStart = new Date();
         const response = await cloudflare.put(kvName, data).catch(error => {
             this.logger.error(error);
             return {success: false, errors: [], messages: []};
         });
+        const uploadTime = new Date() - uploadStart;
         if (response.success) {
-            this.logger.success(`Successful Cloudflare put of ${kvName}`);
+            this.logger.success(`Successful Cloudflare put of ${kvName} in ${uploadTime} ms`);
             stellate.purge(kvName, this.logger);
         } else {
             const errorMessages = [];
