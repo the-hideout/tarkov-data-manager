@@ -2,4 +2,10 @@
   reverse_proxy {$PROXY_BACKEND}:{$PROXY_PORT}  {
     header_down Strict-Transport-Security max-age=31536000;
   }
+
+  log {
+    output stdout
+    format json
+    level info
+  }
 }

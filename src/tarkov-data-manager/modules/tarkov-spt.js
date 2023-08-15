@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const got = require('got');
+const { cache } = require('sharp');
 
 const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/';
 const sptDataPath = `${sptPath}database/`;
@@ -50,6 +51,20 @@ const downloadJson = async (fileName, path, download = false, writeFile = true) 
     }
 };
 
+const apiRequest = async (request, searchParams) => {
+    searchParams = {
+        access_token: process.env.SPT_TOKEN,
+        ref: 'master',
+        ...searchParams
+    };
+    const url = `https://dev.sp-tarkov.com/api/v1/repos/SPT-AKI/Server/${request}`;
+    return got(url, {
+        responseType: 'json',
+        resolveBodyOnly: true,
+        searchParams: searchParams,
+    });
+};
+
 const getLocale = async (locale, download) => {
     if (sptLangs[locale]) {
         locale = sptLangs[locale];
@@ -88,9 +103,38 @@ module.exports = {
     questConfig: (download) => {
         return downloadJson('questConfig.json', `${sptConfigPath}quest.json`, download);
     },
-    botInfo: (botKey, download = true) => {
+    botInfo: async (botKey, download = true) => {
         botKey = botKey.toLowerCase();
-        return downloadJson(`${botKey}.json`, `${sptDataPath}bots/types/${botKey}.json`, download);
+        //return downloadJson(`${botKey}.json`, `${sptDataPath}bots/types/${botKey}.json`, download);
+        return await module.exports.botsInfo(download)[botKey.toLowerCase()];
+    },
+    botsInfo: async (download = true) => {
+        let botIndex = {};
+        const botData = {};
+        if (!fs.existsSync(cachePath('bots_index.json')) || download) {
+            const botFiles = await apiRequest('contents/project/assets/database/bots/types');
+            const exclude = [
+                'bear',
+                'test',
+                'usec',
+            ];
+            for (fileData of botFiles) {
+                if (exclude.some(ex => `${ex}.json` === fileData.name)) {
+                    continue;
+                }
+                botIndex[fileData.name] = fileData.download_url;
+            }
+            fs.writeFileSync(cachePath('bots_index.json'), JSON.stringify(botIndex, null, 4));
+        } else {
+            botIndex = JSON.parse(fs.readFileSync(cachePath('bots_index.json')));
+        }
+        for (const filename in botIndex) {
+            botData[filename.replace('.json', '')] = downloadJson(filename, botIndex[filename], download);
+        }
+        for (botKey in botData) {
+            botData[botKey] = await botData[botKey];
+        }
+        return botData;
     },
     traderAssorts: async (traderId, download) => {
         return downloadJson(`${traderId}_assort.json`, `${sptDataPath}traders/${traderId}/assort.json`, download).catch(error => {

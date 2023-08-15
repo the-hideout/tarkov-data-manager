@@ -6,7 +6,10 @@ const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('./job-logger');
 const { alert } = require('./webhook');
 const tarkovData = require('./tarkov-data');
-const { error } = require('console');
+
+const verbose = false;
+
+const activeJobs = new Set();
 
 class DataJob {
     constructor(options) {
@@ -80,10 +83,31 @@ class DataJob {
         let returnValue;
         let throwError = false;
         try {
+            if (verbose) {
+                activeJobs.add(this.name);
+                alert({
+                    title: `Starting ${this.name} job`,
+                    message: `Running jobs: ${[...activeJobs].join(', ')}`,
+                });
+            }
             this.running = this.run(options);
             returnValue = await this.running;
+            if (verbose) {
+                activeJobs.delete(this.name);
+                alert({
+                    title: `Finished ${this.name} job`,
+                    message: `Running jobs: ${[...activeJobs].join(', ')}`,
+                });
+            }
         } catch (error) {
             if (this.parent) {
+                if (verbose) {
+                    activeJobs.delete(this.name);
+                    alert({
+                        title: `Error running ${this.name} job as child of ${this.parent.name}`,
+                        message: `Running jobs: ${[...activeJobs].join(', ')}`,
+                    });
+                }
                 throwError = error;
             } else {
                 this.logger.error(error);

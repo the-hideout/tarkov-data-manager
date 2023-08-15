@@ -16,15 +16,14 @@ const defaultJobs = {
     'update-trader-assorts': '15 9,21 * * *',
     'verify-wiki': '5 9 * * *',
     //'update-hideout': '1-59/10 * * * *',
-    'update-quests': '6-59/10 * * * *',
+    'update-quests': '7-59/10 * * * *',
     'update-maps': '*/10 * * * *',
+    'update-spt-data': '*/61 * * * *',
     // Too much memory :'(
     // 'update-longtime-data': '49 8 * * *'
 };
 
-const nonDevJobs = {
-    'update-lang': '*/61 * * * *'
-};
+const nonDevJobs = {};
 
 const startupJobs = [
     'check-image-links',
@@ -32,7 +31,7 @@ const startupJobs = [
 ];
 
 const nonDevStartupJobs = [
-    'update-lang'
+    'update-spt-data'
 ];
 
 let allJobs = {
@@ -127,6 +126,9 @@ const scheduleJob = function(name, cronSchedule) {
         if (scheduledJobs[name]) {
             scheduledJobs[name].cancel();
         }
+        return;
+    }
+    if (!jobs[name]) {
         return;
     }
     console.log(`Setting up ${name} job to run ${cronSchedule}`);

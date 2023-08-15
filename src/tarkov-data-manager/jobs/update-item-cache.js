@@ -215,16 +215,16 @@ class UpdateItemCacheJob extends DataJob {
         }
 
         // validate contained items
-        /*for (const id in itemData) {
+        for (const id in itemData) {
             itemData[id].containsItems = itemData[id].containsItems.reduce((allContents, contained) => {
-                if (itemData[contained.item.id]) {
+                if (itemData[contained.item]) {
                     allContents.push(contained);
                 } else {
-                    this.logger.warn(`Item ${this.locales.en[`${id} Name`]} ${id} has non-existant contained item ${contained.item.id}`)
+                    this.logger.warn(`Item ${this.locales.en[`${id} Name`]} ${id} has non-existant contained item ${contained.item}`);
                 }
                 return allContents;
             }, []);
-        }*/
+        }
 
         // Add trader prices
         for (const id in itemData) {
