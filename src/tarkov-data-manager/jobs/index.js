@@ -4,32 +4,34 @@ const fs = require('fs');
 const schedule = require('node-schedule');
 
 const defaultJobs = {
-    'check-scanners': '5,35 * * * *',
-    'update-item-cache': '*/5 * * * *',
-    'update-barters': '*/5 * * * *',
-    'check-image-links': '37 0,6,12,18 * * *',
-    'game-data': '*/10 * * * *',
-    'update-historical-prices': '30 * * * *',
-    'update-trader-prices': '25 9,21 * * *',
-    'update-trader-assorts': '15 9,21 * * *',
-    'verify-wiki': '5 9 * * *',
+    //'check-scanners': '5,35 * * * *',
+    //'update-item-cache': '*/5 * * * *',
+    //'update-barters': '*/5 * * * *',
+    //'check-image-links': '37 0,6,12,18 * * *',
+    //'game-data': '*/10 * * * *',
+    //'update-historical-prices': '30 * * * *',
+    //'update-trader-prices': '25 9,21 * * *',
+    //'update-trader-assorts': '15 9,21 * * *',
+    //'verify-wiki': '5 9 * * *',
     //'update-quests': '7-59/10 * * * *',
     //'update-maps': '*/10 * * * *',
-    'update-spt-data': '*/61 * * * *',
+    //'update-spt-data': '*/61 * * * *',
 };
 // Too much memory :'(
 // 'update-longtime-data': '49 8 * * *'
 
+// these jobs only run on the given schedule when not in dev mode
 const nonDevJobs = {};
 
+// these jobs run at startup
 const startupJobs = [
     'check-image-links',
     'update-tc-data',
+    'update-spt-data',
 ];
 
-const nonDevStartupJobs = [
-    'update-spt-data'
-];
+// these jobs run at startup when not in dev mode
+const nonDevStartupJobs = [];
 
 let allJobs = {
     ...defaultJobs
