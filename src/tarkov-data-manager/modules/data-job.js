@@ -9,6 +9,8 @@ const tarkovData = require('./tarkov-data');
 
 const verbose = true;
 
+const activeJobs = new Set();
+
 class DataJob {
     constructor(options) {
         if (typeof options === 'string') {
@@ -82,15 +84,19 @@ class DataJob {
         let throwError = false;
         try {
             if (verbose) {
+                activeJobs.add(this.name);
                 alert({
                     title: `Starting ${this.name} job`,
+                    message: `Running jobs: ${[...activeJobs].join(', ')}`,
                 });
             }
             this.running = this.run(options);
             returnValue = await this.running;
             if (verbose) {
+                activeJobs.delete(this.name);
                 alert({
                     title: `Finished ${this.name} job`,
+                    message: `Running jobs: ${[...activeJobs].join(', ')}`,
                 });
             }
         } catch (error) {
