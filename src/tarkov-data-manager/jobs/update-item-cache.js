@@ -171,6 +171,18 @@ class UpdateItemCacheJob extends DataJob {
                 itemData[key].properties = null;
             }
 
+            // translations
+            if (this.locales.en[`${key} Name`]) { 
+                itemData[key].name = this.addTranslation(`${key} Name`);
+                itemData[key].shortName = this.addTranslation(`${key} ShortName`);
+                itemData[key].description = this.addTranslation(`${key} Description`);
+            } else if (this.presets[key]) {
+                for (const langCode in this.presets[key].locale) {
+                    this.addTranslation(`${key} Name`, langCode, this.presets[key].locale[langCode].name);
+                    this.addTranslation(`${key} ShortName`, langCode, this.presets[key].locale[langCode].shortName);
+                }
+            }
+
             // add template categories
             this.addCategory(itemData[key].bsgCategoryId);
             const cat = this.bsgCategories[itemData[key].bsgCategoryId];
@@ -187,7 +199,7 @@ class UpdateItemCacheJob extends DataJob {
             const handbookItemId = itemData[key].types.includes('preset') ? itemData[key].properties.base_item_id : key;
             const handbookItem = this.handbook.Items.find(hbi => hbi.Id === handbookItemId);
             if (!handbookItem) {
-                this.logger.warn(`Item ${this.locales.en[itemData[key].name]} ${key} has no handbook entry`);
+                this.logger.warn(`Item ${this.locales.en[itemData[key].name] || this.kvData.locale.en[itemData[key].name]} ${key} has no handbook entry`);
             } else {
                 this.addHandbookCategory(handbookItem.ParentId);
                 let parent = this.handbookCategories[handbookItem.ParentId];
@@ -197,23 +209,12 @@ class UpdateItemCacheJob extends DataJob {
                 }
             }
 
-            // translations
-            if (this.locales.en[`${key} Name`]) { 
-                itemData[key].name = this.addTranslation(`${key} Name`);
-                itemData[key].shortName = this.addTranslation(`${key} ShortName`);
-                itemData[key].description = this.addTranslation(`${key} Description`);
-            } else if (this.presets[key]) {
-                for (const langCode in this.presets[key].locale) {
-                    this.addTranslation(`${key} Name`, langCode, this.presets[key].locale[langCode].name);
-                    this.addTranslation(`${key} ShortName`, langCode, this.presets[key].locale[langCode].shortName);
-                }
-            }
-
             itemData[key].types.forEach(itemType => {
                 itemTypesSet.add(itemType);
             });
         }
 
+        const start = new Date();
         // validate contained items
         for (const id in itemData) {
             itemData[id].containsItems = itemData[id].containsItems.reduce((allContents, contained) => {

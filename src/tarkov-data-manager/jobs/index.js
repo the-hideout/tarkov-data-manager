@@ -4,7 +4,7 @@ const fs = require('fs');
 const schedule = require('node-schedule');
 
 const defaultJobs = {
-    //'check-scanners': '5,35 * * * *',
+    'check-scanners': '5,35 * * * *',
     'update-item-cache': '*/5 * * * *',
     //'update-barters': '*/5 * * * *',
     //'check-image-links': '37 0,6,12,18 * * *',
