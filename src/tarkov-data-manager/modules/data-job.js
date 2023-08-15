@@ -236,8 +236,19 @@ class DataJob {
         }
         if (langCode && typeof value !== 'undefined') {
             this.kvData.locale[langCode][key] = value;
-        } else {
-            this.translationKeys.add(key);
+        } else if (langCode === 'en') {
+            if (typeof this.locales.en[key] !== 'undefined') {
+                this.translationKeys.add(key);
+            } else {
+                let newKey = key;
+                for (const dictKey in this.locales.en) {
+                    if (dictKey.toLowerCase() === key.toLowerCase()) {
+                        newKey = dictKey;
+                        break;
+                    }
+                }
+                this.translationKeys.add(newKey);
+            }
         }
         return key;
     }
@@ -258,14 +269,14 @@ class DataJob {
                     continue;
                 }
                 target.locale[langCode][key] = this.locales[langCode][key];
-                if (typeof target.locale[langCode][key] === 'undefined') {
+                /*if (typeof target.locale[langCode][key] === 'undefined') {
                     for (const dictKey in this.locales[langCode]) {
                         if (dictKey.toLowerCase() === key.toLowerCase()) {
                             target.locale[langCode][key] = this.locales[langCode][dictKey];
                             break;
                         }
                     }
-                }
+                }*/
                 if (typeof target.locale[langCode][key] === 'undefined' && langCode === 'en') {
                     this.logger.error(`Missing translation for ${key}`);
                 }

@@ -178,8 +178,12 @@ class UpdateItemCacheJob extends DataJob {
                 itemData[key].description = this.addTranslation(`${key} Description`);
             } else if (this.presets[key]) {
                 for (const langCode in this.presets[key].locale) {
-                    this.addTranslation(`${key} Name`, langCode, this.presets[key].locale[langCode].name);
-                    this.addTranslation(`${key} ShortName`, langCode, this.presets[key].locale[langCode].shortName);
+                    if (this.presets[key].locale[langCode].name) {
+                        this.addTranslation(`${key} Name`, langCode, this.presets[key].locale[langCode].name);
+                    }
+                    if (this.presets[key].locale[langCode].shortName) {
+                        this.addTranslation(`${key} ShortName`, langCode, this.presets[key].locale[langCode].shortName);
+                    }
                 }
             }
 
@@ -199,7 +203,7 @@ class UpdateItemCacheJob extends DataJob {
             const handbookItemId = itemData[key].types.includes('preset') ? itemData[key].properties.base_item_id : key;
             const handbookItem = this.handbook.Items.find(hbi => hbi.Id === handbookItemId);
             if (!handbookItem) {
-                this.logger.warn(`Item ${this.locales.en[itemData[key].name] || this.kvData.locale.en[itemData[key].name]} ${key} has no handbook entry`);
+                //this.logger.warn(`Item ${this.locales.en[itemData[key].name] || this.kvData.locale.en[itemData[key].name]} ${key} has no handbook entry`);
             } else {
                 this.addHandbookCategory(handbookItem.ParentId);
                 let parent = this.handbookCategories[handbookItem.ParentId];
@@ -212,19 +216,6 @@ class UpdateItemCacheJob extends DataJob {
             itemData[key].types.forEach(itemType => {
                 itemTypesSet.add(itemType);
             });
-        }
-
-        const start = new Date();
-        // validate contained items
-        for (const id in itemData) {
-            itemData[id].containsItems = itemData[id].containsItems.reduce((allContents, contained) => {
-                if (itemData[contained.item]) {
-                    allContents.push(contained);
-                } else {
-                    this.logger.warn(`Item ${this.locales.en[`${id} Name`]} ${id} has non-existant contained item ${contained.item}`);
-                }
-                return allContents;
-            }, []);
         }
 
         // Add trader prices
@@ -250,9 +241,10 @@ class UpdateItemCacheJob extends DataJob {
             const ignoreCategories = [
                 '543be5dd4bdc2deb348b4569', // currency
                 '5448bf274bdc2dfc2f8b456a', // secure container
+                '62f109593b54472778797866', // random loot container
             ];
             if (itemData[id].traderPrices.length === 0 && !ignoreCategories.includes(itemData[id].bsgCategoryId)) {
-                this.logger.warn(`No trader sell prices mapped for ${this.locales.en[itemData[id].name]} (${id}) with category id ${itemData[id].bsgCategoryId}`);
+                //this.logger.warn(`No trader sell prices mapped for ${this.locales.en[itemData[id].name]} (${id}) with category id ${itemData[id].bsgCategoryId}`);
             }
         }
 
@@ -301,6 +293,17 @@ class UpdateItemCacheJob extends DataJob {
 
         for (const id in itemData) {
             const item = itemData[id];
+
+            // validate contained items
+            item.containsItems = item.containsItems.reduce((allContents, contained) => {
+                if (itemData[contained.item]) {
+                    allContents.push(contained);
+                } else {
+                    this.logger.warn(`Item ${this.locales.en[`${id} Name`]} ${id} has non-existant contained item ${contained.item}`);
+                }
+                return allContents;
+            }, []);
+
             item.conflictingItems = [];
             item.conflictingSlotIds = [];
             item.conflictingCategories = [];

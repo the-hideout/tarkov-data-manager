@@ -69,6 +69,11 @@ class UpdateNewItemsJob extends DataJob {
                 return false;
             }
 
+            // Parent is HideoutAreaContainer
+            if (bsgObject._parent === '63da6da4784a55176c018dba') {
+                return false;
+            }
+
             // 5b9b9020e7ef6f5716480215 dogtagt
 
             // Removes shrapnel etc
