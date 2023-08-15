@@ -234,8 +234,12 @@ class DataJob {
             }
             return key;
         }
-        if (langCode && typeof value !== 'undefined') {
-            this.kvData.locale[langCode][key] = value;
+        if (langCode) {
+            if (typeof value !== 'undefined') {
+                this.kvData.locale[langCode][key] = value;
+            } else {
+                throw new Error(`Cannot assign undefined value to ${langCode} ${key}`);
+            }
         } else {
             if (typeof this.locales.en[key] !== 'undefined') {
                 this.translationKeys.add(key);
