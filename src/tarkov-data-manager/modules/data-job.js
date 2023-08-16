@@ -58,6 +58,7 @@ class DataJob {
         this.startDate = new Date();
         this.kvData = {};
         this.locales = await tarkovData.locales();
+        this.translationKeyMap = {};
         this.translationKeys = new Set();
         if (options && options.parent) {
             this.logger.parentLogger = options.parent.logger;
@@ -243,15 +244,18 @@ class DataJob {
         } else {
             if (typeof this.locales.en[key] !== 'undefined') {
                 this.translationKeys.add(key);
-            } else {
-                let newKey = key;
+            } else if (!this.translationKeyMap[key]) {
                 for (const dictKey in this.locales.en) {
                     if (dictKey.toLowerCase() === key.toLowerCase()) {
-                        newKey = dictKey;
-                        break;
+                        this.translationKeyMap[key] = dictKey;
+                        this.logger.warn(`Translation key substition for ${key}: ${dictKey}`);
+                        //return dictKey;
                     }
                 }
-                this.translationKeys.add(newKey);
+                if (!this.translationKeyMap[key]) {
+                    this.logger.warn(`Translation key not found: ${key}`);
+                }
+                this.translationKeys.add(key);
             }
         }
         return key;
@@ -272,7 +276,8 @@ class DataJob {
                 if (target.locale[langCode][key]) {
                     continue;
                 }
-                target.locale[langCode][key] = this.locales[langCode][key];
+                const usedKey = this.translationKeyMap[key] ? this.translationKeyMap[key] : key;
+                target.locale[langCode][key] = this.locales[langCode][usedKey];
                 /*if (typeof target.locale[langCode][key] === 'undefined') {
                     for (const dictKey in this.locales[langCode]) {
                         if (dictKey.toLowerCase() === key.toLowerCase()) {
