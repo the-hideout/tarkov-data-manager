@@ -1103,6 +1103,11 @@ class UpdateQuestsJob extends DataJob {
                     }
                 }
             }
+            if (this.changedQuests[questData.id].translationKeys) {
+                for (const key of this.changedQuests[questData.id].translationKeys) {
+                    this.addTranslation(key);
+                }
+            }
         }
         const locationTypes = [
             'visit',

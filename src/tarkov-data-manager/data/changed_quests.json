@@ -759,7 +759,10 @@
                     "prapor_27_resort"
                 ]
             }
-        }
+        },
+        "translationKeys": [
+            "prapor_27_resort"
+        ]
     },
     "5ac3464c86f7741d651d6877": {
         "name": "Farming - Part 4",
