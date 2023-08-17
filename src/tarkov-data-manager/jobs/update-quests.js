@@ -1711,6 +1711,7 @@ const zoneMap = {
     prapor_27_2: '5704e3c2d2720bac5b8b4567',
     prapor_27_3: '5704e554d2720bac5b8b456e', //shoreline
     prapor_27_4: '5704e554d2720bac5b8b456e',
+    prapor_27_resort: '5704e554d2720bac5b8b456e',
     prapor_hq_area_check_1: '5704e5fad2720bc05b8b4567',
     qlight_br_secure_road: '5704e4dad2720bb55b8b4567',
     qlight_pr1_heli2_kill: '5704e4dad2720bb55b8b4567',
