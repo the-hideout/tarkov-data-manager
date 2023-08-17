@@ -76,7 +76,7 @@ class UpdateTradersJob extends DataJob {
                 traderData.name = trader.nickname;
                 traderData.normalizedName = normalizeName(trader.nickname);
             }
-            this.logger.log(`✔️ ${traderData.name} ${trader._id}`);
+            this.logger.log(`✔️ ${this.locales.en[traderData.name]} ${trader._id}`);
             this.logger.log(`   - Restock: ${date.toLocaleDateString()} ${date.toLocaleTimeString()}`);
             for (let i = 0; i < trader.loyaltyLevels.length; i++) {
                 const level = trader.loyaltyLevels[i];

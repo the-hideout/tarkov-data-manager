@@ -73,6 +73,9 @@ $(document).ready( async function () {
                         </div>
                     `;
                 }
+                if (type === 'filter') {
+                    return data+item.id;
+                }
                 return data;
             }
         },

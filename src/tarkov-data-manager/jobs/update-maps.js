@@ -356,7 +356,7 @@ class UpdateMapsJob extends DataJob {
         bossInfo.health = Object.keys(bossExtraData.health.BodyParts[0]).map(bodyPart => {
             return {
                 id: bodyPart,
-                bodyPart: this.addTranslation(bodyPart),
+                bodyPart: this.addTranslation(`QuestCondition/Elimination/Kill/BodyPart/${bodyPart}`),
                 max: bossExtraData.health.BodyParts[0][bodyPart].max,
             };
         });

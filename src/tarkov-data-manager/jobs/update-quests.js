@@ -595,7 +595,7 @@ class UpdateQuestsJob extends DataJob {
                     level: reward.loyaltyLevel,
                 });
             } else {
-                this.logger.warn(`Unrecognized reward type "${reward.type}" for ${rewardsType} reward ${reward.id} of ${questData.name}`);
+                this.logger.warn(`Unrecognized reward type "${reward.type}" for ${rewardsType} reward ${reward.id} of ${this.locales.en[questData.name]}`);
             }
         }
     }
