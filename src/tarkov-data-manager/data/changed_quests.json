@@ -541,7 +541,10 @@
                     "level": 5
                 }
             ]
-        }
+        },
+        "translationKeys": [
+            "64b694c8a857ea477002a408"
+        ]
     },
     "5c0bd94186f7747a727f09b2": {
         "name": "Test Drive - Part 1",
@@ -735,7 +738,11 @@
                     "zoneNames": []
                 }
             ]
-        }
+        },
+        "translationKeys": [
+            "64b67c6358b5637e2d71a655",
+            "64b67fcd3e349c7dbd06bd16"
+        ]
     },
     "5bc4893c86f774626f5ebf3e": {
         "name": "Tarkov Shooter - Part 8",
