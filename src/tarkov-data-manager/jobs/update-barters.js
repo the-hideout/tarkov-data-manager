@@ -198,10 +198,10 @@ class UpdateBartersJob extends DataJob {
                                 name: variantRow.find('td').eq(1).text().trim(),
                                 attachments: []
                             };
-                            let img = variantRow.find('td').eq(0).find('img').eq(0).data('src');
-                            if (img && img.indexOf('/revision') > -1) {
+                            let img = variantRow.find('td').eq(0).find('img').eq(0).data('imageKey');
+                            /*if (img && img.indexOf('/revision') > -1) {
                                 img = img.substring(0, img.indexOf('/revision/'));
-                            }
+                            }*/
                             variant.image = img;
                             const attachments = variantRow.find('td').eq(2).find('a');
                             for (const attachmentLink of attachments) {
@@ -337,10 +337,10 @@ class UpdateBartersJob extends DataJob {
         }
         const baseId = rewardItem.id;
         if (rewardItem.types.includes('gun') || rewardItem.id === '5a16bb52fcdbcb001a3b00dc') {
-            let gunImage = $trade.find('th').eq(-1).find('img').eq(0).data('src');
-            if (gunImage && gunImage.indexOf('/revision/') > -1) {
+            let gunImage = $trade.find('th').eq(-1).find('img').eq(0).data('imageKey');
+            /*if (gunImage && gunImage.indexOf('/revision/') > -1) {
                 gunImage = gunImage.substring(0, gunImage.indexOf('/revision/'));
-            }
+            }*/
             const gunLink = $trade.find('th').eq(-1).find('a').eq(0).prop('href');
             const wikiVariants = await this.getGunVariants(WIKI_URL+gunLink);
             for (const variant of wikiVariants) {
