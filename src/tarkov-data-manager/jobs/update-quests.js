@@ -893,9 +893,10 @@ class UpdateQuestsJob extends DataJob {
         };
         for (const objective of quest.conditions.AvailableForFinish) {
             const obj = this.formatObjective(objective);
-            if (obj) {
-                questData.objectives.push(obj);
+            if (!obj) {
+                continue;
             }
+            questData.objectives.push(obj);
         }
         for (const objective of quest.conditions.Fail) {
             const obj = this.formatObjective(objective, true);
@@ -1057,6 +1058,18 @@ class UpdateQuestsJob extends DataJob {
                     this.logger.warn(JSON.stringify(this.changedQuests[questData.id].objectivesRemoved, null, 4));
                 }
             }
+            if (this.changedQuests[questData.id].objectivePropertiesChanged) {
+                for (const objId in this.changedQuests[questData.id].objectivePropertiesChanged) {
+                    const obj = questData.objectives.find(o => o.id === objId);
+                    if (!obj) {
+                        continue;
+                    }
+                    const changes = this.changedQuests[questData.id].objectivePropertiesChanged[objId];
+                    for (const propName in changes) {
+                        obj[propName] = changes[propName];
+                    }
+                }
+            }
             if (this.changedQuests[questData.id].finishRewardsAdded) {
                 //this.logger.warn('Adding finish rewards');
                 //this.logger.warn(JSON.stringify(this.changedQuests[questData.id].finishRewardsAdded), null, 4);
@@ -1076,6 +1089,23 @@ class UpdateQuestsJob extends DataJob {
                             reward.name = this.addTranslation(reward.name);
                         }
                     }
+                }
+            }
+            if (this.changedQuests[questData.id].startRewardsChanged) {
+                //this.logger.warn('Changing start rewards');
+                //this.logger.warn(JSON.stringify(this.changedQuests[questData.id].startRewardsChanged), null, 4);
+                for (const rewardType in this.changedQuests[questData.id].startRewardsChanged) {
+                    questData.startRewards[rewardType] = this.changedQuests[questData.id].startRewardsChanged[rewardType];
+                    if (rewardType === 'skillLevelReward') {
+                        for (const reward of questData.startRewards[rewardType]) {
+                            reward.name = this.addTranslation(reward.name);
+                        }
+                    }
+                }
+            }
+            if (this.changedQuests[questData.id].translationKeys) {
+                for (const key of this.changedQuests[questData.id].translationKeys) {
+                    this.addTranslation(key);
                 }
             }
         }
@@ -1681,6 +1711,7 @@ const zoneMap = {
     prapor_27_2: '5704e3c2d2720bac5b8b4567',
     prapor_27_3: '5704e554d2720bac5b8b456e', //shoreline
     prapor_27_4: '5704e554d2720bac5b8b456e',
+    prapor_27_resort: '5704e554d2720bac5b8b456e',
     prapor_hq_area_check_1: '5704e5fad2720bc05b8b4567',
     qlight_br_secure_road: '5704e4dad2720bb55b8b4567',
     qlight_pr1_heli2_kill: '5704e4dad2720bb55b8b4567',
