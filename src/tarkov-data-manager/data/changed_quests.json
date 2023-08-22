@@ -789,5 +789,11 @@
                 "count": 50
             }
         }
+    },
+    "5c0d190cd09282029f5390d8": {
+        "name": "Grenadier",
+        "propertiesChanged" : {
+            "taskRequirements": []
+        }
     }
 }
