@@ -795,5 +795,19 @@
         "propertiesChanged" : {
             "taskRequirements": []
         }
+    },
+    "5b4794cb86f774598100d5d4": {
+        "name": "Lend-Lease - Part 1",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5a27d2af86f7744e1115b323",
+                    "name": "Friend from the West - Part 2",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
     }
 }
