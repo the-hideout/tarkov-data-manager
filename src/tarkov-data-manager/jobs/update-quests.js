@@ -1045,14 +1045,7 @@ class UpdateQuestsJob extends DataJob {
             }
             if (this.changedQuests[questData.id].objectivesRemoved) {
                 const oldObjCount = questData.objectives.length;
-                questData.objectives = questData.objectives.filter(obj => {
-                    const objRemoved = this.changedQuests[questData.id].objectivesRemoved.find(remId => remId === obj.id);
-                    /*if (objRemoved) {
-                        this.logger.warn('Removing quest objective');
-                        this.logger.warn(JSON.stringify(obj, null, 4));
-                    }*/
-                    return !objRemoved;
-                });
+                questData.objectives = questData.objectives.filter(obj => !this.changedQuests[questData.id].objectivesRemoved.includes(obj.id));
                 if (questData.objectives.length === oldObjCount) {
                     this.logger.warn('No matching quest objective to remove');
                     this.logger.warn(JSON.stringify(this.changedQuests[questData.id].objectivesRemoved, null, 4));
