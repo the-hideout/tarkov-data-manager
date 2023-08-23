@@ -798,5 +798,14 @@
                 }
             ]
         }
+    },
+    "596a204686f774576d4c95de": {
+        "name": "Sanitary Standards - Part 2",
+        "taskRequirementsRemoved": [
+            {
+                "id": "5968eb3186f7741dde183a4d",
+                "name": "Operation Aquarius - Part 2"
+            }
+        ]
     }
 }
