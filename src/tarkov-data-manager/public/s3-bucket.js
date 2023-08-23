@@ -27,7 +27,7 @@ $(document).ready( function () {
                 if (type !== 'display') {
                     return data;
                 }
-                if (data.match(/\.(?:jpg|png|webp)$/)) {
+                if (data.match(/\.(?:jpg|png|webp|svg)$/)) {
                     return `<img src="${data}" loading="lazy" style="max-height: 200px" />`;
                 }
                 return `<a href="${data}" target="_blank">${data}</a>`;
