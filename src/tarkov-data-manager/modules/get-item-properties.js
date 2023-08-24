@@ -165,6 +165,9 @@ const getItemProperties = async (item) => {
         // ammo
         properties = {
             propertiesType: 'ItemPropertiesAmmo',
+            ballisticCoeficient: item._props.BallisticCoeficient,
+            bulletDiameterMilimeters: item._props.BulletDiameterMilimeters,
+            bulletMassGrams: item._props.BulletMassGram,
             caliber: item._props.Caliber,
             stackMaxSize: item._props.StackMaxSize,
             tracer: item._props.Tracer,
@@ -206,6 +209,7 @@ const getItemProperties = async (item) => {
         if (item._props.armorClass) {
             properties = {
                 ...properties,
+                bluntThroughput: item._props.BluntThroughput,
                 class: parseInt(item._props.armorClass),
                 durability: parseInt(item._props.Durability),
                 repairCost: parseInt(item._props.RepairCost),
@@ -261,6 +265,7 @@ const getItemProperties = async (item) => {
     } else if (item._parent === '5448e5724bdc2ddf718b4568') {
         properties = {
             propertiesType: 'ItemPropertiesGlasses',
+            bluntThroughput: item._props.BluntThroughput,
             class: parseInt(item._props.armorClass),
             durability: parseInt(item._props.Durability),
             repairCost: parseInt(item._props.RepairCost),
@@ -275,6 +280,7 @@ const getItemProperties = async (item) => {
         if (item._props.armorClass && parseInt(item._props.armorClass) > 0) {
             // armored stuff only only
             properties = {
+                bluntThroughput: item._props.BluntThroughput,
                 class: parseInt(item._props.armorClass),
                 durability: parseInt(item._props.Durability),
                 repairCost: parseInt(item._props.RepairCost),

@@ -32,7 +32,7 @@ class UpdatePresetsJob extends DataJob {
 
         const manualPresets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'manual_presets.json')));
 
-        const presetsData = {};
+        this.presetsData = {};
 
         const defaults = {};
 
@@ -112,6 +112,7 @@ class UpdatePresetsJob extends DataJob {
                 presetData.default = false;
             }
             presetData.normalized_name = normalizeName(presetData.name);
+            this.validateNormalizedName(presetData);
             let itemPresetData = await getPresetData(presetData, this.logger);
             if (itemPresetData) {
                 presetData.width = itemPresetData.width;
@@ -123,7 +124,7 @@ class UpdatePresetsJob extends DataJob {
                 presetData.horizontalRecoil = itemPresetData.horizontalRecoil;
                 presetData.moa = itemPresetData.moa;
             }
-            presetsData[presetId] = presetData;
+            this.presetsData[presetId] = presetData;
             if (presetData.default && !defaults[firstItem.id]) {
                 defaults[firstItem.id] = presetData;
             } else if (presetData.default) {
@@ -169,8 +170,9 @@ class UpdatePresetsJob extends DataJob {
             presetData.name = presetData.locale.en.name;
             presetData.shortName = presetData.locale.en.shortName;
             presetData.normalized_name = normalizeName(presetData.name);
+            this.validateNormalizedName(presetData);
             delete presetData.appendName;
-            presetsData[presetData.id] = presetData;
+            this.presetsData[presetData.id] = presetData;
             this.logger.succeed(`Completed ${presetData.name} manual preset (${presetData.containsItems.length} parts)`);
         }
         // add dog tag preset
@@ -180,7 +182,7 @@ class UpdatePresetsJob extends DataJob {
                 return substr.toUpperCase();
             });
         };
-        presetsData['customdogtags12345678910'] = {
+        this.presetsData['customdogtags12345678910'] = {
             id: 'customdogtags12345678910',
             name: getDogTagName(locales.en),
             shortName: getDogTagName(locales.en),
@@ -219,7 +221,7 @@ class UpdatePresetsJob extends DataJob {
             
             const matchingPresets = [];
             let defaultId = false;
-            for (const preset of Object.values(presetsData)) {
+            for (const preset of Object.values(this.presetsData)) {
                 if (preset.baseId !== id)
                     continue;
                 
@@ -241,8 +243,8 @@ class UpdatePresetsJob extends DataJob {
         }
 
         // add "Default" to the name of default presets to differentiate them from gun names
-        for (const presetId in presetsData) {
-            const preset = presetsData[presetId];
+        for (const presetId in this.presetsData) {
+            const preset = this.presetsData[presetId];
             if (!preset.default) {
                 continue;
             }
@@ -267,11 +269,11 @@ class UpdatePresetsJob extends DataJob {
             if (!item.types.includes('preset')) {
                 continue;
             }
-            if (!presetsData[item.id]) {
+            if (!this.presetsData[item.id]) {
                 this.logger.warn(`DB preset no longer present: ${item.name} ${item.id}`);
                 continue;
             }
-            const p = presetsData[item.id];
+            const p = this.presetsData[item.id];
             if (item.short_name !== p.shortName || item.width !== p.width || item.height !== p.height || item.properties.backgroundColor !== p.backgroundColor) {
                 regnerateImages.push(p);
             }
@@ -279,8 +281,8 @@ class UpdatePresetsJob extends DataJob {
         this.logger.log('Updating presets in DB...');
         const queries = [];
         const newPresets = [];
-        for (const presetId in presetsData) {
-            const p = presetsData[presetId];
+        for (const presetId in this.presetsData) {
+            const p = this.presetsData[presetId];
             queries.push(remoteData.addItem({
                 id: p.id,
                 name: p.name,
@@ -331,9 +333,24 @@ class UpdatePresetsJob extends DataJob {
             });
         }
 
-        fs.writeFileSync(path.join(__dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(presetsData, null, 4));
+        fs.writeFileSync(path.join(__dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(this.presetsData, null, 4));
         await Promise.allSettled(queries);
-        return presetsData;
+        return this.presetsData;
+    }
+
+    validateNormalizedName = (preset, attempt = 1) => {
+        let normal = preset.normalized_name;
+        if (attempt > 1) {
+            normal += `-${attempt}`;
+        }
+        const matchedPreset = Object.values(this.presetsData).find(p => p.normalized_name === normal);
+        if (matchedPreset) {
+            return this.validateNormalizedName(preset, attempt + 1);
+        }
+        if (attempt > 1) {
+            preset.normalized_name = normal;
+            //this.logger.log(normal);
+        }
     }
 }
 

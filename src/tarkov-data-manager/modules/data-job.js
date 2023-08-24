@@ -287,7 +287,7 @@ class DataJob {
                     }
                 }*/
                 if (typeof target.locale[langCode][key] === 'undefined' && langCode === 'en') {
-                    this.logger.error(`Missing translation for ${key}`);
+                    return Promise.reject(new Error(`Missing translation for ${key}`));
                 }
             }
         }

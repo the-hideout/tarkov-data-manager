@@ -1,7 +1,7 @@
 {
-    "___5c51aac186f77432ea65c552": {
+    "5c51aac186f77432ea65c552": {
         "name": "Collector",
-        "taskRequirementsAdded": [
+        "__taskRequirementsAdded": [
             {
                 "task": "5c0d0d5086f774363760aef2",
                 "name": "Athlete",
@@ -44,19 +44,8 @@
                 "name": "The Survivalist Path - Zhivchik"
             }
         ],
-        "___objectivesRemoved": [
-            "60e827a20c492412897c688f",
-            "60e827a20c492412897c688g",
-            "60e827a20c492412897c688h",
-            "60e827a20c492412897c688i",
-            "60e827a20c492412897c688j",
-            "60e827a20c492412897c688k",
-            "60e827a20c492412897c688l",
-            "60e827a20c492412897c688m",
-            "60e827a20c492412897c688n",
-            "60e827a20c492412897c688o",
-            "60e827a20c492412897c688p",
-            "60e827a20c492412897c688q"
+        "objectivesRemoved": [
+            "60d9d34e8a6f9a3731773f93"
         ],
         "___objectiveIdsChanged": {
             "60e827faf09904268a4dbc41": "62a6ff004de19a4c3422ea5d",
@@ -789,5 +778,34 @@
                 "count": 50
             }
         }
+    },
+    "5c0d190cd09282029f5390d8": {
+        "name": "Grenadier",
+        "propertiesChanged" : {
+            "taskRequirements": []
+        }
+    },
+    "5b4794cb86f774598100d5d4": {
+        "name": "Lend-Lease - Part 1",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5a27d2af86f7744e1115b323",
+                    "name": "Friend from the West - Part 2",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "596a204686f774576d4c95de": {
+        "name": "Sanitary Standards - Part 2",
+        "taskRequirementsRemoved": [
+            {
+                "id": "5968eb3186f7741dde183a4d",
+                "name": "Operation Aquarius - Part 2"
+            }
+        ]
     }
 }

@@ -892,14 +892,14 @@ class UpdateQuestsJob extends DataJob {
             neededKeys: [],
         };
         for (const objective of quest.conditions.AvailableForFinish) {
-            const obj = this.formatObjective(objective);
+            const obj = this.formatObjective(questData.id, objective);
             if (!obj) {
                 continue;
             }
             questData.objectives.push(obj);
         }
         for (const objective of quest.conditions.Fail) {
-            const obj = this.formatObjective(objective, true);
+            const obj = this.formatObjective(questData.id, objective, true);
             if (obj) {
                 questData.failConditions.push(obj);
             }
@@ -1043,21 +1043,6 @@ class UpdateQuestsJob extends DataJob {
                     this.logger.warn('Manually added objectives already present');
                 }
             }
-            if (this.changedQuests[questData.id].objectivesRemoved) {
-                const oldObjCount = questData.objectives.length;
-                questData.objectives = questData.objectives.filter(obj => {
-                    const objRemoved = this.changedQuests[questData.id].objectivesRemoved.find(remId => remId === obj.id);
-                    /*if (objRemoved) {
-                        this.logger.warn('Removing quest objective');
-                        this.logger.warn(JSON.stringify(obj, null, 4));
-                    }*/
-                    return !objRemoved;
-                });
-                if (questData.objectives.length === oldObjCount) {
-                    this.logger.warn('No matching quest objective to remove');
-                    this.logger.warn(JSON.stringify(this.changedQuests[questData.id].objectivesRemoved, null, 4));
-                }
-            }
             if (this.changedQuests[questData.id].objectivePropertiesChanged) {
                 for (const objId in this.changedQuests[questData.id].objectivePropertiesChanged) {
                     const obj = questData.objectives.find(o => o.id === objId);
@@ -1165,7 +1150,10 @@ class UpdateQuestsJob extends DataJob {
         return questData;
     }
 
-    formatObjective(objective, failConditions = false) {
+    formatObjective(questId, objective, failConditions = false) {
+        if (this.changedQuests[questId]?.objectivesRemoved?.includes(objective._props.id)) {
+            return false;
+        }
         let objectiveId = objective._props.id;
         for (const questId in this.changedQuests) {
             if (!this.changedQuests[questId].objectiveIdsChanged) {
