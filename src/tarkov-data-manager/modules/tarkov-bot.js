@@ -22,6 +22,9 @@ const langs = {
 }
 
 const jsonRequest = async (dataType, params, logger = false) => {
+    if (!process.env.TB_URL || !process.env.TB_KEY) {
+        return Promise.reject(new Error('TB_URL or TB_KEY not set'));
+    }
     const response = await got(process.env.TB_URL, {
         searchParams: {
             api_key: process.env.TB_KEY,
