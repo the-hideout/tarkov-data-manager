@@ -227,6 +227,7 @@ async function deleteFromBucket(key) {
         Key: key,
     };
     await s3.send(new DeleteObjectCommand(params));
+    await cloudflare.purgeCache(`https://${params.Bucket}/${params.Key}`);
     removeFromLocalBucket(key);
 }
 
