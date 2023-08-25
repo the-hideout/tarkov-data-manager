@@ -570,7 +570,7 @@ insertPrices = async (options) => {
             }
             if (offerId) {
                 placeholders.push(`(?, ?, ?, ?)`);
-                traderValues.push(offerId, tPrice.price, options.scanner.id, dateToMysqlFormat(dateTime));
+                traderValues.push(offerId, Math.ceil(tPrice.price), options.scanner.id, dateToMysqlFormat(dateTime));
             }
         }
         if (traderValues.length > 0) {
@@ -701,7 +701,11 @@ const getJson = (options) => {
         file = file.split('/').pop();
         file = file.split('\\').pop();
         if (!file.endsWith('.json')) throw new Error(`${file} is not a valid json file`);
-        response.data = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', file)));
+        if (fs.existsSync(path.join(__dirname, '..', 'cache', file))) {
+            response.data = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', file)));
+        } else {
+            response.data = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'dumps', file)));
+        }
     } catch (error) {
         if (error.code === 'ENOENT') {
             response.errors.push(`Error: ${options.file} not found`);
