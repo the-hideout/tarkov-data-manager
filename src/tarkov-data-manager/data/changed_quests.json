@@ -807,5 +807,20 @@
                 "name": "Operation Aquarius - Part 2"
             }
         ]
+    },
+    "5bc479e586f7747f376c7da3": {
+        "name": "Tarkov Shooter - Part 2",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5bc4776586f774512d07cf05",
+                    "name": "The Tarkov Shooter - Part 1",
+                    "status": [
+                        "active",
+                        "complete"
+                    ]
+                }
+            ]
+        }
     }
 }
