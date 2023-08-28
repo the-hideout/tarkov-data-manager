@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 
 const got = require('got');
-const { cache } = require('sharp');
 
 const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/';
 const sptDataPath = `${sptPath}database/`;

@@ -370,7 +370,7 @@ const getItems = async(options) => {
 quest and minLevel are only used for trader prices.
 If the trader price is locked and neither of these values is known, they should be null
 */
-insertPrices = async (options) => {
+const insertPrices = async (options) => {
     const user = options.user;
     let scanFlags = options.scanner.flags;
     const skipInsert = userFlags.skipPriceInsert & user.flags || scannerFlags.skipPriceInsert & scanFlags;
