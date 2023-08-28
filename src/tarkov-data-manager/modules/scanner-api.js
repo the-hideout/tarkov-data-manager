@@ -672,6 +672,100 @@ const releaseItem = async (options) => {
     return response;
 };
 
+const startTraderScan = async (options) => {
+    const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
+    if (activeScan.length > 0) {
+        return {
+            data: {
+                id: activeScan[0].id,
+                started: activeScan[0].started,
+            }
+        }
+    }
+    const result = await query('INSERT INTO trader_offer_scan (scanner_id) VALUES (?)', [options.scanner.id]);
+    return {
+        data: {
+            id: result.insertId,
+            started: new Date(),
+        }
+    };
+};
+
+const endTraderScan = async (options) => {
+    const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
+    if (activeScan.length < 1) {
+        return {
+            data: 'no active trader scan',
+        };
+    }
+    const stopResult = await query('UPDATE trader_offer_scan SET ended=now() WHERE id=?', [activeScan[0].id]);
+    if (stopResult.affectedRows < 1) {
+        return {
+            data: 'unable to update active trader scan',
+        }
+    }
+    return {
+        data: 'Trader scan ended',
+    }
+};
+
+const addTraderOffers = async (options) => {
+    const dataActions = [];
+    for (const offer of options.offers) {
+        const insertValues = {
+            id: offer.offerId,
+            item_id: offer.item,
+            trader_id: offer.seller,
+            min_level: offer.minLevel,
+        };
+        if (options.trustTraderUnlocks) {
+            insertValues.locked = offer.locked ? 1 : 0;
+        }
+        if (!offer.requirements) {
+            insertValues.price = offer.price;
+            insertValues.currency = offer.currency;
+        }
+        const updateValues = Object.keys(insertValues).reduce((all, current) => {
+            if (current !== 'id') {
+                all[current] = insertValues[current];
+            }
+            return all;
+        }, {});
+        dataActions.push(query(`
+            INSERT INTO trader_offers
+                (${Object.keys(insertValues).join(', ')})
+            VALUES
+                (${Object.keys(insertValues).map(() => '?').join(', ')})
+            ON DUPLICATE KEY UPDATE ${Object.keys(updateValues).map(field => `${field}=?`).join(', ')}
+        `, [...Object.values(insertValues), ...Object.values(updateValues)]).then(() => {
+            if (offer.requirements) {
+                const requirementActions = [];
+                for (const req of offer.requirements) {
+                    requirementActions.push(query(`
+                        INSERT INTO trader_offer_requirements
+                            (offer_id, requirement_item_id, count)
+                        VALUES
+                            (?, ?, ?)
+                        ON DUPLICATE KEY UPDATE count=?
+                    `, [offer.offerId, req.item, req.count, req.count]));
+                }
+                return Promise.all(requirementActions).then(() => { 
+                    return { result: 'ok' };
+                });
+            }
+            return { result: 'ok' };
+        }).catch(error => {
+            return {
+                result: 'error',
+                message: error.message,
+            };
+        }));
+    }
+    return {
+        data: await Promise.all(dataActions),
+    }
+};
+
 const insertTraderRestock = async (options) => {
     const response = {errors: [], warnings: [], data: 0};
     const trader = options.trader;
@@ -1046,6 +1140,20 @@ module.exports = {
                     response = await insertTraderRestock(options);
                 }
             }*/
+            if (resource === 'trader-scan') {
+                if (req.method === 'POST') {
+                    options.scanner = await getScanner(options, false);
+                    response = await startTraderScan(options);
+                }
+                if (req.method === 'PATCH') {
+                    response = await endTraderScan(options);
+                }
+            }
+            if (resource === 'offers') {
+                if (req.method === 'POST') {
+                    response = await addTraderOffers(options);
+                }
+            }
             if (resource === 'ping' && req.method === 'GET') {
                 response = {errors: [], warnings: [], data: 'ok'};
             }
