@@ -416,16 +416,17 @@ app.post('/items/edit/:id', async (req, res) => {
     const currentItemData = allItemData.get(req.params.id);
     let updated = false;
     const response = {success: false, message: 'No changes made.', errors: []};
-    const form = formidable({
+    const form = formidable.formidable({
         multiples: true,
         uploadDir: path.join(__dirname, 'cache'),
     });
     const finish = (files) => {
         if (files) {
-            for (const key in files) {
-                //console.log('removing', files[key].filepath);
-                fs.rm(files[key].filepath, error => {
-                    if (error) console.log(`Error deleting ${files[key].filepath}`, error);
+            for (const key in files.file) {
+                let file = files.file[key];
+                //console.log('removing', file.filepath);
+                fs.rm(file.filepath, error => {
+                    if (error) console.log(`Error deleting ${file.filepath}`, error);
                 });
             }
         }
@@ -439,25 +440,26 @@ app.post('/items/edit/:id', async (req, res) => {
                     return reject(err);
                 }
                 let sourceUpload = false;
-                for (const field in files) {
-                    if (field === 'source-upload' && files[field].size !== 0) {
+                for (const index in files.file) {
+                    if (index === 'source-upload' && files.file[index].size !== 0) {
                         sourceUpload = true;
                         break;
                     }
                 }
-                for (const field in files) {
-                    if (files[field].size === 0) continue;
-                    if (sourceUpload && field !== 'source-upload') {
+                for (const index in files.file) {
+                    let file = files.file[index];
+                    if (file.size === 0) continue;
+                    if (sourceUpload && index !== 'source-upload') {
                         continue;
                     }
                     try {
-                        if (field === 'source-upload') {
-                            await createAndUploadFromSource(files[field].filepath, req.params.id);
+                        if (index === 'source-upload') {
+                            await createAndUploadFromSource(file.filepath, req.params.id);
                             updated = true;
                             break;
                         }
-                        const imageType = field.replace('-upload', '');
-                        await uploadToS3(files[field].filepath, imageType, req.params.id);
+                        const imageType = index.replace('-upload', '');
+                        await uploadToS3(file.filepath, imageType, req.params.id);
                         updated = true;
                     } catch (error){
                         finish(files);
@@ -465,13 +467,15 @@ app.post('/items/edit/:id', async (req, res) => {
                     }
                 }
 
-                if(fields['wiki-link'] && fields['wiki-link'] !== 'null' && currentItemData.wiki_link !== fields['wiki-link']){
-                    await remoteData.setProperty(req.params.id, 'wiki_link', fields['wiki-link']);
+                let wikiLink = fields['wiki-link'][0];
+                if(wikiLink && wikiLink !== 'null' && currentItemData.wiki_link !== wikiLink){
+                    await remoteData.setProperty(req.params.id, 'wiki_link', wikiLink);
                     updated = true;
                 }
             
-                if (fields['match-index'] && fields['match-index'] !== 'null' && currentItemData.match_index != fields['match-index']) {
-                    await remoteData.setProperty(req.params.id, 'match_index', fields['match-index']);
+                let matchIndex = fields['match-index'][0];
+                if (matchIndex && matchIndex !== 'null' && currentItemData.match_index != matchIndex) {
+                    await remoteData.setProperty(req.params.id, 'match_index', matchIndex);
                     updated = true;
                 }
             
@@ -1509,16 +1513,17 @@ app.post('/json/:dir', async (req, res) => {
         response.errors.push(`${dir} is not a valid JSON directory`);
         return res.json(response);
     }
-    const form = formidable({
+    const form = formidable.formidable({
         multiples: true,
         uploadDir: path.join(__dirname, 'cache'),
     });
     const finish = (files) => {
         if (files) {
-            for (const key in files) {
-                //console.log('removing', files[key].filepath);
-                fs.rm(files[key].filepath, error => {
-                    if (error) console.log(`Error deleting ${files[key].filepath}`, error);
+            for (const index in files.file) {
+                let file = files.file[index];
+                //console.log('removing', file.filepath);
+                fs.rm(file.filepath, error => {
+                    if (error) console.log(`Error deleting ${file.filepath}`, error);
                 });
             }
         }
@@ -1531,16 +1536,17 @@ app.post('/json/:dir', async (req, res) => {
                     finish(files);
                     return reject(error);
                 }
-                let file = files.file.originalFilename;
-                file = file.split('/').pop();
-                file = file.split('\\').pop();
-                if (!file.endsWith('.json')) {
+                let file = files.file[index];
+                let fileName = file.originalFilename;
+                fileName = fileName.split('/').pop();
+                fileName = fileName.split('\\').pop();
+                if (!fileName.endsWith('.json')) {
                     return reject(new Error(`File name must end in .json`));
                 }
-                fs.renameSync(files.file.filepath, `./${dir}/${file}`);
-                delete files.file;
+                fs.renameSync(file.filepath, `./${dir}/${fileName}`);
+                delete file;
                 finish(files);
-                response.message = `${file} uploaded`;
+                response.message = `${fileName} uploaded`;
                 resolve();
             });
         });
@@ -1566,7 +1572,8 @@ app.get('/s3-bucket', async (req, res) => {
             <div class="col s10 offset-s1">
                 <div>
                     <form class="col s12 post-url file-upload id" data-attribute="action" method="post" action="">
-                        <span>Upload: </span><input id="file-upload" class="single-upload" type="file" name="file" />
+                        <span>Path: </span><input id="file-path" class="validate path" type="text" name="path" value="" style="width: auto;"/>
+                        <span>Upload: </span><input id="file-upload" class="single-upload" type="file" name="file" multiple="multiple"/>
                         <a href="#" class="waves-effect waves-light btn file-upload tooltipped" data-tooltip="Upload"><i class="material-icons">file_upload</i></a>
                     </form>
                 </div>
@@ -1685,16 +1692,17 @@ app.put('/s3-bucket/:file', async (req, res) => {
 
 app.post('/s3-bucket', async (req, res) => {
     const response = {json: [], errors: []};
-    const form = formidable({
+    const form = formidable.formidable({
         multiples: true,
         uploadDir: path.join(__dirname, 'cache'),
     });
     const finish = (files) => {
         if (files) {
-            for (const key in files) {
-                //console.log('removing', files[key].filepath);
-                fs.rm(files[key].filepath, error => {
-                    if (error) console.log(`Error deleting ${files[key].filepath}`, error);
+            for (const index in files.file) {
+                let file = files.file[index];
+                console.log('removing', file.filepath);
+                fs.rm(file.filepath, error => {
+                    if (error) console.log(`Error deleting ${file.filepath}`, error);
                 });
             }
         }
@@ -1707,12 +1715,25 @@ app.post('/s3-bucket', async (req, res) => {
                     finish(files);
                     return reject(error);
                 }
-                let file = files.file.originalFilename;
-                file = file.split('/').pop();
-                file = file.split('\\').pop();
-                await addFileToBucket(files.file.filepath, file);
+                let path = fields['path'][0];
+                const pathRegex = new RegExp(`^(?:[^\/]+\/)*$`);
+                const match = path.match(pathRegex);
+                if (!match) {
+                    finish(files);
+                    return reject(new Error("Invalid path"));
+                }
+                var names = [];
+                for (const index in files.file) {
+                    let file = files.file[index];
+                    let fileName = file.originalFilename;
+                    fileName = fileName.split('/').pop();
+                    fileName = fileName.split('\\').pop();
+                    names.push(fileName);
+                    fileName = path + fileName;
+                    await addFileToBucket(file.filepath, fileName);
+                }
                 finish(files);
-                response.message = `${file} uploaded to S3`;
+                response.message = `${names.join(",")} uploaded to S3`;
                 resolve();
             });
         });
