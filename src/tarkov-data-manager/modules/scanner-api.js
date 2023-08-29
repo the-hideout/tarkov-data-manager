@@ -417,8 +417,8 @@ const insertPrices = async (options) => {
         const placeholders = [];
         const values = [];
         for (let i = 0; i < playerPrices.length; i++) {
-            placeholders.push('(?, ?, ?, ?)');
-            values.push(itemId, playerPrices[i].price, options.scanner.id, 'now()')
+            placeholders.push('(?, ?, ?, now())');
+            values.push(itemId, playerPrices[i].price, options.scanner.id);
         }
         if (skipInsert) {
             response.warnings.push(`Skipped insert of ${playerPrices.length} player prices`);
@@ -576,8 +576,8 @@ const insertPrices = async (options) => {
                 }
             }
             if (offerId) {
-                placeholders.push(`(?, ?, ?, ?)`);
-                traderValues.push(offerId, Math.ceil(tPrice.price), options.scanner.id, 'now()');
+                placeholders.push(`(?, ?, ?, now())`);
+                traderValues.push(offerId, Math.ceil(tPrice.price), options.scanner.id);
             }
         }
         if (traderValues.length > 0) {
@@ -603,7 +603,7 @@ const insertPrices = async (options) => {
     }
     try {
         if (response.errors.length < 1) {
-            await releaseItem({...options, scanned: true, scanDate: 'now()'});
+            await releaseItem({...options, scanned: true});
         }
     } catch (error) {
         response.errors.push(String(error));
@@ -621,10 +621,6 @@ const insertPrices = async (options) => {
 //To release all items, include the attribtue offersFrom
 // on success, response.data is the number of items released
 const releaseItem = async (options) => {
-    options = {
-        scanDate: 'now()',
-        ...options,
-    };
     const response = {errors: [], warnings: [], data: 0};
     if (options.imageOnly) {
         return response;
@@ -641,8 +637,7 @@ const releaseItem = async (options) => {
         trader = 'trader_'
     }
     if (itemScanned && itemId && !skipInsert) {
-        scanned = `, ${trader}last_scan = ?`;
-        escapedValues.push(options.scanDate);
+        scanned = `, ${trader}last_scan = now()`;
         if (options.offerCount) {
             scanned += `, last_offer_count = ?`;
             escapedValues.push(options.offerCount);
@@ -666,9 +661,9 @@ const releaseItem = async (options) => {
             if (setLastScan) {
                 query(`
                     UPDATE scanner
-                    SET ${trader}last_scan = ?
+                    SET ${trader}last_scan = now()
                     WHERE id = ?
-                `, [options.scanDate, options.scanner.id]);
+                `, [options.scanner.id]);
             }
             return result;
         });
@@ -727,7 +722,6 @@ const addTraderOffers = async (options) => {
             min_level: offer.minLevel,
             buy_limit: offer.buyLimit,
             restock_amount: offer.restockAmount,
-            last_scan: 'now()',//dateToMysqlFormat(new Date()),
         };
         if (options.trustTraderUnlocks) {
             insertValues.locked = offer.locked ? 1 : 0;
@@ -744,10 +738,10 @@ const addTraderOffers = async (options) => {
         }, {});
         dataActions.push(query(`
             INSERT INTO trader_offers
-                (${Object.keys(insertValues).join(', ')})
+                (${Object.keys(insertValues).join(', ')}, last_scan=now())
             VALUES
                 (${Object.keys(insertValues).map(() => '?').join(', ')})
-            ON DUPLICATE KEY UPDATE ${Object.keys(updateValues).map(field => `${field}=?`).join(', ')}
+            ON DUPLICATE KEY UPDATE ${Object.keys(updateValues).map(field => `${field}=?`).join(', ')}, last_scan=now()
         `, [...Object.values(insertValues), ...Object.values(updateValues)]).then(() => {
             if (offer.requirements) {
                 const requirementActions = [];
@@ -774,7 +768,7 @@ const addTraderOffers = async (options) => {
     }
     if (options.offersFrom === 1) {
         await Promise.all(scannedIds.map(id => {
-            return releaseItem({...options, itemId: id, scanned: true, scanDate: 'now()'});
+            return releaseItem({...options, itemId: id, scanned: true});
         }));
     }
     return {
