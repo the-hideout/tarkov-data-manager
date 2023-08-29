@@ -717,6 +717,8 @@ const addTraderOffers = async (options) => {
             item_id: offer.item,
             trader_id: offer.seller,
             min_level: offer.minLevel,
+            buy_limit: offer.buyLimit,
+            restock_amount: offer.restockAmount,
             last_scan: dateToMysqlFormat(new Date()),
         };
         if (options.trustTraderUnlocks) {
