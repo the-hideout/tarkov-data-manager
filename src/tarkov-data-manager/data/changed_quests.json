@@ -822,5 +822,28 @@
                 }
             ]
         }
+    },
+    "60e71c48c1bfa3050473b8e5": {
+        "name": "Crisis",
+        "objectivePropertiesChanged": {
+            "60e8658571035f300c301ac6": {
+                "count": 3
+            },
+            "60e865a60cef122b414a156a": {
+                "count": 3
+            },
+            "60e866175d67b234af3d392a": {
+                "count": 2
+            },
+            "60e866c50cef122b414a156c": {
+                "count": 3
+            },
+            "60e866f926b88043510e0adf": {
+                "count": 3
+            },
+            "60e867265d67b234af3d392c": {
+                "count": 2
+            }
+        }
     }
 }
