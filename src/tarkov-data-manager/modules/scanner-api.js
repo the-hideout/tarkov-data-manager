@@ -285,10 +285,14 @@ const getItems = async(options) => {
             conditions.push('item_data.checkout_scanner_id = ?');
         } else {
             // trader-only price checkout
+            const params = [options.scanner.id,options.scanner.id];
             let lastScanCondition = '';
             if (options.limitTraderScan) {
-                lastScanCondition = 'AND (trader_last_scan <= DATE_SUB(now(), INTERVAL 1 DAY) OR trader_last_scan IS NULL)';
+                const traderScanSession = await startTraderScan(options);
+                lastScanCondition = 'AND (trader_last_scan <= ? OR trader_last_scan IS NULL)';
+                params.push(traderScanSession.started);
             }
+            params.push(options.batchSize);
             await query(`
                 UPDATE item_data
                 SET trader_checkout_scanner_id = ?
@@ -299,7 +303,7 @@ const getItems = async(options) => {
                     NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${lastScanCondition} )
                 ORDER BY trader_last_scan, id
                 LIMIT ?
-            `, [options.scanner.id,options.scanner.id,options.batchSize]);
+            `, params);
     
             conditions.push('item_data.trader_checkout_scanner_id = ?');
         }
@@ -329,6 +333,9 @@ const getItems = async(options) => {
         `, [options.scanner.id]).then(items => {
             return items.filter(item => Boolean(item.name)).map(queryResultToBatchItem);
         });
+        if (response.data.length === 0 && options.offersFrom === 1 && options.limitTraderScan) {
+            await endTraderScan();
+        }
     } catch (error) {
         response.errors.push(String(error));
     }
@@ -411,7 +418,7 @@ const insertPrices = async (options) => {
         const values = [];
         for (let i = 0; i < playerPrices.length; i++) {
             placeholders.push('(?, ?, ?, ?)');
-            values.push(itemId, playerPrices[i].price, options.scanner.id, dateToMysqlFormat(dateTime))
+            values.push(itemId, playerPrices[i].price, options.scanner.id, 'now()')
         }
         if (skipInsert) {
             response.warnings.push(`Skipped insert of ${playerPrices.length} player prices`);
@@ -570,7 +577,7 @@ const insertPrices = async (options) => {
             }
             if (offerId) {
                 placeholders.push(`(?, ?, ?, ?)`);
-                traderValues.push(offerId, Math.ceil(tPrice.price), options.scanner.id, dateToMysqlFormat(dateTime));
+                traderValues.push(offerId, Math.ceil(tPrice.price), options.scanner.id, 'now()');
             }
         }
         if (traderValues.length > 0) {
@@ -596,7 +603,7 @@ const insertPrices = async (options) => {
     }
     try {
         if (response.errors.length < 1) {
-            await releaseItem({...options, scanned: true, scanDate: dateToMysqlFormat(dateTime)});
+            await releaseItem({...options, scanned: true, scanDate: 'now()'});
         }
     } catch (error) {
         response.errors.push(String(error));
@@ -615,7 +622,7 @@ const insertPrices = async (options) => {
 // on success, response.data is the number of items released
 const releaseItem = async (options) => {
     options = {
-        scanDate: dateToMysqlFormat(new Date()),
+        scanDate: 'now()',
         ...options,
     };
     const response = {errors: [], warnings: [], data: 0};
@@ -682,13 +689,8 @@ const startTraderScan = async (options) => {
             }
         }
     }
-    const result = await query('INSERT INTO trader_offer_scan (scanner_id) VALUES (?)', [options.scanner.id]);
-    return {
-        data: {
-            id: result.insertId,
-            started: new Date(),
-        }
-    };
+    await query('INSERT INTO trader_offer_scan (scanner_id) VALUES (?)', [options.scanner.id]);
+    return startTraderScan(options);
 };
 
 const endTraderScan = async (options) => {
@@ -711,6 +713,12 @@ const endTraderScan = async (options) => {
 
 const addTraderOffers = async (options) => {
     const dataActions = [];
+    const scannedIds = options.offers.reduce((all, current) => {
+        if (!all.includes(current.item)) {
+            all.push(current.item);
+        }
+        return all;
+    }, []);
     for (const offer of options.offers) {
         const insertValues = {
             id: offer.offerId,
@@ -719,7 +727,7 @@ const addTraderOffers = async (options) => {
             min_level: offer.minLevel,
             buy_limit: offer.buyLimit,
             restock_amount: offer.restockAmount,
-            last_scan: dateToMysqlFormat(new Date()),
+            last_scan: 'now()',//dateToMysqlFormat(new Date()),
         };
         if (options.trustTraderUnlocks) {
             insertValues.locked = offer.locked ? 1 : 0;
@@ -762,6 +770,11 @@ const addTraderOffers = async (options) => {
                 result: 'error',
                 message: error.message,
             };
+        }));
+    }
+    if (options.offersFrom === 1) {
+        await Promise.all(scannedIds.map(id => {
+            return releaseItem({...options, itemId: id, scanned: true, scanDate: 'now()'});
         }));
     }
     return {
