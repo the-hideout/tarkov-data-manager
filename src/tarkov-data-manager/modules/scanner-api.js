@@ -717,6 +717,7 @@ const addTraderOffers = async (options) => {
             item_id: offer.item,
             trader_id: offer.seller,
             min_level: offer.minLevel,
+            last_scan: dateToMysqlFormat(new Date()),
         };
         if (options.trustTraderUnlocks) {
             insertValues.locked = offer.locked ? 1 : 0;
