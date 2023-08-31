@@ -285,12 +285,12 @@ const getItems = async(options) => {
             conditions.push('item_data.checkout_scanner_id = ?');
         } else {
             // trader-only price checkout
-            const params = [options.scanner.id,options.scanner.id];
+            const params = [options.scanner.id, options.scanner.id];
             let lastScanCondition = '';
             if (options.limitTraderScan) {
                 const traderScanSession = await startTraderScan(options);
                 lastScanCondition = 'AND (trader_last_scan <= ? OR trader_last_scan IS NULL)';
-                params.push(traderScanSession.started);
+                params.push(traderScanSession.data.started);
             }
             params.push(options.batchSize);
             await query(`
