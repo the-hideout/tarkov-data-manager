@@ -675,7 +675,7 @@ const releaseItem = async (options) => {
 };
 
 const startTraderScan = async (options) => {
-    const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
+    const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL OR ended >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)');
     if (activeScan.length > 0) {
         return {
             data: {
