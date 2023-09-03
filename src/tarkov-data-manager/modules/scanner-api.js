@@ -742,8 +742,9 @@ const addTraderOffers = async (options) => {
             VALUES
                 (${Object.keys(insertValues).map(() => '?').join(', ')})
             ON DUPLICATE KEY UPDATE ${Object.keys(updateValues).map(field => `${field}=?`).join(', ')}, last_scan=now()
-        `, [...Object.values(insertValues), ...Object.values(updateValues)]).then(() => {
+        `, [...Object.values(insertValues), ...Object.values(updateValues)]).then(async () => {
             if (offer.requirements) {
+                await query(`DELETE FROM trader_offer_requirements WHERE offerid=?`, [offer.offerId]);
                 const requirementActions = [];
                 for (const req of offer.requirements) {
                     requirementActions.push(query(`
