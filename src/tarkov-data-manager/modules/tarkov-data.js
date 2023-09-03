@@ -57,9 +57,9 @@ module.exports = {
         return addManualTranslations(spt.locale(lang, download), lang);
     },
     locales: async (download = false) => {
-        const [en, ru, others] = await Promise.all([
+        const [en, others] = await Promise.all([
             addManualTranslations(tarkovChanges.locale_en(download), 'en'),
-            addManualTranslations(tarkovBot.locale('ru', download), 'ru'),
+            //addManualTranslations(tarkovBot.locale('ru', download), 'ru'),
             spt.locales(download).then(async langs => {
                 mergedLangs = {};
                 const langCodes = Object.keys(langs);
@@ -71,7 +71,6 @@ module.exports = {
         ]);
         return {
             en: en,
-            ru: ru,
             ...others
         }
     },

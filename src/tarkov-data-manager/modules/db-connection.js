@@ -48,14 +48,18 @@ const waitForConnections = () => {
 
 const query = (sql, params) => {
     return new Promise((resolve, reject) => {
-        pool.query(sql, params, (error, results) => {
-            if (error) {
-                reject(error);
-                return;
-            }
-
-            resolve(results);
-        });
+        try {
+            pool.query(sql, params, (error, results) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+    
+                resolve(results);
+            });
+        } catch (error) {
+            reject(error);
+        }
     });
 };
 

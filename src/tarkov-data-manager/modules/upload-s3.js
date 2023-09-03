@@ -227,6 +227,7 @@ async function deleteFromBucket(key) {
         Key: key,
     };
     await s3.send(new DeleteObjectCommand(params));
+    await cloudflare.purgeCache(`https://${params.Bucket}/${params.Key}`);
     removeFromLocalBucket(key);
 }
 
@@ -239,7 +240,11 @@ async function copyFile(oldName, newName) {
         CopySource: `${process.env.S3_BUCKET}/${oldName}`,
         Key: newName,
     };
+    const fileExists = await fileExistsInS3(newName);
     await s3.send((new CopyObjectCommand(params)));
+    if (fileExists) {
+        await cloudflare.purgeCache(`https://${params.Bucket}/${params.Key}`);
+    }
     addToLocalBucket(newName);
 }
 
