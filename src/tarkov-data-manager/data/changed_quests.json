@@ -807,5 +807,102 @@
                 "name": "Operation Aquarius - Part 2"
             }
         ]
+    },
+    "5bc479e586f7747f376c7da3": {
+        "name": "Tarkov Shooter - Part 2",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5bc4776586f774512d07cf05",
+                    "name": "The Tarkov Shooter - Part 1",
+                    "status": [
+                        "active",
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "60e71c48c1bfa3050473b8e5": {
+        "name": "Crisis",
+        "objectivePropertiesChanged": {
+            "60e8658571035f300c301ac6": {
+                "count": 3
+            },
+            "60e865a60cef122b414a156a": {
+                "count": 3
+            },
+            "60e866175d67b234af3d392a": {
+                "count": 2
+            },
+            "60e866c50cef122b414a156c": {
+                "count": 3
+            },
+            "60e866f926b88043510e0adf": {
+                "count": 3
+            },
+            "60e867265d67b234af3d392c": {
+                "count": 2
+            }
+        }
+    },
+    "5c0bd01e86f7747cdd799e56": {
+        "name": "Insomnia",
+        "propertiesChanged" : {
+            "traderName": "Peacekeeper",
+            "trader": "5935c25fb3acc3127c3d8cd9",
+            "taskRequirements": [
+                {
+                    "task": "61958c366726521dd96828ec",
+                    "name": "Cargo X - Part 4",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ],
+            "finishRewards": {
+                "traderStanding": [
+                    {
+                        "trader_id": "5935c25fb3acc3127c3d8cd9",
+                        "name": "Peacekeeper",
+                        "standing": 0.01
+                    }
+                ],
+                "items": [
+                    {
+                        "item": "5696686a4bdc2da3298b456a",
+                        "item_name": "Dollars",
+                        "count": 1000,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "5c0558060db834001b735271",
+                        "item_name": "GPNVG-18 Night Vision goggles",
+                        "count": 2,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "5a154d5cfcdbcb001a3b00da",
+                        "item_name": "Ops-Core FAST MT Super High Cut helmet (Black)",
+                        "count": 1,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "5a16b7e1fcdbcb00165aa6c9",
+                        "item_name": "Ops-Core FAST multi-hit ballistic face shield",
+                        "count": 2,
+                        "contains": [],
+                        "attributes": []
+                    }
+                ],
+                "offerUnlock": [],
+                "skillLevelReward": [],
+                "traderUnlock": [],
+                "craftUnlock": []
+            }
+        }
     }
 }

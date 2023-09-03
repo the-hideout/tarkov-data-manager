@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 
 const got = require('got');
-const { cache } = require('sharp');
 
 const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/';
 const sptDataPath = `${sptPath}database/`;
@@ -52,6 +51,9 @@ const downloadJson = async (fileName, path, download = false, writeFile = true) 
 };
 
 const apiRequest = async (request, searchParams) => {
+    if (!process.env.SPT_TOKEN) {
+        return Promise.reject(new Error('SPT_TOKEN not set'));
+    }
     searchParams = {
         access_token: process.env.SPT_TOKEN,
         ref: 'master',
