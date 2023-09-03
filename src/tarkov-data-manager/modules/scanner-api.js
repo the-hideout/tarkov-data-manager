@@ -743,9 +743,9 @@ const addTraderOffers = async (options) => {
         }, {});
         dataActions.push(query(`
             INSERT INTO trader_offers
-                (${Object.keys(insertValues).join(', ')}, last_scan=now())
+                (${Object.keys(insertValues).join(', ')}, last_scan)
             VALUES
-                (${Object.keys(insertValues).map(() => '?').join(', ')})
+                (${Object.keys(insertValues).map(() => '?').join(', ')}, now())
             ON DUPLICATE KEY UPDATE ${Object.keys(updateValues).map(field => `${field}=?`).join(', ')}, last_scan=now()
         `, [...Object.values(insertValues), ...Object.values(updateValues)]).then(async () => {
             if (offer.requirements) {
