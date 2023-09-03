@@ -845,5 +845,64 @@
                 "count": 2
             }
         }
+    },
+    "5c0bd01e86f7747cdd799e56": {
+        "name": "Insomnia",
+        "propertiesChanged" : {
+            "traderName": "Peacekeeper",
+            "trader": "5935c25fb3acc3127c3d8cd9",
+            "taskRequirements": [
+                {
+                    "task": "61958c366726521dd96828ec",
+                    "name": "Cargo X - Part 4",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ],
+            "finishRewards": {
+                "traderStanding": [
+                    {
+                        "trader_id": "5935c25fb3acc3127c3d8cd9",
+                        "name": "Peacekeeper",
+                        "standing": 0.01
+                    }
+                ],
+                "items": [
+                    {
+                        "item": "5696686a4bdc2da3298b456a",
+                        "item_name": "Dollars",
+                        "count": 1000,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "5c0558060db834001b735271",
+                        "item_name": "GPNVG-18 Night Vision goggles",
+                        "count": 2,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "5a154d5cfcdbcb001a3b00da",
+                        "item_name": "Ops-Core FAST MT Super High Cut helmet (Black)",
+                        "count": 1,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "5a16b7e1fcdbcb00165aa6c9",
+                        "item_name": "Ops-Core FAST multi-hit ballistic face shield",
+                        "count": 2,
+                        "contains": [],
+                        "attributes": []
+                    }
+                ],
+                "offerUnlock": [],
+                "skillLevelReward": [],
+                "traderUnlock": [],
+                "craftUnlock": []
+            }
+        }
     }
 }
