@@ -1162,6 +1162,7 @@ module.exports = {
             }
             if (resource === 'offers') {
                 if (req.method === 'POST') {
+                    options.scanner = await getScanner(options, true);
                     response = await addTraderOffers(options);
                 }
             }
