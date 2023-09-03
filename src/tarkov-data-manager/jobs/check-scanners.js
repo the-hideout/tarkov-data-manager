@@ -32,10 +32,10 @@ class CheckScansJob extends DataJob {
         const userFlags = scannerApi.getUserFlags();
         const scannerFlags = scannerApi.getScannerFlags();
         const utcOffset = new Date().getTimezoneOffset() * 60000;
-        const now = new Date();
-        const scanCutoff = (now.getTime() / 1000) - 21600 - (utcOffset / 1000);
+        const utcNow = new Date(Date.now() + utcOffset);
+        const scanCutoff = utcNow.getTime() - (1000 * 60 * 15);
         for (const scanner of scanners) {
-            if (scanner.last_scan?.getTime() / 1000 < scanCutoff) {
+            if (scanner.last_scan?.getTime() < scanCutoff) {
                 this.logger.log(`${scanner.name} hasn't worked since ${scanner.last_scan}; releasing any player batches`);
                 this.query(`
                     UPDATE
@@ -48,7 +48,7 @@ class CheckScansJob extends DataJob {
                     this.logger.error(`Error clearing player batches for ${scanner.name}: ${error.message}`);
                 });
             }
-            if (scanner.trader_last_scan?.getTime() / 1000 < scanCutoff) {
+            if (scanner.trader_last_scan?.getTime() < scanCutoff) {
                 this.logger.log(`${scanner.name} hasn't worked since ${scanner.trader_last_scan}; releasing any trader batches`);
                 this.query(`
                     UPDATE
