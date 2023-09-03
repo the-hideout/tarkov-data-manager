@@ -707,6 +707,11 @@ const endTraderScan = async (options) => {
 };
 
 const addTraderOffers = async (options) => {
+    const response = {
+        data: [],
+        warnings: [],
+        errors: [],
+    };
     const dataActions = [];
     const scannedIds = options.offers.reduce((all, current) => {
         if (!all.includes(current.item)) {
@@ -772,9 +777,8 @@ const addTraderOffers = async (options) => {
             return releaseItem({...options, itemId: id, scanned: true});
         }));
     }
-    return {
-        data: await Promise.all(dataActions),
-    }
+    response.data = await Promise.all(dataActions);
+    return response;
 };
 
 const insertTraderRestock = async (options) => {
