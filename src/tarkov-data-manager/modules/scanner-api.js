@@ -16,6 +16,15 @@ let users = {};
 let presets = [];
 let presetsTimeout = false;
 
+const dogtags = [
+    '59f32bb586f774757e1e8442',
+    '59f32c3b86f77472a31742f0',
+];
+
+const isDogtag = (id) => {
+    return dogtags.includes(id);
+};
+
 const updatePresets = () => {
     try {
         const fileContents = fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json'));
@@ -759,13 +768,23 @@ const addTraderOffers = async (options) => {
                 await query(`DELETE FROM trader_offer_requirements WHERE offer_id=?`, [offer.offerId]);
                 const requirementActions = [];
                 for (const req of offer.requirements) {
+                    let properties = null;
+                    const itemId = req.item;
+                    if (req.level || isDogtag(itemId)) {
+                        properties = {
+                            level: req.level,
+                        };
+                    }
+                    if (isDogtag(itemId) && req.side === 'Any') {
+                        itemId = 'customdogtags12345678910';
+                    }
                     requirementActions.push(query(`
                         INSERT INTO trader_offer_requirements
-                            (offer_id, requirement_item_id, count)
+                            (offer_id, requirement_item_id, count, properties)
                         VALUES
-                            (?, ?, ?)
-                        ON DUPLICATE KEY UPDATE count=?
-                    `, [offer.offerId, req.item, req.count, req.count]));
+                            (?, ?, ?, ?)
+                        ON DUPLICATE KEY UPDATE count=?, properties=?
+                    `, [offer.offerId, itemId, req.count, properties, req.count, properties]));
                 }
                 return Promise.all(requirementActions).then(() => { 
                     return { result: 'ok' };
