@@ -769,7 +769,7 @@ const addTraderOffers = async (options) => {
                 const requirementActions = [];
                 for (const req of offer.requirements) {
                     let properties = null;
-                    const itemId = req.item;
+                    let itemId = req.item;
                     if (req.level || isDogtag(itemId)) {
                         properties = {
                             level: req.level,
