@@ -771,9 +771,9 @@ const addTraderOffers = async (options) => {
                     let properties = null;
                     let itemId = req.item;
                     if (req.level || isDogtag(itemId)) {
-                        properties = {
+                        properties = JSON.stringify({
                             level: req.level,
-                        };
+                        });
                     }
                     if (isDogtag(itemId) && req.side === 'Any') {
                         itemId = 'customdogtags12345678910';
