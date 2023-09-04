@@ -529,6 +529,30 @@
                     "name": "Sniper",
                     "level": 5
                 }
+            ],
+            "offerUnlock": [
+                {
+                    "id": "5c20cc1086f7740cfb37b111",
+                    "trader_id": "5a7c2eca46aef81a7ca2145d",
+                    "trader_name": "Mechanic",
+                    "level": 3,
+                    "item": "5c127c4486f7745625356c13",
+                    "item_name": "Magazine case",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "id": "64d52503c06f9028d80ea5e31",
+                    "trader_id": "5c0647fdd443bc2504c2d371",
+                    "trader_name": "Jaeger",
+                    "level": 4,
+                    "item": "6193e590069d61205d490dd8",
+                    "item_name": "HK G28 7.62x51 marksman rifle Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
             ]
         },
         "translationKeys": [
@@ -613,6 +637,21 @@
                     ],
                     "attributes": [],
                     "base_item_id": "5aafa857e5b5b00018480968"
+                }
+            ]
+        },
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "64d52511c06f9028d80eb2842",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 4,
+                    "item": "57a0e5022459774d1673f889",
+                    "item_name": "9x39mm SP-6 gs",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
                 }
             ]
         }
@@ -740,6 +779,52 @@
                 {
                     "name": "Sniper",
                     "level": 3
+                }
+            ],
+            "offerUnlock": [
+                {
+                    "id": "5bcf268686f7746a45695b0a",
+                    "trader_id": "5c0647fdd443bc2504c2d371",
+                    "trader_name": "Jaeger",
+                    "level": 4,
+                    "item": "5bae13ded4351e44f824bf38",
+                    "item_name": "Mosin Rifle 7.62x54R ProMag Archangel OPFOR 10-round magazine",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "id": "5bcf269286f7746a472ad9f7",
+                    "trader_id": "5c0647fdd443bc2504c2d371",
+                    "trader_name": "Jaeger",
+                    "level": 4,
+                    "item": "5bae13bad4351e00320204af",
+                    "item_name": "Mosin Rifle ProMag Archangel OPFOR PRS chassis",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "id": "64d52503c06f9028d80ea57c3",
+                    "trader_id": "5c0647fdd443bc2504c2d371",
+                    "trader_name": "Jaeger",
+                    "level": 4,
+                    "item": "618ba27d9008e4636a67f61d",
+                    "item_name": "Vortex Razor HD Gen.2 1-6x24 30mm riflescope",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "id": "64d52513c06f9028d80eb54d2",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 4,
+                    "item": "5e023d48186a883be655e551",
+                    "item_name": "7.62x54mm R BS gs",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
                 }
             ]
         }
@@ -903,6 +988,89 @@
                 "traderUnlock": [],
                 "craftUnlock": []
             }
+        }
+    },
+    "5d25e2e286f77444001e2e48": {
+        "name": "The Huntsman Path - Sellout",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "64d52514c06f9028d80eb64a1",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 2,
+                    "item": "rpk166L26000000000000001",
+                    "item_name": "RPK-16 5.45x39 light machine gun 6L26",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "596b36c586f77450d6045ad2": {
+        "name": "Supplier",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "64d524ffc06f9028d80ea34a5",
+                    "trader_id": "58330581ace78e27b8b10cee",
+                    "trader_name": "Skier",
+                    "level": 1,
+                    "item": "59e7635f86f7742cbf2c1095",
+                    "item_name": "BNTI Module-3M body armor",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "id": "64d524fdc06f9028d80ea0771",
+                    "trader_id": "58330581ace78e27b8b10cee",
+                    "trader_name": "Skier",
+                    "level": 1,
+                    "item": "5a13df5286f774032f5454a0",
+                    "item_name": "Saiga-9 9x19 carbine Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "5a27b9de86f77464e5044585": {
+        "name": "The Cult - Part 1",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "64d5250bc06f9028d80eaccf2",
+                    "trader_id": "5935c25fb3acc3127c3d8cd9",
+                    "trader_name": "Peacekeeper",
+                    "level": 3,
+                    "item": "54527ac44bdc2d36668b4567",
+                    "item_name": "5.56x45mm M855A1",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "60e71bb4e456d449cd47ca75": {
+        "name": "Intimidator",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "64d52511c06f9028d80eb28a2",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 4,
+                    "item": "59e0d99486f7744a32234762",
+                    "item_name": "prapor 7.62x39mm BP gzh",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
         }
     }
 }

@@ -738,6 +738,9 @@ const addTraderOffers = async (options) => {
         if (!offer.requirements) {
             insertValues.price = offer.price;
             insertValues.currency = offer.currency;
+        } else {
+            insertValues.price = null;
+            insertValues.currency = null;
         }
         const updateValues = Object.keys(insertValues).reduce((all, current) => {
             if (current !== 'id') {
