@@ -106,11 +106,13 @@ const queryResultToBatchItem = item => {
     if (types.includes('gun')) {
         itemPresets = presets.filter(testPreset => testPreset.baseId === item.id).map(preset => {
             if (preset.default) {
-                contains = preset.containsItems.reduce((itemIds, currentItem) => {
-                    if (currentItem.item.id !== item.id) {
-                        itemIds.push(currentItem.item.id);
-                    }
-                    return itemIds;
+                contains = preset.containsItems.reduce((parts, currentItem) => {
+                    parts.push({
+                        id: currentItem.item.id,
+                        name: currentItem.item.name,
+                        count: currentItem.count,
+                    });
+                    return parts;
                 }, []);
             }
             return {
@@ -122,11 +124,13 @@ const queryResultToBatchItem = item => {
                 width: preset.width,
                 height: preset.height,
                 default: preset.default,
-                contains: preset.containsItems.reduce((itemIds, currentItem) => {
-                    if (currentItem.item.id !== item.id) {
-                        itemIds.push(currentItem.item.id);
-                    }
-                    return itemIds;
+                contains: preset.containsItems.reduce((parts, currentItem) => {
+                    parts.push({
+                        id: currentItem.item.id,
+                        name: currentItem.item.name,
+                        count: currentItem.count,
+                    });
+                    return parts;
                 }, [])
             }
         });
