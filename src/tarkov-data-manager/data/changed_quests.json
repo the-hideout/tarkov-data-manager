@@ -1072,5 +1072,23 @@
                 }
             ]
         }
+    },
+    "5a27b75b86f7742e97191958": {
+        "name": "Fishing Gear",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "64d5250cc06f9028d80eae311",
+                    "trader_id": "5935c25fb3acc3127c3d8cd9",
+                    "trader_name": "Peacekeeper",
+                    "level": 2,
+                    "item": "5ac4ad3686f774181345c3da",
+                    "item_name": "Springfield Armory M1A 7.62x51 rifle Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
     }
 }
