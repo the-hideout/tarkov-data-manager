@@ -11,10 +11,10 @@ const defaultJobs = {
     'update-maps': '4-59/10 * * * *',
     'check-scanners': '6,36 * * * *',
     'verify-wiki': '7 9 * * *',
-    'update-trader-assorts': '16 9,21 * * *',
-    'update-trader-prices': '26 9,21 * * *',
-    'check-image-links': '36 0,6,12,18 * * *',
-    'update-historical-prices': '46 * * * *',
+    'update-trader-assorts': '36 11,23 * * *',
+    'update-trader-prices': '46 11,23 * * *',
+    'check-image-links': '16 0,6,12,18 * * *',
+    'update-historical-prices': '26 * * * *',
     'update-spt-data': '56 * * * *',
 };
 // Too much memory :'(
