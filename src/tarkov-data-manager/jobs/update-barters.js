@@ -9,11 +9,12 @@ class UpdateBartersJob extends DataJob {
     }
 
     async run() {
-        [this.tasks, this.traders, this.traderAssorts, this.items, this.en] = await Promise.all([
+        [this.tasks, this.traders, this.traderAssorts, this.itemData, this.items, this.en] = await Promise.all([
             this.jobManager.jobOutput('update-quests', this),
             this.jobManager.jobOutput('update-traders', this),
             this.jobManager.jobOutput('update-trader-assorts', this, true),
             remoteData.get(),
+            tarkovData.items(),
             tarkovData.locale('en'),
         ]);
         this.dogtags = [
@@ -70,7 +71,7 @@ class UpdateBartersJob extends DataJob {
                 taskUnlock: questUnlock ? questUnlock.id : null,
                 rewardItems: [
                     {
-                        name: this.items.get(offer.item_id).name,
+                        name: this.itemData.get(offer.item_id).name,
                         item: offer.item_id,
                         count: 1,
                         attributes: [],
@@ -103,7 +104,7 @@ class UpdateBartersJob extends DataJob {
                     });
                 }
                 barter.requiredItems.push({
-                    name: this.items.get(req.requirement_item_id).name,
+                    name: this.itemData.get(req.requirement_item_id).name,
                     item: req.requirement_item_id,
                     count: req.count,
                     attributes: atts,
@@ -111,6 +112,31 @@ class UpdateBartersJob extends DataJob {
             }
             this.barters.push(barter);
         }
+
+        let ammoPacks = 0;
+        for (const barter of this.barters) {
+            const rewardItem = this.itemData.get(barter.rewardItems[0].item);
+            if (!rewardItem.types.includes('ammo-box')) {
+                continue;
+            }
+            const ammoContents = this.items[rewardItem.id]._props.StackSlots[0];
+            const count = ammoContents._max_count;
+            const roundId = ammoContents._props.filters[0].Filter[0];
+            this.barters.push({
+                ...barter,
+                id: `${barter.id}-${roundId}`,
+                rewardItems: [{
+                    name: rewardItem.name,
+                    item: roundId,
+                    baseId: roundId,
+                    count: count,
+                    attributes: []
+                }],
+            });
+            ammoPacks++;
+        }
+
+        this.logger.log(`Unpacked ${ammoPacks} ammo pack barters`);
 
         await this.cloudflarePut({Barter: this.barters});
         return this.barters;
@@ -132,7 +158,7 @@ class UpdateBartersJob extends DataJob {
                 };
             }
         }
-        this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${this.items.get(itemId).name} ${itemId}`);
+        this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${this.itemData.get(itemId).name} ${itemId}`);
         return null;
     }
 }
