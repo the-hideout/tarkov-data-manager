@@ -37,7 +37,8 @@ class UpdatePresetsJob extends DataJob {
         const defaults = {};
 
         const ignorePresets = [
-            '5a32808386f774764a3226d9'
+            '5a32808386f774764a3226d9',
+            '5a8c436686f7740f394d10b5' // Glock 17 Tac HC is duplicate of Tac 3 5a88ad7b86f77479aa7226af
         ];
         for (const presetId in presets) {
             if (ignorePresets.includes(presetId)) continue;
@@ -264,22 +265,30 @@ class UpdatePresetsJob extends DataJob {
             }, this.logger);
         }
 
+        const queries = [];
         const regnerateImages = [];
-        for (const item of Object.values(localItems)) {
+        for (const [id, item] of localItems.entries()) {
             if (!item.types.includes('preset')) {
                 continue;
             }
-            if (!this.presetsData[item.id]) {
-                this.logger.warn(`DB preset no longer present: ${item.name} ${item.id}`);
+            if (item.types.includes('disabled')) {
                 continue;
             }
-            const p = this.presetsData[item.id];
+            if (!this.presetsData[id]) {
+                this.logger.warn(`Preset ${item.name} ${id} is no longer valid; disabling`);
+                queries.push(remoteData.addType(id, 'disabled').catch(error => {
+                    this.logger.error(`Error disabling ${item.name} ${id}`);
+                    this.logger.error(error);
+                }));
+                continue;
+            }
+            const p = this.presetsData[id];
             if (item.short_name !== p.shortName || item.width !== p.width || item.height !== p.height || item.properties.backgroundColor !== p.backgroundColor) {
                 regnerateImages.push(p);
             }
         }
+
         this.logger.log('Updating presets in DB...');
-        const queries = [];
         const newPresets = [];
         for (const presetId in this.presetsData) {
             const p = this.presetsData[presetId];
