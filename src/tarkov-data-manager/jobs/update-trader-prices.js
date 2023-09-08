@@ -165,6 +165,9 @@ class UpdateTraderPricesJob extends DataJob {
             if (!latestTraderPrices[traderItem.id]) {
                 continue;
             }
+            if (this.items.get(traderItem.item_id).types.includes('disabled')) {
+                continue;
+            }
 
             let itemPrice = latestTraderPrices[traderItem.id].price;
             if (traderItem.currency !== 'RUB' && currenciesThen[traderItem.currency] && currenciesNow[traderItem.currency]) {
