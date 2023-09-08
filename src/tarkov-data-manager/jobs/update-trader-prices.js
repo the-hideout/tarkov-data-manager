@@ -165,9 +165,9 @@ class UpdateTraderPricesJob extends DataJob {
             if (!latestTraderPrices[traderItem.id]) {
                 continue;
             }
-            const item = this.items.get(traderItem.item_id);
-            if (item.types.includes('disabled')) {
-                this.logger.log(`Skipping disabled item ${item.name} ${item.id}`);
+            if (this.items.get(traderItem.item_id).types.includes('disabled')) {
+                const item = this.items.get(traderItem.item_id);
+                this.logger.warn(`Skipping disabled item ${item.name} ${item.id}`);
                 continue;
             }
 
@@ -237,19 +237,25 @@ class UpdateTraderPricesJob extends DataJob {
                 return matches;
             }, []);
             if (matchingTraderOffers.length > 0) {
-                const matchedOffer = matchingTraderOffers[0];
-                const item = await this.items.get(matchedOffer.item);
-                if (item.types.includes('preset')) {
-                    offer.id = matchedOffer.item;
-                    offer.item_name = matchedOffer.itemName;
+                for ( const matchedOffer of matchingTraderOffers) {
+                    const item = await this.items.get(matchedOffer.item);
+                    if (item.types.includes('disabled')) {
+                        this.logger.warn(`Skipping disabled item ${item.name} ${item.id}`);
+                        continue;
+                    }
+                    if (item.types.includes('preset')) {
+                        offer.id = matchedOffer.item;
+                        offer.item_name = matchedOffer.itemName;
+                    }
+                    if (item.types.includes('preset') || item.types.includes('gun')) {
+                        offer.price = Math.ceil(matchedOffer.cost[0].count);
+                        offer.priceRUB = Math.round(matchedOffer.cost[0].count * currenciesNow[currencyISO[matchedOffer.cost[0].item]]);
+                    }
+                    offer.restockAmount = matchedOffer.stock;
+                    offer.buyLimit = matchedOffer.buyLimit;
+                    offer.traderOfferId = matchedOffer.id;
+                    break;
                 }
-                if (item.types.includes('preset') || item.types.includes('gun')) {
-                    offer.price = Math.ceil(matchedOffer.cost[0].count);
-                    offer.priceRUB = Math.round(matchedOffer.cost[0].count * currenciesNow[currencyISO[matchedOffer.cost[0].item]]);
-                }
-                offer.restockAmount = matchedOffer.stock;
-                offer.buyLimit = matchedOffer.buyLimit;
-                offer.traderOfferId = matchedOffer.id;
             } else {
                 offer.traderOfferId = `${offer.id}-${offer.vendor.trader}-${offer.vendor.traderLevel}-${offer.currencyItem}`;
                 //this.logger.warn('Could not match assort for offer');
@@ -285,7 +291,7 @@ class UpdateTraderPricesJob extends DataJob {
                     return;
                 }
                 if (item.types.includes('disabled')) {
-                    this.logger.log(`Skipping disabled item ${item.name} ${item.id}`);
+                    this.logger.warn(`Skipping disabled item ${item.name} ${item.id}`);
                     return;
                 }
                 if (outputData[itemId]) {
