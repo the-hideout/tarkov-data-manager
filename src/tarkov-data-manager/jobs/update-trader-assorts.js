@@ -13,11 +13,12 @@ class UpdateTraderAssortsJob extends DataJob {
     }
 
     async run() {
-        [this.tasks, this.traders, this.presets, this.items] = await Promise.all([
+        [this.tasks, this.traders, this.presets, this.items, this.en] = await Promise.all([
             this.jobManager.jobOutput('update-quests', this),
             this.jobManager.jobOutput('update-traders', this),
             this.jobManager.jobOutput('update-presets', this, true),
             remoteData.get(),
+            tarkovData.locale('en'),
         ]);
         this.currencyId = {
             'RUB': '5449016a4bdc2d6f028b456f',
@@ -128,7 +129,7 @@ class UpdateTraderAssortsJob extends DataJob {
         }
         for (const traderId in assorts) {
             const trader = this.traders.find(t => t.id === traderId);
-            this.logger.log(`✔️ ${trader.name}: ${assorts[traderId].length} offers`);
+            this.logger.log(`✔️ ${this.en[trader.name]}: ${assorts[traderId].length} offers`);
         }
         fs.writeFileSync(path.join(__dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(assorts, null, 4));
         this.logger.success(`Successful processing of trader offers`);

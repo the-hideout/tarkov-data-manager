@@ -165,7 +165,9 @@ class UpdateTraderPricesJob extends DataJob {
             if (!latestTraderPrices[traderItem.id]) {
                 continue;
             }
-            if (this.items.get(traderItem.item_id).types.includes('disabled')) {
+            const item = this.items.get(traderItem.item_id);
+            if (item.types.includes('disabled')) {
+                this.logger.log(`Skipping disabled item ${item.name} ${item.id}`);
                 continue;
             }
 
@@ -282,6 +284,10 @@ class UpdateTraderPricesJob extends DataJob {
                 if (!item.types.includes('preset') && !item.types.includes('gun')) {
                     return;
                 }
+                if (item.types.includes('disabled')) {
+                    this.logger.log(`Skipping disabled item ${item.name} ${item.id}`);
+                    return;
+                }
                 if (outputData[itemId]) {
                     const matchedOffer = outputData[itemId].some(o => {
                         if (o.vendor.trader !== traderId) {
@@ -296,7 +302,7 @@ class UpdateTraderPricesJob extends DataJob {
                 const trader = this.traders.find(t => t.id === traderId);
                 const newOffer = {
                     id: itemId,
-                    item_name: this.items.get(itemId).name,
+                    item_name: item.name,
                     vendor: {
                         trader: traderId,
                         trader_id: traderId,
