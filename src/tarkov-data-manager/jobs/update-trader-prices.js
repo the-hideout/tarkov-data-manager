@@ -3,6 +3,34 @@ const tarkovData = require('../modules/tarkov-data');
 const remoteData = require('../modules/remote-data');
 const DataJob = require('../modules/data-job');
 
+const skipOffers = {
+    jaeger: {
+        1: [
+            '59e0d99486f7744a32234762', // Bloodhounds
+        ],
+    },
+    mechanic: {
+        1: [
+            '5656eb674bdc2d35148b457c', // Failed Setup
+            '62e7e7bbe6da9612f743f1e0', // Failed Setup
+            '6357c98711fb55120211f7e1', // Failed Setup
+            '5ede475b549eed7c6d5c18fb', // Failed Setup
+        ],
+        3: [
+            '5b07db875acfc40dc528a5f6' // AR-15 Tactical Dynamics Skeletonized pistol grip
+        ],
+    },
+    skier: {
+        1: [
+            '584148f2245977598f1ad387', // skier doesn't sell mp-133
+            '5efb0da7a29a85116f6ea05f', // Hint
+            '5b2388675acfc4771e1be0be', // Cocktail Tasting
+            '618ba27d9008e4636a67f61d', // Cocktail Tasting
+            '5b3b99475acfc432ff4dcbee', // Cocktail Tasting
+        ],
+    },
+};
+
 class UpdateTraderPricesJob extends DataJob {
     constructor() {
         super('update-trader-prices');
@@ -50,24 +78,16 @@ class UpdateTraderPricesJob extends DataJob {
         `, [lastOfferScan.started]);
         this.offerRequirements = await this.query(`SELECT * FROM trader_offer_requirements`);
         this.getCurrencyValues(offers);
-        const skipOffers = [
-            '64d52500c06f9028d80ea38c3', // leftover from cocktail tasting
-            '64d524ffc06f9028d80ea3023', // leftover from cocktail tasting
-            '64d524ffc06f9028d80ea3443', // leftover from cocktail tasting
-            '64d524fec06f9028d80ea1df1', // skier doesn't sell mp-133
-            '64d524ffc06f9028d80ea3222', // leftover from Hint
-            '64d52504c06f9028d80ea6aa2', // Bloodhounds
-            '64d52505c06f9028d80ea7a13', // AR-15 Tactical Dynamics Skeletonized pistol grip 5b07db875acfc40dc528a5f6
-            '64d52509c06f9028d80eac3d2', // Failed Setup
-            '64d52509c06f9028d80eac412', // Failed Setup
-            '64d52509c06f9028d80eac4f3', // Failed Setup
-            '64d52509c06f9028d80eac533', // Failed Setup
-        ];
         for (const offer of offers) {
             if (!offer.price) {
                 continue;
             }
-            if (skipOffers.includes(offer.id)) {
+            if (this.skipOffer(offer)) {
+                continue;
+            }
+            const item = this.items.get(offer.item_id);
+            if (item.types.includes('disabled')) {
+                this.logger.warn(`Skipping disabled item ${item.name} ${item.id}`);
                 continue;
             }
             const trader = this.traders.find(t => t.id === offer.trader_id);
@@ -75,7 +95,7 @@ class UpdateTraderPricesJob extends DataJob {
             const assort = this.traderAssorts[trader.id].find(assort => assort.id === offer.id);
             const cashPrice = {
                 id: offer.item_id,
-                item_name: this.items.get(offer.item_id).name,
+                item_name: item.name,
                 vendor: {
                     trader: trader.id,
                     trader_id: trader.id,
@@ -163,12 +183,26 @@ class UpdateTraderPricesJob extends DataJob {
                 };
             }
         }
-        this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${this.items.get(itemId).name} ${itemId}`);
+        this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${offer.min_level} ${this.items.get(itemId).name} ${itemId}`);
         return null;
     }
 
     getTraderByName = (traderName) => {
         return this.traders.find(t => this.locales.en[t.name].toLowerCase() === traderName.toLowerCase());
+    }
+
+    skipOffer = (offer) => {
+        const trader = this.traders.find(t => t.id === offer.trader_id);
+        if (!skipOffers[trader.normalizedName]) {
+            return false;
+        }
+        if (!skipOffers[trader.normalizedName][offer.min_level]) {
+            return false;
+        }
+        if (!skipOffers[trader.normalizedName][offer.min_level].includes(offer.item_id)) {
+            return false;
+        }
+        return true;
     }
 }
 

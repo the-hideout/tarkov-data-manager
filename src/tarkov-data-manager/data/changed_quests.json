@@ -1087,6 +1087,17 @@
                     "count": 1,
                     "contains": [],
                     "attributes": []
+                },
+                {
+                    "id": "64f97d0508bf3d71960c1a7a3",
+                    "trader_id": "5935c25fb3acc3127c3d8cd9",
+                    "trader_name": "Peacekeeper",
+                    "level": 2,
+                    "item": "5b3116595acfc40019476364",
+                    "item_name": "SIG Sauer ROMEO4 reflex sight",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
                 }
             ]
         }
