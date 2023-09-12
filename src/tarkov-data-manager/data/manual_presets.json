@@ -1182,5 +1182,111 @@
                 "count": 1
             }
         ]
+    },
+    {
+        "id": "ak12sd000000000000000001",
+        "appendName": "58dffd4586f77408a27629b2",
+        "baseId": "6499849fc93611967b034949",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "6499849fc93611967b034949",
+                    "name": "Kalashnikov AK-12 5.45x39 assault rifle"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "649ec107961514b22506b10c",
+                    "name": "AK-12 gas tube"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5649ae4a4bdc2d1b2b8b4588",
+                    "name": "AK Zenit RK-3 pistol grip"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "649ec127c93611967b034957",
+                    "name": "AK-12 handguard"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beecbb80db834001d2c465e",
+                    "name": "RPK-16 handguard rail"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5c5952732e2216398b5abda2",
+                    "name": "Zenit Perst-3 tactical device"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5c1bc4812e22164bef5cfde7",
+                    "name": "Zenit RK-0 tactical foregrip"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "64c196ad26a15b84aa07132f",
+                    "name": "AK-12 5.45x39 sound suppressor"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "649ec2f3961514b22506b111",
+                    "name": "AK-12 dust cover"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "609a63b6e2ff132951242d09",
+                    "name": "Valday Krechet reflex sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "649ec87d8007560a9001ab36",
+                    "name": "AK-12 buffer tube"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec8c20db834001d2c465c",
+                    "name": "AK-12 stock"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "649ec30cb013f04a700e60fb",
+                    "name": "AK-12 5.45x39 early model 30-round magazine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5648ac824bdc2ded0b8b457d",
+                    "name": "AK Zenit RP-1 charging handle"
+                },
+                "count": 1
+            }
+        ]
     }
 ]
