@@ -1603,18 +1603,22 @@ class UpdateQuestsJob extends DataJob {
             const imageId = imagePath.replace('/files/quest/icon/', '').split('.')[0];
             const extensions = ['.png', '.jpg'];
             for (const ext of extensions) {
-                const response = await fetch(`https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/images/quests/${imageId}${ext}`);
-                if (!response.ok) {
-                    continue;
+                try {
+                    const response = await fetch(`https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/images/quests/${imageId}${ext}`);
+                    if (!response.ok) {
+                        continue;
+                    }
+                    const image = sharp(await response.arrayBuffer()).webp({lossless: true});
+                    const metadata = await image.metadata();
+                    if (metadata.width <= 1 || metadata.height <= 1) {
+                        continue;
+                    }
+                    await uploadAnyImage(image, s3FileName, 'image/webp');
+                    this.logger.log(`Retrieved ${this.locales.en[`${task.id} name`]} ${task.id} image from SPT`);
+                    return s3ImageLink;
+                } catch (error) {
+                    this.logger.error(`Error fetching ${imageId}.${ext} from SPT: ${error.stack}`);
                 }
-                const image = sharp(await response.arrayBuffer()).webp({lossless: true});
-                const metadata = await image.metadata();
-                if (metadata.width <= 1 || metadata.height <= 1) {
-                    continue;
-                }
-                await uploadAnyImage(image, s3FileName, 'image/webp');
-                this.logger.log(`Retrieved ${this.locales.en[`${task.id} name`]} ${task.id} image from SPT`);
-                return s3ImageLink;
             }
         }
         if (!task.wikiLink) {
