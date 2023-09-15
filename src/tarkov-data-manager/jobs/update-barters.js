@@ -2,6 +2,37 @@ const tarkovData = require('../modules/tarkov-data');
 const remoteData = require('../modules/remote-data');
 const DataJob = require('../modules/data-job');
 
+const skipOffers = {
+    jaeger: {
+        4: [
+            {
+                reward: '5c110624d174af029e69734c', // T-7 Thermal Goggles with a Night Vision mount
+                requirements: [
+                    '5fc64ea372b0dd78d51159dc', // Cultist knife
+                ],
+            },
+            {
+                reward: '5fca138c2a7b221b2852a5c6', // xTG-12 antidote injector
+                requirements: [
+                    '6389c6c7dbfd5e4b95197e68' // Aquapeps water purification tablets
+                ],
+            }
+        ],
+    },
+    peacekeeper: {
+        1: [
+            {
+                reward: '5c110624d174af029e69734c', // T-7 Thermal Goggles with a Night Vision mount
+                requirements: [
+                    '5c0530ee86f774697952d952', // LEDX Skin Transilluminator
+                    '6389c85357baa773a825b356', // Far-forward current converter
+                    '6389c8c5dbfd5e4b95197e6b', // TerraGroup \"Blue Folders\" materials
+                ],
+            }
+        ]
+    }
+};
+
 class UpdateBartersJob extends DataJob {
     constructor() {
         super('update-barters');
@@ -47,14 +78,12 @@ class UpdateBartersJob extends DataJob {
                 last_scan >= ?
         `, [lastOfferScan.started]);
         this.offerRequirements = await this.query(`SELECT * FROM trader_offer_requirements`);
-        const skipOffers = [
-            '64d5250fc06f9028d80eb1a43', // PK doesn't give T-7 thermals
-        ];
         for (const offer of offers) {
-            if (skipOffers.includes(offer.id)) {
+            if (offer.price) {
                 continue;
             }
-            if (offer.price) {
+            const requirements = this.offerRequirements.filter(req => req.offer_id === offer.id);
+            if (this.skipOffer(offer, requirements.map(r => r.requirement_item_id))) {
                 continue;
             }
             const trader = this.traders.find(t => t.id === offer.trader_id);
@@ -94,7 +123,6 @@ class UpdateBartersJob extends DataJob {
                     stringValue: questUnlock.id,
                 });
             }
-            const requirements = this.offerRequirements.filter(req => req.offer_id === offer.id);
             for (const req of requirements) {
                 const atts = [];
                 if (this.dogtags.includes(req.requirement_item_id)) {
@@ -158,8 +186,26 @@ class UpdateBartersJob extends DataJob {
                 };
             }
         }
-        this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${this.itemData.get(itemId).name} ${itemId}`);
+        this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${offer.min_level} ${this.itemData.get(itemId).name} ${itemId}`);
         return null;
+    }
+
+    skipOffer = (offer, requirements) => {
+        const trader = this.traders.find(t => t.id === offer.trader_id);
+        if (!skipOffers[trader.normalizedName]) {
+            return false;
+        }
+        if (!skipOffers[trader.normalizedName][offer.min_level]) {
+            return false;
+        }
+        const rewardOffers = skipOffers[trader.normalizedName][offer.min_level].filter(o => o.reward === offer.item_id);
+        if (rewardOffers.length === 0) {
+            return false;
+        }
+        if (!rewardOffers.some(o => o.requirements.every(id => requirements.includes(id)))) {
+            return false;
+        }
+        return true;
     }
 }
 

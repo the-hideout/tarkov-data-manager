@@ -3,7 +3,9 @@ const path = require('path');
 
 const got = require('got');
 
-const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/';
+const discordWebhook = require('./webhook');
+
+const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/{branch}/project/assets/';
 const sptDataPath = `${sptPath}database/`;
 const sptConfigPath = `${sptPath}configs/`;
 
@@ -25,12 +27,46 @@ const sptLangs = {
     'zh': 'ch',
 }
 
+const branches = [
+    '0.13.5.0',
+    'master'
+];
+
+let branch;
+
 const cachePath = (filename) => {
     return path.join(__dirname, '..', 'cache', filename);   
 }
 
+const setBranch = async () => {
+    if (!process.env.SPT_TOKEN) {
+        return Promise.reject(new Error('SPT_TOKEN not set'));
+    }
+    searchParams = {
+        access_token: process.env.SPT_TOKEN,
+    };
+    const url = `https://dev.sp-tarkov.com/api/v1/repos/SPT-AKI/Server/branches`;
+    const response = await got(url, {
+        responseType: 'json',
+        resolveBodyOnly: true,
+        searchParams: searchParams,
+    });
+    for (const b of branches) {    
+        if (response.some(remoteBranch => remoteBranch.name === b)) {
+            branch = b;
+            break;
+        } else {
+            await discordWebhook({title: 'SPT repo branch not found', message: b});
+        }
+    }
+};
+
 const downloadJson = async (fileName, path, download = false, writeFile = true) => {
     if (download) {
+        if (!branch) {
+            await setBranch();
+        }
+        path = path.replace('{branch}', branch);
         returnValue = await got(path, {
             responseType: 'json',
             resolveBodyOnly: true,
@@ -54,9 +90,12 @@ const apiRequest = async (request, searchParams) => {
     if (!process.env.SPT_TOKEN) {
         return Promise.reject(new Error('SPT_TOKEN not set'));
     }
+    if (!branch) {
+        await setBranch();
+    }
     searchParams = {
         access_token: process.env.SPT_TOKEN,
-        ref: 'master',
+        ref: branch,
         ...searchParams
     };
     const url = `https://dev.sp-tarkov.com/api/v1/repos/SPT-AKI/Server/${request}`;

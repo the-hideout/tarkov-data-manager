@@ -44,7 +44,7 @@
                 "name": "The Survivalist Path - Zhivchik"
             }
         ],
-        "objectivesRemoved": [
+        "__objectivesRemoved": [
             "60d9d34e8a6f9a3731773f93"
         ],
         "___objectiveIdsChanged": {
@@ -62,7 +62,7 @@
             "60e827faf09904268a4dbc52": "62a6ffbcec21e50cad3b6708"
         }
     },
-    "61904daa7d0d857927447b9c": {
+    "__61904daa7d0d857927447b9c": {
         "name": "The Hermit",
         "propertiesChanged" : {
             "taskRequirements": [
@@ -78,7 +78,7 @@
         },
         "comment": "confirmed by razz 4/30/2023"
     },
-    "6179b4d1bca27a099552e04e": {
+    "__6179b4d1bca27a099552e04e": {
         "name": "Revision - Lighthouse",
         "propertiesChanged": {
             "taskRequirements": [
@@ -94,7 +94,7 @@
         },
         "comment":"confirmed by razz 5/8/2023"
     },
-    "639135f286e646067c176a87": {
+    "__639135f286e646067c176a87": {
         "name": "Revision - Streets of Tarkov",
         "propertiesChanged": {
             "taskRequirements": [
@@ -133,14 +133,14 @@
         },
         "comment":"confirmed by razz 5/8/2023"
     },
-    "60e729cf5698ee7b05057439": {
+    "__60e729cf5698ee7b05057439": {
         "name": "Swift One",
         "propertiesChanged": {
             "minPlayerLevel": 50
         },
         "comment": "per Wiki 5/8/2023"
     },
-    "5a03153686f77442d90e2171": {
+    "__5a03153686f77442d90e2171": {
         "name": "Spa Tour - Part 1",
         "propertiesChanged" : {
             "taskRequirements": [
@@ -169,7 +169,7 @@
         },
         "comment": "per Wiki 5/15/2023"
     },
-    "5d25e4ad86f77443e625e387": {
+    "__5d25e4ad86f77443e625e387": {
         "name": "Nostalgia",
         "propertiesChanged" : {
             "taskRequirements": [
@@ -196,7 +196,7 @@
             }
         ]
     },
-    "5c0bde0986f77479cf22c2f8": {
+    "__5c0bde0986f77479cf22c2f8": {
         "name": "A Shooter Born in Heaven",
         "objectivePropertiesChanged": {
             "5c0bdf2c86f7746f016734a8": {
@@ -559,7 +559,7 @@
             "64b694c8a857ea477002a408"
         ]
     },
-    "5c0bd94186f7747a727f09b2": {
+    "__5c0bd94186f7747a727f09b2": {
         "name": "Test Drive - Part 1",
         "objectivePropertiesChanged": {
             "5c1b765d86f77413193fa4f2": {
@@ -656,7 +656,7 @@
             ]
         }
     },
-    "5d25e4ca86f77409dd5cdf2c": {
+    "__5d25e4ca86f77409dd5cdf2c": {
         "name": "Hunting Trip",
         "objectivePropertiesChanged": {
             "5fd8aa3206fb3a6b8154a2c3": {
@@ -675,7 +675,7 @@
             }
         }
     },
-    "5c0be13186f7746f016734aa": {
+    "__5c0be13186f7746f016734aa": {
         "name": "Psycho Sniper",
         "objectivePropertiesChanged": {
             "5c0be2b486f7747bcb347d58": {
@@ -772,7 +772,7 @@
             "64b67fcd3e349c7dbd06bd16"
         ]
     },
-    "5bc4893c86f774626f5ebf3e": {
+    "__5bc4893c86f774626f5ebf3e": {
         "name": "Tarkov Shooter - Part 8",
         "finishRewardsChanged": {
             "skillLevelReward": [
@@ -829,7 +829,7 @@
             ]
         }
     },
-    "60e71b9bbd90872cb85440f3": {
+    "__60e71b9bbd90872cb85440f3": {
         "name": "Capturing Outposts",
         "objectivePropertiesChanged": {
             "60ec2229fd1bf4491c4e4552": {
@@ -845,7 +845,7 @@
             "prapor_27_resort"
         ]
     },
-    "5ac3464c86f7741d651d6877": {
+    "__5ac3464c86f7741d651d6877": {
         "name": "Farming - Part 4",
         "objectivePropertiesChanged": {
             "5ac5083d86f7740be2744eed": {
@@ -856,7 +856,7 @@
             }
         }
     },
-    "5dc53acb86f77469c740c893": {
+    "__5dc53acb86f77469c740c893": {
         "name": "The Stylish One",
         "objectivePropertiesChanged": {
             "5dc53fd386f77469c87589a3": {
@@ -864,13 +864,13 @@
             }
         }
     },
-    "5c0d190cd09282029f5390d8": {
+    "__5c0d190cd09282029f5390d8": {
         "name": "Grenadier",
         "propertiesChanged" : {
             "taskRequirements": []
         }
     },
-    "5b4794cb86f774598100d5d4": {
+    "__5b4794cb86f774598100d5d4": {
         "name": "Lend-Lease - Part 1",
         "propertiesChanged" : {
             "taskRequirements": [
@@ -884,7 +884,7 @@
             ]
         }
     },
-    "596a204686f774576d4c95de": {
+    "__596a204686f774576d4c95de": {
         "name": "Sanitary Standards - Part 2",
         "taskRequirementsRemoved": [
             {
@@ -893,7 +893,7 @@
             }
         ]
     },
-    "5bc479e586f7747f376c7da3": {
+    "__5bc479e586f7747f376c7da3": {
         "name": "Tarkov Shooter - Part 2",
         "propertiesChanged" : {
             "taskRequirements": [
@@ -908,7 +908,7 @@
             ]
         }
     },
-    "60e71c48c1bfa3050473b8e5": {
+    "__60e71c48c1bfa3050473b8e5": {
         "name": "Crisis",
         "objectivePropertiesChanged": {
             "60e8658571035f300c301ac6": {
@@ -931,7 +931,7 @@
             }
         }
     },
-    "5c0bd01e86f7747cdd799e56": {
+    "__5c0bd01e86f7747cdd799e56": {
         "name": "Insomnia",
         "propertiesChanged" : {
             "traderName": "Peacekeeper",
@@ -990,7 +990,7 @@
             }
         }
     },
-    "5d25e2e286f77444001e2e48": {
+    "__5d25e2e286f77444001e2e48": {
         "name": "The Huntsman Path - Sellout",
         "finishRewardsChanged": {
             "offerUnlock": [
@@ -1008,7 +1008,7 @@
             ]
         }
     },
-    "596b36c586f77450d6045ad2": {
+    "__596b36c586f77450d6045ad2": {
         "name": "Supplier",
         "finishRewardsChanged": {
             "offerUnlock": [
@@ -1037,7 +1037,7 @@
             ]
         }
     },
-    "5a27b9de86f77464e5044585": {
+    "__5a27b9de86f77464e5044585": {
         "name": "The Cult - Part 1",
         "finishRewardsChanged": {
             "offerUnlock": [
@@ -1055,7 +1055,7 @@
             ]
         }
     },
-    "60e71bb4e456d449cd47ca75": {
+    "__60e71bb4e456d449cd47ca75": {
         "name": "Intimidator",
         "finishRewardsChanged": {
             "offerUnlock": [
@@ -1073,7 +1073,7 @@
             ]
         }
     },
-    "5a27b75b86f7742e97191958": {
+    "__5a27b75b86f7742e97191958": {
         "name": "Fishing Gear",
         "finishRewardsChanged": {
             "offerUnlock": [

@@ -1699,11 +1699,12 @@ const zoneMap = {
     prapor_27_2: '5704e3c2d2720bac5b8b4567',
     prapor_27_3: '5704e554d2720bac5b8b456e', //shoreline
     prapor_27_4: '5704e554d2720bac5b8b456e',
-    prapor_27_resort: '5704e554d2720bac5b8b456e',
     prapor_hq_area_check_1: '5704e5fad2720bc05b8b4567',
     qlight_br_secure_road: '5704e4dad2720bb55b8b4567',
     qlight_pr1_heli2_kill: '5704e4dad2720bb55b8b4567',
     qlight_pc1_ucot_kill: '5704e4dad2720bb55b8b4567',
+    quest_zone_find_2st_mech: '5714dc692459777137212e12', // streets
+    quest_zone_hide_2st_mech: '5714dc692459777137212e12',
     quest_st_1_zone: '5704e554d2720bac5b8b456e',
     quest_st_4_visit: '5704e554d2720bac5b8b456e',
     quest_st_9_shopping: '5714dbc024597771384a510d',
@@ -1747,6 +1748,18 @@ const questItemLocations = {
     '591092ef86f7747bb8703422': '56f40101d2720b2a4d8b45d6',
     '5938188786f77474f723e87f': '56f40101d2720b2a4d8b45d6',
     '6398a0861c712b1e1d4dadf1': '5704e4dad2720bb55b8b4567',
+    '64e73909cd54ef0580746af3': '5714dc692459777137212e12', // streets
+    '64e74a186393886f74114a96': '5714dc692459777137212e12',
+    '64e74a1faac4cd0a7264ecd9': '5714dc692459777137212e12',
+    '64e74a274d49d23b2c39d317': '5714dc692459777137212e12',
+    '64e74a2fc2b4f829615ec332': '5714dc692459777137212e12',
+    '64e74a35aac4cd0a7264ecdb': '5714dc692459777137212e12',
+    '64e74a3d4d49d23b2c39d319': '56f40101d2720b2a4d8b45d6',
+    '64e74a44c2b4f829615ec334': '5b0fc42d86f7744a585f9105',
+    '64e74a4baac4cd0a7264ecdd': '5704e5fad2720bc05b8b4567',
+    '64e74a534d49d23b2c39d31b': '5704e554d2720bac5b8b456e',
+    '64e74a5ac2b4f829615ec336': '5714dbc024597771384a510d',
+    '64e74a64aac4cd0a7264ecdf': '5704e4dad2720bb55b8b4567',
 };
 
 const extractMap = {
