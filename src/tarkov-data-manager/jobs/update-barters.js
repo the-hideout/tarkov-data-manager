@@ -82,7 +82,23 @@ class UpdateBartersJob extends DataJob {
             if (offer.price) {
                 continue;
             }
-            const requirements = this.offerRequirements.filter(req => req.offer_id === offer.id);
+            const item = this.itemData.get(offer.item_id);
+            if (item.types.includes('disabled')) {
+                this.logger.warn(`Skipping disabled item ${item.name} ${item.id}`);
+                continue;
+            }
+            const requirements = this.offerRequirements.filter(req => req.offer_id === offer.id).filter(req => {
+                const reqItem = this.itemData.get(req.requirement_item_id);
+                if (!reqItem) {
+                    this.logger.warn(`Skipping requirement unknown item ${req.requirement_item_id}`);
+                    return false;
+                }
+                if (reqItem.types.includes('disabled')) {
+                    this.logger.warn(`Skipping requirement disabled item ${reqItem.name} ${reqItem.id}`);
+                    return false;
+                }
+                return true;
+            });
             if (this.skipOffer(offer, requirements.map(r => r.requirement_item_id))) {
                 continue;
             }
@@ -100,7 +116,7 @@ class UpdateBartersJob extends DataJob {
                 taskUnlock: questUnlock ? questUnlock.id : null,
                 rewardItems: [
                     {
-                        name: this.itemData.get(offer.item_id).name,
+                        name: item.name,
                         item: offer.item_id,
                         count: 1,
                         attributes: [],
