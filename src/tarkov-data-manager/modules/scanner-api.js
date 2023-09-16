@@ -853,7 +853,7 @@ const getJson = (options) => {
 
 const submitImage = (request, user) => {
     const response = {errors: [], warnings: [], data: []};
-    const form = formidable({
+    const form = formidable.formidable({
         multiples: true,
         uploadDir: path.join(__dirname, '..', 'cache'),
     });
@@ -868,10 +868,11 @@ const submitImage = (request, user) => {
     return new Promise(resolve => {
         const finish = (response, files) => {
             if (files) {
-                for (const key in files) {
-                    fs.rm(files[key].filepath, error => {
+                for (const key in files.file) {
+                    let file = files.file[key][0];
+                    fs.rm(file.filepath, error => {
                         if (error) {
-                            console.log(`Error deleting ${files[key].filepath}`, error);
+                            console.log(`Error deleting ${file.filepath}`, error);
                         }
                     });
                 }
@@ -884,9 +885,15 @@ const submitImage = (request, user) => {
                 response.errors.push(String(err));
                 return resolve(response);
             }
+
+            fields = {
+                id: fields.id[0],
+                type: fields.type[0],
+                overwrite: fields.overwrite ? fields.overwrite[0] : false,
+            };
     
-            // console.log(fields);
-            // console.log(files);
+            //console.log(fields);
+            //console.log(JSON.stringify(files, null, 4));
     
             const allItemData = await remoteData.get();
             const currentItemData = allItemData.get(fields.id);
@@ -906,7 +913,7 @@ const submitImage = (request, user) => {
                     }
                 }
                 try {
-                    response.data = await createAndUploadFromSource(files[fields.type].filepath, fields.id);
+                    response.data = await createAndUploadFromSource(files[fields.type][0].filepath, fields.id);
                 } catch (error) {
                     console.error(error);
                     if (Array.isArray(error)) {
@@ -936,7 +943,7 @@ const submitImage = (request, user) => {
             try {
                 response.data.push({
                     type: fields.type,
-                    purged: await uploadToS3(files[fields.type].filepath, fields.type, fields.id)
+                    purged: await uploadToS3(files[fields.type][0].filepath, fields.type, fields.id)
                 });
             } catch (error) {
                 console.error(error);
