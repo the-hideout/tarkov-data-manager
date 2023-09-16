@@ -292,13 +292,7 @@ const getFooter = (req) => {
 };
 
 app.get('/', async (req, res) => {
-    const scanners = await query('SELECT id, last_scan FROM scanner');
-    let activeScanners = 0;
-    scanners.forEach(scanner => {
-        if (new Date() - scanner.last_scan < 1000 * 60 * 5) {
-            activeScanners++;
-        } 
-    });
+    const activeScanners = await query('SELECT id FROM scanner WHERE last_scan > DATE_SUB(NOW(),INTERVAL 5 MINUTE) OR trader_last_scan > DATE_SUB(NOW(),INTERVAL 5 MINUTE)');
     const imageFields = [
         'image_8x_link',
         'image_512_link',
@@ -339,7 +333,7 @@ app.get('/', async (req, res) => {
             <div class="section col s12">
                 <h5><a href="/scanners" class="waves-effect waves-light btn"><i class="material-icons left">scanner</i>Scanners</a></h5>
                 <ul class="browser-default">
-                    <li>Active: ${activeScanners}</li>
+                    <li>Active: ${activeScanners.length}</li>
                 </ul>
             </div>
             <div class="divider col s12"></div>
