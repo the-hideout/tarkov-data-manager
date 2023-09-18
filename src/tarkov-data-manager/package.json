@@ -40,7 +40,7 @@
     "node-schedule": "^2.1.1",
     "nodemon": "^3.0.1",
     "sharp": "0.32.5",
-    "tarkov-dev-image-generator": "^2.1.22",
+    "tarkov-dev-image-generator": "^2.1.28",
     "unidecode": "^0.1.8"
   }
 }
