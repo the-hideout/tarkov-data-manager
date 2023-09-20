@@ -1173,7 +1173,7 @@ module.exports = {
             }
         }
         if (resource === 'submit-data') {
-            if (user.flags && userFlags.submitData) {
+            if (user.flags & userFlags.submitData) {
                 response = submitData(req.body);
             } else {
                 return res.json({errors: ['You are not authorized to perform that action'], warnings: [], data: {}});
