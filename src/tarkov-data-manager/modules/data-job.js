@@ -6,7 +6,10 @@ const { query, jobComplete } = require('../modules/db-connection');
 const JobLogger = require('./job-logger');
 const { alert } = require('./webhook');
 const tarkovData = require('./tarkov-data');
-const { error } = require('console');
+
+const verbose = false;
+
+const activeJobs = new Set();
 
 class DataJob {
     constructor(options) {
@@ -55,6 +58,7 @@ class DataJob {
         this.startDate = new Date();
         this.kvData = {};
         this.locales = await tarkovData.locales();
+        this.translationKeyMap = {};
         this.translationKeys = new Set();
         if (options && options.parent) {
             this.logger.parentLogger = options.parent.logger;
@@ -80,10 +84,31 @@ class DataJob {
         let returnValue;
         let throwError = false;
         try {
+            if (verbose) {
+                activeJobs.add(this.name);
+                alert({
+                    title: `Starting ${this.name} job`,
+                    message: `Running jobs: ${[...activeJobs].join(', ')}`,
+                });
+            }
             this.running = this.run(options);
             returnValue = await this.running;
+            if (verbose) {
+                activeJobs.delete(this.name);
+                alert({
+                    title: `Finished ${this.name} job`,
+                    message: `Running jobs: ${[...activeJobs].join(', ')}`,
+                });
+            }
         } catch (error) {
             if (this.parent) {
+                if (verbose) {
+                    activeJobs.delete(this.name);
+                    alert({
+                        title: `Error running ${this.name} job as child of ${this.parent.name}`,
+                        message: `Running jobs: ${[...activeJobs].join(', ')}`,
+                    });
+                }
                 throwError = error;
             } else {
                 this.logger.error(error);
@@ -138,12 +163,14 @@ class DataJob {
         if (typeof data !== 'string') {
             data = JSON.stringify(data);
         }
+        const uploadStart = new Date();
         const response = await cloudflare.put(kvName, data).catch(error => {
             this.logger.error(error);
             return {success: false, errors: [], messages: []};
         });
+        const uploadTime = new Date() - uploadStart;
         if (response.success) {
-            this.logger.success(`Successful Cloudflare put of ${kvName}`);
+            this.logger.success(`Successful Cloudflare put of ${kvName} in ${uploadTime} ms`);
             stellate.purge(kvName, this.logger);
         } else {
             const errorMessages = [];
@@ -208,10 +235,28 @@ class DataJob {
             }
             return key;
         }
-        if (langCode && typeof value !== 'undefined') {
-            this.kvData.locale[langCode][key] = value;
+        if (langCode) {
+            if (typeof value !== 'undefined') {
+                this.kvData.locale[langCode][key] = value;
+            } else {
+                throw new Error(`Cannot assign undefined value to ${langCode} ${key}`);
+            }
         } else {
-            this.translationKeys.add(key);
+            if (typeof this.locales.en[key] !== 'undefined') {
+                this.translationKeys.add(key);
+            } else if (!this.translationKeyMap[key]) {
+                for (const dictKey in this.locales.en) {
+                    if (dictKey.toLowerCase() === key.toLowerCase()) {
+                        this.translationKeyMap[key] = dictKey;
+                        this.logger.warn(`Translation key substition for ${key}: ${dictKey}`);
+                        //return dictKey;
+                    }
+                }
+                if (!this.translationKeyMap[key]) {
+                    this.logger.warn(`Translation key not found: ${key}`);
+                }
+                this.translationKeys.add(key);
+            }
         }
         return key;
     }
@@ -231,17 +276,18 @@ class DataJob {
                 if (target.locale[langCode][key]) {
                     continue;
                 }
-                target.locale[langCode][key] = this.locales[langCode][key];
-                if (typeof target.locale[langCode][key] === 'undefined') {
+                const usedKey = this.translationKeyMap[key] ? this.translationKeyMap[key] : key;
+                target.locale[langCode][key] = this.locales[langCode][usedKey];
+                /*if (typeof target.locale[langCode][key] === 'undefined') {
                     for (const dictKey in this.locales[langCode]) {
                         if (dictKey.toLowerCase() === key.toLowerCase()) {
                             target.locale[langCode][key] = this.locales[langCode][dictKey];
                             break;
                         }
                     }
-                }
+                }*/
                 if (typeof target.locale[langCode][key] === 'undefined' && langCode === 'en') {
-                    this.logger.error(`Missing translation for ${key}`);
+                    return Promise.reject(new Error(`Missing translation for ${key}`));
                 }
             }
         }

@@ -241,6 +241,98 @@
         ]
     },
     {
+        "id": "rpk166L26000000000000001",
+        "appendName": "55d481904bdc2d8c2f8b456a ShortName",
+        "baseId": "5beed0f50db834001c062b12",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "5beed0f50db834001c062b12",
+                    "name": "RPK-16 5.45x39 light machine gun"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec8ea0db834001a6f9dbf",
+                    "name": "AK-12 pistol grip"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec91a0db834001961942d",
+                    "name": "RPK-16 dust cover"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec9450db83400970084fd",
+                    "name": "RPK-16 rear sight base"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5bf3f59f0db834001a6fa060",
+                    "name": "RPK-16 rear sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec8b20db834001961942a",
+                    "name": "RPK-16 buffer tube"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec8c20db834001d2c465c",
+                    "name": "AK-12 stock"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec3e30db8340019619424",
+                    "name": "RPK-16 handguard"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beecbb80db834001d2c465e",
+                    "name": "RPK-16 handguard rail"
+                },
+                "count": 2
+            },
+            {
+                "item": {
+                    "id": "5beec2820db834001b095426",
+                    "name": "RPK-16 5.45x39 22 inch barrel"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec3420db834001b095429",
+                    "name": "RPK-16 5.45x39 muzzle brake-compensator"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "55d481904bdc2d8c2f8b456a",
+                    "name": "AK-74 5.45x39 6L26 45-round magazine"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
         "id": "ash12silenced00000000001",
         "appendName": "58dffd4586f77408a27629b2",
         "baseId": "5cadfbf7ae92152ac412eeef",
@@ -1022,6 +1114,303 @@
                 "item": {
                     "id": "5a1eaa87fcdbcb001865f75e",
                     "name": "Trijicon REAP-IR thermal scope"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "ak12sd000000000000000001",
+        "appendName": "58dffd4586f77408a27629b2",
+        "baseId": "6499849fc93611967b034949",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "6499849fc93611967b034949",
+                    "name": "Kalashnikov AK-12 5.45x39 assault rifle"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "649ec107961514b22506b10c",
+                    "name": "AK-12 gas tube"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5649ae4a4bdc2d1b2b8b4588",
+                    "name": "AK Zenit RK-3 pistol grip"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "649ec127c93611967b034957",
+                    "name": "AK-12 handguard"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beecbb80db834001d2c465e",
+                    "name": "RPK-16 handguard rail"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5c5952732e2216398b5abda2",
+                    "name": "Zenit Perst-3 tactical device"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5c1bc4812e22164bef5cfde7",
+                    "name": "Zenit RK-0 tactical foregrip"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "64c196ad26a15b84aa07132f",
+                    "name": "AK-12 5.45x39 sound suppressor"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "649ec2f3961514b22506b111",
+                    "name": "AK-12 dust cover"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "609a63b6e2ff132951242d09",
+                    "name": "Valday Krechet reflex sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "649ec87d8007560a9001ab36",
+                    "name": "AK-12 buffer tube"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5beec8c20db834001d2c465c",
+                    "name": "AK-12 stock"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "649ec30cb013f04a700e60fb",
+                    "name": "AK-12 5.45x39 early model 30-round magazine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5648ac824bdc2ded0b8b457d",
+                    "name": "AK Zenit RP-1 charging handle"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "m1ahybrid46archangel0001",
+        "appendName": "59bffbb386f77435b379b9c2 ShortName",
+        "baseId": "5aafa857e5b5b00018480968",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "5aafa857e5b5b00018480968",
+                    "name": "Springfield Armory M1A 7.62x51 rifle"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5aaf8a0be5b5b00015693243",
+                    "name": "M1A 7.62x51 20-round magazine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5a608bf24f39f98ffc77720e",
+                    "name": "7.62x51mm M62 Tracer"
+                },
+                "count": 20
+            },
+            {
+                "item": {
+                    "id": "5addbf175acfc408fb13965b",
+                    "name": "M1A ProMag Archangel chassis"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5addbfbb5acfc400194dbcf7",
+                    "name": "M14 UltiMAK M8 Forward Optic mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5649a2464bdc2d91118b45a8",
+                    "name": "NcSTAR MPR45 Backup mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "58d2664f86f7747fec5834f6",
+                    "name": "DeltaPoint Cross Slot Mount base"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "58d268fc86f774111273f8c2",
+                    "name": "Leupold DeltaPoint Reflex Sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "626becf9582c3e319310b837",
+                    "name": "Insight WMX200 tactical flashlight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5addbac75acfc400194dbc56",
+                    "name": "M1A 7.62x51 22 inch barrel"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "59bffc1f86f77435b128b872",
+                    "name": "SilencerCo Hybrid 46 Direct Thread Mount adapter"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "59bffbb386f77435b379b9c2",
+                    "name": "SilencerCo Hybrid 46 multi-caliber sound suppressor"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5abcbb20d8ce87001773e258",
+                    "name": "M14 SA Enlarged Military Aperture rear sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5addbfef5acfc400185c2857",
+                    "name": "M14 Leapers UTG 4-Point Locking Deluxe mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "57c69dd424597774c03b7bbc",
+                    "name": "Lobaev Arms 30mm scope mount"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "617151c1d92c473c770214ab",
+                    "name": "Schmidt & Bender PM II 1-8x24 30mm riflescope"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "vepruntersvd000000000001",
+        "appendName": "5c88f24b2e22160bc12c69a6 ShortName",
+        "baseId": "5c501a4d2e221602b412b540",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "5c501a4d2e221602b412b540",
+                    "name": "Molot VPO-101 \"Vepr-Hunter\" 7.62x51 carbine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5c5039be2e221602b177c9ff",
+                    "name": "VPO-101 \"Vepr-Hunter\" gas tube"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5f63405df5750b524b45f114",
+                    "name": "VPO-101 \"Vepr-Hunter\" SVD-style stock"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5c503d0a2e221602b542b7ef",
+                    "name": "VPO-101 \"Vepr-Hunter\" dust cover"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5c503ad32e2216398b5aada2",
+                    "name": "VPO-101 \"Vepr-Hunter\" 7.62x51 10-round magazine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5c82342f2e221644f31c060e",
+                    "name": "BelOMO PSO-1 4x24 scope"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "57f3a5ae2459772b0e0bf19e",
+                    "name": "PSO scope eyecup"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5f63407e1b231926f2329f15",
+                    "name": "VPO-101 \"Vepr-Hunter\" Rotor 43 7.62x51 muzzle brake-compensator"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5c503b1c2e221602b21d6e9d",
+                    "name": "VPO-101 \"Vepr-Hunter\" rear sight"
                 },
                 "count": 1
             }

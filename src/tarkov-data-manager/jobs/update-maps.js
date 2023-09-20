@@ -15,9 +15,10 @@ class UpdateMapsJob extends DataJob {
 
     run = async () => {
         this.logger.log('Getting maps data...');
-        [this.items, this.presets] = await Promise.all([
+        [this.items, this.presets, this.botInfo] = await Promise.all([
             remoteData.get(),
             this.jobManager.jobOutput('update-presets', this, true),
+            tarkovData.botsInfo(false),
         ]);
         this.mapRotationData = JSON.parse(fs.readFileSync('./data/map_coordinates.json'));
         this.bossLoadouts = {};
@@ -32,6 +33,7 @@ class UpdateMapsJob extends DataJob {
                 this.logger.log(`❌ ${this.locales.en[`${id} Name`] || ''} ${id}`);
                 continue;
             }
+            this.logger.log(`✔️ ${this.locales.en[`${id} Name`]} ${id}`);
             const mapData = {
                 id: id,
                 tarkovDataId: null,
@@ -84,6 +86,7 @@ class UpdateMapsJob extends DataJob {
                 }
             }
             for (const spawn of map.BossLocationSpawn) {
+                const newBoss = !enemySet.has(spawn.BossName);
                 enemySet.add(spawn.BossName);
                 const bossData = {
                     id: spawn.BossName,
@@ -95,9 +98,12 @@ class UpdateMapsJob extends DataJob {
                     spawnTimeRandom: spawn.RandomTimeSpawn,
                     spawnTrigger: null,
                 };
-                await this.getBossInfo(spawn.BossName);
+                const bossInfo = await this.getBossInfo(spawn.BossName);
                 if (bossData.spawnChance === 0) {
                     continue;
+                }
+                if (newBoss) {
+                    this.logger.log(` - ${bossInfo.name}`);
                 }
                 const locationCount = {};
                 const spawnKeys = spawn.BossZone.split(',');
@@ -149,21 +155,29 @@ class UpdateMapsJob extends DataJob {
                 }
                 if (spawn.BossEscortAmount !== '0') {
                     let enemyData = await this.getBossInfo(spawn.BossEscortType);
+                    const newMob = !enemySet.has(enemyData.id);
                     enemySet.add(enemyData.id);
                     bossData.escorts.push({
                         id: enemyData.id,
                         amount: getChances(spawn.BossEscortAmount, 'count', true), 
                     });
+                    if (newMob) {
+                        this.logger.log(` - ${enemyData.name}`);
+                    }
                 }
                 if (spawn.Supports) {
                     for (const support of spawn.Supports) {
                         if (support.BossEscortAmount === '0') continue;
                         let enemyData = await this.getBossInfo(support.BossEscortType);
+                        const newMob = !enemySet.has(enemyData.id);
                         enemySet.add(enemyData.id);
                         bossData.escorts.push({
                             id: enemyData.id,
                             amount: getChances(support.BossEscortAmount, 'count', true), 
                         });
+                        if (newMob) {
+                            this.logger.log(` - ${enemyData.name}`);
+                        }
                     }
                 }
 
@@ -188,7 +202,6 @@ class UpdateMapsJob extends DataJob {
             mapData.description = this.addTranslation(`${id} Description`),
             mapData.normalizedName = normalizeName(this.kvData.locale.en[mapData.name]);
             this.kvData.Map.push(mapData);
-            this.logger.log(`✔️ ${this.kvData.locale.en[mapData.name]} ${id}`);
         }
 
         await Promise.allSettled(this.kvData.Map.map(mapData => {
@@ -214,7 +227,7 @@ class UpdateMapsJob extends DataJob {
         this.kvData.MobInfo = this.processedBosses;
         this.logger.log(`Processed ${Object.keys(this.kvData.MobInfo).length} mobs`);
         for (const mob of Object.values(this.kvData.MobInfo)) {
-            this.logger.log(`✔️ ${this.kvData.locale.en[mob.name]}`);
+            //this.logger.log(`✔️ ${this.kvData.locale.en[mob.name]}`);
         }
 
         await this.cloudflarePut();
@@ -353,16 +366,7 @@ class UpdateMapsJob extends DataJob {
                 }
             }
         }
-        if (!this.bossLoadouts[bossKey]) {
-            this.bossLoadouts[bossKey] = await tarkovData.botInfo(bossKey, true).catch(error => {
-                this.logger.error(`Error getting ${bossKey} boss info: ${error.message}`);
-                return tarkovData.botInfo(bossKey, false).catch(err => {
-                    this.logger.error`Error reading local ${bossKey} boss info: ${err.messsage}`;
-                    return false;
-                });
-            });
-        }
-        const bossExtraData = this.bossLoadouts[bossKey];
+        const bossExtraData = this.botInfo[bossKey.toLowerCase()];
         if (!bossExtraData) {
             this.processedBosses[bossKey] = bossInfo;
             return bossInfo;
@@ -370,7 +374,7 @@ class UpdateMapsJob extends DataJob {
         bossInfo.health = Object.keys(bossExtraData.health.BodyParts[0]).map(bodyPart => {
             return {
                 id: bodyPart,
-                bodyPart: this.addTranslation(bodyPart),
+                bodyPart: this.addTranslation(`QuestCondition/Elimination/Kill/BodyPart/${bodyPart}`),
                 max: bossExtraData.health.BodyParts[0][bodyPart].max,
             };
         });

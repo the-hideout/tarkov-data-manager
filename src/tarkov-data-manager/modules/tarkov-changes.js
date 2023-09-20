@@ -4,6 +4,9 @@ const path = require('path');
 const got = require('got');
 
 const jsonRequest = async (path) => {
+    if (!process.env.TC_URL || !process.env.TC_USERNAME || !process.env.TC_PASSWORD) {
+        return Promise.reject(new Error('TC_URL, TC_USERNAME, or TC_PASSWORD not set'));
+    }
     const response = await got(process.env.TC_URL+path, {
         method: 'POST',
         username: process.env.TC_USERNAME,

@@ -192,10 +192,25 @@ const removeFromLocalBucket = filename => {
 };
 
 async function addFileToBucket(localFilePath, fileName) {
+    let contentType;
+    const contentTypes = {
+        gif: 'image/gif',
+        jpg: 'image/jpeg',
+        json: 'application/json',
+        png: 'image/png',
+        svg: 'image/svg+xml',
+        webp: 'image/webp',
+    };
+    for (const extension in contentTypes) {
+        if (fileName.endsWith(extension)) {
+            contentType = contentTypes[extension];
+            break;
+        }
+    }
     const uploadParams = {
         Bucket: process.env.S3_BUCKET,
         Key: fileName,
-        //ContentType: typeInfo.contentType,
+        ContentType: contentType,
         Body: fs.readFileSync(localFilePath)
     };
     const fileExists = await fileExistsInS3(fileName);
@@ -212,6 +227,7 @@ async function deleteFromBucket(key) {
         Key: key,
     };
     await s3.send(new DeleteObjectCommand(params));
+    await cloudflare.purgeCache(`https://${params.Bucket}/${params.Key}`);
     removeFromLocalBucket(key);
 }
 
@@ -224,7 +240,11 @@ async function copyFile(oldName, newName) {
         CopySource: `${process.env.S3_BUCKET}/${oldName}`,
         Key: newName,
     };
+    const fileExists = await fileExistsInS3(newName);
     await s3.send((new CopyObjectCommand(params)));
+    if (fileExists) {
+        await cloudflare.purgeCache(`https://${params.Bucket}/${params.Key}`);
+    }
     addToLocalBucket(newName);
 }
 

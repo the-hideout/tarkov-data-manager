@@ -3,7 +3,9 @@ const path = require('path');
 
 const got = require('got');
 
-const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/';
+const discordWebhook = require('./webhook');
+
+const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/{branch}/project/assets/';
 const sptDataPath = `${sptPath}database/`;
 const sptConfigPath = `${sptPath}configs/`;
 
@@ -25,12 +27,46 @@ const sptLangs = {
     'zh': 'ch',
 }
 
+const branches = [
+    '0.13.5.0',
+    'master'
+];
+
+let branch;
+
 const cachePath = (filename) => {
     return path.join(__dirname, '..', 'cache', filename);   
 }
 
+const setBranch = async () => {
+    if (!process.env.SPT_TOKEN) {
+        return Promise.reject(new Error('SPT_TOKEN not set'));
+    }
+    searchParams = {
+        access_token: process.env.SPT_TOKEN,
+    };
+    const url = `https://dev.sp-tarkov.com/api/v1/repos/SPT-AKI/Server/branches`;
+    const response = await got(url, {
+        responseType: 'json',
+        resolveBodyOnly: true,
+        searchParams: searchParams,
+    });
+    for (const b of branches) {    
+        if (response.some(remoteBranch => remoteBranch.name === b)) {
+            branch = b;
+            break;
+        } else {
+            await discordWebhook({title: 'SPT repo branch not found', message: b});
+        }
+    }
+};
+
 const downloadJson = async (fileName, path, download = false, writeFile = true, saveElement = false) => {
     if (download) {
+        if (!branch) {
+            await setBranch();
+        }
+        path = path.replace('{branch}', branch);
         let returnValue = await got(path, {
             responseType: 'json',
             resolveBodyOnly: true,
@@ -51,6 +87,26 @@ const downloadJson = async (fileName, path, download = false, writeFile = true, 
         }
         return Promise.reject(error);
     }
+};
+
+const apiRequest = async (request, searchParams) => {
+    if (!process.env.SPT_TOKEN) {
+        return Promise.reject(new Error('SPT_TOKEN not set'));
+    }
+    if (!branch) {
+        await setBranch();
+    }
+    searchParams = {
+        access_token: process.env.SPT_TOKEN,
+        ref: branch,
+        ...searchParams
+    };
+    const url = `https://dev.sp-tarkov.com/api/v1/repos/SPT-AKI/Server/${request}`;
+    return got(url, {
+        responseType: 'json',
+        resolveBodyOnly: true,
+        searchParams: searchParams,
+    });
 };
 
 const getLocale = async (locale, download) => {
@@ -94,9 +150,38 @@ module.exports = {
     mapLoot: (mapNameId, download = true) => {
         return downloadJson(`${mapNameId.toLowerCase()}_loot.json`, `${sptPath}locations/${mapNameId.toLowerCase()}/looseLoot.json`, download, true, 'spawnpointsForced');
     },
-    botInfo: (botKey, download = true) => {
+    botInfo: async (botKey, download = true) => {
         botKey = botKey.toLowerCase();
-        return downloadJson(`${botKey}.json`, `${sptDataPath}bots/types/${botKey}.json`, download);
+        //return downloadJson(`${botKey}.json`, `${sptDataPath}bots/types/${botKey}.json`, download);
+        return await module.exports.botsInfo(download)[botKey.toLowerCase()];
+    },
+    botsInfo: async (download = true) => {
+        let botIndex = {};
+        const botData = {};
+        if (!fs.existsSync(cachePath('bots_index.json')) || download) {
+            const botFiles = await apiRequest('contents/project/assets/database/bots/types');
+            const exclude = [
+                'bear',
+                'test',
+                'usec',
+            ];
+            for (fileData of botFiles) {
+                if (exclude.some(ex => `${ex}.json` === fileData.name)) {
+                    continue;
+                }
+                botIndex[fileData.name] = fileData.download_url;
+            }
+            fs.writeFileSync(cachePath('bots_index.json'), JSON.stringify(botIndex, null, 4));
+        } else {
+            botIndex = JSON.parse(fs.readFileSync(cachePath('bots_index.json')));
+        }
+        for (const filename in botIndex) {
+            botData[filename.replace('.json', '')] = downloadJson(filename, botIndex[filename], download);
+        }
+        for (botKey in botData) {
+            botData[botKey] = await botData[botKey];
+        }
+        return botData;
     },
     traderAssorts: async (traderId, download) => {
         return downloadJson(`${traderId}_assort.json`, `${sptDataPath}traders/${traderId}/assort.json`, download).catch(error => {

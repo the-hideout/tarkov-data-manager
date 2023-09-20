@@ -16,6 +16,15 @@ let users = {};
 let presets = [];
 let presetsTimeout = false;
 
+const dogtags = [
+    '59f32bb586f774757e1e8442',
+    '59f32c3b86f77472a31742f0',
+];
+
+const isDogtag = (id) => {
+    return dogtags.includes(id);
+};
+
 const updatePresets = () => {
     try {
         const fileContents = fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json'));
@@ -106,11 +115,13 @@ const queryResultToBatchItem = item => {
     if (types.includes('gun')) {
         itemPresets = presets.filter(testPreset => testPreset.baseId === item.id).map(preset => {
             if (preset.default) {
-                contains = preset.containsItems.reduce((itemIds, currentItem) => {
-                    if (currentItem.item.id !== item.id) {
-                        itemIds.push(currentItem.item.id);
-                    }
-                    return itemIds;
+                contains = preset.containsItems.reduce((parts, currentItem) => {
+                    parts.push({
+                        id: currentItem.item.id,
+                        name: currentItem.item.name,
+                        count: currentItem.count,
+                    });
+                    return parts;
                 }, []);
             }
             return {
@@ -122,11 +133,13 @@ const queryResultToBatchItem = item => {
                 width: preset.width,
                 height: preset.height,
                 default: preset.default,
-                contains: preset.containsItems.reduce((itemIds, currentItem) => {
-                    if (currentItem.item.id !== item.id) {
-                        itemIds.push(currentItem.item.id);
-                    }
-                    return itemIds;
+                contains: preset.containsItems.reduce((parts, currentItem) => {
+                    parts.push({
+                        id: currentItem.item.id,
+                        name: currentItem.item.name,
+                        count: currentItem.count,
+                    });
+                    return parts;
                 }, [])
             }
         });
@@ -285,10 +298,14 @@ const getItems = async(options) => {
             conditions.push('item_data.checkout_scanner_id = ?');
         } else {
             // trader-only price checkout
+            const params = [options.scanner.id, options.scanner.id];
             let lastScanCondition = '';
             if (options.limitTraderScan) {
-                lastScanCondition = 'AND (trader_last_scan <= DATE_SUB(now(), INTERVAL 1 DAY) OR trader_last_scan IS NULL)';
+                const traderScanSession = await startTraderScan(options);
+                lastScanCondition = 'AND (trader_last_scan <= ? OR trader_last_scan IS NULL)';
+                params.push(traderScanSession.data.started);
             }
+            params.push(options.batchSize);
             await query(`
                 UPDATE item_data
                 SET trader_checkout_scanner_id = ?
@@ -299,7 +316,7 @@ const getItems = async(options) => {
                     NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${lastScanCondition} )
                 ORDER BY trader_last_scan, id
                 LIMIT ?
-            `, [options.scanner.id,options.scanner.id,options.batchSize]);
+            `, params);
     
             conditions.push('item_data.trader_checkout_scanner_id = ?');
         }
@@ -329,6 +346,9 @@ const getItems = async(options) => {
         `, [options.scanner.id]).then(items => {
             return items.filter(item => Boolean(item.name)).map(queryResultToBatchItem);
         });
+        if (response.data.length === 0 && options.offersFrom === 1 && options.limitTraderScan) {
+            await endTraderScan();
+        }
     } catch (error) {
         response.errors.push(String(error));
     }
@@ -370,7 +390,7 @@ const getItems = async(options) => {
 quest and minLevel are only used for trader prices.
 If the trader price is locked and neither of these values is known, they should be null
 */
-insertPrices = async (options) => {
+const insertPrices = async (options) => {
     const user = options.user;
     let scanFlags = options.scanner.flags;
     const skipInsert = userFlags.skipPriceInsert & user.flags || scannerFlags.skipPriceInsert & scanFlags;
@@ -410,8 +430,8 @@ insertPrices = async (options) => {
         const placeholders = [];
         const values = [];
         for (let i = 0; i < playerPrices.length; i++) {
-            placeholders.push('(?, ?, ?, ?)');
-            values.push(itemId, playerPrices[i].price, options.scanner.id, dateToMysqlFormat(dateTime))
+            placeholders.push('(?, ?, ?, now())');
+            values.push(itemId, playerPrices[i].price, options.scanner.id);
         }
         if (skipInsert) {
             response.warnings.push(`Skipped insert of ${playerPrices.length} player prices`);
@@ -569,8 +589,8 @@ insertPrices = async (options) => {
                 }
             }
             if (offerId) {
-                placeholders.push(`(?, ?, ?, ?)`);
-                traderValues.push(offerId, tPrice.price, options.scanner.id, dateToMysqlFormat(dateTime));
+                placeholders.push(`(?, ?, ?, now())`);
+                traderValues.push(offerId, Math.ceil(tPrice.price), options.scanner.id);
             }
         }
         if (traderValues.length > 0) {
@@ -596,7 +616,7 @@ insertPrices = async (options) => {
     }
     try {
         if (response.errors.length < 1) {
-            await releaseItem({...options, scanned: true, scanDate: dateToMysqlFormat(dateTime)});
+            await releaseItem({...options, scanned: true});
         }
     } catch (error) {
         response.errors.push(String(error));
@@ -614,10 +634,6 @@ insertPrices = async (options) => {
 //To release all items, include the attribtue offersFrom
 // on success, response.data is the number of items released
 const releaseItem = async (options) => {
-    options = {
-        scanDate: dateToMysqlFormat(new Date()),
-        ...options,
-    };
     const response = {errors: [], warnings: [], data: 0};
     if (options.imageOnly) {
         return response;
@@ -634,8 +650,7 @@ const releaseItem = async (options) => {
         trader = 'trader_'
     }
     if (itemScanned && itemId && !skipInsert) {
-        scanned = `, ${trader}last_scan = ?`;
-        escapedValues.push(options.scanDate);
+        scanned = `, ${trader}last_scan = now()`;
         if (options.offerCount) {
             scanned += `, last_offer_count = ?`;
             escapedValues.push(options.offerCount);
@@ -659,9 +674,9 @@ const releaseItem = async (options) => {
             if (setLastScan) {
                 query(`
                     UPDATE scanner
-                    SET ${trader}last_scan = ?
+                    SET ${trader}last_scan = now()
                     WHERE id = ?
-                `, [options.scanDate, options.scanner.id]);
+                `, [options.scanner.id]);
             }
             return result;
         });
@@ -669,6 +684,126 @@ const releaseItem = async (options) => {
     } catch (error) {
         response.errors.push(String(error));
     }
+    return response;
+};
+
+const startTraderScan = async (options) => {
+    const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL OR ended >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)');
+    if (activeScan.length > 0) {
+        return {
+            data: {
+                id: activeScan[0].id,
+                started: activeScan[0].started,
+            }
+        }
+    }
+    await query('INSERT INTO trader_offer_scan (scanner_id) VALUES (?)', [options.scanner.id]);
+    return startTraderScan(options);
+};
+
+const endTraderScan = async (options) => {
+    const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
+    if (activeScan.length < 1) {
+        return {
+            data: 'no active trader scan',
+        };
+    }
+    const stopResult = await query('UPDATE trader_offer_scan SET ended=now() WHERE id=?', [activeScan[0].id]);
+    if (stopResult.affectedRows < 1) {
+        return {
+            data: 'unable to update active trader scan',
+        }
+    }
+    return {
+        data: 'Trader scan ended',
+    }
+};
+
+const addTraderOffers = async (options) => {
+    const response = {
+        data: [],
+        warnings: [],
+        errors: [],
+    };
+    const dataActions = [];
+    const scannedIds = options.offers.reduce((all, current) => {
+        if (!all.includes(current.item)) {
+            all.push(current.item);
+        }
+        return all;
+    }, []);
+    for (const offer of options.offers) {
+        const insertValues = {
+            id: offer.offerId,
+            item_id: offer.item,
+            trader_id: offer.seller,
+            min_level: offer.minLevel,
+            buy_limit: offer.buyLimit,
+            restock_amount: offer.restockAmount,
+        };
+        if (options.trustTraderUnlocks) {
+            insertValues.locked = offer.locked ? 1 : 0;
+        }
+        if (!offer.requirements) {
+            insertValues.price = offer.price;
+            insertValues.currency = offer.currency;
+        } else {
+            insertValues.price = null;
+            insertValues.currency = null;
+        }
+        const updateValues = Object.keys(insertValues).reduce((all, current) => {
+            if (current !== 'id') {
+                all[current] = insertValues[current];
+            }
+            return all;
+        }, {});
+        dataActions.push(query(`
+            INSERT INTO trader_offers
+                (${Object.keys(insertValues).join(', ')}, last_scan)
+            VALUES
+                (${Object.keys(insertValues).map(() => '?').join(', ')}, now())
+            ON DUPLICATE KEY UPDATE ${Object.keys(updateValues).map(field => `${field}=?`).join(', ')}, last_scan=now()
+        `, [...Object.values(insertValues), ...Object.values(updateValues)]).then(async () => {
+            if (offer.requirements) {
+                await query(`DELETE FROM trader_offer_requirements WHERE offer_id=?`, [offer.offerId]);
+                const requirementActions = [];
+                for (const req of offer.requirements) {
+                    let properties = null;
+                    let itemId = req.item;
+                    if (req.level || isDogtag(itemId)) {
+                        properties = JSON.stringify({
+                            level: req.level,
+                        });
+                    }
+                    if (isDogtag(itemId) && req.side === 'Any') {
+                        itemId = 'customdogtags12345678910';
+                    }
+                    requirementActions.push(query(`
+                        INSERT INTO trader_offer_requirements
+                            (offer_id, requirement_item_id, count, properties)
+                        VALUES
+                            (?, ?, ?, ?)
+                        ON DUPLICATE KEY UPDATE count=?, properties=?
+                    `, [offer.offerId, itemId, req.count, properties, req.count, properties]));
+                }
+                return Promise.all(requirementActions).then(() => { 
+                    return { result: 'ok' };
+                });
+            }
+            return { result: 'ok' };
+        }).catch(error => {
+            return {
+                result: 'error',
+                message: error.message,
+            };
+        }));
+    }
+    if (options.offersFrom === 1) {
+        await Promise.all(scannedIds.map(id => {
+            return releaseItem({...options, itemId: id, scanned: true});
+        }));
+    }
+    response.data = await Promise.all(dataActions);
     return response;
 };
 
@@ -701,7 +836,11 @@ const getJson = (options) => {
         file = file.split('/').pop();
         file = file.split('\\').pop();
         if (!file.endsWith('.json')) throw new Error(`${file} is not a valid json file`);
-        response.data = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', file)));
+        if (fs.existsSync(path.join(__dirname, '..', 'cache', file))) {
+            response.data = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'cache', file)));
+        } else {
+            response.data = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'dumps', file)));
+        }
     } catch (error) {
         if (error.code === 'ENOENT') {
             response.errors.push(`Error: ${options.file} not found`);
@@ -714,7 +853,7 @@ const getJson = (options) => {
 
 const submitImage = (request, user) => {
     const response = {errors: [], warnings: [], data: []};
-    const form = formidable({
+    const form = formidable.formidable({
         multiples: true,
         uploadDir: path.join(__dirname, '..', 'cache'),
     });
@@ -729,10 +868,11 @@ const submitImage = (request, user) => {
     return new Promise(resolve => {
         const finish = (response, files) => {
             if (files) {
-                for (const key in files) {
-                    fs.rm(files[key].filepath, error => {
+                for (const key in files.file) {
+                    let file = files.file[key][0];
+                    fs.rm(file.filepath, error => {
                         if (error) {
-                            console.log(`Error deleting ${files[key].filepath}`, error);
+                            console.log(`Error deleting ${file.filepath}`, error);
                         }
                     });
                 }
@@ -745,9 +885,15 @@ const submitImage = (request, user) => {
                 response.errors.push(String(err));
                 return resolve(response);
             }
+
+            fields = {
+                id: fields.id[0],
+                type: fields.type[0],
+                overwrite: fields.overwrite ? fields.overwrite[0] : false,
+            };
     
-            // console.log(fields);
-            // console.log(files);
+            //console.log(fields);
+            //console.log(JSON.stringify(files, null, 4));
     
             const allItemData = await remoteData.get();
             const currentItemData = allItemData.get(fields.id);
@@ -767,7 +913,7 @@ const submitImage = (request, user) => {
                     }
                 }
                 try {
-                    response.data = await createAndUploadFromSource(files[fields.type].filepath, fields.id);
+                    response.data = await createAndUploadFromSource(files[fields.type][0].filepath, fields.id);
                 } catch (error) {
                     console.error(error);
                     if (Array.isArray(error)) {
@@ -797,7 +943,7 @@ const submitImage = (request, user) => {
             try {
                 response.data.push({
                     type: fields.type,
-                    purged: await uploadToS3(files[fields.type].filepath, fields.type, fields.id)
+                    purged: await uploadToS3(files[fields.type][0].filepath, fields.type, fields.id)
                 });
             } catch (error) {
                 console.error(error);
@@ -1042,6 +1188,21 @@ module.exports = {
                     response = await insertTraderRestock(options);
                 }
             }*/
+            if (resource === 'trader-scan') {
+                if (req.method === 'POST') {
+                    options.scanner = await getScanner(options, false);
+                    response = await startTraderScan(options);
+                }
+                if (req.method === 'PATCH') {
+                    response = await endTraderScan(options);
+                }
+            }
+            if (resource === 'offers') {
+                if (req.method === 'POST') {
+                    options.scanner = await getScanner(options, true);
+                    response = await addTraderOffers(options);
+                }
+            }
             if (resource === 'ping' && req.method === 'GET') {
                 response = {errors: [], warnings: [], data: 'ok'};
             }

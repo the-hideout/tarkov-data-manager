@@ -3,6 +3,34 @@ const tarkovData = require('../modules/tarkov-data');
 const remoteData = require('../modules/remote-data');
 const DataJob = require('../modules/data-job');
 
+const skipOffers = {
+    jaeger: {
+        1: [
+            '59e0d99486f7744a32234762', // Bloodhounds
+        ],
+    },
+    mechanic: {
+        1: [
+            '5656eb674bdc2d35148b457c', // Failed Setup
+            '62e7e7bbe6da9612f743f1e0', // Failed Setup
+            '6357c98711fb55120211f7e1', // Failed Setup
+            '5ede475b549eed7c6d5c18fb', // Failed Setup
+        ],
+        3: [
+            '5b07db875acfc40dc528a5f6' // AR-15 Tactical Dynamics Skeletonized pistol grip
+        ],
+    },
+    skier: {
+        1: [
+            '584148f2245977598f1ad387', // skier doesn't sell mp-133
+            '5efb0da7a29a85116f6ea05f', // Hint
+            '5b2388675acfc4771e1be0be', // Cocktail Tasting
+            '618ba27d9008e4636a67f61d', // Cocktail Tasting
+            '5b3b99475acfc432ff4dcbee', // Cocktail Tasting
+        ],
+    },
+};
+
 class UpdateTraderPricesJob extends DataJob {
     constructor() {
         super('update-trader-prices');
@@ -11,377 +39,172 @@ class UpdateTraderPricesJob extends DataJob {
     }
 
     async run() {
-        [this.tasks, this.traders, this.traderAssorts, this.presets, this.items] = await Promise.all([
-            this.jobManager.jobOutput('update-quests', this),
-            this.jobManager.jobOutput('update-traders', this),
-            this.jobManager.jobOutput('update-trader-assorts', this, true),
-            this.jobManager.jobOutput('update-presets', this, true),
-            remoteData.get(),
-        ]);
-        for (const traderId in this.traderAssorts) {
-            this.traderAssorts[traderId] = this.traderAssorts[traderId].filter(offer => !offer.barter);
-        }
-        const outputData = {};
-        const junkboxLastScan = await this.query(`
-            SELECT
-                trader_price_data.*
-            FROM
-                trader_price_data
-            INNER JOIN
-                trader_items
-            ON
-                trader_items.id=trader_price_data.trade_id
-            WHERE
-                item_id = '5b7c710788a4506dec015957'
-            ORDER BY
-            trader_price_data.timestamp
-                desc
-            LIMIT 1
-        `);
-        if (junkboxLastScan.length === 0) {
-            return this.outputPrices(outputData);
-        }
-
-        const scanOffsetTimestampMoment = moment(junkboxLastScan[0].timestamp).subtract(6, 'hours').format("YYYY-MM-DD HH:mm:ss");
-        //const scanOffsetTimestamp = new Date(junkboxLastScan[0].timestamp).setHours(junkboxLastScan[0].timestamp.getHours() - 6);
-
-        this.logger.log('Trader price cutoff:')
-        this.logger.log(scanOffsetTimestampMoment);
-        
-        const currencyISO = {
-            '5449016a4bdc2d6f028b456f': 'RUB',
-            '5696686a4bdc2da3298b456a': 'USD',
-            '569668774bdc2da2298b4568': 'EUR'
-        }
         this.currencyId = {
             'RUB': '5449016a4bdc2d6f028b456f',
             'USD': '5696686a4bdc2da3298b456a',
             'EUR': '569668774bdc2da2298b4568'
         };
-        const credits = await tarkovData.credits();
-        const currenciesNow = {
-            'RUB': 1,
-            'USD': Math.round(credits['5696686a4bdc2da3298b456a'] * 1.104271357),
-            'EUR': Math.round(credits['569668774bdc2da2298b4568'] * 1.152974504)
-        };
-        const currenciesThen = {
-            'RUB': 1
-        };
-        /*const currenciesLastScan = await query(`
-            SELECT
-                item_id, trader_name, currency, min_level, quest_unlock_id,
-                price, trader_items.timestamp as offer_timestamp, trader_price_data.timestamp as price_timestamp
-            FROM
-                trader_items
-            INNER JOIN 
-                trader_price_data
-            ON
-                trader_items.id=trader_price_data.trade_id
-            WHERE
-                item_id in ('5696686a4bdc2da3298b456a', '569668774bdc2da2298b4568') AND
-                trader_price_data.timestamp=(
-                    SELECT 
-                        timestamp 
-                    FROM 
-                        trader_price_data
-                    WHERE 
-                        trade_id=trader_items.id
-                    ORDER BY timestamp DESC
-                    LIMIT 1
-                );
-        `);
-        for (const curr of currenciesLastScan) {
-            currenciesNow[currencyISO[curr.item_id]] = curr.price;
-        }*/
-
-        const [currenciesHistoricScan, traderItems, traderPriceData] = await Promise.all([
-            this.query(`
-                SELECT
-                    item_id, trader_name, currency, min_level, quest_unlock_id,
-                    price, trader_items.timestamp as offer_timestamp, trader_price_data.timestamp as price_timestamp
-                FROM
-                    trader_items
-                INNER JOIN 
-                    trader_price_data
-                ON
-                    trader_items.id=trader_price_data.trade_id
-                WHERE
-                    item_id in ('5696686a4bdc2da3298b456a', '569668774bdc2da2298b4568') AND
-                    trader_price_data.timestamp=(
-                        SELECT 
-                            tpd.timestamp 
-                        FROM 
-                            trader_price_data tpd
-                        WHERE 
-                            tpd.trade_id=trader_items.id
-                        ORDER BY abs(UNIX_TIMESTAMP(tpd.timestamp) - ?)
-                        LIMIT 1
-                    );
-            `, [junkboxLastScan[0].timestamp.getTime()/1000]),
-            this.query(`
-                SELECT
-                    *
-                FROM
-                    trader_items
-                WHERE
-                    NOT EXISTS (SELECT type FROM types WHERE trader_items.item_id = types.item_id AND type = 'only-flea');
-            `),
-            this.query(`
-                SELECT
-                    *
-                FROM
-                    trader_price_data
-                WHERE
-                    timestamp > ?;
-            `, [scanOffsetTimestampMoment]),
+        [this.tasks, this.traders, this.traderAssorts, this.items, this.credits, this.en] = await Promise.all([
+            this.jobManager.jobOutput('update-quests', this),
+            this.jobManager.jobOutput('update-traders', this),
+            this.jobManager.jobOutput('update-trader-assorts', this, true),
+            remoteData.get(),
+            tarkovData.credits(),
+            tarkovData.locale('en'),
         ]);
-        for (const curr of currenciesHistoricScan) {
-            currenciesThen[currencyISO[curr.item_id]] = curr.price;
-        }
-
-        const latestTraderPrices = {};
-
-        for(const traderPrice of traderPriceData){
-            if(!latestTraderPrices[traderPrice.trade_id]){
-                latestTraderPrices[traderPrice.trade_id] = {
-                    price: traderPrice.price,
-                    timestamp: traderPrice.timestamp,
-                };
-
+        this.cashOffers = {};
+        const lastOfferScan = await this.query(`
+            SELECT 
+                * 
+            FROM 
+                trader_offer_scan 
+            WHERE 
+                ended IS NOT NULL 
+            ORDER BY 
+                id DESC LIMIT 1
+        `).then(result => {
+            if (result.length === 0) {
+                return Promise.reject('No completed trader scans');
+            }
+            return result[0];
+        });
+        const offers = await this.query(`
+            SELECT 
+                *
+            FROM 
+                trader_offers 
+            WHERE 
+                last_scan >= ?
+        `, [lastOfferScan.started]);
+        this.offerRequirements = await this.query(`SELECT * FROM trader_offer_requirements`);
+        this.getCurrencyValues(offers);
+        for (const offer of offers) {
+            if (!offer.price) {
                 continue;
             }
-
-            if(latestTraderPrices[traderPrice.trade_id].timestamp.getTime() > traderPrice.timestamp.getTime()){
+            if (this.skipOffer(offer)) {
                 continue;
             }
-
-            latestTraderPrices[traderPrice.trade_id] = {
-                price: traderPrice.price,
-                timestamp: traderPrice.timestamp,
-            };
-        }
-
-        for (const traderItem of traderItems){
-            if (!latestTraderPrices[traderItem.id]) {
+            const item = this.items.get(offer.item_id);
+            if (item.types.includes('disabled')) {
+                this.logger.warn(`Skipping disabled item ${item.name} ${item.id}`);
                 continue;
             }
-
-            let itemPrice = latestTraderPrices[traderItem.id].price;
-            if (traderItem.currency !== 'RUB' && currenciesThen[traderItem.currency] && currenciesNow[traderItem.currency]) {
-                const rublesCost = currenciesThen[traderItem.currency]*itemPrice;
-                itemPrice = Math.ceil(rublesCost / currenciesNow[traderItem.currency]);
-            }
-            if (currencyISO[traderItem.item_id]) {
-                itemPrice = currenciesNow[currencyISO[traderItem.item_id]];
-            }
-            let minLevel = traderItem.min_level;
-            let questUnlock = false;
-            try {
-                questUnlock = this.getQuestUnlock(traderItem);
-                if (questUnlock) {
-                    minLevel = questUnlock.level;
-                }
-            } catch (error) {
-                this.logger.warn(error.message);
-                continue;
-            }
-            const trader = this.getTraderByName(traderItem.trader_name);
-            const offer = {
-                id: traderItem.item_id,
-                item_name: this.items.get(traderItem.item_id).name,
+            const trader = this.traders.find(t => t.id === offer.trader_id);
+            const questUnlock = this.getQuestUnlock(offer);
+            const assort = this.traderAssorts[trader.id].find(assort => assort.id === offer.id);
+            const cashPrice = {
+                id: offer.item_id,
+                item_name: item.name,
                 vendor: {
                     trader: trader.id,
                     trader_id: trader.id,
-                    traderLevel: minLevel,
-                    minTraderLevel: minLevel,
-                    taskUnlock: questUnlock ? questUnlock.id : null
+                    traderLevel: offer.min_level,
+                    minTraderLevel: offer.min_level,
+                    taskUnlock: questUnlock?.id,
                 },
-                source: traderItem.trader_name,
-                price: itemPrice,
-                priceRUB: Math.round(itemPrice * currenciesNow[traderItem.currency]),
-                updated: latestTraderPrices[traderItem.id].timestamp,
-                quest_unlock: questUnlock !== false,
-                quest_unlock_id: traderItem.quest_unlock_id,
-                currency: traderItem.currency,
-                currencyItem: this.currencyId[traderItem.currency],
-                requirements: [{
-                    type: 'loyaltyLevel',
-                    value: minLevel,
-                }]
+                source: trader.normalizedName,
+                price: Math.round(offer.price), // prices in API are Int; we should convert to float
+                priceRUB: Math.round(offer.price * this.currencyValues[offer.currency]),
+                updated: offer.updated,
+                quest_unlock: Boolean(questUnlock),
+                quest_unlock_id: questUnlock ? questUnlock.id : null,
+                currecy: offer.currency,
+                currencyItem: this.currencyId[offer.currency],
+                requirements: [
+                    {
+                        type: 'loyaltyLevel',
+                        value: offer.min_level,
+                    }
+                ],
+                restockAmount: assort ? assort.stock : offer.restock_amount,
+                buyLimit: offer.buy_limit,
+                traderOfferId: offer.id,
             };
             if (questUnlock) {
-                offer.requirements.push({
+                cashPrice.requirements.push({
                     type: 'questCompleted',
-                    value: Number(questUnlock.tarkovDataId) || 1,
-                    stringValue: questUnlock.id
+                    value: questUnlock.tarkovDataId,
+                    stringValue: questUnlock.id,
                 });
             }
-            const matchingTraderOffers = this.traderAssorts[trader.id].reduce((matches, traderOffer) => {
-                if (traderOffer.item !== offer.id && traderOffer.baseItem !== offer.id) {
-                    return matches;
-                }
-                if (Boolean(traderOffer.taskUnlock) !== Boolean(offer.vendor.taskUnlock)) {
-                    return matches;
-                }
-                if (!offer.vendor.taskUnlock) {
-                    if (traderOffer.minLevel !== offer.vendor.minTraderLevel) {
-                        return matches;
-                    }
-                }
-                matches.push(traderOffer);
-                return matches;
-            }, []);
-            if (matchingTraderOffers.length > 0) {
-                const matchedOffer = matchingTraderOffers[0];
-                const item = await this.items.get(matchedOffer.item);
-                if (item.types.includes('preset')) {
-                    offer.id = matchedOffer.item;
-                    offer.item_name = matchedOffer.itemName;
-                }
-                if (item.types.includes('preset') || item.types.includes('gun')) {
-                    offer.price = Math.ceil(matchedOffer.cost[0].count);
-                    offer.priceRUB = Math.round(matchedOffer.cost[0].count * currenciesNow[currencyISO[matchedOffer.cost[0].item]]);
-                }
-                offer.restockAmount = matchedOffer.stock;
-                offer.buyLimit = matchedOffer.buyLimit;
-                offer.traderOfferId = matchedOffer.id;
-            } else {
-                offer.traderOfferId = `${offer.id}-${offer.vendor.trader}-${offer.vendor.traderLevel}-${offer.currencyItem}`;
-                //this.logger.warn('Could not match assort for offer');
-                //this.logger.log(JSON.stringify(offer, null, 4));
+            if (!this.cashOffers[offer.item_id]) {
+                this.cashOffers[offer.item_id] = [];
             }
-            if (!outputData[offer.id]) {
-                outputData[offer.id] = [];
-            }
-            outputData[offer.id].push(offer);
+            this.cashOffers[offer.item_id].push(cashPrice);
         }
-        this.logger.log('Checking assorts for missing offers...');
-        for (const traderId in this.traderAssorts) {
-            this.traderAssorts[traderId].forEach(offer => {
-                const traderOfferUsed = Object.keys(outputData).some(id => {
-                    for (const to of outputData[id]) {
-                        if (to.traderOfferId === offer.id) {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-                if (traderOfferUsed) {
-                    return;
-                }
-                let itemId = offer.item;
-                const item = this.items.get(itemId);
-                if (!item.types.includes('preset') && offer.contains.length > 0) {
-                    const trader = this.traders.find(t => t.id == traderId);
-                    this.logger.log('could not match preset for', item.name, trader.name, offer);
-                    return;
-                }
-                if (!item.types.includes('preset') && !item.types.includes('gun')) {
-                    return;
-                }
-                if (outputData[itemId]) {
-                    const matchedOffer = outputData[itemId].some(o => {
-                        if (o.vendor.trader !== traderId) {
-                            return false;
-                        }
-                        return true;
-                    });
-                    if (matchedOffer) {
-                        return;
-                    }
-                }
-                const trader = this.traders.find(t => t.id === traderId);
-                const newOffer = {
-                    id: itemId,
-                    item_name: this.items.get(itemId).name,
-                    vendor: {
-                        trader: traderId,
-                        trader_id: traderId,
-                        traderLevel: offer.minLevel,
-                        minTraderLevel: offer.minLevel,
-                        taskUnlock: offer.taskUnlock ? offer.taskUnlock : null
-                    },
-                    source: trader.normalizedName,
-                    price: Math.ceil(offer.cost[0].count),
-                    priceRUB: Math.round(offer.cost[0].count * currenciesNow[currencyISO[offer.cost[0].item]]),
-                    updated: new Date(),
-                    quest_unlock: Boolean(offer.taskUnlock) !== false,
-                    quest_unlock_id: offer.taskUnlock,
-                    currency: currencyISO[offer.cost[0].item],
-                    currencyItem: offer.cost[0].item,
-                    requirements: [{
-                        type: 'loyaltyLevel',
-                        value: offer.minLevel,
-                    }],
-                    traderOfferId: offer.id,
-                };    
-                if (offer.taskUnlock) {
-                    newOffer.requirements.push({
-                        type: 'questCompleted',
-                        stringValue: offer.taskUnlock,
-                    });
-                }   
-                if (!outputData[itemId]) {
-                    outputData[itemId] = [];
-                }
-                outputData[itemId].push(newOffer);
-                this.logger.log(`Added ${newOffer.item_name} for ${trader.normalizedName} LL${newOffer.vendor.minTraderLevel}`);
-            });
-        }
-
-        return this.outputPrices(outputData);
-    }
-
-    outputPrices = async (prices) => {
         const priceData = {
-            TraderCashOffer: prices,
+            TraderCashOffer: this.cashOffers,
         };
         await this.cloudflarePut(priceData);
         return priceData;
     }
 
-    getQuestUnlock = (traderItem) => {
-        if (!isNaN(parseInt(traderItem.quest_unlock_id)) || traderItem.quest_unlock_bsg_id) {
-            const trader = this.getTraderByName(traderItem.trader_name);
-            const itemId = traderItem.item_id;
-            for (const quest of this.tasks) {
-                const match = unlockMatches(itemId, quest.startRewards, trader.id) || unlockMatches(itemId, quest.finishRewards, trader.id);
-                if (match) {
-                    return {
-                        id: quest.id,
-                        tarkovDataId: quest.tarkovDataId,
-                        level: match.level
-                    };
-                }
-            }
-            throw new Error(`Could not find quest unlock for trader offer ${traderItem.id}: ${traderItem.trader_name} ${this.items.get(traderItem.item_id).name} ${traderItem.item_id}`);
+    getCurrencyValues = (offers) => {
+        this.currencyValues = {
+            RUB: 1,
         }
-        return false;
+        const currencies = {
+            USD: {
+                id: '5696686a4bdc2da3298b456a',
+                multiplier: 1.104271357,
+            },
+            EUR: {
+                id: '569668774bdc2da2298b4568',
+                multiplier: 1.152974504,
+            }
+        };
+        for (const currencyCode in currencies) {
+            const itemId = currencies[currencyCode].id;
+            let price = Math.round(this.credits[itemId] * currencies[currencyCode].multiplier)
+            const offer = offers.find(o => o.item_id === itemId);
+            if (offer) {
+                price = offer.price;
+            } else {
+                this.logger.warn(`Could not find trader price for currency ${currencyCode}`);
+            }
+            this.currencyValues[currencyCode] = price;
+        }
+    };
+
+    getQuestUnlock = (offer) => {
+        if (!offer.locked) {
+            return null;
+        }
+        const trader = this.traders.find(t => t.id === offer.trader_id);
+        const itemId = offer.item_id;
+        for (const quest of this.tasks) {
+            const match = unlockMatches(itemId, quest.startRewards, trader.id) || unlockMatches(itemId, quest.finishRewards, trader.id);
+            if (match) {
+                return {
+                    id: quest.id,
+                    tarkovDataId: quest.tarkovDataId,
+                    level: match.level
+                };
+            }
+        }
+        this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${offer.min_level} ${this.items.get(itemId).name} ${itemId}`);
+        return null;
     }
 
     getTraderByName = (traderName) => {
         return this.traders.find(t => this.locales.en[t.name].toLowerCase() === traderName.toLowerCase());
     }
-}
 
-const traderMap = {
-    'prapor': '54cb50c76803fa8b248b4571',
-    'Prapor': '54cb50c76803fa8b248b4571',
-    'therapist': '54cb57776803fa99248b456e',
-    'Therapist': '54cb57776803fa99248b456e',
-    'fence': '579dc571d53a0658a154fbec',
-    'Fence': '579dc571d53a0658a154fbec',
-    'skier': '58330581ace78e27b8b10cee',
-    'Skier': '58330581ace78e27b8b10cee',
-    'peacekeeper': '5935c25fb3acc3127c3d8cd9',
-    'Peacekeeper': '5935c25fb3acc3127c3d8cd9',
-    'mechanic': '5a7c2eca46aef81a7ca2145d',
-    'Mechanic': '5a7c2eca46aef81a7ca2145d',
-    'ragman': '5ac3b934156ae10c4430e83c',
-    'Ragman': '5ac3b934156ae10c4430e83c',
-    'jaeger': '5c0647fdd443bc2504c2d371',
-    'Jaeger': '5c0647fdd443bc2504c2d371',
-};
+    skipOffer = (offer) => {
+        const trader = this.traders.find(t => t.id === offer.trader_id);
+        if (!skipOffers[trader.normalizedName]) {
+            return false;
+        }
+        if (!skipOffers[trader.normalizedName][offer.min_level]) {
+            return false;
+        }
+        if (!skipOffers[trader.normalizedName][offer.min_level].includes(offer.item_id)) {
+            return false;
+        }
+        return true;
+    }
+}
 
 const unlockMatches = (itemId, rewards, traderId) => {
     if (!rewards || !rewards.offerUnlock) return false;

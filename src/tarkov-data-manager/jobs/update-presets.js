@@ -32,12 +32,13 @@ class UpdatePresetsJob extends DataJob {
 
         const manualPresets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'manual_presets.json')));
 
-        const presetsData = {};
+        this.presetsData = {};
 
         const defaults = {};
 
         const ignorePresets = [
-            '5a32808386f774764a3226d9'
+            '5a32808386f774764a3226d9',
+            '5a8c436686f7740f394d10b5' // Glock 17 Tac HC is duplicate of Tac 3 5a88ad7b86f77479aa7226af
         ];
         for (const presetId in presets) {
             if (ignorePresets.includes(presetId)) continue;
@@ -112,6 +113,7 @@ class UpdatePresetsJob extends DataJob {
                 presetData.default = false;
             }
             presetData.normalized_name = normalizeName(presetData.name);
+            this.validateNormalizedName(presetData);
             let itemPresetData = await getPresetData(presetData, this.logger);
             if (itemPresetData) {
                 presetData.width = itemPresetData.width;
@@ -123,7 +125,7 @@ class UpdatePresetsJob extends DataJob {
                 presetData.horizontalRecoil = itemPresetData.horizontalRecoil;
                 presetData.moa = itemPresetData.moa;
             }
-            presetsData[presetId] = presetData;
+            this.presetsData[presetId] = presetData;
             if (presetData.default && !defaults[firstItem.id]) {
                 defaults[firstItem.id] = presetData;
             } else if (presetData.default) {
@@ -169,8 +171,9 @@ class UpdatePresetsJob extends DataJob {
             presetData.name = presetData.locale.en.name;
             presetData.shortName = presetData.locale.en.shortName;
             presetData.normalized_name = normalizeName(presetData.name);
+            this.validateNormalizedName(presetData);
             delete presetData.appendName;
-            presetsData[presetData.id] = presetData;
+            this.presetsData[presetData.id] = presetData;
             this.logger.succeed(`Completed ${presetData.name} manual preset (${presetData.containsItems.length} parts)`);
         }
         // add dog tag preset
@@ -180,7 +183,7 @@ class UpdatePresetsJob extends DataJob {
                 return substr.toUpperCase();
             });
         };
-        presetsData['customdogtags12345678910'] = {
+        this.presetsData['customdogtags12345678910'] = {
             id: 'customdogtags12345678910',
             name: getDogTagName(locales.en),
             shortName: getDogTagName(locales.en),
@@ -219,7 +222,7 @@ class UpdatePresetsJob extends DataJob {
             
             const matchingPresets = [];
             let defaultId = false;
-            for (const preset of Object.values(presetsData)) {
+            for (const preset of Object.values(this.presetsData)) {
                 if (preset.baseId !== id)
                     continue;
                 
@@ -241,8 +244,8 @@ class UpdatePresetsJob extends DataJob {
         }
 
         // add "Default" to the name of default presets to differentiate them from gun names
-        for (const presetId in presetsData) {
-            const preset = presetsData[presetId];
+        for (const presetId in this.presetsData) {
+            const preset = this.presetsData[presetId];
             if (!preset.default) {
                 continue;
             }
@@ -262,25 +265,33 @@ class UpdatePresetsJob extends DataJob {
             }, this.logger);
         }
 
+        const queries = [];
         const regnerateImages = [];
-        for (const item of Object.values(localItems)) {
+        for (const [id, item] of localItems.entries()) {
             if (!item.types.includes('preset')) {
                 continue;
             }
-            if (!presetsData[item.id]) {
-                this.logger.warn(`DB preset no longer present: ${item.name} ${item.id}`);
+            if (item.types.includes('disabled')) {
                 continue;
             }
-            const p = presetsData[item.id];
+            if (!this.presetsData[id]) {
+                this.logger.warn(`Preset ${item.name} ${id} is no longer valid; disabling`);
+                queries.push(remoteData.addType(id, 'disabled').catch(error => {
+                    this.logger.error(`Error disabling ${item.name} ${id}`);
+                    this.logger.error(error);
+                }));
+                continue;
+            }
+            const p = this.presetsData[id];
             if (item.short_name !== p.shortName || item.width !== p.width || item.height !== p.height || item.properties.backgroundColor !== p.backgroundColor) {
                 regnerateImages.push(p);
             }
         }
+
         this.logger.log('Updating presets in DB...');
-        const queries = [];
         const newPresets = [];
-        for (const presetId in presetsData) {
-            const p = presetsData[presetId];
+        for (const presetId in this.presetsData) {
+            const p = this.presetsData[presetId];
             queries.push(remoteData.addItem({
                 id: p.id,
                 name: p.name,
@@ -331,9 +342,33 @@ class UpdatePresetsJob extends DataJob {
             });
         }
 
-        fs.writeFileSync(path.join(__dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(presetsData, null, 4));
+        // make sure we don't include any disabled presets
+        this.presetsData = Object.keys(this.presetsData).reduce((all, presetId) => {
+            console.log(`${presetId} ${localItems.has(presetId)} ${localItems.get(presetId)?.types.includes('disabled')}`);
+            if (localItems.has(presetId) && !localItems.get(presetId).types.includes('disabled')) {
+                all[presetId] = this.presetsData[presetId];
+            }
+            return all;
+        }, {});
+
+        fs.writeFileSync(path.join(__dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(this.presetsData, null, 4));
         await Promise.allSettled(queries);
-        return presetsData;
+        return this.presetsData;
+    }
+
+    validateNormalizedName = (preset, attempt = 1) => {
+        let normal = preset.normalized_name;
+        if (attempt > 1) {
+            normal += `-${attempt}`;
+        }
+        const matchedPreset = Object.values(this.presetsData).find(p => p.normalized_name === normal);
+        if (matchedPreset) {
+            return this.validateNormalizedName(preset, attempt + 1);
+        }
+        if (attempt > 1) {
+            preset.normalized_name = normal;
+            //this.logger.log(normal);
+        }
     }
 }
 

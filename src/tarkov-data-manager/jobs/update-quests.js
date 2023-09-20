@@ -686,7 +686,7 @@ class UpdateQuestsJob extends DataJob {
                     level: reward.loyaltyLevel,
                 });
             } else {
-                this.logger.warn(`Unrecognized reward type "${reward.type}" for ${rewardsType} reward ${reward.id} of ${questData.name}`);
+                this.logger.warn(`Unrecognized reward type "${reward.type}" for ${rewardsType} reward ${reward.id} of ${this.locales.en[questData.name]}`);
             }
         }
     }
@@ -983,13 +983,14 @@ class UpdateQuestsJob extends DataJob {
             neededKeys: [],
         };
         for (const objective of quest.conditions.AvailableForFinish) {
-            const obj = this.formatObjective(objective);
-            if (obj) {
-                questData.objectives.push(obj);
+            const obj = this.formatObjective(questData.id, objective);
+            if (!obj) {
+                continue;
             }
+            questData.objectives.push(obj);
         }
         for (const objective of quest.conditions.Fail) {
-            const obj = this.formatObjective(objective, true);
+            const obj = this.formatObjective(questData.id, objective, true);
             if (obj) {
                 questData.failConditions.push(obj);
             }
@@ -1133,19 +1134,16 @@ class UpdateQuestsJob extends DataJob {
                     this.logger.warn('Manually added objectives already present');
                 }
             }
-            if (this.changedQuests[questData.id].objectivesRemoved) {
-                const oldObjCount = questData.objectives.length;
-                questData.objectives = questData.objectives.filter(obj => {
-                    const objRemoved = this.changedQuests[questData.id].objectivesRemoved.find(remId => remId === obj.id);
-                    /*if (objRemoved) {
-                        this.logger.warn('Removing quest objective');
-                        this.logger.warn(JSON.stringify(obj, null, 4));
-                    }*/
-                    return !objRemoved;
-                });
-                if (questData.objectives.length === oldObjCount) {
-                    this.logger.warn('No matching quest objective to remove');
-                    this.logger.warn(JSON.stringify(this.changedQuests[questData.id].objectivesRemoved, null, 4));
+            if (this.changedQuests[questData.id].objectivePropertiesChanged) {
+                for (const objId in this.changedQuests[questData.id].objectivePropertiesChanged) {
+                    const obj = questData.objectives.find(o => o.id === objId);
+                    if (!obj) {
+                        continue;
+                    }
+                    const changes = this.changedQuests[questData.id].objectivePropertiesChanged[objId];
+                    for (const propName in changes) {
+                        obj[propName] = changes[propName];
+                    }
                 }
             }
             if (this.changedQuests[questData.id].finishRewardsAdded) {
@@ -1167,6 +1165,23 @@ class UpdateQuestsJob extends DataJob {
                             reward.name = this.addTranslation(reward.name);
                         }
                     }
+                }
+            }
+            if (this.changedQuests[questData.id].startRewardsChanged) {
+                //this.logger.warn('Changing start rewards');
+                //this.logger.warn(JSON.stringify(this.changedQuests[questData.id].startRewardsChanged), null, 4);
+                for (const rewardType in this.changedQuests[questData.id].startRewardsChanged) {
+                    questData.startRewards[rewardType] = this.changedQuests[questData.id].startRewardsChanged[rewardType];
+                    if (rewardType === 'skillLevelReward') {
+                        for (const reward of questData.startRewards[rewardType]) {
+                            reward.name = this.addTranslation(reward.name);
+                        }
+                    }
+                }
+            }
+            if (this.changedQuests[questData.id].translationKeys) {
+                for (const key of this.changedQuests[questData.id].translationKeys) {
+                    this.addTranslation(key);
                 }
             }
         }
@@ -1207,7 +1222,10 @@ class UpdateQuestsJob extends DataJob {
         return questData;
     }
 
-    formatObjective(objective, failConditions = false) {
+    formatObjective(questId, objective, failConditions = false) {
+        if (this.changedQuests[questId]?.objectivesRemoved?.includes(objective._props.id)) {
+            return false;
+        }
         let objectiveId = objective._props.id;
         for (const questId in this.changedQuests) {
             if (!this.changedQuests[questId].objectiveIdsChanged) {
@@ -1657,18 +1675,22 @@ class UpdateQuestsJob extends DataJob {
             const imageId = imagePath.replace('/files/quest/icon/', '').split('.')[0];
             const extensions = ['.png', '.jpg'];
             for (const ext of extensions) {
-                const response = await fetch(`https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/images/quests/${imageId}${ext}`);
-                if (!response.ok) {
-                    continue;
+                try {
+                    const response = await fetch(`https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/images/quests/${imageId}${ext}`);
+                    if (!response.ok) {
+                        continue;
+                    }
+                    const image = sharp(await response.arrayBuffer()).webp({lossless: true});
+                    const metadata = await image.metadata();
+                    if (metadata.width <= 1 || metadata.height <= 1) {
+                        continue;
+                    }
+                    await uploadAnyImage(image, s3FileName, 'image/webp');
+                    this.logger.log(`Retrieved ${this.locales.en[`${task.id} name`]} ${task.id} image from SPT`);
+                    return s3ImageLink;
+                } catch (error) {
+                    this.logger.error(`Error fetching ${imageId}.${ext} from SPT: ${error.stack}`);
                 }
-                const image = sharp(await response.arrayBuffer()).webp({lossless: true});
-                const metadata = await image.metadata();
-                if (metadata.width <= 1 || metadata.height <= 1) {
-                    continue;
-                }
-                await uploadAnyImage(image, s3FileName, 'image/webp');
-                this.logger.log(`Retrieved ${this.locales.en[`${task.id} name`]} ${task.id} image from SPT`);
-                return s3ImageLink;
             }
         }
         if (!task.wikiLink) {
@@ -1757,6 +1779,8 @@ const zoneMap = {
     qlight_br_secure_road: '5704e4dad2720bb55b8b4567',
     qlight_pr1_heli2_kill: '5704e4dad2720bb55b8b4567',
     qlight_pc1_ucot_kill: '5704e4dad2720bb55b8b4567',
+    quest_zone_find_2st_mech: '5714dc692459777137212e12', // streets
+    quest_zone_hide_2st_mech: '5714dc692459777137212e12',
     quest_st_1_zone: '5704e554d2720bac5b8b456e',
     quest_st_4_visit: '5704e554d2720bac5b8b456e',
     quest_st_9_shopping: '5714dbc024597771384a510d',

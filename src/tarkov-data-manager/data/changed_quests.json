@@ -1,7 +1,7 @@
 {
-    "___5c51aac186f77432ea65c552": {
+    "5c51aac186f77432ea65c552": {
         "name": "Collector",
-        "taskRequirementsAdded": [
+        "__taskRequirementsAdded": [
             {
                 "task": "5c0d0d5086f774363760aef2",
                 "name": "Athlete",
@@ -44,19 +44,8 @@
                 "name": "The Survivalist Path - Zhivchik"
             }
         ],
-        "___objectivesRemoved": [
-            "60e827a20c492412897c688f",
-            "60e827a20c492412897c688g",
-            "60e827a20c492412897c688h",
-            "60e827a20c492412897c688i",
-            "60e827a20c492412897c688j",
-            "60e827a20c492412897c688k",
-            "60e827a20c492412897c688l",
-            "60e827a20c492412897c688m",
-            "60e827a20c492412897c688n",
-            "60e827a20c492412897c688o",
-            "60e827a20c492412897c688p",
-            "60e827a20c492412897c688q"
+        "__objectivesRemoved": [
+            "60d9d34e8a6f9a3731773f93"
         ],
         "___objectiveIdsChanged": {
             "60e827faf09904268a4dbc41": "62a6ff004de19a4c3422ea5d",
@@ -73,7 +62,7 @@
             "60e827faf09904268a4dbc52": "62a6ffbcec21e50cad3b6708"
         }
     },
-    "61904daa7d0d857927447b9c": {
+    "__61904daa7d0d857927447b9c": {
         "name": "The Hermit",
         "propertiesChanged" : {
             "taskRequirements": [
@@ -89,7 +78,7 @@
         },
         "comment": "confirmed by razz 4/30/2023"
     },
-    "6179b4d1bca27a099552e04e": {
+    "__6179b4d1bca27a099552e04e": {
         "name": "Revision - Lighthouse",
         "propertiesChanged": {
             "taskRequirements": [
@@ -105,7 +94,7 @@
         },
         "comment":"confirmed by razz 5/8/2023"
     },
-    "639135f286e646067c176a87": {
+    "__639135f286e646067c176a87": {
         "name": "Revision - Streets of Tarkov",
         "propertiesChanged": {
             "taskRequirements": [
@@ -144,14 +133,14 @@
         },
         "comment":"confirmed by razz 5/8/2023"
     },
-    "60e729cf5698ee7b05057439": {
+    "__60e729cf5698ee7b05057439": {
         "name": "Swift One",
         "propertiesChanged": {
             "minPlayerLevel": 50
         },
         "comment": "per Wiki 5/8/2023"
     },
-    "5a03153686f77442d90e2171": {
+    "__5a03153686f77442d90e2171": {
         "name": "Spa Tour - Part 1",
         "propertiesChanged" : {
             "taskRequirements": [
@@ -180,7 +169,7 @@
         },
         "comment": "per Wiki 5/15/2023"
     },
-    "5d25e4ad86f77443e625e387": {
+    "__5d25e4ad86f77443e625e387": {
         "name": "Nostalgia",
         "propertiesChanged" : {
             "taskRequirements": [
@@ -206,5 +195,911 @@
                 ]
             }
         ]
+    },
+    "__5c0bde0986f77479cf22c2f8": {
+        "name": "A Shooter Born in Heaven",
+        "objectivePropertiesChanged": {
+            "5c0bdf2c86f7746f016734a8": {
+                "count": 5,
+                "usingWeapon": [
+                    {
+                        "id": "5bfd297f0db834001a669119",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
+                    },
+                    {
+                        "id": "5ae08f0a5acfc408fb1398a1",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
+                    },
+                    {
+                        "id": "55801eed4bdc2d89578b4588",
+                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "588892092459774ac91d4b11",
+                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5bfea6e90db834001b7347f3",
+                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5de652c31b7e3716273428be",
+                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
+                    },
+                    {
+                        "id": "5df24cf80dee1b22f862e9bc",
+                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "61f7c9e189e6fb1a5e3ea78d",
+                        "name": "MP-18 7.62x54R single-shot rifle"
+                    },
+                    {
+                        "id": "627e14b21713922ded6f2c15",
+                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
+                    }
+                ],
+                "distance": null
+            },
+            "5c137b8886f7747ae3220ff4": {
+                "count": 5,
+                "usingWeapon": [
+                    {
+                        "id": "5bfd297f0db834001a669119",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
+                    },
+                    {
+                        "id": "5ae08f0a5acfc408fb1398a1",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
+                    },
+                    {
+                        "id": "55801eed4bdc2d89578b4588",
+                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "588892092459774ac91d4b11",
+                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5bfea6e90db834001b7347f3",
+                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5de652c31b7e3716273428be",
+                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
+                    },
+                    {
+                        "id": "5df24cf80dee1b22f862e9bc",
+                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "61f7c9e189e6fb1a5e3ea78d",
+                        "name": "MP-18 7.62x54R single-shot rifle"
+                    },
+                    {
+                        "id": "627e14b21713922ded6f2c15",
+                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
+                    }
+                ],
+                "distance": null
+            },
+            "5c137ef386f7747ae10a821e": {
+                "count": 5,
+                "usingWeapon": [
+                    {
+                        "id": "5bfd297f0db834001a669119",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
+                    },
+                    {
+                        "id": "5ae08f0a5acfc408fb1398a1",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
+                    },
+                    {
+                        "id": "55801eed4bdc2d89578b4588",
+                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "588892092459774ac91d4b11",
+                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5bfea6e90db834001b7347f3",
+                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5de652c31b7e3716273428be",
+                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
+                    },
+                    {
+                        "id": "5df24cf80dee1b22f862e9bc",
+                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "61f7c9e189e6fb1a5e3ea78d",
+                        "name": "MP-18 7.62x54R single-shot rifle"
+                    },
+                    {
+                        "id": "627e14b21713922ded6f2c15",
+                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
+                    }
+                ],
+                "distance": null
+            },
+            "5c137f5286f7747ae267d8a3": {
+                "count": 5,
+                "usingWeapon": [
+                    {
+                        "id": "5bfd297f0db834001a669119",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
+                    },
+                    {
+                        "id": "5ae08f0a5acfc408fb1398a1",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
+                    },
+                    {
+                        "id": "55801eed4bdc2d89578b4588",
+                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "588892092459774ac91d4b11",
+                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5bfea6e90db834001b7347f3",
+                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5de652c31b7e3716273428be",
+                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
+                    },
+                    {
+                        "id": "5df24cf80dee1b22f862e9bc",
+                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "61f7c9e189e6fb1a5e3ea78d",
+                        "name": "MP-18 7.62x54R single-shot rifle"
+                    },
+                    {
+                        "id": "627e14b21713922ded6f2c15",
+                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
+                    }
+                ],
+                "distance": null
+            },
+            "629f10b114061f3074380298": {
+                "count": 5,
+                "usingWeapon": [
+                    {
+                        "id": "5bfd297f0db834001a669119",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
+                    },
+                    {
+                        "id": "5ae08f0a5acfc408fb1398a1",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
+                    },
+                    {
+                        "id": "55801eed4bdc2d89578b4588",
+                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "588892092459774ac91d4b11",
+                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5bfea6e90db834001b7347f3",
+                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5de652c31b7e3716273428be",
+                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
+                    },
+                    {
+                        "id": "5df24cf80dee1b22f862e9bc",
+                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "61f7c9e189e6fb1a5e3ea78d",
+                        "name": "MP-18 7.62x54R single-shot rifle"
+                    },
+                    {
+                        "id": "627e14b21713922ded6f2c15",
+                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
+                    }
+                ],
+                "distance": null
+            },
+            "63aec6f256503c322a190374": {
+                "count": 5,
+                "usingWeapon": [
+                    {
+                        "id": "5bfd297f0db834001a669119",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
+                    },
+                    {
+                        "id": "5ae08f0a5acfc408fb1398a1",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
+                    },
+                    {
+                        "id": "55801eed4bdc2d89578b4588",
+                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "588892092459774ac91d4b11",
+                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5bfea6e90db834001b7347f3",
+                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5de652c31b7e3716273428be",
+                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
+                    },
+                    {
+                        "id": "5df24cf80dee1b22f862e9bc",
+                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "61f7c9e189e6fb1a5e3ea78d",
+                        "name": "MP-18 7.62x54R single-shot rifle"
+                    },
+                    {
+                        "id": "627e14b21713922ded6f2c15",
+                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
+                    }
+                ],
+                "distance": null
+            }
+        },
+        "objectivesAdded": [
+            {
+                "id": "64b694c8a857ea477002a408",
+                "description": "64b694c8a857ea477002a408",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [
+                    "5714dbc024597771384a510d Name"
+                ],
+                "map_ids": [
+                    "5714dbc024597771384a510d"
+                ],
+                "target": "AnyPmc",
+                "count": 5,
+                "shotType": "kill",
+                "bodyParts": [
+                    "QuestCondition/Elimination/Kill/BodyPart/Head"
+                ],
+                "usingWeapon": [
+                    {
+                        "id": "5bfd297f0db834001a669119",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
+                    },
+                    {
+                        "id": "5ae08f0a5acfc408fb1398a1",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
+                    },
+                    {
+                        "id": "55801eed4bdc2d89578b4588",
+                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "588892092459774ac91d4b11",
+                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5bfea6e90db834001b7347f3",
+                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5de652c31b7e3716273428be",
+                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
+                    },
+                    {
+                        "id": "5df24cf80dee1b22f862e9bc",
+                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "61f7c9e189e6fb1a5e3ea78d",
+                        "name": "MP-18 7.62x54R single-shot rifle"
+                    },
+                    {
+                        "id": "627e14b21713922ded6f2c15",
+                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
+                    }
+                ],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "timeFromHour": null,
+                "timeUntilHour": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "targetNames": [
+                    "AnyPmc"
+                ],
+                "playerHealthEffect": null
+            }
+        ],
+        "finishRewardsChanged": {
+            "skillLevelReward": [
+                {
+                    "name": "Sniper",
+                    "level": 5
+                }
+            ],
+            "offerUnlock": [
+                {
+                    "id": "5c20cc1086f7740cfb37b111",
+                    "trader_id": "5a7c2eca46aef81a7ca2145d",
+                    "trader_name": "Mechanic",
+                    "level": 3,
+                    "item": "5c127c4486f7745625356c13",
+                    "item_name": "Magazine case",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "id": "64d52503c06f9028d80ea5e31",
+                    "trader_id": "5c0647fdd443bc2504c2d371",
+                    "trader_name": "Jaeger",
+                    "level": 4,
+                    "item": "6193e590069d61205d490dd8",
+                    "item_name": "HK G28 7.62x51 marksman rifle Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        },
+        "translationKeys": [
+            "64b694c8a857ea477002a408"
+        ]
+    },
+    "__5c0bd94186f7747a727f09b2": {
+        "name": "Test Drive - Part 1",
+        "objectivePropertiesChanged": {
+            "5c1b765d86f77413193fa4f2": {
+                "usingWeaponMods": [
+                    [
+                        {
+                            "id": "59bffbb386f77435b379b9c2",
+                            "name": "SilencerCo Hybrid 46 multi-caliber sound suppressor"
+                        },
+                        {
+                            "id": "617151c1d92c473c770214ab",
+                            "name": "Schmidt & Bender PM II 1-8x24 30mm riflescope"
+                        }
+                    ]
+                ]
+            }
+        },
+        "startRewardsChanged": {
+            "items": [
+                {
+                    "item": "5aafa857e5b5b00018480968",
+                    "item_name": "Springfield Armory M1A 7.62x51 rifle",
+                    "count": 1,
+                    "contains": [
+                        {
+                            "item": "5addcce35acfc4001a5fc635",
+                            "name": "M14 7.62x51 30-round magazine",
+                            "count": 1
+                        },
+                        {
+                            "item": "5addbf175acfc408fb13965b",
+                            "name": "M1A ProMag Archangel stock",
+                            "count": 1
+                        },
+                        {
+                            "item": "5addbfbb5acfc400194dbcf7",
+                            "name": "M14 UltiMAK M8 Forward Optic mount",
+                            "count": 1
+                        },
+                        {
+                            "item": "5addbac75acfc400194dbc56",
+                            "name": "M1A 7.62x51 22 inch barrel",
+                            "count": 1
+                        },
+                        {
+                            "item": "59bffc1f86f77435b128b872",
+                            "name": "SilencerCo Hybrid 46 Direct Thread Mount adapter",
+                            "count": 1
+                        },
+                        {
+                            "item": "59bffbb386f77435b379b9c2",
+                            "name": "SilencerCo Hybrid 46 multi-caliber sound suppressor",
+                            "count": 1
+                        },
+                        {
+                            "item": "5abcbb20d8ce87001773e258",
+                            "name": "M14 SA Enlarged Military Aperture rear sight",
+                            "count": 1
+                        },
+                        {
+                            "item": "5addbfef5acfc400185c2857",
+                            "name": "M14 Leapers UTG 4-Point Locking Deluxe mount",
+                            "count": 1
+                        },
+                        {
+                            "item": "5b3b99265acfc4704b4a1afb",
+                            "name": "Nightforce Magmount 30mm ring scope mount",
+                            "count": 1
+                        },
+                        {
+                            "item": "617151c1d92c473c770214ab",
+                            "name": "Schmidt & Bender PM II 1-8x24 30mm riflescope",
+                            "count": 1
+                        }
+                    ],
+                    "attributes": [],
+                    "base_item_id": "5aafa857e5b5b00018480968"
+                }
+            ]
+        },
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "64d52511c06f9028d80eb2842",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 4,
+                    "item": "57a0e5022459774d1673f889",
+                    "item_name": "9x39mm SP-6 gs",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "__5d25e4ca86f77409dd5cdf2c": {
+        "name": "Hunting Trip",
+        "objectivePropertiesChanged": {
+            "5fd8aa3206fb3a6b8154a2c3": {
+                "distance": {
+                    "compareMethod": ">=",
+                    "value": 75
+                },
+                "usingWeaponMods": [
+                    [
+                        {
+                            "id": "5b2388675acfc4771e1be0be",
+                            "name": "Burris FullField TAC30 1-4x24 30mm riflescope"
+                        }
+                    ]
+                ]
+            }
+        }
+    },
+    "__5c0be13186f7746f016734aa": {
+        "name": "Psycho Sniper",
+        "objectivePropertiesChanged": {
+            "5c0be2b486f7747bcb347d58": {
+                "skillLevel": {
+                    "name": "Sniper",
+                    "level": 10
+                }
+            }
+        },
+        "objectivesAdded": [
+            {
+                "id": "64b67c6358b5637e2d71a655",
+                "description": "64b67c6358b5637e2d71a655",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "target": "AnyPmc",
+                "count": 5,
+                "shotType": "kill",
+                "usingWeapon": [
+                    {
+                        "id": "5bfd297f0db834001a669119",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
+                    },
+                    {
+                        "id": "5ae08f0a5acfc408fb1398a1",
+                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
+                    },
+                    {
+                        "id": "55801eed4bdc2d89578b4588",
+                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "588892092459774ac91d4b11",
+                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5bfea6e90db834001b7347f3",
+                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "5de652c31b7e3716273428be",
+                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
+                    },
+                    {
+                        "id": "5df24cf80dee1b22f862e9bc",
+                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
+                    },
+                    {
+                        "id": "61f7c9e189e6fb1a5e3ea78d",
+                        "name": "MP-18 7.62x54R single-shot rifle"
+                    },
+                    {
+                        "id": "627e14b21713922ded6f2c15",
+                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
+                    }
+                ],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "timeFromHour": null,
+                "timeUntilHour": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "targetNames": [
+                    "AnyPmc"
+                ],
+                "playerHealthEffect": null
+            }
+        ],
+        "propertiesChanged": {
+            "failConditions": [
+                {
+                    "id": "64b67fcd3e349c7dbd06bd16",
+                    "description": "64b67fcd3e349c7dbd06bd16",
+                    "type": "extract",
+                    "optional": false,
+                    "locationNames": [],
+                    "map_ids": [],
+                    "exitStatus": [
+                        "ExpBonusKilled",
+                        "ExpBonusLeft",
+                        "ExpBonusMissingInAction"
+                    ],
+                    "zoneNames": []
+                }
+            ]
+        },
+        "translationKeys": [
+            "64b67c6358b5637e2d71a655",
+            "64b67fcd3e349c7dbd06bd16"
+        ]
+    },
+    "__5bc4893c86f774626f5ebf3e": {
+        "name": "Tarkov Shooter - Part 8",
+        "finishRewardsChanged": {
+            "skillLevelReward": [
+                {
+                    "name": "Sniper",
+                    "level": 3
+                }
+            ],
+            "offerUnlock": [
+                {
+                    "id": "5bcf268686f7746a45695b0a",
+                    "trader_id": "5c0647fdd443bc2504c2d371",
+                    "trader_name": "Jaeger",
+                    "level": 4,
+                    "item": "5bae13ded4351e44f824bf38",
+                    "item_name": "Mosin Rifle 7.62x54R ProMag Archangel OPFOR 10-round magazine",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "id": "5bcf269286f7746a472ad9f7",
+                    "trader_id": "5c0647fdd443bc2504c2d371",
+                    "trader_name": "Jaeger",
+                    "level": 4,
+                    "item": "5bae13bad4351e00320204af",
+                    "item_name": "Mosin Rifle ProMag Archangel OPFOR PRS chassis",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "id": "64d52503c06f9028d80ea57c3",
+                    "trader_id": "5c0647fdd443bc2504c2d371",
+                    "trader_name": "Jaeger",
+                    "level": 4,
+                    "item": "618ba27d9008e4636a67f61d",
+                    "item_name": "Vortex Razor HD Gen.2 1-6x24 30mm riflescope",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "id": "64d52513c06f9028d80eb54d2",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 4,
+                    "item": "5e023d48186a883be655e551",
+                    "item_name": "7.62x54mm R BS gs",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "__60e71b9bbd90872cb85440f3": {
+        "name": "Capturing Outposts",
+        "objectivePropertiesChanged": {
+            "60ec2229fd1bf4491c4e4552": {
+                "zoneKeys": [
+                    "prapor_27_resort"
+                ],
+                "zoneNames": [
+                    "prapor_27_resort"
+                ]
+            }
+        },
+        "translationKeys": [
+            "prapor_27_resort"
+        ]
+    },
+    "__5ac3464c86f7741d651d6877": {
+        "name": "Farming - Part 4",
+        "objectivePropertiesChanged": {
+            "5ac5083d86f7740be2744eed": {
+                "count": 15
+            },
+            "5ac5084d86f7740bde1b0031": {
+                "count": 15
+            }
+        }
+    },
+    "__5dc53acb86f77469c740c893": {
+        "name": "The Stylish One",
+        "objectivePropertiesChanged": {
+            "5dc53fd386f77469c87589a3": {
+                "count": 50
+            }
+        }
+    },
+    "__5c0d190cd09282029f5390d8": {
+        "name": "Grenadier",
+        "propertiesChanged" : {
+            "taskRequirements": []
+        }
+    },
+    "__5b4794cb86f774598100d5d4": {
+        "name": "Lend-Lease - Part 1",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5a27d2af86f7744e1115b323",
+                    "name": "Friend from the West - Part 2",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "__596a204686f774576d4c95de": {
+        "name": "Sanitary Standards - Part 2",
+        "taskRequirementsRemoved": [
+            {
+                "id": "5968eb3186f7741dde183a4d",
+                "name": "Operation Aquarius - Part 2"
+            }
+        ]
+    },
+    "__5bc479e586f7747f376c7da3": {
+        "name": "Tarkov Shooter - Part 2",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "5bc4776586f774512d07cf05",
+                    "name": "The Tarkov Shooter - Part 1",
+                    "status": [
+                        "active",
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "__60e71c48c1bfa3050473b8e5": {
+        "name": "Crisis",
+        "objectivePropertiesChanged": {
+            "60e8658571035f300c301ac6": {
+                "count": 3
+            },
+            "60e865a60cef122b414a156a": {
+                "count": 3
+            },
+            "60e866175d67b234af3d392a": {
+                "count": 2
+            },
+            "60e866c50cef122b414a156c": {
+                "count": 3
+            },
+            "60e866f926b88043510e0adf": {
+                "count": 3
+            },
+            "60e867265d67b234af3d392c": {
+                "count": 2
+            }
+        }
+    },
+    "__5c0bd01e86f7747cdd799e56": {
+        "name": "Insomnia",
+        "propertiesChanged" : {
+            "traderName": "Peacekeeper",
+            "trader": "5935c25fb3acc3127c3d8cd9",
+            "taskRequirements": [
+                {
+                    "task": "61958c366726521dd96828ec",
+                    "name": "Cargo X - Part 4",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ],
+            "finishRewards": {
+                "traderStanding": [
+                    {
+                        "trader_id": "5935c25fb3acc3127c3d8cd9",
+                        "name": "Peacekeeper",
+                        "standing": 0.01
+                    }
+                ],
+                "items": [
+                    {
+                        "item": "5696686a4bdc2da3298b456a",
+                        "item_name": "Dollars",
+                        "count": 1000,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "5c0558060db834001b735271",
+                        "item_name": "GPNVG-18 Night Vision goggles",
+                        "count": 2,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "5a154d5cfcdbcb001a3b00da",
+                        "item_name": "Ops-Core FAST MT Super High Cut helmet (Black)",
+                        "count": 1,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "5a16b7e1fcdbcb00165aa6c9",
+                        "item_name": "Ops-Core FAST multi-hit ballistic face shield",
+                        "count": 2,
+                        "contains": [],
+                        "attributes": []
+                    }
+                ],
+                "offerUnlock": [],
+                "skillLevelReward": [],
+                "traderUnlock": [],
+                "craftUnlock": []
+            }
+        }
+    },
+    "__5d25e2e286f77444001e2e48": {
+        "name": "The Huntsman Path - Sellout",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "64d52514c06f9028d80eb64a1",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 2,
+                    "item": "rpk166L26000000000000001",
+                    "item_name": "RPK-16 5.45x39 light machine gun 6L26",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "__596b36c586f77450d6045ad2": {
+        "name": "Supplier",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "64d524ffc06f9028d80ea34a5",
+                    "trader_id": "58330581ace78e27b8b10cee",
+                    "trader_name": "Skier",
+                    "level": 1,
+                    "item": "59e7635f86f7742cbf2c1095",
+                    "item_name": "BNTI Module-3M body armor",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "id": "64d524fdc06f9028d80ea0771",
+                    "trader_id": "58330581ace78e27b8b10cee",
+                    "trader_name": "Skier",
+                    "level": 1,
+                    "item": "5a13df5286f774032f5454a0",
+                    "item_name": "Saiga-9 9x19 carbine Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "__5a27b9de86f77464e5044585": {
+        "name": "The Cult - Part 1",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "64d5250bc06f9028d80eaccf2",
+                    "trader_id": "5935c25fb3acc3127c3d8cd9",
+                    "trader_name": "Peacekeeper",
+                    "level": 3,
+                    "item": "54527ac44bdc2d36668b4567",
+                    "item_name": "5.56x45mm M855A1",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "__60e71bb4e456d449cd47ca75": {
+        "name": "Intimidator",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "64d52511c06f9028d80eb28a2",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 4,
+                    "item": "59e0d99486f7744a32234762",
+                    "item_name": "prapor 7.62x39mm BP gzh",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "__5a27b75b86f7742e97191958": {
+        "name": "Fishing Gear",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "64d5250cc06f9028d80eae311",
+                    "trader_id": "5935c25fb3acc3127c3d8cd9",
+                    "trader_name": "Peacekeeper",
+                    "level": 2,
+                    "item": "5ac4ad3686f774181345c3da",
+                    "item_name": "Springfield Armory M1A 7.62x51 rifle Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "id": "64f97d0508bf3d71960c1a7a3",
+                    "trader_id": "5935c25fb3acc3127c3d8cd9",
+                    "trader_name": "Peacekeeper",
+                    "level": 2,
+                    "item": "5b3116595acfc40019476364",
+                    "item_name": "SIG Sauer ROMEO4 reflex sight",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
     }
 }
