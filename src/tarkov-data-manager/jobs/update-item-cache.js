@@ -35,6 +35,13 @@ class UpdateItemCacheJob extends DataJob {
         ]);
         this.traderData = await this.jobManager.jobOutput('update-traders', this);
         this.presets = await this.jobManager.jobOutput('update-presets', this, true);
+        // make sure we don't include any disabled presets
+        this.presets = Object.keys(this.presets).reduce((all, presetId) => {
+            if (this.itemMap.has(presetId) && !this.itemMap.get(presetId).types.includes('disabled')) {
+                all[presetId] = this.presets[presetId];
+            }
+            return all;
+        }, {});
         const itemData = {};
         const itemTypesSet = new Set();
         this.bsgCategories = {};
