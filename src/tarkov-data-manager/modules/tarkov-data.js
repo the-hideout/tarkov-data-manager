@@ -3,6 +3,7 @@ const fs = require('fs');
 const tarkovChanges = require('./tarkov-changes');
 const tarkovBot = require('./tarkov-bot');
 const spt = require('./tarkov-spt');
+const normalizeName = require('./normalize-name');
 
 let manualTranslations = {};
 try {
@@ -26,7 +27,7 @@ async function addManualTranslations(lang, langCode) {
     };
 }
 
-module.exports = {
+const dataFunctions = {
     areas: (download = false) => {
         return tarkovChanges.areas(download);
     },
@@ -77,8 +78,44 @@ module.exports = {
     locations: (download = false) => {
         return tarkovChanges.locations(download);
     },
-    mapLoot: (mapNameId, download = false) => {
-        return spt.mapLoot(mapNameId, download);
+    mapDetails: async () => {
+        const emptyData = {
+            extracts: [],
+            doors: [],
+            zones: [],
+            hazards: [],
+            loot_points: [],
+            loot_containers: [],
+        };
+        const details = {};
+        const locations = await dataFunctions.locations();
+        const en = await dataFunctions.locale('en');
+        for (const id in locations.locations) {
+            const map = locations.locations[id];
+            if (id !== '59fc81d786f774390775787e' && (!map.Enabled || map.Locked)) {
+                continue;
+            }
+            if (!en[`${id} Name`]) {
+                continue;
+            }
+            let normalizedName = normalizeName(en[`${id} Name`]);
+            if (id === '59fc81d786f774390775787e') {
+                normalizedName = normalizeName(en.factory4_night);
+            }
+            try {
+                details[id] = JSON.parse(fs.readFileSync(`./cache/${normalizedName}.json`));
+            } catch (error) {
+                if (error.code === 'ENOENT') {
+                    details[id] = emptyData;
+                    continue;
+                }
+                return Promise.reject(error);
+            }
+        }
+        return details;
+    },
+    mapLoot: (download = false) => {
+        return spt.mapLoot(download);
     },
     quests: (download = false) => {
         return spt.quests(download);
@@ -96,3 +133,5 @@ module.exports = {
         return spt.traderQuestAssorts(traderId, download);
     },
 };
+
+module.exports = dataFunctions;

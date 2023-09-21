@@ -24,7 +24,7 @@ class UpdateQuestsJob extends DataJob {
             responseType: 'json',
             resolveBodyOnly: true,
         });
-        [this.rawQuestData, this.items, this.locations, this.locales, this.itemResults, this.missingQuests, this.changedQuests, this.removedQuests] = await Promise.all([
+        [this.rawQuestData, this.items, this.locations, this.mapLoot, this.mapDetails, this.locales, this.itemResults, this.missingQuests, this.changedQuests, this.removedQuests] = await Promise.all([
             tarkovData.quests(true).catch(error => {
                 this.logger.error('Error getting quests');
                 this.logger.error(error);
@@ -32,6 +32,8 @@ class UpdateQuestsJob extends DataJob {
             }),
             tarkovData.items(),
             tarkovData.locations(),
+            tarkovData.mapLoot(),
+            tarkovData.mapDetails(),
             tarkovData.locales(),
             remoteData.get(),
             fs.readFile(path.join(__dirname, '..', 'data', 'missing_quests.json')).then(json => JSON.parse(json)),
@@ -39,12 +41,6 @@ class UpdateQuestsJob extends DataJob {
             fs.readFile(path.join(__dirname, '..', 'data', 'removed_quests.json')).then(json => JSON.parse(json)),
         ]);
         this.maps = await this.jobManager.jobOutput('update-maps', this);
-        this.mapLoot = {};
-        await Promise.all(this.maps.map(mapData => {
-            return tarkovData.mapLoot(mapData.nameId).then(loot => {
-                this.mapLoot[mapData.id] = loot;
-            });
-        }));
         this.hideout = await this.jobManager.jobOutput('update-hideout', this);
         const traders = await this.jobManager.jobOutput('update-traders', this);
         this.presets = await this.jobManager.jobOutput('update-presets', this, true);
@@ -490,7 +486,7 @@ class UpdateQuestsJob extends DataJob {
                 return allSpawns;
             }, []);
             if (spawns.length > 0) {
-                foundItems.push({mapId, coordinates: spawns});
+                foundItems.push({mapId, positions: spawns});
                 continue;
             }
         }
@@ -1194,7 +1190,7 @@ class UpdateQuestsJob extends DataJob {
         ];
         for (const obj of questData.objectives) {
             if (obj.zoneKeys?.length > 0) {
-                obj.zoneKeys.forEach(zoneKey => {
+                /*obj.zoneKeys.forEach(zoneKey => {
                     if (!zoneMap[zoneKey]) {
                         if (!questData.location_id) {
                             this.logger.warn(`Zone key ${zoneKey} is not associated with a map`);
@@ -1210,7 +1206,28 @@ class UpdateQuestsJob extends DataJob {
                             obj.map_ids.push(mapId);
                         } 
                     }
-                });
+                });*/
+                obj.zones = obj.zoneKeys.reduce((zones, zoneId) => {
+                    for (const mapId in this.mapDetails) {
+                        for (const trigger of this.mapDetails[mapId].zones) {
+                            if (trigger.id === zoneId) {
+                                zones.push({
+                                    id: trigger.id,
+                                    map: mapId,
+                                    position: trigger.position.center,
+                                    size: trigger.position.size,
+                                });        
+                                if (!obj.map_ids.includes(mapId)) {
+                                    obj.map_ids.push(mapId);
+                                } 
+                            }
+                        }
+                    }
+                    if (zones.length === 0) {
+                        this.logger.warn(`Zone key ${zoneId} is not associated with a map`);
+                    }
+                    return zones;
+                }, []);
             }
             if (obj.map_ids.length === 0 && locationTypes.includes(obj.type)) {
                 if (obj.map_ids.length === 0 && questData.location_id) {
@@ -1401,8 +1418,12 @@ class UpdateQuestsJob extends DataJob {
                 } else if (cond._parent === 'ExitName') {
                     obj.exitName = this.addTranslation(cond._props.exitName)
                     if (cond._props.exitName && obj.map_ids.length === 0) {
-                        if (extractMap[cond._props.exitName]) {
-                            obj.map_ids.push(extractMap[cond._props.exitName]);
+                        const mapIdWithExtract = Object.keys(this.mapDetails).find(mapId => {
+                            const extracts = this.mapDetails[mapId].extracts;
+                            return extracts.some(e => e.settings.Name === cond._props.exitName);
+                        });
+                        if (mapIdWithExtract) {
+                            obj.map_ids.push(mapIdWithExtract);
                         } else {
                             this.logger.warn(`No map found for extract ${cond._props.exitName}`);
                         }
@@ -1716,97 +1737,6 @@ class UpdateQuestsJob extends DataJob {
         return s3ImageLink;
     }
 }
-
-const zoneMap = {
-    case_extraction: [
-        '55f2d3fd4bdc2d5f408b4567', //day factory
-        '59fc81d786f774390775787e', //night
-    ],
-    eger_barracks_area_1: '5704e5fad2720bc05b8b4567', //reserve
-    eger_barracks_area_2: '5704e5fad2720bc05b8b4567',
-    huntsman_013: [
-        '55f2d3fd4bdc2d5f408b4567', //day factory
-        '59fc81d786f774390775787e', //night
-    ],
-    huntsman_020: '56f40101d2720b2a4d8b45d6', //customs
-    lijnik_storage_area_1: '5704e5fad2720bc05b8b4567',
-    locked_office: [
-        '55f2d3fd4bdc2d5f408b4567', //day factory
-        '59fc81d786f774390775787e', //night
-    ],
-    mech_41_1: '56f40101d2720b2a4d8b45d6',
-    mech_41_2: '56f40101d2720b2a4d8b45d6',
-    mechanik_exit_area_1: '5704e5fad2720bc05b8b4567',
-    meh_44_eastLight_kill: '5704e4dad2720bb55b8b4567', //lighthouse
-    meh_50_visit_area_check_1: '5704e4dad2720bb55b8b4567',
-    place_merch_022_1: '5714dbc024597771384a510d', //interchange
-    place_pacemaker_SCOUT_01: [
-        '55f2d3fd4bdc2d5f408b4567', 
-        '59fc81d786f774390775787e', 
-    ],
-    place_pacemaker_SCOUT_02: [
-        '55f2d3fd4bdc2d5f408b4567', 
-        '59fc81d786f774390775787e', 
-    ],
-    place_pacemaker_SCOUT_03: [
-        '55f2d3fd4bdc2d5f408b4567', 
-        '59fc81d786f774390775787e', 
-    ],
-    place_pacemaker_SCOUT_04: [
-        '55f2d3fd4bdc2d5f408b4567', 
-        '59fc81d786f774390775787e', 
-    ],
-    place_SADOVOD_01_1: [
-        '55f2d3fd4bdc2d5f408b4567', 
-        '59fc81d786f774390775787e', 
-    ],
-    place_SADOVOD_01_2: [
-        '55f2d3fd4bdc2d5f408b4567', 
-        '59fc81d786f774390775787e', 
-    ],
-    place_skier_11_1: '5704e3c2d2720bac5b8b4567', //woods
-    place_skier_11_2: '56f40101d2720b2a4d8b45d6',
-    place_skier_11_3: '5714dbc024597771384a510d',
-    place_skier_12_1: '5714dbc024597771384a510d',
-    place_skier_12_2: '56f40101d2720b2a4d8b45d6', 
-    place_skier_12_3: '5704e3c2d2720bac5b8b4567',
-    prapor_27_2: '5704e3c2d2720bac5b8b4567', 
-    prapor_27_1: '56f40101d2720b2a4d8b45d6',
-    prapor_27_2: '5704e3c2d2720bac5b8b4567',
-    prapor_27_3: '5704e554d2720bac5b8b456e', //shoreline
-    prapor_27_4: '5704e554d2720bac5b8b456e',
-    prapor_hq_area_check_1: '5704e5fad2720bc05b8b4567',
-    qlight_br_secure_road: '5704e4dad2720bb55b8b4567',
-    qlight_pr1_heli2_kill: '5704e4dad2720bb55b8b4567',
-    qlight_pc1_ucot_kill: '5704e4dad2720bb55b8b4567',
-    quest_zone_find_2st_mech: '5714dc692459777137212e12', // streets
-    quest_zone_hide_2st_mech: '5714dc692459777137212e12',
-    quest_st_1_zone: '5704e554d2720bac5b8b456e',
-    quest_st_4_visit: '5704e554d2720bac5b8b456e',
-    quest_st_9_shopping: '5714dbc024597771384a510d',
-    quest_st_9_factory: [
-        '55f2d3fd4bdc2d5f408b4567', //day factory
-        '59fc81d786f774390775787e', //night
-    ],
-    quest_st_9_custom: '56f40101d2720b2a4d8b45d6',
-    quest_st_9_wood: '5704e3c2d2720bac5b8b4567',
-    quest_st_9_rez: '5704e5fad2720bc05b8b4567',
-    quest_st_10_area: '5714dc692459777137212e12',
-    quest_st_10_hide: '5714dc692459777137212e12',
-    quest_st_15_item_lab: '5b0fc42d86f7744a585f9105',
-    quest_st_15_item_light: '5704e4dad2720bb55b8b4567',
-    quest_st_19_flare2: '5704e4dad2720bb55b8b4567',
-    quest_zone_kill_c17_adm: '5714dc692459777137212e12', //streets
-    quest_zone_keeper4_flare: '5704e5fad2720bc05b8b4567',
-    quest_zone_keeper5: '5704e3c2d2720bac5b8b4567',
-    quest_zone_keeper6_kiba_kill: '5714dbc024597771384a510d',
-    quest_zone_keeper7_saferoom: '5b0fc42d86f7744a585f9105', //labs
-    quest_zone_keeper7_test: '5b0fc42d86f7744a585f9105',
-    quest_zone_last_flare: '5714dc692459777137212e12',
-    quest_zone_prod_flare: '5714dc692459777137212e12',
-    tadeush_bmp2_area_mark_12: '5704e5fad2720bc05b8b4567',
-    ter_017_area_1: '59fc81d786f774390775787e',
-};
 
 const questItemLocations = {};
 

@@ -15,10 +15,11 @@ class UpdateMapsJob extends DataJob {
 
     run = async () => {
         this.logger.log('Getting maps data...');
-        [this.items, this.presets, this.botInfo] = await Promise.all([
+        [this.items, this.presets, this.botInfo, this.mapDetails] = await Promise.all([
             remoteData.get(),
             this.jobManager.jobOutput('update-presets', this, true),
             tarkovData.botsInfo(false),
+            tarkovData.mapDetails(),
         ]);
         this.mapRotationData = JSON.parse(fs.readFileSync('./data/map_coordinates.json'));
         this.bossLoadouts = {};
@@ -68,6 +69,23 @@ class UpdateMapsJob extends DataJob {
                         zoneName: spawn.BotZoneName || spawn.Id,
                     };
                 }).filter(Boolean),
+                extracts: this.mapDetails[id].extracts.map(extract => {
+                    return {
+                        id: extract.settings.Name,
+                        name: this.addTranslation(extract.settings.Name),
+                        faction: exfilFactions[extract.exfilType],
+                        position: extract.position.center,
+                        size: extract.position.size,
+                    };
+                }),
+                locks: this.mapDetails[id].locks.map(lock => {
+                    return {
+                        lockType: lock.lockType,
+                        key: lock.key,
+                        position: lock.position.center,
+                        //size: lock.position.size,
+                    }
+                }),
                 minPlayerLevel: map.RequiredPlayerLevelMin,
                 maxPlayerLevel: map.RequiredPlayerLevelMax,
                 accessKeys: map.AccessKeys,
@@ -203,17 +221,6 @@ class UpdateMapsJob extends DataJob {
             mapData.normalizedName = normalizeName(this.kvData.locale.en[mapData.name]);
             this.kvData.Map.push(mapData);
         }
-
-        await Promise.allSettled(this.kvData.Map.map(mapData => {
-            return tarkovData.mapLoot(mapData.nameId, true);
-        })).then(results => {
-            results.forEach(result => {
-                if (result.status === 'fulfilled') {
-                    return;
-                }
-                this.logger.error(`Error downloading map loot: ${result.reason}`);
-            });
-        });
 
         //const queueTimes = await mapQueueTimes(maps.data, this.logger);
         this.kvData.Map = this.kvData.Map.sort((a, b) => a.name.localeCompare(b.name)).map(map => {
@@ -463,6 +470,12 @@ const idMap = {
     '5b0fc42d86f7744a585f9105': 5,
     '5704e5fad2720bc05b8b4567': 6,
     '5704e4dad2720bb55b8b4567': 7,
+};
+
+const exfilFactions = {
+    SharedExfiltrationPoint: 'shared',
+    ExfiltrationPoint: 'pmc',
+    ScavExfiltrationPoint: 'scav',
 };
 
 const getChances = (input, nameLabel = 'name', labelInt = false) => {
