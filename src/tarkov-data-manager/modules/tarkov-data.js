@@ -87,6 +87,9 @@ const dataFunctions = {
             loot_points: [],
             loot_containers: [],
         };
+        const excludedExtracts = [
+            'Gate 2'
+        ];
         const details = {};
         const locations = await dataFunctions.locations();
         const en = await dataFunctions.locale('en');
@@ -104,6 +107,23 @@ const dataFunctions = {
             }
             try {
                 details[id] = JSON.parse(fs.readFileSync(`./cache/${normalizedName}.json`));
+                details[id].extracts = details[id].extracts.reduce((extracts, extract) => {
+                    const sharedExtract = extracts.find(e => {
+                        if (e.settings.Name !== extract.settings.Name) {
+                            return false;
+                        }
+                        if (e.position.center.x !== extract.position.center.x || e.position.center.z !== extract.position.center.z) {
+                            return false;
+                        }
+                        return true;
+                    });
+                    if (sharedExtract) {
+                        sharedExtract.exfilType = 'SharedExfiltrationPoint';
+                    } else if (!excludedExtracts.includes(extract.settings.Name)) {
+                        extracts.push(extract);
+                    }
+                    return extracts;
+                }, []);
             } catch (error) {
                 if (error.code === 'ENOENT') {
                     details[id] = emptyData;

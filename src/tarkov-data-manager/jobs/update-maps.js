@@ -79,13 +79,18 @@ class UpdateMapsJob extends DataJob {
                     };
                 }),
                 locks: this.mapDetails[id].locks.map(lock => {
+                    const keyItem = this.items.get(lock.key);
+                    if (!keyItem || keyItem.types.includes('disabled')) {
+                        this.logger.warn(`Skipping lock for key ${lock.key}`)
+                        return false;
+                    }
                     return {
                         lockType: lock.lockType,
                         key: lock.key,
                         position: lock.position.center,
                         //size: lock.position.size,
                     }
-                }),
+                }).filter(Boolean),
                 minPlayerLevel: map.RequiredPlayerLevelMin,
                 maxPlayerLevel: map.RequiredPlayerLevelMax,
                 accessKeys: map.AccessKeys,
