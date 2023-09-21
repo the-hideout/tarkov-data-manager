@@ -97,10 +97,10 @@ if (app.get('env') === 'production') {
     sess.cookie.secure = true;
 }
 
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
 app.use(express.static('public'));
 app.use(session(sess));
-app.use(express.json());
+app.use(express.json({limit: '100mb'}));
 app.use(express.urlencoded({extended: true}));
 app.use(maybe((req, res, next) => {
     if (req.session.loggedin) {
@@ -1536,16 +1536,16 @@ app.post('/json/:dir', async (req, res) => {
                     finish(files);
                     return reject(error);
                 }
-                let file = files.file[index];
+                let file = files.file[0];
                 let fileName = file.originalFilename;
                 fileName = fileName.split('/').pop();
                 fileName = fileName.split('\\').pop();
                 if (!fileName.endsWith('.json')) {
+                    finish(files);
                     return reject(new Error(`File name must end in .json`));
                 }
                 fs.renameSync(file.filepath, `./${dir}/${fileName}`);
                 delete file;
-                finish(files);
                 response.message = `${fileName} uploaded`;
                 resolve();
             });
