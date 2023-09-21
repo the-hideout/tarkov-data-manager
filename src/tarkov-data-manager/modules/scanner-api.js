@@ -961,6 +961,22 @@ const submitImage = (request, user) => {
     });
 };
 
+const submitData = (options) => {
+    const response = {errors: [], warnings: [], data: {}};
+    try {
+        let filename = options.name;
+        fs.writeFileSync(path.join(__dirname, '..', 'cache', `${filename}.json`), JSON.stringify(options.data, null, 4));
+        response.data.filename = filename;
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            response.errors.push(`Error: ${options.file} not found`);
+        } else {
+            response.errors.push(String(error));
+        }
+    }
+    return response;
+};
+
 const userFlags = {
     disabled: 0,
     insertPlayerPrices: 1,
@@ -968,7 +984,8 @@ const userFlags = {
     trustTraderUnlocks: 4,
     skipPriceInsert: 8,
     jsonDownload: 16,
-    overwriteImages: 32
+    overwriteImages: 32,
+    submitData: 64,
 };
 
 const scannerFlags = {
@@ -1151,6 +1168,13 @@ module.exports = {
         if (resource === 'json') {
             if (user.flags & userFlags.jsonDownload) {
                 response = getJson(options);
+            } else {
+                return res.json({errors: ['You are not authorized to perform that action'], warnings: [], data: {}});
+            }
+        }
+        if (resource === 'submit-data') {
+            if (user.flags & userFlags.submitData) {
+                response = submitData(req.body);
             } else {
                 return res.json({errors: ['You are not authorized to perform that action'], warnings: [], data: {}});
             }

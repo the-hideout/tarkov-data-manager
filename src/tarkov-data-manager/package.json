@@ -36,11 +36,11 @@
     "formidable": "^3.5.1",
     "got": "^11.8.6",
     "moment": "^2.29.4",
-    "mysql2": "^3.6.0",
+    "mysql2": "^3.6.1",
     "node-schedule": "^2.1.1",
     "nodemon": "^3.0.1",
     "sharp": "0.32.5",
-    "tarkov-dev-image-generator": "^2.1.22",
+    "tarkov-dev-image-generator": "^2.1.28",
     "unidecode": "^0.1.8"
   }
 }
