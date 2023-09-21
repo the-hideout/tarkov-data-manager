@@ -1536,16 +1536,16 @@ app.post('/json/:dir', async (req, res) => {
                     finish(files);
                     return reject(error);
                 }
-                let file = files.file[index];
+                let file = files.file[0];
                 let fileName = file.originalFilename;
                 fileName = fileName.split('/').pop();
                 fileName = fileName.split('\\').pop();
                 if (!fileName.endsWith('.json')) {
+                    finish(files);
                     return reject(new Error(`File name must end in .json`));
                 }
                 fs.renameSync(file.filepath, `./${dir}/${fileName}`);
                 delete file;
-                finish(files);
                 response.message = `${fileName} uploaded`;
                 resolve();
             });
