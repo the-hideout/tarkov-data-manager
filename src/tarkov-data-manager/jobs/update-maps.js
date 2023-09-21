@@ -91,6 +91,19 @@ class UpdateMapsJob extends DataJob {
                         //size: lock.position.size,
                     }
                 }).filter(Boolean),
+                hazards: this.mapDetails[id].hazards.map(hazard => {
+                    if (!hazardMap[hazard.hazardType]) {
+                        this.logger.warn(`Unknown hazard type: ${hazard.hazardType}`);
+                    }
+                    let hazardType = hazardMap[hazard.hazardType]?.id || hazard.hazardType;
+                    let hazardName = hazardMap[hazard.hazardType]?.name || hazard.hazardType;
+                    return {
+                        hazardType: hazardType,
+                        name: this.addTranslation(hazardName),
+                        position: hazard.position.center,
+                        size: hazard.position.size,
+                    };
+                }),
                 minPlayerLevel: map.RequiredPlayerLevelMin,
                 maxPlayerLevel: map.RequiredPlayerLevelMax,
                 accessKeys: map.AccessKeys,
@@ -481,6 +494,17 @@ const exfilFactions = {
     SharedExfiltrationPoint: 'shared',
     ExfiltrationPoint: 'pmc',
     ScavExfiltrationPoint: 'scav',
+};
+
+const hazardMap = {
+    SniperFiringZone: {
+        id: 'sniper',
+        name: 'ScavRole/Marksman',
+    },
+    Minefield: {
+        id: 'minefield',
+        name: 'DamageType_Landmine',
+    }
 };
 
 const getChances = (input, nameLabel = 'name', labelInt = false) => {
