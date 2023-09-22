@@ -87,9 +87,9 @@ const dataFunctions = {
             loot_points: [],
             loot_containers: [],
         };
-        const excludedExtracts = [
-            'Gate 2'
-        ];
+        const excludedExtracts = {
+            'shoreline': ['Alpinist']
+        };
         const details = {};
         const locations = await dataFunctions.locations();
         const en = await dataFunctions.locale('en');
@@ -119,9 +119,15 @@ const dataFunctions = {
                     });
                     if (sharedExtract) {
                         sharedExtract.exfilType = 'SharedExfiltrationPoint';
-                    } else if (!excludedExtracts.includes(extract.settings.Name)) {
-                        extracts.push(extract);
+                        return extracts;
                     }
+                    if (extract.location.size.x <= 1 && extract.location.size.y <= 1 && extract.location.size.z <= 1) {
+                        return extracts;
+                    }
+                    if (excludedExtracts[normalizedName]?.includes(extract.settings.Name)) {
+                        return extracts;
+                    }
+                    extracts.push(extract);
                     return extracts;
                 }, []);
             } catch (error) {
