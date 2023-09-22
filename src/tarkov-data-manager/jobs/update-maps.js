@@ -74,8 +74,7 @@ class UpdateMapsJob extends DataJob {
                         id: extract.settings.Name,
                         name: this.addTranslation(extract.settings.Name),
                         faction: exfilFactions[extract.exfilType],
-                        position: extract.position.center,
-                        size: extract.position.size,
+                        ...extract.location,
                     };
                 }),
                 locks: this.mapDetails[id].locks.map(lock => {
@@ -87,8 +86,7 @@ class UpdateMapsJob extends DataJob {
                     return {
                         lockType: lock.lockType,
                         key: lock.key,
-                        position: lock.position.center,
-                        //size: lock.position.size,
+                        ...lock.location,
                     }
                 }).filter(Boolean),
                 hazards: this.mapDetails[id].hazards.map(hazard => {
@@ -100,8 +98,7 @@ class UpdateMapsJob extends DataJob {
                     return {
                         hazardType: hazardType,
                         name: this.addTranslation(hazardName),
-                        position: hazard.position.center,
-                        size: hazard.position.size,
+                        ...hazard.location,
                     };
                 }),
                 minPlayerLevel: map.RequiredPlayerLevelMin,

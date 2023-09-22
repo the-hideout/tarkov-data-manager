@@ -991,8 +991,7 @@ class UpdateQuestsJob extends DataJob {
                                 zones.push({
                                     id: trigger.id,
                                     map: mapId,
-                                    position: trigger.position.center,
-                                    size: trigger.position.size,
+                                    ...trigger.location,
                                 });        
                                 if (!obj.map_ids.includes(mapId)) {
                                     obj.map_ids.push(mapId);

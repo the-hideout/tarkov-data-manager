@@ -112,7 +112,7 @@ const dataFunctions = {
                         if (e.settings.Name !== extract.settings.Name) {
                             return false;
                         }
-                        if (e.position.center.x !== extract.position.center.x || e.position.center.z !== extract.position.center.z) {
+                        if (e.location.position.x !== extract.location.position.x || e.location.position.z !== extract.location.position.z) {
                             return false;
                         }
                         return true;
