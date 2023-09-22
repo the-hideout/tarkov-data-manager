@@ -109,7 +109,7 @@ class UpdateTraderPricesJob extends DataJob {
                 updated: offer.updated,
                 quest_unlock: Boolean(questUnlock),
                 quest_unlock_id: questUnlock ? questUnlock.id : null,
-                currecy: offer.currency,
+                currency: offer.currency,
                 currencyItem: this.currencyId[offer.currency],
                 requirements: [
                     {
