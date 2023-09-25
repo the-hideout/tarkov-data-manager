@@ -15,15 +15,17 @@ class UpdateMapsJob extends DataJob {
 
     run = async () => {
         this.logger.log('Getting maps data...');
-        [this.items, this.presets, this.botInfo, this.mapDetails] = await Promise.all([
+        [this.items, this.presets, this.botInfo, this.mapDetails, this.eftItems] = await Promise.all([
             remoteData.get(),
             this.jobManager.jobOutput('update-presets', this, true),
             tarkovData.botsInfo(false),
             tarkovData.mapDetails(),
+            tarkovData.items(),
         ]);
         this.mapRotationData = JSON.parse(fs.readFileSync('./data/map_coordinates.json'));
         this.bossLoadouts = {};
         this.processedBosses = {};
+        this.lootContainers = {};
         const locations = await tarkovData.locations();
         this.s3Images = s3.getLocalBucketContents();
         this.kvData.Map = [];
@@ -101,6 +103,15 @@ class UpdateMapsJob extends DataJob {
                         ...hazard.location,
                     };
                 }),
+                lootContainers: this.mapDetails[id].loot_containers.map(container => {
+                    if (!container.lootParameters.Enabled) {
+                        return false;
+                    }
+                    return {
+                        lootContainer: this.getLootContainer(container),
+                        position: container.location.position,
+                    };
+                }).filter(Boolean),
                 minPlayerLevel: map.RequiredPlayerLevelMin,
                 maxPlayerLevel: map.RequiredPlayerLevelMax,
                 accessKeys: map.AccessKeys,
@@ -247,6 +258,7 @@ class UpdateMapsJob extends DataJob {
         this.logger.log(`Processed ${this.kvData.Map.length} maps`);
 
         this.kvData.MobInfo = this.processedBosses;
+        this.kvData.LootContainer = this.lootContainers;
         this.logger.log(`Processed ${Object.keys(this.kvData.MobInfo).length} mobs`);
         for (const mob of Object.values(this.kvData.MobInfo)) {
             //this.logger.log(`✔️ ${this.kvData.locale.en[mob.name]}`);
@@ -460,6 +472,19 @@ class UpdateMapsJob extends DataJob {
         }
         this.processedBosses[bossKey] = bossInfo;
         return bossInfo;
+    }
+
+    getLootContainer(c) {
+        if (this.lootContainers[c.template]) {
+            return c.template;
+        }
+        const container = {
+            id: c.template,
+            name: this.addTranslation(`${c.template} Name`),
+            normalizedName: normalizeName(this.locales.en[`${c.template} Name`]),
+        };
+        this.lootContainers[container.id] = container;
+        return container.id;
     }
 }
 
