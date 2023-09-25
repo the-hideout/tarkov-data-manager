@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3.6.0
+      - uses: actions/checkout@v4.1.0
 
       - uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # pin@v1
         with:
