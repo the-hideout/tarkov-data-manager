@@ -88,7 +88,14 @@ const dataFunctions = {
             loot_containers: [],
         };
         const excludedExtracts = {
-            'shoreline': ['Alpinist']
+            shoreline: [
+                'Alpinist'
+            ],
+        };
+        const excludedZones = {
+            reserve: [
+                'fuel4',
+            ],
         };
         const details = {};
         const locations = await dataFunctions.locations();
@@ -130,6 +137,7 @@ const dataFunctions = {
                     extracts.push(extract);
                     return extracts;
                 }, []);
+                details[id].zones = details[id].zones.filter(z => !excludedZones[normalizedName]?.includes(z.id));
             } catch (error) {
                 if (error.code === 'ENOENT') {
                     details[id] = emptyData;
