@@ -1,4 +1,5 @@
 const fs = require('fs');
+const crypto = require('crypto');
 
 const remoteData = require('../modules/remote-data');
 const tarkovData = require('../modules/tarkov-data');
@@ -73,9 +74,25 @@ class UpdateMapsJob extends DataJob {
                 }).filter(Boolean),
                 extracts: this.mapDetails[id].extracts.map(extract => {
                     return {
-                        id: extract.settings.Name,
+                        id: this.getId(id, extract),
                         name: this.addTranslation(extract.settings.Name),
                         faction: exfilFactions[extract.exfilType],
+                        switch: this.mapDetails[id].switches.reduce((found, current) => {
+                            if (found) {
+                                return found;
+                            }
+                            if (!extract.exfilSwitchId) {
+                                return found;
+                            }
+                            if (current.id === extract.exfilSwitchId) {
+                                found = this.getId(id, current);
+                            }
+                            return found;
+                        }, false),
+                        switches: extract.exfilSwitchIds.map(switchId => {
+                            const foundSwitch = this.mapDetails[id].switches.find(sw => sw.id === switchId);
+                            return foundSwitch ? this.getId(id, switchId) : false;
+                        }).filter(Boolean),
                         ...extract.location,
                     };
                 }),
@@ -86,6 +103,7 @@ class UpdateMapsJob extends DataJob {
                         return false;
                     }
                     return {
+                        id: this.getId(id, lock),
                         lockType: lock.lockType,
                         key: lock.key,
                         ...lock.location,
@@ -98,6 +116,7 @@ class UpdateMapsJob extends DataJob {
                     let hazardType = hazardMap[hazard.hazardType]?.id || hazard.hazardType;
                     let hazardName = hazardMap[hazard.hazardType]?.name || hazard.hazardType;
                     return {
+                        id: this.getId(id, hazard),
                         hazardType: hazardType,
                         name: this.addTranslation(hazardName),
                         ...hazard.location,
@@ -112,6 +131,42 @@ class UpdateMapsJob extends DataJob {
                         position: container.location.position,
                     };
                 }).filter(Boolean),
+                switches: this.mapDetails[id].switches.map(sw => {
+                    return {
+                        id: this.getId(id, sw),
+                        object_id: sw.id,
+                        name: sw.name,
+                        door: sw.doorId,
+                        switchType: sw.interactionType,
+                        previousSwitch: this.mapDetails[id].switches.reduce((found, current) => {
+                            if (found) {
+                                return found;
+                            }
+                            if (!sw.previousSwitchId) {
+                                return found;
+                            }
+                            if (current.id === sw.previousSwitchId) {
+                                found = this.getId(id, current);
+                            }
+                            return found;
+                        }, false),
+                        nextSwitches: sw.nextSwitches.map(so => {
+                            return {
+                                operation: so.operation,
+                                switch: this.mapDetails[id].switches.reduce((found, current) => {
+                                    if (found) {
+                                        return found;
+                                    }
+                                    if (current.id === so.targetSwitchId) {
+                                        found = this.getId(id, current);
+                                    }
+                                    return found;
+                                }, false),
+                            }
+                        }),
+                        ...sw.location,
+                    };
+                }),
                 minPlayerLevel: map.RequiredPlayerLevelMin,
                 maxPlayerLevel: map.RequiredPlayerLevelMax,
                 accessKeys: map.AccessKeys,
@@ -226,10 +281,26 @@ class UpdateMapsJob extends DataJob {
                 }
 
                 if (spawn.TriggerId) {
+                    const switchId = this.mapDetails[id].switches.reduce((found, current) => {
+                        if (found) {
+                            return found;
+                        }
+                        if (current.id === spawn.TriggerId) {
+                            found = current.id;
+                        }
+                        return found;
+                    }, false)
+                    if (switchId) {
+                        //bossData.spawnTrigger = this.addTranslation('SwitchActivation');
+                        bossData.switch = this.getId(id, {id: switchId});
+                        bossData.switch_id = switchId;
+                    } else {
+                        this.logger.warn(`Could not find switch ${spawn.TriggerId}`);
+                    }
                     if (this.locales.en[spawn.TriggerId]) {
                         bossData.spawnTrigger = this.addTranslation(spawn.TriggerId);
-                    } else if (spawn.TriggerId.includes('EXFIL')) {
-                        bossData.spawnTrigger = this.addTranslation('ExfilActivation');
+                    } else if (switchId) {
+                        bossData.spawnTrigger = this.addTranslation('Switch');
                     }
                 }
                 mapData.bosses.push(bossData);
@@ -485,6 +556,21 @@ class UpdateMapsJob extends DataJob {
         };
         this.lootContainers[container.id] = container;
         return container.id;
+    }
+
+    getId(mapId, obj) {
+        let hashString = mapId;
+        if (typeof obj === 'string') {
+            hashString += obj;
+        } else if (obj.id) {
+            hashString += obj.id;
+        } else if (obj.name) {
+            hashString += obj.name;
+        } else if (obj.location?.position) {
+            hashString += `${obj.location.position.x}${obj.location.position.y}${obj.location.position.z}`;
+        }
+        const shasum = crypto.createHash('sha1');
+        return shasum.update(hashString).digest('hex');
     }
 }
 

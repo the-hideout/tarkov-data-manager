@@ -3,7 +3,6 @@ const fs = require('fs');
 const tarkovChanges = require('./tarkov-changes');
 const tarkovBot = require('./tarkov-bot');
 const spt = require('./tarkov-spt');
-const normalizeName = require('./normalize-name');
 
 let manualTranslations = {};
 try {
@@ -88,12 +87,12 @@ const dataFunctions = {
             loot_containers: [],
         };
         const excludedExtracts = {
-            shoreline: [
+            Shoreline: [
                 'Alpinist'
             ],
         };
         const excludedZones = {
-            reserve: [
+            ReserveBase: [
                 'fuel4',
             ],
         };
@@ -108,12 +107,8 @@ const dataFunctions = {
             if (!en[`${id} Name`]) {
                 continue;
             }
-            let normalizedName = normalizeName(en[`${id} Name`]);
-            if (id === '59fc81d786f774390775787e') {
-                normalizedName = normalizeName(en.factory4_night);
-            }
             try {
-                details[id] = JSON.parse(fs.readFileSync(`./cache/${normalizedName}.json`));
+                details[id] = JSON.parse(fs.readFileSync(`./cache/${map.Id}.json`));
                 details[id].extracts = details[id].extracts.reduce((extracts, extract) => {
                     const sharedExtract = extracts.find(e => {
                         if (e.settings.Name !== extract.settings.Name) {
@@ -131,13 +126,13 @@ const dataFunctions = {
                     if (extract.location.size.x <= 1 && extract.location.size.y <= 1 && extract.location.size.z <= 1) {
                         return extracts;
                     }
-                    if (excludedExtracts[normalizedName]?.includes(extract.settings.Name)) {
+                    if (excludedExtracts[map.Id]?.includes(extract.settings.Name)) {
                         return extracts;
                     }
                     extracts.push(extract);
                     return extracts;
                 }, []);
-                details[id].zones = details[id].zones.filter(z => !excludedZones[normalizedName]?.includes(z.id));
+                details[id].zones = details[id].zones.filter(z => !excludedZones[map.Id]?.includes(z.id));
             } catch (error) {
                 if (error.code === 'ENOENT') {
                     details[id] = emptyData;
