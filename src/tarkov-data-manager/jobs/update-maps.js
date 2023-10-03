@@ -90,7 +90,7 @@ class UpdateMapsJob extends DataJob {
                             return found;
                         }, false),
                         switches: extract.exfilSwitchIds.map(switchId => {
-                            const foundSwitch = this.mapDetails[id].switches.find(sw => sw.id === switchId);
+                            const foundSwitch = this.mapDetails[id].switches.find(sw => sw.id === switchId && sw.hasCollider);
                             return foundSwitch ? this.getId(id, switchId) : false;
                         }).filter(Boolean),
                         ...extract.location,
@@ -132,6 +132,9 @@ class UpdateMapsJob extends DataJob {
                     };
                 }).filter(Boolean),
                 switches: this.mapDetails[id].switches.map(sw => {
+                    if (!sw.hasCollider) {
+                        return false;
+                    }
                     return {
                         id: this.getId(id, sw),
                         object_id: sw.id,
@@ -142,7 +145,7 @@ class UpdateMapsJob extends DataJob {
                             if (found) {
                                 return found;
                             }
-                            if (!sw.previousSwitchId) {
+                            if (!sw.previousSwitchId || !current.hasCollider) {
                                 return found;
                             }
                             if (current.id === sw.previousSwitchId) {
@@ -157,16 +160,19 @@ class UpdateMapsJob extends DataJob {
                                     if (found) {
                                         return found;
                                     }
+                                    if (!current.hasCollider) {
+                                        return found;
+                                    }
                                     if (current.id === so.targetSwitchId) {
                                         found = this.getId(id, current);
                                     }
                                     return found;
                                 }, false),
                             }
-                        }),
+                        }).filter(so => so.switch),
                         ...sw.location,
                     };
-                }),
+                }).filter(Boolean),
                 minPlayerLevel: map.RequiredPlayerLevelMin,
                 maxPlayerLevel: map.RequiredPlayerLevelMax,
                 accessKeys: map.AccessKeys,

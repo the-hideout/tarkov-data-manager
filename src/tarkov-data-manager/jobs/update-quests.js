@@ -253,11 +253,11 @@ class UpdateQuestsJob extends DataJob {
                     continue;
                 }
                 const itemInfo = this.getQuestItemLocations(obj.item_id, obj.id);
-                if (itemInfo) {
+                if (itemInfo.length > 0) {
                     for (const spawn of itemInfo) {
                         obj.possibleLocations.push(spawn);
-                        if (!obj.map_ids.includes(spawn.mapId)) {
-                            obj.map_ids.push(spawn.mapId);
+                        if (!obj.map_ids.includes(spawn.map)) {
+                            obj.map_ids.push(spawn.map);
                         }
                     }
                 } else if (questItemLocations[obj.item_id]) {       
@@ -441,6 +441,7 @@ class UpdateQuestsJob extends DataJob {
     }
 
     getQuestItemLocations = (questItemId, objectiveId) => {
+        this.logger.log(`${questItemId}, ${objectiveId}`);
         const foundItems = [];
         const forceMap = objectiveMap[objectiveId];
         for (const mapId in this.mapLoot) {
@@ -459,10 +460,7 @@ class UpdateQuestsJob extends DataJob {
                 continue;
             }
         }
-        if (foundItems.length > 0) {
-            return foundItems;
-        }
-        return false;
+        return foundItems;
     }
 
     getMapFromExtractName = extractName => {
@@ -1041,6 +1039,7 @@ class UpdateQuestsJob extends DataJob {
             id: objectiveId,
             description: (!failConditions || this.locales.en[objectiveId]) ? this.addTranslation(objectiveId) : this.addTranslation(objectiveId, 'en', ''),
             type: null,
+            count: isNaN(objective._props.value) ? null : parseInt(objective._props.value),
             optional: optional,
             locationNames: [],
             map_ids: [],
@@ -1055,7 +1054,7 @@ class UpdateQuestsJob extends DataJob {
             }
             obj.item_id = objective._props.target[0];
             obj.item_name = this.locales.en[`${objective._props.target[0]} Name`];
-            obj.count = parseInt(objective._props.value);
+            //obj.count = parseInt(objective._props.value);
             if (!targetItem || targetItem._props.QuestItem) {
                 obj.type = `${verb}QuestItem`;
                 //obj.questItem = objective._props.target[0];
@@ -1079,7 +1078,7 @@ class UpdateQuestsJob extends DataJob {
                     obj.zoneKeys.push(cond._props.target);
                 } else if (cond._parent === 'Kills' || cond._parent === 'Shots') {
                     obj.target = this.locales.en[`QuestCondition/Elimination/Kill/Target/${cond._props.target}`] || cond._props.target;
-                    obj.count = parseInt(objective._props.value);
+                    //obj.count = parseInt(objective._props.value);
                     obj.shotType = 'kill';
                     if (cond._parent === 'Shots') obj.shotType = 'hit';
                     //obj.bodyParts = [];
