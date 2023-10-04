@@ -110,7 +110,13 @@ const dataFunctions = {
             try {
                 details[id] = JSON.parse(fs.readFileSync(`./cache/${map.Id}.json`));
                 details[id].extracts = details[id].extracts.reduce((extracts, extract) => {
-                    const sharedExtract = extracts.find(e => {
+                    if (extract.location.size.x <= 1 && extract.location.size.y <= 1 && extract.location.size.z <= 1) {
+                        return extracts;
+                    }
+                    if (excludedExtracts[map.Id]?.includes(extract.settings.Name)) {
+                        return extracts;
+                    }
+                    let duplicateExtract = extracts.find(e => {
                         if (e.settings.Name !== extract.settings.Name) {
                             return false;
                         }
@@ -119,15 +125,13 @@ const dataFunctions = {
                         }
                         return true;
                     });
-                    if (sharedExtract) {
-                        sharedExtract.exfilType = 'SharedExfiltrationPoint';
-                        return extracts;
-                    }
-                    if (extract.location.size.x <= 1 && extract.location.size.y <= 1 && extract.location.size.z <= 1) {
-                        return extracts;
-                    }
-                    if (excludedExtracts[map.Id]?.includes(extract.settings.Name)) {
-                        return extracts;
+                    if (duplicateExtract) {
+                        if (duplicateExtract.exfilType === 'ExfiltrationPoint') {
+                            duplicateExtract.exfilType = 'SharedExfiltrationPoint';
+                            return extracts;
+                        }
+                        extracts = extracts.filter(e => e !== duplicateExtract);
+                        extract.exfilType = 'SharedExfiltrationPoint';
                     }
                     extracts.push(extract);
                     return extracts;

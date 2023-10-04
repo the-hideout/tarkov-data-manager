@@ -91,7 +91,7 @@ class UpdateMapsJob extends DataJob {
                         }, false),
                         switches: extract.exfilSwitchIds.map(switchId => {
                             const foundSwitch = this.mapDetails[id].switches.find(sw => sw.id === switchId && sw.hasCollider);
-                            return foundSwitch ? this.getId(id, switchId) : false;
+                            return foundSwitch ? this.getId(id, foundSwitch) : false;
                         }).filter(Boolean),
                         ...extract.location,
                     };
@@ -141,7 +141,7 @@ class UpdateMapsJob extends DataJob {
                         name: sw.name,
                         door: sw.doorId,
                         switchType: sw.interactionType,
-                        previousSwitch: this.mapDetails[id].switches.reduce((found, current) => {
+                        activatedBy: this.mapDetails[id].switches.reduce((found, current) => {
                             if (found) {
                                 return found;
                             }
@@ -153,32 +153,37 @@ class UpdateMapsJob extends DataJob {
                             }
                             return found;
                         }, false),
-                        nextSwitches: sw.nextSwitches.map(so => {
-                            return {
-                                operation: so.operation,
-                                switch: this.mapDetails[id].switches.reduce((found, current) => {
-                                    if (found) {
+                        activates: [
+                            ...sw.nextSwitches.map(so => {
+                                return {
+                                    operation: so.operation,
+                                    switch: this.mapDetails[id].switches.reduce((found, current) => {
+                                        if (found) {
+                                            return found;
+                                        }
+                                        if (!current.hasCollider) {
+                                            return found;
+                                        }
+                                        if (current.id === so.targetSwitchId) {
+                                            found = this.getId(id, current);
+                                        }
                                         return found;
-                                    }
-                                    if (!current.hasCollider) {
-                                        return found;
-                                    }
-                                    if (current.id === so.targetSwitchId) {
-                                        found = this.getId(id, current);
-                                    }
+                                    }, false),
+                                }
+                            }).filter(so => so.switch),
+                            this.mapDetails[id].extracts.reduce((found, extract) => {
+                                if (found || !sw.extractId) {
                                     return found;
-                                }, false),
-                            }
-                        }).filter(so => so.switch),
-                        extract: this.mapDetails[id].extracts.reduce((found, extract) => {
-                            if (found || !sw.extractId) {
+                                }
+                                if (extract.name === sw.extractId && extract.exfilSwitchIds.includes(sw.id)) {
+                                    found = {
+                                        operation: "Unlock",
+                                        extract: this.getId(id, extract)
+                                    };
+                                }
                                 return found;
-                            }
-                            if (extract.name === sw.extractId) {
-                                found = this.getId(id, extract);
-                            }
-                            return found;
-                        }, null),
+                            }, null)
+                        ].filter(Boolean),
                         ...sw.location,
                     };
                 }).filter(Boolean),
@@ -576,12 +581,18 @@ class UpdateMapsJob extends DataJob {
     getId(mapId, obj) {
         let hashString = mapId;
         if (typeof obj === 'string') {
-            hashString += obj;
-        } else if (obj.id) {
+            obj = {id: obj};
+        }
+        if (obj.id) {
             hashString += obj.id;
-        } else if (obj.name) {
+        }
+        if (obj.name) {
             hashString += obj.name;
-        } else if (obj.location?.position) {
+        }
+        if (obj.settings?.Name) {
+            hashString += obj.settings?.Name;
+        }
+        if (hashString === mapId) {
             hashString += `${obj.location.position.x}${obj.location.position.y}${obj.location.position.z}`;
         }
         const shasum = crypto.createHash('sha1');
