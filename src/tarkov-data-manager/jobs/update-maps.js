@@ -170,6 +170,15 @@ class UpdateMapsJob extends DataJob {
                                 }, false),
                             }
                         }).filter(so => so.switch),
+                        extract: this.mapDetails[id].extracts.reduce((found, extract) => {
+                            if (found || !sw.extractId) {
+                                return found;
+                            }
+                            if (extract.name === sw.extractId) {
+                                found = this.getId(id, extract);
+                            }
+                            return found;
+                        }, null),
                         ...sw.location,
                     };
                 }).filter(Boolean),
