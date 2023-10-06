@@ -106,6 +106,7 @@ class UpdateMapsJob extends DataJob {
                         id: this.getId(id, lock),
                         lockType: lock.lockType,
                         key: lock.key,
+                        needsPower: lock.needsPower || false,
                         ...lock.location,
                     }
                 }).filter(Boolean),

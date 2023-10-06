@@ -137,6 +137,24 @@ const dataFunctions = {
                     return extracts;
                 }, []);
                 details[id].zones = details[id].zones.filter(z => !excludedZones[map.Id]?.includes(z.id));
+                
+                details[id].locks = details[id].locks.map(l => {
+                    return {
+                        ...l,
+                        needsPower: details[id].no_power?.some(pow => {
+                            if (pow.location.position.x !== l.location.position.x) {
+                                return false;
+                            }
+                            if (pow.location.position.y !== l.location.position.y) {
+                                return false;
+                            }
+                            if (pow.location.position.z !== l.location.position.z) {
+                                return false;
+                            }
+                            return true;
+                        }),
+                    }
+                });
             } catch (error) {
                 if (error.code === 'ENOENT') {
                     details[id] = emptyData;
