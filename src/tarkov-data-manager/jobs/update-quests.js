@@ -33,7 +33,8 @@ class UpdateQuestsJob extends DataJob {
             tarkovData.items(),
             tarkovData.locations(),
             tarkovData.mapLoot().then(result => Object.keys(result).reduce((all, mapId) => {
-                all[mapId] = result[mapId].spawnpointsForced;
+                all[mapId] = result[mapId].spawnpointsForced || [];
+                return all;
             }, {})),
             tarkovData.mapDetails(),
             tarkovData.locales(),
@@ -443,15 +444,13 @@ class UpdateQuestsJob extends DataJob {
     }
 
     getQuestItemLocations = (questItemId, objectiveId) => {
-        this.logger.log(`${questItemId}, ${objectiveId}`);
         const foundItems = [];
         const forceMap = objectiveMap[objectiveId];
         for (const mapId in this.mapLoot) {
             if (forceMap && forceMap !== mapId) {
                 continue;
             }
-            const mapSpawns = this.mapLoot[mapId];
-            const spawns = mapSpawns.reduce((allSpawns, lootInfo) => {
+            const spawns = this.mapLoot[mapId].reduce((allSpawns, lootInfo) => {
                 if (lootInfo.template.Items.some(lootItem => lootItem._tpl === questItemId)) {
                     allSpawns.push(lootInfo.template.Position);
                 }
