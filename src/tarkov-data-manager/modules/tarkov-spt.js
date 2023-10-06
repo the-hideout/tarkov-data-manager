@@ -155,7 +155,7 @@ module.exports = {
         for (const id in locations.locations) {
             const map = locations.locations[id];
             try {
-                mapLoot[id] = await downloadJson(`${map.Id.toLowerCase()}_loot.json`, `${sptDataPath}locations/${locations.locations[id].Id.toLowerCase()}/looseLoot.json`, download, true, 'spawnpointsForced');
+                mapLoot[id] = await downloadJson(`${map.Id.toLowerCase()}_loot.json`, `${sptDataPath}locations/${locations.locations[id].Id.toLowerCase()}/looseLoot.json`, download, true);
             } catch (error) {
                 if (error.code === 'ERR_NON_2XX_3XX_RESPONSE') {
                     mapLoot[id] = [];

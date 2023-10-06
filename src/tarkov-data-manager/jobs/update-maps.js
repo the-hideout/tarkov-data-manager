@@ -135,10 +135,12 @@ class UpdateMapsJob extends DataJob {
                     if (!sw.hasCollider) {
                         return false;
                     }
+                    const switchId = `${sw.id}_${sw.name}`.replace(/^(?:switch_)?/i, 'switch_');
                     return {
                         id: this.getId(id, sw),
                         object_id: sw.id,
-                        name: sw.name,
+                        object_name: sw.name,
+                        name: this.addTranslation(switchId),
                         door: sw.doorId,
                         switchType: sw.interactionType,
                         activatedBy: this.mapDetails[id].switches.reduce((found, current) => {

@@ -92,7 +92,7 @@ const dataFunctions = {
             ],
         };
         const excludedZones = {
-            ReserveBase: [
+            RezervBase: [
                 'fuel4',
             ],
         };

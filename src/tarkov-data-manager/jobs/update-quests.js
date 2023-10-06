@@ -32,7 +32,9 @@ class UpdateQuestsJob extends DataJob {
             }),
             tarkovData.items(),
             tarkovData.locations(),
-            tarkovData.mapLoot(),
+            tarkovData.mapLoot().then(result => Object.keys(result).reduce((all, mapId) => {
+                all[mapId] = result[mapId].spawnpointsForced;
+            }, {})),
             tarkovData.mapDetails(),
             tarkovData.locales(),
             remoteData.get(),
