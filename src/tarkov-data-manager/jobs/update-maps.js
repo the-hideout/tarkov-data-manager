@@ -572,7 +572,7 @@ class UpdateMapsJob extends DataJob {
         const templateSubs = {
             '5ad74cf586f774391278f6f0': '578f879c24597735401e6bc6' // Cash register TAR2-2 to Cash register
         };
-        let templateId = templateSubs[c.template] || c.template;
+        const templateId = templateSubs[c.template] || c.template;
         if (this.lootContainers[templateId]) {
             return templateId;
         }
