@@ -569,13 +569,17 @@ class UpdateMapsJob extends DataJob {
     }
 
     getLootContainer(c) {
-        if (this.lootContainers[c.template]) {
-            return c.template;
+        const templateSubs = {
+            '5ad74cf586f774391278f6f0': '578f879c24597735401e6bc6' // Cash register TAR2-2 to Cash register
+        };
+        let templateId = templateSubs[c.template] || c.template;
+        if (this.lootContainers[templateId]) {
+            return templateId;
         }
         const container = {
-            id: c.template,
-            name: this.addTranslation(`${c.template} Name`),
-            normalizedName: normalizeName(this.locales.en[`${c.template} Name`]),
+            id: templateId,
+            name: this.addTranslation(`${templateId} Name`),
+            normalizedName: normalizeName(this.locales.en[`${templateId} Name`]),
         };
         this.lootContainers[container.id] = container;
         return container.id;
