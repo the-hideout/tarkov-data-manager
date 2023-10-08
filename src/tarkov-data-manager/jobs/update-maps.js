@@ -132,6 +132,30 @@ class UpdateMapsJob extends DataJob {
                         position: container.location.position,
                     };
                 }).filter(Boolean),
+                /*lootPoints: this.mapDetails[id].loot_points.reduce((allLoot, rawLoot) => {
+                    const duplicateLootPoint = allLoot.find(l => l.position.x === rawLoot.lootParameters.Position.x && l.position.y === rawLoot.lootParameters.Position.y && l.position.z === rawLoot.lootParameters.Position.z);
+                    if (duplicateLootPoint) {
+                        for (const id of rawLoot.lootParameters.FilterInclusive) {
+                            if (!duplicateLootPoint.items.includes(id)) {
+                                duplicateLootPoint.items.push(id);
+                            }
+                        }
+                        return allLoot;
+                    }
+                    allLoot.push({
+                        //enabled: rawLoot.lootParameters.Enabled,
+                        chanceModifier: rawLoot.lootParameters.ChanceModifier,
+                        rarity: rawLoot.lootParameters.Rarity,
+                        items: rawLoot.lootParameters.FilterInclusive,
+                        position: rawLoot.lootParameters.Position,
+                        //selectedFilters: rawLoot.selectedFilters, // always null
+                        //spawnChance: rawLoot.lootParameters.SpawnChance, // always 0
+                        //alwaysSpawn: rawLoot.lootParameters.IsAlwaysSpawn, // always false
+                        //alwaysTrySpawnLoot: rawLoot.lootParameters.isAlwaysTrySpawnLoot, // always false
+                        //static: rawLoot.lootParameters.IsStatic, // always false
+                    });
+                    return allLoot;
+                }, []),*/
                 switches: this.mapDetails[id].switches.map(sw => {
                     if (!sw.hasCollider) {
                         return false;
@@ -572,14 +596,18 @@ class UpdateMapsJob extends DataJob {
         const templateSubs = {
             '5ad74cf586f774391278f6f0': '578f879c24597735401e6bc6' // Cash register TAR2-2 to Cash register
         };
+        const nameSubs = {
+            '5d07b91b86f7745a077a9432': 'ShturmanStash',
+        };
         const templateId = templateSubs[c.template] || c.template;
         if (this.lootContainers[templateId]) {
             return templateId;
         }
+        const translationKey = nameSubs[templateId] || `${templateId} Name`;
         const container = {
             id: templateId,
-            name: this.addTranslation(`${templateId} Name`),
-            normalizedName: normalizeName(this.locales.en[`${templateId} Name`]),
+            name: this.addTranslation(translationKey),
+            normalizedName: normalizeName(this.locales.en[translationKey]),
         };
         this.lootContainers[container.id] = container;
         return container.id;
