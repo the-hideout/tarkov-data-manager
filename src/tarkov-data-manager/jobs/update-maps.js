@@ -27,6 +27,7 @@ class UpdateMapsJob extends DataJob {
         this.bossLoadouts = {};
         this.processedBosses = {};
         this.lootContainers = {};
+        this.stationaryWeapons = {};
         const locations = await tarkovData.locations();
         this.s3Images = s3.getLocalBucketContents();
         this.kvData.Map = [];
@@ -214,6 +215,12 @@ class UpdateMapsJob extends DataJob {
                         ...sw.location,
                     };
                 }).filter(Boolean),
+                stationaryWeapons: this.mapDetails[id].stationary_weapons.map(sw => {
+                    return {
+                        stationaryWeapon: this.getStationaryWeapon(sw.weaponItemId),
+                        position: sw.location.position,
+                    }
+                }),
                 minPlayerLevel: map.RequiredPlayerLevelMin,
                 maxPlayerLevel: map.RequiredPlayerLevelMax,
                 accessKeys: map.AccessKeys,
@@ -377,6 +384,7 @@ class UpdateMapsJob extends DataJob {
 
         this.kvData.MobInfo = this.processedBosses;
         this.kvData.LootContainer = this.lootContainers;
+        this.kvData.StationaryWeapon = this.stationaryWeapons;
         this.logger.log(`Processed ${Object.keys(this.kvData.MobInfo).length} mobs`);
         for (const mob of Object.values(this.kvData.MobInfo)) {
             //this.logger.log(`✔️ ${this.kvData.locale.en[mob.name]}`);
@@ -611,6 +619,20 @@ class UpdateMapsJob extends DataJob {
         };
         this.lootContainers[container.id] = container;
         return container.id;
+    }
+
+    getStationaryWeapon(id) {
+        if (this.stationaryWeapons[id]) {
+            return id;
+        }
+        const weap = {
+            id: id,
+            name: this.addTranslation(`${id} Name`),
+            shortName: this.addTranslation(`${id} ShortName`),
+            normalizedName: normalizeName(this.locales.en[`${id} Name`]),
+        };
+        this.stationaryWeapons[weap.id] = weap;
+        return weap.id;
     }
 
     getId(mapId, obj) {

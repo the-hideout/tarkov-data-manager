@@ -155,6 +155,7 @@ const dataFunctions = {
                         }),
                     }
                 });
+                details[id].stationary_weapons = details[id].stationary_weapons || [];
             } catch (error) {
                 if (error.code === 'ENOENT') {
                     details[id] = emptyData;
