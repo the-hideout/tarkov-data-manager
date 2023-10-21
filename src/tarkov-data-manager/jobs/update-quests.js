@@ -1494,7 +1494,12 @@ class UpdateQuestsJob extends DataJob {
         if (!task.wikiLink) {
             return null;
         }
-        const pageResponse = await fetch(task.wikiLink);//.then(response => cheerio.load(response.body));
+        const pageResponse = await fetch(task.wikiLink).catch(error => {
+            this.logger.error(`Error fetching wiki page for ${this.locales.en[`${task.id} name`]} ${this.task.id}: ${error}`);
+            return {
+                ok: false,
+            };
+        });//.then(response => cheerio.load(response.body));
         if (!pageResponse.ok) {
             return null;
         }
