@@ -1,0 +1,62 @@
+{
+    "56f40101d2720b2a4d8b45d6": {
+        "name": "Customs",
+        "x": "W",
+        "z": "S",
+        "rotation": 180
+    },
+    "55f2d3fd4bdc2d5f408b4567": {
+        "name": "Factory",
+        "x": "N",
+        "z": "W",
+        "rotation": 90
+    },
+    "59fc81d786f774390775787e": {
+        "name": "Factory (Night)",
+        "x": "N",
+        "z": "W",
+        "rotation": 90
+    },
+    "5714dbc024597771384a510d": {
+        "name": "Interchange",
+        "x": "W",
+        "z": "S",
+        "rotation": 180
+    },
+    "5b0fc42d86f7744a585f9105": {
+        "name": "Labs",
+        "x": "S",
+        "z": "E",
+        "rotation": 270
+    },
+    "5704e4dad2720bb55b8b4567": {
+        "name": "Lighthouse",
+        "x": "W",
+        "z": "S",
+        "rotation": 180
+    },
+    "5704e5fad2720bc05b8b4567": {
+        "name": "Reserve",
+        "x": "W",
+        "z": "S",
+        "rotation": 195.2090
+    },
+    "5704e554d2720bac5b8b456e": {
+        "name": "Shoreline",
+        "x": "W",
+        "z": "S",
+        "rotation": 180
+    },
+    "5714dc692459777137212e12": {
+        "name": "Streets of Tarkov",
+        "x": "W",
+        "z": "S",
+        "rotation": 180
+    },
+    "5704e3c2d2720bac5b8b4567": {
+        "name": "Woods",
+        "x": "W",
+        "z": "S",
+        "rotation": 180
+    }
+}

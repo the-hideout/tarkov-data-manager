@@ -1,4 +1,3 @@
-const moment = require('moment');
 const tarkovData = require('../modules/tarkov-data');
 const remoteData = require('../modules/remote-data');
 const DataJob = require('../modules/data-job');
@@ -109,7 +108,7 @@ class UpdateTraderPricesJob extends DataJob {
                 updated: offer.updated,
                 quest_unlock: Boolean(questUnlock),
                 quest_unlock_id: questUnlock ? questUnlock.id : null,
-                currecy: offer.currency,
+                currency: offer.currency,
                 currencyItem: this.currencyId[offer.currency],
                 requirements: [
                     {

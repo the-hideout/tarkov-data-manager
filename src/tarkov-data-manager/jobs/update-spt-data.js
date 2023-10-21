@@ -18,6 +18,11 @@ class UpdateLangJob extends DataJob {
         const bots = await spt.botsInfo(true);
         this.logger.log(`Downloaded bots: ${Object.keys(bots).join(', ')}`);
         this.logger.timeEnd('bot-download');
+        this.logger.time('loot-download');
+        this.logger.log('Downloading loot data...');
+        const loot = await spt.mapLoot(true);
+        this.logger.timeEnd('loot-download');
+        this.logger.log(`Downloaded loot: ${Object.keys(loot).join(', ')}`);
         this.logger.success('Successfully downloaded data');
     }
 }
