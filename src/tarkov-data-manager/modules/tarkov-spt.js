@@ -29,8 +29,7 @@ const sptLangs = {
 }
 
 const branches = [
-    '0.13.5.0',
-    'master'
+    'master',
 ];
 
 let branch;

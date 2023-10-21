@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const chalk = require('chalk');
+const { DateTime } = require('luxon');
 
 const writeLog = (jobName, messages) => {
     try {
@@ -21,7 +22,7 @@ const writeLog = (jobName, messages) => {
 class JobLogger {
     constructor(jobName, writeLog = true) {
         this.jobName = jobName;
-        this.startTime = 0;
+        this.startTime = DateTime.fromMillis(0);
         this.messages = [];
         this.timers = {};
         this.writeLog = writeLog;
@@ -80,19 +81,19 @@ class JobLogger {
     }
 
     start() {
-        this.startTime = new Date();
+        this.startTime = DateTime.now();
         if (this.parentLogger) {
             this.messages.push(`Running as child job of ${this.parentLogger.jobName} job`);
         }
     }
 
     end() {
-        const endMessage = `${this.jobName} ended in ${new Date() - this.startTime}ms`;
+        const endMessage = `${this.jobName} ended ${DateTime.now().toRelative({ base: this.startTime })}`;
         this.log(endMessage);
         //if (this.verbose) console.log(endMessage);
         if (this.writeLog) writeLog(this.jobName, this.messages);
         this.messages.length = 0;
-        this.startTime = 0;
+        this.startTime = DateTime.fromMillis(0);
         if (this.parentLogger) {
             this.parentLogger = false;
         }
@@ -114,14 +115,14 @@ class JobLogger {
             customMessage = `${this.jobName} ended`;
         }
         if (appendTime) {
-            customMessage = `${customMessage} ${new Date() - this.startTime}ms`
+            customMessage = `${customMessage} ${DateTime.now().toRelative({ base: this.startTime })}`
         }
         this.log(customMessage);
         writeLog(this.jobName, this.messages);
     }
 
     addMessage(message) {
-        if (this.startTime !== 0 || this.messages.length > 0) {
+        if (this.startTime.toMillis() !== 0 || this.messages.length > 0) {
             // logger is active
             if (this.parentLogger) {
                 this.parentLogger.addMessage(message);

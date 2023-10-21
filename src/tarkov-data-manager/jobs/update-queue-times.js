@@ -1,5 +1,5 @@
 // Cron job to update the cloudflare KV store with crowd-sourced queue times
-const moment = require('moment');
+const { DateTime } = require('luxon');
 
 const DataJob = require('../modules/data-job');
 
@@ -12,11 +12,11 @@ class UpdateQueueTimesJob extends DataJob {
     async run() {
         // Get times to filter by
         var timestamps = [];
-        timestamps.push({ details: 'last 1 hour', timestamp: moment().subtract(1, 'hours').format('YYYY-MM-DD HH:mm:ss')});
-        timestamps.push({ details: 'last 6 hours', timestamp: moment().subtract(6, 'hours').format('YYYY-MM-DD HH:mm:ss')});
-        timestamps.push({ details: 'last 12 hours', timestamp: moment().subtract(12, 'hours').format('YYYY-MM-DD HH:mm:ss')});
-        timestamps.push({ details: 'last 1 day', timestamp: moment().subtract(1, 'days').format('YYYY-MM-DD HH:mm:ss')});
-        timestamps.push({ details: 'last 7 days', timestamp: moment().subtract(7, 'days').format('YYYY-MM-DD HH:mm:ss')});
+        timestamps.push({ details: 'last 1 hour', timestamp: DateTime.now().minus({hours: 1}).toFormat('yyyy-LL-dd HH:mm:ss')});
+        timestamps.push({ details: 'last 6 hours', timestamp: DateTime.now()().minus({hours: 6}).toFormat('yyyy-LL-dd HH:mm:ss')});
+        timestamps.push({ details: 'last 12 hours', timestamp: DateTime.now()().minus({hours: 12}).toFormat('yyyy-LL-dd HH:mm:ss')});
+        timestamps.push({ details: 'last 1 day', timestamp: DateTime.now()().minus({days: 1}).toFormat('yyyy-LL-dd HH:mm:ss')});
+        timestamps.push({ details: 'last 7 days', timestamp: DateTime.now()().minus({days: 7}).toFormat('yyyy-LL-dd HH:mm:ss')});
 
         // Fetch all current maps
         const allMaps = await this.jobManager.jobOutput('update-maps', this);
@@ -80,7 +80,7 @@ class UpdateQueueTimesJob extends DataJob {
             const maps = queueTimes[timestamp];
             for (const map in maps) {
                 queueTimeData.push({
-                    cutoff: moment(timestamp).fromNow(),
+                    cutoff: DateTime.fromJSDate(timestamp).toRelative(),
                     map_id: maps[map].map_id, 
                     time: maps[map].time / maps[map].totalEntries 
                 });

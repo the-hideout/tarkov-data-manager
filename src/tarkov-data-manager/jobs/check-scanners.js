@@ -1,5 +1,5 @@
 const got = require('got');
-const moment = require('moment');
+const { DateTime } = require('luxon');
 
 const scannerApi = require('../modules/scanner-api');
 const DataJob = require('../modules/data-job');
@@ -35,10 +35,10 @@ class CheckScansJob extends DataJob {
         const utcOffset = new Date().getTimezoneOffset() * 60000;
         const utcNow = new Date(Date.now() + utcOffset);
         const scanCutoff = utcNow.getTime() - (1000 * 60 * 15);
-        const momentUtc = moment(utcNow);
+        const dateUtc = DateTime.fromJSDate(utcNow);
         for (const scanner of scanners) {
             if (scanner.last_scan?.getTime() < scanCutoff) {
-                this.logger.log(`${scanner.name} hasn't scanned player prices ${momentUtc.from(scanner.last_scan)}; releasing any batches`);
+                this.logger.log(`${scanner.name} hasn't scanned player prices ${dateUtc.toRelative({ base: DateTime.fromJSDate(scanner.last_scan) })}; releasing any batches`);
                 this.query(`
                     UPDATE
                         item_data
@@ -51,7 +51,7 @@ class CheckScansJob extends DataJob {
                 });
             }
             if (scanner.trader_last_scan?.getTime() < scanCutoff) {
-                this.logger.log(`${scanner.name} hasn't scanned trader prices ${momentUtc.from(scanner.trader_last_scan)}; releasing any batches`);
+                this.logger.log(`${scanner.name} hasn't scanned trader prices ${dateUtc.toRelative({ base: DateTime.fromJSDate(scanner.trader_last_scan) })}; releasing any batches`);
                 this.query(`
                     UPDATE
                         item_data
@@ -85,7 +85,7 @@ class CheckScansJob extends DataJob {
             }
 
             const lastScanAge = Math.floor((new Date().getTime() - lastScan.getTime()) / 1000);
-            this.logger.log(`${scanner.name}: Last scanned ${moment(lastScan).from(new Date())}`);
+            this.logger.log(`${scanner.name}: Last scanned ${DateTime.fromJSDate(lastScan).toRelative()}`);
 
             if (lastScanAge < 1800) {
                 continue;
@@ -93,7 +93,7 @@ class CheckScansJob extends DataJob {
 
             const messageData = {
                 title: `Missing scans from ${encodeURIComponent(scanner.name)} (${scanner.username})`,
-                message: `The last scanned ${moment(lastScan).from(new Date())}`
+                message: `The last scanned ${DateTime.fromJSDate(lastScan).toRelative()}`
             };
 
             this.logger.log('Sending alert');

@@ -1,4 +1,5 @@
-const moment = require('moment');
+const { DateTime } = require('luxon');
+
 const tarkovData = require('../modules/tarkov-data');
 const remoteData = require('../modules/remote-data');
 const DataJob = require('../modules/data-job');
@@ -42,11 +43,11 @@ class UpdateTraderPricesJob extends DataJob {
             return this.outputPrices(outputData);
         }
 
-        const scanOffsetTimestampMoment = moment(junkboxLastScan[0].timestamp).subtract(6, 'hours').format("YYYY-MM-DD HH:mm:ss");
+        const scanOffsetTimestampDate = DateTime.fromJSDate(junkboxLastScan[0].timestamp).minus({hours: 6}).toFormat('yyyy-LL-dd HH:mm:ss');
         //const scanOffsetTimestamp = new Date(junkboxLastScan[0].timestamp).setHours(junkboxLastScan[0].timestamp.getHours() - 6);
 
         this.logger.log('Trader price cutoff:')
-        this.logger.log(scanOffsetTimestampMoment);
+        this.logger.log(scanOffsetTimestampDate);
         
         const currencyISO = {
             '5449016a4bdc2d6f028b456f': 'RUB',
@@ -133,7 +134,7 @@ class UpdateTraderPricesJob extends DataJob {
                     trader_price_data
                 WHERE
                     timestamp > ?;
-            `, [scanOffsetTimestampMoment]),
+            `, [scanOffsetTimestampDate]),
         ]);
         for (const curr of currenciesHistoricScan) {
             currenciesThen[currencyISO[curr.item_id]] = curr.price;

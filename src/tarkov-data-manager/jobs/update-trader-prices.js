@@ -1,4 +1,3 @@
-const moment = require('moment');
 const tarkovData = require('../modules/tarkov-data');
 const remoteData = require('../modules/remote-data');
 const DataJob = require('../modules/data-job');
