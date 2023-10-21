@@ -35,7 +35,7 @@
     "form-data": "^4.0.0",
     "formidable": "^3.5.1",
     "got": "^11.8.6",
-    "moment": "^2.29.4",
+    "luxon": "^3.4.3",
     "mysql2": "^3.6.1",
     "node-schedule": "^2.1.1",
     "nodemon": "^3.0.1",

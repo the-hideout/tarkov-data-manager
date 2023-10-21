@@ -1,10 +1,10 @@
-const moment = require('moment');
+const { DateTime } = require('luxon');
 
 const {jobOutput} = require('../jobs');
 const { query, format } = require('./db-connection');
 const { alert } = require('./webhook');
 
-const allMaps = { timestamp: moment().format('YYYY-MM-DD HH:mm:ss'), maps: [] };
+const allMaps = { timestamp: DateTime.now().toFormat('yyyy-LL-dd HH:mm:ss'), maps: [] };
 
 const raidTypes = ['scav', 'pmc', 'unknown'];
 
@@ -15,14 +15,14 @@ const raidTypes = ['scav', 'pmc', 'unknown'];
 const validation = async (req, res) => {
     try {
         // Check if allMaps has data and is from the last 1 hour cache time
-        if (allMaps.timestamp > moment().subtract(15, 'minutes').format('YYYY-MM-DD HH:mm:ss') && allMaps.maps.length > 0) {
+        if (allMaps.timestamp > DateTime.now().minus({minutes: 15}).toFormat('yyyy-LL-dd HH:mm:ss') && allMaps.maps.length > 0) {
             // console.log('queue-api: using cached map data');
         } else {
             // Fetch all current maps
             const allMapsRaw = await jobOutput('update-maps');
 
             // Update the allMaps object in the memory cache
-            allMaps.timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
+            allMaps.timestamp = DateTime.now().toFormat('yyyy-LL-dd HH:mm:ss');
             allMaps.maps = allMapsRaw;
             // console.log('queue-api: using fresh map data');
         }

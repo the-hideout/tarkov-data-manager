@@ -1,4 +1,5 @@
 const got = require('got');
+const { DateTime } = require('luxon');
 
 const scannerApi = require('../modules/scanner-api');
 const DataJob = require('../modules/data-job');
@@ -34,9 +35,10 @@ class CheckScansJob extends DataJob {
         const utcOffset = new Date().getTimezoneOffset() * 60000;
         const utcNow = new Date(Date.now() + utcOffset);
         const scanCutoff = utcNow.getTime() - (1000 * 60 * 15);
+        const dateUtc = DateTime.fromJSDate(utcNow);
         for (const scanner of scanners) {
             if (scanner.last_scan?.getTime() < scanCutoff) {
-                this.logger.log(`${scanner.name} hasn't worked since ${scanner.last_scan}; releasing any player batches`);
+                this.logger.log(`${scanner.name} hasn't scanned player prices ${dateUtc.toRelative({ base: DateTime.fromJSDate(scanner.last_scan) })}; releasing any batches`);
                 this.query(`
                     UPDATE
                         item_data
@@ -49,7 +51,7 @@ class CheckScansJob extends DataJob {
                 });
             }
             if (scanner.trader_last_scan?.getTime() < scanCutoff) {
-                this.logger.log(`${scanner.name} hasn't worked since ${scanner.trader_last_scan}; releasing any trader batches`);
+                this.logger.log(`${scanner.name} hasn't scanned trader prices ${dateUtc.toRelative({ base: DateTime.fromJSDate(scanner.trader_last_scan) })}; releasing any batches`);
                 this.query(`
                     UPDATE
                         item_data
@@ -83,7 +85,7 @@ class CheckScansJob extends DataJob {
             }
 
             const lastScanAge = Math.floor((new Date().getTime() - lastScan.getTime()) / 1000);
-            this.logger.log(`${scanner.name}: ${lastScanAge}s`);
+            this.logger.log(`${scanner.name}: Last scanned ${DateTime.fromJSDate(lastScan).toRelative()}`);
 
             if (lastScanAge < 1800) {
                 continue;
@@ -91,7 +93,7 @@ class CheckScansJob extends DataJob {
 
             const messageData = {
                 title: `Missing scans from ${encodeURIComponent(scanner.name)} (${scanner.username})`,
-                message: `The last scanned price was ${lastScanAge} seconds ago`
+                message: `The last scanned ${DateTime.fromJSDate(lastScan).toRelative()}`
             };
 
             this.logger.log('Sending alert');

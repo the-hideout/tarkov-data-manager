@@ -26,7 +26,7 @@ async function addManualTranslations(lang, langCode) {
     };
 }
 
-module.exports = {
+const dataFunctions = {
     areas: (download = false) => {
         return tarkovChanges.areas(download);
     },
@@ -77,6 +77,98 @@ module.exports = {
     locations: (download = false) => {
         return tarkovChanges.locations(download);
     },
+    mapDetails: async () => {
+        const emptyData = {
+            extracts: [],
+            doors: [],
+            zones: [],
+            hazards: [],
+            loot_points: [],
+            loot_containers: [],
+        };
+        const excludedExtracts = {
+            Shoreline: [
+                'Alpinist'
+            ],
+        };
+        const excludedZones = {
+            RezervBase: [
+                'fuel4',
+            ],
+        };
+        const details = {};
+        const locations = await dataFunctions.locations();
+        const en = await dataFunctions.locale('en');
+        for (const id in locations.locations) {
+            const map = locations.locations[id];
+            if (id !== '59fc81d786f774390775787e' && (!map.Enabled || map.Locked)) {
+                continue;
+            }
+            if (!en[`${id} Name`]) {
+                continue;
+            }
+            try {
+                details[id] = JSON.parse(fs.readFileSync(`./cache/${map.Id}.json`));
+                details[id].extracts = details[id].extracts.reduce((extracts, extract) => {
+                    if (extract.location.size.x <= 1 && extract.location.size.y <= 1 && extract.location.size.z <= 1) {
+                        return extracts;
+                    }
+                    if (excludedExtracts[map.Id]?.includes(extract.settings.Name)) {
+                        return extracts;
+                    }
+                    let duplicateExtract = extracts.find(e => {
+                        if (e.settings.Name !== extract.settings.Name) {
+                            return false;
+                        }
+                        if (e.location.position.x !== extract.location.position.x || e.location.position.z !== extract.location.position.z) {
+                            return false;
+                        }
+                        return true;
+                    });
+                    if (duplicateExtract) {
+                        if (duplicateExtract.exfilType === 'ExfiltrationPoint') {
+                            duplicateExtract.exfilType = 'SharedExfiltrationPoint';
+                            return extracts;
+                        }
+                        extracts = extracts.filter(e => e !== duplicateExtract);
+                        extract.exfilType = 'SharedExfiltrationPoint';
+                    }
+                    extracts.push(extract);
+                    return extracts;
+                }, []);
+                details[id].zones = details[id].zones.filter(z => !excludedZones[map.Id]?.includes(z.id));
+                
+                details[id].locks = details[id].locks.map(l => {
+                    return {
+                        ...l,
+                        needsPower: details[id].no_power?.some(pow => {
+                            if (pow.location.position.x !== l.location.position.x) {
+                                return false;
+                            }
+                            if (pow.location.position.y !== l.location.position.y) {
+                                return false;
+                            }
+                            if (pow.location.position.z !== l.location.position.z) {
+                                return false;
+                            }
+                            return true;
+                        }),
+                    }
+                });
+                details[id].stationary_weapons = details[id].stationary_weapons || [];
+            } catch (error) {
+                if (error.code === 'ENOENT') {
+                    details[id] = emptyData;
+                    continue;
+                }
+                return Promise.reject(error);
+            }
+        }
+        return details;
+    },
+    mapLoot: (download = false) => {
+        return spt.mapLoot(download);
+    },
     quests: (download = false) => {
         return spt.quests(download);
     },
@@ -93,3 +185,5 @@ module.exports = {
         return spt.traderQuestAssorts(traderId, download);
     },
 };
+
+module.exports = dataFunctions;

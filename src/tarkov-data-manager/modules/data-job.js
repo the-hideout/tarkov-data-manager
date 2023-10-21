@@ -242,14 +242,16 @@ class DataJob {
                 throw new Error(`Cannot assign undefined value to ${langCode} ${key}`);
             }
         } else {
-            if (typeof this.locales.en[key] !== 'undefined') {
+            if (typeof this.locales.en[key] !== 'undefined' && this.locales.en[key] !== '') {
                 this.translationKeys.add(key);
             } else if (!this.translationKeyMap[key]) {
-                for (const dictKey in this.locales.en) {
-                    if (dictKey.toLowerCase() === key.toLowerCase()) {
-                        this.translationKeyMap[key] = dictKey;
-                        this.logger.warn(`Translation key substition for ${key}: ${dictKey}`);
-                        //return dictKey;
+                if (typeof this.locales.en[key] === 'undefined') {
+                    for (const dictKey in this.locales.en) {
+                        if (dictKey.toLowerCase() === key.toLowerCase()) {
+                            this.translationKeyMap[key] = dictKey;
+                            this.logger.warn(`Translation key substition for ${key}: ${dictKey}`);
+                            //return dictKey;
+                        }
                     }
                 }
                 if (!this.translationKeyMap[key]) {
@@ -286,8 +288,9 @@ class DataJob {
                         }
                     }
                 }*/
-                if (typeof target.locale[langCode][key] === 'undefined' && langCode === 'en') {
-                    return Promise.reject(new Error(`Missing translation for ${key}`));
+                if ((typeof target.locale[langCode][key] === 'undefined' || target.locale[langCode][key] === '') && langCode === 'en') {
+                    target.locale[langCode][key] = usedKey;
+                    //return Promise.reject(new Error(`Missing translation for ${key}`));
                 }
             }
         }

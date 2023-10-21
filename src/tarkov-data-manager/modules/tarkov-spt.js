@@ -3,9 +3,10 @@ const path = require('path');
 
 const got = require('got');
 
+const tarkovChanges = require('./tarkov-changes');
 const discordWebhook = require('./webhook');
 
-const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/{branch}/project/assets/';
+const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/media/branch/{branch}/project/assets/';
 const sptDataPath = `${sptPath}database/`;
 const sptConfigPath = `${sptPath}configs/`;
 
@@ -28,8 +29,7 @@ const sptLangs = {
 }
 
 const branches = [
-    '0.13.5.0',
-    'master'
+    'master',
 ];
 
 let branch;
@@ -61,16 +61,19 @@ const setBranch = async () => {
     }
 };
 
-const downloadJson = async (fileName, path, download = false, writeFile = true) => {
+const downloadJson = async (fileName, path, download = false, writeFile = true, saveElement = false) => {
     if (download) {
         if (!branch) {
             await setBranch();
         }
         path = path.replace('{branch}', branch);
-        returnValue = await got(path, {
+        let returnValue = await got(path, {
             responseType: 'json',
             resolveBodyOnly: true,
         });
+        if (saveElement) {
+            returnValue = returnValue[saveElement];
+        }
         if (writeFile) {
             fs.writeFileSync(cachePath(fileName), JSON.stringify(returnValue, null, 4));
         }
@@ -143,6 +146,24 @@ module.exports = {
     },
     questConfig: (download) => {
         return downloadJson('questConfig.json', `${sptConfigPath}quest.json`, download);
+    },
+    mapLoot: async (download) => {
+        //return downloadJson(`${mapNameId.toLowerCase()}_loot.json`, `${sptDataPath}locations/${mapNameId.toLowerCase()}/looseLoot.json`, download, true, 'spawnpointsForced');
+        const mapLoot = {};
+        const locations = await tarkovChanges.locations();
+        for (const id in locations.locations) {
+            const map = locations.locations[id];
+            try {
+                mapLoot[id] = await downloadJson(`${map.Id.toLowerCase()}_loot.json`, `${sptDataPath}locations/${locations.locations[id].Id.toLowerCase()}/looseLoot.json`, download, true);
+            } catch (error) {
+                if (error.code === 'ERR_NON_2XX_3XX_RESPONSE') {
+                    mapLoot[id] = [];
+                    continue;
+                }
+                return Promise.reject(error);
+            }
+        }
+        return mapLoot;
     },
     botInfo: async (botKey, download = true) => {
         botKey = botKey.toLowerCase();

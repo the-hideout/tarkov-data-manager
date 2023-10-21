@@ -1,3 +1,6 @@
+const fs = require('fs');
+const crypto = require('crypto');
+
 const remoteData = require('../modules/remote-data');
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
@@ -13,13 +16,18 @@ class UpdateMapsJob extends DataJob {
 
     run = async () => {
         this.logger.log('Getting maps data...');
-        [this.items, this.presets, this.botInfo] = await Promise.all([
+        [this.items, this.presets, this.botInfo, this.mapDetails, this.eftItems] = await Promise.all([
             remoteData.get(),
             this.jobManager.jobOutput('update-presets', this, true),
             tarkovData.botsInfo(false),
+            tarkovData.mapDetails(),
+            tarkovData.items(),
         ]);
+        this.mapRotationData = JSON.parse(fs.readFileSync('./data/map_coordinates.json'));
         this.bossLoadouts = {};
         this.processedBosses = {};
+        this.lootContainers = {};
+        this.stationaryWeapons = {};
         const locations = await tarkovData.locations();
         this.s3Images = s3.getLocalBucketContents();
         this.kvData.Map = [];
@@ -43,6 +51,7 @@ class UpdateMapsJob extends DataJob {
                 raidDuration: map.EscapeTimeLimit,
                 players: map.MinPlayers+'-'+map.MaxPlayers,
                 bosses: [],
+                coordinateToCardinalRotation: 180,
                 spawns: map.SpawnPointParams.map(spawn => {
                     if (spawn.Sides.includes('Usec') && spawn.Sides.includes('Bear')) {
                         spawn.Sides = spawn.Sides.filter(side => !['Usec', 'Bear', 'Pmc'].includes(side));
@@ -64,11 +73,162 @@ class UpdateMapsJob extends DataJob {
                         zoneName: spawn.BotZoneName || spawn.Id,
                     };
                 }).filter(Boolean),
+                extracts: this.mapDetails[id].extracts.map(extract => {
+                    return {
+                        id: this.getId(id, extract),
+                        name: this.addTranslation(extract.settings.Name),
+                        faction: exfilFactions[extract.exfilType],
+                        switch: this.mapDetails[id].switches.reduce((found, current) => {
+                            if (found) {
+                                return found;
+                            }
+                            if (!extract.exfilSwitchId) {
+                                return found;
+                            }
+                            if (current.id === extract.exfilSwitchId) {
+                                found = this.getId(id, current);
+                            }
+                            return found;
+                        }, false),
+                        switches: extract.exfilSwitchIds.map(switchId => {
+                            const foundSwitch = this.mapDetails[id].switches.find(sw => sw.id === switchId && sw.hasCollider);
+                            return foundSwitch ? this.getId(id, foundSwitch) : false;
+                        }).filter(Boolean),
+                        ...extract.location,
+                    };
+                }),
+                locks: this.mapDetails[id].locks.map(lock => {
+                    const keyItem = this.items.get(lock.key);
+                    if (!keyItem || keyItem.types.includes('disabled')) {
+                        this.logger.warn(`Skipping lock for key ${lock.key}`)
+                        return false;
+                    }
+                    return {
+                        id: this.getId(id, lock),
+                        lockType: lock.lockType,
+                        key: lock.key,
+                        needsPower: lock.needsPower || false,
+                        ...lock.location,
+                    }
+                }).filter(Boolean),
+                hazards: this.mapDetails[id].hazards.map(hazard => {
+                    if (!hazardMap[hazard.hazardType]) {
+                        this.logger.warn(`Unknown hazard type: ${hazard.hazardType}`);
+                    }
+                    let hazardType = hazardMap[hazard.hazardType]?.id || hazard.hazardType;
+                    let hazardName = hazardMap[hazard.hazardType]?.name || hazard.hazardType;
+                    return {
+                        id: this.getId(id, hazard),
+                        hazardType: hazardType,
+                        name: this.addTranslation(hazardName),
+                        ...hazard.location,
+                    };
+                }),
+                lootContainers: this.mapDetails[id].loot_containers.map(container => {
+                    if (!container.lootParameters.Enabled) {
+                        return false;
+                    }
+                    return {
+                        lootContainer: this.getLootContainer(container),
+                        position: container.location.position,
+                    };
+                }).filter(Boolean),
+                /*lootPoints: this.mapDetails[id].loot_points.reduce((allLoot, rawLoot) => {
+                    const duplicateLootPoint = allLoot.find(l => l.position.x === rawLoot.lootParameters.Position.x && l.position.y === rawLoot.lootParameters.Position.y && l.position.z === rawLoot.lootParameters.Position.z);
+                    if (duplicateLootPoint) {
+                        for (const id of rawLoot.lootParameters.FilterInclusive) {
+                            if (!duplicateLootPoint.items.includes(id)) {
+                                duplicateLootPoint.items.push(id);
+                            }
+                        }
+                        return allLoot;
+                    }
+                    allLoot.push({
+                        //enabled: rawLoot.lootParameters.Enabled,
+                        chanceModifier: rawLoot.lootParameters.ChanceModifier,
+                        rarity: rawLoot.lootParameters.Rarity,
+                        items: rawLoot.lootParameters.FilterInclusive,
+                        position: rawLoot.lootParameters.Position,
+                        //selectedFilters: rawLoot.selectedFilters, // always null
+                        //spawnChance: rawLoot.lootParameters.SpawnChance, // always 0
+                        //alwaysSpawn: rawLoot.lootParameters.IsAlwaysSpawn, // always false
+                        //alwaysTrySpawnLoot: rawLoot.lootParameters.isAlwaysTrySpawnLoot, // always false
+                        //static: rawLoot.lootParameters.IsStatic, // always false
+                    });
+                    return allLoot;
+                }, []),*/
+                switches: this.mapDetails[id].switches.map(sw => {
+                    if (!sw.hasCollider) {
+                        return false;
+                    }
+                    const switchId = `${sw.id}_${sw.name}`.replace(/^(?:switch_)?/i, 'switch_');
+                    return {
+                        id: this.getId(id, sw),
+                        object_id: sw.id,
+                        object_name: sw.name,
+                        name: this.addTranslation(switchId),
+                        door: sw.doorId,
+                        switchType: sw.interactionType,
+                        activatedBy: this.mapDetails[id].switches.reduce((found, current) => {
+                            if (found) {
+                                return found;
+                            }
+                            if (!sw.previousSwitchId || !current.hasCollider) {
+                                return found;
+                            }
+                            if (current.id === sw.previousSwitchId) {
+                                found = this.getId(id, current);
+                            }
+                            return found;
+                        }, false),
+                        activates: [
+                            ...sw.nextSwitches.map(so => {
+                                return {
+                                    operation: so.operation,
+                                    switch: this.mapDetails[id].switches.reduce((found, current) => {
+                                        if (found) {
+                                            return found;
+                                        }
+                                        if (!current.hasCollider) {
+                                            return found;
+                                        }
+                                        if (current.id === so.targetSwitchId) {
+                                            found = this.getId(id, current);
+                                        }
+                                        return found;
+                                    }, false),
+                                }
+                            }).filter(so => so.switch),
+                            this.mapDetails[id].extracts.reduce((found, extract) => {
+                                if (found || !sw.extractId) {
+                                    return found;
+                                }
+                                if (extract.name === sw.extractId && extract.exfilSwitchIds.includes(sw.id)) {
+                                    found = {
+                                        operation: "Unlock",
+                                        extract: this.getId(id, extract)
+                                    };
+                                }
+                                return found;
+                            }, null)
+                        ].filter(Boolean),
+                        ...sw.location,
+                    };
+                }).filter(Boolean),
+                stationaryWeapons: this.mapDetails[id].stationary_weapons.map(sw => {
+                    return {
+                        stationaryWeapon: this.getStationaryWeapon(sw.weaponItemId),
+                        position: sw.location.position,
+                    }
+                }),
                 minPlayerLevel: map.RequiredPlayerLevelMin,
                 maxPlayerLevel: map.RequiredPlayerLevelMax,
                 accessKeys: map.AccessKeys,
                 accessKeysMinPlayerLevel: map.MinPlayerLvlAccessKeys,
             };
+            if (this.mapRotationData[id]) {
+                mapData.coordinateToCardinalRotation = this.mapRotationData[id].rotation;
+            }
             if (typeof idMap[id] !== 'undefined') mapData.tarkovDataId = idMap[id];
             const enemySet = new Set();
             for (const wave of map.waves) {
@@ -175,10 +335,26 @@ class UpdateMapsJob extends DataJob {
                 }
 
                 if (spawn.TriggerId) {
+                    const switchId = this.mapDetails[id].switches.reduce((found, current) => {
+                        if (found) {
+                            return found;
+                        }
+                        if (current.id === spawn.TriggerId) {
+                            found = current.id;
+                        }
+                        return found;
+                    }, false)
+                    if (switchId) {
+                        //bossData.spawnTrigger = this.addTranslation('SwitchActivation');
+                        bossData.switch = this.getId(id, {id: switchId});
+                        bossData.switch_id = switchId;
+                    } else {
+                        this.logger.warn(`Could not find switch ${spawn.TriggerId}`);
+                    }
                     if (this.locales.en[spawn.TriggerId]) {
                         bossData.spawnTrigger = this.addTranslation(spawn.TriggerId);
-                    } else if (spawn.TriggerId.includes('EXFIL')) {
-                        bossData.spawnTrigger = this.addTranslation('ExfilActivation');
+                    } else if (switchId) {
+                        bossData.spawnTrigger = this.addTranslation('Switch');
                     }
                 }
                 mapData.bosses.push(bossData);
@@ -207,6 +383,8 @@ class UpdateMapsJob extends DataJob {
         this.logger.log(`Processed ${this.kvData.Map.length} maps`);
 
         this.kvData.MobInfo = this.processedBosses;
+        this.kvData.LootContainer = this.lootContainers;
+        this.kvData.StationaryWeapon = this.stationaryWeapons;
         this.logger.log(`Processed ${Object.keys(this.kvData.MobInfo).length} mobs`);
         for (const mob of Object.values(this.kvData.MobInfo)) {
             //this.logger.log(`✔️ ${this.kvData.locale.en[mob.name]}`);
@@ -421,6 +599,62 @@ class UpdateMapsJob extends DataJob {
         this.processedBosses[bossKey] = bossInfo;
         return bossInfo;
     }
+
+    getLootContainer(c) {
+        const templateSubs = {
+            '5ad74cf586f774391278f6f0': '578f879c24597735401e6bc6' // Cash register TAR2-2 to Cash register
+        };
+        const nameSubs = {
+            '5d07b91b86f7745a077a9432': 'ShturmanStash',
+        };
+        const templateId = templateSubs[c.template] || c.template;
+        if (this.lootContainers[templateId]) {
+            return templateId;
+        }
+        const translationKey = nameSubs[templateId] || `${templateId} Name`;
+        const container = {
+            id: templateId,
+            name: this.addTranslation(translationKey),
+            normalizedName: normalizeName(this.locales.en[translationKey]),
+        };
+        this.lootContainers[container.id] = container;
+        return container.id;
+    }
+
+    getStationaryWeapon(id) {
+        if (this.stationaryWeapons[id]) {
+            return id;
+        }
+        const weap = {
+            id: id,
+            name: this.addTranslation(`${id} Name`),
+            shortName: this.addTranslation(`${id} ShortName`),
+            normalizedName: normalizeName(this.locales.en[`${id} Name`]),
+        };
+        this.stationaryWeapons[weap.id] = weap;
+        return weap.id;
+    }
+
+    getId(mapId, obj) {
+        let hashString = mapId;
+        if (typeof obj === 'string') {
+            obj = {id: obj};
+        }
+        if (obj.id) {
+            hashString += obj.id;
+        }
+        if (obj.name) {
+            hashString += obj.name;
+        }
+        if (obj.settings?.Name) {
+            hashString += obj.settings?.Name;
+        }
+        if (hashString === mapId) {
+            hashString += `${obj.location.position.x}${obj.location.position.y}${obj.location.position.z}`;
+        }
+        const shasum = crypto.createHash('sha1');
+        return shasum.update(hashString).digest('hex');
+    }
 }
 
 const mapNames = {
@@ -445,6 +679,23 @@ const idMap = {
     '5b0fc42d86f7744a585f9105': 5,
     '5704e5fad2720bc05b8b4567': 6,
     '5704e4dad2720bb55b8b4567': 7,
+};
+
+const exfilFactions = {
+    SharedExfiltrationPoint: 'shared',
+    ExfiltrationPoint: 'pmc',
+    ScavExfiltrationPoint: 'scav',
+};
+
+const hazardMap = {
+    SniperFiringZone: {
+        id: 'sniper',
+        name: 'ScavRole/Marksman',
+    },
+    Minefield: {
+        id: 'minefield',
+        name: 'DamageType_Landmine',
+    }
 };
 
 const getChances = (input, nameLabel = 'name', labelInt = false) => {

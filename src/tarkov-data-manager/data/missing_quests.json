@@ -599,5 +599,125 @@
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
+    },
+    "64f5deac39e45b527a7c4232": {
+        "id": "64f5deac39e45b527a7c4232",
+        "name": "Test Drive - Part 3",
+        "trader": "54cb50c76803fa8b248b4571",
+        "location_id": "5704e4dad2720bb55b8b4567",
+        "locationName": "Lighthouse",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "63a5cf262964a7488f5243ce",
+                "name": "Test Drive - Part 2",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "64f5deac39e45b527a7c4235",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "target": "AnyPmc",
+                "count": 20,
+                "shotType": "kill",
+                "usingWeapon": [
+                    {
+                        "id": "6499849fc93611967b034949",
+                        "name": "Kalashnikov AK-12 5.45x39 assault rifle"
+                    }
+                ],
+                "usingWeaponMods": [
+                    [
+                        {
+                            "id": "64c196ad26a15b84aa07132f",
+                            "name": "AK-12 5.45x39 sound suppressor"
+                        },
+                        {
+                            "id": "5c0517910db83400232ffee5",
+                            "name": "Valday PS-320 1/6x scope"
+                        }
+                    ]
+                ],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "name": "Prapor",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 400000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5c0d1ec986f77439512a1a72",
+                    "item_name": "RPK-16 5.45x39 light machine gun Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "55d482194bdc2d1d4e8b456b",
+                    "item_name": "AK-74 5.45x39 6L31 60-round magazine",
+                    "count": 4,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "64898602f09d032aa9399d56",
+                    "item_name": "5.45x39mm 7N40 ammo pack (30 pcs)",
+                    "count": 8,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 35300,
+        "tarkovDataId": null,
+        "factionName": "Any"
     }
 }
