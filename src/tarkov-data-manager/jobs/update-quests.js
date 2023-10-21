@@ -195,6 +195,7 @@ class UpdateQuestsJob extends DataJob {
         };
 
         const filteredPrerequisiteTasks = {};
+        const missingImages = [];
         for (const quest of quests.Task) {
             /*quest.descriptionMessageId = this.locales.en.quest[quest.id]?.description;
             quest.startMessageId = this.locales.en.quest[quest.id]?.startedMessageText;
@@ -296,11 +297,12 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
             
-            const imageLink = await this.getTaskImageLink(quest, this.rawQuestData[quest.id]?.image);
+            const imageLink = await this.getTaskImageLink(quest);
             if (imageLink) {
                 quest.taskImageLink = imageLink;
             } else {
                 quest.taskImageLink = `https://${process.env.S3_BUCKET}/unknown-task.webp`;
+                missingImages.push(quest.id);
             }
         }
         if (Object.keys(filteredPrerequisiteTasks).length > 0) {
@@ -431,6 +433,11 @@ class UpdateQuestsJob extends DataJob {
             }
             this.questItems[id].normalizedName = normalizeName(this.locales.en[this.questItems[id].name]);
         }
+
+        if (missingImages.length > 0) {
+            this.logger.warn(`${missingImages.length} quests are missing images`);
+        }
+        await fs.writeFile('./cache/quests_missing_images.json', JSON.stringify(missingImages, null, 4));
 
         quests.QuestItem = this.questItems;
 
@@ -1460,63 +1467,13 @@ class UpdateQuestsJob extends DataJob {
         return obj;
     }
 
-    async getTaskImageLink(task, imagePath) {
-        if (Boolean(process.env.TEST_JOB)) {
-            return null;
-        }
+    async getTaskImageLink(task) {
         const s3FileName = `${task.id}.webp`;
         const s3ImageLink = `https://${process.env.S3_BUCKET}/${s3FileName}`;
         if (this.s3Images.includes(s3FileName)) {
             return s3ImageLink;
         }
-        if (imagePath) {
-            const imageId = imagePath.replace('/files/quest/icon/', '').split('.')[0];
-            const extensions = ['.png', '.jpg'];
-            for (const ext of extensions) {
-                try {
-                    const response = await fetch(`https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/images/quests/${imageId}${ext}`);
-                    if (!response.ok) {
-                        continue;
-                    }
-                    const image = sharp(await response.arrayBuffer()).webp({lossless: true});
-                    const metadata = await image.metadata();
-                    if (metadata.width <= 1 || metadata.height <= 1) {
-                        continue;
-                    }
-                    await uploadAnyImage(image, s3FileName, 'image/webp');
-                    this.logger.log(`Retrieved ${this.locales.en[`${task.id} name`]} ${task.id} image from SPT`);
-                    return s3ImageLink;
-                } catch (error) {
-                    this.logger.error(`Error fetching ${imageId}.${ext} from SPT: ${error.stack}`);
-                }
-            }
-        }
-        if (!task.wikiLink) {
-            return null;
-        }
-        const pageResponse = await fetch(task.wikiLink).catch(error => {
-            this.logger.error(`Error fetching wiki page for ${this.locales.en[`${task.id} name`]} ${this.task.id}: ${error}`);
-            return {
-                ok: false,
-            };
-        });//.then(response => cheerio.load(response.body));
-        if (!pageResponse.ok) {
-            return null;
-        }
-        const $ = cheerio.load(await pageResponse.text());
-        const imageUrl = $('.va-infobox-mainimage-image img').first().attr('src');
-        const imageResponse = await fetch(imageUrl);
-        if (!imageResponse.ok) {
-            return null;
-        }
-        const image = sharp(await imageResponse.arrayBuffer()).webp({lossless: true});
-        const metadata = await image.metadata();
-        if (metadata.width <= 1 || metadata.height <= 1) {
-            return null;
-        }
-        await uploadAnyImage(image, s3FileName, 'image/webp');
-        this.logger.log(`Retrieved ${this.locales.en[`${task.id} name`]} ${task.id} image from wiki`);
-        return s3ImageLink;
+        return null;
     }
 }
 
