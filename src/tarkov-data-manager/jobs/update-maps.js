@@ -240,7 +240,6 @@ class UpdateMapsJob extends DataJob {
             }
             for (const spawn of map.BossLocationSpawn) {
                 const newBoss = !enemySet.has(spawn.BossName);
-                enemySet.add(spawn.BossName);
                 const bossData = {
                     id: spawn.BossName,
                     spawnChance: parseFloat(spawn.BossChance) / 100,
@@ -255,6 +254,11 @@ class UpdateMapsJob extends DataJob {
                 if (bossData.spawnChance === 0) {
                     continue;
                 }
+                if (spawn.TriggerName === 'botEvent') {
+                    // filter out Kaban's sniper followers
+                    continue;
+                }
+                enemySet.add(spawn.BossName);
                 if (newBoss) {
                     this.logger.log(` - ${bossInfo.name}`);
                 }
