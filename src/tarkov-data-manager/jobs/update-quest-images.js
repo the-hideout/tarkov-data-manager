@@ -10,7 +10,7 @@ const { getLocalBucketContents, uploadAnyImage } = require('../modules/upload-s3
 
 class UpdateQuestImagesJob extends DataJob {
     constructor() {
-        super('check-image-links');
+        super('update-quest-images');
     }
 
     async run() {
