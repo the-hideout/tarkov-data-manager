@@ -144,7 +144,7 @@ resource "azurerm_linux_virtual_machine" "tdm_vm" {
   location              = var.CLOUD_LOCATION
   resource_group_name   = azurerm_resource_group.tdm_rg.name
   network_interface_ids = [azurerm_network_interface.tdm_nic.id]
-  size                  = "Standard_B1s"
+  size                  = "Standard_B1ms"
 
   os_disk {
     disk_size_gb         = 64
