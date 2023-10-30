@@ -375,6 +375,7 @@ const enemyMap = {
     'sniper': 'Marksman',
     'sectantWarrior': 'cursedAssault',
     'bossZryachiy': '63626d904aa74b8fe30ab426 ShortName',
+    'peacefullZryachiyEvent': '63626d904aa74b8fe30ab426 ShortName',
 };
 
 module.exports = DataJob;
