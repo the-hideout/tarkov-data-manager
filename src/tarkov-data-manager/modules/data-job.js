@@ -358,6 +358,15 @@ class DataJob {
             }
             return nameParts.join(' ')
         }
+        if (enemy === 'peacefullZryachiyEvent') {
+            return `${this.getMobName('bossZryachiy', lang, langCode)} (${lang.Peaceful || 'Peaceful'})`;
+        }
+        if (enemy === 'ravangeZryachiyEvent') {
+            return `${this.getMobName('bossZryachiy', lang, langCode)} (${lang['6530e8587cbfc1e309011e37 ShortName'] || 'Vengeful'})`;
+        }
+        if (enemy === 'sectactPriestEvent') {
+            return `${this.getMobName('sectantPriest', lang, langCode)} (${lang.Ritual})`;
+        }
         if (langCode === 'en') {
             if (!originalLang) {
                 this.logger.warn(`Could not find translation for ${originalEnemy}, ${langCode}`);
@@ -375,7 +384,6 @@ const enemyMap = {
     'sniper': 'Marksman',
     'sectantWarrior': 'cursedAssault',
     'bossZryachiy': '63626d904aa74b8fe30ab426 ShortName',
-    'peacefullZryachiyEvent': '63626d904aa74b8fe30ab426 ShortName',
 };
 
 module.exports = DataJob;

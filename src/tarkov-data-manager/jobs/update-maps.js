@@ -254,7 +254,7 @@ class UpdateMapsJob extends DataJob {
                 if (bossData.spawnChance === 0) {
                     continue;
                 }
-                if (spawn.TriggerName === 'botEvent') {
+                if (spawn.TriggerName === 'botEvent' && spawn.TriggerId === 'BossBoarBorn') {
                     // filter out Kaban's sniper followers
                     continue;
                 }
@@ -263,7 +263,7 @@ class UpdateMapsJob extends DataJob {
                     this.logger.log(` - ${bossInfo.name}`);
                 }
                 const locationCount = {};
-                const spawnKeys = spawn.BossZone.split(',');
+                const spawnKeys = spawn.BossZone.split(',').filter(Boolean);
                 const locations = spawnKeys.map(zone => {
                     let locationName = zone.replace(/Zone_?/, '').replace(/Bot/, '');
                     if (!locationName) locationName = 'Anywhere';
@@ -338,7 +338,7 @@ class UpdateMapsJob extends DataJob {
                     }
                 }
 
-                if (spawn.TriggerId) {
+                if (spawn.TriggerId && spawn.TriggerName === 'interactObject') {
                     const switchId = this.mapDetails[id].switches.reduce((found, current) => {
                         if (found) {
                             return found;
