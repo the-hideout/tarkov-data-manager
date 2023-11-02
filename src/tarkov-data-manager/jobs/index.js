@@ -14,6 +14,7 @@ const defaultJobs = {
     'update-trader-assorts': '36 11,23 * * *',
     'update-trader-prices': '46 11,23 * * *',
     'check-image-links': '16 0,6,12,18 * * *',
+    'update-quest-images': '16 1,7,13,19 * * *',
     'update-historical-prices': '26 * * * *',
     'update-spt-data': '56 * * * *',
 };

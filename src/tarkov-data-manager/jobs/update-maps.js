@@ -240,7 +240,6 @@ class UpdateMapsJob extends DataJob {
             }
             for (const spawn of map.BossLocationSpawn) {
                 const newBoss = !enemySet.has(spawn.BossName);
-                enemySet.add(spawn.BossName);
                 const bossData = {
                     id: spawn.BossName,
                     spawnChance: parseFloat(spawn.BossChance) / 100,
@@ -255,11 +254,16 @@ class UpdateMapsJob extends DataJob {
                 if (bossData.spawnChance === 0) {
                     continue;
                 }
+                if (spawn.TriggerName === 'botEvent' && spawn.TriggerId === 'BossBoarBorn') {
+                    // filter out Kaban's sniper followers
+                    continue;
+                }
+                enemySet.add(spawn.BossName);
                 if (newBoss) {
                     this.logger.log(` - ${bossInfo.name}`);
                 }
                 const locationCount = {};
-                const spawnKeys = spawn.BossZone.split(',');
+                const spawnKeys = spawn.BossZone.split(',').filter(Boolean);
                 const locations = spawnKeys.map(zone => {
                     let locationName = zone.replace(/Zone_?/, '').replace(/Bot/, '');
                     if (!locationName) locationName = 'Anywhere';
@@ -334,7 +338,7 @@ class UpdateMapsJob extends DataJob {
                     }
                 }
 
-                if (spawn.TriggerId) {
+                if (spawn.TriggerId && spawn.TriggerName === 'interactObject') {
                     const switchId = this.mapDetails[id].switches.reduce((found, current) => {
                         if (found) {
                             return found;

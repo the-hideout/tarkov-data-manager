@@ -333,8 +333,11 @@ const getItems = async(options) => {
                 match_index,
                 properties,
                 image_link IS NULL OR image_link = '' AS needs_image,
+                base_image_link IS NULL OR base_image_link = '' as needs_base_image,
                 grid_image_link IS NULL OR grid_image_link = '' AS needs_grid_image,
                 icon_link IS NULL OR icon_link = '' AS needs_icon_image,
+                image_512_link IS NULL or image_512_link = '' as needs_512px_image,
+                image_8x_link IS NULL or image_8x_link = '' as needs_8x_image,
                 GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
             FROM
                 item_data
