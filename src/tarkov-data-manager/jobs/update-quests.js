@@ -2,14 +2,12 @@ const fs = require('fs/promises');
 const path = require('path');
 
 const got = require('got');
-const sharp = require('sharp');
-const cheerio = require('cheerio');
 
 const remoteData = require('../modules/remote-data');
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 const DataJob = require('../modules/data-job');
-const { getLocalBucketContents, uploadAnyImage } = require('../modules/upload-s3');
+const { getLocalBucketContents } = require('../modules/upload-s3');
 
 class UpdateQuestsJob extends DataJob {
     constructor() {
@@ -1028,27 +1026,19 @@ class UpdateQuestsJob extends DataJob {
             return false;
         }
         let objectiveId = objective._props.id;
-        for (const questId in this.changedQuests) {
-            if (!this.changedQuests[questId].objectiveIdsChanged) {
-                continue;
-            }
-            if (!this.changedQuests[questId].objectiveIdsChanged[objectiveId]) {
-                continue;
-            }
-            logger.warn(`Changing objective id ${objectiveId} to ${this.changedQuests[questId].objectiveIdsChanged[objectiveId]}`);
-            objectiveId = this.changedQuests[questId]?.objectiveIdsChanged[objectiveId];
-            delete this.changedQuests[questId].objectiveIdsChanged[objectiveId];
+        const changedIds = this.changedQuests[questId]?.objectiveIdsChanged;
+        if (changedIds && changedIds[objectiveId]) {
+            const objectiveIdChanged = changedIds[objectiveId];
+            logger.warn(`Changing objective id ${objectiveId} to ${objectiveIdChanged}`);
+            objectiveId = objectiveIdChanged;
         }
-        let optional = false;
-        if (objective._props.parentId) {
-            optional = true;
-        }
+
         const obj = {
             id: objectiveId,
             description: (!failConditions || this.locales.en[objectiveId]) ? this.addTranslation(objectiveId) : this.addTranslation(objectiveId, 'en', ''),
             type: null,
             count: isNaN(objective._props.value) ? null : parseInt(objective._props.value),
-            optional: optional,
+            optional: Boolean((objective._props.parentId)),
             locationNames: [],
             map_ids: [],
             zoneKeys: [],
@@ -1057,7 +1047,7 @@ class UpdateQuestsJob extends DataJob {
         if (objective._parent === 'FindItem' || objective._parent === 'HandoverItem') {
             const targetItem = this.items[objective._props.target[0]];
             let verb = 'give';
-            if (objective._parent === 'FindItem' || (objective._parent === 'HandoverItem' && optional)) {
+            if (objective._parent === 'FindItem' || (objective._parent === 'HandoverItem' && obj.optional)) {
                 verb = 'find';
             }
             obj.item_id = objective._props.target[0];

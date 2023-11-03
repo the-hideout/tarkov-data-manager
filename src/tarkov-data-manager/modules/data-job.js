@@ -242,7 +242,7 @@ class DataJob {
                 throw new Error(`Cannot assign undefined value to ${langCode} ${key}`);
             }
         } else {
-            if (typeof this.locales.en[key] !== 'undefined' && this.locales.en[key] !== '') {
+            if (typeof this.locales.en[key] !== 'undefined') {
                 this.translationKeys.add(key);
             } else if (!this.translationKeyMap[key]) {
                 if (typeof this.locales.en[key] === 'undefined') {
@@ -317,7 +317,12 @@ class DataJob {
 
     getMobKey = (enemy) => {
         const keySubs = {
+            arenaFighterEvent: 'ArenaFighterEvent',
             followerTagilla: 'bossTagilla',
+            AnyPmc: 'AnyPMC',
+            exUsec: 'ExUsec',
+            marksman: 'Marksman',
+            pmcBot: 'PmcBot',
         };
         return keySubs[enemy] || enemy;
     }
@@ -335,6 +340,16 @@ class DataJob {
             `QuestCondition/Elimination/Kill/Target/${enemy}`,
             `ScavRole/${enemy}`,
         ];
+
+        // first try to find the translation using the key
+        for (const enemyKey of enemyKeys) {
+            if (lang[enemyKey]) {
+                return lang[enemyKey];
+            }
+        }
+
+        // if not found, then try to find the key in a case insensitive way
+        // this is very computationally expensive
         for (const enemyKey of enemyKeys) {
             for (const key in lang) {
                 if (key.toLowerCase() === enemyKey.toLowerCase()) {
@@ -356,7 +371,7 @@ class DataJob {
                     nameParts.push(`(${guardTypeMatch[0]})`);
                 }
             }
-            return nameParts.join(' ')
+            return nameParts.join(' ');
         }
         if (enemy === 'peacefullZryachiyEvent') {
             return `${this.getMobName('bossZryachiy', lang, langCode)} (${lang.Peaceful || 'Peaceful'})`;
