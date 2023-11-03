@@ -225,7 +225,7 @@ class DataJob {
                     this.kvData.locale[k] = {};
                 }
                 if (langCode && value) {
-                    if (!this.kvData.local[langCode]) {
+                    if (!this.kvData.locale[langCode]) {
                         this.kvData.locale[langCode] = {};
                     }
                     this.kvData.locale[langCode][key] = value;
@@ -237,6 +237,9 @@ class DataJob {
         }
         if (langCode) {
             if (typeof value !== 'undefined') {
+                if (!this.kvData.locale[langCode]) {
+                    this.kvData.locale[langCode] = {};
+                }
                 this.kvData.locale[langCode][key] = value;
             } else {
                 throw new Error(`Cannot assign undefined value to ${langCode} ${key}`);
@@ -251,6 +254,7 @@ class DataJob {
                             this.translationKeyMap[key] = dictKey;
                             this.logger.warn(`Translation key substition for ${key}: ${dictKey}`);
                             //return dictKey;
+                            break;
                         }
                     }
                 }
@@ -261,6 +265,32 @@ class DataJob {
             }
         }
         return key;
+    }
+
+    getTranslation = (key, langCode = 'en', target) => {
+        if (!target) {
+            target = this.kvData;
+        }
+        if (!target.locale) {
+            target.locale = {};
+        }
+        if (!target.locale[langCode]) {
+            target.locale[langCode] = {};
+        }
+        if (typeof target.locale[langCode][key] !== 'undefined') {
+            return target.locale[langCode][key];
+        }
+        const usedKey = this.translationKeyMap[key] ? this.translationKeyMap[key] : key;
+        if (typeof usedKey === 'function') {
+            target.locale[langCode][key] = usedKey(key, langCode, this.locales[langCode]);
+            return target.locale[langCode][key];
+        }
+        target.locale[langCode][key] = this.locales[langCode][usedKey];
+        if (typeof target.locale[langCode][key] === 'undefined' && langCode === 'en') {
+            target.locale[langCode][key] = usedKey;
+            //return Promise.reject(new Error(`Missing translation for ${key}`));
+        }
+        return target.locale[langCode][key];
     }
 
     fillTranslations = async (target) => {
@@ -275,23 +305,7 @@ class DataJob {
                 target.locale[langCode] = {};
             }
             for (const key of this.translationKeys) {
-                if (target.locale[langCode][key]) {
-                    continue;
-                }
-                const usedKey = this.translationKeyMap[key] ? this.translationKeyMap[key] : key;
-                target.locale[langCode][key] = this.locales[langCode][usedKey];
-                /*if (typeof target.locale[langCode][key] === 'undefined') {
-                    for (const dictKey in this.locales[langCode]) {
-                        if (dictKey.toLowerCase() === key.toLowerCase()) {
-                            target.locale[langCode][key] = this.locales[langCode][dictKey];
-                            break;
-                        }
-                    }
-                }*/
-                if ((typeof target.locale[langCode][key] === 'undefined' || target.locale[langCode][key] === '') && langCode === 'en') {
-                    target.locale[langCode][key] = usedKey;
-                    //return Promise.reject(new Error(`Missing translation for ${key}`));
-                }
+                this.getTranslation(key, langCode, target);
             }
         }
         for (const langCode in target.locale) {
@@ -327,74 +341,98 @@ class DataJob {
         return keySubs[enemy] || enemy;
     }
 
-    getMobName = (enemy, lang, langCode, originalLang) => {
-        const originalEnemy = enemy;
-        if (enemyMap[enemy]) {
-            enemy = enemyMap[enemy];
-        }
-        if (lang[enemy]) {
-            return lang[enemy];
-        }
-        const enemyKeys = [
-            `QuestCondition/Elimination/Kill/BotRole/${enemy}`,
-            `QuestCondition/Elimination/Kill/Target/${enemy}`,
-            `ScavRole/${enemy}`,
-        ];
-
-        // first try to find the translation using the key
-        for (const enemyKey of enemyKeys) {
-            if (lang[enemyKey]) {
-                return lang[enemyKey];
+    addMobTranslation = (key) => {
+        if (typeof this.locales.en[key] !== 'undefined') {
+            this.translationKeys.add(key);
+        } else if (typeof this.translationKeyMap[key] === 'undefined') {
+            let foundKey = this.getMobKey(key);
+            let found = false;
+            if (enemyKeyMap[key]) {
+                foundKey = enemyKeyMap[key];
             }
-        }
-
-        // if not found, then try to find the key in a case insensitive way
-        // this is very computationally expensive
-        for (const enemyKey of enemyKeys) {
-            for (const key in lang) {
-                if (key.toLowerCase() === enemyKey.toLowerCase()) {
-                    return lang[key];
+            if (this.locales.en[foundKey]) {
+                this.translationKeyMap[key] = foundKey;
+                found = true;
+            }
+            const enemyKeys = [
+                `QuestCondition/Elimination/Kill/BotRole/${foundKey}`,
+                `QuestCondition/Elimination/Kill/Target/${foundKey}`,
+                `ScavRole/${foundKey}`,
+            ];
+            for (const enemyKey of enemyKeys) {
+                if (found) {
+                    break;
+                }
+                if (this.locales.en[enemyKey]) {
+                    this.translationKeyMap[key] = enemyKey;
+                    found = true;
+                    break;
                 }
             }
-        }
-        if (enemy.includes('follower') && !enemy.includes('BigPipe') && !enemy.includes('BirdEye')) {
-            const nameParts = [];
-            const guardTypePattern = /Assault|Security|Scout|Snipe/;
-            const bossKey = enemy.replace('follower', 'boss').replace(guardTypePattern, '');
-            nameParts.push(this.getMobName(bossKey, lang, langCode));
-            nameParts.push(this.getMobName('Follower', lang, langCode));
-            const guardTypeMatch = enemy.match(guardTypePattern);
-            if (guardTypeMatch) {
-                if (lang[`follower${guardTypeMatch[0]}`]) {
-                    nameParts.push(`(${lang[`follower${guardTypeMatch[0]}`]})`);
-                } else {
-                    nameParts.push(`(${guardTypeMatch[0]})`);
+            
+            if (key.includes('follower') && !key.includes('BigPipe') && !key.includes('BirdEye')) {
+                this.translationKeyMap[key] = (key, langCode, lang) => {    
+                    const nameParts = [];
+                    const guardTypePattern = /Assault|Security|Scout|Snipe/;
+                    const bossKey = key.replace('follower', 'boss').replace(guardTypePattern, '');
+                    this.addMobTranslation(bossKey);
+                    this.addMobTranslation('Follower');
+                    nameParts.push(this.getTranslation(bossKey, langCode));
+                    nameParts.push(this.getTranslation('Follower', langCode));
+                    const guardTypeMatch = enemy.match(guardTypePattern);
+                    if (guardTypeMatch) {
+                        if (lang[`follower${guardTypeMatch[0]}`]) {
+                            nameParts.push(`(${lang[`follower${guardTypeMatch[0]}`]})`);
+                        } else {
+                            nameParts.push(`(${guardTypeMatch[0]})`);
+                        }
+                    }
+                    return nameParts.join(' ');
+                };
+            }
+            if (key === 'peacefullZryachiyEvent') {
+                this.addMobTranslation('bossZryachiy');
+                this.translationKeyMap[key] = (key, langCode, lang) => {
+                    return `${this.getTranslation('bossZryachiy', langCode)} (${lang.Peaceful || 'Peaceful'})`;
+                };
+            }
+            if (key === 'ravangeZryachiyEvent') {
+                this.addMobTranslation('bossZryachiy');
+                this.translationKeyMap[key] = (key, langCode, lang) => {
+                    return `${this.getTranslation('bossZryachiy', langCode)} (${lang['6530e8587cbfc1e309011e37 ShortName'] || 'Vengeful'})`;
+                };
+                
+            }
+            if (key === 'sectactPriestEvent') {
+                this.addMobTranslation('sectantPriest');
+                this.translationKeyMap[key] = (key, langCode, lang) => {
+                    return `${this.getTranslation('sectantPriest', langCode)} (${lang.Ritual})`;
+                };
+            }
+            for (const enemyKey of enemyKeys) {
+                if (found) {
+                    break;
+                }
+                for (const key in this.locales.en) {
+                    if (key.toLowerCase() === enemyKey.toLowerCase()) {
+                        this.translationKeyMap[key] = enemyKey;
+                        found = true;
+                        break;
+                    }
                 }
             }
-            return nameParts.join(' ');
-        }
-        if (enemy === 'peacefullZryachiyEvent') {
-            return `${this.getMobName('bossZryachiy', lang, langCode)} (${lang.Peaceful || 'Peaceful'})`;
-        }
-        if (enemy === 'ravangeZryachiyEvent') {
-            return `${this.getMobName('bossZryachiy', lang, langCode)} (${lang['6530e8587cbfc1e309011e37 ShortName'] || 'Vengeful'})`;
-        }
-        if (enemy === 'sectactPriestEvent') {
-            return `${this.getMobName('sectantPriest', lang, langCode)} (${lang.Ritual})`;
-        }
-        if (langCode === 'en') {
-            if (!originalLang) {
-                this.logger.warn(`Could not find translation for ${originalEnemy}, ${langCode}`);
+
+            if (!this.translationKeyMap[key]) {
+                this.logger.warn(`Translation key not found: ${key}`);
             }
-        } else {
-            return this.getMobName(originalEnemy, this.locales.en, 'en', langCode);
+            this.translationKeys.add(key);
         }
-        return enemy.replace('boss', '');
+        return key;
     }
 }
 
-const enemyMap = {
-    'assault': 'ArenaFighterEvent',
+const enemyKeyMap = {
+    //'assault': 'ArenaFighterEvent',
     'scavs': 'Savage',
     'sniper': 'Marksman',
     'sectantWarrior': 'cursedAssault',

@@ -1147,9 +1147,7 @@ class UpdateQuestsJob extends DataJob {
                         }
                     }
                     let targetCode = cond._props.target;
-                    obj.targetNames = [this.addTranslation(targetCode, (lang, langCode) => {
-                        return this.getMobName(this.getMobKey(targetCode), lang, langCode);
-                    })];
+                    obj.targetNames = [this.addMobTranslation(targetCode)];
                     if (cond._props.savageRole) {
                         const ignoreRoles = [
                             'assault',
@@ -1166,11 +1164,7 @@ class UpdateQuestsJob extends DataJob {
                             allowedRoles.push('savage');
                         }
                         targetCode = allowedRoles[0];
-                        obj.targetNames = allowedRoles.map(key => {
-                            return this.addTranslation(key, (lang, langCode) => {
-                                return this.getMobName(key, lang, langCode);
-                            });
-                        });
+                        obj.targetNames = allowedRoles.map(key => this.addMobTranslation(key));
                     }
                     obj.target = obj.targetNames[0];
                     if (cond._props.daytime) {
