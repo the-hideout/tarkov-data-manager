@@ -628,7 +628,7 @@
                 "map_ids": [
                     "5704e4dad2720bb55b8b4567"
                 ],
-                "target": "AnyPmc",
+                "target": "QuestCondition/Elimination/Kill/Target/AnyPMC",
                 "count": 20,
                 "shotType": "kill",
                 "usingWeapon": [

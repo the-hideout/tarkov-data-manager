@@ -239,7 +239,6 @@ class UpdateMapsJob extends DataJob {
                 }
             }
             for (const spawn of map.BossLocationSpawn) {
-                const newBoss = !enemySet.has(spawn.BossName);
                 const bossData = {
                     id: spawn.BossName,
                     spawnChance: parseFloat(spawn.BossChance) / 100,
@@ -251,6 +250,8 @@ class UpdateMapsJob extends DataJob {
                     spawnTrigger: null,
                 };
                 const bossInfo = await this.getBossInfo(spawn.BossName);
+                bossData.id = bossInfo.id;
+                const newBoss = !enemySet.has(bossData.id);
                 if (bossData.spawnChance === 0) {
                     continue;
                 }
@@ -258,9 +259,9 @@ class UpdateMapsJob extends DataJob {
                     // filter out Kaban's sniper followers
                     continue;
                 }
-                enemySet.add(spawn.BossName);
+                enemySet.add(bossData.id);
                 if (newBoss) {
-                    this.logger.log(` - ${bossInfo.name}`);
+                    this.logger.log(` - ${this.getTranslation(bossInfo.name)}`);
                 }
                 const locationCount = {};
                 const spawnKeys = spawn.BossZone.split(',').filter(Boolean);
@@ -319,7 +320,7 @@ class UpdateMapsJob extends DataJob {
                         amount: getChances(spawn.BossEscortAmount, 'count', true), 
                     });
                     if (newMob) {
-                        this.logger.log(` - ${enemyData.name}`);
+                        this.logger.log(` - ${this.getTranslation(enemyData.name)}`);
                     }
                 }
                 if (spawn.Supports) {
@@ -333,7 +334,7 @@ class UpdateMapsJob extends DataJob {
                             amount: getChances(support.BossEscortAmount, 'count', true), 
                         });
                         if (newMob) {
-                            this.logger.log(` - ${enemyData.name}`);
+                            this.logger.log(` - ${this.getTranslation(enemyData.name)}`);
                         }
                     }
                 }
@@ -363,9 +364,7 @@ class UpdateMapsJob extends DataJob {
                 }
                 mapData.bosses.push(bossData);
             }
-            mapData.enemies = this.addTranslation([...enemySet], (enemy, lang, langCode) => {
-                return this.getMobName(enemy, lang, langCode);
-            });
+            mapData.enemies = [...enemySet].map(enemy => this.addMobTranslation(enemy));
             mapData.name = this.addTranslation(`${id} Name`, (lang) => {
                 if (id === '59fc81d786f774390775787e' && lang.factory4_night) {
                     return lang.factory4_night;
@@ -506,10 +505,8 @@ class UpdateMapsJob extends DataJob {
         }
         const bossInfo = {
             id: bossKey,
-            name: this.addTranslation(bossKey, (lang, langCode) => {
-                return this.getMobName(bossKey, lang, langCode);
-            }),
-            normalizedName: normalizeName(this.getMobName(bossKey, this.locales.en, 'en')),
+            name: this.addMobTranslation(bossKey),
+            normalizedName: normalizeName(this.getTranslation(bossKey, 'en')),
             imagePortraitLink: `https://${process.env.S3_BUCKET}/unknown-mob-portrait.webp`,
             imagePosterLink: `https://${process.env.S3_BUCKET}/unknown-mob-poster.webp`,
             equipment: [],
