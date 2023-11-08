@@ -485,10 +485,11 @@ class UpdateItemCacheJob extends DataJob {
             item[mappingProperties[propertyKey]] = propertyValue;
         }
     
+        item.hasGrid = false;
         const grid = getGrid(this.bsgItems[item.id]);
-        if(grid && grid.totalSize > 0){
+        if (grid && grid.totalSize > 0){
             item.hasGrid = true;
-        }  
+        }
     }
 
     getTraderPrices(item) {
