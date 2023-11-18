@@ -14,6 +14,8 @@ const jsonRequest = async (path) => {
         responseType: 'json',
         headers: {
             'Accept': 'application/json',
+            'CF-Access-Client-Id': process.env.TC_CF_CLIENT_ID,
+            'CF-Access-Client-Secret': process.env.TC_CF_CLIENT_SECRET,
         },
         resolveBodyOnly: true,
         retry: {
@@ -121,7 +123,7 @@ module.exports = {
                 errors.push(results[i].reason.message);
             }
         }
-        if (returnPartial) {
+        if (returnPartial && Object.values(values).length > 0) {
             values.errors = errors;
             return values;
         }
