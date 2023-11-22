@@ -1,6 +1,6 @@
 const sharp = require('sharp');
+const got = require('got');
 
-const axios = require('axios');
 const { imageFunctions } = require('tarkov-dev-image-generator');
 
 const remoteData = require('../modules/remote-data');
@@ -99,8 +99,8 @@ async function regenerateFromExisting(id, backgroundOnly = false) {
         sourceUrl = `https://${process.env.S3_BUCKET}/${id}-base-image.png`;
         regenSource = 'base';
     }
-    const imageData = (await axios({ url: sourceUrl, responseType: 'arraybuffer' })).data;
-    const sourceImage = sharp(await sharp(imageData).png().toBuffer());
+    const imageData = await got(sourceUrl).buffer();
+    const sourceImage = sharp(imageData);
     const imageJobs = [
         imageFunctions.createIcon(sourceImage, item)
             .then(result => {return {image: result, type: 'icon'}})
