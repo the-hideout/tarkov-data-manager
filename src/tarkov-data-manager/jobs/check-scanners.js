@@ -14,6 +14,9 @@ class CheckScansJob extends DataJob {
             got('https://status.escapefromtarkov.com/api/services', {
                 responseType: 'json',
                 resolveBodyOnly: true
+            }).catch(error => {
+                this.logger.error(`Error getting EFT services status: ${error.message}`);
+                return [];
             }),
             this.query(`
                 select scanner.id, name, last_scan, trader_last_scan, username, scanner.flags, scanner_user.flags as user_flags, disabled 
