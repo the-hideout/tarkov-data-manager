@@ -96,7 +96,7 @@ class CheckScansJob extends DataJob {
 
             const messageData = {
                 title: `Missing scans from ${encodeURIComponent(scanner.name)} (${scanner.username})`,
-                message: `The last scanned ${DateTime.fromJSDate(lastScan).toRelative()}`
+                message: `Last scanned ${DateTime.fromJSDate(lastScan).toRelative()}`
             };
 
             this.logger.log('Sending alert');

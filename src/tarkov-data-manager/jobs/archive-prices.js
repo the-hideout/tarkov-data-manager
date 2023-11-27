@@ -31,39 +31,15 @@ class ArchivePricesJob extends DataJob {
             // convert oldest price date to YYYY-MM-dd
             oldestPrice = this.getMysqlDate(oldestPrice[0].timestamp);
 
-            // query results are limited to 100k, so query as many times as needed
-            const oldestPrices = [];
-            const batchSize = 100000;
-            let offset = 0;
-            while (true) {
-                const moreData = await this.query('SELECT * FROM price_data WHERE `timestamp` >= ? AND `timestamp` < ? + INTERVAL 1 DAY LIMIT ?, 100000', [oldestPrice, oldestPrice, offset]);
-                oldestPrices.push(...moreData);
-                if (moreData.length < batchSize) {
-                    break;
-                }
-                offset += batchSize;
-            }
-            this.logger.log(`Found ${oldestPrices.length} prices to archive on ${oldestPrice}`);
+            this.logger.log(`Archiving prices on ${oldestPrice}`);
 
-            // convert prices for each item into arrays
-            const itemPrices = {};
-            for (const scan of oldestPrices) {
-                if (typeof itemPrices[scan.item_id] === 'undefined') {
-                    itemPrices[scan.item_id] = [];
-                }
-                itemPrices[scan.item_id].push(scan.price);
-            }
+            // get minimum and average prices per item during day
+            const itemPrices = await this.query('SELECT item_id, MIN(price) as min_price, ROUND(AVG(price)) as avg_price FROM price_data WHERE `timestamp` >= ? AND `timestamp` < ? + INTERVAL 1 DAY GROUP BY item_id', [oldestPrice, oldestPrice]);
 
-            // generate values for the price archive insert
+            // add min and average prices to price archive insert
             const insertValues = [];
-            for (const itemId in itemPrices) {
-                const minPrice = itemPrices[itemId].reduce((min, price) => {
-                    return Math.min(min, price);
-                }, Number.MAX_SAFE_INTEGER);
-                const avgPrice = Math.round(itemPrices[itemId].reduce((total, price) => {
-                    return total + price;
-                }, 0) / itemPrices[itemId].length);
-                insertValues.push(itemId, oldestPrice, minPrice, avgPrice);
+            for (const itemPrice of itemPrices) {
+                insertValues.push(itemPrice.item_id, oldestPrice, itemPrice.min_price, parseInt(itemPrice.avg_price));
             }
 
             // insert archived prices
@@ -79,12 +55,16 @@ class ArchivePricesJob extends DataJob {
 
             // delete archived prices from main price table
             // can only delete 100k at a time, so need to loop
+            const batchSize = 100000;
+            let deletedCount = 0;
             while (true) {
-                const deleteResult = await this.query('DELETE FROM price_data WHERE `timestamp` < ? + INTERVAL 1 DAY LIMIT 100000', [oldestPrice]);
-                if (deleteResult.affectedRows === 0) {
+                const deleteResult = await this.query('DELETE FROM price_data WHERE `timestamp` < ? + INTERVAL 1 DAY LIMIT ?', [oldestPrice, batchSize]);
+                deletedCount += deleteResult.affectedRows;
+                if (deleteResult.affectedRows < batchSize) {
                     break;
                 }
             }
+            this.logger.log(`Deleted ${deletedCount} individual prices`);
         }
     }
 
