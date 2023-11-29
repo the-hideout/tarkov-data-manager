@@ -10,8 +10,7 @@ class UpdateHistoricalPricesJob extends DataJob {
     }
 
     async run() {
-        const aWeekAgo = new Date();
-        aWeekAgo.setDate(aWeekAgo.getDate() - 7);
+        const aWeekAgo = new Date(new Date().setDate(new Date().getDate() - 7));
         const itemPriceData = await fs.readFile(path.join(__dirname, '..', 'dumps', 'historical_price_data.json')).then(buffer => {
             const parsed = JSON.parse(buffer);
             return parsed.historicalPricePoint;
@@ -19,6 +18,7 @@ class UpdateHistoricalPricesJob extends DataJob {
             if (error.code !== 'ENOENT') {
                 console.log(error);
             }
+            this.logger.log('Generating full historical prices');
             return {};
         });
         let lastTimestamp = 0;
@@ -27,81 +27,57 @@ class UpdateHistoricalPricesJob extends DataJob {
                 if (oldPrice.timestamp > lastTimestamp) {
                     lastTimestamp = oldPrice.timestamp;
                 }
-                return oldPrice.timestamp > aWeekAgo;
+                return oldPrice.timestamp > aWeekAgo.getTime();
             });
         }
         const dateCutoff = lastTimestamp ? new Date(lastTimestamp) : aWeekAgo;
-        
-        const allPriceData = {};
 
-        this.logger.time(`historical-price-query-items`);
-        const historicalPriceDataItemIds = await this.query(`SELECT
-            item_id
-        FROM
-            price_data
-        WHERE
-            timestamp > ?
-        GROUP BY
-            item_id`, [dateCutoff]);
-        this.logger.timeEnd(`historical-price-query-items`);
+        this.logger.log(`Using query cutoff of ${dateCutoff}`);
 
-        this.logger.time('all-items-queries');
-        const itemQueries = [];
-        for (const itemIdRow of historicalPriceDataItemIds) {
-            const itemId = itemIdRow.item_id;
-            if(!allPriceData[itemId]){
-                allPriceData[itemId] = [];
+        const batchSize = 100000;
+        let offset = 0;
+        const historicalPriceData = [];
+        this.logger.time('historical-prices-query');
+        while (true) {
+            const queryResults = await this.query(`
+                SELECT
+                    item_id, timestamp, MIN(price) AS price_min, AVG(price) AS price_avg
+                FROM
+                    price_data
+                WHERE
+                    timestamp > ?
+                GROUP BY item_id, timestamp
+                ORDER BY item_id, timestamp
+                LIMIT ?, ?
+            `, [dateCutoff, offset, batchSize]);
+            historicalPriceData.push(...queryResults);
+            if (queryResults.length !== batchSize) {
+                break;
             }
+            offset += batchSize;
+        }
+        this.logger.timeEnd('historical-prices-query');
 
-            //console.time(`historical-price-query-${itemId}`);
-            const historicalPriceDataPromise = this.query(`SELECT
-                item_id, price, timestamp
-            FROM
-                price_data
-            WHERE
-                timestamp > ?
-            AND
-                item_id = ?`, [dateCutoff, itemId]
-            ).then(historicalPriceData => {
-                //console.timeEnd(`historical-price-query-${itemId}`);
-                for (const row of historicalPriceData) {
-                    if(!allPriceData[row.item_id][row.timestamp.getTime()]){
-                        allPriceData[row.item_id][row.timestamp.getTime()] = {
-                            sum: 0,
-                            count: 0,
-                        };
-                    }
-
-                    allPriceData[row.item_id][row.timestamp.getTime()].sum = allPriceData[row.item_id][row.timestamp.getTime()].sum + row.price;
-                    allPriceData[row.item_id][row.timestamp.getTime()].count = allPriceData[row.item_id][row.timestamp.getTime()].count + 1;
-                }
+        for (const row of historicalPriceData) {
+            if (!itemPriceData[row.item_id]) {
+                itemPriceData[row.item_id] = [];
+            }
+            itemPriceData[row.item_id].push({
+                priceMin: row.price_min,
+                price: Math.round(row.price_avg),
+                timestamp: row.timestamp.getTime(),
             });
-            itemQueries.push(historicalPriceDataPromise);
         }
-        await Promise.all(itemQueries);
-        this.logger.timeEnd('all-items-queries');
 
-        for(const itemId in allPriceData){
-            if(!itemPriceData[itemId]){
-                itemPriceData[itemId] = [];
-            }
-
-            for(const timestamp in allPriceData[itemId]){
-                itemPriceData[itemId].push({
-                    price: Math.floor(allPriceData[itemId][timestamp].sum / allPriceData[itemId][timestamp].count),
-                    timestamp: new Date().setTime(timestamp),
-                });
-            }
-        }
-        const priceData = {
+        this.kvData = {
             historicalPricePoint: itemPriceData
         };
 
-        await this.cloudflarePut(priceData);
+        await this.cloudflarePut();
 
         this.logger.success('Done with historical prices');
         // Possibility to POST to a Discord webhook here with cron status details
-        return priceData;
+        return this.kvData;
     }
 }
 

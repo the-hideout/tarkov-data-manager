@@ -10,7 +10,8 @@ const pool = mysql.createPool({
     queueLimit: 0,
     ssl: {
         rejectUnauthorized: true
-    }
+    },
+    timezone: 'Z', // database uses Zulu (utc) time
 });
 
 let connectedCount = 0;

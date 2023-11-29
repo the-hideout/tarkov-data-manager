@@ -35,13 +35,11 @@ class CheckScansJob extends DataJob {
 
         const userFlags = scannerApi.getUserFlags();
         const scannerFlags = scannerApi.getScannerFlags();
-        const utcOffset = new Date().getTimezoneOffset() * 60000;
-        const utcNow = new Date(Date.now() + utcOffset);
-        const scanCutoff = utcNow.getTime() - (1000 * 60 * 15);
-        const dateUtc = DateTime.fromJSDate(utcNow);
+        const scanCutoff = new Date() - (1000 * 60 * 15);
+        const dateNow = DateTime.now();
         for (const scanner of scanners) {
             if (scanner.last_scan?.getTime() < scanCutoff) {
-                this.logger.log(`${scanner.name} hasn't scanned player prices ${dateUtc.toRelative({ base: DateTime.fromJSDate(scanner.last_scan) })}; releasing any batches`);
+                this.logger.log(`${scanner.name} hasn't scanned player prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner.last_scan) })}; releasing any batches`);
                 this.query(`
                     UPDATE
                         item_data
@@ -54,7 +52,7 @@ class CheckScansJob extends DataJob {
                 });
             }
             if (scanner.trader_last_scan?.getTime() < scanCutoff) {
-                this.logger.log(`${scanner.name} hasn't scanned trader prices ${dateUtc.toRelative({ base: DateTime.fromJSDate(scanner.trader_last_scan) })}; releasing any batches`);
+                this.logger.log(`${scanner.name} hasn't scanned trader prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner.trader_last_scan) })}; releasing any batches`);
                 this.query(`
                     UPDATE
                         item_data
@@ -80,11 +78,9 @@ class CheckScansJob extends DataJob {
                 continue;
             }
 
-            // sync timezone offsets
-            let lastScan = new Date(scanner.last_scan?.setTime(scanner.last_scan.getTime() - utcOffset));
-            const traderLastScan = new Date(scanner.trader_last_scan?.setTime(scanner.trader_last_scan.getTime() - utcOffset));
-            if (traderLastScan > lastScan) {
-                lastScan = traderLastScan;
+            let lastScan = scanner.last_scan;
+            if (scanner.trader_last_scan > lastScan) {
+                lastScan = scanner.trader_last_scan;
             }
 
             const lastScanAge = Math.floor((new Date().getTime() - lastScan.getTime()) / 1000);

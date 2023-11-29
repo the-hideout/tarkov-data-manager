@@ -23,7 +23,12 @@ class ArchivePricesJob extends DataJob {
         // archive max_days_per_run number of days
         for (let i = 0; i < max_days_per_run; i++) {
             // get the price with the oldest timestamp
-            const oldestPrice = await this.query('SELECT * FROM price_data WHERE `timestamp` < ? ORDER BY `timestamp` LIMIT 1;', [this.getMysqlDateTime(cutoff)]);
+            const oldestPrice = await this.query(`
+                SELECT * FROM price_data 
+                WHERE timestamp < ?
+                ORDER BY timestamp
+                LIMIT 1
+            `, [cutoff]);
             if (oldestPrice.length === 0) {
                 this.logger.success(`No prices found before ${cutoff}`);
                 return;
@@ -34,12 +39,17 @@ class ArchivePricesJob extends DataJob {
             this.logger.log(`Archiving prices for ${archiveDate}`);
 
             // get minimum and average prices per item during day
-            const itemPrices = await this.query('SELECT item_id, MIN(price) as min_price, ROUND(AVG(price)) as avg_price FROM price_data WHERE `timestamp` >= ? AND `timestamp` < ? + INTERVAL 1 DAY GROUP BY item_id', [archiveDate, archiveDate]);
+            const itemPrices = await this.query(`
+                SELECT item_id, MIN(price) as min_price, AVG(price) as avg_price 
+                FROM price_data 
+                WHERE timestamp >= ? AND timestamp < ? + INTERVAL 1 DAY 
+                GROUP BY item_id
+            `, [archiveDate, archiveDate]);
 
             // add min and average prices to price archive insert
             const insertValues = [];
             for (const itemPrice of itemPrices) {
-                insertValues.push(itemPrice.item_id, archiveDate, itemPrice.min_price, parseInt(itemPrice.avg_price));
+                insertValues.push(itemPrice.item_id, archiveDate, itemPrice.min_price, Math.round(itemPrice.avg_price));
             }
 
             // insert archived prices
@@ -54,30 +64,35 @@ class ArchivePricesJob extends DataJob {
             `, insertValues);
             this.logger.log(`Inserted ${Object.keys(itemPrices).length} archived prices in ${new Date() - insertStart}ms`);
 
-            // delete archived prices from main price table
-            // can only delete 100k at a time, so need to loop
-            const batchSize = 100000;
-            let deletedCount = 0;
-            const deleteStart = new Date();
-            while (true) {
-                const deleteResult = await this.query('DELETE FROM price_data WHERE `timestamp` < ? + INTERVAL 1 DAY LIMIT ?', [archiveDate, batchSize]);
-                deletedCount += deleteResult.affectedRows;
-                if (deleteResult.affectedRows < batchSize) {
-                    break;
-                }
-            }
-            this.logger.log(`Deleted ${deletedCount} individual prices in ${new Date() - deleteStart}ms`);
+            // delete the prices we just archived
+            await this.deletePricesThrough(archiveDate);
         }
-    }
-
-    // converts js time to YYYY-MM-dd hh:mm:ss
-    getMysqlDateTime = (jsDate) => {
-        return jsDate.toISOString().slice(0, 19).replace('T', ' ');
     }
 
     // converts js time to YYYY-MM-dd
     getMysqlDate = (jsDate) => {
         return jsDate.toISOString().slice(0, 10);
+    }
+
+    // deletes all prices through the given YYY-MM-dd date
+    deletePricesThrough = async (mysqlDateCutoff) => {
+        // delete archived prices from main price table
+        // can only delete 100k at a time, so need to loop
+        const batchSize = 100000;
+        let deletedCount = 0;
+        const deleteStart = new Date();
+        while (true) {
+            const deleteResult = await this.query(`
+                DELETE FROM price_data 
+                WHERE timestamp < ? + INTERVAL 1 DAY
+                LIMIT ?
+            `, [mysqlDateCutoff, batchSize]);
+            deletedCount += deleteResult.affectedRows;
+            if (deleteResult.affectedRows < batchSize) {
+                break;
+            }
+        }
+        this.logger.log(`Deleted ${deletedCount} individual prices in ${new Date() - deleteStart}ms`);
     }
 }
 

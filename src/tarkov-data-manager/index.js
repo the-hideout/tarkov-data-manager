@@ -709,14 +709,13 @@ app.get('/scanners', async (req, res) => {
     `);
     const userFlags = scannerApi.getUserFlags();
     const scannerFlags = scannerApi.getScannerFlags();
-    const utcOffset = new Date().getTimezoneOffset() * 60000;
-    const utcNow = new Date(Date.now() + utcOffset);
+    const dateNow = new Date();
     scanners.forEach(scanner => {
         if (scanner.disabled) return;
         if (!(scanner.flags & userFlags.insertPlayerPrices) && !(scanner.flags & userFlags.insertTraderPrices)) return;
         let mostRecentScan = scanner.last_scan > scanner.trader_last_scan ? scanner.last_scan : scanner.trader_last_scan;
         mostRecentScan = mostRecentScan ? mostRecentScan : 0;
-        if (utcNow - mostRecentScan < 1000 * 60 * 5) {
+        if (dateNow - mostRecentScan < 1000 * 60 * 5) {
             activeScanners.push({...scanner, timestamp: mostRecentScan});
         } else {
             inactiveScanners.push({...scanner, timestamp: mostRecentScan});
