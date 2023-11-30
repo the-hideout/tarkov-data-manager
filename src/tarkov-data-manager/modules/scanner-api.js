@@ -93,21 +93,6 @@ const getOptions = (options, user) => {
     return mergedOptions;
 };
 
-const dateToMysqlFormat = (dateTime) => {
-    const twoDigits = (d) => {
-        if(0 <= d && d < 10) {
-            return '0' + d.toString();
-        }
-
-        if(-10 < d && d < 0) {
-            return '-0' + (-1*d).toString();
-        }
-
-        return d.toString();
-    };
-    return dateTime.getUTCFullYear() + '-' + twoDigits(1 + dateTime.getUTCMonth()) + '-' + twoDigits(dateTime.getUTCDate()) + ' ' + twoDigits(dateTime.getUTCHours()) + ':' + twoDigits(dateTime.getUTCMinutes()) + ':' + twoDigits(dateTime.getUTCSeconds());
-};
-
 const queryResultToBatchItem = item => {
     const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
     let contains = item.contains ? item.contains.split(',') : [];
