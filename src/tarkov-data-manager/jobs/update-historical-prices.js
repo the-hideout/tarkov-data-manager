@@ -10,7 +10,7 @@ class UpdateHistoricalPricesJob extends DataJob {
     }
 
     async run() {
-        const aWeekAgo = new Date(new Date().setDate(new Date().getDate() - 7));
+        const priceWindow = new Date(new Date().setDate(new Date().getDate() - 7));
         const itemPriceData = await fs.readFile(path.join(__dirname, '..', 'dumps', 'historical_price_data.json')).then(buffer => {
             const parsed = JSON.parse(buffer);
             return parsed.historicalPricePoint;
@@ -21,16 +21,18 @@ class UpdateHistoricalPricesJob extends DataJob {
             this.logger.log('Generating full historical prices');
             return {};
         });
-        let lastTimestamp = 0;
+
+        // filter previously-processed prices to be within the window
+        // also change the cutoff for new prices to be after the oldest price we already have
+        let dateCutoff = priceWindow;
         for (const itemId in itemPriceData) {
             itemPriceData[itemId] = itemPriceData[itemId].filter(oldPrice => {
-                if (oldPrice.timestamp > lastTimestamp) {
-                    lastTimestamp = oldPrice.timestamp;
+                if (oldPrice.timestamp > dateCutoff.getTime()) {
+                    dateCutoff = new Date(oldPrice.timestamp);
                 }
-                return oldPrice.timestamp > aWeekAgo.getTime();
+                return oldPrice.timestamp > priceWindow.getTime();
             });
         }
-        const dateCutoff = lastTimestamp ? new Date(lastTimestamp) : aWeekAgo;
 
         this.logger.log(`Using query cutoff of ${dateCutoff}`);
 
@@ -54,6 +56,7 @@ class UpdateHistoricalPricesJob extends DataJob {
             if (queryResults.length !== batchSize) {
                 break;
             }
+            this.logger.log(`Retrieved prices through ${queryResults[queryResults.length-1].timestamp}, submitting additional query`);
             offset += batchSize;
         }
         this.logger.timeEnd('historical-prices-query');
