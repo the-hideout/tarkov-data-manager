@@ -119,12 +119,19 @@ function startListener(channel) {
 let table = false;
 
 $(document).ready( function () {
-    $('.collapsible').collapsible();
-    $('.tooltipped').tooltip();
-    $('.dropdown-trigger.scanner-dropdown').dropdown({constrainWidth: false});
-    $('.modal').modal();
-    $('select').formSelect();
-    $('.tabs').tabs();
+    M.Collapsible.init($('.collapsible'));
+    M.Tooltip.init($('.tooltipped'));
+    M.Dropdown.init($('.dropdown-trigger.scanner-dropdown'), {constrainWidth: false});
+    M.Modal.init($('.modal'));
+    M.FormSelect.init($('select'));
+    M.Tabs.init($('.tabs')[0]);
+
+    /*document.querySelectorAll('.scanner-dropdown').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            console.log(el);
+        }, {capture: true});
+    });*/
 
     $('.scanner-dropdown').click(function(event){
         event.stopPropagation();
@@ -232,7 +239,7 @@ $(document).ready( function () {
 
         $('#modal-click .click-x').val(Math.round(relX / scaleX));
         $('#modal-click .click-y').val(Math.round(relY / scaleY));
-        M.updateTextFields();
+        //M.updateTextFields();
     });
 
     $('#modal-click .do-click').click(function(event){
@@ -289,10 +296,10 @@ $(document).ready( function () {
             data: formData,
             dataType: "json"
           }).done(function (data) {
-            M.toast({html: data.message});
+            M.toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({html: data.errors[i]});
+                    M.toast({text: data.errors[i]});
                 }
             }
           });
@@ -307,8 +314,8 @@ $(document).ready( function () {
                     return `
                         <div>${data}</div>
                         <div>
-                            <a href="#" class="waves-effect waves-light btn edit-user tooltipped" data-tooltip="Edit" data-username="${data}" data-password="${user.password}" data-id="${user.id}" data-max_scanners="${user.max_scanners}"><i class="material-icons">edit</i></a>
-                            <a href="#" class="waves-effect waves-light btn delete-user tooltipped" data-tooltip="Delete" data-username="${data}"><i class="material-icons">delete</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small edit-user tooltipped" data-tooltip="Edit" data-username="${data}" data-password="${user.password}" data-id="${user.id}" data-max_scanners="${user.max_scanners}"><i class="material-icons">edit</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small delete-user tooltipped" data-tooltip="Delete" data-username="${data}"><i class="material-icons">delete</i></a>
                         </div>
                     `;
                 }
@@ -323,8 +330,8 @@ $(document).ready( function () {
                         <div>
                             <div class="password-holder hidden">${data.replace(/./g, '*')}</div>
                             <div>
-                                <a href="#" class="waves-effect waves-light btn show-password tooltipped" data-tooltip="Show" data-password="${data}"><i class="material-icons">remove_red_eye</i></a>
-                                <a href="#" class="waves-effect waves-light btn copy-password tooltipped" data-tooltip="Copy" data-password="${data}"><i class="material-icons">content_copy</i></a>
+                                <a href="#" class="waves-effect waves-light btn-small show-password tooltipped" data-tooltip="Show" data-password="${data}"><i class="material-icons">remove_red_eye</i></a>
+                                <a href="#" class="waves-effect waves-light btn-small copy-password tooltipped" data-tooltip="Copy" data-password="${data}"><i class="material-icons">content_copy</i></a>
                             </div>
                         </div>
                     `;
@@ -416,7 +423,7 @@ $(document).ready( function () {
                 const form = $('#modal-edit-user').find('form').first();
                 form.attr('action', '/scanners/edit-user');
                 M.Modal.getInstance(document.getElementById('modal-edit-user')).open();
-                M.updateTextFields();
+                //M.updateTextFields();
                 $('#modal-edit-user .username').focus();
             });
 
@@ -426,7 +433,7 @@ $(document).ready( function () {
                 postData('/scanners/delete-user', {username: target.data('username')}).then(data => {
                     if (data.errors.length > 0) {
                         for (let i = 0; i < data.errors.length; i++) {
-                            M.toast({html: data.errors[i]});
+                            M.toast({text: data.errors[i]});
                         }
                         return;
                     }
@@ -448,7 +455,7 @@ $(document).ready( function () {
                 postData('/scanners/edit-user', dataUpdate).then(data => {
                     if (data.errors.length > 0) {
                         for (let i = 0; i < data.errors.length; i++) {
-                            M.toast({html: data.errors[i]});
+                            M.toast({text: data.errors[i]});
                         }
                         return;
                     }
@@ -508,7 +515,7 @@ $(document).ready( function () {
                     postData('/scanners/scanner-flags', dataUpdate).then(data => {
                         if (data.errors.length > 0) {
                             for (let i = 0; i < data.errors.length; i++) {
-                                M.toast({html: data.errors[i]});
+                                M.toast({text: data.errors[i]});
                             }
                         }
                     });
@@ -537,7 +544,7 @@ $(document).ready( function () {
                 postData('/scanners/user-flags', dataUpdate).then(data => {
                     if (data.errors.length > 0) {
                         for (let i = 0; i < data.errors.length; i++) {
-                            M.toast({html: data.errors[i]});
+                            M.toast({text: data.errors[i]});
                         }
                     }
                 });
@@ -554,10 +561,10 @@ $(document).ready( function () {
             data: formData,
             dataType: "json"
         }).done(function (data) {
-            M.toast({html: data.message});
+            M.toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({html: data.errors[i]});
+                    M.toast({text: data.errors[i]});
                 }
             } else {
                 M.Modal.getInstance(document.getElementById('modal-edit-user')).close();

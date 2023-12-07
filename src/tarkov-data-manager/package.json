@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "node -r dotenv/config --trace-warnings test.js",
-    "dev": "node -r dotenv/config --trace-warnings index.js",
+    "dev": "nodemon -r dotenv/config --trace-warnings index.js",
     "start": "node --max-old-space-size=3000 index.js",
     "job": "node -r dotenv/config --trace-warnings test-job.js",
     "put-kvs": "node -r dotenv/config --trace-warnings populate-kvs.js",
@@ -37,7 +37,7 @@
     "luxon": "^3.4.4",
     "mysql2": "^3.6.5",
     "node-schedule": "^2.1.1",
-    "nodemon": "^3.0.1",
+    "nodemon": "^3.0.2",
     "sharp": "0.32.6",
     "tarkov-dev-image-generator": "^2.1.28",
     "unidecode": "^0.1.8"

@@ -1,8 +1,8 @@
 let table = false;
 
 $(document).ready( function () {
-    $('.tooltipped').tooltip();
-    $('.modal').modal();
+    //$('.tooltipped').tooltip();
+    //$('.modal').modal();
 
     const columns = [
         {
@@ -12,8 +12,8 @@ $(document).ready( function () {
                     return `
                         <div><b>${data}</b></div>
                         <div>
-                            <a href="#" class="waves-effect waves-light btn edit-cron tooltipped" data-tooltip="Edit" data-job="${data}" data-schedule="${cron.schedule}"><i class="material-icons">edit</i></a>
-                            <a href="#" class="waves-effect waves-light btn run-cron tooltipped" data-tooltip="Run" data-job="${data}"><i class="material-icons">play_arrow</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small edit-cron tooltipped" data-tooltip="Edit" data-job="${data}" data-schedule="${cron.schedule}"><i class="material-icons">edit</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small run-cron tooltipped" data-tooltip="Run" data-job="${data}"><i class="material-icons">play_arrow</i></a>
                         </div>
                     `;
                 }
@@ -73,7 +73,7 @@ $(document).ready( function () {
                 $('#modal-edit-cron .jobName').val(target.data('job'));
                 $('#modal-edit-cron .schedule').val(target.data('schedule'));
                 M.Modal.getInstance(document.getElementById('modal-edit-cron')).open();
-                M.updateTextFields();
+                //M.updateTextFields();
                 $('#modal-edit-cron .schedule').keyup();
                 $('#modal-edit-cron .schedule').focus();
             });
@@ -83,16 +83,16 @@ $(document).ready( function () {
                 let target = $(event.target);
                 if (target[0].nodeName === 'I') target = target.parent();
                 target.addClass('disabled');
-                M.toast({html: `Starting ${target.data('job')} job...`});
+                M.toast({text: `Starting ${target.data('job')} job...`});
                 $.ajax({
                     //method: ,
                     dataType: "json",
                     url: '/crons/run/'+target.data('job')
                 }).done(function (data) {
-                    M.toast({html: data.message});
+                    M.toast({text: data.message});
                     if (data.errors.length > 0) {
                         for (let i = 0; i < data.errors.length; i++) {
-                            M.toast({html: data.errors[i]});
+                            M.toast({text: data.errors[i]});
                         }
                         return;
                     }
@@ -142,10 +142,10 @@ $(document).ready( function () {
             data: formData,
             dataType: 'json'
         }).done(function (data) {
-            M.toast({html: data.message});
+            M.toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({html: data.errors[i]});
+                    M.toast({text: data.errors[i]});
                 }
                 return;
             }
