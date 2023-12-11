@@ -66,7 +66,7 @@ class UpdateQuestsJob extends DataJob {
                 continue;
             }
             const eventQuestConfig = this.questConfig.eventQuests[questId];
-            if (eventQuestConfig.endTimestamp) {
+            if (eventQuestConfig?.endTimestamp) {
                 this.logger.warn(`Skipping event quest ${this.locales.en[`${questId} name`]} ${questId}`);
                 continue;
             }
