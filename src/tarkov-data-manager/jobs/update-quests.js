@@ -96,7 +96,8 @@ class UpdateQuestsJob extends DataJob {
                         obj.exitStatus = this.addTranslation(obj.exitStatus.map(stat => `ExpBonus${stat}`));
                     }
                     if (obj.type === 'shoot') {
-                        obj.target = this.addTranslation(obj.target);
+                        obj.target = this.addMobTranslation(obj.target);
+                        obj.targetNames = [this.addMobTranslation(obj.target)];
                     }
                     this.addMapFromDescription(obj);
                 }
