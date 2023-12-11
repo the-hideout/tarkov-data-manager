@@ -17,12 +17,11 @@ class UpdateQuestsJob extends DataJob {
 
     async run() {
         this.logger.log('Processing quests...');
-        this.logger.log('Retrieving TarkovTracker quests.json...');
-        this.tdQuests = await got('https://tarkovtracker.github.io/tarkovdata/quests.json', {
-            responseType: 'json',
-            resolveBodyOnly: true,
-        });
-        [this.rawQuestData, this.items, this.locations, this.mapLoot, this.mapDetails, this.locales, this.itemResults, this.missingQuests, this.changedQuests, this.removedQuests] = await Promise.all([
+        [this.tdQuests, this.rawQuestData, this.items, this.locations, this.mapLoot, this.mapDetails, this.locales, this.itemResults, this.missingQuests, this.changedQuests, this.removedQuests, this.questConfig, this.s3Images] = await Promise.all([
+            got('https://tarkovtracker.github.io/tarkovdata/quests.json', {
+                responseType: 'json',
+                resolveBodyOnly: true,
+            }),
             tarkovData.quests(true).catch(error => {
                 this.logger.error('Error getting quests');
                 this.logger.error(error);
@@ -40,17 +39,14 @@ class UpdateQuestsJob extends DataJob {
             fs.readFile(path.join(__dirname, '..', 'data', 'missing_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(__dirname, '..', 'data', 'changed_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(__dirname, '..', 'data', 'removed_quests.json')).then(json => JSON.parse(json)),
+            tarkovData.questConfig(),
+            getLocalBucketContents(),
         ]);
         this.maps = await this.jobManager.jobOutput('update-maps', this);
         this.hideout = await this.jobManager.jobOutput('update-hideout', this);
-        const traders = await this.jobManager.jobOutput('update-traders', this);
+        this.traders = await this.jobManager.jobOutput('update-traders', this);
         this.presets = await this.jobManager.jobOutput('update-presets', this, true);
         this.itemMap = await this.jobManager.jobOutput('update-item-cache', this);
-        this.s3Images = getLocalBucketContents();
-        this.traderIdMap = {};
-        for (const trader of traders) {
-            this.traderIdMap[trader.tarkovDataId] = trader.id;
-        }
 
         const questItemMap = new Map();
         for (const [id, item] of this.itemResults) {
@@ -67,6 +63,11 @@ class UpdateQuestsJob extends DataJob {
         for (const questId in this.rawQuestData) {
             if (this.removedQuests[questId]) {
                 this.logger.warn(`Skipping removed quest ${this.locales.en[`${questId} name`]} ${questId}`);
+                continue;
+            }
+            const eventQuestConfig = this.questConfig.eventQuests[questId];
+            if (eventQuestConfig.endTimestamp) {
+                this.logger.warn(`Skipping event quest ${this.locales.en[`${questId} name`]} ${questId}`);
                 continue;
             }
             quests.Task.push(this.formatRawQuest(this.rawQuestData[questId]));
@@ -148,7 +149,7 @@ class UpdateQuestsJob extends DataJob {
         // validate task requirements
 
         const getMinPlayerLevelForTraderLevel = (traderId, traderLevel) => {
-            const trader = traders.find(tr => tr.id === traderId);
+            const trader = this.traders.find(tr => tr.id === traderId);
             if (!trader) {
                 return 0;
             }
@@ -215,7 +216,7 @@ class UpdateQuestsJob extends DataJob {
 
             quest.minPlayerLevel = getQuestMinLevel(quest.id);
 
-            const trader = traders.find(t => t.name === quest.name);
+            const trader = this.traders.find(t => t.name === quest.name);
             const map = this.maps.find(m => m.name === quest.name);
             if (trader || map) {
                 quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(quest.name.replaceAll(' ', '_'))}_(quest)`;
