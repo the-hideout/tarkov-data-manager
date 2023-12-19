@@ -49,9 +49,7 @@ class UpdateItemCacheJob extends DataJob {
         initPresetData(this.bsgItems, this.credits);
 
         await setItemPropertiesOptions({
-            job: this, 
-            itemIds: [...this.itemMap.keys()],
-            disabledItemIds: [...this.itemMap.values()].filter(item => item.types.includes('disabled')).map(item => item.id)
+            job: this,
         });
         for (const [key, value] of this.itemMap.entries()) {
             if (value.types.includes('disabled') || value.types.includes('quest'))
@@ -179,7 +177,7 @@ class UpdateItemCacheJob extends DataJob {
             }
 
             // translations
-            if (this.locales.en[`${key} Name`]) { 
+            if (this.hasTranslation(`${key} Name`)) { 
                 itemData[key].name = this.addTranslation(`${key} Name`);
                 itemData[key].shortName = this.addTranslation(`${key} ShortName`);
                 itemData[key].description = this.addTranslation(`${key} Description`);
@@ -419,7 +417,7 @@ class UpdateItemCacheJob extends DataJob {
                     if (langCode === 'en') {
                         this.logger.warn(`${id} ${this.bsgItems[id]._name} category mising translation`);
                     }
-                    if (langCode !== 'en' && this.locales.en[`${id} Name`]) {
+                    if (langCode !== 'en' && this.hasTranslation(`${id} Name`)) {
                         return this.locales.en[`${id} Name`];
                     }
                     return camelCaseToTitleCase(this.bsgItems[id]._name);

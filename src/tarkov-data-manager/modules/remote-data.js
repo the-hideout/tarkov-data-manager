@@ -5,7 +5,7 @@ const {query} = require('./db-connection');
 let myData = false;
 let lastRefresh = new Date(0);
 
-const getPercentile = (validValues) => {
+const getInterquartileMean = (validValues) => {
     if(validValues.length === 0){
         return 0;
     }
@@ -105,26 +105,24 @@ const methods = {
             const price24hPromise = new Promise(async (resolve, reject) => {
                 const batchSize = 100000;
                 let offset = 0;
-                const priceSql = `
-                    SELECT
-                        price,
-                        item_id
-                    FROM
-                        price_data
-                    WHERE
-                        timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)
-                    LIMIT ?, 100000
-                `;
                 try {
-                    const priceResults = await query(priceSql, [offset]);
-                    let moreResults = priceResults.length === 100000;
-                    while (moreResults) {
-                        offset += batchSize;
-                        const moreData = await query(priceSql, [offset]);
+                    const priceResults = [];
+                    while (true) {
+                        const moreData = await query(`
+                            SELECT
+                                price,
+                                item_id
+                            FROM
+                                price_data
+                            WHERE
+                                timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)
+                            LIMIT ?, 100000
+                        `, [offset]);
                         priceResults.push(...moreData);
                         if (moreData.length < batchSize) {
-                            moreResults = false;
+                            break;
                         }
+                        offset += batchSize;
                     }
                     price24hTimer.end();
                     resolve(priceResults);
@@ -177,7 +175,17 @@ const methods = {
                 return results;
             });
 
-            const [items, price24hResults, lastLowPriceResults, avgPriceYesterday] = await Promise.all([itemsPromise, price24hPromise, lastLowPricePromise, avgPriceYesterdayPromise]);
+            const [
+                items,
+                price24hResults,
+                lastLowPriceResults,
+                avgPriceYesterday,
+            ] = await Promise.all([
+                itemsPromise,
+                price24hPromise,
+                lastLowPricePromise,
+                avgPriceYesterdayPromise,
+            ]);
 
             const item24hPrices = {};
 
@@ -201,7 +209,7 @@ const methods = {
                 }
 
                 item24hPrices[itemId]?.sort();
-                item.avg24hPrice = getPercentile(item24hPrices[itemId] || []);
+                item.avg24hPrice = getInterquartileMean(item24hPrices[itemId] || []);
                 item.low24hPrice = item24hPrices[itemId]?.at(0);
                 item.high24hPrice = item24hPrices[itemId]?.at(item24hPrices[itemId]?.length - 1);
 
