@@ -81,6 +81,7 @@ const putValue = async (key, value) => {
             // do nothing
         }
         fs.writeFileSync(newName, JSON.stringify(JSON.parse(value), null, 4));
+        //fs.writeFileSync(newName, value);
         return response;
     });
 };
