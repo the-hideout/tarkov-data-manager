@@ -247,7 +247,7 @@ const getHeader = (req, options) => {
                 <div class="nav-wrapper">
                     <a href="/" class="brand-logo right"><i class="material-icons">query_stats</i>Tarkov Data Manager</a>
                     <a href="#" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
-                    <ul id="nav-mobile" class="hide-on-med-and-down">
+                    <ul id="nav-main" class="hide-on-med-and-down">
                         <li class="${req.url === '/scanners' ? 'active' : ''}"><a href="/scanners">Scanners</a></li>
                         <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
                         <li class="${req.url === '/webhooks' ? 'active' : ''}"><a href="/webhooks">Webhooks</a></li>
