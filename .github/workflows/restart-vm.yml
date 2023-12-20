@@ -17,7 +17,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: restart vm
-        uses: azure/CLI@b0e31ae20280d899279f14c36e877b4c6916e2d3 # pin@v1.0.8
+        uses: azure/CLI@4db43908b9df2e7ac93c8275a8f9a448c59338dd # pin@v1.0.9
         with:
           azcliversion: 2.50.0
           inlineScript: |
