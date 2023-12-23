@@ -55,7 +55,11 @@ class UpdateHistoricalPricesJob extends DataJob {
                 LIMIT ?, ?
             `, [dateCutoff, offset, batchSize]);
             historicalPriceData.push(...queryResults);
-            this.logger.log(`Retrieved ${offset + queryResults.length} prices through ${queryResults[queryResults.length-1].timestamp}${queryResults.length === batchSize ? '...' : ''}`);
+            if (queryResults.length > 0) {
+                this.logger.log(`Retrieved ${offset + queryResults.length} prices through ${queryResults[queryResults.length-1].timestamp}${queryResults.length === batchSize ? '...' : ''}`);
+            } else {
+                this.logger.log('Retrieved no prices');
+            }
             if (queryResults.length !== batchSize) {
                 break;
             }
