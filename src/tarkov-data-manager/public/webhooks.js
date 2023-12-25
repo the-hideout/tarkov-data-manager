@@ -7,8 +7,8 @@ const webhookTypes = [
 let table = false;
 
 $(document).ready( function () {
-    $('.tooltipped').tooltip();
-    $('.modal').modal();
+    //$('.tooltipped').tooltip();
+    //$('.modal').modal();
 
     const columns = [
         {
@@ -18,8 +18,8 @@ $(document).ready( function () {
                     return `
                         <div><b>${data}</b></div>
                         <div>
-                            <a href="#" class="waves-effect waves-light btn edit-webhook tooltipped" data-tooltip="Edit" data-id="${webhook.id}" data-name="${data}" data-url="${webhook.url}"><i class="material-icons">edit</i></a>
-                            <a href="#" class="waves-effect waves-light btn delete-webhook tooltipped" data-tooltip="Delete" data-id="${webhook.id}"><i class="material-icons">delete</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small edit-webhook tooltipped" data-tooltip="Edit" data-id="${webhook.id}" data-name="${data}" data-url="${webhook.url}"><i class="material-icons">edit</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small delete-webhook tooltipped" data-tooltip="Delete" data-id="${webhook.id}"><i class="material-icons">delete</i></a>
                         </div>
                     `;
                 }
@@ -32,9 +32,8 @@ $(document).ready( function () {
                 if (type === 'display') {
                     const linkButtons = [];
                     for (let i = 0; i < webhookTypes.length; i++) {
-                        linkButtons.push(`<a href="#" class="waves-effect waves-light btn copy-link ${webhookTypes[i]} tooltipped" data-tooltip="Copy ${webhookTypes[i]} webhook url" data-url="${webhook.url}"><i class="material-icons left">link</i>${webhookTypes[i]}</a>`);
+                        linkButtons.push(`<a href="#" class="waves-effect waves-light btn-small copy-link ${webhookTypes[i]} tooltipped" data-tooltip="Copy ${webhookTypes[i]} webhook url" data-url="${webhook.url}"><i class="material-icons left">link</i>${webhookTypes[i]}</a>`);
                     }
-                    console.log(linkButtons);
                     return `
                         <div><a href="https://discord.com/api/webhooks/${data}" target="_blank">${data}</a></div>
                         <div>
@@ -69,7 +68,7 @@ $(document).ready( function () {
                 form.attr('action', `/webhooks/${target.data('id')}`);
                 form.attr('method', 'PUT');
                 M.Modal.getInstance(document.getElementById('modal-edit-webhook')).open();
-                M.updateTextFields();
+                //M.updateTextFields();
                 $('#modal-edit-user .username').focus();
             });
 
@@ -82,10 +81,10 @@ $(document).ready( function () {
                     url: `/webhooks/${target.data('id')}`,
                     dataType: "json"
                 }).done(function (data) {
-                    M.toast({html: data.message});
+                    M.toast({text: data.message});
                     if (data.errors.length > 0) {
                         for (let i = 0; i < data.errors.length; i++) {
-                            M.toast({html: data.errors[i]});
+                            M.toast({text: data.errors[i]});
                         }
                         return;
                     }
@@ -100,7 +99,7 @@ $(document).ready( function () {
                     let target = $(event.target);
                     if (target[0].nodeName === 'I') target = target.parent();
                     navigator.clipboard.writeText(`https://${window.location.hostname}/api/webhooks/${hookType}/${target.data('url')}`);
-                    M.toast({html:`${hookType} API URL copied to clipboard.`});
+                    M.toast({text:`${hookType} API URL copied to clipboard.`});
                 });
             }
         }
@@ -115,10 +114,10 @@ $(document).ready( function () {
             data: formData,
             dataType: "json"
         }).done(function (data) {
-            M.toast({html: data.message});
+            M.toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({html: data.errors[i]});
+                    M.toast({text: data.errors[i]});
                 }
                 return;
             }

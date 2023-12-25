@@ -3,6 +3,8 @@ const  path = require('path');
 
 const DataJob = require('../modules/data-job');
 
+const historicalPriceDays = 7;
+
 class UpdateHistoricalPricesJob extends DataJob {
     constructor() {
         super('update-historical-prices');
@@ -10,7 +12,7 @@ class UpdateHistoricalPricesJob extends DataJob {
     }
 
     async run() {
-        const priceWindow = new Date(new Date().setDate(new Date().getDate() - 7));
+        const priceWindow = new Date(new Date().setDate(new Date().getDate() - historicalPriceDays));
         const itemPriceData = await fs.readFile(path.join(__dirname, '..', 'dumps', 'historical_price_data.json')).then(buffer => {
             const parsed = JSON.parse(buffer);
             return parsed.historicalPricePoint;
@@ -49,14 +51,18 @@ class UpdateHistoricalPricesJob extends DataJob {
                 WHERE
                     timestamp > ?
                 GROUP BY item_id, timestamp
-                ORDER BY item_id, timestamp
+                ORDER BY timestamp, item_id
                 LIMIT ?, ?
             `, [dateCutoff, offset, batchSize]);
             historicalPriceData.push(...queryResults);
+            if (queryResults.length > 0) {
+                this.logger.log(`Retrieved ${offset + queryResults.length} prices through ${queryResults[queryResults.length-1].timestamp}${queryResults.length === batchSize ? '...' : ''}`);
+            } else {
+                this.logger.log('Retrieved no prices');
+            }
             if (queryResults.length !== batchSize) {
                 break;
             }
-            this.logger.log(`Retrieved prices through ${queryResults[queryResults.length-1].timestamp}, submitting additional query`);
             offset += batchSize;
         }
         this.logger.timeEnd('historical-prices-query');

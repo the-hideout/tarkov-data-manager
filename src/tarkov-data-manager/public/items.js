@@ -30,7 +30,7 @@ const showEditItemModal = function(event){
     const imageHolder = $('#modal-edit-item .source-image');
     imageHolder.empty();
     M.Modal.getInstance(document.getElementById('modal-edit-item')).open();
-    M.updateTextFields();
+    //M.updateTextFields();
 };
 
 let table = false;
@@ -43,12 +43,15 @@ const missingImageElement = (imageType) => {
     return `<span class="tooltipped" style="cursor: default" data-tooltip="${imageType} image">🚫</span>`;
 };
 
-const existingImageElement = (imageType, url) => {
-    const tooltip = `
-        <div>${imageType} image</div>
-        <img src=&quot;${url}&quot; style=&quot;max-height: 300px&quot;/>
+const existingImageElement = (itemId, imageType, url) => {
+    const tooltipId = `${itemId}-${imageType}-tooltip-content`;
+    return `
+        <a href="${url}" class="tooltipped" data-html="true" data-tooltip-id="${tooltipId}">✔️</a>
+        <div id="${tooltipId}" style="display: none;">
+            <div>${imageType} image</div>
+            <img src="${url}" style="max-height: 300px" loading="lazy" />
+        </div>
     `;
-    return `<a href="${url}" class="tooltipped" style="cursor: normal" data-tooltip="${tooltip}">✔️</a>`;
 };
 
 $(document).ready( async function () {
@@ -58,6 +61,8 @@ $(document).ready( async function () {
             render: (data, type, item) => {
                 if (type === 'display') {
                     return `
+                        <div class="row">
+                        <div class="col s1">
                         <div>
                             ${data}
                         </div>
@@ -69,7 +74,9 @@ $(document).ready( async function () {
                             |
                             <a href="https://tarkov.dev/item/${item.normalized_name}">Tarkov.dev</a>
                             <br>
-                            <a class="waves-effect waves-light btn edit-item" data-item="${encodeURIComponent(JSON.stringify(item))}"><i class="material-icons">edit</i></a>
+                            <a class="waves-effect waves-light btn-small edit-item" data-item="${encodeURIComponent(JSON.stringify(item))}"><i class="material-icons">edit</i></a>
+                        </div>
+                        </div>
                         </div>
                     `;
                 }
@@ -77,7 +84,8 @@ $(document).ready( async function () {
                     return data+item.id;
                 }
                 return data;
-            }
+            },
+            width: '10px',
         },
         {
             data: 'image_link',
@@ -91,22 +99,23 @@ $(document).ready( async function () {
                         <div class="row">
                             ${imageLink ? `<div class="col s12"><img src="${imageLink}" loading="lazy" style="max-height: 200px" /></div>`: ''}
                         </div>
-                        <div class="row">
-                            ${item.image_8x_link ? existingImageElement('8x', item.image_8x_link): missingImageElement('8x')}
-                            ${item.image_512_link ? existingImageElement('512', item.image_512_link): missingImageElement('512')}
-                            ${data ? existingImageElement('inspect', data): missingImageElement('inspect')}
-                            ${item.base_image_link ? existingImageElement('base', item.base_image_link): missingImageElement('base')}
-                            ${item.grid_image_link ? existingImageElement('grid', item.grid_image_link): missingImageElement('grid')}
-                            ${item.icon_link ? existingImageElement('icon', item.icon_link) : missingImageElement('icon')}
+                        <div class="">
+                            ${item.image_8x_link ? existingImageElement(item.id, '8x', item.image_8x_link): missingImageElement('8x')}
+                            ${item.image_512_link ? existingImageElement(item.id, '512', item.image_512_link): missingImageElement('512')}
+                            ${data ? existingImageElement(item.id, 'inspect', data): missingImageElement('inspect')}
+                            ${item.base_image_link ? existingImageElement(item.id, 'base', item.base_image_link): missingImageElement('base')}
+                            ${item.grid_image_link ? existingImageElement(item.id, 'grid', item.grid_image_link): missingImageElement('grid')}
+                            ${item.icon_link ? existingImageElement(item.id, 'icon', item.icon_link) : missingImageElement('icon')}
                         </div>
-                        <div class="row">
-                            ${item.image_8x_link || item.base_image_link ? `<a class="waves-effect waves-light regenerate btn" data-id="${item.id}" data-tooltip="Regenerate images from source"><i class="medium material-icons">refresh</i></a>` : ''}
+                        <div class="">
+                            ${item.image_8x_link || item.base_image_link ? `<a class="waves-effect waves-light regenerate btn-small tooltipped" data-id="${item.id}" data-tooltip="Regenerate images from source"><i class="material-icons">refresh</i></a>` : ''}
                         </div>
                     `;
                 }
                 return data;
             },
-            className: 'image-column'
+            className: 'image-column',
+            width: '10%',
         },
         /*{
             data: 'grid_image_link',
@@ -130,17 +139,17 @@ $(document).ready( async function () {
             data: 'types',
             render: (data, type, item) => {
                 if (type === 'display') {
-                    let markupString = '<div class="row">';
+                    let markupString = '';
                     for(const type of AVAILABLE_TYPES){
                         markupString = `${markupString}
-                        <div class="col s12 l6 xl4 xxl3">
+                        <div class="col s12 m6 l3 xl2">
                             <label for="${item.id}-${type}">
                                 <input type="checkbox" class="item-type" id="${item.id}-${type}" value="${type}" data-item-id="${item.id}" ${data.includes(type) ? 'checked' : ''} />
                                 <span>${type}</span>
                             </label>
                         </div>`;
                     }
-                    return `${markupString}</div>`;
+                    return `<div class="row">${markupString}</div>`;
                 }
                 return data.join(',');
             }
@@ -167,7 +176,7 @@ $(document).ready( async function () {
         autoWidth: false,
         drawCallback: (settings) => {
             M.AutoInit();
-
+            //M.Tooltip.init($('.tooltipped'));
             $('.edit-item').off('click');
             $('.edit-item').click(showEditItemModal);
 
@@ -206,19 +215,19 @@ $(document).ready( async function () {
                 $(target).addClass('disabled');
                 fetch(`/items/regenerate-images/${$(target).data('id')}`, {method: 'POST'}).then(response => response.json()).then(data => {
                     $(target).removeClass('disabled');
-                    M.toast({html: data.message});
+                    M.toast({text: data.message});
                     for (const error of data.errors) {
-                        M.toast({html: error});
+                        M.toast({text: error});
                     }
                 });
             });
         }
     });
 
-    $('.collapsible').collapsible();
-    $('.tooltipped').tooltip();
-    $('.modal').modal();
-    $('select').formSelect();
+    M.Collapsible.init($('.collapsible'));
+    //M.Tooltip.init($('.tooltipped'));
+    M.Modal.init($('.modal'));
+    M.FormSelect.init($('select'));
 
     $('.guess-wiki-link').click(function(event){
         let itemName = encodeURIComponent(decodeURIComponent($(event.target).data('itemName')).replace(/ /g, '_'));
@@ -233,10 +242,10 @@ $(document).ready( async function () {
             method: 'POST',
             body: formData
         }).then(response => response.json()).then(data => {
-            M.toast({html: data.message});
+            M.toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({html: data.errors[i]});
+                    M.toast({text: data.errors[i]});
                 }
             }
         });
