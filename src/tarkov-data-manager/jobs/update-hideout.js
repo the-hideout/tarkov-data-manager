@@ -5,7 +5,7 @@ const normalizeName = require('../modules/normalize-name');
 const DataJob = require('../modules/data-job');
 
 const skipAreas = {
-    '5df8a81f8f77747fcf5f5702': true, // christmas tree
+    '5df8a81f8f77747fcf5f5702': false, // christmas tree
 };
 
 class UpdateHideoutJob extends DataJob {
