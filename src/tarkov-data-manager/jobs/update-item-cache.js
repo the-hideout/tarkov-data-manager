@@ -94,7 +94,7 @@ class UpdateItemCacheJob extends DataJob {
             } else if (this.credits[key]) {
                 itemData[key].basePrice = this.credits[key];
             }  else {
-                this.logger.warn(`Unknown base value for ${itemData[key].name} ${key}`);
+                this.logger.warn(`Unknown base value for ${this.getTranslation(itemData[key].name)} ${key}`);
             }
 
             // add item properties
@@ -167,12 +167,12 @@ class UpdateItemCacheJob extends DataJob {
                     };
                 });
             } else if (!itemData[key].types.includes('disabled')) {
-                this.logger.log(`Item ${itemData[key].name} (${key}) is neither an item nor a preset`);
+                this.logger.log(`Item ${this.getTranslation(itemData[key].name)} (${key}) is neither an item nor a preset`);
                 delete itemData[key];
                 continue;
             }
             if (itemData[key].properties && !itemData[key].properties.propertiesType) {
-                this.logger.warn(`${itemData[key].name} ${key} lacks propertiesType`);
+                this.logger.warn(`${this.getTranslation(itemData[key].name)} ${key} lacks propertiesType`);
                 itemData[key].properties = null;
             }
 
