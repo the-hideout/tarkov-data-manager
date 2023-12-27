@@ -1016,6 +1016,9 @@ class UpdateQuestsJob extends DataJob {
         if (this.changedQuests[questId]?.objectivesRemoved?.includes(objective._props.id)) {
             return false;
         }
+        if (!objective._props?.id) {
+            return false;
+        }
         let objectiveId = objective._props.id;
         const changedIds = this.changedQuests[questId]?.objectiveIdsChanged;
         if (changedIds && changedIds[objectiveId]) {
