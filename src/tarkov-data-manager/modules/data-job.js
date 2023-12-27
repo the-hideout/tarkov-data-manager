@@ -379,7 +379,7 @@ class DataJob {
                     this.addMobTranslation('Follower');
                     nameParts.push(this.getTranslation(bossKey, langCode));
                     nameParts.push(this.getTranslation('Follower', langCode));
-                    const guardTypeMatch = enemy.match(guardTypePattern);
+                    const guardTypeMatch = key.match(guardTypePattern);
                     if (guardTypeMatch) {
                         if (lang[`follower${guardTypeMatch[0]}`]) {
                             nameParts.push(`(${lang[`follower${guardTypeMatch[0]}`]})`);
