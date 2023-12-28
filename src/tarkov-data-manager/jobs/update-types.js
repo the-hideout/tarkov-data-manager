@@ -84,6 +84,12 @@ class UpdateTypesJob extends DataJob {
             '5a341c4686f77469e155819e': {
                 types: ['wearable']
             },
+            '65649eb40bf0ed77b8044453': {
+                types: ['armor-plate', 'no-flea']
+            },
+            '644120aa86ffbe10ee032b6f': {
+                types: ['armor-plate']
+            }
         };
 
         [this.allItems, this.bsgData, this.presets] = await Promise.all([
@@ -117,11 +123,11 @@ class UpdateTypesJob extends DataJob {
                 }
                 continue;
             }
-            if(!this.bsgData[itemId]?._props){
+            if (!this.bsgData[itemId]?._props) {
                 this.logger.warn(`${itemId} ${item.name} lacks item properties`);
                 continue;
             }
-            if(item.types.includes('no-flea') && this.bsgData[itemId]._props.CanSellOnRagfair){
+            if (item.types.includes('no-flea') && this.bsgData[itemId]._props.CanSellOnRagfair && !this.bsgData[itemId]._parent === '6575ea719c7cad336508e418') {
                 this.logger.warn(`You can sell ${itemId} ${item.name} on flea, but it is marked as noFlea`);
 
                 await remoteData.removeType(itemId, 'no-flea').then(results => {
@@ -129,7 +135,7 @@ class UpdateTypesJob extends DataJob {
                         this.logger.fail(`Not marked as no-flea ${itemId} ${item.name}`);
                     }
                 });
-            } else if(!item.types.includes('no-flea') && !this.bsgData[itemId]._props.CanSellOnRagfair){
+            } else if (!item.types.includes('no-flea') && !this.bsgData[itemId]._props.CanSellOnRagfair) {
                 this.logger.warn(`You can't sell ${itemId} ${item.name} on flea`);
     
                 await remoteData.addType(itemId, 'no-flea').then(results => {

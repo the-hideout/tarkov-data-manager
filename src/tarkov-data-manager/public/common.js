@@ -2,6 +2,7 @@ const AVAILABLE_TYPES = [
     'ammo-box',
     'ammo',
     'armor',
+    'armor-plate',
     'backpack',
     'barter',
     'container',
