@@ -67,7 +67,7 @@ class UpdateHideoutJob extends DataJob {
                 const stageData = {
                     id: `${stationData.id}-${i}`,
                     level: i,
-                    constructionTime: stage.constructionTime,
+                    constructionTime: Math.round(stage.constructionTime),
                     traderRequirements: [],
                     stationLevelRequirements: [],
                     itemRequirements: [],
