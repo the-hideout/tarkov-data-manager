@@ -83,8 +83,11 @@ const dataFunctions = {
             doors: [],
             zones: [],
             hazards: [],
+            locks: [],
             loot_points: [],
             loot_containers: [],
+            stationary_weapons: [],
+            switches: [],
         };
         const excludedExtracts = {
             Shoreline: [

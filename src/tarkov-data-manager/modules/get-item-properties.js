@@ -153,6 +153,22 @@ const getStimEffects = (item) => {
     return stimEffects;
 };
 
+const getArmorZonesFromSlots = (slots) => {
+    return slots.reduce((zones, slot) => {
+        for (const filter of slot._props.filters) {
+            if (!filter.armorColliders) {
+                continue;
+            }
+            for (const collider of filter.armorColliders) {
+                if (!zones.includes(`Collider Type ${collider}`)) {
+                    zones.push(`Collider Type ${collider}`);
+                }
+            }
+        }
+        return zones;
+    }, []);
+};
+
 const grenadeMap = {
     'Grenade_new': 'Grenade',
     'Grenade_new2': 'Impact Grenade',
@@ -222,7 +238,7 @@ const getItemProperties = async (item) => {
                 turnPenalty: parseInt(item._props.mousePenalty) / 100,
                 ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
                 armor_material_id: item._props.ArmorMaterial,
-                zones: job.addTranslation(item._props.armorZone.map(zone => `QuestCondition/Elimination/Kill/BodyPart/${zone}`)),
+                zones: job.addTranslation(getArmorZonesFromSlots(item._props.Slots)),
                 armorType: job.addTranslation(item._props.ArmorType, (lang) => {
                     if (item._props.ArmorType !== 'None') {
                         return lang[item._props.ArmorType];
@@ -297,12 +313,7 @@ const getItemProperties = async (item) => {
                 ricochetY: item._props.RicochetParams.y,
                 ricochetZ: item._props.RicochetParams.z,
                 armor_material_id: item._props.ArmorMaterial,
-                headZones: job.addTranslation(item._props.headSegments.map(key => {
-                    if (key === 'LowerNape') {
-                        key = key.toLowerCase();
-                    }
-                    return `HeadSegment/${key}`;
-                })),
+                headZones: job.addTranslation(getArmorZonesFromSlots(item._props.Slots)),
                 armorType: job.addTranslation(item._props.ArmorType, (lang) => {
                     if (item._props.ArmorType !== 'None') {
                         return lang[item._props.ArmorType];
@@ -319,7 +330,11 @@ const getItemProperties = async (item) => {
                 properties.blocksHeadset = item._props.BlocksEarpiece;
             } else if (item._parent === '57bef4c42459772e8d35a53b') {
                 properties.propertiesType = 'ItemPropertiesArmorAttachment';
-            } 
+            } else if (item._parent === '65649eb40bf0ed77b8044453') {
+                properties.propertiesType = 'ItemPropertiesArmorAttachment';
+            } else if (item._parent === '644120aa86ffbe10ee032b6f') {
+                properties.propertiesType = 'ItemPropertiesArmorAttachment';
+            }
         }
     } else if (hasCategory(item, ['5795f317245977243854e041', '5671435f4bdc2d96058b4569', '5448bf274bdc2dfc2f8b456a'])) {
         properties = {

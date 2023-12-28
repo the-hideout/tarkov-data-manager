@@ -127,7 +127,7 @@ class UpdateNewItemsJob extends DataJob {
                     await remoteData.addType(item._id, 'quest')
                 }
             } catch (error){
-                this.logger.fail(`${name} error updating item`);
+                this.logger.fail(`${name} ${item._id} error updating item`);
                 this.logger.error(error);
                 this.logger.end();
                 return Promise.reject(error);

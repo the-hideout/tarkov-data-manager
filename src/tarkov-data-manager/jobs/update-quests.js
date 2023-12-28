@@ -71,6 +71,10 @@ class UpdateQuestsJob extends DataJob {
                 this.logger.warn(`Skipping event quest ${this.locales.en[`${questId} name`]} ${questId}`);
                 continue;
             }
+            if (!this.locales.en[`${questId} name`]) {
+                this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - localization not found`);
+                continue;
+            }
             quests.Task.push(this.formatRawQuest(this.rawQuestData[questId]));
         }
         
@@ -1010,6 +1014,9 @@ class UpdateQuestsJob extends DataJob {
 
     formatObjective(questId, objective, failConditions = false) {
         if (this.changedQuests[questId]?.objectivesRemoved?.includes(objective._props.id)) {
+            return false;
+        }
+        if (!objective._props?.id) {
             return false;
         }
         let objectiveId = objective._props.id;
