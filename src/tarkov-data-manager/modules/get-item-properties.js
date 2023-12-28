@@ -19,6 +19,11 @@ const setAll = async (options) => {
         },
         job: j => {
             job = j;
+            if (j.itemMap) {
+                itemIds = [...j.itemMap.keys()];
+                disabledItemIds = [...j.itemMap.values()].filter(item => item.types.includes('disabled')).map(item => item.id);
+
+            }
         },
     };
     for (const key in options) {

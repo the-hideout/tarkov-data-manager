@@ -1,8 +1,9 @@
 let table = false;
 
 $(document).ready( function () {
-    $('.tooltipped').tooltip();
-    $('.modal').modal();
+    //$('.tooltipped').tooltip();
+    //$('.modal').modal();
+    M.AutoInit();
 
     const columns = [
         {
@@ -12,9 +13,9 @@ $(document).ready( function () {
                     return `
                         <div><b>${data}</b></div>
                         <div>
-                            <a href="#" class="waves-effect waves-light btn delete-file tooltipped" data-tooltip="Delete" data-file="${data}"><i class="material-icons">delete</i></a>
-                            <a href="#" class="waves-effect waves-light btn rename-file tooltipped" data-tooltip="Rename" data-file="${data}"><i class="material-icons">text_fields</i></a>
-                            <a href="#" class="waves-effect waves-light btn copy-file tooltipped" data-tooltip="Copy" data-file="${data}"><i class="material-icons">file_copy</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small delete-file tooltipped" data-tooltip="Delete" data-file="${data}"><i class="material-icons">delete</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small rename-file tooltipped" data-tooltip="Rename" data-file="${data}"><i class="material-icons">text_fields</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small copy-file tooltipped" data-tooltip="Copy" data-file="${data}"><i class="material-icons">file_copy</i></a>
                         </div>
                     `;
                 }
@@ -95,7 +96,7 @@ $(document).ready( function () {
             dataType: "json",
             url: `/s3-bucket/${fileName}`
         }).done(function (data) {
-            M.toast({html: data.message});
+            M.toast({text: data.message});
             $('.delete-file').each((index, el) => {
                 if (el.dataset.file === fileName) {
                     $(el).removeClass('disabled');
@@ -103,7 +104,7 @@ $(document).ready( function () {
             });
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({html: data.errors[i]});
+                    M.toast({text: data.errors[i]});
                 }
                 return;
             }
@@ -130,7 +131,7 @@ $(document).ready( function () {
             url: `/s3-bucket/${fileName}`,
             data: formData,
         }).done(function (data) {
-            M.toast({html: data.message});
+            M.toast({text: data.message});
             $('.rename-file').each((index, el) => {
                 if (el.dataset.file === fileName) {
                     $(el).removeClass('disabled');
@@ -138,7 +139,7 @@ $(document).ready( function () {
             });
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({html: data.errors[i]});
+                    M.toast({text: data.errors[i]});
                 }
                 return;
             }
@@ -165,7 +166,7 @@ $(document).ready( function () {
             url: `/s3-bucket/${fileName}`,
             data: formData,
         }).done(function (data) {
-            M.toast({html: data.message});
+            M.toast({text: data.message});
             $('.copy-file').each((index, el) => {
                 if (el.dataset.file === fileName) {
                     $(el).removeClass('disabled');
@@ -173,7 +174,7 @@ $(document).ready( function () {
             });
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({html: data.errors[i]});
+                    M.toast({text: data.errors[i]});
                 }
                 return;
             }
@@ -194,17 +195,17 @@ $(document).ready( function () {
         const form = $('form.file-upload').first();
         const formData = new FormData(form[0]);
         if (!formData.has('file') || formData.get('file').size === 0) {
-            M.toast({html: 'You must select a file to upload'});
+            M.toast({text: 'You must select a file to upload'});
             return;
         }
         fetch('/s3-bucket', {
             method: 'POST',
             body: formData
         }).then(response => response.json()).then(data => {
-            M.toast({html: data.message});
+            M.toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({html: data.errors[i]});
+                    M.toast({text: data.errors[i]});
                 }
             }
             $('#file-upload').val('');

@@ -4,7 +4,9 @@ const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 const DataJob = require('../modules/data-job');
 
-const skipChristmasTree = true;
+const skipAreas = {
+    '5df8a81f8f77747fcf5f5702': false, // christmas tree
+};
 
 class UpdateHideoutJob extends DataJob {
     constructor() {
@@ -21,7 +23,6 @@ class UpdateHideoutJob extends DataJob {
                 resolveBodyOnly: true,
             })
         ]);
-        const en = this.locales.en;
         this.kvData.HideoutStation = [];
         const areasByType = {};
         for (const stationId in this.data) {
@@ -29,24 +30,24 @@ class UpdateHideoutJob extends DataJob {
         }
         for (const stationId in this.data) {
             const station = this.data[stationId];
-            if (!en[`hideout_area_${station.type}_name`]) {
+            if (!this.hasTranslation(`hideout_area_${station.type}_name`)) {
                 this.logger.warn(`❌ Area type ${station.type} not found in locale_en.json`);
                 continue;
             }
             const stationData = {
                 id: station._id,
                 name: this.addTranslation(`hideout_area_${station.type}_name`),
-                normalizedName: normalizeName(en[`hideout_area_${station.type}_name`]),
+                normalizedName: normalizeName(this.getTranslation(`hideout_area_${station.type}_name`)),
                 areaType: station.type,
                 levels: [],
             };
-            if (!station.enabled || (skipChristmasTree && stationId === '5df8a81f8f77747fcf5f5702')) {
-                this.logger.log(`❌ ${en[stationData.name]}`);
+            if (!station.enabled || skipAreas[stationId]) {
+                this.logger.log(`❌ ${this.getTranslation(stationData.name)}`);
                 continue;
             }
-            this.logger.log(`✔️ ${en[stationData.name]}`);
+            this.logger.log(`✔️ ${this.getTranslation(stationData.name)}`);
             for (const tdStation of this.tdHideout.stations) {
-                if (tdStation.locales.en.toLowerCase() === en[stationData.name].toLowerCase()) {
+                if (tdStation.locales.en.toLowerCase() === this.getTranslation(stationData.name).toLowerCase()) {
                     stationData.tarkovDataId = tdStation.id;
                     break;
                 }
@@ -56,11 +57,11 @@ class UpdateHideoutJob extends DataJob {
             }
             for (let i = 1; i < Object.keys(station.stages).length; i++) {
                 if (!station.stages[String(i)]) {
-                    this.logger.warn(`No stage found for ${en[stationData.name]} level ${i}`);
+                    this.logger.warn(`No stage found for ${this.getTranslation(stationData.name)} level ${i}`);
                     continue;
                 }
-                if (!en[`hideout_area_${station.type}_stage_${i}_description`]) {
-                    this.logger.warn(`No stage ${i} description found for ${en[stationData.name]}`);
+                if (!this.hasTranslation(`hideout_area_${station.type}_stage_${i}_description`)) {
+                    this.logger.warn(`No stage ${i} description found for ${this.getTranslation(stationData.name)}`);
                 }
                 const stage = station.stages[String(i)];
                 const stageData = {
@@ -95,7 +96,7 @@ class UpdateHideoutJob extends DataJob {
                         stageData.itemRequirements.push({
                             id: `${stationData.id}-${i}-${r}`,
                             item: req.templateId,
-                            name: en[`${req.templateId} Name`],
+                            name: this.getTranslation(`${req.templateId} Name`),
                             count: req.count || 1,
                             //functional: req.isFunctional
                         });
@@ -110,14 +111,14 @@ class UpdateHideoutJob extends DataJob {
                         stageData.stationLevelRequirements.push({
                             id: `${stationData.id}-${i}-${r}`,
                             station: areasByType[req.areaType],
-                            name: en[`hideout_area_${req.areaType}_name`],
+                            name: this.getTranslation(`hideout_area_${req.areaType}_name`),
                             level: req.requiredLevel
                         });
                     } else if (req.type === 'TraderLoyalty') {
                         stageData.traderRequirements.push({
                             id: `${stationData.id}-${i}-${r}`,
                             trader_id: req.traderId,
-                            name: en[`${req.traderId} Nickname`],
+                            name: this.getTranslation(`${req.traderId} Nickname`),
                             requirementType: 'level',
                             compareMethod: '>=',
                             value: req.loyaltyLevel,

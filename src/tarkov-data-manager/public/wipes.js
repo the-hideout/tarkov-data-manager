@@ -2,8 +2,9 @@
 let table = false;
 
 $(document).ready( function () {
-    $('.tooltipped').tooltip();
-    $('.modal').modal();
+    //$('.tooltipped').tooltip();
+    //$('.modal').modal();
+    M.AutoInit();
 
     const columns = [
         {
@@ -13,8 +14,8 @@ $(document).ready( function () {
                     return `
                         <div><b>${data}</b></div>
                         <div>
-                            <a href="#" class="waves-effect waves-light btn edit-wipe tooltipped" data-tooltip="Edit" data-id="${wipe.id}" data-start-date="${data}" data-version="${wipe.version}"><i class="material-icons">edit</i></a>
-                            <a href="#" class="waves-effect waves-light btn delete-wipe tooltipped" data-tooltip="Delete" data-id="${wipe.id}"><i class="material-icons">delete</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small edit-wipe tooltipped" data-tooltip="Edit" data-id="${wipe.id}" data-start-date="${data}" data-version="${wipe.version}"><i class="material-icons">edit</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small delete-wipe tooltipped" data-tooltip="Delete" data-id="${wipe.id}"><i class="material-icons">delete</i></a>
                         </div>
                     `;
                 }
@@ -51,7 +52,7 @@ $(document).ready( function () {
                 form.attr('action', `/wipes/${target.data('id')}`);
                 form.attr('method', 'PUT');
                 M.Modal.getInstance(document.getElementById('modal-edit-wipe')).open();
-                M.updateTextFields();
+                //M.updateTextFields();
                 $('#modal-edit-wipe .start_date').focus();
             });
 
@@ -64,10 +65,10 @@ $(document).ready( function () {
                     url: `/wipes/${target.data('id')}`,
                     dataType: "json"
                 }).done(function (data) {
-                    M.toast({html: data.message});
+                    M.toast({text: data.message});
                     if (data.errors.length > 0) {
                         for (let i = 0; i < data.errors.length; i++) {
-                            M.toast({html: data.errors[i]});
+                            M.toast({text: data.errors[i]});
                         }
                         return;
                     }
@@ -87,10 +88,10 @@ $(document).ready( function () {
             data: formData,
             dataType: "json"
         }).done(function (data) {
-            M.toast({html: data.message});
+            M.toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({html: data.errors[i]});
+                    M.toast({text: data.errors[i]});
                 }
                 return;
             }

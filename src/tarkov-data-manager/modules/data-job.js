@@ -429,6 +429,10 @@ class DataJob {
         }
         return key;
     }
+
+    hasTranslation = (key, langCode = 'en') => {
+        return typeof this.locales[langCode][key] !== 'undefined';
+    }
 }
 
 const enemyKeyMap = {

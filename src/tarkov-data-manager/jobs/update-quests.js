@@ -17,12 +17,11 @@ class UpdateQuestsJob extends DataJob {
 
     async run() {
         this.logger.log('Processing quests...');
-        this.logger.log('Retrieving TarkovTracker quests.json...');
-        this.tdQuests = await got('https://tarkovtracker.github.io/tarkovdata/quests.json', {
-            responseType: 'json',
-            resolveBodyOnly: true,
-        });
-        [this.rawQuestData, this.items, this.locations, this.mapLoot, this.mapDetails, this.locales, this.itemResults, this.missingQuests, this.changedQuests, this.removedQuests] = await Promise.all([
+        [this.tdQuests, this.rawQuestData, this.items, this.locations, this.mapLoot, this.mapDetails, this.locales, this.itemResults, this.missingQuests, this.changedQuests, this.removedQuests, this.neededKeys, this.questConfig, this.s3Images] = await Promise.all([
+            got('https://tarkovtracker.github.io/tarkovdata/quests.json', {
+                responseType: 'json',
+                resolveBodyOnly: true,
+            }),
             tarkovData.quests(true).catch(error => {
                 this.logger.error('Error getting quests');
                 this.logger.error(error);
@@ -40,17 +39,15 @@ class UpdateQuestsJob extends DataJob {
             fs.readFile(path.join(__dirname, '..', 'data', 'missing_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(__dirname, '..', 'data', 'changed_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(__dirname, '..', 'data', 'removed_quests.json')).then(json => JSON.parse(json)),
+            fs.readFile(path.join(__dirname, '..', 'data', 'needed_keys.json')).then(json => JSON.parse(json)),
+            tarkovData.questConfig(),
+            getLocalBucketContents(),
         ]);
         this.maps = await this.jobManager.jobOutput('update-maps', this);
         this.hideout = await this.jobManager.jobOutput('update-hideout', this);
-        const traders = await this.jobManager.jobOutput('update-traders', this);
+        this.traders = await this.jobManager.jobOutput('update-traders', this);
         this.presets = await this.jobManager.jobOutput('update-presets', this, true);
         this.itemMap = await this.jobManager.jobOutput('update-item-cache', this);
-        this.s3Images = getLocalBucketContents();
-        this.traderIdMap = {};
-        for (const trader of traders) {
-            this.traderIdMap[trader.tarkovDataId] = trader.id;
-        }
 
         const questItemMap = new Map();
         for (const [id, item] of this.itemResults) {
@@ -67,6 +64,11 @@ class UpdateQuestsJob extends DataJob {
         for (const questId in this.rawQuestData) {
             if (this.removedQuests[questId]) {
                 this.logger.warn(`Skipping removed quest ${this.locales.en[`${questId} name`]} ${questId}`);
+                continue;
+            }
+            const eventQuestConfig = this.questConfig.eventQuests[questId];
+            if (eventQuestConfig?.endTimestamp) {
+                this.logger.warn(`Skipping event quest ${this.locales.en[`${questId} name`]} ${questId}`);
                 continue;
             }
             quests.Task.push(this.formatRawQuest(this.rawQuestData[questId]));
@@ -96,16 +98,10 @@ class UpdateQuestsJob extends DataJob {
                         obj.exitStatus = this.addTranslation(obj.exitStatus.map(stat => `ExpBonus${stat}`));
                     }
                     if (obj.type === 'shoot') {
-                        obj.target = this.addTranslation(obj.target);
+                        obj.target = this.addMobTranslation(obj.target);
+                        obj.targetNames = [this.addMobTranslation(obj.target)];
                     }
                     this.addMapFromDescription(obj);
-                }
-                for (const tdQuest of this.tdQuests) {
-                    if (quest.id == tdQuest.gameId || quest.name === tdQuest.title) {
-                        quest.tarkovDataId = tdQuest.id;
-                        this.mergeTdQuest(quest, tdQuest);
-                        break;
-                    }
                 }
                 quests.Task.push(quest);
             } catch (error) {
@@ -141,13 +137,21 @@ class UpdateQuestsJob extends DataJob {
                 }
                 return quests.Task.some(t => t.id === obj.task);
             });
-        }
 
-        // add start, success, and fail message ids
+            // get old tarkovdata quest ids
+            for (const tdQuest of this.tdQuests) {
+                if (task.id == tdQuest.gameId || this.getTranslation(task.name) === tdQuest.title) {
+                    task.tarkovDataId = tdQuest.id;
+                    break;
+                }
+            }
+            this.addNeededKeys(task);
+        }
+        
         // validate task requirements
 
         const getMinPlayerLevelForTraderLevel = (traderId, traderLevel) => {
-            const trader = traders.find(tr => tr.id === traderId);
+            const trader = this.traders.find(tr => tr.id === traderId);
             if (!trader) {
                 return 0;
             }
@@ -214,7 +218,7 @@ class UpdateQuestsJob extends DataJob {
 
             quest.minPlayerLevel = getQuestMinLevel(quest.id);
 
-            const trader = traders.find(t => t.name === quest.name);
+            const trader = this.traders.find(t => t.name === quest.name);
             const map = this.maps.find(m => m.name === quest.name);
             if (trader || map) {
                 quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(quest.name.replaceAll(' ', '_'))}_(quest)`;
@@ -660,29 +664,32 @@ class UpdateQuestsJob extends DataJob {
         }
     }
 
-    mergeTdQuest = (questData, tdQuest) => {
-        if (!tdQuest) {
-            for (const q of this.tdQuests) {
-                if (q.id === questData.tarkovDataId) {
-                    tdQuest = q;
-                    break;
-                }
-            }
+    addNeededKeys = (questData) => {
+        const neededKeys = this.neededKeys[questData.id];
+        if (!neededKeys) {
+            return;
         }
-        if (!tdQuest) return;
-        for (const tdObj of tdQuest.objectives) {
-            if (tdObj.type === 'key') {
-                const key = {
-                    key_ids: [tdObj.target]
-                };
-                if (Array.isArray(tdObj.target)) key.key_ids = tdObj.target;
-                key.locationName = null;
-                key.map_id = null;
-                if (tdObj.location > -1) {
-                    key.locationName = this.getTdLocation(tdObj.location);
-                    key.map_id = tdObj.location;
+        questData.neededKeys = [];
+        for (const obj of questData.objectives) {
+            if (!neededKeys[obj.id]) {
+                continue;
+            }
+            obj.requiredKeys = neededKeys[obj.id];
+            const mapId = obj.map_ids.length > 0 ? obj.map_ids[0] : null;
+            for (const neededKey of neededKeys[obj.id]) {
+                const newKeys = neededKey.filter(keyId => !questData.neededKeys.some(nk => nk.key_ids.includes(keyId) && nk.map_id === mapId));
+                if (newKeys.length === 0) {
+                    continue;
                 }
-                questData.neededKeys.push(key);
+                const mapNeeedKeys = questData.neededKeys.find(nk => nk.map_id === mapId);
+                if (!mapNeeedKeys) {
+                    questData.neededKeys.push({
+                        key_ids: newKeys,
+                        map_id: mapId,
+                    });
+                } else {
+                    mapNeeedKeys.key_ids.push(...newKeys);
+                }
             }
         }
     }
@@ -812,26 +819,6 @@ class UpdateQuestsJob extends DataJob {
         this.loadRewards(questData, 'finishRewards', quest.rewards.Success);
         this.loadRewards(questData, 'startRewards', quest.rewards.Started);
         this.loadRewards(questData, 'failureOutcome', quest.rewards.Fail);
-        let nameMatch = undefined;
-        for (const tdQuest of this.tdQuests) {
-            if (questData.id == tdQuest.gameId) {
-                questData.tarkovDataId = tdQuest.id;
-                break;
-            }
-            if (questData.name == tdQuest.title) {
-                nameMatch = tdQuest.id;
-                //this.logger.warn(`Found possible TarkovData name match for ${questData.name} ${questData.id}`)
-            }
-        }
-        if (typeof nameMatch !== 'undefined') {
-            questData.tarkovDataId = nameMatch;
-        }
-        if (typeof questData.tarkovDataId === 'undefined') {
-            questData.tarkovDataId = null;
-            //this.logger.warn(`Could not find TarkovData quest id for ${questData.name} ${questData.id}`);
-        } else {
-            this.mergeTdQuest(questData);
-        }
         if (factionMap[questData.id]) questData.factionName = factionMap[questData.id];
         if (this.missingQuests[questData.id]) delete this.missingQuests[questData.id];
     

@@ -135,7 +135,7 @@ app.use(maybe((req, res, next) => {
                         dataType: "json"
                     }).done(function (data) {
                         if (!data.success) {
-                            M.toast({html: data.message});
+                            M.toast({text: data.message});
                         } else {
                             location.reload();
                         }
@@ -228,7 +228,7 @@ const getHeader = (req, options) => {
         <head>
             <title>Tarkov Data Manager</title>
             <!-- Compiled and minified CSS -->
-            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">${includeCss}
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-beta/dist/css/materialize.min.css">${includeCss}
 
             <!-- Compiled and minified JavaScript -->
             <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -245,10 +245,9 @@ const getHeader = (req, options) => {
         <body>
             <nav>
                 <div class="nav-wrapper">
+                    <a href="/" class="brand-logo right"><i class="material-icons">query_stats</i>Tarkov Data Manager</a>
                     <a href="#" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
-                    <a href="#" class="brand-logo right">Tarkov Data Manager (tdm)</a>
-                    <ul id="nav-mobile" class="left hide-on-med-and-down">
-                        <li class="${req.url === '/' ? 'active' : ''}"><a href="/">Home</a></li>
+                    <ul id="nav-main" class="hide-on-med-and-down">
                         <li class="${req.url === '/scanners' ? 'active' : ''}"><a href="/scanners">Scanners</a></li>
                         <li class="${req.url === '/items' ? 'active' : ''}"><a href="/items">Items</a></li>
                         <li class="${req.url === '/webhooks' ? 'active' : ''}"><a href="/webhooks">Webhooks</a></li>
@@ -271,19 +270,23 @@ const getHeader = (req, options) => {
                 <li class="${req.url === '/wipes' ? 'active' : ''}"><a href="/crons">Wipes</a></li>
                 <!--li class="${req.url === '/trader-prices' ? 'active' : ''}"><a href="/trader-prices">Trader Prices</a></li-->
             </ul>
+            <div class="container">
         `;
 }
 
 const getFooter = (req) => {
     let toastJs = '';
     if (req.query.toast) {
-        toastJs = `M.toast({html: '${decodeToast(req.query.toast)}'});`;
+        toastJs = `M.toast({text: '${decodeToast(req.query.toast)}'});`;
     }
     return `
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+            </div>
+            <footer class="page-footer"></footer>
+            <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-beta/dist/js/materialize.min.js"></script>
             <script>
                 $(document).ready(function(){
-                    $('.sidenav').sidenav();
+                    //$('.sidenav').sidenav();
+                    M.Sidenav.init($('.sidenav'), {});
                     ${toastJs}
                 });
             </script>
@@ -502,7 +505,7 @@ app.get('/items', async (req, res) => {
     let typeFilters = '';
     for(const type of AVAILABLE_TYPES){
         typeFilters = `${typeFilters}
-        <div class="col s4 l3 xl2">
+        <div class="col s4 m3 l2>
             <label for="type-${type}">
                 <input type="checkbox" class="filled-in filter-type" id="type-${type}" value="${type}"${type === 'disabled' ? ' checked' : ''} />
                 <span>${type}</span>
@@ -512,7 +515,7 @@ app.get('/items', async (req, res) => {
     let specFilters = '';
     for(const type of CUSTOM_HANDLERS){
         specFilters = `${specFilters}
-        <div class="col s4 l3">
+        <div class="col s4 m3 l2">
             <label for="type-${type}">
                 <input type="checkbox" class="filled-in filter-special" id="type-${type}" value="${type}" ${type === 'all' ? 'checked' : ''} />
                 <span>${type}</span>
@@ -645,14 +648,14 @@ app.get('/items', async (req, res) => {
                                 <a class="item-attribute wiki_link" data-attribute="href" href="">WIKI</a>
                             </div>
                             <div class="input-field col s10">
-                                <input value="" id="wiki-link" type="text" class="validate item-value wiki_link" name="wiki-link">
+                                <input value="" id="wiki-link" type="text" class="validate item-value wiki_link" name="wiki-link" placeholder=" ">
                                 <label for="wiki-link">wiki link</label>
                             </div>
                         </div>
                         <div class="row">
                             <div class="input-field col s2 item-match_index"></div>
                             <div class="input-field col s10">
-                                <input value="" id="match-index" type="text" class="validate item-value match_index" name="match-index">
+                                <input value="" id="match-index" type="text" class="validate item-value match_index" name="match-index" placeholder=" ">
                                 <label for="match-index">Match index</label>
                             </div>
                         </div>
@@ -743,7 +746,7 @@ app.get('/scanners', async (req, res) => {
             activeClass = ' active';
         }
         return `
-        <div class="scanner col s12 l6">
+        <div class="scanner col s12 xl6">
             <ul class="collapsible" data-collapsible="collapsible">
                 <li class="${activeClass}">
                     <div class="collapsible-header">
@@ -783,7 +786,7 @@ app.get('/scanners', async (req, res) => {
         <div class="row">
             <div class="col s12">
                 <ul class="tabs">
-                    <li class="tab col s4"><a href="#activescanners">Active Scanners</a></li>
+                    <li class="tab col s4"><a href="#activescanners" class="active">Active Scanners</a></li>
                     <li class="tab col s4"><a href="#inactivescanners">Inactive Scanners</a></li>
                     <li class="tab col s4"><a href="#scannerusers">Scanner Users</a></li>
                 </ul>
@@ -803,33 +806,31 @@ app.get('/scanners', async (req, res) => {
                 </div>
             </div>
             <div id="scannerusers" class="col s12">
-                <div class="scanner-userss-wrapper row">
-                    <div class="col s10 offset-s1">
-                        <a href="#" class="waves-effect waves-light btn add-user tooltipped" data-tooltip="Add API user"><i class="material-icons">person_add</i></a>
-                        <table class="highlight main">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        Username
-                                    </th>
-                                    <th>
-                                        Password
-                                    </th>
-                                    <th>
-                                        Scanners
-                                    </th>
-                                    <th>
-                                        Flags
-                                    </th>
-                                    <th>
-                                        Disabled
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="scanner-userss-wrapper">
+                    <a href="#" class="waves-effect waves-light btn add-user tooltipped" data-tooltip="Add API user"><i class="material-icons">person_add</i></a>
+                    <table class="highlight main">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Username
+                                </th>
+                                <th>
+                                    Password
+                                </th>
+                                <th>
+                                    Scanners
+                                </th>
+                                <th>
+                                    Flags
+                                </th>
+                                <th>
+                                    Disabled
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -906,20 +907,20 @@ app.get('/scanners', async (req, res) => {
                     <form class="col s12 post-url" method="post" action="">
                         <input id="user_id" name="user_id" class="user_id" type="hidden">
                         <div class="row">
-                            <div class="input-field">
-                                <input value="" id="username" type="text" class="validate username" name="username">
+                            <div class="input-field s12">
+                                <input value="" id="username" type="text" class="validate username" name="username" placeholder=" ">
                                 <label for="username">Username</label>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="input-field">
-                                <input value="" id="password" type="text" class="validate password" name="password">
+                            <div class="input-field s12">
+                                <input value="" id="password" type="text" class="validate password" name="password" placeholder=" ">
                                 <label for="password">Password</label>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="input-field">
-                                <input value="" id="max_scanners" type="text" class="validate max_scanners" name="max_scanners">
+                            <div class="input-field s2">
+                                <input value="" id="max_scanners" type="text" class="validate max_scanners" name="max_scanners" placeholder=" ">
                                 <label for="max_scanners">Max Scanners</label>
                             </div>
                         </div>
@@ -1093,7 +1094,7 @@ app.get('/webhooks', async (req, res) => {
     res.send(`${getHeader(req, {include: 'datatables'})}
         <script src="/webhooks.js"></script>
         <div class="row">
-            <div class="col s10 offset-s1">
+            <div class="col s12">
                 <a href="#" class="waves-effect waves-light btn add-webhook tooltipped" data-tooltip="Add webhook"><i class="material-icons">add</i></a>
                 <table class="highlight main">
                     <thead>
@@ -1116,14 +1117,14 @@ app.get('/webhooks', async (req, res) => {
                 <div class="row">
                     <form class="col s12 post-url" method="post" action="">
                         <div class="row">
-                            <div class="input-field">
-                                <input value="" id="name" type="text" class="validate name" name="name">
+                            <div class="input-field s12">
+                                <input value="" id="name" type="text" class="validate name" name="name" placeholder=" ">
                                 <label for="name">Name</label>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="input-field">
-                                <input value="" id="url" type="text" class="validate url" name="url">
+                            <div class="input-field s12">
+                                <input value="" id="url" type="text" class="validate url" name="url" placeholder=" ">
                                 <label for="url">Discord Webhook URL</label>
                             </div>
                         </div>
@@ -1277,7 +1278,7 @@ app.get('/crons', async (req, res) => {
         <script src="/crons.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cronstrue/2.11.0/cronstrue.min.js"></script>
         <div class="row">
-            <div class="col s10 offset-s1">
+            <div class="col s12">
                 <div>
                     Note: Jobs are scheduled in UTC. You local time is <span class="timeoffset"></span> hours UTC.
                 </div>
@@ -1323,12 +1324,14 @@ app.get('/crons', async (req, res) => {
                 <div class="row">
                     <form class="col s12 post-url" method="post" action="/crons/set">
                         <div class="row">
-                            <div class="input-field">
-                                <input value="" id="schedule" type="text" class="validate schedule" name="schedule">
+                            <div class="input-field s12">
+                                <input value="" id="schedule" type="text" class="validate schedule" name="schedule" placeholder=" ">
                                 <label for="schedule">Schedule</label>
                             </div>
                         </div>
-                        <div class="row cronstrue">
+                        <div class="row">
+                            <div class="cronstrue col s12">
+                            </div>
                         </div>
                         <input value="" id="jobName" type="hidden" name="jobName" class="jobName">
                     </form>
@@ -1398,7 +1401,7 @@ app.get('/json', async (req, res) => {
         <script src="/ansi_up.js"></script>
         <script src="/json.js"></script>
         <div class="row">
-            <div class="col s10 offset-s1">
+            <div class="col s12">
                 <div>
                     <form class="col s12 post-url json-upload id" data-attribute="action" method="post" action="">
                         <span>Upload: </span><input id="json-upload" class="single-upload" type="file" name="file" />
@@ -1568,7 +1571,7 @@ app.get('/s3-bucket', async (req, res) => {
         <script src="/ansi_up.js"></script>
         <script src="/s3-bucket.js"></script>
         <div class="row">
-            <div class="col s10 offset-s1">
+            <div class="col s12">
                 <div>
                     <form class="col s12 post-url file-upload id" data-attribute="action" method="post" action="">
                         <span>Path: </span><input id="file-path" class="validate path" type="text" name="path" value="" style="width: auto;"/>
@@ -1609,7 +1612,7 @@ app.get('/s3-bucket', async (req, res) => {
                     <form class="col s12" method="put" action="">
                         <div class="row">
                             <div class="input-field col s12">
-                                <input value="" type="text" class="validate new-file-name" name="new-file-name">
+                                <input value="" type="text" class="validate new-file-name" name="new-file-name" placeholder=" ">
                                 <label for="new-file-name">New Name</label>
                             </div>
                         </div>
@@ -1629,7 +1632,7 @@ app.get('/s3-bucket', async (req, res) => {
                     <form class="col s12" method="post" action="">
                         <div class="row">
                             <div class="input-field col s12">
-                                <input value="" type="text" class="validate new-file-name" name="new-file-name">
+                                <input value="" type="text" class="validate new-file-name" name="new-file-name" placeholder=" ">
                                 <label for="new-file-name">New Name</label>
                             </div>
                         </div>
@@ -1754,7 +1757,7 @@ app.get('/wipes', async (req, res) => {
     res.send(`${getHeader(req, {include: 'datatables'})}
         <script src="/wipes.js"></script>
         <div class="row">
-            <div class="col s10 offset-s1">
+            <div class="col s12">
                 <a href="#" class="waves-effect waves-light btn add-wipe tooltipped" data-tooltip="Add wipe"><i class="material-icons">add</i></a>
                 <table class="highlight main">
                     <thead>
@@ -1781,14 +1784,14 @@ app.get('/wipes', async (req, res) => {
                 <div class="row">
                     <form class="col s12 post-url" method="post" action="/wipes">
                         <div class="row">
-                            <div class="input-field">
-                                <input value="" id="start_date" type="text" class="validate start_date" name="start_date">
+                            <div class="input-field s12">
+                                <input value="" id="start_date" type="text" class="validate start_date" name="start_date" placeholder=" ">
                                 <label for="start_date">Start Date</label>
                             </div>
                         </div>
                         <div class="row">
-                            <div class="input-field">
-                                <input value="" id="version" type="text" class="validate version" name="version">
+                            <div class="input-field s12">
+                                <input value="" id="version" type="text" class="validate version" name="version" placeholder=" ">
                                 <label for="version">Version</label>
                             </div>
                         </div>

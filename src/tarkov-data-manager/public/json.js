@@ -1,8 +1,9 @@
 let table = false;
 
 $(document).ready( function () {
-    $('.tooltipped').tooltip();
-    $('.modal').modal();
+    //$('.tooltipped').tooltip();
+    //$('.modal').modal();
+    M.AutoInit();
 
     const columns = [
         {
@@ -12,8 +13,8 @@ $(document).ready( function () {
                     return `
                         <div><b>${data}</b></div>
                         <div>
-                            <a href="/json/${$('input[name="json-dir"]:checked').val()}/${data}" class="waves-effect waves-light btn download-json tooltipped" data-tooltip="Download" data-file="${data}"><i class="material-icons">file_download</i></a>
-                            <a href="#" class="waves-effect waves-light btn delete-json tooltipped" data-tooltip="Delete" data-file="${data}"><i class="material-icons">delete</i></a>
+                            <a href="/json/${$('input[name="json-dir"]:checked').val()}/${data}" class="waves-effect waves-light btn-small download-json tooltipped" data-tooltip="Download" data-file="${data}"><i class="material-icons">file_download</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small delete-json tooltipped" data-tooltip="Delete" data-file="${data}"><i class="material-icons">delete</i></a>
                         </div>
                     `;
                 }
@@ -79,10 +80,10 @@ $(document).ready( function () {
             dataType: "json",
             url: `/json/${dir}/${fileName}`
         }).done(function (data) {
-            M.toast({html: data.message});
+            M.toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({html: data.errors[i]});
+                    M.toast({text: data.errors[i]});
                 }
                 return;
             }
@@ -105,17 +106,17 @@ $(document).ready( function () {
         const form = $('form.json-upload').first();
         const formData = new FormData(form[0]);
         if (!formData.has('file') || formData.get('file').size === 0) {
-            M.toast({html: 'You must select a json file to upload'});
+            M.toast({text: 'You must select a json file to upload'});
             return;
         }
         fetch('/json/'+$('input[name="json-dir"]:checked').val(), {
             method: 'POST',
             body: formData
         }).then(response => response.json()).then(data => {
-            M.toast({html: data.message});
+            M.toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({html: data.errors[i]});
+                    M.toast({text: data.errors[i]});
                 }
             }
             $('#json-upload').val('');

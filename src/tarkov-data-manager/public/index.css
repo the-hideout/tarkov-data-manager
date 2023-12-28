@@ -25,3 +25,8 @@ tr:hover {
     overflow: hidden scroll;
     padding-left: 15px;
 }
+
+.container {
+    margin-top: 3px;
+    margin-bottom: 3px;
+}

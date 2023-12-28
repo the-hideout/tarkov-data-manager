@@ -446,7 +446,7 @@
                 "map_ids": [
                     "5704e5fad2720bc05b8b4567"
                 ],
-                "target": "ScavRole/PmcBot",
+                "target": "PmcBot",
                 "count": 25,
                 "shotType": "kill",
                 "usingWeapon": [],
@@ -628,7 +628,7 @@
                 "map_ids": [
                     "5704e4dad2720bb55b8b4567"
                 ],
-                "target": "QuestCondition/Elimination/Kill/Target/AnyPMC",
+                "target": "AnyPmc",
                 "count": 20,
                 "shotType": "kill",
                 "usingWeapon": [
