@@ -84,10 +84,10 @@ class UpdateTypesJob extends DataJob {
             '5a341c4686f77469e155819e': {
                 types: ['wearable']
             },
-            '65649eb40bf0ed77b8044453': {
+            '65649eb40bf0ed77b8044453': { // built-in armor plates
                 types: ['armor-plate', 'no-flea']
             },
-            '644120aa86ffbe10ee032b6f': {
+            '644120aa86ffbe10ee032b6f': { // armor plates
                 types: ['armor-plate']
             }
         };
