@@ -52,7 +52,7 @@ async function createFromSource(sourceImage, id, overwrite = true) {
             //images.push(Promise.reject(new Error(`${itemData.name} ${id} already has a ${imageSizeKey}`)));
             continue;
         }
-        images.push(imageFunctions.create(imageSizeKey, sourceImage, item)
+        images.push(imageFunctions.createImage(imageSizeKey, sourceImage, item)
             .then(result => {return {image: result, type: imageSizeKey}}).catch(() => false),
         );
     }
