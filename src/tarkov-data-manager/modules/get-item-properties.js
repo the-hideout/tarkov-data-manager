@@ -164,6 +164,11 @@ const getArmorZonesFromSlots = (slots) => {
                     zones.push(`Collider Type ${collider}`);
                 }
             }
+            for (const collider of filter.armorPlateColliders) {
+                if (!zones.includes(`Armor Zone ${collider}`)) {
+                    zones.push(`Armor Zone ${collider}`);
+                }
+            }
         }
         return zones;
     }, []);
