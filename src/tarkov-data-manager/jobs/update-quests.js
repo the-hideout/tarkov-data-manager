@@ -149,7 +149,6 @@ class UpdateQuestsJob extends DataJob {
                     break;
                 }
             }
-            this.addNeededKeys(task);
         }
         
         // validate task requirements
@@ -302,6 +301,7 @@ class UpdateQuestsJob extends DataJob {
                     }
                 }
             }
+            this.addNeededKeys(quest);
             
             const imageLink = await this.getTaskImageLink(quest);
             if (imageLink) {
