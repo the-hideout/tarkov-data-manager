@@ -891,17 +891,17 @@ const submitImage = (request, user) => {
             };
 
             if (fields.type === 'source') {
-                if (fields.overwrite !== 'true') {
+                /*if (fields.overwrite !== 'true') {
                     for (const imgType of Object.keys(imageSizes)) {
                         if (checkImageExists(imgType)) {
-                            console.log(`Item ${fields.id} already has a ${imgType}`);
-                            response.errors.push(`Item ${fields.id} already has a ${imgType}`);
+                            console.log(`Item ${fields.id} already has a ${imgType} image`);
+                            response.errors.push(`Item ${fields.id} already has a ${imgType} image`);
                             return finish(response, files);
                         }
                     }
-                }
+                }*/
                 try {
-                    response.data = await createAndUploadFromSource(files[fields.type][0].filepath, fields.id);
+                    response.data = await createAndUploadFromSource(files[fields.type][0].filepath, fields.id, fields.overwrite);
                 } catch (error) {
                     console.error(error);
                     if (Array.isArray(error)) {

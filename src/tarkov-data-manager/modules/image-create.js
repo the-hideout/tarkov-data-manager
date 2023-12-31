@@ -20,7 +20,7 @@ function itemFromDb(itemData) {
     };
 }
 
-async function createFromSource(sourceImage, id) {
+async function createFromSource(sourceImage, id, overwrite = true) {
     const items = await remoteData.get();
     const itemData = items.get(id);
     if (!itemData) {
@@ -30,7 +30,7 @@ async function createFromSource(sourceImage, id) {
     if (typeof sourceImage === 'string') {
         sourceImage = sharp(sourceImage);
     }
-    const imageResults = await Promise.allSettled([
+    /*const imageResults = await Promise.allSettled([
         imageFunctions.createIcon(sourceImage, item)
             .then(result => {return {image: result, type: 'icon'}}),
         imageFunctions.createBaseImage(sourceImage, item)
@@ -43,7 +43,20 @@ async function createFromSource(sourceImage, id) {
             .then(result => {return {image: result, type: '512'}}).catch(() => false),
         imageFunctions.create8xImage(sourceImage, item)
             .then(result => {return {image: result, type: '8x'}}).catch(() => false),
-    ]);
+    ]);*/
+    const images = [];
+    for (const imageSizeKey in imageFunctions.imageSizes) {
+        const imageSize = imageFunctions.imageSizes[imageSizeKey];
+        const exists = !!itemData[imageSize.field];
+        if (exists && !overwrite) {
+            //images.push(Promise.reject(new Error(`${itemData.name} ${id} already has a ${imageSizeKey}`)));
+            continue;
+        }
+        images.push(imageFunctions.createImage(imageSizeKey, sourceImage, item)
+            .then(result => {return {image: result, type: imageSizeKey}}).catch(() => false),
+        );
+    }
+    const imageResults = await Promise.allSettled(images);
     const createdImages = [];
     const errors = [];
     for (const result of imageResults) {
@@ -59,8 +72,8 @@ async function createFromSource(sourceImage, id) {
     return createdImages.filter(Boolean);
 }
 
-async function createAndUploadFromSource(sourceImage, id) {
-    const createdImages = await createFromSource(sourceImage, id);
+async function createAndUploadFromSource(sourceImage, id, overwrite = true) {
+    const createdImages = await createFromSource(sourceImage, id, overwrite);
     const uploads = [];
     for (const result of createdImages) { 
         uploads.push(uploadToS3(result.image, result.type, id).then(purged => {
