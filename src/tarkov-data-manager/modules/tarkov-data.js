@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 const tarkovChanges = require('./tarkov-changes');
 const tarkovBot = require('./tarkov-bot');
@@ -24,6 +25,10 @@ async function addManualTranslations(lang, langCode) {
         ...manualTranslations[langCode],
         ...lang,
     };
+}
+
+const cachePath = (filename) => {
+    return path.join(__dirname, '..', 'cache', filename);   
 }
 
 const dataFunctions = {
@@ -172,8 +177,23 @@ const dataFunctions = {
     mapLoot: (download = false) => {
         return spt.mapLoot(download);
     },
-    quests: (download = false) => {
-        return spt.quests(download);
+    quests: async (download = false) => {
+        const mainQuests = await spt.quests(download);
+        try {
+            const partialQuests = JSON.parse(fs.readFileSync(cachePath('quests_partial.json')));
+            for (const quest of partialQuests) {
+                console.log(quest._id);
+                if (mainQuests[quest._id]) {
+                    continue;
+                }
+                mainQuests[quest._id] = quest;
+            }
+        } catch (error) {
+            if (error.code !== 'ENOENT') {
+                return Promise.reject(error);
+            }
+        }
+        return mainQuests;
     },
     questConfig: (download = false) => {
         return spt.questConfig(download);
