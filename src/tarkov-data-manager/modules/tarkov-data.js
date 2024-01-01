@@ -93,6 +93,7 @@ const dataFunctions = {
             loot_containers: [],
             stationary_weapons: [],
             switches: [],
+            quest_items: [],
         };
         const excludedExtracts = {
             Shoreline: [
@@ -164,6 +165,13 @@ const dataFunctions = {
                     }
                 });
                 details[id].stationary_weapons = details[id].stationary_weapons || [];
+                details[id].quest_items = details[id].quest_items?.reduce((all, current) => {
+                    const p = current.location.position;
+                    if (p.x || p.y || p.z) {
+                        all.push(current);
+                    }
+                    return all;
+                }, []) || [];
             } catch (error) {
                 if (error.code === 'ENOENT') {
                     details[id] = emptyData;

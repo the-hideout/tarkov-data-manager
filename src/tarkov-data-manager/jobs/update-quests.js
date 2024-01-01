@@ -471,7 +471,23 @@ class UpdateQuestsJob extends DataJob {
             }, []);
             if (spawns.length > 0) {
                 foundItems.push({map: mapId, positions: spawns});
+            }
+        }
+        if (foundItems.length > 0) {
+            return foundItems;
+        }
+        for (const mapId in this.mapDetails) {
+            if (forceMap && forceMap !== mapId) {
                 continue;
+            }
+            const spawns = this.mapDetails[mapId].quest_items.reduce((allSpawns, q) => {
+                if (q.id === questItemId) {
+                    allSpawns.push(q.location.position);
+                }
+                return allSpawns;
+            }, []);
+            if (spawns.length > 0) {
+                foundItems.push({map: mapId, positions: spawns});
             }
         }
         return foundItems;
