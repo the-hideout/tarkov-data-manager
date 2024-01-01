@@ -1057,6 +1057,7 @@ class UpdateQuestsJob extends DataJob {
             } else {
                 obj.type = `${verb}Item`;
                 obj.item = objective._props.target[0];
+                obj.items = objective._props.target;
                 obj.dogTagLevel = objective._props.dogtagLevel;
                 obj.maxDurability = objective._props.maxDurability;
                 obj.minDurability = objective._props.minDurability;
@@ -1121,7 +1122,7 @@ class UpdateQuestsJob extends DataJob {
                             obj.usingWeaponMods.push(modSet);
                         }
                     }
-                    if (cond._props.enemyHealthEffects) {
+                    if (cond._props.enemyHealthEffects && cond._props.enemyHealthEffects.length > 0) {
                         obj.enemyHealthEffect = {
                             ...cond._props.enemyHealthEffects[0],
                             time: null,

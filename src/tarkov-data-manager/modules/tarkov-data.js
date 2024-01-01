@@ -185,6 +185,24 @@ const dataFunctions = {
                 if (mainQuests[quest._id]) {
                     continue;
                 }
+                quest.conditions.AvailableForFinish = quest.conditions.AvailableForFinish.map(obj => {
+                    const newObj = {
+                        _props: {
+                            ...obj,
+                            type: obj.type || obj.conditionType,
+                        },
+                        _parent: obj.conditionType,
+                    };
+                    if (newObj._props.counter?.conditions) {
+                        newObj._props.counter.conditions = newObj._props.counter.conditions.map(cond => {
+                            return {
+                                _parent: cond.conditionType,
+                                _props: {...cond},
+                            };
+                        });
+                    }
+                    return newObj;
+                });
                 mainQuests[quest._id] = quest;
             }
         } catch (error) {
