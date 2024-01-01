@@ -182,7 +182,6 @@ const dataFunctions = {
         try {
             const partialQuests = JSON.parse(fs.readFileSync(cachePath('quests_partial.json')));
             for (const quest of partialQuests) {
-                console.log(quest._id);
                 if (mainQuests[quest._id]) {
                     continue;
                 }
