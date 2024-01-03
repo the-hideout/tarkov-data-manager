@@ -30,7 +30,7 @@ async function createFromSource(sourceImage, id, overwrite = true) {
     if (typeof sourceImage === 'string') {
         sourceImage = sharp(sourceImage);
     }
-    if (!imageFunctions.canCreate8xImage(sourceImage, item)) {
+    if (!await imageFunctions.canCreate8xImage(sourceImage, item)) {
         const metadata = await sourceImage.metadata();
         const neededSize = imageFunctions.get8xSize(item);
         return Promise.reject(new Error(`Item ${id} needs image sized ${neededSize.width}x${neededSize.height}, provided ${metadata.width}x${metadata.height}`));
