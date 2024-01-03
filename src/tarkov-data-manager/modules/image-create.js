@@ -30,6 +30,11 @@ async function createFromSource(sourceImage, id, overwrite = true) {
     if (typeof sourceImage === 'string') {
         sourceImage = sharp(sourceImage);
     }
+    if (!imageFunctions.canCreate8xImage(sourceImage, item)) {
+        const metadata = await sourceImage.metadata();
+        const neededSize = imageFunctions.get8xSize(item);
+        return Promise.reject(new Error(`Item ${id} needs image sized ${neededSize.width}x${neededSize.height}, provided ${metadata.width}x${metadata.height}`));
+    }
     /*const imageResults = await Promise.allSettled([
         imageFunctions.createIcon(sourceImage, item)
             .then(result => {return {image: result, type: 'icon'}}),
@@ -53,7 +58,7 @@ async function createFromSource(sourceImage, id, overwrite = true) {
             continue;
         }
         images.push(imageFunctions.createImage(imageSizeKey, sourceImage, item)
-            .then(result => {return {image: result, type: imageSizeKey}}).catch(() => false),
+            .then(result => {return {image: result, type: imageSizeKey}}),
         );
     }
     const imageResults = await Promise.allSettled(images);
