@@ -79,6 +79,10 @@ class UpdatePresetsJob extends DataJob {
             }, this.logger);
             for (let i = 1; i < preset._items.length; i++) {
                 const part = preset._items[i];
+                // skip built-in armor parts
+                if (items[part._tpl]._parent === '65649eb40bf0ed77b8044453') {
+                    continue;
+                }
                 const partData = {
                     item: {
                         id: part._tpl,
@@ -95,6 +99,10 @@ class UpdatePresetsJob extends DataJob {
                 } else {
                     presetData.containsItems.push(partData);
                 }
+            }
+            if (presetData.containsItems.length === 1) {
+                this.logger.log(`Skipping empty preset for ${presetData.locale.en.name}`);
+                continue;
             }
             presetData.weight = Math.round(presetData.weight * 100) / 100;
             if (preset._changeWeaponName && locales.en[presetId]) {
@@ -344,7 +352,7 @@ class UpdatePresetsJob extends DataJob {
 
         // make sure we don't include any disabled presets
         this.presetsData = Object.keys(this.presetsData).reduce((all, presetId) => {
-            console.log(`${presetId} ${localItems.has(presetId)} ${localItems.get(presetId)?.types.includes('disabled')}`);
+            //console.log(`${presetId} ${localItems.has(presetId)} ${localItems.get(presetId)?.types.includes('disabled')}`);
             if (localItems.has(presetId) && !localItems.get(presetId).types.includes('disabled')) {
                 all[presetId] = this.presetsData[presetId];
             }
