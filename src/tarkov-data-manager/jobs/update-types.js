@@ -127,7 +127,7 @@ class UpdateTypesJob extends DataJob {
             //Check for unusable armor
             if (this.bsgData[itemId]._parent === '644120aa86ffbe10ee032b6f') {
                 const armorIsUsable = Object.keys(this.bsgData).some(id => {
-                    return this.bsgData[id]._props?.Slots?._props.filters?.some(f => f.Filter.contains(itemId));
+                    return this.bsgData[id]._props?.Slots?.some(slot => slot._props.filters?.some(f => f.Filter.includes(itemId)));
                 });
                 if (armorIsUsable && item.types.includes('disabled')) {
                     this.logger.warn(`Armor plate ${itemId} ${item.name} is now usable, enabling`);
