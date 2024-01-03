@@ -211,6 +211,14 @@ const dataFunctions = {
                     }
                     return newObj;
                 });
+                quest.conditions.AvailableForStart = quest.conditions.AvailableForStart.map(cond => {
+                    return {
+                        _parent: cond.conditionType,
+                        _props: {
+                            ...cond,
+                        },
+                    }
+                });
                 mainQuests[quest._id] = quest;
             }
         } catch (error) {
