@@ -102,6 +102,10 @@ class UpdatePresetsJob extends DataJob {
             }
             if (presetData.containsItems.length === 1) {
                 this.logger.log(`Skipping empty preset for ${presetData.locale.en.name}`);
+                const dbItem = localItems.get(presetId);
+                if (dbItem && !dbItem.types.includes('disabled')) {
+                    await remoteData.addType(presetId, 'disabled');
+                }
                 continue;
             }
             presetData.weight = Math.round(presetData.weight * 100) / 100;
