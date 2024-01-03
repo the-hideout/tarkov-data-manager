@@ -140,11 +140,8 @@ const getArmorSlots = (item) => {
         const slotInfo = slot._props.filters[0];
         const newSlot = {
             id: slotInfo._id,
-            name: job.getTranslation(slotName),
+            nameId: slotName,
         };
-        if (slotInfo.armorColliders.length && slotInfo.armorPlateColliders.length) {
-            console.log(slot);
-        }
         if (slotInfo.locked) {
             const plateItem = job.bsgItems[slotInfo.Plate];
             newSlot.bluntThroughput = plateItem._props.BluntThroughput,
