@@ -73,15 +73,22 @@ class UpdatePresetsJob extends DataJob {
                     item: firstItem,
                     count: 1
                 }],
-                locale: {}
+                armorOnly: true,
+                noFlea: !items[baseItem._id]._props.CanSellOnRagfair,
+                locale: getTranslations({
+                    name: `${baseItem._id} Name`,
+                    shortName: `${baseItem._id} ShortName`
+                }, this.logger),
             }
-            presetData.locale = getTranslations({
-                name: `${baseItem._id} Name`,
-                shortName: `${baseItem._id} ShortName`
-            }, this.logger);
-            presetData.armorOnly = true;
+
+            // add parts to preset
+            // check if any are flea banned
+            // skip built-in armor parts
             for (let i = 1; i < preset._items.length; i++) {
                 const part = preset._items[i];
+                if (!items[part._tpl]._props.CanSellOnRagfair) {
+                    presetData.noFlea = true;
+                }
                 // skip built-in armor parts
                 if (items[part._tpl]._parent === '65649eb40bf0ed77b8044453') {
                     continue;
@@ -363,6 +370,17 @@ class UpdatePresetsJob extends DataJob {
                 this.logger.error(`Error inserting preset type for ${p.name} ${p.id}`);
                 this.logger.error(error);
             }));
+            if (p.noFlea) {    
+                queries.push(remoteData.addType(p.id, 'no-flea').catch(error => {
+                    this.logger.error(`Error inserting no-flea type for ${p.name} ${p.id}`);
+                    this.logger.error(error);
+                }));
+            } else {
+                queries.push(remoteData.removeType(p.id, 'no-flea').catch(error => {
+                    this.logger.error(`Error removing no-flea type for ${p.name} ${p.id}`);
+                    this.logger.error(error);
+                }));
+            }
         }
         if (newPresets.length > 0) {
             this.discordAlert({
