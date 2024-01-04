@@ -1659,10 +1659,11 @@ app.get('/s3-bucket/get', async (req, res) => {
     res.json(response);
 });
 
-app.delete('/s3-bucket/:file', async (req, res) => {
+app.delete('/s3-bucket/:dir*/:file', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        await deleteFromBucket(req.params.file);
+        let filename = path.join(req.params.dir, req.params.file);
+        await deleteFromBucket(filename);
         response.message = `${req.params.file} deleted from S3`;
     } catch (error) {
         response.errors.push(error.message);
@@ -1670,22 +1671,24 @@ app.delete('/s3-bucket/:file', async (req, res) => {
     res.json(response);
 });
 
-app.post('/s3-bucket/:file', async (req, res) => {
+app.post('/s3-bucket/:dir*/:file', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        await copyFile(req.params.file, req.body['new-file-name']);
-        response.message = `${req.params.file} copied to ${req.body['new-file-name']}`;
+        let filename = path.join(req.params.dir, req.params.file);
+        await copyFile(filename, req.body['new-file-name']);
+        response.message = `${filename} copied to ${req.body['new-file-name']}`;
     } catch (error) {
         response.errors.push(error.message);
     }
     res.json(response);
 });
 
-app.put('/s3-bucket/:file', async (req, res) => {
+app.put('/s3-bucket/:dir*/:file', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        await renameFile(req.params.file, req.body['new-file-name']);
-        response.message = `${req.params.file} renamed to ${req.body['new-file-name']}`;
+        let filename = path.join(req.params.dir, req.params.file);
+        await renameFile(filename, req.body['new-file-name']);
+        response.message = `${filename} renamed to ${req.body['new-file-name']}`;
     } catch (error) {
         response.errors.push(error.message);
     }
