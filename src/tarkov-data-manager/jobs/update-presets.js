@@ -366,16 +366,19 @@ class UpdatePresetsJob extends DataJob {
                 this.logger.error(`Error updating preset in DB`);
                 this.logger.error(error);
             }));
-            queries.push(remoteData.addType(p.id, 'preset').catch(error => {
-                this.logger.error(`Error inserting preset type for ${p.name} ${p.id}`);
-                this.logger.error(error);
-            }));
-            if (p.noFlea) {    
+            const localItem = localItems.get(p.id);
+            if (!localItem?.types.includes('preset')) {
+                queries.push(remoteData.addType(p.id, 'preset').catch(error => {
+                    this.logger.error(`Error inserting preset type for ${p.name} ${p.id}`);
+                    this.logger.error(error);
+                }));
+            }
+            if (p.noFlea && !localItem?.types.includes('no-flea')) {    
                 queries.push(remoteData.addType(p.id, 'no-flea').catch(error => {
                     this.logger.error(`Error inserting no-flea type for ${p.name} ${p.id}`);
                     this.logger.error(error);
                 }));
-            } else {
+            } else if (!p.noFlea && localItem?.types.includes('no-flea')) {
                 queries.push(remoteData.removeType(p.id, 'no-flea').catch(error => {
                     this.logger.error(`Error removing no-flea type for ${p.name} ${p.id}`);
                     this.logger.error(error);
