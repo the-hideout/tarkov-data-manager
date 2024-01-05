@@ -505,9 +505,9 @@ app.get('/items', async (req, res) => {
     let typeFilters = '';
     for(const type of AVAILABLE_TYPES){
         typeFilters = `${typeFilters}
-        <div class="col s4 m3 l2>
+        <div class="col s4 m3 l2">
             <label for="type-${type}">
-                <input type="checkbox" class="filled-in filter-type" id="type-${type}" value="${type}"${type === 'disabled' ? ' checked' : ''} />
+                <input type="checkbox" class="filled-in filter-type" id="type-${type}" value="${type}" ${type === 'disabled' ? 'checked' : ''} />
                 <span>${type}</span>
             </label>
         </div>`;
@@ -1521,8 +1521,9 @@ app.post('/json/:dir', async (req, res) => {
     });
     const finish = (files) => {
         if (files) {
-            for (const index in files.file) {
-                let file = files.file[index];
+            let filesArr = files.file;
+            for (const index in filesArr) {
+                let file = filesArr[index];
                 //console.log('removing', file.filepath);
                 fs.rm(file.filepath, error => {
                     if (error) console.log(`Error deleting ${file.filepath}`, error);
@@ -1538,7 +1539,8 @@ app.post('/json/:dir', async (req, res) => {
                     finish(files);
                     return reject(error);
                 }
-                let file = files.file[0];
+                let filesArr = files.file;
+                let file = filesArr[0];
                 let fileName = file.originalFilename;
                 fileName = fileName.split('/').pop();
                 fileName = fileName.split('\\').pop();
@@ -1659,10 +1661,12 @@ app.get('/s3-bucket/get', async (req, res) => {
     res.json(response);
 });
 
-app.delete('/s3-bucket/:file', async (req, res) => {
+app.delete('/s3-bucket/?*/:file', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        await deleteFromBucket(req.params.file);
+        const fullPath = req.params[0] || ''; // Captures the entire path
+        const filename = path.join(fullPath, req.params.file);
+        await deleteFromBucket(filename);
         response.message = `${req.params.file} deleted from S3`;
     } catch (error) {
         response.errors.push(error.message);
@@ -1670,22 +1674,26 @@ app.delete('/s3-bucket/:file', async (req, res) => {
     res.json(response);
 });
 
-app.post('/s3-bucket/:file', async (req, res) => {
+app.post('/s3-bucket/?*/:file', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        await copyFile(req.params.file, req.body['new-file-name']);
-        response.message = `${req.params.file} copied to ${req.body['new-file-name']}`;
+        const fullPath = req.params[0] || ''; // Captures the entire path
+        const filename = path.join(fullPath, req.params.file);
+        await copyFile(filename, req.body['new-file-name']);
+        response.message = `${filename} copied to ${req.body['new-file-name']}`;
     } catch (error) {
         response.errors.push(error.message);
     }
     res.json(response);
 });
 
-app.put('/s3-bucket/:file', async (req, res) => {
+app.put('/s3-bucket/?*/:file', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        await renameFile(req.params.file, req.body['new-file-name']);
-        response.message = `${req.params.file} renamed to ${req.body['new-file-name']}`;
+        const fullPath = req.params[0] || ''; // Captures the entire path
+        const filename = path.join(fullPath, req.params.file);
+        await renameFile(filename, req.body['new-file-name']);
+        response.message = `${filename} renamed to ${req.body['new-file-name']}`;
     } catch (error) {
         response.errors.push(error.message);
     }
@@ -1700,8 +1708,9 @@ app.post('/s3-bucket', async (req, res) => {
     });
     const finish = (files) => {
         if (files) {
-            for (const index in files.file) {
-                let file = files.file[index];
+            let filesArr = files.file;
+            for (const index in filesArr) {
+                let file = filesArr[index];
                 console.log('removing', file.filepath);
                 fs.rm(file.filepath, error => {
                     if (error) console.log(`Error deleting ${file.filepath}`, error);
@@ -1725,9 +1734,10 @@ app.post('/s3-bucket', async (req, res) => {
                     return reject(new Error("Invalid path"));
                 }
                 var names = [];
-                for (const index in files) {
-                    let file = files[index];
-                    let fileName = file.originalFilename;
+                let filesArr = files.file;
+                for (const index in filesArr) {
+                    let file = filesArr[index];
+                    var fileName = file.originalFilename;
                     fileName = fileName.split('/').pop();
                     fileName = fileName.split('\\').pop();
                     names.push(fileName);

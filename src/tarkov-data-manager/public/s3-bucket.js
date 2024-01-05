@@ -191,7 +191,7 @@ $(document).ready( function () {
         });
     });
 
-    $('a.btn.file-upload').click(function(event){
+    $('a.file-upload').click(function(event){
         const form = $('form.file-upload').first();
         const formData = new FormData(form[0]);
         if (!formData.has('file') || formData.get('file').size === 0) {
@@ -210,6 +210,8 @@ $(document).ready( function () {
             }
             $('#file-upload').val('');
             table.ajax.reload();
+        }).catch(error => {
+            M.toast({text: error});
         });
     });
 } );

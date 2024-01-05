@@ -74,6 +74,11 @@ class UpdateNewItemsJob extends DataJob {
                 return false;
             }
 
+            // skip built-in armor plates
+            if (bsgObject._parent === '65649eb40bf0ed77b8044453') {
+                return false;
+            }
+
             // 5b9b9020e7ef6f5716480215 dogtagt
 
             // Removes shrapnel etc

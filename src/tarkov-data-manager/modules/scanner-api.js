@@ -902,6 +902,13 @@ const submitImage = (request, user) => {
                 }*/
                 try {
                     response.data = await createAndUploadFromSource(files[fields.type][0].filepath, fields.id, fields.overwrite);
+                    if (files.sourceDefaultPreset) {
+                        const matchedPreset = presets.find(preset => preset.baseId === fields.id && preset.default);
+                        if (matchedPreset) {
+                            const presetResult = await createAndUploadFromSource(files.sourceDefaultPreset[0].filepath, matchedPreset.id, fields.overwrite);
+                            response.data.push(...presetResult);
+                        }
+                    }
                 } catch (error) {
                     console.error(error);
                     if (Array.isArray(error)) {

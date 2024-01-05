@@ -206,8 +206,9 @@ $(document).ready( async function () {
                 });
             });
 
-            $('.btn.regenerate').off('click');
-            $('.btn.regenerate').click(event => {
+            $('.btn-small.regenerate').off('click');
+            $('.btn-small.regenerate').click(event => {
+                console.log(event);
                 let target = event.target;
                 if (target.nodeName !== 'A') {
                     target = target.parentElement;

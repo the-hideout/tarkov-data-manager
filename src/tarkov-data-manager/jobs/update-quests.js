@@ -471,7 +471,23 @@ class UpdateQuestsJob extends DataJob {
             }, []);
             if (spawns.length > 0) {
                 foundItems.push({map: mapId, positions: spawns});
+            }
+        }
+        if (foundItems.length > 0) {
+            return foundItems;
+        }
+        for (const mapId in this.mapDetails) {
+            if (forceMap && forceMap !== mapId) {
                 continue;
+            }
+            const spawns = this.mapDetails[mapId].quest_items.reduce((allSpawns, q) => {
+                if (q.id === questItemId) {
+                    allSpawns.push(q.location.position);
+                }
+                return allSpawns;
+            }, []);
+            if (spawns.length > 0) {
+                foundItems.push({map: mapId, positions: spawns});
             }
         }
         return foundItems;
@@ -1057,6 +1073,7 @@ class UpdateQuestsJob extends DataJob {
             } else {
                 obj.type = `${verb}Item`;
                 obj.item = objective._props.target[0];
+                obj.items = objective._props.target;
                 obj.dogTagLevel = objective._props.dogtagLevel;
                 obj.maxDurability = objective._props.maxDurability;
                 obj.minDurability = objective._props.minDurability;
@@ -1121,7 +1138,7 @@ class UpdateQuestsJob extends DataJob {
                             obj.usingWeaponMods.push(modSet);
                         }
                     }
-                    if (cond._props.enemyHealthEffects) {
+                    if (cond._props.enemyHealthEffects && cond._props.enemyHealthEffects.length > 0) {
                         obj.enemyHealthEffect = {
                             ...cond._props.enemyHealthEffects[0],
                             time: null,

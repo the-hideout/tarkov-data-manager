@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
+const { imageFunctions } = require('tarkov-dev-image-generator');
+
 const normalizeName = require('../modules/normalize-name');
 const { initPresetData, getPresetData } = require('../modules/preset-data');
 const tarkovData = require('../modules/tarkov-data');
@@ -71,14 +73,29 @@ class UpdatePresetsJob extends DataJob {
                     item: firstItem,
                     count: 1
                 }],
-                locale: {}
+                armorOnly: true,
+                noFlea: !items[baseItem._id]._props.CanSellOnRagfair,
+                locale: getTranslations({
+                    name: `${baseItem._id} Name`,
+                    shortName: `${baseItem._id} ShortName`
+                }, this.logger),
             }
-            presetData.locale = getTranslations({
-                name: `${baseItem._id} Name`,
-                shortName: `${baseItem._id} ShortName`
-            }, this.logger);
+
+            // add parts to preset
+            // check if any are flea banned
+            // skip built-in armor parts
             for (let i = 1; i < preset._items.length; i++) {
                 const part = preset._items[i];
+                if (!items[part._tpl]._props.CanSellOnRagfair) {
+                    presetData.noFlea = true;
+                }
+                // skip built-in armor parts
+                if (items[part._tpl]._parent === '65649eb40bf0ed77b8044453') {
+                    continue;
+                }
+                if (items[part._tpl]._parent !== '644120aa86ffbe10ee032b6f') {
+                    presetData.armorOnly = false;
+                }
                 const partData = {
                     item: {
                         id: part._tpl,
@@ -95,6 +112,14 @@ class UpdatePresetsJob extends DataJob {
                 } else {
                     presetData.containsItems.push(partData);
                 }
+            }
+            if (presetData.containsItems.length === 1) {
+                this.logger.log(`Skipping empty preset for ${presetData.locale.en.name}`);
+                const dbItem = localItems.get(presetId);
+                if (dbItem && !dbItem.types.includes('disabled')) {
+                    await remoteData.addType(presetId, 'disabled');
+                }
+                continue;
             }
             presetData.weight = Math.round(presetData.weight * 100) / 100;
             if (preset._changeWeaponName && locales.en[presetId]) {
@@ -256,10 +281,16 @@ class UpdatePresetsJob extends DataJob {
             preset.name = preset.name + ' ' + locales.en.Default;
             preset.normalized_name = normalizeName(preset.name);
             preset.locale = getTranslations({
-                name: (lang) => {
+                name: (lang, langCode) => {
+                    if (langCode !== 'en' && (!lang[`${preset.id} Name`] || !lang.Default)) {
+                        lang = this.locales.en;
+                    }
                     return lang[`${preset.baseId} Name`] + ' ' + lang.Default;
                 },
-                shortName: (lang) => {
+                shortName: (lang, langCode) => {
+                    if (langCode !== 'en' && (!lang[`${preset.id} ShortName`] || !lang.Default)) {
+                        lang = this.locales.en;
+                    }
                     return lang[`${preset.baseId} ShortName`] + ' ' + lang.Default;
                 }
             }, this.logger);
@@ -283,6 +314,9 @@ class UpdatePresetsJob extends DataJob {
                 continue;
             }
             const p = this.presetsData[id];
+            if (p.armorOnly) {
+                continue;
+            }
             if (item.short_name !== p.shortName || item.width !== p.width || item.height !== p.height || item.properties.backgroundColor !== p.backgroundColor) {
                 regnerateImages.push(p);
             }
@@ -307,15 +341,49 @@ class UpdatePresetsJob extends DataJob {
                 if (results.insertId !== 0) {
                     this.logger.log(`${p.name} added`);
                     newPresets.push(`${p.name} ${presetId}`);
+                }    
+                if (p.armorOnly) {
+                    // this preset consists of only armor items
+                    // shares images with base item
+                    const baseItem = localItems.get(p.baseId);
+                    const pItem = localItems.get(p.id);
+                    const updateFields = {};
+                    for (const imgType in imageFunctions.imageSizes) {
+                        const fieldName = imageFunctions.imageSizes[imgType].field;
+                        if (!pItem[fieldName] && baseItem[fieldName]) {
+                            updateFields[fieldName] = baseItem[fieldName];
+                        }
+                    }
+                    if (Object.keys(updateFields).length > 0) {
+                        this.logger.log(`Updating ${p.name} ${p.id} images to match base item (${baseItem.id}) images`);
+                        queries.push(remoteData.setProperties(p.id, updateFields).catch(error => {
+                            console.log(error);
+                            this.logger.error(`Error updating ${p.name} ${p.id} images to base ${baseItem.id} images: ${error.message}`);
+                        }));
+                    }
                 }
             }).catch(error => {
                 this.logger.error(`Error updating preset in DB`);
                 this.logger.error(error);
             }));
-            queries.push(remoteData.addType(p.id, 'preset').catch(error => {
-                this.logger.error(`Error inserting preset type for ${p.name} ${p.id}`);
-                this.logger.error(error);
-            }));
+            const localItem = localItems.get(p.id);
+            if (!localItem?.types.includes('preset')) {
+                queries.push(remoteData.addType(p.id, 'preset').catch(error => {
+                    this.logger.error(`Error inserting preset type for ${p.name} ${p.id}`);
+                    this.logger.error(error);
+                }));
+            }
+            if (p.noFlea && !localItem?.types.includes('no-flea')) {    
+                queries.push(remoteData.addType(p.id, 'no-flea').catch(error => {
+                    this.logger.error(`Error inserting no-flea type for ${p.name} ${p.id}`);
+                    this.logger.error(error);
+                }));
+            } else if (!p.noFlea && localItem?.types.includes('no-flea')) {
+                queries.push(remoteData.removeType(p.id, 'no-flea').catch(error => {
+                    this.logger.error(`Error removing no-flea type for ${p.name} ${p.id}`);
+                    this.logger.error(error);
+                }));
+            }
         }
         if (newPresets.length > 0) {
             this.discordAlert({
@@ -344,7 +412,7 @@ class UpdatePresetsJob extends DataJob {
 
         // make sure we don't include any disabled presets
         this.presetsData = Object.keys(this.presetsData).reduce((all, presetId) => {
-            console.log(`${presetId} ${localItems.has(presetId)} ${localItems.get(presetId)?.types.includes('disabled')}`);
+            //console.log(`${presetId} ${localItems.has(presetId)} ${localItems.get(presetId)?.types.includes('disabled')}`);
             if (localItems.has(presetId) && !localItems.get(presetId).types.includes('disabled')) {
                 all[presetId] = this.presetsData[presetId];
             }
