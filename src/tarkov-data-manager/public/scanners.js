@@ -223,7 +223,7 @@ $(document).ready( function () {
         M.Modal.getInstance(document.getElementById('modal-click')).open();
     });
 
-    $('#modal-click .btn.refresh-screenshot').click(function(event){
+    $('#modal-click a.refresh-screenshot').click(function(event){
         let scannerName = $('#modal-click .scanner-click-name').text();
         sendCommand(scannerName, 'screenshot');
     });
@@ -573,7 +573,7 @@ $(document).ready( function () {
         });
     });
 
-    $('.btn.add-user').click(function(event) {
+    $('a.add-user').click(function(event) {
         $('#modal-edit-user .username').val('');
         $('#modal-edit-user .password').val('');
         $('#modal-edit-user .user_disabled').prop('checked', false);

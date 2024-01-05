@@ -505,9 +505,9 @@ app.get('/items', async (req, res) => {
     let typeFilters = '';
     for(const type of AVAILABLE_TYPES){
         typeFilters = `${typeFilters}
-        <div class="col s4 m3 l2>
+        <div class="col s4 m3 l2">
             <label for="type-${type}">
-                <input type="checkbox" class="filled-in filter-type" id="type-${type}" value="${type}"${type === 'disabled' ? ' checked' : ''} />
+                <input type="checkbox" class="filled-in filter-type" id="type-${type}" value="${type}" ${type === 'disabled' ? 'checked' : ''} />
                 <span>${type}</span>
             </label>
         </div>`;
