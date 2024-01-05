@@ -421,8 +421,9 @@ app.post('/items/edit/:id', async (req, res) => {
     });
     const finish = (files) => {
         if (files) {
-            for (const key in files.file) {
-                let file = files.file[key][0];
+            let filesArr = files.file;
+            for (const index in filesArr) {
+                let file = filesArr[index];
                 //console.log('removing', file.filepath);
                 fs.rm(file.filepath, error => {
                     if (error) console.log(`Error deleting ${file.filepath}`, error);
@@ -439,14 +440,15 @@ app.post('/items/edit/:id', async (req, res) => {
                     return reject(err);
                 }
                 let sourceUpload = false;
-                for (const index in files) {
-                    if (index === 'source-upload' && files[index][0].size !== 0) {
+                let filesArr = files.file;
+                for (const index in filesArr) {
+                    if (index === 'source-upload' && filesArr[index].size !== 0) {
                         sourceUpload = true;
                         break;
                     }
                 }
-                for (const index in files) {
-                    let file = files[index][0];
+                for (const index in filesArr) {
+                    let file = filesArr[index];
                     if (file.size === 0) continue;
                     if (sourceUpload && index !== 'source-upload') {
                         continue;
@@ -1521,8 +1523,9 @@ app.post('/json/:dir', async (req, res) => {
     });
     const finish = (files) => {
         if (files) {
-            for (const index in files.file) {
-                let file = files.file[index];
+            let filesArr = files.file;
+            for (const index in filesArr) {
+                let file = filesArr[index];
                 //console.log('removing', file.filepath);
                 fs.rm(file.filepath, error => {
                     if (error) console.log(`Error deleting ${file.filepath}`, error);
@@ -1538,7 +1541,8 @@ app.post('/json/:dir', async (req, res) => {
                     finish(files);
                     return reject(error);
                 }
-                let file = files.file[0];
+                let filesArr = files.file;
+                let file = filesArr[0];
                 let fileName = file.originalFilename;
                 fileName = fileName.split('/').pop();
                 fileName = fileName.split('\\').pop();
@@ -1703,8 +1707,9 @@ app.post('/s3-bucket', async (req, res) => {
     });
     const finish = (files) => {
         if (files) {
-            for (const index in files.file) {
-                let file = files.file[index];
+            let filesArr = files.file;
+            for (const index in filesArr) {
+                let file = filesArr[index];
                 console.log('removing', file.filepath);
                 fs.rm(file.filepath, error => {
                     if (error) console.log(`Error deleting ${file.filepath}`, error);
@@ -1728,9 +1733,10 @@ app.post('/s3-bucket', async (req, res) => {
                     return reject(new Error("Invalid path"));
                 }
                 var names = [];
-                for (const index in files) {
-                    let file = files[index];
-                    let fileName = file.originalFilename;
+                let filesArr = files.file;
+                for (const index in filesArr) {
+                    let file = filesArr[index];
+                    var fileName = file.originalFilename;
                     fileName = fileName.split('/').pop();
                     fileName = fileName.split('\\').pop();
                     names.push(fileName);
