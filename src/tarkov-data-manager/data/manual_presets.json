@@ -436,6 +436,48 @@
                     "name": "High Standard M4SS Stock"
                 },
                 "count": 1
+            },
+            {
+                "item": {
+                    "id": "653ed19d22e1ef3d9002c328",
+                    "name": "SKS TAPCO Intrafuse chassis lower rail"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "634f02331f9f536910079b51",
+                    "name": "SKS 7.62x39 520mm barrel"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "634f04d82e5def262d0b30c6",
+                    "name": "SKS upper band"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "634f02d7517ccc8a960fc744",
+                    "name": "SKS gas tube"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "653ecd065a1690d9d90491e6",
+                    "name": "SKS TAPCO railed gas tube cover"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "634f05ca517ccc8a960fc748",
+                    "name": "SKS dust cover"
+                },
+                "count": 1
             }
         ]
     },
@@ -1411,6 +1453,205 @@
                 "item": {
                     "id": "5c503b1c2e221602b21d6e9d",
                     "name": "VPO-101 \"Vepr-Hunter\" rear sight"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "fnfivesevenfdenosights01",
+        "appendName": "No Sights",
+        "baseId": "5d67abc1a4b93614ec50137f",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "5d67abc1a4b93614ec50137f",
+                    "name": "FN Five-seveN MK2 5.7x28 pistol (FDE)"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5d3eb5b6a4b9361eab311902",
+                    "name": "FN Five-seveN 5.7x28 barrel"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5d3eb44aa4b93650d64e4979",
+                    "name": "FN Five-seveN MK2 pistol slide"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5d3eb5eca4b9363b1f22f8e4",
+                    "name": "FN Five-seveN 5.7x28 20-round magazine"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "sigmpxillusion9000000001",
+        "appendName": "5c7e8fab2e22165df16b889b ShortName",
+        "baseId": "58948c8e86f77409493f7266",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "58948c8e86f77409493f7266",
+                    "name": "SIG MPX 9x19 submachine gun"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5894a51286f77426d13baf02",
+                    "name": "MPX pistol grip"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5894a5b586f77426d2590767",
+                    "name": "MPX GEN1 9x19 upper receiver"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5c5db5c62e22160012542255",
+                    "name": "MPX 9x19 14 inch barrel"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5c7e8fab2e22165df16b889b",
+                    "name": "AAC Illusion 9 9x19 sound suppressor"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5c5db63a2e2216000f1b284a",
+                    "name": "MPX Midwest Industries 14 inch M-LOK handguard"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5b7be47f5acfc400170e2dd2",
+                    "name": "Magpul M-LOK 2.5 inch rail"
+                },
+                "count": 2
+            },
+            {
+                "item": {
+                    "id": "5b7be4895acfc400170e2dd5",
+                    "name": "Magpul M-LOK 4.1 inch rail"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5894a73486f77426d259076c",
+                    "name": "MPX flip-up front sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5894a81786f77427140b8347",
+                    "name": "MPX flip-up rear sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "58949edd86f77409483e16a9",
+                    "name": "MPX double latch charging handle"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5894a05586f774094708ef75",
+                    "name": "MPX 9x19 30-round magazine"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "5c5db6ee2e221600113fba54",
+                    "name": "MPX/MCX Maxim Defense CQB telescoping stock"
+                },
+                "count": 1
+            }
+        ]
+    },
+    {
+        "id": "rpdnokp70000000000000001",
+        "appendName": "57486e672459770abd687134 ShortName",
+        "baseId": "65268d8ecb944ff1e90ea385",
+        "default": false,
+        "containsItems": [
+            {
+                "item": {
+                    "id": "65268d8ecb944ff1e90ea385",
+                    "name": "Degtyarev RPDN 7.62x39 machine gun"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "6513f0a194c72326990a3868",
+                    "name": "RPD 7.62x39 \"Buben\" 100-round box"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "6513f1798cb24472490ee331",
+                    "name": "RPD wooden stock"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "6513f13a8cb24472490ee32f",
+                    "name": "RPD wooden pistol grip"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "65266fd43341ed9aa903dd56",
+                    "name": "RPD 7.62x39 sawed-off 350mm barrel"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "6513f05a94c72326990a3866",
+                    "name": "RPD wooden handguard"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "6513f153e63f29908d0ffaba",
+                    "name": "RPD rear sight"
+                },
+                "count": 1
+            },
+            {
+                "item": {
+                    "id": "57486e672459770abd687134",
+                    "name": "OKP-7 reflex sight (Dovetail)"
                 },
                 "count": 1
             }
