@@ -210,6 +210,8 @@ $(document).ready( function () {
             }
             $('#file-upload').val('');
             table.ajax.reload();
+        }).catch(error => {
+            M.toast({text: error});
         });
     });
 } );
