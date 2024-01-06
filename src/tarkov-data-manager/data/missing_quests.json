@@ -1223,5 +1223,174 @@
         "experience": 9000,
         "tarkovDataId": null,
         "factionName": "Any"
+    },
+    "6578ec473dbd035d04531a8d": {
+        "id": "6578ec473dbd035d04531a8d",
+        "name": "Steady Signal",
+        "trader": "5a7c2eca46aef81a7ca2145d",
+        "location_id": "5704e3c2d2720bac5b8b4567",
+        "locationName": "Woods",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "5ac346e886f7741d6118b99b",
+                "name": "Signal - Part 4",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "6578ec473dbd035d04531a92",
+                "type": "mark",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Woods"
+                ],
+                "map_ids": [
+                    "5704e3c2d2720bac5b8b4567"
+                ],
+                "zoneKeys": [
+                    "q14_8_1"
+                ],
+                "zoneNames": [],
+                "item": "5991b51486f77447b112d44f",
+                "item_id": "5991b51486f77447b112d44f",
+                "item_name": "MS2000 Marker"
+            },
+            {
+                "id": "6578ec473dbd035d04531a93",
+                "type": "mark",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Woods"
+                ],
+                "map_ids": [
+                    "5704e3c2d2720bac5b8b4567"
+                ],
+                "zoneKeys": [
+                    "q14_8_2"
+                ],
+                "zoneNames": [],
+                "item": "5991b51486f77447b112d44f",
+                "item_id": "5991b51486f77447b112d44f",
+                "item_name": "MS2000 Marker"
+            },
+            {
+                "id": "6578ec473dbd035d04531a94",
+                "type": "mark",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Woods"
+                ],
+                "map_ids": [
+                    "5704e3c2d2720bac5b8b4567"
+                ],
+                "zoneKeys": [
+                    "q14_8_3"
+                ],
+                "zoneNames": [],
+                "item": "5991b51486f77447b112d44f",
+                "item_id": "5991b51486f77447b112d44f",
+                "item_name": "MS2000 Marker"
+            },
+            {
+                "id": "6578ed62da32cab3f79bb022",
+                "type": "mark",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Woods"
+                ],
+                "map_ids": [
+                    "5704e3c2d2720bac5b8b4567"
+                ],
+                "zoneKeys": [
+                    "q14_8_4"
+                ],
+                "zoneNames": [],
+                "item": "5991b51486f77447b112d44f",
+                "item_id": "5991b51486f77447b112d44f",
+                "item_name": "MS2000 Marker"
+            },
+            {
+                "id": "6578ed7792685671c65edf07",
+                "type": "mark",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Woods"
+                ],
+                "map_ids": [
+                    "5704e3c2d2720bac5b8b4567"
+                ],
+                "zoneKeys": [
+                    "q14_8_5"
+                ],
+                "zoneNames": [],
+                "item": "5991b51486f77447b112d44f",
+                "item_id": "5991b51486f77447b112d44f",
+                "item_name": "MS2000 Marker"
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "5a7c2eca46aef81a7ca2145d",
+                    "name": "Mechanic",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 50000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5d0375ff86f774186372f685",
+                    "item_name": "Military Cable",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5d0376a486f7747d8050965c",
+                    "item_name": "Military Circuit Board",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 14000,
+        "tarkovDataId": null,
+        "factionName": "Any"
     }
 }
