@@ -8,6 +8,7 @@ const remoteData = require('./remote-data');
 const { uploadToS3 } = require('./upload-s3');
 const { createAndUploadFromSource } = require('./image-create');
 const { imageFunctions } = require('tarkov-dev-image-generator');
+const { match } = require('assert');
 
 const { imageSizes } = imageFunctions;
 
@@ -877,6 +878,7 @@ const submitImage = (request, user) => {
             fields = {
                 id: fields.id[0],
                 type: fields.type[0],
+                presets: fields.presets ? fields.presets[0].split(',') : [],
                 overwrite: fields.overwrite ? fields.overwrite[0] : false,
             };
     
@@ -902,10 +904,15 @@ const submitImage = (request, user) => {
                 }*/
                 try {
                     response.data = await createAndUploadFromSource(files[fields.type][0].filepath, fields.id, fields.overwrite);
-                    if (files.sourceDefaultPreset) {
-                        const matchedPreset = presets.find(preset => preset.baseId === fields.id && preset.default);
+                    for (const presetId of fields.presets) {
+                        let matchedPreset;
+                        if (presetId === 'default') {
+                            matchedPreset = presets.find(preset => preset.baseId === fields.id && preset.default);
+                        } else {
+                            matchedPreset = presets.find(preset => preset.id === presetId);
+                        }
                         if (matchedPreset) {
-                            const presetResult = await createAndUploadFromSource(files.sourceDefaultPreset[0].filepath, matchedPreset.id, fields.overwrite);
+                            const presetResult = await createAndUploadFromSource(files[presetId][0].filepath, matchedPreset.id, fields.overwrite);
                             response.data.push(...presetResult);
                         }
                     }
