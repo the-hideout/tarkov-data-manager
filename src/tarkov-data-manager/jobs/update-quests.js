@@ -256,13 +256,36 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
 
-            // add objective maps from quest items
+            // add locations for zones and quest items
             for (const obj of quest.objectives) {
+                obj.zones = [];
+                obj.zoneKeys?.forEach((zoneId) => {
+                    for (const mapId in this.mapDetails) {
+                        for (const trigger of this.mapDetails[mapId].zones) {
+                            if (trigger.id === zoneId) {
+                                obj.zones.push({
+                                    id: trigger.id,
+                                    map: mapId,
+                                    ...trigger.location,
+                                });        
+                                if (!obj.map_ids.includes(mapId)) {
+                                    obj.map_ids.push(mapId);
+                                } 
+                            }
+                        }
+                    }
+                    if (obj.zones.length === 0) {
+                        this.logger.warn(`Zone key ${zoneId} is not associated with a map`);
+                    }
+                });
                 if (obj.type !== 'findQuestItem') {
                     continue;
                 }
                 const itemInfo = this.getQuestItemLocations(obj.item_id, obj.id);
                 if (itemInfo.length > 0) {
+                    if (!obj.possibleLocations) {
+                        obj.possibleLocations = [];
+                    }
                     for (const spawn of itemInfo) {
                         obj.possibleLocations.push(spawn);
                         if (!obj.map_ids.includes(spawn.map)) {
@@ -274,9 +297,9 @@ class UpdateQuestsJob extends DataJob {
                     if (!obj.map_ids.includes(mapId)) {
                         obj.map_ids.push(mapId);
                     }
-                    this.logger.warn(`${quest.name} objective ${obj.id} item ${obj.item_id} has no known coordinates`);
+                    this.logger.warn(`${this.getTranslation(quest.name)} ${quest.id} objective ${obj.id} item ${obj.item_name} ${obj.item_id} has no known coordinates`);
                 } else {
-                    this.logger.warn(`${quest.name} objective ${obj.id} item ${obj.item_id} has no known spawn`);
+                    this.logger.warn(`${this.getTranslation(quest.name)} ${quest.id} objective ${obj.id} item ${obj.item_name} ${obj.item_id} has no known spawn`);
                 }
             }
 
@@ -977,47 +1000,6 @@ class UpdateQuestsJob extends DataJob {
             'shoot',
         ];
         for (const obj of questData.objectives) {
-            if (obj.zoneKeys) {
-                /*obj.zoneKeys.forEach(zoneKey => {
-                    if (!zoneMap[zoneKey]) {
-                        if (!questData.location_id) {
-                            this.logger.warn(`Zone key ${zoneKey} is not associated with a map`);
-                        }
-                        return;
-                    }
-                    let mapIds = zoneMap[zoneKey];
-                    if (!Array.isArray(mapIds)) {
-                        mapIds = [mapIds];
-                    }
-                    for (const mapId of mapIds) {
-                        if (!obj.map_ids.includes(mapId)) {
-                            obj.map_ids.push(mapId);
-                        } 
-                    }
-                });*/
-                obj.zones = obj.zoneKeys.reduce((zones, zoneId) => {
-                    for (const mapId in this.mapDetails) {
-                        for (const trigger of this.mapDetails[mapId].zones) {
-                            if (trigger.id === zoneId) {
-                                zones.push({
-                                    id: trigger.id,
-                                    map: mapId,
-                                    ...trigger.location,
-                                });        
-                                if (!obj.map_ids.includes(mapId)) {
-                                    obj.map_ids.push(mapId);
-                                } 
-                            }
-                        }
-                    }
-                    if (zones.length === 0) {
-                        this.logger.warn(`Zone key ${zoneId} is not associated with a map`);
-                    }
-                    return zones;
-                }, []);
-            } else {
-                obj.zones = [];
-            }
             if (obj.map_ids.length === 0 && locationTypes.includes(obj.type)) {
                 if (obj.map_ids.length === 0 && questData.location_id) {
                     obj.locationNames.push(questData.locationName);

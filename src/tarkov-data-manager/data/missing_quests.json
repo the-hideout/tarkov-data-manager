@@ -719,5 +719,509 @@
         "experience": 35300,
         "tarkovDataId": null,
         "factionName": "Any"
+    },
+    "65733403eefc2c312a759ddb": {
+        "id": "65733403eefc2c312a759ddb",
+        "name": "Developer's Secrets - Part 1",
+        "trader": "5a7c2eca46aef81a7ca2145d",
+        "location_id": "5714dc692459777137212e12",
+        "locationName": "Streets of Tarkov",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "639135e8c115f907b14700aa",
+                "name": "Surveillance",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "65733403eefc2c312a759ddc",
+                "type": "visit",
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "zoneKeys": [
+                    "Office_enter"
+                ]
+            },
+            {
+                "id": "65801ad655315fdce2096bec",
+                "type": "visit",
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "zoneKeys": [
+                    "Office_quest"
+                ]
+            },
+            {
+                "id": "65801b07a26e65a69c2fedd1",
+                "type": "extract",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "zoneNames": [],
+                "exitStatus": [
+                    "ExpBonusSurvived"
+                ],
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "5a7c2eca46aef81a7ca2145d",
+                    "name": "Mechanic",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 130000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "573477e124597737dd42e191",
+                    "item_name": "PC CPU",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5734779624597737e04bf329",
+                    "item_name": "CPU Fan",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5af04b6486f774195a3ebb49",
+                    "item_name": "Pliers Elite",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "62a0a098de7ac8199358053b",
+                    "item_name": "Awl",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 23000,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "6573382e557ff128bf3da536": {
+        "id": "6573382e557ff128bf3da536",
+        "name": "Developer's Secrets - Part 2",
+        "trader": "5a7c2eca46aef81a7ca2145d",
+        "location_id": "5714dc692459777137212e12",
+        "locationName": "Streets of Tarkov",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "65733403eefc2c312a759ddb",
+                "name": "Developer's Secrets - Part 1",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "6573382e557ff128bf3da537",
+                "type": "visit",
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "zoneKeys": [
+                    "Hookah_quest"
+                ]
+            },
+            {
+                "id": "65800413f41301adef3c9698",
+                "type": "extract",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "zoneNames": [],
+                "exitStatus": [
+                    "ExpBonusSurvived"
+                ],
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "5a7c2eca46aef81a7ca2145d",
+                    "name": "Mechanic",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 174000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5d1b327086f7742525194449",
+                    "item_name": "Pressure Gauge",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5d1b39a386f774252339976f",
+                    "item_name": "Silicone Tube",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 25400,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "6573397ef3f8344c4575cd87": {
+        "id": "6573397ef3f8344c4575cd87",
+        "name": "Properties All Around",
+        "trader": "54cb50c76803fa8b248b4571",
+        "location_id": "5714dc692459777137212e12",
+        "locationName": "Streets of Tarkov",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "64f5aac4b63b74469b6c14c2",
+                "name": "Glory to CPSU - Part 1",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "6573397ef3f8344c4575cd88",
+                "type": "visit",
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "zoneKeys": [
+                    "fond_quest"
+                ]
+            },
+            {
+                "id": "6581676e7a18ff402fd23e68",
+                "type": "findQuestItem",
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "item_id": "657acb2ac900be5902191ac9",
+                "item_name": "Cadastral Registry Records",
+                "count": 1
+            },
+            {
+                "id": "658167a0e53c40116f8632fa",
+                "type": "giveQuestItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "657acb2ac900be5902191ac9",
+                "item_name": "Cadastral Registry Records",
+                "count": 1
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "name": "Prapor",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 80000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "63986a38608a960125446db5",
+                    "item_name": "SR-2M \"Veresk\" 9x21 submachine gun Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "62e153bcdb1a5c41971c1b5b",
+                    "item_name": " SR-2M 9x21 30-round magazine",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "657025c4c5d7d4cb4d078582",
+                    "item_name": " 9x21mm PS gzh ammo pack (30 pcs)",
+                    "count": 4,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 11600,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "6573387d0b26ed4fde798de3": {
+        "id": "6573387d0b26ed4fde798de3",
+        "name": "Pets Won't Need It - Part 2",
+        "trader": "54cb57776803fa99248b456e",
+        "location_id": "5714dc692459777137212e12",
+        "locationName": "Streets of Tarkov",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "64f731ab83cfca080a361e42",
+                "name": "Pets Won't Need It - Part 1",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "6573387d0b26ed4fde798de4",
+                "type": "visit",
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "zoneKeys": [
+                    "Pharma_1"
+                ]
+            },
+            {
+                "id": "657338ded9b444e1fb07b1a8",
+                "type": "visit",
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "zoneKeys": [
+                    "Pharma_2"
+                ]
+            },
+            {
+                "id": "657338ed8e8e3a05445b760d",
+                "type": "visit",
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "zoneKeys": [
+                    "Pharma_3"
+                ]
+            },
+            {
+                "id": "658009db6b313a8a4ed58851",
+                "type": "extract",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "zoneNames": [],
+                "exitStatus": [
+                    "ExpBonusSurvived"
+                ],
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "54cb57776803fa99248b456e",
+                    "name": "Therapist",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 55000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5d1b3f2d86f774253763b735",
+                    "item_name": "Disposable Syringe",
+                    "count": 4,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5d1b3a5d86f774252167ba22",
+                    "item_name": "Pile of meds",
+                    "count": 4,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "544fb3f34bdc2d03748b456a",
+                    "item_name": "Morphine Injector",
+                    "count": 2,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5ed515e03a40a50460332579",
+                    "item_name": "L1 (Norepinephrine) Injector",
+                    "count": 2,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 9000,
+        "tarkovDataId": null,
+        "factionName": "Any"
     }
 }
