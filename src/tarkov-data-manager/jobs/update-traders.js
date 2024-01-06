@@ -59,6 +59,11 @@ class UpdateTradersJob extends DataJob {
                         hostileScavs: lvl.HostileScavs,
                         scavAttackSupport: lvl.ScavAttackSupport,
                         availableScavExtracts: lvl.AvailableExits,
+                        btrEnabled: lvl.CanInteractWithBtr,
+                        btrDeliveryDiscount: lvl.PriceModDelivery,
+                        btrDeliveryGridSize: lvl.DeliveryGridSize,
+                        btrTaxiDiscount: lvl.PriceModTaxi,
+                        btrCoveringFireDiscount: lvl.PriceModCleanUp,
                     });
                 }
                 traderData.reputationLevels.sort((a, b) => {
