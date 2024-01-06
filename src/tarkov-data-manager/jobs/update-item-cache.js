@@ -93,6 +93,15 @@ class UpdateItemCacheJob extends DataJob {
                 itemData[key].basePrice = this.presets[key].baseValue;
             } else if (this.credits[key]) {
                 itemData[key].basePrice = this.credits[key];
+                // add base value for built-in armor pieces
+                this.bsgItems[key]._props.Slots?.forEach(slot => {
+                    slot._props?.filters?.forEach(filter => {
+                        if (!filter.Plate || !filter.locked) {
+                            return;
+                        }
+                        itemData[key].basePrice += this.credits[filter.Plate];
+                    });
+                });
             }  else {
                 this.logger.warn(`Unknown base value for ${this.getTranslation(itemData[key].name)} ${key}`);
             }
