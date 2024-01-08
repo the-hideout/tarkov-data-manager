@@ -626,7 +626,7 @@ class UpdateQuestsJob extends DataJob {
             }
         } else {
             this.logger.warn('Could not match preset to reward');
-            this.logger.log(JSON.stringify(rewardData, null, 4));
+            this.logger.log(JSON.stringify(reward, null, 4));
         }
         return rewardData;
     }
