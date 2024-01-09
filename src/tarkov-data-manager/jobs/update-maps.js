@@ -436,7 +436,7 @@ class UpdateMapsJob extends DataJob {
         const containedParts = parts.filter(p => {
             return !p.attributes.some(a => a.value === 'cartridges');
         });
-        for (const preset of Object.values(this.presets)) {
+        for (const preset of Object.values(this.presets.presets)) {
             if (preset.baseId !== baseItemId) {
                 continue;
             }
@@ -570,7 +570,7 @@ class UpdateMapsJob extends DataJob {
                 const preset = this.matchEquipmentItemToPreset(equipmentItem);
                 if (preset) {
                     equipmentItem.item = preset.id;
-                    equipmentItem.item_name = preset.locale.en.name;
+                    equipmentItem.item_name = this.presets.locale.en[preset.name];
                     //add base item to preset
                     equipmentItem.contains.unshift({
                         item: id,

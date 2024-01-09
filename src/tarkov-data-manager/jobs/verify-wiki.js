@@ -11,7 +11,7 @@ class VerifyWikiJob extends DataJob {
     async run() {
         [this.items, this.presets] = await Promise.all([
             remoteData.get(),
-            this.jobManager.jobOutput('update-presets', this, true),
+            this.jobManager.jobOutput('update-presets', this),
         ]);
         let missingWikiLinkCount = 0;
         const promises = [];

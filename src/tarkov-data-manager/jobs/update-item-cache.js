@@ -35,6 +35,8 @@ class UpdateItemCacheJob extends DataJob {
         ]);
         this.traderData = await this.jobManager.jobOutput('update-traders', this);
         this.presets = await this.jobManager.jobOutput('update-presets', this, true);
+        this.presetsLocale = this.presets.locale;
+        this.presets = this.presets.presets;
         // make sure we don't include any disabled presets
         this.presets = Object.keys(this.presets).reduce((all, presetId) => {
             if (this.itemMap.has(presetId) && !this.itemMap.get(presetId).types.includes('disabled')) {
@@ -93,6 +95,15 @@ class UpdateItemCacheJob extends DataJob {
                 itemData[key].basePrice = this.presets[key].baseValue;
             } else if (this.credits[key]) {
                 itemData[key].basePrice = this.credits[key];
+                // add base value for built-in armor pieces
+                this.bsgItems[key]._props.Slots?.forEach(slot => {
+                    slot._props?.filters?.forEach(filter => {
+                        if (!filter.Plate || !filter.locked) {
+                            return;
+                        }
+                        itemData[key].basePrice += this.credits[filter.Plate];
+                    });
+                });
             }  else {
                 this.logger.warn(`Unknown base value for ${this.getTranslation(itemData[key].name)} ${key}`);
             }
@@ -222,6 +233,9 @@ class UpdateItemCacheJob extends DataJob {
                 itemTypesSet.add(itemType);
             });
         }
+
+        // merge preset translations
+        this.mergeTranslations(this.presetsLocale);
 
         // Add trader prices
         for (const id in itemData) {

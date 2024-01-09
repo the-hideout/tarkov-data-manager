@@ -16,7 +16,7 @@ class UpdateTraderPricesJob extends DataJob {
             this.jobManager.jobOutput('update-quests', this),
             this.jobManager.jobOutput('update-traders', this),
             this.jobManager.jobOutput('update-trader-assorts', this, true),
-            this.jobManager.jobOutput('update-presets', this, true),
+            this.jobManager.jobOutput('update-presets', this),
             remoteData.get(),
         ]);
         for (const traderId in this.traderAssorts) {

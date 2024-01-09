@@ -6,7 +6,6 @@ const { imageFunctions } = require('tarkov-dev-image-generator');
 const normalizeName = require('../modules/normalize-name');
 const { initPresetData, getPresetData } = require('../modules/preset-data');
 const tarkovData = require('../modules/tarkov-data');
-const { getTranslations, setLocales } = require('../modules/get-translation');
 const remoteData = require('../modules/remote-data');
 const { regenerateFromExisting } = require('../modules/image-create');
 const DataJob = require('../modules/data-job');
@@ -20,26 +19,26 @@ class UpdatePresetsJob extends DataJob {
 
     run = async () => {
         this.logger.log('Updating presets');
-        const [presets, items, locales, credits, localItems] = await Promise.all([
+        const [presets, items, credits, localItems] = await Promise.all([
             tarkovData.globals().then(glob => glob['ItemPresets']),
             tarkovData.items(),
-            tarkovData.locales(),
             tarkovData.credits(),
             remoteData.get(),
         ]);
 
-        setLocales(locales);
-
         initPresetData(items, credits);
 
-        const manualPresets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'manual_presets.json')));
+        JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'manual_presets.json'))).forEach(p => {
+            p._changeWeaponName = true;
+            presets[p._id] = p;
+        });
 
         this.presetsData = {};
+        this.kvData.presets = this.presetsData;
 
         const defaults = {};
 
         const ignorePresets = [
-            '5a32808386f774764a3226d9',
             '5a8c436686f7740f394d10b5' // Glock 17 Tac HC is duplicate of Tac 3 5a88ad7b86f77479aa7226af
         ];
         for (const presetId in presets) {
@@ -52,33 +51,65 @@ class UpdatePresetsJob extends DataJob {
             }
             const firstItem = {
                 id: baseItem._id,
-                name: locales.en[`${baseItem._id} Name`]
+                name: this.getTranslation([`${baseItem._id} Name`])
             };
             const presetData = {
                 id: presetId,
-                name: locales.en[`${baseItem._id} Name`],
-                shortName: locales.en[`${baseItem._id} ShortName`],
+                name: this.addTranslation(`${presetId} Name`, (lang, langCode) => {
+                    let baseName = lang[`${firstItem.id} Name`];
+                    if (!baseName && langCode !== 'en') {
+                        baseName = this.locales.en[`${firstItem.id} Name`];
+                    }
+                    if (!preset._changeWeaponName) {
+                        return baseName;
+                    }
+                    const append = preset.appendName || presetId;
+                    if (lang[append]) {
+                        return baseName + ' ' + lang[append];
+                    }
+                    if (langCode !== 'en'  && this.locales.en[append]) {
+                        return baseName + ' ' + this.locales.en[append];
+                    }
+                    return baseName;
+                }),
+                shortName: this.addTranslation(`${presetId} ShortName`, (lang, langCode) => {
+                    let baseName = lang[`${firstItem.id} ShortName`];
+                    if (!baseName && langCode !== 'en') {
+                        baseName = this.locales.en[`${firstItem.id} ShortName`];
+                    }
+                    if (!preset._changeWeaponName) {
+                        return baseName;
+                    }
+                    const append = preset.appendName || presetId;
+                    if (lang[append]) {
+                        return baseName + ' ' + lang[append];
+                    }
+                    if (langCode !== 'en'  && this.locales.en[append]) {
+                        return baseName + ' ' + this.locales.en[append];
+                    }
+                    return baseName;
+                }),
                 //description: en.templates[baseItem._id].Description,
                 normalized_name: false,
                 baseId: firstItem.id,
                 width: baseItem._props.Width,
                 height: baseItem._props.Height,
-                weight: baseItem._props.Weight,
+                weight: Math.round(baseItem._props.Weight * 100) / 100,
                 baseValue: credits[firstItem.id],
+                ergonomics: baseItem._props.Ergonomics,
+                verticalRecoil: baseItem._props.RecoilForceUp,
+                horizontalRecoil: baseItem._props.RecoilForceBack,
                 backgroundColor: baseItem._props.BackgroundColor,
                 bsgCategoryId: baseItem._parent,
                 types: ['preset'],
-                default: true,
+                default: preset._encyclopedia === firstItem.id,
+                _items: preset._items,
                 containsItems: [{
                     item: firstItem,
                     count: 1
                 }],
                 armorOnly: true,
                 noFlea: !items[baseItem._id]._props.CanSellOnRagfair,
-                locale: getTranslations({
-                    name: `${baseItem._id} Name`,
-                    shortName: `${baseItem._id} ShortName`
-                }, this.logger),
             }
 
             // add parts to preset
@@ -99,7 +130,7 @@ class UpdatePresetsJob extends DataJob {
                 const partData = {
                     item: {
                         id: part._tpl,
-                        name: locales.en[`${part._tpl} Name`],
+                        name: this.getTranslation([`${part._tpl} Name`]),
                     },
                     count: 1
                 };
@@ -114,30 +145,14 @@ class UpdatePresetsJob extends DataJob {
                 }
             }
             if (presetData.containsItems.length === 1) {
-                this.logger.log(`Skipping empty preset for ${presetData.locale.en.name}`);
+                this.logger.log(`Skipping empty preset for ${this.getTranslation(presetData.name)}`);
                 const dbItem = localItems.get(presetId);
                 if (dbItem && !dbItem.types.includes('disabled')) {
                     await remoteData.addType(presetId, 'disabled');
                 }
                 continue;
             }
-            presetData.weight = Math.round(presetData.weight * 100) / 100;
-            if (preset._changeWeaponName && locales.en[presetId]) {
-                presetData.name += ' '+locales.en[presetId];
-                presetData.shortName += ' '+locales.en[presetId];
-                presetData.locale = getTranslations({
-                    name: (lang) => {
-                        return lang[`${firstItem.id} Name`] + ' ' + lang[presetId];
-                    },
-                    shortName: (lang) => {
-                        return lang[`${firstItem.id} ShortName`] + ' ' + lang[presetId];
-                    }
-                }, this.logger);
-            }
-            if (preset._encyclopedia !== presetData.baseId) {
-                presetData.default = false;
-            }
-            presetData.normalized_name = normalizeName(presetData.name);
+            presetData.normalized_name = normalizeName(this.getTranslation(presetData.name));
             this.validateNormalizedName(presetData);
             let itemPresetData = await getPresetData(presetData, this.logger);
             if (itemPresetData) {
@@ -149,58 +164,17 @@ class UpdatePresetsJob extends DataJob {
                 presetData.verticalRecoil = itemPresetData.verticalRecoil;
                 presetData.horizontalRecoil = itemPresetData.horizontalRecoil;
                 presetData.moa = itemPresetData.moa;
-            }
+            } 
             this.presetsData[presetId] = presetData;
             if (presetData.default && !defaults[firstItem.id]) {
                 defaults[firstItem.id] = presetData;
             } else if (presetData.default) {
-                existingDefault = defaults[firstItem.id];
+                const existingDefault = defaults[firstItem.id];
                 this.logger.warn(`Preset ${presetData.name} ${presetId} cannot replace ${existingDefault.name} ${existingDefault.id} as default preset`);
             }
-            this.logger.succeed(`Completed ${presetData.name} preset (${presetData.containsItems.length+1} parts)`);
+            this.logger.succeed(`Completed ${this.getTranslation(presetData.name)} preset (${presetData.containsItems.length} parts)`);
         }
-        // add manual presets
-        for (const presetData of manualPresets) {
-            const baseItem = items[presetData.baseId];
-            presetData.backgroundColor = baseItem._props.BackgroundColor;
-            presetData.bsgCategoryId = baseItem._parent;
-            presetData.types = ['preset'];
 
-            let itemPresetData = await getPresetData(presetData, this.logger);
-            if (itemPresetData) {
-                presetData.width = itemPresetData.width;
-                presetData.height = itemPresetData.height;
-                presetData.weight = itemPresetData.weight;
-                presetData.baseValue = itemPresetData.baseValue;
-                presetData.ergonomics = itemPresetData.ergonomics;
-                presetData.verticalRecoil = itemPresetData.verticalRecoil;
-                presetData.horizontalRecoil = itemPresetData.horizontalRecoil;
-            } else {
-                presetData.width = baseItem._props.Width;
-                presetData.height = baseItem._props.Height;
-                presetData.weight = baseItem._props.Weight;
-                presetData.baseValue = credits[baseItem._id];
-                presetData.ergonomics = baseItem._props.Ergonomics;
-                presetData.verticalRecoil = baseItem._props.RecoilForceUp;
-                presetData.horizontalRecoil = baseItem._props.RecoilForceBack;
-            }
-
-            presetData.locale = getTranslations({
-                name: (lang) => {
-                    return lang[`${baseItem._id} Name`] + ' ' + (lang[presetData.appendName] || locales.en[presetData.appendName]);
-                },
-                shortName: (lang) => {
-                    return lang[`${baseItem._id} ShortName`] + ' ' + (lang[presetData.appendName] || locales.en[presetData.appendName]);
-                }
-            }, this.logger);
-            presetData.name = presetData.locale.en.name;
-            presetData.shortName = presetData.locale.en.shortName;
-            presetData.normalized_name = normalizeName(presetData.name);
-            this.validateNormalizedName(presetData);
-            delete presetData.appendName;
-            this.presetsData[presetData.id] = presetData;
-            this.logger.succeed(`Completed ${presetData.name} manual preset (${presetData.containsItems.length} parts)`);
-        }
         // add dog tag preset
         const bearTag = items['59f32bb586f774757e1e8442'];
         const getDogTagName = lang => {
@@ -210,10 +184,12 @@ class UpdatePresetsJob extends DataJob {
         };
         this.presetsData['customdogtags12345678910'] = {
             id: 'customdogtags12345678910',
-            name: getDogTagName(locales.en),
-            shortName: getDogTagName(locales.en),
+            name: this.addTranslation('customdogtags12345678910 Name', getDogTagName),
+            shortName: this.addTranslation('customdogtags12345678910 ShortName', getDogTagName),
+            //name: getDogTagName(this.locales.en),
+            //shortName: getDogTagName(this.locales.en),
             //description: en.templates[baseItem._id].Description,
-            normalized_name: normalizeName(getDogTagName(locales.en)),
+            normalized_name: normalizeName(this.getTranslation('customdogtags12345678910 Name')),
             baseId: bearTag._id,
             width: bearTag._props.Width,
             height: bearTag._props.Height,
@@ -237,7 +213,6 @@ class UpdatePresetsJob extends DataJob {
                     count: 1
                 }
             ],
-            locale: getTranslations({name: getDogTagName, shortName: getDogTagName}, this.logger)
         };
 
         // check for missing default presets
@@ -275,25 +250,22 @@ class UpdatePresetsJob extends DataJob {
                 continue;
             }
             const baseName = preset.containsItems.find(contained => contained.item.id === preset.baseId).item.name;
-            if (baseName !== preset.name) {
+            if (baseName !== this.getTranslation(preset.name)) {
                 continue;
             }
-            preset.name = preset.name + ' ' + locales.en.Default;
-            preset.normalized_name = normalizeName(preset.name);
-            preset.locale = getTranslations({
-                name: (lang, langCode) => {
-                    if (langCode !== 'en' && (!lang[`${preset.id} Name`] || !lang.Default)) {
-                        lang = this.locales.en;
-                    }
-                    return lang[`${preset.baseId} Name`] + ' ' + lang.Default;
-                },
-                shortName: (lang, langCode) => {
-                    if (langCode !== 'en' && (!lang[`${preset.id} ShortName`] || !lang.Default)) {
-                        lang = this.locales.en;
-                    }
-                    return lang[`${preset.baseId} ShortName`] + ' ' + lang.Default;
+            preset.name = this.addTranslation(`${presetId} Name`, (lang, langCode) => {
+                if (langCode !== 'en' && (!lang[`${preset.baseId} Name`] || !lang.Default)) {
+                    lang = this.locales.en;
                 }
-            }, this.logger);
+                return lang[`${preset.baseId} Name`] + ' ' + lang.Default;
+            });
+            preset.shortName = this.addTranslation(`${presetId} ShortName`, (lang, langCode) => {
+                if (langCode !== 'en' && (!lang[`${preset.baseId} ShortName`] || !lang.Default)) {
+                    lang = this.locales.en;
+                }
+                return lang[`${preset.baseId} ShortName`] + ' ' + lang.Default;
+            })
+            preset.normalized_name = normalizeName(this.getTranslation(preset.name));
         }
 
         const queries = [];
@@ -328,8 +300,8 @@ class UpdatePresetsJob extends DataJob {
             const p = this.presetsData[presetId];
             queries.push(remoteData.addItem({
                 id: p.id,
-                name: p.name,
-                short_name: p.shortName,
+                name: this.getTranslation(p.name),
+                short_name: this.getTranslation(p.shortName),
                 normalized_name: p.normalized_name,
                 width: p.width,
                 height: p.height,
@@ -419,9 +391,18 @@ class UpdatePresetsJob extends DataJob {
             return all;
         }, {});
 
-        fs.writeFileSync(path.join(__dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(this.presetsData, null, 4));
+        for (const langCode in this.kvData.locale) {
+            for (const key in this.kvData.locale[langCode]) {
+                if (!Object.values(this.presetsData).some(preset => preset.name === key || preset.shortName === key)) {
+                    this.removeTranslation(key);
+                }
+            }
+        }
+
+        await this.fillTranslations();
+        fs.writeFileSync(path.join(__dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(this.kvData, null, 4));
         await Promise.allSettled(queries);
-        return this.presetsData;
+        return this.kvData;
     }
 
     validateNormalizedName = (preset, attempt = 1) => {

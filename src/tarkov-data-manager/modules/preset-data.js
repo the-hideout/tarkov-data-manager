@@ -70,6 +70,16 @@ const getPresetData = async (item, logger = false) => {
         if (!isNaN(part._props.CenterOfImpact)) {
             centerOfImpact += parseFloat(part._props.CenterOfImpact);
         }
+
+        // add base value for built-in armor pieces
+        part._props.Slots?.forEach(slot => {
+            slot._props?.filters?.forEach(filter => {
+                if (!filter.Plate || !filter.locked) {
+                    return;
+                }
+                baseValue += credits[filter.Plate];
+            });
+        });
     }
 
     const getBarrelDeviation = (durability = 100.0) => {

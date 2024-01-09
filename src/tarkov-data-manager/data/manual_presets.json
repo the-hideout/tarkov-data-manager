@@ -1,1418 +1,1369 @@
 [
     {
-        "id": "mosinscopedbarter0000001",
-        "appendName": "5b3f7c1c5acfc40dc5296b1d ShortName",
-        "baseId": "5ae08f0a5acfc408fb1398a1",
-        "default": false,
-        "containsItems": [
-            {
-                "item": {
-                    "id": "5ae08f0a5acfc408fb1398a1",
-                    "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5ae0973a5acfc4001562206c",
-                    "name": "Mosin Rifle 7.62x54R 5-round magazine"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5ae096d95acfc400185c2c81",
-                    "name": "Mosin Rifle standard stock"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5ae09bff5acfc4001562219d",
-                    "name": "Mosin Rifle 7.62x54R 730mm regular barrel"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5ae099875acfc4001714e593",
-                    "name": "Mosin Rifle front sight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5ae099925acfc4001a5fc7b3",
-                    "name": "Mosin Rifle rear sight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b3f7bf05acfc433000ecf6b",
-                    "name": "Mosin Rifle Kochetov mount"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b3f7c005acfc4704b4a1de8",
-                    "name": "PU 3.5x ring scope mount"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b3f7c1c5acfc40dc5296b1d",
-                    "name": "PU 3.5x riflescope"
-                },
-                "count": 1
-            }
-        ]
-    },
-    {
-        "id": "glock17ps900000000000001",
-        "appendName": "PS9",
-        "baseId": "5a7ae0c351dfba0017554310",
-        "default": false,
-        "containsItems": [
-            {
-                "item": {
-                    "id": "5a7ae0c351dfba0017554310",
-                    "name": "Glock 17 9x19 pistol"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5a6b5e468dc32e001207faf5",
-                    "name": "Glock 9x19 Double Diamond threaded barrel"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5a7afa25e899ef00135e31b0",
-                    "name": "Glock Polymer80 PS9 pistol slide"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5a7ad55551dfba0015068f42",
-                    "name": "Glock Aimtech Tiger Shark sight mount"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5a70366c8dc32e001207fb06",
-                    "name": "Glock 9x19 Double Diamond flash hider"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5a33b2c9c4a282000c5a9511",
-                    "name": "Trijicon RMR low profile mount"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5a32aa8bc4a2826c6e06d737",
-                    "name": "Trijicon RMR reflex sight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5a6f5d528dc32e00094b97d9",
-                    "name": "Glock rear sight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5a6f58f68dc32e000a311390",
-                    "name": "Glock front sight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5a718b548dc32e000d46d262",
-                    "name": "Glock 9x19 17-round magazine"
-                },
-                "count": 1
-            }
-        ]
-    },
-    {
-        "id": "rpk16drum000000000000001",
-        "appendName": "Drum",
-        "baseId": "5beed0f50db834001c062b12",
-        "default": false,
-        "containsItems": [
-            {
-                "item": {
-                    "id": "5beed0f50db834001c062b12",
-                    "name": "RPK-16 5.45x39 light machine gun"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beec8ea0db834001a6f9dbf",
-                    "name": "AK-12 pistol grip"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beec91a0db834001961942d",
-                    "name": "RPK-16 dust cover"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beec9450db83400970084fd",
-                    "name": "RPK-16 rear sight base"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5bf3f59f0db834001a6fa060",
-                    "name": "RPK-16 rear sight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beec8b20db834001961942a",
-                    "name": "RPK-16 buffer tube"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beec8c20db834001d2c465c",
-                    "name": "AK-12 stock"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beec3e30db8340019619424",
-                    "name": "RPK-16 handguard"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beecbb80db834001d2c465e",
-                    "name": "RPK-16 handguard rail"
-                },
-                "count": 2
-            },
-            {
-                "item": {
-                    "id": "5beec1bd0db834001e6006f3",
-                    "name": "RPK-16 5.45x39 15 inch barrel"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beec3420db834001b095429",
-                    "name": "RPK-16 5.45x39 muzzle brake-compensator"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5bed625c0db834001c062946",
-                    "name": "RPK-16 5.45x39 95-round drum magazine"
-                },
-                "count": 1
-            }
-        ]
-    },
-    {
-        "id": "rpk166L26000000000000001",
-        "appendName": "55d481904bdc2d8c2f8b456a ShortName",
-        "baseId": "5beed0f50db834001c062b12",
-        "default": false,
-        "containsItems": [
-            {
-                "item": {
-                    "id": "5beed0f50db834001c062b12",
-                    "name": "RPK-16 5.45x39 light machine gun"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beec8ea0db834001a6f9dbf",
-                    "name": "AK-12 pistol grip"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beec91a0db834001961942d",
-                    "name": "RPK-16 dust cover"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beec9450db83400970084fd",
-                    "name": "RPK-16 rear sight base"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5bf3f59f0db834001a6fa060",
-                    "name": "RPK-16 rear sight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beec8b20db834001961942a",
-                    "name": "RPK-16 buffer tube"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beec8c20db834001d2c465c",
-                    "name": "AK-12 stock"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beec3e30db8340019619424",
-                    "name": "RPK-16 handguard"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beecbb80db834001d2c465e",
-                    "name": "RPK-16 handguard rail"
-                },
-                "count": 2
-            },
-            {
-                "item": {
-                    "id": "5beec2820db834001b095426",
-                    "name": "RPK-16 5.45x39 22 inch barrel"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beec3420db834001b095429",
-                    "name": "RPK-16 5.45x39 muzzle brake-compensator"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "55d481904bdc2d8c2f8b456a",
-                    "name": "AK-74 5.45x39 6L26 45-round magazine"
-                },
-                "count": 1
-            }
-        ]
-    },
-    {
-        "id": "ash12silenced00000000001",
+        "_id": "ak12sd000000000000000001",
         "appendName": "58dffd4586f77408a27629b2",
-        "baseId": "5cadfbf7ae92152ac412eeef",
-        "default": false,
-        "containsItems": [
+        "_items": [
             {
-                "item": {
-                    "id": "5cadfbf7ae92152ac412eeef",
-                    "name": "ASh-12 12.7x55 assault rifle"
-                },
-                "count": 1
+                "_id": "658d5e7783b5f011ca09c98e",
+                "_tpl": "6499849fc93611967b034949"
             },
             {
-                "item": {
-                    "id": "5caf187cae92157c28402e43",
-                    "name": "ASh-12 12.7x55 sound suppressor"
-                },
-                "count": 1
+                "_id": "658d5e7783b5f011ca09c98f",
+                "_tpl": "649ec107961514b22506b10c",
+                "parentId": "658d5e7783b5f011ca09c98e",
+                "slotId": "mod_gas_block"
             },
             {
-                "item": {
-                    "id": "5caf1041ae92157c28402e3f",
-                    "name": "ASh-12 12.7x55 10-round magazine"
-                },
-                "count": 1
+                "_id": "658d5e7783b5f011ca09c990",
+                "_tpl": "5649ae4a4bdc2d1b2b8b4588",
+                "parentId": "658d5e7783b5f011ca09c98e",
+                "slotId": "mod_pistol_grip"
             },
             {
-                "item": {
-                    "id": "5caf16a2ae92152ac412efbc",
-                    "name": "ASh-12 folding front sight"
-                },
-                "count": 1
+                "_id": "658d5e7783b5f011ca09c991",
+                "_tpl": "649ec127c93611967b034957",
+                "parentId": "658d5e7783b5f011ca09c98e",
+                "slotId": "mod_handguard"
             },
             {
-                "item": {
-                    "id": "5cdaa99dd7f00c002412d0b2",
-                    "name": "ASh-12 polymer handguard"
-                },
-                "count": 1
+                "_id": "658d5e7783b5f011ca09c992",
+                "_tpl": "5beecbb80db834001d2c465e",
+                "parentId": "658d5e7783b5f011ca09c991",
+                "slotId": "mod_mount_001"
             },
             {
-                "item": {
-                    "id": "5caf1691ae92152ac412efb9",
-                    "name": "ASh-12 rear sight carry handle"
-                },
-                "count": 1
+                "_id": "658d5e7783b5f011ca09c993",
+                "_tpl": "5c5952732e2216398b5abda2",
+                "parentId": "658d5e7783b5f011ca09c992",
+                "slotId": "mod_tactical_000"
+            },
+            {
+                "_id": "658d5e7783b5f011ca09c994",
+                "_tpl": "5c1bc4812e22164bef5cfde7",
+                "parentId": "658d5e7783b5f011ca09c991",
+                "slotId": "mod_foregrip"
+            },
+            {
+                "_id": "658d5e7783b5f011ca09c995",
+                "_tpl": "64c196ad26a15b84aa07132f",
+                "parentId": "658d5e7783b5f011ca09c98e",
+                "slotId": "mod_muzzle"
+            },
+            {
+                "_id": "658d5e7783b5f011ca09c996",
+                "_tpl": "649ec2f3961514b22506b111",
+                "parentId": "658d5e7783b5f011ca09c98e",
+                "slotId": "mod_reciever"
+            },
+            {
+                "_id": "658d5e7783b5f011ca09c997",
+                "_tpl": "609a63b6e2ff132951242d09",
+                "parentId": "658d5e7783b5f011ca09c996",
+                "slotId": "mod_scope"
+            },
+            {
+                "_id": "658d5e7783b5f011ca09c998",
+                "_tpl": "649ec87d8007560a9001ab36",
+                "parentId": "658d5e7783b5f011ca09c98e",
+                "slotId": "mod_stock_001"
+            },
+            {
+                "_id": "658d5e7783b5f011ca09c999",
+                "_tpl": "5beec8c20db834001d2c465c",
+                "parentId": "658d5e7783b5f011ca09c998",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "658d5e7783b5f011ca09c99a",
+                "_tpl": "649ec30cb013f04a700e60fb",
+                "parentId": "658d5e7783b5f011ca09c98e",
+                "slotId": "mod_magazine"
+            },
+            {
+                "_id": "658d5e7783b5f011ca09c99b",
+                "_tpl": "5648ac824bdc2ded0b8b457d",
+                "parentId": "658d5e7783b5f011ca09c98e",
+                "slotId": "mod_charge"
             }
         ]
     },
     {
-        "id": "sksintrafuse000000000001",
-        "appendName": "5afd7ded5acfc40017541f5e ShortName",
-        "baseId": "574d967124597745970e7c94",
-        "default": false,
-        "containsItems": [
+        "_id": "ash12silenced00000000001",
+        "appendName": "58dffd4586f77408a27629b2",
+        "_items": [
             {
-                "item": {
-                    "id": "574d967124597745970e7c94",
-                    "name": "Simonov SKS 7.62x39 carbine"
-                },
-                "count": 1
+                "_id": "658d5e7283b5f011ca09c76a",
+                "_tpl": "5cadfbf7ae92152ac412eeef"
             },
             {
-                "item": {
-                    "id": "5afd7ded5acfc40017541f5e",
-                    "name": "SKS TAPCO Intrafuse stock"
-                },
-                "count": 1
+                "_id": "658d5e7283b5f011ca09c76b",
+                "_tpl": "5caf187cae92157c28402e43",
+                "parentId": "658d5e7283b5f011ca09c76a",
+                "slotId": "mod_muzzle"
             },
             {
-                "item": {
-                    "id": "574db213245977459a2f3f5d",
-                    "name": "SKS rear sight"
-                },
-                "count": 1
+                "_id": "658d5e7283b5f011ca09c76c",
+                "_tpl": "5caf1041ae92157c28402e3f",
+                "parentId": "658d5e7283b5f011ca09c76a",
+                "slotId": "mod_magazine"
             },
             {
-                "item": {
-                    "id": "587df583245977373c4f1129",
-                    "name": "SKS 7.62x39 ProMag SKS-A5 20-round magazine"
-                },
-                "count": 1
+                "_id": "658d5e7283b5f011ca09c76d",
+                "_tpl": "5caf16a2ae92152ac412efbc",
+                "parentId": "658d5e7283b5f011ca09c76a",
+                "slotId": "mod_sight_front"
             },
             {
-                "item": {
-                    "id": "5afd7e095acfc40017541f61",
-                    "name": "SKS TAPCO Intrafuse buffer tube"
-                },
-                "count": 1
+                "_id": "658d5e7283b5f011ca09c76e",
+                "_tpl": "5cdaa99dd7f00c002412d0b2",
+                "parentId": "658d5e7283b5f011ca09c76a",
+                "slotId": "mod_handguard"
             },
             {
-                "item": {
-                    "id": "5afd7e445acfc4001637e35a",
-                    "name": "SKS TAPCO Intrafuse kit SAW-Style pistol grip"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "55d4ae6c4bdc2d8b2f8b456e",
-                    "name": "High Standard M4SS Stock"
-                },
-                "count": 1
+                "_id": "658d5e7283b5f011ca09c76f",
+                "_tpl": "5caf1691ae92152ac412efb9",
+                "parentId": "658d5e7283b5f011ca09c76a",
+                "slotId": "mod_scope"
             }
         ]
     },
     {
-        "id": "opsksuas0000000000000001",
-        "appendName": "UAS",
-        "baseId": "587e02ff24597743df3deaeb",
-        "default": false,
-        "containsItems": [
-            {
-                "item": {
-                    "id": "587e02ff24597743df3deaeb",
-                    "name": "Simonov OP-SKS 7.62x39 carbine (Hunting Rifle Version)"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5d0236dad7ad1a0940739d29",
-                    "name": "SKS FAB Defense UAS stock"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "574db213245977459a2f3f5d",
-                    "name": "SKS rear sight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "587df3a12459772c28142567",
-                    "name": "SKS 7.62x39 10-round internal box magazine"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "587e08ee245977446b4410cf",
-                    "name": "OP-SKS dovetail mount"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5d023784d7ad1a049d4aa7f2",
-                    "name": "SKS/VZ-58 FAB Defense AG-58 pistol grip"
-                },
-                "count": 1
-            }
-        ]
-    },
-    {
-        "id": "sa58spr00000000000000001",
-        "appendName": "SPR",
-        "baseId": "5b0bbe4e5acfc40dc528a72d",
-        "default": false,
-        "containsItems": [
-            {
-                "item": {
-                    "id": "5b0bbe4e5acfc40dc528a72d",
-                    "name": "DS Arms SA-58 7.62x51 assault rifle"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b099b965acfc400186331e6",
-                    "name": "SA-58 SAW-style pistol grip (Black)"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b7c2d1d5acfc43d1028532a",
-                    "name": "SA-58/FAL 7.62x51 MMW polymer 20-round magazine"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b7bedd75acfc43d825283f9",
-                    "name": "SA-58/FAL Vltor CASV-FAL handguard"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b7be1265acfc400161d0798",
-                    "name": "SA-58 7.62x51 21 inch barrel"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b0bc22d5acfc47a8607f085",
-                    "name": "SA-58 Holland Type rear sight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b099bb25acfc400186331e8",
-                    "name": "SA-58 Extreme Duty dust cover"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b7d63de5acfc400170e2f8d",
-                    "name": "SA-58 SPR stock"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b7be46e5acfc400170e2dcf",
-                    "name": "Vltor CASV 5 inch rail"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b099b7d5acfc400186331e4",
-                    "name": "SA-58 3-Prong Trident 7.62x51 flash hider"
-                },
-                "count": 1
-            }
-        ]
-    },
-    {
-        "id": "m4a1sopmodiiflash0000001",
-        "appendName": "SOPMOD II Flash",
-        "baseId": "5447a9cd4bdc2dbd208b4567",
-        "default": false,
-        "containsItems": [
-            {
-                "item": {
-                    "id": "5447a9cd4bdc2dbd208b4567",
-                    "name": "Colt M4A1 5.56x45 assault rifle"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "571659bb2459771fb2755a12",
-                    "name": "AR-15 Damage Industries ECS pistol grip (FDE)"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "55802d5f4bdc2dac148b458e",
-                    "name": "5.56x45 Magpul PMAG 30 GEN M3 W STANAG 30-round magazine"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "54527a984bdc2d4e668b4567",
-                    "name": "5.56x45mm M855"
-                },
-                "count": 30
-            },
-            {
-                "item": {
-                    "id": "55d355e64bdc2d962f8b4569",
-                    "name": "M4A1 5.56x45 upper receiver"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "57aca93d2459771f2c7e26db",
-                    "name": "ELCAN SpecterDR 1x/4x scope (FDE)"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "55d35ee94bdc2d61338b4568",
-                    "name": "AR-15 5.56x45 260mm barrel"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "56ea8180d2720bf2698b456a",
-                    "name": "AR-15 KAC QDC 5.56x45 Flash Suppressor Kit"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "57da93632459771cb65bf83f",
-                    "name": "KAC QDSS NT-4 5.56x45 sound suppressor (Black)"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "56eabcd4d2720b66698b4574",
-                    "name": "AR-15 Daniel Defense MK12 Low Profile Gas Block"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "55f84c3c4bdc2d5f408b4576",
-                    "name": "AR-15 Daniel Defense RIS II 9.5 handguard (Coyote Brown)"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5649a2464bdc2d91118b45a8",
-                    "name": "NcSTAR MPR45 Backup mount"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "58d39d3d86f77445bb794ae7",
-                    "name": "Aimpoint Micro Standard Mount"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "58d399e486f77442e0016fe7",
-                    "name": "Aimpoint Micro T-1 reflex sight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "57d17e212459775a1179a0f5",
-                    "name": "Kiba Arms 25mm accessory ring mount"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "57d17c5e2459775a5c57d17d",
-                    "name": "Ultrafire WF-501B flashlight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "544909bb4bdc2d6f028b4577",
-                    "name": "AN/PEQ-15 tactical device"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "638f1ff84822287cad04be9d",
-                    "name": "AR-15 Daniel Defense RIS II 9.5 lower handguard (Coyote Brown)"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "58c157be86f77403c74b2bb6",
-                    "name": "TangoDown Stubby BGV-MK46K foregrip (FDE)"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5649be884bdc2d79388b4577",
-                    "name": "Colt Carbine buffer tube"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "58d2946386f774496974c37e",
-                    "name": "Magpul MOE Carbine stock (FDE)"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "58d2912286f7744e27117493",
-                    "name": "Magpul MOE Carbine rubber buttpad"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "56ea7165d2720b6e518b4583",
-                    "name": "AR-15 Badger Ordnance Tactical Charging Handle Latch"
-                },
-                "count": 1
-            }
-        ]
-    },
-    {
-        "id": "sa58xfal0000000000000001",
-        "appendName": "5b7bef9c5acfc43d102852ec ShortName",
-        "baseId": "5b0bbe4e5acfc40dc528a72d",
-        "default": false,
-        "containsItems": [
-            {
-                "item": {
-                    "id": "5b0bbe4e5acfc40dc528a72d",
-                    "name": "DS Arms SA-58 7.62x51 assault rifle"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b7d679f5acfc4001a5c4024",
-                    "name": "SA-58 FAB Defense AG-FAL pistol grip"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b7bef9c5acfc43d102852ec",
-                    "name": "SA-58/FAL 7.62x51 X Products X-FAL 50-round drum magazine"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b7bee755acfc400196d5383",
-                    "name": "SA-58/FAL Vltor CASV-FAS handguard"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b7be46e5acfc400170e2dcf",
-                    "name": "Vltor CASV 5 inch rail"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "59fc48e086f77463b1118392",
-                    "name": "Magpul RVG foregrip (Black)"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b7be4645acfc400170e2dcc",
-                    "name": "Vltor CASV 4 inch rail"
-                },
-                "count": 2
-            },
-            {
-                "item": {
-                    "id": "5b099a765acfc47a8607efe3",
-                    "name": "SA-58 7.62x51 11 inch barrel"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b7d693d5acfc43bca706a3d",
-                    "name": "AR-10 2A Armanent X3 7.62x51 compensator"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b0bc22d5acfc47a8607f085",
-                    "name": "SA-58 Holland Type rear sight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b099bb25acfc400186331e8",
-                    "name": "SA-58 Extreme Duty dust cover"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5b7d64555acfc4001876c8e2",
-                    "name": "SA-58 BRS stock"
-                },
-                "count": 1
-            }
-        ]
-    },
-    {
-        "id": "vssvintorezstripped00001",
+        "_id": "fnfivesevenfdenosights01",
         "appendName": "Stripped",
-        "baseId": "57838ad32459774a17445cd2",
-        "default": false,
-        "containsItems": [
+        "_items": [
             {
-                "item": {
-                    "id": "57838ad32459774a17445cd2",
-                    "name": "VSS Vintorez 9x39 special sniper rifle"
-                },
-                "count": 1
+                "_id": "658d5e6883b5f011ca09c35e",
+                "_tpl": "5d67abc1a4b93614ec50137f"
             },
             {
-                "item": {
-                    "id": "57838c962459774a1651ec63",
-                    "name": "VSS 9x39 integral barrel-suppressor"
-                },
-                "count": 1
+                "_id": "658d5e6883b5f011ca09c35f",
+                "_tpl": "5d3eb5b6a4b9361eab311902",
+                "parentId": "658d5e6883b5f011ca09c35e",
+                "slotId": "mod_barrel"
             },
             {
-                "item": {
-                    "id": "578395e82459774a0e553c7b",
-                    "name": "VSS wooden stock"
-                },
-                "count": 1
+                "_id": "658d5e6883b5f011ca09c360",
+                "_tpl": "5d3eb44aa4b93650d64e4979",
+                "parentId": "658d5e6883b5f011ca09c35e",
+                "slotId": "mod_reciever"
+            },
+            {
+                "_id": "658d5e6883b5f011ca09c361",
+                "_tpl": "5d3eb5eca4b9363b1f22f8e4",
+                "parentId": "658d5e6883b5f011ca09c35e",
+                "slotId": "mod_magazine"
             }
         ]
     },
     {
-        "id": "mosinsniperatacr00000001",
-        "appendName": "5aa66be6e5b5b0214e506e97 ShortName",
-        "baseId": "5ae08f0a5acfc408fb1398a1",
-        "default": false,
-        "containsItems": [
+        "_id": "glock17ps900000000000001",
+        "appendName": "PS9",
+        "_items": [
             {
-                "item": {
-                    "id": "5ae08f0a5acfc408fb1398a1",
-                    "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
-                },
-                "count": 1
+                "_id": "658d5e4283b5f011ca09b30f",
+                "_tpl": "5a7ae0c351dfba0017554310"
             },
             {
-                "item": {
-                    "id": "5bae13ded4351e44f824bf38",
-                    "name": "Mosin Rifle 7.62x54R ProMag Archangel OPFOR 10-round magazine"
-                },
-                "count": 1
+                "_id": "658d5e4283b5f011ca09b310",
+                "_tpl": "5a6b5e468dc32e001207faf5",
+                "parentId": "658d5e4283b5f011ca09b30f",
+                "slotId": "mod_barrel"
             },
             {
-                "item": {
-                    "id": "5bae13bad4351e00320204af",
-                    "name": "Mosin Rifle ProMag Archangel OPFOR PRS stock"
-                },
-                "count": 1
+                "_id": "658d5e4283b5f011ca09b311",
+                "_tpl": "5a70366c8dc32e001207fb06",
+                "parentId": "658d5e4283b5f011ca09b310",
+                "slotId": "mod_muzzle"
             },
             {
-                "item": {
-                    "id": "5ae09bff5acfc4001562219d",
-                    "name": "Mosin Rifle 7.62x54R 730mm regular barrel"
-                },
-                "count": 1
+                "_id": "658d5e4283b5f011ca09b312",
+                "_tpl": "5a7afa25e899ef00135e31b0",
+                "parentId": "658d5e4283b5f011ca09b30f",
+                "slotId": "mod_reciever"
             },
             {
-                "item": {
-                    "id": "5ae099875acfc4001714e593",
-                    "name": "Mosin Rifle front sight"
-                },
-                "count": 1
+                "_id": "658d5e4283b5f011ca09b313",
+                "_tpl": "5a6f5d528dc32e00094b97d9",
+                "parentId": "658d5e4283b5f011ca09b312",
+                "slotId": "mod_sight_rear"
             },
             {
-                "item": {
-                    "id": "5bbdb811d4351e45020113c7",
-                    "name": "Mosin Rifle AIM Sports Tri-Rail mount"
-                },
-                "count": 1
+                "_id": "658d5e4283b5f011ca09b314",
+                "_tpl": "5a6f58f68dc32e000a311390",
+                "parentId": "658d5e4283b5f011ca09b312",
+                "slotId": "mod_sight_front"
             },
             {
-                "item": {
-                    "id": "5aa66a9be5b5b0214e506e89",
-                    "name": "Nightforce Magmount 34mm ring scope mount"
-                },
-                "count": 1
+                "_id": "658d5e4283b5f011ca09b315",
+                "_tpl": "5a718b548dc32e000d46d262",
+                "parentId": "658d5e4283b5f011ca09b30f",
+                "slotId": "mod_magazine"
             },
             {
-                "item": {
-                    "id": "5aa66be6e5b5b0214e506e97",
-                    "name": "Nightforce ATACR 7-35x56 34mm riflescope"
-                },
-                "count": 1
+                "_id": "658d5e4283b5f011ca09b316",
+                "_tpl": "5a7ad55551dfba0015068f42",
+                "parentId": "658d5e4283b5f011ca09b30f",
+                "slotId": "mod_mount"
             },
             {
-                "item": {
-                    "id": "5b86a0e586f7745b600ccb23",
-                    "name": "Mosin Rifle Bramit 7.62x54R sound suppressor"
-                },
-                "count": 1
+                "_id": "658d5e4283b5f011ca09b317",
+                "_tpl": "5a33b2c9c4a282000c5a9511",
+                "parentId": "658d5e4283b5f011ca09b316",
+                "slotId": "mod_scope"
+            },
+            {
+                "_id": "658d5e4283b5f011ca09b318",
+                "_tpl": "5a32aa8bc4a2826c6e06d737",
+                "parentId": "658d5e4283b5f011ca09b317",
+                "slotId": "mod_scope"
             }
         ]
     },
     {
-        "id": "m4a1kacrisii000000000001",
-        "appendName": "55d459824bdc2d892f8b4573 ShortName",
-        "baseId": "5447a9cd4bdc2dbd208b4567",
-        "default": false,
-        "containsItems": [
-            {
-                "item": {
-                    "id": "5447a9cd4bdc2dbd208b4567",
-                    "name": "Colt M4A1 5.56x45 assault rifle"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "55d4b9964bdc2d1d4e8b456e",
-                    "name": "AR-15 Colt A2 pistol grip"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "55d4887d4bdc2d962f8b4570",
-                    "name": "5.56x45 Colt AR-15 STANAG 30-round magazine"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "55d355e64bdc2d962f8b4569",
-                    "name": "M4A1 5.56x45 upper receiver"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "55d3632e4bdc2d972f8b4569",
-                    "name": "AR-15 5.56x45 370mm barrel"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "544a38634bdc2d58388b4568",
-                    "name": "AR-15 Colt USGI A2 5.56x45 flash hider"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "56ea8d2fd2720b7c698b4570",
-                    "name": "AR-15 Windham Weaponry Rail Gas Block"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "55d4af3a4bdc2d972f8b456f",
-                    "name": "AR-15 Leapers UTG Low Profile A2 front sight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "55d459824bdc2d892f8b4573",
-                    "name": "AR-15 KAC RIS handguard"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "637f57b78d137b27f70c496a",
-                    "name": "AR-15 KAC RIS lower handguard"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "55d5f46a4bdc2d1b198b4567",
-                    "name": "AR-15 Colt A2 rear sight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5649be884bdc2d79388b4577",
-                    "name": "Colt Carbine buffer tube"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "55d4ae6c4bdc2d8b2f8b456e",
-                    "name": "High Standard M4SS Stock"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "55d44fd14bdc2d962f8b456e",
-                    "name": "AR-15 Colt charging handle"
-                },
-                "count": 1
-            }
-        ]
-    },
-    {
-        "id": "m1areapir000000000000001",
-        "appendName": "5a1eaa87fcdbcb001865f75e ShortName",
-        "baseId": "5aafa857e5b5b00018480968",
-        "default": false,
-        "containsItems": [
-            {
-                "item": {
-                    "id": "5aafa857e5b5b00018480968",
-                    "name": "Springfield Armory M1A 7.62x51 rifle"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5addcce35acfc4001a5fc635",
-                    "name": "M14 7.62x51 30-round magazine"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5addbf175acfc408fb13965b",
-                    "name": "M1A ProMag Archangel stock"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5addbfbb5acfc400194dbcf7",
-                    "name": "M14 UltiMAK M8 Forward Optic mount"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5addbac75acfc400194dbc56",
-                    "name": "M1A 7.62x51 22 inch barrel"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "59bffc1f86f77435b128b872",
-                    "name": "SilencerCo Hybrid 46 Direct Thread Mount adapter"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "59bffbb386f77435b379b9c2",
-                    "name": "SilencerCo Hybrid 46 multi-caliber sound suppressor"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5abcbb20d8ce87001773e258",
-                    "name": "M14 SA Enlarged Military Aperture rear sight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5addbfef5acfc400185c2857",
-                    "name": "M14 Leapers UTG 4-Point Locking Deluxe mount"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5a1ead28fcdbcb001912fa9f",
-                    "name": "UNV DLOC-IRD sight mount"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5a1eaa87fcdbcb001865f75e",
-                    "name": "Trijicon REAP-IR thermal scope"
-                },
-                "count": 1
-            }
-        ]
-    },
-    {
-        "id": "ak12sd000000000000000001",
-        "appendName": "58dffd4586f77408a27629b2",
-        "baseId": "6499849fc93611967b034949",
-        "default": false,
-        "containsItems": [
-            {
-                "item": {
-                    "id": "6499849fc93611967b034949",
-                    "name": "Kalashnikov AK-12 5.45x39 assault rifle"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "649ec107961514b22506b10c",
-                    "name": "AK-12 gas tube"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5649ae4a4bdc2d1b2b8b4588",
-                    "name": "AK Zenit RK-3 pistol grip"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "649ec127c93611967b034957",
-                    "name": "AK-12 handguard"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beecbb80db834001d2c465e",
-                    "name": "RPK-16 handguard rail"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5c5952732e2216398b5abda2",
-                    "name": "Zenit Perst-3 tactical device"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5c1bc4812e22164bef5cfde7",
-                    "name": "Zenit RK-0 tactical foregrip"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "64c196ad26a15b84aa07132f",
-                    "name": "AK-12 5.45x39 sound suppressor"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "649ec2f3961514b22506b111",
-                    "name": "AK-12 dust cover"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "609a63b6e2ff132951242d09",
-                    "name": "Valday Krechet reflex sight"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "649ec87d8007560a9001ab36",
-                    "name": "AK-12 buffer tube"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5beec8c20db834001d2c465c",
-                    "name": "AK-12 stock"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "649ec30cb013f04a700e60fb",
-                    "name": "AK-12 5.45x39 early model 30-round magazine"
-                },
-                "count": 1
-            },
-            {
-                "item": {
-                    "id": "5648ac824bdc2ded0b8b457d",
-                    "name": "AK Zenit RP-1 charging handle"
-                },
-                "count": 1
-            }
-        ]
-    },
-    {
-        "id": "m1ahybrid46archangel0001",
+        "_id": "m1ahybrid46archangel0001",
         "appendName": "59bffbb386f77435b379b9c2 ShortName",
-        "baseId": "5aafa857e5b5b00018480968",
-        "default": false,
-        "containsItems": [
+        "_items": [
             {
-                "item": {
-                    "id": "5aafa857e5b5b00018480968",
-                    "name": "Springfield Armory M1A 7.62x51 rifle"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012d75",
+                "_tpl": "5aafa857e5b5b00018480968"
             },
             {
-                "item": {
-                    "id": "5aaf8a0be5b5b00015693243",
-                    "name": "M1A 7.62x51 20-round magazine"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012d76",
+                "_tpl": "5aaf8a0be5b5b00015693243",
+                "parentId": "64f9c4d2bf50026687012d75",
+                "slotId": "mod_magazine"
             },
             {
-                "item": {
-                    "id": "5a608bf24f39f98ffc77720e",
-                    "name": "7.62x51mm M62 Tracer"
-                },
-                "count": 20
+                "_id": "64f9c4d2bf50026687012d77",
+                "_tpl": "5a608bf24f39f98ffc77720e",
+                "parentId": "64f9c4d2bf50026687012d76",
+                "slotId": "cartridges",
+                "upd": {
+                    "StackObjectsCount": 20
+                }
             },
             {
-                "item": {
-                    "id": "5addbf175acfc408fb13965b",
-                    "name": "M1A ProMag Archangel chassis"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012d78",
+                "_tpl": "5addbf175acfc408fb13965b",
+                "parentId": "64f9c4d2bf50026687012d75",
+                "slotId": "mod_stock"
             },
             {
-                "item": {
-                    "id": "5addbfbb5acfc400194dbcf7",
-                    "name": "M14 UltiMAK M8 Forward Optic mount"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012d79",
+                "_tpl": "5addbfbb5acfc400194dbcf7",
+                "parentId": "64f9c4d2bf50026687012d78",
+                "slotId": "mod_mount"
             },
             {
-                "item": {
-                    "id": "5649a2464bdc2d91118b45a8",
-                    "name": "NcSTAR MPR45 Backup mount"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012d7a",
+                "_tpl": "5649a2464bdc2d91118b45a8",
+                "parentId": "64f9c4d2bf50026687012d79",
+                "slotId": "mod_scope"
             },
             {
-                "item": {
-                    "id": "58d2664f86f7747fec5834f6",
-                    "name": "DeltaPoint Cross Slot Mount base"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012d7b",
+                "_tpl": "58d2664f86f7747fec5834f6",
+                "parentId": "64f9c4d2bf50026687012d7a",
+                "slotId": "mod_scope"
             },
             {
-                "item": {
-                    "id": "58d268fc86f774111273f8c2",
-                    "name": "Leupold DeltaPoint Reflex Sight"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012d7c",
+                "_tpl": "58d268fc86f774111273f8c2",
+                "parentId": "64f9c4d2bf50026687012d7b",
+                "slotId": "mod_scope"
             },
             {
-                "item": {
-                    "id": "626becf9582c3e319310b837",
-                    "name": "Insight WMX200 tactical flashlight"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012d7d",
+                "_tpl": "626becf9582c3e319310b837",
+                "parentId": "64f9c4d2bf50026687012d78",
+                "slotId": "mod_tactical"
             },
             {
-                "item": {
-                    "id": "5addbac75acfc400194dbc56",
-                    "name": "M1A 7.62x51 22 inch barrel"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012d7e",
+                "_tpl": "5addbac75acfc400194dbc56",
+                "parentId": "64f9c4d2bf50026687012d75",
+                "slotId": "mod_barrel"
             },
             {
-                "item": {
-                    "id": "59bffc1f86f77435b128b872",
-                    "name": "SilencerCo Hybrid 46 Direct Thread Mount adapter"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012d7f",
+                "_tpl": "59bffc1f86f77435b128b872",
+                "parentId": "64f9c4d2bf50026687012d7e",
+                "slotId": "mod_muzzle"
             },
             {
-                "item": {
-                    "id": "59bffbb386f77435b379b9c2",
-                    "name": "SilencerCo Hybrid 46 multi-caliber sound suppressor"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012d80",
+                "_tpl": "59bffbb386f77435b379b9c2",
+                "parentId": "64f9c4d2bf50026687012d7f",
+                "slotId": "mod_muzzle"
             },
             {
-                "item": {
-                    "id": "5abcbb20d8ce87001773e258",
-                    "name": "M14 SA Enlarged Military Aperture rear sight"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012d81",
+                "_tpl": "5abcbb20d8ce87001773e258",
+                "parentId": "64f9c4d2bf50026687012d75",
+                "slotId": "mod_sight_rear"
             },
             {
-                "item": {
-                    "id": "5addbfef5acfc400185c2857",
-                    "name": "M14 Leapers UTG 4-Point Locking Deluxe mount"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012d82",
+                "_tpl": "5addbfef5acfc400185c2857",
+                "parentId": "64f9c4d2bf50026687012d75",
+                "slotId": "mod_mount"
             },
             {
-                "item": {
-                    "id": "57c69dd424597774c03b7bbc",
-                    "name": "Lobaev Arms 30mm scope mount"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012d83",
+                "_tpl": "57c69dd424597774c03b7bbc",
+                "parentId": "64f9c4d2bf50026687012d82",
+                "slotId": "mod_scope"
             },
             {
-                "item": {
-                    "id": "617151c1d92c473c770214ab",
-                    "name": "Schmidt & Bender PM II 1-8x24 30mm riflescope"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012d84",
+                "_tpl": "617151c1d92c473c770214ab",
+                "parentId": "64f9c4d2bf50026687012d83",
+                "slotId": "mod_scope"
             }
         ]
     },
     {
-        "id": "vepruntersvd000000000001",
+        "_id": "m4a1sopmodiiflash0000001",
+        "appendName": "SOPMOD II Flash",
+        "_items": [
+            {
+                "_id": "658d5e5a83b5f011ca09bd05",
+                "_tpl": "5447a9cd4bdc2dbd208b4567"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd06",
+                "_tpl": "571659bb2459771fb2755a12",
+                "parentId": "658d5e5a83b5f011ca09bd05",
+                "slotId": "mod_pistol_grip"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd07",
+                "_tpl": "55802d5f4bdc2dac148b458e",
+                "parentId": "658d5e5a83b5f011ca09bd05",
+                "slotId": "mod_magazine"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd08",
+                "_tpl": "54527a984bdc2d4e668b4567",
+                "parentId": "658d5e5a83b5f011ca09bd07",
+                "slotId": "cartridges",
+                "upd": {
+                    "StackObjectsCount": 30
+                }
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd09",
+                "_tpl": "55d355e64bdc2d962f8b4569",
+                "parentId": "658d5e5a83b5f011ca09bd05",
+                "slotId": "mod_reciever"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd0a",
+                "_tpl": "57aca93d2459771f2c7e26db",
+                "parentId": "658d5e5a83b5f011ca09bd09",
+                "slotId": "mod_scope"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd0b",
+                "_tpl": "55d35ee94bdc2d61338b4568",
+                "parentId": "658d5e5a83b5f011ca09bd09",
+                "slotId": "mod_barrel"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd0c",
+                "_tpl": "56ea8180d2720bf2698b456a",
+                "parentId": "658d5e5a83b5f011ca09bd0b",
+                "slotId": "mod_muzzle"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd0d",
+                "_tpl": "57da93632459771cb65bf83f",
+                "parentId": "658d5e5a83b5f011ca09bd0c",
+                "slotId": "mod_muzzle"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd0e",
+                "_tpl": "56eabcd4d2720b66698b4574",
+                "parentId": "658d5e5a83b5f011ca09bd0b",
+                "slotId": "mod_gas_block"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd0f",
+                "_tpl": "55f84c3c4bdc2d5f408b4576",
+                "parentId": "658d5e5a83b5f011ca09bd09",
+                "slotId": "mod_handguard"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd10",
+                "_tpl": "5649a2464bdc2d91118b45a8",
+                "parentId": "658d5e5a83b5f011ca09bd0f",
+                "slotId": "mod_scope"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd11",
+                "_tpl": "58d39d3d86f77445bb794ae7",
+                "parentId": "658d5e5a83b5f011ca09bd10",
+                "slotId": "mod_scope"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd12",
+                "_tpl": "58d399e486f77442e0016fe7",
+                "parentId": "658d5e5a83b5f011ca09bd11",
+                "slotId": "mod_scope"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd13",
+                "_tpl": "57d17e212459775a1179a0f5",
+                "parentId": "658d5e5a83b5f011ca09bd0f",
+                "slotId": "mod_tactical002"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd14",
+                "_tpl": "57d17c5e2459775a5c57d17d",
+                "parentId": "658d5e5a83b5f011ca09bd13",
+                "slotId": "mod_flashlight"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd15",
+                "_tpl": "544909bb4bdc2d6f028b4577",
+                "parentId": "658d5e5a83b5f011ca09bd0f",
+                "slotId": "mod_tactical"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd16",
+                "_tpl": "638f1ff84822287cad04be9d",
+                "parentId": "658d5e5a83b5f011ca09bd0f",
+                "slotId": "mod_handguard"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd17",
+                "_tpl": "58c157be86f77403c74b2bb6",
+                "parentId": "658d5e5a83b5f011ca09bd16",
+                "slotId": "mod_foregrip"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd18",
+                "_tpl": "5649be884bdc2d79388b4577",
+                "parentId": "658d5e5a83b5f011ca09bd05",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd19",
+                "_tpl": "58d2946386f774496974c37e",
+                "parentId": "658d5e5a83b5f011ca09bd18",
+                "slotId": "mod_stock_000"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd1a",
+                "_tpl": "58d2912286f7744e27117493",
+                "parentId": "658d5e5a83b5f011ca09bd19",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "658d5e5a83b5f011ca09bd1b",
+                "_tpl": "56ea7165d2720b6e518b4583",
+                "parentId": "658d5e5a83b5f011ca09bd05",
+                "slotId": "mod_charge"
+            }
+        ]
+    },
+    {
+        "_id": "m4a1kacrisii000000000001",
+        "appendName": "55d459824bdc2d892f8b4573 ShortName",
+        "_items": [
+            {
+                "_id": "6492e44bf4287b13040fca0f",
+                "_tpl": "5447a9cd4bdc2dbd208b4567"
+            },
+            {
+                "_id": "6492e44bf4287b13040fca10",
+                "_tpl": "55d4b9964bdc2d1d4e8b456e",
+                "parentId": "6492e44bf4287b13040fca0f",
+                "slotId": "mod_pistol_grip"
+            },
+            {
+                "_id": "6492e44bf4287b13040fca11",
+                "_tpl": "55d4887d4bdc2d962f8b4570",
+                "parentId": "6492e44bf4287b13040fca0f",
+                "slotId": "mod_magazine"
+            },
+            {
+                "_id": "6492e44bf4287b13040fca12",
+                "_tpl": "55d355e64bdc2d962f8b4569",
+                "parentId": "6492e44bf4287b13040fca0f",
+                "slotId": "mod_reciever"
+            },
+            {
+                "_id": "6492e44bf4287b13040fca13",
+                "_tpl": "55d3632e4bdc2d972f8b4569",
+                "parentId": "6492e44bf4287b13040fca12",
+                "slotId": "mod_barrel"
+            },
+            {
+                "_id": "6492e44bf4287b13040fca14",
+                "_tpl": "544a38634bdc2d58388b4568",
+                "parentId": "6492e44bf4287b13040fca13",
+                "slotId": "mod_muzzle"
+            },
+            {
+                "_id": "6492e44bf4287b13040fca15",
+                "_tpl": "56ea8d2fd2720b7c698b4570",
+                "parentId": "6492e44bf4287b13040fca13",
+                "slotId": "mod_gas_block"
+            },
+            {
+                "_id": "6492e44bf4287b13040fca16",
+                "_tpl": "55d4af3a4bdc2d972f8b456f",
+                "parentId": "6492e44bf4287b13040fca15",
+                "slotId": "mod_sight_front"
+            },
+            {
+                "_id": "6492e44bf4287b13040fca17",
+                "_tpl": "55d459824bdc2d892f8b4573",
+                "parentId": "6492e44bf4287b13040fca12",
+                "slotId": "mod_handguard"
+            },
+            {
+                "_id": "6492e44bf4287b13040fca18",
+                "_tpl": "637f57b78d137b27f70c496a",
+                "parentId": "6492e44bf4287b13040fca17",
+                "slotId": "mod_handguard"
+            },
+            {
+                "_id": "6492e44bf4287b13040fca19",
+                "_tpl": "55d5f46a4bdc2d1b198b4567",
+                "parentId": "6492e44bf4287b13040fca12",
+                "slotId": "mod_sight_rear"
+            },
+            {
+                "_id": "6492e44bf4287b13040fca1a",
+                "_tpl": "5649be884bdc2d79388b4577",
+                "parentId": "6492e44bf4287b13040fca0f",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "6492e44bf4287b13040fca1b",
+                "_tpl": "55d4ae6c4bdc2d8b2f8b456e",
+                "parentId": "6492e44bf4287b13040fca1a",
+                "slotId": "mod_stock_000"
+            },
+            {
+                "_id": "6492e44bf4287b13040fca1c",
+                "_tpl": "55d44fd14bdc2d962f8b456e",
+                "parentId": "6492e44bf4287b13040fca0f",
+                "slotId": "mod_charge"
+            }
+        ]
+    },
+    {
+        "_id": "mosinscopedbarter0000001",
+        "appendName": "5b3f7c1c5acfc40dc5296b1d ShortName",
+        "_items": [
+            {
+                "_id": "658d5e7083b5f011ca09c680",
+                "_tpl": "5ae08f0a5acfc408fb1398a1"
+            },
+            {
+                "_id": "658d5e7083b5f011ca09c681",
+                "_tpl": "5ae0973a5acfc4001562206c",
+                "parentId": "658d5e7083b5f011ca09c680",
+                "slotId": "mod_magazine"
+            },
+            {
+                "_id": "658d5e7083b5f011ca09c682",
+                "_tpl": "5ae096d95acfc400185c2c81",
+                "parentId": "658d5e7083b5f011ca09c680",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "658d5e7083b5f011ca09c683",
+                "_tpl": "5ae09bff5acfc4001562219d",
+                "parentId": "658d5e7083b5f011ca09c680",
+                "slotId": "mod_barrel"
+            },
+            {
+                "_id": "658d5e7083b5f011ca09c684",
+                "_tpl": "5ae099875acfc4001714e593",
+                "parentId": "658d5e7083b5f011ca09c683",
+                "slotId": "mod_sight_front"
+            },
+            {
+                "_id": "658d5e7083b5f011ca09c685",
+                "_tpl": "5ae099925acfc4001a5fc7b3",
+                "parentId": "658d5e7083b5f011ca09c683",
+                "slotId": "mod_sight_rear"
+            },
+            {
+                "_id": "658d5e7083b5f011ca09c686",
+                "_tpl": "5b3f7bf05acfc433000ecf6b",
+                "parentId": "658d5e7083b5f011ca09c680",
+                "slotId": "mod_mount"
+            },
+            {
+                "_id": "658d5e7083b5f011ca09c687",
+                "_tpl": "5b3f7c005acfc4704b4a1de8",
+                "parentId": "658d5e7083b5f011ca09c686",
+                "slotId": "mod_mount"
+            },
+            {
+                "_id": "658d5e7083b5f011ca09c688",
+                "_tpl": "5b3f7c1c5acfc40dc5296b1d",
+                "parentId": "658d5e7083b5f011ca09c687",
+                "slotId": "mod_scope"
+            }
+        ]
+    },
+    {
+        "_id": "mosinsniperatacr00000001",
+        "appendName": "5aa66be6e5b5b0214e506e97 ShortName",
+        "_items": [
+            {
+                "_id": "6492e44bf4287b13040fcbd2",
+                "_tpl": "5ae08f0a5acfc408fb1398a1"
+            },
+            {
+                "_id": "6492e44bf4287b13040fcbd3",
+                "_tpl": "5bae13ded4351e44f824bf38",
+                "parentId": "6492e44bf4287b13040fcbd2",
+                "slotId": "mod_magazine"
+            },
+            {
+                "_id": "6492e44bf4287b13040fcbd4",
+                "_tpl": "5bae13bad4351e00320204af",
+                "parentId": "6492e44bf4287b13040fcbd2",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "6492e44bf4287b13040fcbd5",
+                "_tpl": "5ae09bff5acfc4001562219d",
+                "parentId": "6492e44bf4287b13040fcbd2",
+                "slotId": "mod_barrel"
+            },
+            {
+                "_id": "6492e44bf4287b13040fcbd6",
+                "_tpl": "5ae099875acfc4001714e593",
+                "parentId": "6492e44bf4287b13040fcbd5",
+                "slotId": "mod_sight_front"
+            },
+            {
+                "_id": "6492e44bf4287b13040fcbd7",
+                "_tpl": "5bbdb811d4351e45020113c7",
+                "parentId": "6492e44bf4287b13040fcbd5",
+                "slotId": "mod_sight_rear"
+            },
+            {
+                "_id": "6492e44bf4287b13040fcbd8",
+                "_tpl": "5aa66a9be5b5b0214e506e89",
+                "parentId": "6492e44bf4287b13040fcbd7",
+                "slotId": "mod_scope"
+            },
+            {
+                "_id": "6492e44bf4287b13040fcbd9",
+                "_tpl": "5aa66be6e5b5b0214e506e97",
+                "parentId": "6492e44bf4287b13040fcbd8",
+                "slotId": "mod_scope"
+            },
+            {
+                "_id": "6492e44bf4287b13040fcbda",
+                "_tpl": "5b86a0e586f7745b600ccb23",
+                "parentId": "6492e44bf4287b13040fcbd5",
+                "slotId": "mod_muzzle"
+            }
+        ]
+    },
+    {
+        "_id": "opsksuas0000000000000001",
+        "appendName": "UAS",
+        "_items": [
+            {
+                "_id": "658d5e4d83b5f011ca09b7ed",
+                "_tpl": "587e02ff24597743df3deaeb"
+            },
+            {
+                "_id": "658d5e4d83b5f011ca09b7ee",
+                "_tpl": "5d0236dad7ad1a0940739d29",
+                "parentId": "658d5e4d83b5f011ca09b7ed",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "658d5e4d83b5f011ca09b7ef",
+                "_tpl": "5d023784d7ad1a049d4aa7f2",
+                "parentId": "658d5e4d83b5f011ca09b7ee",
+                "slotId": "mod_pistol_grip"
+            },
+            {
+                "_id": "658d5e4d83b5f011ca09b7f0",
+                "_tpl": "653ed132896b99b40a0292e6",
+                "parentId": "658d5e4d83b5f011ca09b7ee",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "658d5e4d83b5f011ca09b7f1",
+                "_tpl": "587df3a12459772c28142567",
+                "parentId": "658d5e4d83b5f011ca09b7ed",
+                "slotId": "mod_magazine"
+            },
+            {
+                "_id": "658d5e4d83b5f011ca09b7f2",
+                "_tpl": "587e08ee245977446b4410cf",
+                "parentId": "658d5e4d83b5f011ca09b7ed",
+                "slotId": "mod_mount"
+            },
+            {
+                "_id": "658d5e4d83b5f011ca09b7f3",
+                "_tpl": "634eff66517ccc8a960fc735",
+                "parentId": "658d5e4d83b5f011ca09b7ed",
+                "slotId": "mod_barrel"
+            },
+            {
+                "_id": "658d5e4d83b5f011ca09b7f4",
+                "_tpl": "634f05a21f9f536910079b56",
+                "parentId": "658d5e4d83b5f011ca09b7f3",
+                "slotId": "mod_mount_000"
+            },
+            {
+                "_id": "658d5e4d83b5f011ca09b7f5",
+                "_tpl": "634f036a517ccc8a960fc746",
+                "parentId": "658d5e4d83b5f011ca09b7f4",
+                "slotId": "mod_gas_block"
+            },
+            {
+                "_id": "658d5e4d83b5f011ca09b7f6",
+                "_tpl": "634f03d40384a3ba4f06f874",
+                "parentId": "658d5e4d83b5f011ca09b7f5",
+                "slotId": "mod_mount_000"
+            },
+            {
+                "_id": "658d5e4d83b5f011ca09b7f7",
+                "_tpl": "574db213245977459a2f3f5d",
+                "parentId": "658d5e4d83b5f011ca09b7f4",
+                "slotId": "mod_sight_rear"
+            },
+            {
+                "_id": "658d5e4d83b5f011ca09b7f8",
+                "_tpl": "634f06262e5def262d0b30ca",
+                "parentId": "658d5e4d83b5f011ca09b7ed",
+                "slotId": "mod_reciever"
+            }
+        ]
+    },
+    {
+        "_id": "sksintrafuse000000000001",
+        "appendName": "5afd7ded5acfc40017541f5e ShortName",
+        "_items": [
+            {
+                "_id": "658d5e4583b5f011ca09b40a",
+                "_tpl": "574d967124597745970e7c94"
+            },
+            {
+                "_id": "658d5e4583b5f011ca09b40b",
+                "_tpl": "5afd7ded5acfc40017541f5e",
+                "parentId": "658d5e4583b5f011ca09b40a",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "658d5e4583b5f011ca09b40c",
+                "_tpl": "5afd7e095acfc40017541f61",
+                "parentId": "658d5e4583b5f011ca09b40b",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "658d5e4583b5f011ca09b40d",
+                "_tpl": "55d4ae6c4bdc2d8b2f8b456e",
+                "parentId": "658d5e4583b5f011ca09b40c",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "658d5e4583b5f011ca09b40e",
+                "_tpl": "5afd7e445acfc4001637e35a",
+                "parentId": "658d5e4583b5f011ca09b40b",
+                "slotId": "mod_pistol_grip"
+            },
+            {
+                "_id": "658d5e4583b5f011ca09b40f",
+                "_tpl": "653ed19d22e1ef3d9002c328",
+                "parentId": "658d5e4583b5f011ca09b40b",
+                "slotId": "mod_mount"
+            },
+            {
+                "_id": "658d5e4583b5f011ca09b410",
+                "_tpl": "587df583245977373c4f1129",
+                "parentId": "658d5e4583b5f011ca09b40a",
+                "slotId": "mod_magazine"
+            },
+            {
+                "_id": "658d5e4583b5f011ca09b411",
+                "_tpl": "634f02331f9f536910079b51",
+                "parentId": "658d5e4583b5f011ca09b40a",
+                "slotId": "mod_barrel"
+            },
+            {
+                "_id": "658d5e4583b5f011ca09b412",
+                "_tpl": "634f04d82e5def262d0b30c6",
+                "parentId": "658d5e4583b5f011ca09b411",
+                "slotId": "mod_mount_000"
+            },
+            {
+                "_id": "658d5e4583b5f011ca09b413",
+                "_tpl": "634f02d7517ccc8a960fc744",
+                "parentId": "658d5e4583b5f011ca09b412",
+                "slotId": "mod_gas_block"
+            },
+            {
+                "_id": "658d5e4583b5f011ca09b414",
+                "_tpl": "653ecd065a1690d9d90491e6",
+                "parentId": "658d5e4583b5f011ca09b413",
+                "slotId": "mod_mount_000"
+            },
+            {
+                "_id": "658d5e4583b5f011ca09b415",
+                "_tpl": "574db213245977459a2f3f5d",
+                "parentId": "658d5e4583b5f011ca09b412",
+                "slotId": "mod_sight_rear"
+            },
+            {
+                "_id": "658d5e4583b5f011ca09b416",
+                "_tpl": "634f05ca517ccc8a960fc748",
+                "parentId": "658d5e4583b5f011ca09b40a",
+                "slotId": "mod_reciever"
+            }
+        ]
+    },
+    {
+        "_id": "rpdnokp70000000000000001",
+        "appendName": "57486e672459770abd687134 ShortName",
+        "_items": [
+            {
+                "_id": "658d5e5383b5f011ca09badb",
+                "_tpl": "65268d8ecb944ff1e90ea385"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09badc",
+                "_tpl": "6513f0a194c72326990a3868",
+                "parentId": "658d5e5383b5f011ca09badb",
+                "slotId": "mod_magazine"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09badd",
+                "_tpl": "6513f1798cb24472490ee331",
+                "parentId": "658d5e5383b5f011ca09badb",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09bade",
+                "_tpl": "6513f13a8cb24472490ee32f",
+                "parentId": "658d5e5383b5f011ca09badd",
+                "slotId": "mod_pistolgrip"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09badf",
+                "_tpl": "65266fd43341ed9aa903dd56",
+                "parentId": "658d5e5383b5f011ca09badb",
+                "slotId": "mod_barrel"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09bae0",
+                "_tpl": "6513f05a94c72326990a3866",
+                "parentId": "658d5e5383b5f011ca09badb",
+                "slotId": "mod_handguard"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09bae1",
+                "_tpl": "6513f153e63f29908d0ffaba",
+                "parentId": "658d5e5383b5f011ca09badb",
+                "slotId": "mod_sight_rear"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09bae2",
+                "_tpl": "57486e672459770abd687134",
+                "parentId": "658d5e5383b5f011ca09badb",
+                "slotId": "mod_scope"
+            }
+        ]
+    },
+    {
+        "_id": "rpk16drum000000000000001",
+        "appendName": "Drum",
+        "_items": [
+            {
+                "_id": "658d5e6f83b5f011ca09c59e",
+                "_tpl": "5beed0f50db834001c062b12",
+                "upd": {
+                    "Foldable": {
+                        "Folded": false
+                    },
+                    "FireMode": {
+                        "FireMode": "single"
+                    }
+                }
+            },
+            {
+                "_id": "658d5e6f83b5f011ca09c59f",
+                "_tpl": "5beec8ea0db834001a6f9dbf",
+                "parentId": "658d5e6f83b5f011ca09c59e",
+                "slotId": "mod_pistol_grip"
+            },
+            {
+                "_id": "658d5e6f83b5f011ca09c5a0",
+                "_tpl": "5beec91a0db834001961942d",
+                "parentId": "658d5e6f83b5f011ca09c59e",
+                "slotId": "mod_reciever"
+            },
+            {
+                "_id": "658d5e6f83b5f011ca09c5a1",
+                "_tpl": "5beec9450db83400970084fd",
+                "parentId": "658d5e6f83b5f011ca09c5a0",
+                "slotId": "mod_sight_rear"
+            },
+            {
+                "_id": "658d5e6f83b5f011ca09c5a2",
+                "_tpl": "5bf3f59f0db834001a6fa060",
+                "parentId": "658d5e6f83b5f011ca09c5a1",
+                "slotId": "mod_sight_rear"
+            },
+            {
+                "_id": "658d5e6f83b5f011ca09c5a3",
+                "_tpl": "5bed625c0db834001c062946",
+                "parentId": "658d5e6f83b5f011ca09c59e",
+                "slotId": "mod_magazine"
+            },
+            {
+                "_id": "658d5e6f83b5f011ca09c5a4",
+                "_tpl": "5beec8b20db834001961942a",
+                "parentId": "658d5e6f83b5f011ca09c59e",
+                "slotId": "mod_stock_001"
+            },
+            {
+                "_id": "658d5e6f83b5f011ca09c5a5",
+                "_tpl": "5beec8c20db834001d2c465c",
+                "parentId": "658d5e6f83b5f011ca09c5a4",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "658d5e6f83b5f011ca09c5a6",
+                "_tpl": "5beec3e30db8340019619424",
+                "parentId": "658d5e6f83b5f011ca09c59e",
+                "slotId": "mod_handguard"
+            },
+            {
+                "_id": "658d5e6f83b5f011ca09c5a7",
+                "_tpl": "5beecbb80db834001d2c465e",
+                "parentId": "658d5e6f83b5f011ca09c5a6",
+                "slotId": "mod_mount_000"
+            },
+            {
+                "_id": "658d5e6f83b5f011ca09c5a8",
+                "_tpl": "5beecbb80db834001d2c465e",
+                "parentId": "658d5e6f83b5f011ca09c5a6",
+                "slotId": "mod_mount_001"
+            },
+            {
+                "_id": "658d5e6f83b5f011ca09c5a9",
+                "_tpl": "5beec1bd0db834001e6006f3",
+                "parentId": "658d5e6f83b5f011ca09c59e",
+                "slotId": "mod_barrel"
+            },
+            {
+                "_id": "658d5e6f83b5f011ca09c5aa",
+                "_tpl": "5beec3420db834001b095429",
+                "parentId": "658d5e6f83b5f011ca09c5a9",
+                "slotId": "mod_muzzle"
+            }
+        ]
+    },
+    {
+        "_id": "rpk166L26000000000000001",
+        "appendName": "55d481904bdc2d8c2f8b456a ShortName",
+        "_items": [
+            {
+                "_id": "658d5e7883b5f011ca09c9da",
+                "_tpl": "5beed0f50db834001c062b12"
+            },
+            {
+                "_id": "658d5e7883b5f011ca09c9db",
+                "_tpl": "5beec8ea0db834001a6f9dbf",
+                "parentId": "658d5e7883b5f011ca09c9da",
+                "slotId": "mod_pistol_grip"
+            },
+            {
+                "_id": "658d5e7883b5f011ca09c9dc",
+                "_tpl": "5beec3e30db8340019619424",
+                "parentId": "658d5e7883b5f011ca09c9da",
+                "slotId": "mod_handguard"
+            },
+            {
+                "_id": "658d5e7883b5f011ca09c9dd",
+                "_tpl": "5beecbb80db834001d2c465e",
+                "parentId": "658d5e7883b5f011ca09c9dc",
+                "slotId": "mod_mount_000"
+            },
+            {
+                "_id": "658d5e7883b5f011ca09c9de",
+                "_tpl": "5beecbb80db834001d2c465e",
+                "parentId": "658d5e7883b5f011ca09c9dc",
+                "slotId": "mod_mount_001"
+            },
+            {
+                "_id": "658d5e7883b5f011ca09c9df",
+                "_tpl": "5beec2820db834001b095426",
+                "parentId": "658d5e7883b5f011ca09c9da",
+                "slotId": "mod_barrel"
+            },
+            {
+                "_id": "658d5e7883b5f011ca09c9e0",
+                "_tpl": "5beec3420db834001b095429",
+                "parentId": "658d5e7883b5f011ca09c9df",
+                "slotId": "mod_muzzle"
+            },
+            {
+                "_id": "658d5e7883b5f011ca09c9e1",
+                "_tpl": "5beec91a0db834001961942d",
+                "parentId": "658d5e7883b5f011ca09c9da",
+                "slotId": "mod_reciever"
+            },
+            {
+                "_id": "658d5e7883b5f011ca09c9e2",
+                "_tpl": "5beec9450db83400970084fd",
+                "parentId": "658d5e7883b5f011ca09c9e1",
+                "slotId": "mod_sight_rear"
+            },
+            {
+                "_id": "658d5e7883b5f011ca09c9e3",
+                "_tpl": "5bf3f59f0db834001a6fa060",
+                "parentId": "658d5e7883b5f011ca09c9e2",
+                "slotId": "mod_sight_rear"
+            },
+            {
+                "_id": "658d5e7883b5f011ca09c9e4",
+                "_tpl": "5beec8b20db834001961942a",
+                "parentId": "658d5e7883b5f011ca09c9da",
+                "slotId": "mod_stock_001"
+            },
+            {
+                "_id": "658d5e7883b5f011ca09c9e5",
+                "_tpl": "5beec8c20db834001d2c465c",
+                "parentId": "658d5e7883b5f011ca09c9e4",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "658d5e7883b5f011ca09c9e6",
+                "_tpl": "55d481904bdc2d8c2f8b456a",
+                "parentId": "658d5e7883b5f011ca09c9da",
+                "slotId": "mod_magazine"
+            }
+        ]
+    },
+    {
+        "_id": "sa58spr00000000000000001",
+        "appendName": "SPR",
+        "_items": [
+            {
+                "_id": "658d5e4b83b5f011ca09b75a",
+                "_tpl": "5b0bbe4e5acfc40dc528a72d"
+            },
+            {
+                "_id": "658d5e4b83b5f011ca09b75b",
+                "_tpl": "5b099b965acfc400186331e6",
+                "parentId": "658d5e4b83b5f011ca09b75a",
+                "slotId": "mod_pistol_grip"
+            },
+            {
+                "_id": "658d5e4b83b5f011ca09b75c",
+                "_tpl": "5b7c2d1d5acfc43d1028532a",
+                "parentId": "658d5e4b83b5f011ca09b75a",
+                "slotId": "mod_magazine"
+            },
+            {
+                "_id": "658d5e4b83b5f011ca09b75d",
+                "_tpl": "5b7bedd75acfc43d825283f9",
+                "parentId": "658d5e4b83b5f011ca09b75a",
+                "slotId": "mod_handguard"
+            },
+            {
+                "_id": "658d5e4b83b5f011ca09b75e",
+                "_tpl": "5b7be46e5acfc400170e2dcf",
+                "parentId": "658d5e4b83b5f011ca09b75d",
+                "slotId": "mod_mount_000"
+            },
+            {
+                "_id": "658d5e4b83b5f011ca09b75f",
+                "_tpl": "5b7be1265acfc400161d0798",
+                "parentId": "658d5e4b83b5f011ca09b75a",
+                "slotId": "mod_barrel"
+            },
+            {
+                "_id": "658d5e4b83b5f011ca09b760",
+                "_tpl": "5b099b7d5acfc400186331e4",
+                "parentId": "658d5e4b83b5f011ca09b75f",
+                "slotId": "mod_muzzle"
+            },
+            {
+                "_id": "658d5e4b83b5f011ca09b761",
+                "_tpl": "5b0bc22d5acfc47a8607f085",
+                "parentId": "658d5e4b83b5f011ca09b75a",
+                "slotId": "mod_sight_rear"
+            },
+            {
+                "_id": "658d5e4b83b5f011ca09b762",
+                "_tpl": "5b099bb25acfc400186331e8",
+                "parentId": "658d5e4b83b5f011ca09b75a",
+                "slotId": "mod_reciever"
+            },
+            {
+                "_id": "658d5e4b83b5f011ca09b763",
+                "_tpl": "5b7d63de5acfc400170e2f8d",
+                "parentId": "658d5e4b83b5f011ca09b75a",
+                "slotId": "mod_stock"
+            }
+        ]
+    },
+    {
+        "_id": "sa58xfal0000000000000001",
+        "appendName": "5b7bef9c5acfc43d102852ec ShortName",
+        "_items": [
+            {
+                "_id": "658d5e4683b5f011ca09b518",
+                "_tpl": "5b0bbe4e5acfc40dc528a72d"
+            },
+            {
+                "_id": "658d5e4683b5f011ca09b519",
+                "_tpl": "5b7d679f5acfc4001a5c4024",
+                "parentId": "658d5e4683b5f011ca09b518",
+                "slotId": "mod_pistol_grip"
+            },
+            {
+                "_id": "658d5e4683b5f011ca09b51a",
+                "_tpl": "5b7bef9c5acfc43d102852ec",
+                "parentId": "658d5e4683b5f011ca09b518",
+                "slotId": "mod_magazine"
+            },
+            {
+                "_id": "658d5e4683b5f011ca09b51b",
+                "_tpl": "5b7bee755acfc400196d5383",
+                "parentId": "658d5e4683b5f011ca09b518",
+                "slotId": "mod_handguard"
+            },
+            {
+                "_id": "658d5e4683b5f011ca09b51c",
+                "_tpl": "5b7be46e5acfc400170e2dcf",
+                "parentId": "658d5e4683b5f011ca09b51b",
+                "slotId": "mod_mount_000"
+            },
+            {
+                "_id": "658d5e4683b5f011ca09b51d",
+                "_tpl": "59fc48e086f77463b1118392",
+                "parentId": "658d5e4683b5f011ca09b51c",
+                "slotId": "mod_foregrip"
+            },
+            {
+                "_id": "658d5e4683b5f011ca09b51e",
+                "_tpl": "5b7be4645acfc400170e2dcc",
+                "parentId": "658d5e4683b5f011ca09b51b",
+                "slotId": "mod_mount_001"
+            },
+            {
+                "_id": "658d5e4683b5f011ca09b51f",
+                "_tpl": "5b7be4645acfc400170e2dcc",
+                "parentId": "658d5e4683b5f011ca09b51b",
+                "slotId": "mod_mount_002"
+            },
+            {
+                "_id": "658d5e4683b5f011ca09b520",
+                "_tpl": "5b099a765acfc47a8607efe3",
+                "parentId": "658d5e4683b5f011ca09b518",
+                "slotId": "mod_barrel"
+            },
+            {
+                "_id": "658d5e4683b5f011ca09b521",
+                "_tpl": "5b7d693d5acfc43bca706a3d",
+                "parentId": "658d5e4683b5f011ca09b520",
+                "slotId": "mod_muzzle"
+            },
+            {
+                "_id": "658d5e4683b5f011ca09b522",
+                "_tpl": "5b0bc22d5acfc47a8607f085",
+                "parentId": "658d5e4683b5f011ca09b518",
+                "slotId": "mod_sight_rear"
+            },
+            {
+                "_id": "658d5e4683b5f011ca09b523",
+                "_tpl": "5b099bb25acfc400186331e8",
+                "parentId": "658d5e4683b5f011ca09b518",
+                "slotId": "mod_reciever"
+            },
+            {
+                "_id": "658d5e4683b5f011ca09b524",
+                "_tpl": "5b7d64555acfc4001876c8e2",
+                "parentId": "658d5e4683b5f011ca09b518",
+                "slotId": "mod_stock"
+            }
+        ]
+    },
+    {
+        "_id": "sigmpxillusion9000000001",
+        "appendName": "5c7e8fab2e22165df16b889b ShortName",
+        "_items": [
+            {
+                "_id": "658d5e5383b5f011ca09ba6f",
+                "_tpl": "58948c8e86f77409493f7266"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09ba70",
+                "_tpl": "5894a51286f77426d13baf02",
+                "parentId": "658d5e5383b5f011ca09ba6f",
+                "slotId": "mod_pistol_grip"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09ba71",
+                "_tpl": "5894a5b586f77426d2590767",
+                "parentId": "658d5e5383b5f011ca09ba6f",
+                "slotId": "mod_reciever"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09ba72",
+                "_tpl": "5c5db5c62e22160012542255",
+                "parentId": "658d5e5383b5f011ca09ba71",
+                "slotId": "mod_barrel"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09ba73",
+                "_tpl": "5c7e8fab2e22165df16b889b",
+                "parentId": "658d5e5383b5f011ca09ba72",
+                "slotId": "mod_muzzle"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09ba74",
+                "_tpl": "5c5db63a2e2216000f1b284a",
+                "parentId": "658d5e5383b5f011ca09ba71",
+                "slotId": "mod_handguard"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09ba75",
+                "_tpl": "5b7be47f5acfc400170e2dd2",
+                "parentId": "658d5e5383b5f011ca09ba74",
+                "slotId": "mod_mount_000"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09ba76",
+                "_tpl": "5b7be47f5acfc400170e2dd2",
+                "parentId": "658d5e5383b5f011ca09ba74",
+                "slotId": "mod_mount_002"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09ba77",
+                "_tpl": "5b7be4895acfc400170e2dd5",
+                "parentId": "658d5e5383b5f011ca09ba74",
+                "slotId": "mod_foregrip"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09ba78",
+                "_tpl": "5894a73486f77426d259076c",
+                "parentId": "658d5e5383b5f011ca09ba74",
+                "slotId": "mod_sight_front"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09ba79",
+                "_tpl": "5894a81786f77427140b8347",
+                "parentId": "658d5e5383b5f011ca09ba71",
+                "slotId": "mod_sight_rear"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09ba7a",
+                "_tpl": "58949edd86f77409483e16a9",
+                "parentId": "658d5e5383b5f011ca09ba6f",
+                "slotId": "mod_charge"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09ba7b",
+                "_tpl": "5894a05586f774094708ef75",
+                "parentId": "658d5e5383b5f011ca09ba6f",
+                "slotId": "mod_magazine"
+            },
+            {
+                "_id": "658d5e5383b5f011ca09ba7c",
+                "_tpl": "5c5db6ee2e221600113fba54",
+                "parentId": "658d5e5383b5f011ca09ba6f",
+                "slotId": "mod_stock"
+            }
+        ]
+    },
+    {
+        "_id": "vepruntersvd000000000001",
         "appendName": "5c88f24b2e22160bc12c69a6 ShortName",
-        "baseId": "5c501a4d2e221602b412b540",
-        "default": false,
-        "containsItems": [
+        "_items": [
             {
-                "item": {
-                    "id": "5c501a4d2e221602b412b540",
-                    "name": "Molot VPO-101 \"Vepr-Hunter\" 7.62x51 carbine"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012fa4",
+                "_tpl": "5c501a4d2e221602b412b540"
             },
             {
-                "item": {
-                    "id": "5c5039be2e221602b177c9ff",
-                    "name": "VPO-101 \"Vepr-Hunter\" gas tube"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012fa5",
+                "_tpl": "5c5039be2e221602b177c9ff",
+                "parentId": "64f9c4d2bf50026687012fa4",
+                "slotId": "mod_gas_block"
             },
             {
-                "item": {
-                    "id": "5f63405df5750b524b45f114",
-                    "name": "VPO-101 \"Vepr-Hunter\" SVD-style stock"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012fa6",
+                "_tpl": "5f63405df5750b524b45f114",
+                "parentId": "64f9c4d2bf50026687012fa4",
+                "slotId": "mod_stock"
             },
             {
-                "item": {
-                    "id": "5c503d0a2e221602b542b7ef",
-                    "name": "VPO-101 \"Vepr-Hunter\" dust cover"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012fa7",
+                "_tpl": "5c503d0a2e221602b542b7ef",
+                "parentId": "64f9c4d2bf50026687012fa4",
+                "slotId": "mod_reciever"
             },
             {
-                "item": {
-                    "id": "5c503ad32e2216398b5aada2",
-                    "name": "VPO-101 \"Vepr-Hunter\" 7.62x51 10-round magazine"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012fa8",
+                "_tpl": "5c503ad32e2216398b5aada2",
+                "parentId": "64f9c4d2bf50026687012fa4",
+                "slotId": "mod_magazine"
             },
             {
-                "item": {
-                    "id": "5c82342f2e221644f31c060e",
-                    "name": "BelOMO PSO-1 4x24 scope"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012fa9",
+                "_tpl": "5c82342f2e221644f31c060e",
+                "parentId": "64f9c4d2bf50026687012fa4",
+                "slotId": "mod_mount"
             },
             {
-                "item": {
-                    "id": "57f3a5ae2459772b0e0bf19e",
-                    "name": "PSO scope eyecup"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012faa",
+                "_tpl": "57f3a5ae2459772b0e0bf19e",
+                "parentId": "64f9c4d2bf50026687012fa9",
+                "slotId": "mod_tactical"
             },
             {
-                "item": {
-                    "id": "5f63407e1b231926f2329f15",
-                    "name": "VPO-101 \"Vepr-Hunter\" Rotor 43 7.62x51 muzzle brake-compensator"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012fab",
+                "_tpl": "5f63407e1b231926f2329f15",
+                "parentId": "64f9c4d2bf50026687012fa4",
+                "slotId": "mod_muzzle"
             },
             {
-                "item": {
-                    "id": "5c503b1c2e221602b21d6e9d",
-                    "name": "VPO-101 \"Vepr-Hunter\" rear sight"
-                },
-                "count": 1
+                "_id": "64f9c4d2bf50026687012fac",
+                "_tpl": "5c503b1c2e221602b21d6e9d",
+                "parentId": "64f9c4d2bf50026687012fa4",
+                "slotId": "mod_sight_rear"
+            }
+        ]
+    },
+    {
+        "_id": "vssvintorezstripped00001",
+        "appendName": "Stripped",
+        "_items": [
+            {
+                "_id": "658d5e6f83b5f011ca09c5e2",
+                "_tpl": "57838ad32459774a17445cd2"
+            },
+            {
+                "_id": "658d5e6f83b5f011ca09c5e3",
+                "_tpl": "57838c962459774a1651ec63",
+                "parentId": "658d5e6f83b5f011ca09c5e2",
+                "slotId": "mod_muzzle"
+            },
+            {
+                "_id": "658d5e6f83b5f011ca09c5e4",
+                "_tpl": "578395e82459774a0e553c7b",
+                "parentId": "658d5e6f83b5f011ca09c5e2",
+                "slotId": "mod_stock"
             }
         ]
     }

@@ -161,6 +161,7 @@ const getArmorSlots = (item) => {
                     return substr.toLowerCase();
                 });
             });
+            newSlot.baseValue = job.credits[slotInfo.Plate];
         } else {
             newSlot.zones = job.addTranslation(slotInfo.armorPlateColliders.map(collider => `Armor Zone ${collider}`));
             //newSlot.defaultPlate = slotInfo.Plate;
