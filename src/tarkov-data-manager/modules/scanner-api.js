@@ -28,7 +28,7 @@ const isDogtag = (id) => {
 const updatePresets = () => {
     try {
         const fileContents = fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json'));
-        presets = Object.values(JSON.parse(fileContents));
+        presets = JSON.parse(fileContents.presets);
     } catch (error) {
         console.log('ScannerAPI error reading presets.json:', error.message);
     }
@@ -129,7 +129,7 @@ const queryResultToBatchItem = item => {
             }
         });
     } else if (types.includes('preset')) {
-        const matchedPreset = presets.find(preset => preset.id === item.id);
+        const matchedPreset = presets.presets.find(preset => preset.id === item.id);
         if (matchedPreset) {
             contains = matchedPreset.map(contained => contained.item.id);
         }
