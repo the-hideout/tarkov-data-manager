@@ -1412,7 +1412,7 @@
         "traderRequirements": [],
         "objectives": [
             {
-                "id": "64f5deac39e45b527a7c4235",
+                "id": "64e7bdd52d369a1c0172722f",
                 "type": "shoot",
                 "optional": false,
                 "locationNames": [
@@ -1421,7 +1421,9 @@
                 "map_ids": [
                     "5714dc692459777137212e12"
                 ],
-                "zone_keys": [],
+                "zone_keys": [
+                    "quest_zone_kill_kardinal"
+                ],
                 "target": "Savage",
                 "count": 30,
                 "shotType": "kill",
