@@ -28,7 +28,8 @@ const isDogtag = (id) => {
 const updatePresets = () => {
     try {
         const fileContents = fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json'));
-        presets = JSON.parse(fileContents.presets);
+        presets = JSON.parse(fileContents);
+        presets.presets = Object.values(presets.presets);
     } catch (error) {
         console.log('ScannerAPI error reading presets.json:', error.message);
     }
