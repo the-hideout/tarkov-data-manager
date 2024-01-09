@@ -300,8 +300,8 @@ class UpdatePresetsJob extends DataJob {
             const p = this.presetsData[presetId];
             queries.push(remoteData.addItem({
                 id: p.id,
-                name: p.name,
-                short_name: p.shortName,
+                name: this.getTranslation(p.name),
+                short_name: this.getTranslation(p.shortName),
                 normalized_name: p.normalized_name,
                 width: p.width,
                 height: p.height,
