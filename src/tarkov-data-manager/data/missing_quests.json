@@ -1392,5 +1392,120 @@
         "experience": 14000,
         "tarkovDataId": null,
         "factionName": "Any"
+    },
+    "64e7b9bffd30422ed03dad38": {
+        "id": "64e7b9bffd30422ed03dad38",
+        "name": "Gendarmerie - District Patrol",
+        "trader": "54cb50c76803fa8b248b4571",
+        "location_id": "5714dc692459777137212e12",
+        "locationName": "Streets of Tarkov",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "64e7b9a4aac4cd0a726562cb",
+                "name": "Gendarmerie - Tickets Please",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "64f5deac39e45b527a7c4235",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "zone_keys": [],
+                "target": "Savage",
+                "count": 30,
+                "shotType": "kill",
+                "usingWeaponTypes": [
+                    "5447b5f14bdc2d61278b4567",
+                    "5447b5fc4bdc2d87278b4567"
+                ],
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "name": "Prapor",
+                    "standing": 0.04
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 185000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5d40407c86f774318526545a",
+                    "item_name": "Bottle of Tarkovskaya Vodka",
+                    "count": 16,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "65766a7b86f11bca4106d3c3",
+                    "item_name": "BNTI Zhuk body armor (Digital Flora) Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [
+                {
+                    "id": "658d5e7783b5f011ca09c98d1",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 4,
+                    "item": "ak12sd000000000000000001",
+                    "item_name": "Kalashnikov AK-12 5.45x39 assault rifle Silenced",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": [],
+                    "base_item_id": "6499849fc93611967b034949"
+                }
+            ],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 25000,
+        "tarkovDataId": null,
+        "factionName": "Any"
     }
 }

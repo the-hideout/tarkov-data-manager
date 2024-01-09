@@ -95,7 +95,7 @@ class UpdateTypesJob extends DataJob {
         [this.allItems, this.bsgData, this.presets] = await Promise.all([
             remoteData.get(),
             tarkovData.items(),
-            this.jobManager.jobOutput('update-presets', this, true),
+            this.jobManager.jobOutput('update-presets', this),
         ]);;
 
         this.logger.log(`Updating types`);

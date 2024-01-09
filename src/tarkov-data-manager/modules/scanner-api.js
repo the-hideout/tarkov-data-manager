@@ -8,13 +8,12 @@ const remoteData = require('./remote-data');
 const { uploadToS3 } = require('./upload-s3');
 const { createAndUploadFromSource } = require('./image-create');
 const { imageFunctions } = require('tarkov-dev-image-generator');
-const { match } = require('assert');
 
 const { imageSizes } = imageFunctions;
 
 let refreshingUsers = false;
 let users = {};
-let presets = [];
+let presets = {};
 let presetsTimeout = false;
 
 const dogtags = [
@@ -99,12 +98,12 @@ const queryResultToBatchItem = item => {
     let contains = item.contains ? item.contains.split(',') : [];
     let itemPresets = [];
     if (types.includes('gun')) {
-        itemPresets = presets.filter(testPreset => testPreset.baseId === item.id).map(preset => {
+        itemPresets = presets.presets.filter(testPreset => testPreset.baseId === item.id).map(preset => {
             if (preset.default) {
                 contains = preset.containsItems.reduce((parts, currentItem) => {
                     parts.push({
                         id: currentItem.item.id,
-                        name: currentItem.item.name,
+                        name: presets.locale.en[currentItem.item.name],
                         count: currentItem.count,
                     });
                     return parts;
@@ -907,9 +906,9 @@ const submitImage = (request, user) => {
                     for (const presetId of fields.presets) {
                         let matchedPreset;
                         if (presetId === 'default') {
-                            matchedPreset = presets.find(preset => preset.baseId === fields.id && preset.default);
+                            matchedPreset = presets.presets.find(preset => preset.baseId === fields.id && preset.default);
                         } else {
-                            matchedPreset = presets.find(preset => preset.id === presetId);
+                            matchedPreset = presets.presets.find(preset => preset.id === presetId);
                         }
                         if (matchedPreset) {
                             const presetResult = await createAndUploadFromSource(files[presetId][0].filepath, matchedPreset.id, fields.overwrite);

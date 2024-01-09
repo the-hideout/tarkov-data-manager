@@ -46,7 +46,7 @@ class UpdateQuestsJob extends DataJob {
         this.maps = await this.jobManager.jobOutput('update-maps', this);
         this.hideout = await this.jobManager.jobOutput('update-hideout', this);
         this.traders = await this.jobManager.jobOutput('update-traders', this);
-        this.presets = await this.jobManager.jobOutput('update-presets', this, true);
+        this.presets = await this.jobManager.jobOutput('update-presets', this);
         this.itemMap = await this.jobManager.jobOutput('update-item-cache', this);
 
         const questItemMap = new Map();
@@ -104,6 +104,23 @@ class UpdateQuestsJob extends DataJob {
                     if (obj.type === 'shoot') {
                         obj.target = this.addMobTranslation(obj.target);
                         obj.targetNames = [this.addMobTranslation(obj.target)];
+                        if (obj.usingWeaponTypes) {
+                            obj.usingWeapon = obj.usingWeaponTypes.reduce((weapons, categoryId) => {
+                                Object.values(this.itemMap).forEach(item => {
+                                    if (!item.categories.includes(categoryId)) {
+                                        return;
+                                    }
+                                    if (item.types.includes('preset')) {
+                                        return;
+                                    }
+                                    weapons.push({
+                                        id: item.id,
+                                        name: this.locales.en[item.name],
+                                    });
+                                });
+                                return weapons;
+                            }, []);
+                        }
                     }
                     this.addMapFromDescription(obj);
                 }

@@ -101,7 +101,7 @@ const jobOutput = async (jobName, parentJob, rawOutput = false) => {
     }
     try {
         const json = JSON.parse(fs.readFileSync(outputFile));
-        if (!rawOutput) return json[Object.keys(json).find(key => key !== 'updated')];
+        if (!rawOutput) return json[Object.keys(json).find(key => key !== 'updated' && key !== 'locale')];
         return json;
     } catch (error) {
         if (logger) {

@@ -1219,5 +1219,69 @@
                 }
             ]
         }
+    },
+    "5979ed3886f77431307dc512": {
+        "name": "What's on the Flash Drive?",
+        "finishRewardsChanged": {
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 30000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "opsksuas0000000000000001",
+                    "item_name": "Molot Arms Simonov OP-SKS 7.62x39 carbine UAS",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": [],
+                    "base_item_id": "587e02ff24597743df3deaeb"
+                },
+                {
+                    "item": "587df583245977373c4f1129",
+                    "item_name": "SKS 7.62x39 TAPCO 6610 20-round magazine",
+                    "count": 2,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "593d490386f7745ee97a1555",
+                    "item_name": "SKS Hexagon 7.62x39 sound suppressor",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "5936da9e86f7742d65037edf": {
+        "name": "Background Check",
+        "finishRewardsChanged": {
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 15000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "58dffce486f77409f40f8162",
+                    "item_name": "TOZ Simonov SKS 7.62x39 carbine Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5656d7c34bdc2d9d198b4587",
+                    "item_name": "7.62x39mm PS gzh",
+                    "count": 60,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
     }
 }

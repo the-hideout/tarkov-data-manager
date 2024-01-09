@@ -38,7 +38,7 @@ class UpdateBartersJob extends DataJob {
             }),
             tarkovData.items(),
         ]);
-        this.presets = await this.jobManager.jobOutput('update-presets', this, true);
+        this.presets = await this.jobManager.jobOutput('update-presets', this);
         this.tasks = await this.jobManager.jobOutput('update-quests', this);
         this.barterAssort = await this.jobManager.jobOutput('update-trader-assorts', this, true).then(assorts => {
             for (const traderId in assorts) {
