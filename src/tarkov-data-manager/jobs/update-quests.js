@@ -499,7 +499,12 @@ class UpdateQuestsJob extends DataJob {
     getQuestItemLocations = (questItemId, objectiveId) => {
         const foundItems = [];
         const forceMap = objectiveMap[objectiveId];
+        const spawnsPerMap = {};
+        // first we get all the spawns we can from the SPT data
         for (const mapId in this.mapLoot) {
+            if (!spawnsPerMap[mapId]) {
+                spawnsPerMap[mapId] = 0;
+            }
             if (forceMap && forceMap !== mapId) {
                 continue;
             }
@@ -510,11 +515,10 @@ class UpdateQuestsJob extends DataJob {
                 return allSpawns;
             }, []);
             if (spawns.length > 0) {
+                // track how many spawn points we've found for each map
+                spawnsPerMap[mapId] += spawns.length;
                 foundItems.push({map: mapId, positions: spawns});
             }
-        }
-        if (foundItems.length > 0) {
-            return foundItems;
         }
         for (const mapId in this.mapDetails) {
             if (forceMap && forceMap !== mapId) {
@@ -526,9 +530,18 @@ class UpdateQuestsJob extends DataJob {
                 }
                 return allSpawns;
             }, []);
-            if (spawns.length > 0) {
+            if (spawns.length === 0) {
+                // we didn't find any spawns, so move on
+                continue;
+            }
+            if (spawnsPerMap[mapId]?.length === 1) {
+                // this item only had one spawn in the SPT data, so we should replace
+                foundItems.find(s => s.map === mapId).positions = spawns;
+            } else if (!spawnsPerMap[mapId]?.length) {
+                // no spawns in SPT data, so we add
                 foundItems.push({map: mapId, positions: spawns});
             }
+            // if multiple spawns in spt data, we leave it alone
         }
         return foundItems;
     }
