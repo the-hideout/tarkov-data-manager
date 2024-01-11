@@ -534,10 +534,10 @@ class UpdateQuestsJob extends DataJob {
                 // we didn't find any spawns, so move on
                 continue;
             }
-            if (spawnsPerMap[mapId]?.length === 1) {
+            if (spawnsPerMap[mapId] === 1) {
                 // this item only had one spawn in the SPT data, so we should replace
                 foundItems.find(s => s.map === mapId).positions = spawns;
-            } else if (!spawnsPerMap[mapId]?.length) {
+            } else if (!spawnsPerMap[mapId]) {
                 // no spawns in SPT data, so we add
                 foundItems.push({map: mapId, positions: spawns});
             }
