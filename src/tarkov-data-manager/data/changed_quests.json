@@ -1283,5 +1283,22 @@
                 }
             ]
         }
+    },
+    "59c50c8886f7745fed3193bf": {
+        "name": "Punisher - Part 2",
+        "propertiesChanged" : {
+            "location_id": "5704e5fad2720bc05b8b4567",
+            "locationName": "Reserve"
+        },
+        "objectivePropertiesChanged": {
+            "59624d5386f77446b872d5f7": {
+                "locationNames": [
+                    "5704e5fad2720bc05b8b4567 Name"
+                ],
+                "map_ids": [
+                    "5704e5fad2720bc05b8b4567"
+                ]
+            }
+        }
     }
 }
