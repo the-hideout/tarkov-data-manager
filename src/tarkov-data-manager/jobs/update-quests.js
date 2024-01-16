@@ -1311,7 +1311,7 @@ class UpdateQuestsJob extends DataJob {
         } else if (objective.conditionType === 'LeaveItemAtLocation') {
             obj.count = parseInt(objective.value);
             obj.zoneKeys = [objective.zoneId];
-            if (this.items[objective.target[0]].QuestItem) {
+            if (this.items[objective.target[0]]._props.QuestItem) {
                 obj.type = 'plantQuestItem';
                 obj.item_id = objective.target[0];
                 this.questItems[objective.target[0]] = {
