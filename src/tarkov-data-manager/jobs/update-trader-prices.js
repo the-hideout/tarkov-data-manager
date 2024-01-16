@@ -19,6 +19,11 @@ const skipOffers = {
             '5b07db875acfc40dc528a5f6' // AR-15 Tactical Dynamics Skeletonized pistol grip
         ],
     },
+    peacekeeper: {
+        1: [
+            '601aa3d2b2bcb34913271e6d' // 7.62x39mm MAI AP
+        ]
+    },
     skier: {
         1: [
             '584148f2245977598f1ad387', // skier doesn't sell mp-133

@@ -48,7 +48,7 @@ class JobLogger {
                 message = chalk.red(`${new Date()}\n${message.toString()}`);
             }
         }
-        if (this.verbose) console.log(message);
+        if (this.verbose) console.error(message);
         this.addMessage(message);
     }
 
@@ -62,7 +62,7 @@ class JobLogger {
         } else if (typeof message === 'object') {
             message = JSON.stringify(message, null, 4);
         }
-        if (this.verbose) console.log(message);
+        if (this.verbose) console.warn(message);
         this.addMessage(message);
     }
 
