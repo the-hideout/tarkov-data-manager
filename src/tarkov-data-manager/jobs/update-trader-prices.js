@@ -95,7 +95,16 @@ class UpdateTraderPricesJob extends DataJob {
                 continue;
             }
             const trader = this.traders.find(t => t.id === offer.trader_id);
-            const questUnlock = this.getQuestUnlock(offer);
+            let questUnlock = null;
+            try {
+                questUnlock = this.getQuestUnlock(offer);
+            } catch (error) {
+                this.logger.warn(error.message);
+                if (error.code === 'UNKNOWN_QUEST_UNLOCK' && offer.min_level === 1) {
+                    this.logger.log('Excluding offer due to trader level 1');
+                    continue;
+                }
+            }
             const assort = this.traderAssorts[trader.id].find(assort => assort.id === offer.id);
             const cashPrice = {
                 id: offer.item_id,
@@ -187,8 +196,10 @@ class UpdateTraderPricesJob extends DataJob {
                 };
             }
         }
-        this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${offer.min_level} ${this.items.get(itemId).name} ${itemId}`);
-        return null;
+        const error = new Error(`Could not find quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${offer.min_level} ${this.items.get(itemId).name} ${itemId}`);
+        error.code = 'UNKNOWN_QUEST_UNLOCK';
+        //this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${offer.min_level} ${this.items.get(itemId).name} ${itemId}`);
+        throw error;
     }
 
     getTraderByName = (traderName) => {
