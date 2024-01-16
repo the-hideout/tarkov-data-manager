@@ -369,6 +369,7 @@ class DataJob {
             exUsec: 'ExUsec',
             marksman: 'Marksman',
             pmcBot: 'PmcBot',
+            savage: 'Savage',
         };
         return keySubs[enemy] || enemy;
     }
