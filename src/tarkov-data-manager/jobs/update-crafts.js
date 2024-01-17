@@ -54,6 +54,10 @@ class UpdateCraftsJob extends DataJob {
                     endProduct = processedItems.get(preset.id);
                 }
             }
+            if (craft.locked && !craft.requirements.some(req => req.type === 'QuestComplete')) {
+                this.logger.warn(`${id}: Craft for ${endProduct.name} is locked`);
+                continue;
+            }
             if (!stations[en[station.name]]) {
                 stations[en[station.name]] = 0;
             }

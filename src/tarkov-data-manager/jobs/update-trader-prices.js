@@ -19,6 +19,11 @@ const skipOffers = {
             '5b07db875acfc40dc528a5f6' // AR-15 Tactical Dynamics Skeletonized pistol grip
         ],
     },
+    peacekeeper: {
+        1: [
+            '601aa3d2b2bcb34913271e6d' // 7.62x39mm MAI AP
+        ]
+    },
     skier: {
         1: [
             '584148f2245977598f1ad387', // skier doesn't sell mp-133
@@ -90,7 +95,21 @@ class UpdateTraderPricesJob extends DataJob {
                 continue;
             }
             const trader = this.traders.find(t => t.id === offer.trader_id);
-            const questUnlock = this.getQuestUnlock(offer);
+            let questUnlock = null;
+            try {
+                questUnlock = this.getQuestUnlock(offer);
+            } catch (error) {
+                if (error.code === 'UNKNOWN_QUEST_UNLOCK') {
+                    if (offer.min_level === 1) {
+                        this.logger.warn(`Unknown quest unlock for (excluded) trader offer ${offer.id}: ${error.trader} ${offer.min_level} ${error.item} ${offer.item_id}`);
+                        continue;
+                    } else {
+                        this.logger.warn(`Unknown quest unlock for trader offer ${offer.id}: ${error.trader} ${offer.min_level} ${error.item} ${offer.item_id}`);
+                    }
+                } else {
+                    this.logger.error(`Error checking quest unlock: ${error.message}`);
+                }
+            }
             const assort = this.traderAssorts[trader.id].find(assort => assort.id === offer.id);
             const cashPrice = {
                 id: offer.item_id,
@@ -182,8 +201,12 @@ class UpdateTraderPricesJob extends DataJob {
                 };
             }
         }
-        this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${offer.min_level} ${this.items.get(itemId).name} ${itemId}`);
-        return null;
+        const error = new Error(`Unknown quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${offer.min_level} ${this.items.get(itemId).name} ${itemId}`);
+        error.code = 'UNKNOWN_QUEST_UNLOCK';
+        error.trader = trader.normalizedName;
+        error.item = this.items.get(itemId).name;
+        //this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${offer.min_level} ${this.items.get(itemId).name} ${itemId}`);
+        throw error;
     }
 
     getTraderByName = (traderName) => {

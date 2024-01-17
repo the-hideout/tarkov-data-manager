@@ -480,7 +480,7 @@ app.post('/items/edit/:id', async (req, res) => {
             
                 if (updated) {
                     response.success = true;
-                    response.message = `${currentItemData.name} updated.<br>Will be live in < 4 hours.`;
+                    response.message = `${currentItemData.name} updated.\nWill be live in < 4 hours.`;
                 }
                 finish(files);
                 resolve();

@@ -193,7 +193,7 @@ const dataFunctions = {
                 if (mainQuests[quest._id]) {
                     continue;
                 }
-                quest.conditions.AvailableForFinish = quest.conditions.AvailableForFinish.map(obj => {
+                /*quest.conditions.AvailableForFinish = quest.conditions.AvailableForFinish.map(obj => {
                     const newObj = {
                         _props: {
                             ...obj,
@@ -218,7 +218,7 @@ const dataFunctions = {
                             ...cond,
                         },
                     }
-                });
+                });*/
                 mainQuests[quest._id] = quest;
             }
         } catch (error) {

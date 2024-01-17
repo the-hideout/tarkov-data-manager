@@ -40,6 +40,7 @@ class DataJob {
             ...options.saveFields,
         ];
         this.writeFolder = 'dumps';
+        this.warnOnTranslationKeySubstitution = false;
     }
 
     cleanup() {
@@ -252,7 +253,9 @@ class DataJob {
                     for (const dictKey in this.locales.en) {
                         if (dictKey.toLowerCase() === key.toLowerCase()) {
                             this.translationKeyMap[key] = dictKey;
-                            this.logger.warn(`Translation key substition for ${key}: ${dictKey}`);
+                            if (this.warnOnTranslationKeySubstitution) {
+                                this.logger.warn(`Translation key substition for ${key}: ${dictKey}`);
+                            }
                             //return dictKey;
                             break;
                         }
@@ -369,6 +372,7 @@ class DataJob {
             exUsec: 'ExUsec',
             marksman: 'Marksman',
             pmcBot: 'PmcBot',
+            savage: 'Savage',
         };
         return keySubs[enemy] || enemy;
     }

@@ -100,6 +100,9 @@ const methods = {
 
         try {
             const itemsPromise = methods.get(refreshItems);
+
+            const wipes = await query('SELECT * FROM wipe ORDER BY start_date desc limit 1');
+            const currentWipe = wipes[0];
             
             const price24hTimer = timer('item-24h-price-query');
             const price24hPromise = new Promise(async (resolve, reject) => {
@@ -145,6 +148,8 @@ const methods = {
                         item_id
                     FROM 
                         price_data
+                    WHERE
+                        timestamp > ?
                     GROUP BY
                         item_id
                 ) b
@@ -152,7 +157,7 @@ const methods = {
                     a.item_id = b.item_id AND a.timestamp = b.max_timestamp
                 GROUP BY
                     a.item_id, a.timestamp;
-            `).then(results => {
+            `, [currentWipe.start_date]).then(results => {
                 lastLowPriceTimer.end();
                 return results;
             });

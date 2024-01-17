@@ -477,6 +477,12 @@ class UpdateMapsJob extends DataJob {
             };
             mods.push(slotMods);*/
             for (const modId of modList[id][slot]) {
+                if (!this.items.has(modId)) {
+                    continue;
+                }
+                if (this.items.get(modId).types.includes('disabled')) {
+                    continue;
+                }
                 mods.push({
                     item: modId,
                     item_name: this.items.get(modId).name,
