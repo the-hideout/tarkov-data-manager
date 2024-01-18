@@ -289,7 +289,7 @@ class UpdatePresetsJob extends DataJob {
             if (p.armorOnly) {
                 continue;
             }
-            if (item.short_name !== p.shortName || item.width !== p.width || item.height !== p.height || item.properties.backgroundColor !== p.backgroundColor) {
+            if (item.short_name !== this.getTranslation(p.shortName) || item.width !== p.width || item.height !== p.height || item.properties.backgroundColor !== p.backgroundColor) {
                 regnerateImages.push(p);
             }
         }

@@ -61,6 +61,10 @@ class UpdateMapsJob extends DataJob {
                     if (spawn.Categories.length === 0) {
                         return false;
                     }
+                    const categories = spawn.Categories.map(cat => cat.toLowerCase());
+                    if (map.waves.some(w => w.SpawnPoints.split(',').includes(spawn.BotZoneName) && w.WildSpawnType === 'marksman')) {
+                        categories.push('sniper');
+                    }
                     return {
                         position: spawn.Position,
                         sides: spawn.Sides.map(side => {
@@ -69,7 +73,7 @@ class UpdateMapsJob extends DataJob {
                             }
                             return side.toLowerCase();
                         }),
-                        categories: spawn.Categories.map(cat => cat.toLowerCase()),
+                        categories: categories,
                         zoneName: spawn.BotZoneName || spawn.Id,
                     };
                 }).filter(Boolean),
