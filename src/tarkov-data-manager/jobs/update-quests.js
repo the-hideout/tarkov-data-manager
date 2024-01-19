@@ -17,7 +17,23 @@ class UpdateQuestsJob extends DataJob {
 
     async run() {
         this.logger.log('Processing quests...');
-        [this.tdQuests, this.rawQuestData, this.items, this.locations, this.mapLoot, this.mapDetails, this.locales, this.itemResults, this.missingQuests, this.changedQuests, this.removedQuests, this.neededKeys, this.questConfig, this.s3Images] = await Promise.all([
+        [
+            this.tdQuests,
+            this.rawQuestData,
+            this.achievements,
+            this.items,
+            this.locations,
+            this.mapLoot,
+            this.mapDetails,
+            this.locales,
+            this.itemResults,
+            this.missingQuests,
+            this.changedQuests,
+            this.removedQuests,
+            this.neededKeys,
+            this.questConfig,
+            this.s3Images,
+        ] = await Promise.all([
             got('https://tarkovtracker.github.io/tarkovdata/quests.json', {
                 responseType: 'json',
                 resolveBodyOnly: true,
@@ -27,6 +43,7 @@ class UpdateQuestsJob extends DataJob {
                 this.logger.error(error);
                 return tarkovData.quests(false);
             }),
+            tarkovData.achievements(),
             tarkovData.items(),
             tarkovData.locations(),
             tarkovData.mapLoot().then(result => Object.keys(result).reduce((all, mapId) => {
@@ -369,6 +386,9 @@ class UpdateQuestsJob extends DataJob {
                 continue;
             }
             const questId = match.groups.id;
+            if (this.achievements.some(a => a.id === questId)) {
+                continue;
+            }
             let found = false;
             for (const quest of quests.Task) {
                 if (questId === quest.id) {
@@ -488,6 +508,8 @@ class UpdateQuestsJob extends DataJob {
         quests.QuestItem = this.questItems;
 
         quests.Quest = await this.jobManager.runJob('update-quests-legacy', {data: this.tdQuests, parent: this});
+
+        quests.Achievement = this.achievements.map(a => this.processAchievement(a));
 
         quests.locale = this.kvData.locale;
 
@@ -1472,6 +1494,17 @@ class UpdateQuestsJob extends DataJob {
         }
         this.addMapFromDescription(obj);
         return obj;
+    }
+
+    processAchievement(ach) {
+        return {
+            id: ach.id,
+            name: this.addTranslation(`${ach.id} name`),
+            description: this.addTranslation(`${ach.id} description`),
+            side: this.addTranslation(ach.side),
+            rarity: ach.rarity,
+            conditions: ach.conditions.availableForFinish.map(c => this.formatObjective(ach.id, c, true)),
+        };
     }
 
     async getTaskImageLink(task) {

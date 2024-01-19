@@ -720,6 +720,130 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
+    "6574e0dedc0d635f633a5805": {
+        "id": "6574e0dedc0d635f633a5805",
+        "name": "Test Drive - Part 4",
+        "trader": "54cb50c76803fa8b248b4571",
+        "location_id": "5704e554d2720bac5b8b456e",
+        "locationName": "Shoreline",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "64f5deac39e45b527a7c4232",
+                "name": "Test Drive - Part 3",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "64f5deac39e45b527a7c4235",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [
+                    "Shoreline"
+                ],
+                "map_ids": [
+                    "5704e554d2720bac5b8b456e"
+                ],
+                "target": "AnyPmc",
+                "count": 20,
+                "shotType": "kill",
+                "usingWeapon": [
+                    {
+                        "id": "65268d8ecb944ff1e90ea385",
+                        "name": "Degtyarev RPDN 7.62x39 machine gun"
+                    }
+                ],
+                "usingWeaponMods": [
+                    [
+                        {
+                            "id": "618a75f0bd321d49084cd399",
+                            "name": "NPZ 1P78-1 2.8x scope"
+                        }
+                    ]
+                ],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "rpdn1p781000000000000001",
+                    "item_name": "Degtyarev RPDN 7.62x39 machine gun 1P78-1",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "name": "Prapor",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 460000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "64c1525e3319a1cf380c4e09",
+                    "item_name": "Tokarev AVT-40 7.62x54R automatic rifle Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "560d75f54bdc2da74d8b4573",
+                    "item_name": "7.62x54mm R SNB gzh ammo pack (20 pcs)",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "641074a07fd350b98c0b3f96",
+                    "item_name": "AVT-40 7.62x54R 15-round magazine",
+                    "count": 2,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 40000,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
     "65733403eefc2c312a759ddb": {
         "id": "65733403eefc2c312a759ddb",
         "name": "Developer's Secrets - Part 1",
