@@ -1208,6 +1208,11 @@ class UpdateQuestsJob extends DataJob {
                         if (allowedRoles.length < 1) {
                             allowedRoles.push('savage');
                         }
+                        obj.targetLocations = Array.from(allowedRoles.reduce((locs, mob) => {
+                            locs = this.getMobMaps(mob, locs)
+                            return locs;
+                        }, obj.targetLocations));
+
                         targetCode = allowedRoles[0];
                         obj.targetNames = allowedRoles.map(key => this.addMobTranslation(key));
                     }
@@ -1492,6 +1497,10 @@ class UpdateQuestsJob extends DataJob {
         } else {
             delete obj.zoneKeys;
         }
+        if (obj.map_ids.length === 0 && obj.targetLocations?.length) {
+            obj.map_ids = obj.targetLocations;
+        }
+        delete obj.targetLocations;
         this.addMapFromDescription(obj);
         return obj;
     }
@@ -1505,6 +1514,40 @@ class UpdateQuestsJob extends DataJob {
             rarity: ach.rarity,
             conditions: ach.conditions.availableForFinish.map(c => this.formatObjective(ach.id, c, true)),
         };
+    }
+
+    getMobMaps(mobName, locationSet) {
+        mobName = mobName.toLowerCase();
+        return Object.keys(this.locations.locations).reduce((onMaps, mapId) => {
+            const map = this.locations.locations[mapId];
+            if (mapId !== '59fc81d786f774390775787e' && (!map.Enabled || map.Locked)) {
+                return onMaps;
+            }
+            if (mobName === 'savage' && map.waves.some(w => w.WildSpawnType === 'assault')) {
+                onMaps.add(mapId);
+            }
+            if (mobName === 'marksman' && map.waves.some(w => w.WildSpawnType === 'marksman')) {
+                onMaps.add(mapId);
+            }
+            const boss = map.BossLocationSpawn.some(spawn => {
+                if (!spawn.BossChance) {
+                    return false;
+                }
+                if (spawn.BossName.toLowerCase() === mobName) {
+                    return true;
+                }
+                if (spawn.BossEscortAmount !== '0' && spawn.BossEscortType.toLowerCase() === mobName) {
+                    return true;
+                }
+                return !!spawn.Supports?.some(support => {
+                    return support.BossEscortAmount !== '0' && support.BossEscortType.toLowerCase() === mobName;
+                });
+            });
+            if (boss) {
+                onMaps.add(mapId);
+            }
+            return onMaps;
+        }, locationSet || new Set());
     }
 
     async getTaskImageLink(task) {
