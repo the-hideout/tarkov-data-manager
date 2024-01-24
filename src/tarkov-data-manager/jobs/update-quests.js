@@ -312,6 +312,20 @@ class UpdateQuestsJob extends DataJob {
                         this.logger.warn(`Zone key ${zoneId} is not associated with a map`);
                     }
                 });
+                // add objective map from zone
+                if (obj.map_ids.length === 0 && obj.zones?.length) {
+                    obj.map_ids = obj.zones.reduce((maps, zone) => {
+                        if (!maps.includes(zone.map)) {
+                            maps.push(zone.map);
+                        }
+                        return maps;
+                    }, []);
+                }
+                // add objective map from targets
+                if (obj.map_ids.length === 0 && obj.targetLocations?.length) {
+                    obj.map_ids = obj.targetLocations;
+                }
+                delete obj.targetLocations;
                 if (obj.type !== 'findQuestItem') {
                     continue;
                 }
@@ -1497,10 +1511,6 @@ class UpdateQuestsJob extends DataJob {
         } else {
             delete obj.zoneKeys;
         }
-        if (obj.map_ids.length === 0 && obj.targetLocations?.length) {
-            obj.map_ids = obj.targetLocations;
-        }
-        delete obj.targetLocations;
         this.addMapFromDescription(obj);
         return obj;
     }
