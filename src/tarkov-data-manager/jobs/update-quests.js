@@ -326,9 +326,12 @@ class UpdateQuestsJob extends DataJob {
                     obj.map_ids = obj.targetLocations;
                 }
                 delete obj.targetLocations;
+                
                 if (obj.type !== 'findQuestItem') {
                     continue;
                 }
+
+                // add objective map from quest item
                 const itemInfo = this.getQuestItemLocations(obj.item_id, obj.id);
                 if (itemInfo.length > 0) {
                     if (!obj.possibleLocations) {
@@ -340,7 +343,8 @@ class UpdateQuestsJob extends DataJob {
                             obj.map_ids.push(spawn.map);
                         }
                     }
-                } else if (questItemLocations[obj.item_id]) {       
+                } else if (questItemLocations[obj.item_id]) {    
+                    // quest item location is manually set   
                     const mapId = questItemLocations[obj.item_id];
                     if (!obj.map_ids.includes(mapId)) {
                         obj.map_ids.push(mapId);
@@ -534,7 +538,7 @@ class UpdateQuestsJob extends DataJob {
 
     getQuestItemLocations = (questItemId, objectiveId) => {
         const foundItems = [];
-        const forceMap = objectiveMap[objectiveId];
+        const forceMap = forceObjectiveMap[objectiveId];
         const spawnsPerMap = {};
         // first we get all the spawns we can from the SPT data
         for (const mapId in this.mapLoot) {
@@ -1574,7 +1578,9 @@ const questItemLocations = {};
 
 const extractMap = {};
 
-const objectiveMap = {
+// Secure Folder 0013 appears on multiple maps
+// this restricts a particular objective to being found on one map
+const forceObjectiveMap = {
     '5a2819c886f77460ba564f38': '5704e554d2720bac5b8b456e',
     '5979fc2686f77426d702a0f2': '56f40101d2720b2a4d8b45d6',
 };
