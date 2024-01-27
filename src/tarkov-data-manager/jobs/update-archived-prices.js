@@ -23,7 +23,7 @@ class UpdateHistoricalPricesJob extends DataJob {
         const archivedPrices = {};
         for (const hexChar of hexChars) {
             archivedPrices[hexChar] = await fs.readFile(path.join(__dirname, '..', 'dumps', `archived_price_data_${hexChar}.json`)).then(buffer => {
-                return JSON.parse(buffer);
+                return JSON.parse(buffer).ArchivedPrices;
             }).catch(error => {
                 if (error.code !== 'ENOENT') {
                     console.log(error);
@@ -91,14 +91,23 @@ class UpdateHistoricalPricesJob extends DataJob {
             });
         }
 
+        const uploads = [];
         for (const hexChar in archivedPrices) {
-            await this.cloudflarePut(
-                {ArchivedPrices: archivedPrices},
+            uploads.push(this.cloudflarePut(
+                {ArchivedPrices: archivedPrices[hexChar]},
                 `archived_price_data_${hexChar}`
-            );
+            ));
             //const fileName = path.join(__dirname, '..', 'dumps', `archived_price_data_${hexChar}.json`);
             //await fs.writeFile(fileName, JSON.stringify(archivedPrices[hexChar]));
         }
+        await Promise.allSettled(uploads).then(results => {
+            for (const result of results) {
+                if (result.status === 'fulfilled') {
+                    continue;
+                }
+                this.logger.error(result.reason);
+            }
+        });
 
         this.logger.success('Done with archived prices');
         // Possibility to POST to a Discord webhook here with cron status details
