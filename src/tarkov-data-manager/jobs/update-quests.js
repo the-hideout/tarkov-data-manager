@@ -21,6 +21,7 @@ class UpdateQuestsJob extends DataJob {
             this.tdQuests,
             this.rawQuestData,
             this.achievements,
+            this.achievementStats,
             this.items,
             this.locations,
             this.mapLoot,
@@ -44,6 +45,7 @@ class UpdateQuestsJob extends DataJob {
                 return tarkovData.quests(false);
             }),
             tarkovData.achievements(),
+            tarkovData.achievementStats(),
             tarkovData.items(),
             tarkovData.locations(),
             tarkovData.mapLoot().then(result => Object.keys(result).reduce((all, mapId) => {
@@ -1524,9 +1526,11 @@ class UpdateQuestsJob extends DataJob {
             id: ach.id,
             name: this.addTranslation(`${ach.id} name`),
             description: this.addTranslation(`${ach.id} description`),
+            hidden: ach.hidden,
             side: this.addTranslation(ach.side),
-            rarity: ach.rarity,
-            conditions: ach.conditions.availableForFinish.map(c => this.formatObjective(ach.id, c, true)),
+            rarity: this.addTranslation(`Achievements/Tab/${ach.rarity}Rarity`),
+            //conditions: ach.conditions.availableForFinish.map(c => this.formatObjective(ach.id, c, true)),
+            playersCompletedPercent: this.achievementStats[ach.id] || 0,
         };
     }
 
