@@ -1,10 +1,10 @@
 {
     "5c51aac186f77432ea65c552": {
         "name": "Collector",
-        "__taskRequirementsAdded": [
+        "taskRequirementsAdded": [
             {
-                "task": "5c0d0d5086f774363760aef2",
-                "name": "Athlete",
+                "task": "5c0bc91486f7746ab41857a2",
+                "name": "Silent Caliber",
                 "status": [
                     "complete"
                 ]

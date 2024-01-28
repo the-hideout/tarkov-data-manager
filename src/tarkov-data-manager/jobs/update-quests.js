@@ -17,7 +17,23 @@ class UpdateQuestsJob extends DataJob {
 
     async run() {
         this.logger.log('Processing quests...');
-        [this.tdQuests, this.rawQuestData, this.items, this.locations, this.mapLoot, this.mapDetails, this.locales, this.itemResults, this.missingQuests, this.changedQuests, this.removedQuests, this.neededKeys, this.questConfig, this.s3Images] = await Promise.all([
+        [
+            this.tdQuests,
+            this.rawQuestData,
+            this.achievements,
+            this.items,
+            this.locations,
+            this.mapLoot,
+            this.mapDetails,
+            this.locales,
+            this.itemResults,
+            this.missingQuests,
+            this.changedQuests,
+            this.removedQuests,
+            this.neededKeys,
+            this.questConfig,
+            this.s3Images,
+        ] = await Promise.all([
             got('https://tarkovtracker.github.io/tarkovdata/quests.json', {
                 responseType: 'json',
                 resolveBodyOnly: true,
@@ -27,6 +43,7 @@ class UpdateQuestsJob extends DataJob {
                 this.logger.error(error);
                 return tarkovData.quests(false);
             }),
+            tarkovData.achievements(),
             tarkovData.items(),
             tarkovData.locations(),
             tarkovData.mapLoot().then(result => Object.keys(result).reduce((all, mapId) => {
@@ -295,9 +312,26 @@ class UpdateQuestsJob extends DataJob {
                         this.logger.warn(`Zone key ${zoneId} is not associated with a map`);
                     }
                 });
+                // add objective map from zone
+                if (obj.map_ids.length === 0 && obj.zones?.length) {
+                    obj.map_ids = obj.zones.reduce((maps, zone) => {
+                        if (!maps.includes(zone.map)) {
+                            maps.push(zone.map);
+                        }
+                        return maps;
+                    }, []);
+                }
+                // add objective map from targets
+                if (obj.map_ids.length === 0 && obj.targetLocations?.length) {
+                    obj.map_ids = obj.targetLocations;
+                }
+                delete obj.targetLocations;
+                
                 if (obj.type !== 'findQuestItem') {
                     continue;
                 }
+
+                // add objective map from quest item
                 const itemInfo = this.getQuestItemLocations(obj.item_id, obj.id);
                 if (itemInfo.length > 0) {
                     if (!obj.possibleLocations) {
@@ -309,7 +343,8 @@ class UpdateQuestsJob extends DataJob {
                             obj.map_ids.push(spawn.map);
                         }
                     }
-                } else if (questItemLocations[obj.item_id]) {       
+                } else if (questItemLocations[obj.item_id]) {    
+                    // quest item location is manually set   
                     const mapId = questItemLocations[obj.item_id];
                     if (!obj.map_ids.includes(mapId)) {
                         obj.map_ids.push(mapId);
@@ -369,6 +404,9 @@ class UpdateQuestsJob extends DataJob {
                 continue;
             }
             const questId = match.groups.id;
+            if (this.achievements.some(a => a.id === questId)) {
+                continue;
+            }
             let found = false;
             for (const quest of quests.Task) {
                 if (questId === quest.id) {
@@ -489,6 +527,8 @@ class UpdateQuestsJob extends DataJob {
 
         quests.Quest = await this.jobManager.runJob('update-quests-legacy', {data: this.tdQuests, parent: this});
 
+        quests.Achievement = this.achievements.map(a => this.processAchievement(a));
+
         quests.locale = this.kvData.locale;
 
         await this.cloudflarePut(quests);
@@ -498,7 +538,7 @@ class UpdateQuestsJob extends DataJob {
 
     getQuestItemLocations = (questItemId, objectiveId) => {
         const foundItems = [];
-        const forceMap = objectiveMap[objectiveId];
+        const forceMap = forceObjectiveMap[objectiveId];
         const spawnsPerMap = {};
         // first we get all the spawns we can from the SPT data
         for (const mapId in this.mapLoot) {
@@ -1186,6 +1226,11 @@ class UpdateQuestsJob extends DataJob {
                         if (allowedRoles.length < 1) {
                             allowedRoles.push('savage');
                         }
+                        obj.targetLocations = Array.from(allowedRoles.reduce((locs, mob) => {
+                            locs = this.getMobMaps(mob, locs)
+                            return locs;
+                        }, obj.targetLocations));
+
                         targetCode = allowedRoles[0];
                         obj.targetNames = allowedRoles.map(key => this.addMobTranslation(key));
                     }
@@ -1474,6 +1519,51 @@ class UpdateQuestsJob extends DataJob {
         return obj;
     }
 
+    processAchievement(ach) {
+        return {
+            id: ach.id,
+            name: this.addTranslation(`${ach.id} name`),
+            description: this.addTranslation(`${ach.id} description`),
+            side: this.addTranslation(ach.side),
+            rarity: ach.rarity,
+            conditions: ach.conditions.availableForFinish.map(c => this.formatObjective(ach.id, c, true)),
+        };
+    }
+
+    getMobMaps(mobName, locationSet) {
+        mobName = mobName.toLowerCase();
+        return Object.keys(this.locations.locations).reduce((onMaps, mapId) => {
+            const map = this.locations.locations[mapId];
+            if (mapId !== '59fc81d786f774390775787e' && (!map.Enabled || map.Locked)) {
+                return onMaps;
+            }
+            if (mobName === 'savage' && map.waves.some(w => w.WildSpawnType === 'assault')) {
+                onMaps.add(mapId);
+            }
+            if (mobName === 'marksman' && map.waves.some(w => w.WildSpawnType === 'marksman')) {
+                onMaps.add(mapId);
+            }
+            const boss = map.BossLocationSpawn.some(spawn => {
+                if (!spawn.BossChance) {
+                    return false;
+                }
+                if (spawn.BossName.toLowerCase() === mobName) {
+                    return true;
+                }
+                if (spawn.BossEscortAmount !== '0' && spawn.BossEscortType.toLowerCase() === mobName) {
+                    return true;
+                }
+                return !!spawn.Supports?.some(support => {
+                    return support.BossEscortAmount !== '0' && support.BossEscortType.toLowerCase() === mobName;
+                });
+            });
+            if (boss) {
+                onMaps.add(mapId);
+            }
+            return onMaps;
+        }, locationSet || new Set());
+    }
+
     async getTaskImageLink(task) {
         const s3FileName = `${task.id}.webp`;
         const s3ImageLink = `https://${process.env.S3_BUCKET}/${s3FileName}`;
@@ -1488,7 +1578,9 @@ const questItemLocations = {};
 
 const extractMap = {};
 
-const objectiveMap = {
+// Secure Folder 0013 appears on multiple maps
+// this restricts a particular objective to being found on one map
+const forceObjectiveMap = {
     '5a2819c886f77460ba564f38': '5704e554d2720bac5b8b456e',
     '5979fc2686f77426d702a0f2': '56f40101d2720b2a4d8b45d6',
 };

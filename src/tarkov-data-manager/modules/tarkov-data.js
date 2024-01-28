@@ -240,6 +240,13 @@ const dataFunctions = {
     traderQuestAssorts: async (traderId, download = false) => {
         return spt.traderQuestAssorts(traderId, download);
     },
+    achievements: async (download = false) => {
+        try {
+            return JSON.parse(fs.readFileSync(cachePath('achievements.json'))).elements;
+        } catch (error) {
+            return [];
+        }
+    },
 };
 
 module.exports = dataFunctions;
