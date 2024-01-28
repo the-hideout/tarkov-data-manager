@@ -3,11 +3,12 @@
         "name": "Collector",
         "taskRequirementsAdded": [
             {
-                "task": "5c0bc91486f7746ab41857a2",
-                "name": "Silent Caliber",
+                "task": "5c0bbaa886f7746941031d82",
+                "name": "Bullshit",
                 "status": [
                     "complete"
-                ]
+                ],
+                "notes": "Silent Caliber not required. Reported in tarkovmonitor discord by KDR."
             }
         ],
         "___taskRequirementsRemoved": [
