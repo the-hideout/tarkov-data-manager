@@ -398,7 +398,7 @@ class UpdateQuestsJob extends DataJob {
             this.logger.warn('Filtered out redundant prerequisite tasks:');
             for (const questId in filteredPrerequisiteTasks) {
                 const quest = quests.Task.find(q => q.id === questId);
-                this.logger.warn(`${this.locales.en[quest.name]} ${questId}: ${filteredPrerequisiteTasks[questId]}`);
+                this.logger.log(`${this.locales.en[quest.name]} ${questId}: ${filteredPrerequisiteTasks[questId]}`);
             }
         }
 
@@ -435,7 +435,7 @@ class UpdateQuestsJob extends DataJob {
         if (noQuestData.length > 0) {
             this.logger.warn(`No quest data found for:`);
             for (const noData of noQuestData) {
-                this.logger.warn(noData);
+                this.logger.log(noData);
             }
         }
 
