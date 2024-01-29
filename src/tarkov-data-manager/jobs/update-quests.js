@@ -1531,6 +1531,7 @@ class UpdateQuestsJob extends DataJob {
         return {
             id: ach.id,
             name: this.addTranslation(`${ach.id} name`),
+            normalizedName: normalizeName(this.getTranslation(`${ach.id} name`)),
             description: this.addTranslation(`${ach.id} description`),
             hidden: ach.hidden,
             side: this.addTranslation(ach.side),

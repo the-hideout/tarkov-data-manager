@@ -221,8 +221,6 @@ class UpdatePresetsJob extends DataJob {
                 {
                     _id: '000000000000000000000002',
                     _tpl: '59f32c3b86f77472a31742f0',
-                    parentId: '000000000000000000000001',
-                    slotId: 'skip',
                 }
             ]
         };

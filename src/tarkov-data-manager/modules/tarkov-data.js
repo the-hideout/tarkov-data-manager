@@ -36,7 +36,7 @@ const dataFunctions = {
         try {
             return JSON.parse(fs.readFileSync(cachePath('achievements.json'))).elements;
         } catch (error) {
-            return [];
+            return spt.achievements(download);
         }
     },
     achievementStats: (download = false) => {
