@@ -213,6 +213,18 @@ class UpdatePresetsJob extends DataJob {
                     count: 1
                 }
             ],
+            _items: [
+                {
+                    _id: '000000000000000000000001',
+                    _tpl: bearTag._id,
+                },
+                {
+                    _id: '000000000000000000000002',
+                    _tpl: '59f32c3b86f77472a31742f0',
+                    parentId: '000000000000000000000001',
+                    slotId: 'skip',
+                }
+            ]
         };
 
         // check for missing default presets
@@ -305,7 +317,7 @@ class UpdatePresetsJob extends DataJob {
                 normalized_name: p.normalized_name,
                 width: p.width,
                 height: p.height,
-                properties: {backgroundColor: p.backgroundColor},
+                properties: {backgroundColor: p.backgroundColor, _items: p._items},
             }).then(results => {
                 /*if (results.affectedRows > 0) {
                     this.logger.log(`${p.name} updated`);
