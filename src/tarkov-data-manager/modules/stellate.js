@@ -62,7 +62,7 @@ async function purge(dataName, logger = false) {
                 };
             }
             if (response.errors && response.errors.length > 0) {
-                logger.error(`Error purging cache: ${response.errors.map(err => err.message).join(', ')}`);
+                logger.error(`Error purging ${dataName} cache: ${response.errors.map(err => err.message || err).join(', ')}`);
             }
             if (response.data) {
                 const purgeSummary = [];

@@ -45,6 +45,29 @@
                 "name": "The Survivalist Path - Zhivchik"
             }
         ],
+        "objectivesAdded": [
+            {
+                "id": "65b10c6a8511b7ef8694e060",
+                "description": "65b10c6a8511b7ef8694e060",
+                "type": "giveItem",
+                "count": 1,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "item_id": "62a09e08de7ac81993580532",
+                "item_name": "Glorious E lightweight armored mask",
+                "item": "62a09e08de7ac81993580532",
+                "items": [
+                    "62a09e08de7ac81993580532"
+                ],
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true,
+                "zones": []
+            }
+        ],
         "__objectivesRemoved": [
             "60d9d34e8a6f9a3731773f93"
         ],

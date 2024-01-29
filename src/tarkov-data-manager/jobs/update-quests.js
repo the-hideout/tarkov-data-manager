@@ -238,10 +238,6 @@ class UpdateQuestsJob extends DataJob {
         const filteredPrerequisiteTasks = {};
         const missingImages = [];
         for (const quest of quests.Task) {
-            /*quest.descriptionMessageId = this.locales.en.quest[quest.id]?.description;
-            quest.startMessageId = this.locales.en.quest[quest.id]?.startedMessageText;
-            quest.successMessageId = this.locales.en.quest[quest.id]?.successMessageText;
-            quest.failMessageId = this.locales.en.quest[quest.id]?.failMessageText;*/
             quest.normalizedName = normalizeName(this.locales.en[quest.name])+(quest.factionName !== 'Any' ? `-${normalizeName(quest.factionName)}` : '');
 
             const removeReqs = [];
@@ -386,6 +382,16 @@ class UpdateQuestsJob extends DataJob {
             } else {
                 quest.taskImageLink = `https://${process.env.S3_BUCKET}/unknown-task.webp`;
                 missingImages.push(quest.id);
+            }
+
+            for (const obj of quest.objectives) {
+                if (!obj.locale_map) {
+                    continue;
+                }
+                for (const key of Object.values(obj.locale_map)) {
+                    this.addTranslation(key);
+                }
+                delete obj.locale_map;
             }
         }
         if (Object.keys(filteredPrerequisiteTasks).length > 0) {
