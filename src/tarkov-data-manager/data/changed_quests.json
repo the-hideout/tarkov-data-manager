@@ -1148,5 +1148,34 @@
         "propertiesChanged" : {
             "minPlayerLevel": 1
         }
+    },
+    "5ae4496986f774459e77beb6": {
+        "name": "Sew it Good - Part 3",
+        "objectivePropertiesChanged": {
+            "5ae9bb6986f77415a869b40b": {
+                "item_id": "5c0e53c886f7747fa54205c7",
+                "item_name": "6B13 assault armor (Digital Flora)",
+                "item": "5c0e53c886f7747fa54205c7",
+                "items": ["5c0e53c886f7747fa54205c7"]
+            },
+            "5ae9bc6e86f7746e0026222c": {
+                "item_id": "5c0e53c886f7747fa54205c7",
+                "item_name": "6B13 assault armor (Digital Flora)",
+                "item": "5c0e53c886f7747fa54205c7",
+                "items": ["5c0e53c886f7747fa54205c7"]
+            },
+            "5ae9be7f86f7746c6337153d": {
+                "item_id": "5c0e53c886f7747fa54205c7",
+                "item_name": "6B13 assault armor (Digital Flora)",
+                "item": "5c0e53c886f7747fa54205c7",
+                "items": ["5c0e53c886f7747fa54205c7"]
+            },
+            "5ae9bea886f77468ab400e64": {
+                "item_id": "5c0e53c886f7747fa54205c7",
+                "item_name": "6B13 assault armor (Digital Flora)",
+                "item": "5c0e53c886f7747fa54205c7",
+                "items": ["5c0e53c886f7747fa54205c7"]
+            }
+        }
     }
 }
