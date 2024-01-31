@@ -141,6 +141,9 @@ class UpdateQuestsJob extends DataJob {
                             }, []);
                         }
                     }
+                    if (obj.item && !obj.items) {
+                        obj.items = [obj.item];
+                    }
                     this.addMapFromDescription(obj);
                 }
                 quests.Task.push(quest);
@@ -1133,7 +1136,7 @@ class UpdateQuestsJob extends DataJob {
             } else {
                 obj.type = `${verb}Item`;
                 obj.item = objective.target[0];
-                obj.items = objective.target;
+                obj.items = objective.target.filter(id => this.itemResults.has(id) && !this.itemResults.get(id).types.includes('disabled'));
                 obj.dogTagLevel = objective.dogtagLevel;
                 obj.maxDurability = objective.maxDurability;
                 obj.minDurability = objective.minDurability;
@@ -1373,6 +1376,7 @@ class UpdateQuestsJob extends DataJob {
             } else {
                 obj.type = 'plantItem';
                 obj.item = objective.target[0];
+                obj.items = objective.target.filter(id => this.itemResults.has(id) && !this.itemResults.get(id).types.includes('disabled'));
                 obj.item_name = this.locales.en[`${objective.target[0]} Name`];
                 obj.dogTagLevel = 0;
                 obj.maxDurability = 100;
