@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 
 const cloudflare = require('../modules/cloudflare');
@@ -37,6 +38,8 @@ class DataJob {
             'saveFields',
             'selfLogger',
             'writeFolder',
+            'idSuffixLength',
+            'apiType',
             ...options.saveFields,
         ];
         this.writeFolder = 'dumps';
@@ -161,16 +164,14 @@ class DataJob {
             expireDate.setMinutes(expireDate.getMinutes() + 2);
             data.expiration = expireDate;
         }
-        if (typeof data !== 'string') {
-            data = JSON.stringify(data);
-        }
         const uploadStart = new Date();
-        const response = await cloudflare.put(kvName, data).catch(error => {
+        const response = await this.cloudflareUpload(kvName, data).catch(error => {
             this.logger.error(error);
             return {success: false, errors: [], messages: []};
         });
         const uploadTime = new Date() - uploadStart;
         if (response.success) {
+            this.writeDump();
             this.logger.success(`Successful Cloudflare put of ${kvName} in ${uploadTime} ms`);
             stellate.purge(kvName, this.logger);
         } else {
@@ -186,6 +187,73 @@ class DataJob {
                 return Promise.reject(new Error(`Error uploading kv data: ${errorMessages.join(', ')}`));
             }
         }
+    }
+
+    cloudflareUpload = async (kvName, data) => {
+        if (!this.idSuffixLength) {            
+            if (typeof data !== 'string') {
+                data = JSON.stringify(data);
+            }
+            return cloudflare.put(kvName, data).catch(error => {
+                this.logger.error(error);
+                return {success: false, errors: [], messages: []};
+            });
+        }
+        const uploads = [];
+        for (const hexKey of this.getIdSuffixKeys()) {
+            const partData = {
+                updated: data.updated,
+                expiration: data.expiration,
+            };
+            partData[this.apiType] = Object.keys(data[this.apiType]).reduce((matching, id) => {
+                if (id.endsWith(hexKey)) {
+                    matching[id] = data[this.apiType][id];
+                }
+                return matching;
+            }, {});
+            this.writeDump(partData, `${kvName}_${hexKey}`);
+            uploads.push(cloudflare.put(`${kvName}_${hexKey}`, JSON.stringify(partData)).catch(error => {
+                this.logger.error(error);
+                return {success: false, errors: [], messages: []};
+            }).then(response => {
+                this.writeDump(partData, `${kvName}_${hexKey}`);
+                return response;
+            }));
+        }
+        const uploadResults = await Promise.allSettled(uploads);
+        const totalResults = {success: true, errors: [], messages: []};
+        for (const uploadResult of uploadResults) {
+            if (uploadResult.status === 'fulfilled') {
+                totalResults.messages.push(...uploadResult.value.messages);
+                totalResults.errors.push(...uploadResult.value.errors);
+                if (!uploadResult.value.success) {
+                    totalResults.success = false;
+                }
+            }
+            if (uploadResult.status === 'rejected') {
+                totalResults.success = false;
+                totalResults.errors.push(uploadResult.reason);
+            }
+        }
+        return totalResults;
+    }
+
+    writeDump = (data = false, filename = false) => {
+        if (!data) {
+            data = this.kvData;
+        }
+        if (!filename) {
+            filename = this.kvName;
+        }
+        const newName = path.join(__dirname, '..', 'dumps', `${filename.toLowerCase()}.json`);
+        const oldName = newName.replace('.json', '_old.json');
+        try {
+            fs.renameSync(newName, oldName);
+        } catch (error) {
+            // do nothing
+        }
+        fs.writeFileSync(newName, JSON.stringify(data, null, 4));
+        //fs.writeFileSync(newName, value);
     }
 
     discordAlert = async (options) => {
@@ -468,6 +536,25 @@ class DataJob {
 
     hasTranslation = (key, langCode = 'en') => {
         return typeof this.locales[langCode][key] !== 'undefined';
+    }
+
+    getIdSuffix(id) {
+        if (!this.idSuffixLength) {
+            throw new Error('idSuffixLength must be set before calling getIdSuffix');
+        }
+        return id.substring(id.length-this.idSuffixLength, id.length);
+    }
+
+    getIdSuffixKeys = () => {
+        if (!this.idSuffixLength) {
+            throw new Error('idSuffixLength must be set before calling getIdSuffixKeys');
+        }
+        const keys = [];
+        const maxDecimalValue = parseInt('f'.padEnd(this.idSuffixLength, 'f'), 16);
+        for (let i = 0; i <= maxDecimalValue; i++) {
+            keys.push(i.toString(16).padStart(this.idSuffixLength, '0'));
+        }
+        return keys;
     }
 }
 

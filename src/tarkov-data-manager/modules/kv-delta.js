@@ -20,6 +20,7 @@ const ignoreId = [
 
 const typesQueries = {
     Ammo: ['ammo'],
+    ArchivedPrices: ['archivedItemPrices'],
     ArmorMaterial: ['armorMaterials'],
     Barter: ['barters'],
     Craft: ['crafts'],
