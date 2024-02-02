@@ -171,7 +171,7 @@ class DataJob {
         });
         const uploadTime = new Date() - uploadStart;
         if (response.success) {
-            this.writeDump(data);
+            this.writeDump(data, kvName);
             this.logger.success(`Successful Cloudflare put of ${kvName} in ${uploadTime} ms`);
             stellate.purge(kvName, this.logger);
         } else {

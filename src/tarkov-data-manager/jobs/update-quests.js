@@ -1485,7 +1485,7 @@ class UpdateQuestsJob extends DataJob {
                     name: this.locales.en[`${itemId} Name`]
                 });
                 Object.values(this.itemMap).forEach(item => {
-                    if (item.categories?.includes(itemId)) {
+                    if (item.categories.includes(itemId)) {
                         obj.containsOne.push({
                             id: item.id,
                             name: item.name
