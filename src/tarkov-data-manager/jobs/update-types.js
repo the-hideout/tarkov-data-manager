@@ -84,12 +84,18 @@ class UpdateTypesJob extends DataJob {
             '5a341c4686f77469e155819e': {
                 types: ['wearable']
             },
+            '644120aa86ffbe10ee032b6f': { // armor plates
+                types: ['armor-plate']
+            },
+            '65649eb40bf0ed77b8044453': { // built-in armor plates
+                types: ['armor-plate', 'disabled']
+            },
         };
 
         [this.allItems, this.bsgData, this.presets] = await Promise.all([
             remoteData.get(),
             tarkovData.items(),
-            this.jobManager.jobOutput('update-presets', this, true),
+            this.jobManager.jobOutput('update-presets', this),
         ]);;
 
         this.logger.log(`Updating types`);
@@ -117,11 +123,33 @@ class UpdateTypesJob extends DataJob {
                 }
                 continue;
             }
-            if(!this.bsgData[itemId]?._props){
+
+            //Check for unusable armor
+            if (this.bsgData[itemId]._parent === '644120aa86ffbe10ee032b6f') {
+                const armorIsUsable = Object.keys(this.bsgData).some(id => {
+                    return this.bsgData[id]._props?.Slots?.some(slot => slot._props.filters?.some(f => f.Filter.includes(itemId)));
+                });
+                if (armorIsUsable && item.types.includes('disabled')) {
+                    this.logger.warn(`Armor plate ${itemId} ${item.name} is now usable, enabling`);
+                    await remoteData.removeType(itemId, 'disabled').then(results => {
+                        if (results.affectedRows == 0) {
+                            this.logger.fail(`Not marked as disabled ${itemId} ${item.name}`);
+                        }
+                    });
+                } else if (!armorIsUsable && !item.types.includes('disabled')) {
+                    this.logger.warn(`Armor plate ${itemId} ${item.name} is not usable, disabling`);
+                    await remoteData.addType(itemId, 'disabled').then(results => {
+                        if (results.affectedRows == 0) {
+                            this.logger.fail(`Already disabled ${itemId} ${item.name}`);
+                        }
+                    });
+                }
+            }
+            if (!this.bsgData[itemId]?._props) {
                 this.logger.warn(`${itemId} ${item.name} lacks item properties`);
                 continue;
             }
-            if(item.types.includes('no-flea') && this.bsgData[itemId]._props.CanSellOnRagfair){
+            if (item.types.includes('no-flea') && this.bsgData[itemId]._props.CanSellOnRagfair && !this.bsgData[itemId]._parent === '6575ea719c7cad336508e418') {
                 this.logger.warn(`You can sell ${itemId} ${item.name} on flea, but it is marked as noFlea`);
 
                 await remoteData.removeType(itemId, 'no-flea').then(results => {
@@ -129,7 +157,7 @@ class UpdateTypesJob extends DataJob {
                         this.logger.fail(`Not marked as no-flea ${itemId} ${item.name}`);
                     }
                 });
-            } else if(!item.types.includes('no-flea') && !this.bsgData[itemId]._props.CanSellOnRagfair){
+            } else if (!item.types.includes('no-flea') && !this.bsgData[itemId]._props.CanSellOnRagfair) {
                 this.logger.warn(`You can't sell ${itemId} ${item.name} on flea`);
     
                 await remoteData.addType(itemId, 'no-flea').then(results => {

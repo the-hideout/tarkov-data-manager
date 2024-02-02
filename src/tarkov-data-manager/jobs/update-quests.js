@@ -17,7 +17,23 @@ class UpdateQuestsJob extends DataJob {
 
     async run() {
         this.logger.log('Processing quests...');
-        [this.tdQuests, this.rawQuestData, this.items, this.locations, this.mapLoot, this.mapDetails, this.locales, this.itemResults, this.missingQuests, this.changedQuests, this.removedQuests, this.neededKeys, this.questConfig, this.s3Images] = await Promise.all([
+        [
+            this.tdQuests,
+            this.rawQuestData,
+            this.achievements,
+            this.items,
+            this.locations,
+            this.mapLoot,
+            this.mapDetails,
+            this.locales,
+            this.itemResults,
+            this.missingQuests,
+            this.changedQuests,
+            this.removedQuests,
+            this.neededKeys,
+            this.questConfig,
+            this.s3Images,
+        ] = await Promise.all([
             got('https://tarkovtracker.github.io/tarkovdata/quests.json', {
                 responseType: 'json',
                 resolveBodyOnly: true,
@@ -27,6 +43,7 @@ class UpdateQuestsJob extends DataJob {
                 this.logger.error(error);
                 return tarkovData.quests(false);
             }),
+            tarkovData.achievements(),
             tarkovData.items(),
             tarkovData.locations(),
             tarkovData.mapLoot().then(result => Object.keys(result).reduce((all, mapId) => {
@@ -46,7 +63,7 @@ class UpdateQuestsJob extends DataJob {
         this.maps = await this.jobManager.jobOutput('update-maps', this);
         this.hideout = await this.jobManager.jobOutput('update-hideout', this);
         this.traders = await this.jobManager.jobOutput('update-traders', this);
-        this.presets = await this.jobManager.jobOutput('update-presets', this, true);
+        this.presets = await this.jobManager.jobOutput('update-presets', this);
         this.itemMap = await this.jobManager.jobOutput('update-item-cache', this);
 
         const questItemMap = new Map();
@@ -104,6 +121,23 @@ class UpdateQuestsJob extends DataJob {
                     if (obj.type === 'shoot') {
                         obj.target = this.addMobTranslation(obj.target);
                         obj.targetNames = [this.addMobTranslation(obj.target)];
+                        if (obj.usingWeaponTypes) {
+                            obj.usingWeapon = obj.usingWeaponTypes.reduce((weapons, categoryId) => {
+                                Object.values(this.itemMap).forEach(item => {
+                                    if (!item.categories.includes(categoryId)) {
+                                        return;
+                                    }
+                                    if (item.types.includes('preset')) {
+                                        return;
+                                    }
+                                    weapons.push({
+                                        id: item.id,
+                                        name: this.locales.en[item.name],
+                                    });
+                                });
+                                return weapons;
+                            }, []);
+                        }
                     }
                     this.addMapFromDescription(obj);
                 }
@@ -149,7 +183,6 @@ class UpdateQuestsJob extends DataJob {
                     break;
                 }
             }
-            this.addNeededKeys(task);
         }
         
         // validate task requirements
@@ -257,27 +290,68 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
 
-            // add objective maps from quest items
+            // add locations for zones and quest items
             for (const obj of quest.objectives) {
+                obj.zones = [];
+                obj.zoneKeys?.forEach((zoneId) => {
+                    for (const mapId in this.mapDetails) {
+                        for (const trigger of this.mapDetails[mapId].zones) {
+                            if (trigger.id === zoneId) {
+                                obj.zones.push({
+                                    id: trigger.id,
+                                    map: mapId,
+                                    ...trigger.location,
+                                });        
+                                if (!obj.map_ids.includes(mapId)) {
+                                    obj.map_ids.push(mapId);
+                                } 
+                            }
+                        }
+                    }
+                    if (obj.zones.length === 0) {
+                        this.logger.warn(`Zone key ${zoneId} is not associated with a map`);
+                    }
+                });
+                // add objective map from zone
+                if (obj.map_ids.length === 0 && obj.zones?.length) {
+                    obj.map_ids = obj.zones.reduce((maps, zone) => {
+                        if (!maps.includes(zone.map)) {
+                            maps.push(zone.map);
+                        }
+                        return maps;
+                    }, []);
+                }
+                // add objective map from targets
+                if (obj.map_ids.length === 0 && obj.targetLocations?.length) {
+                    obj.map_ids = obj.targetLocations;
+                }
+                delete obj.targetLocations;
+                
                 if (obj.type !== 'findQuestItem') {
                     continue;
                 }
+
+                // add objective map from quest item
                 const itemInfo = this.getQuestItemLocations(obj.item_id, obj.id);
                 if (itemInfo.length > 0) {
+                    if (!obj.possibleLocations) {
+                        obj.possibleLocations = [];
+                    }
                     for (const spawn of itemInfo) {
                         obj.possibleLocations.push(spawn);
                         if (!obj.map_ids.includes(spawn.map)) {
                             obj.map_ids.push(spawn.map);
                         }
                     }
-                } else if (questItemLocations[obj.item_id]) {       
+                } else if (questItemLocations[obj.item_id]) {    
+                    // quest item location is manually set   
                     const mapId = questItemLocations[obj.item_id];
                     if (!obj.map_ids.includes(mapId)) {
                         obj.map_ids.push(mapId);
                     }
-                    this.logger.warn(`${quest.name} objective ${obj.id} item ${obj.item_id} has no known coordinates`);
+                    this.logger.warn(`${this.getTranslation(quest.name)} ${quest.id} objective ${obj.id} item ${obj.item_name} ${obj.item_id} has no known coordinates`);
                 } else {
-                    this.logger.warn(`${quest.name} objective ${obj.id} item ${obj.item_id} has no known spawn`);
+                    this.logger.warn(`${this.getTranslation(quest.name)} ${quest.id} objective ${obj.id} item ${obj.item_name} ${obj.item_id} has no known spawn`);
                 }
             }
 
@@ -302,6 +376,7 @@ class UpdateQuestsJob extends DataJob {
                     }
                 }
             }
+            this.addNeededKeys(quest);
             
             const imageLink = await this.getTaskImageLink(quest);
             if (imageLink) {
@@ -329,6 +404,9 @@ class UpdateQuestsJob extends DataJob {
                 continue;
             }
             const questId = match.groups.id;
+            if (this.achievements.some(a => a.id === questId)) {
+                continue;
+            }
             let found = false;
             for (const quest of quests.Task) {
                 if (questId === quest.id) {
@@ -449,6 +527,8 @@ class UpdateQuestsJob extends DataJob {
 
         quests.Quest = await this.jobManager.runJob('update-quests-legacy', {data: this.tdQuests, parent: this});
 
+        quests.Achievement = this.achievements.map(a => this.processAchievement(a));
+
         quests.locale = this.kvData.locale;
 
         await this.cloudflarePut(quests);
@@ -458,8 +538,13 @@ class UpdateQuestsJob extends DataJob {
 
     getQuestItemLocations = (questItemId, objectiveId) => {
         const foundItems = [];
-        const forceMap = objectiveMap[objectiveId];
+        const forceMap = forceObjectiveMap[objectiveId];
+        const spawnsPerMap = {};
+        // first we get all the spawns we can from the SPT data
         for (const mapId in this.mapLoot) {
+            if (!spawnsPerMap[mapId]) {
+                spawnsPerMap[mapId] = 0;
+            }
             if (forceMap && forceMap !== mapId) {
                 continue;
             }
@@ -470,9 +555,33 @@ class UpdateQuestsJob extends DataJob {
                 return allSpawns;
             }, []);
             if (spawns.length > 0) {
+                // track how many spawn points we've found for each map
+                spawnsPerMap[mapId] += spawns.length;
                 foundItems.push({map: mapId, positions: spawns});
+            }
+        }
+        for (const mapId in this.mapDetails) {
+            if (forceMap && forceMap !== mapId) {
                 continue;
             }
+            const spawns = this.mapDetails[mapId].quest_items.reduce((allSpawns, q) => {
+                if (q.id === questItemId) {
+                    allSpawns.push(q.location.position);
+                }
+                return allSpawns;
+            }, []);
+            if (spawns.length === 0) {
+                // we didn't find any spawns, so move on
+                continue;
+            }
+            if (spawnsPerMap[mapId] === 1) {
+                // this item only had one spawn in the SPT data, so we should replace
+                foundItems.find(s => s.map === mapId).positions = spawns;
+            } else if (!spawnsPerMap[mapId]) {
+                // no spawns in SPT data, so we add
+                foundItems.push({map: mapId, positions: spawns});
+            }
+            // if multiple spawns in spt data, we leave it alone
         }
         return foundItems;
     }
@@ -587,7 +696,7 @@ class UpdateQuestsJob extends DataJob {
             }
         } else {
             this.logger.warn('Could not match preset to reward');
-            this.logger.log(JSON.stringify(rewardData, null, 4));
+            this.logger.log(JSON.stringify(reward, null, 4));
         }
         return rewardData;
     }
@@ -786,38 +895,38 @@ class UpdateQuestsJob extends DataJob {
             }
         }
         for (const req of quest.conditions.AvailableForStart) {
-            if (req._parent === 'Level') {
-                questData.minPlayerLevel = parseInt(req._props.value);
-            } else if (req._parent === 'Quest') {
+            if (req.conditionType === 'Level') {
+                questData.minPlayerLevel = parseInt(req.value);
+            } else if (req.conditionType === 'Quest') {
                 const questReq = {
-                    task: req._props.target,
-                    name: this.locales.en[`${req._props.target} name`],
+                    task: req.target,
+                    name: this.locales.en[`${req.target} name`],
                     status: []
                 };
-                for (const statusCode of req._props.status) {
+                for (const statusCode of req.status) {
                     if (!questStatusMap[statusCode]) {
-                        this.logger.warn(`Unrecognized quest status "${statusCode}" for quest requirement ${this.locales.en[req._props.target]} ${req._props.target} of ${questData.name}`);
+                        this.logger.warn(`Unrecognized quest status "${statusCode}" for quest requirement ${this.locales.en[req.target]} ${req.target} of ${questData.name}`);
                         continue;
                     }
                     questReq.status.push(questStatusMap[statusCode]);
                 }
                 questData.taskRequirements.push(questReq);
-            } else if (req._parent === 'TraderLoyalty' || req._parent === 'TraderStanding') {
+            } else if (req.conditionType === 'TraderLoyalty' || req.conditionType === 'TraderStanding') {
                 const requirementTypes = {
                     TraderLoyalty: 'level',
                     TraderStanding: 'reputation',
                 };
                 questData.traderRequirements.push({
-                    id: req._props.id,
-                    trader_id: req._props.target,
-                    name: this.locales.en[`${req._props.target} Nickname`],
-                    requirementType: requirementTypes[req._parent],
-                    compareMethod: req._props.compareMethod,
-                    value: parseInt(req._props.value),
-                    level: parseInt(req._props.value),
+                    id: req.id,
+                    trader_id: req.target,
+                    name: this.locales.en[`${req.target} Nickname`],
+                    requirementType: requirementTypes[req.conditionType],
+                    compareMethod: req.compareMethod,
+                    value: parseInt(req.value),
+                    level: parseInt(req.value),
                 });
             } else {
-                this.logger.warn(`Unrecognized quest prerequisite type ${req._parent} for quest requirement ${req._props.id} of ${questData.name}`)
+                this.logger.warn(`Unrecognized quest prerequisite type ${req.conditionType} for quest requirement ${req.id} of ${questData.name}`)
             }
         }
         this.loadRewards(questData, 'finishRewards', quest.rewards.Success);
@@ -961,47 +1070,6 @@ class UpdateQuestsJob extends DataJob {
             'shoot',
         ];
         for (const obj of questData.objectives) {
-            if (obj.zoneKeys) {
-                /*obj.zoneKeys.forEach(zoneKey => {
-                    if (!zoneMap[zoneKey]) {
-                        if (!questData.location_id) {
-                            this.logger.warn(`Zone key ${zoneKey} is not associated with a map`);
-                        }
-                        return;
-                    }
-                    let mapIds = zoneMap[zoneKey];
-                    if (!Array.isArray(mapIds)) {
-                        mapIds = [mapIds];
-                    }
-                    for (const mapId of mapIds) {
-                        if (!obj.map_ids.includes(mapId)) {
-                            obj.map_ids.push(mapId);
-                        } 
-                    }
-                });*/
-                obj.zones = obj.zoneKeys.reduce((zones, zoneId) => {
-                    for (const mapId in this.mapDetails) {
-                        for (const trigger of this.mapDetails[mapId].zones) {
-                            if (trigger.id === zoneId) {
-                                zones.push({
-                                    id: trigger.id,
-                                    map: mapId,
-                                    ...trigger.location,
-                                });        
-                                if (!obj.map_ids.includes(mapId)) {
-                                    obj.map_ids.push(mapId);
-                                } 
-                            }
-                        }
-                    }
-                    if (zones.length === 0) {
-                        this.logger.warn(`Zone key ${zoneId} is not associated with a map`);
-                    }
-                    return zones;
-                }, []);
-            } else {
-                obj.zones = [];
-            }
             if (obj.map_ids.length === 0 && locationTypes.includes(obj.type)) {
                 if (obj.map_ids.length === 0 && questData.location_id) {
                     obj.locationNames.push(questData.locationName);
@@ -1013,13 +1081,13 @@ class UpdateQuestsJob extends DataJob {
     }
 
     formatObjective(questId, objective, failConditions = false) {
-        if (this.changedQuests[questId]?.objectivesRemoved?.includes(objective._props.id)) {
+        if (this.changedQuests[questId]?.objectivesRemoved?.includes(objective.id)) {
             return false;
         }
-        if (!objective._props?.id) {
+        if (!objective.id) {
             return false;
         }
-        let objectiveId = objective._props.id;
+        let objectiveId = objective.id;
         const changedIds = this.changedQuests[questId]?.objectiveIdsChanged;
         if (changedIds && changedIds[objectiveId]) {
             const objectiveIdChanged = changedIds[objectiveId];
@@ -1031,51 +1099,52 @@ class UpdateQuestsJob extends DataJob {
             id: objectiveId,
             description: (!failConditions || this.locales.en[objectiveId]) ? this.addTranslation(objectiveId) : this.addTranslation(objectiveId, 'en', ''),
             type: null,
-            count: isNaN(objective._props.value) ? null : parseInt(objective._props.value),
-            optional: Boolean((objective._props.parentId)),
+            count: isNaN(objective.value) ? null : parseInt(objective.value),
+            optional: Boolean((objective.parentId)),
             locationNames: [],
             map_ids: [],
             zoneKeys: [],
             zoneNames: [],
         };
-        if (objective._parent === 'FindItem' || objective._parent === 'HandoverItem') {
-            const targetItem = this.items[objective._props.target[0]];
+        if (objective.conditionType === 'FindItem' || objective.conditionType === 'HandoverItem') {
+            const targetItem = this.items[objective.target[0]];
             let verb = 'give';
-            if (objective._parent === 'FindItem' || (objective._parent === 'HandoverItem' && obj.optional)) {
+            if (objective.conditionType === 'FindItem' || (objective.conditionType === 'HandoverItem' && obj.optional)) {
                 verb = 'find';
             }
-            obj.item_id = objective._props.target[0];
-            obj.item_name = this.locales.en[`${objective._props.target[0]} Name`];
-            //obj.count = parseInt(objective._props.value);
+            obj.item_id = objective.target[0];
+            obj.item_name = this.locales.en[`${objective.target[0]} Name`];
+            //obj.count = parseInt(objective.value);
             if (!targetItem || targetItem._props.QuestItem) {
                 obj.type = `${verb}QuestItem`;
-                //obj.questItem = objective._props.target[0];
-                this.questItems[objective._props.target[0]] = {
-                    id: objective._props.target[0]
+                //obj.questItem = objective.target[0];
+                this.questItems[objective.target[0]] = {
+                    id: objective.target[0]
                 };
                 obj.possibleLocations = [];
             } else {
                 obj.type = `${verb}Item`;
-                obj.item = objective._props.target[0];
-                obj.dogTagLevel = objective._props.dogtagLevel;
-                obj.maxDurability = objective._props.maxDurability;
-                obj.minDurability = objective._props.minDurability;
-                obj.foundInRaid = Boolean(objective._props.onlyFoundInRaid);
+                obj.item = objective.target[0];
+                obj.items = objective.target;
+                obj.dogTagLevel = objective.dogtagLevel;
+                obj.maxDurability = objective.maxDurability;
+                obj.minDurability = objective.minDurability;
+                obj.foundInRaid = Boolean(objective.onlyFoundInRaid);
             }
-        } else if (objective._parent === 'CounterCreator') {
-            const counter = objective._props.counter;
+        } else if (objective.conditionType === 'CounterCreator') {
+            const counter = objective.counter;
             for (const cond of counter.conditions) {
-                if (cond._parent === 'VisitPlace') {
-                    //obj.description = en.quest[questId].conditions[objective._props.id];
-                    obj.zoneKeys.push(cond._props.target);
-                } else if (cond._parent === 'Kills' || cond._parent === 'Shots') {
-                    obj.target = this.locales.en[`QuestCondition/Elimination/Kill/Target/${cond._props.target}`] || cond._props.target;
-                    //obj.count = parseInt(objective._props.value);
+                if (cond.conditionType === 'VisitPlace') {
+                    //obj.description = en.quest[questId].conditions[objective.id];
+                    obj.zoneKeys.push(cond.target);
+                } else if (cond.conditionType === 'Kills' || cond.conditionType === 'Shots') {
+                    obj.target = this.locales.en[`QuestCondition/Elimination/Kill/Target/${cond.target}`] || cond.target;
+                    //obj.count = parseInt(objective.value);
                     obj.shotType = 'kill';
-                    if (cond._parent === 'Shots') obj.shotType = 'hit';
+                    if (cond.conditionType === 'Shots') obj.shotType = 'hit';
                     //obj.bodyParts = [];
-                    if (cond._props.bodyPart) {
-                        obj.bodyParts = this.addTranslation(cond._props.bodyPart.map(part => `QuestCondition/Elimination/Kill/BodyPart/${part}`));
+                    if (cond.bodyPart) {
+                        obj.bodyParts = this.addTranslation(cond.bodyPart.map(part => `QuestCondition/Elimination/Kill/BodyPart/${part}`));
                     }
                     obj.usingWeapon = [];
                     obj.usingWeaponMods = [];
@@ -1086,11 +1155,11 @@ class UpdateQuestsJob extends DataJob {
                     if (!obj.notWearing) obj.notWearing = [];
                     if (!obj.healthEffect) obj.healthEffect = null;
                     obj.enemyHealthEffect = null;
-                    if (cond._props.distance) {
-                        obj.distance = cond._props.distance;
+                    if (cond.distance) {
+                        obj.distance = cond.distance;
                     }
-                    if (cond._props.weapon) {
-                        for (const itemId of cond._props.weapon) {
+                    if (cond.weapon) {
+                        for (const itemId of cond.weapon) {
                             if (!this.itemMap[itemId] || this.itemMap[itemId].types.includes('disabled')) {
                                 //this.logger.warn(`Unrecognized weapon ${itemId} for objective ${obj.id} of ${questData.name}`);
                                 continue;
@@ -1101,8 +1170,8 @@ class UpdateQuestsJob extends DataJob {
                             });
                         }
                     }
-                    if (cond._props.weaponModsInclusive) {
-                        for (const modArray of cond._props.weaponModsInclusive) {
+                    if (cond.weaponModsInclusive) {
+                        for (const modArray of cond.weaponModsInclusive) {
                             const modSet = [];
                             for (const itemId of modArray) {
                                 if (!this.locales.en[`${itemId} Name`]) {
@@ -1121,17 +1190,17 @@ class UpdateQuestsJob extends DataJob {
                             obj.usingWeaponMods.push(modSet);
                         }
                     }
-                    if (cond._props.enemyHealthEffects) {
+                    if (cond.enemyHealthEffects && cond.enemyHealthEffects.length > 0) {
                         obj.enemyHealthEffect = {
-                            ...cond._props.enemyHealthEffects[0],
+                            ...cond.enemyHealthEffects[0],
                             time: null,
                         };
-                        if (cond._props.enemyHealthEffects[0].bodyParts) {
-                            obj.bodyParts = this.addTranslation(cond._props.enemyHealthEffects[0].bodyParts.map(part => `QuestCondition/Elimination/Kill/BodyPart/${part}`));
+                        if (cond.enemyHealthEffects[0].bodyParts) {
+                            obj.bodyParts = this.addTranslation(cond.enemyHealthEffects[0].bodyParts.map(part => `QuestCondition/Elimination/Kill/BodyPart/${part}`));
                             obj.enemyHealthEffect.bodyParts = obj.bodyParts;
                         }
-                        if (cond._props.enemyHealthEffects[0].effects) {
-                            obj.effects = this.addTranslation(cond._props.enemyHealthEffects[0].effects.map(eff => {
+                        if (cond.enemyHealthEffects[0].effects) {
+                            obj.effects = this.addTranslation(cond.enemyHealthEffects[0].effects.map(eff => {
                                 if (eff === 'Stimulator') {
                                     return '5448f3a64bdc2d60728b456a Name';
                                 }
@@ -1140,14 +1209,14 @@ class UpdateQuestsJob extends DataJob {
                             obj.enemyHealthEffect.effects = obj.effects;
                         }
                     }
-                    let targetCode = cond._props.target;
+                    let targetCode = cond.target;
                     obj.targetNames = [this.addMobTranslation(targetCode)];
-                    if (cond._props.savageRole) {
+                    if (cond.savageRole) {
                         const ignoreRoles = [
                             'assault',
                             'cursedAssault',
                         ];
-                        const allowedRoles = cond._props.savageRole.filter(role => !ignoreRoles.includes(role)).reduce((roles, role) => {
+                        const allowedRoles = cond.savageRole.filter(role => !ignoreRoles.includes(role)).reduce((roles, role) => {
                             const key = this.getMobKey(role);
                             if (!roles.includes(key)) {
                                 roles.push(key);
@@ -1157,16 +1226,21 @@ class UpdateQuestsJob extends DataJob {
                         if (allowedRoles.length < 1) {
                             allowedRoles.push('savage');
                         }
+                        obj.targetLocations = Array.from(allowedRoles.reduce((locs, mob) => {
+                            locs = this.getMobMaps(mob, locs)
+                            return locs;
+                        }, obj.targetLocations));
+
                         targetCode = allowedRoles[0];
                         obj.targetNames = allowedRoles.map(key => this.addMobTranslation(key));
                     }
                     obj.target = obj.targetNames[0];
-                    if (cond._props.daytime) {
-                        obj.timeFromHour = cond._props.daytime.from;
-                        obj.timeUntilHour = cond._props.daytime.to;
+                    if (cond.daytime) {
+                        obj.timeFromHour = cond.daytime.from;
+                        obj.timeUntilHour = cond.daytime.to;
                     }
-                } else if (cond._parent === 'Location') {
-                    for (const loc of cond._props.target) {
+                } else if (cond.conditionType === 'Location') {
+                    for (const loc of cond.target) {
                         if (loc === 'develop') continue;
                         const map = this.getMapFromNameId(loc);
                         if (map) {
@@ -1176,26 +1250,26 @@ class UpdateQuestsJob extends DataJob {
                             this.logger.warn(`Unrecognized map name ${loc} for objective ${obj.id}`);
                         }
                     }
-                } else if (cond._parent === 'ExitStatus') {
-                    obj.exitStatus = this.addTranslation(cond._props.status.map(stat => `ExpBonus${stat}`));
-                } else if (cond._parent === 'ExitName') {
-                    obj.exitName = this.addTranslation(cond._props.exitName)
-                    if (cond._props.exitName && obj.map_ids.length === 0) {
+                } else if (cond.conditionType === 'ExitStatus') {
+                    obj.exitStatus = this.addTranslation(cond.status.map(stat => `ExpBonus${stat}`));
+                } else if (cond.conditionType === 'ExitName') {
+                    obj.exitName = this.addTranslation(cond.exitName)
+                    if (cond.exitName && obj.map_ids.length === 0) {
                         const mapIdWithExtract = Object.keys(this.mapDetails).find(mapId => {
                             const extracts = this.mapDetails[mapId].extracts;
-                            return extracts.some(e => e.settings.Name === cond._props.exitName);
+                            return extracts.some(e => e.settings.Name === cond.exitName);
                         });
                         if (mapIdWithExtract) {
                             obj.map_ids.push(mapIdWithExtract);
                         } else {
-                            this.logger.warn(`No map found for extract ${cond._props.exitName}`);
+                            this.logger.warn(`No map found for extract ${cond.exitName}`);
                         }
                     }
-                } else if (cond._parent === 'Equipment') {
+                } else if (cond.conditionType === 'Equipment') {
                     if (!obj.wearing) obj.wearing = [];
                     if (!obj.notWearing) obj.notWearing = [];
-                    if (cond._props.equipmentInclusive) {
-                        for (const outfit of cond._props.equipmentInclusive) {
+                    if (cond.equipmentInclusive) {
+                        for (const outfit of cond.equipmentInclusive) {
                             const outfitData = [];
                             for (const itemId of outfit) {
                                 outfitData.push({
@@ -1206,8 +1280,8 @@ class UpdateQuestsJob extends DataJob {
                             obj.wearing.push(outfitData);
                         }
                     }
-                    if (cond._props.equipmentExclusive) {
-                        for (const outfit of cond._props.equipmentExclusive) {
+                    if (cond.equipmentExclusive) {
+                        for (const outfit of cond.equipmentExclusive) {
                             for (const itemId of outfit) {
                                 obj.notWearing.push({
                                     id: itemId,
@@ -1216,22 +1290,22 @@ class UpdateQuestsJob extends DataJob {
                             }
                         }
                     }
-                } else if (cond._parent === 'InZone') {
-                    obj.zoneKeys.push(...cond._props.zoneIds);
-                } else if (cond._parent === 'Shots') {
+                } else if (cond.conditionType === 'InZone') {
+                    obj.zoneKeys.push(...cond.zoneIds);
+                } else if (cond.conditionType === 'Shots') {
                     //already handled with Kills
-                } else if (cond._parent === 'HealthEffect') {
+                } else if (cond.conditionType === 'HealthEffect') {
                     obj.healthEffect = {
-                        bodyParts: cond._props.bodyPartsWithEffects[0].bodyParts,
-                        effects: cond._props.bodyPartsWithEffects[0].effects,
+                        bodyParts: cond.bodyPartsWithEffects[0].bodyParts,
+                        effects: cond.bodyPartsWithEffects[0].effects,
                         time: null,
                     };
-                    if (cond._props.bodyPartsWithEffects[0].bodyParts) {
-                        obj.bodyParts = this.addTranslation(cond._props.bodyPartsWithEffects[0].bodyParts.map(part => `QuestCondition/Elimination/Kill/BodyPart/${part}`));
+                    if (cond.bodyPartsWithEffects[0].bodyParts) {
+                        obj.bodyParts = this.addTranslation(cond.bodyPartsWithEffects[0].bodyParts.map(part => `QuestCondition/Elimination/Kill/BodyPart/${part}`));
                         obj.healthEffect.bodyParts = obj.bodyParts;
                     }
-                    if (cond._props.bodyPartsWithEffects[0].effects) {
-                        obj.effects = this.addTranslation(cond._props.bodyPartsWithEffects[0].effects.map(eff => {
+                    if (cond.bodyPartsWithEffects[0].effects) {
+                        obj.effects = this.addTranslation(cond.bodyPartsWithEffects[0].effects.map(eff => {
                             if (eff === 'Stimulator') {
                                 return '5448f3a64bdc2d60728b456a Name';
                             }
@@ -1239,26 +1313,26 @@ class UpdateQuestsJob extends DataJob {
                         }));
                         obj.healthEffect.effects = obj.effects;
                     }
-                    if (cond._props.time) obj.healthEffect.time = cond._props.time;
-                } else if (cond._parent === 'UseItem') {
-                    obj.useAny = cond._props.target.filter(id => this.itemMap[id]).reduce((allItems, current) => {
+                    if (cond.time) obj.healthEffect.time = cond.time;
+                } else if (cond.conditionType === 'UseItem') {
+                    obj.useAny = cond.target.filter(id => this.itemMap[id]).reduce((allItems, current) => {
                         if (!allItems.includes(current)) {
                             allItems.push(current);
                         }
                         return allItems;
                     }, []);
-                    obj.compareMethod = cond._props.compareMethod;
-                    obj.count = cond._props.value;
-                } else if (cond._parent === 'LaunchFlare') {
+                    obj.compareMethod = cond.compareMethod;
+                    obj.count = cond.value;
+                } else if (cond.conditionType === 'LaunchFlare') {
                     obj.useAny = [
                         '624c0b3340357b5f566e8766',
                         '62389be94d5d474bf712e709',
                     ];
                     obj.count = 1;
                     obj.compareMethod = '>=';
-                    obj.zoneKeys.push(cond._props.target);
+                    obj.zoneKeys.push(cond.target);
                 } else {
-                    this.logger.warn(`Unrecognized counter condition type "${cond._parent}" for objective ${objective._props.id}`);
+                    this.logger.warn(`Unrecognized counter condition type "${cond.conditionType}" for objective ${objective.id}`);
                 }
             }
             if (obj.shotType) {
@@ -1273,109 +1347,109 @@ class UpdateQuestsJob extends DataJob {
             } else {
                 obj.type = 'visit';
             }
-        } else if (objective._parent === 'PlaceBeacon') {
+        } else if (objective.conditionType === 'PlaceBeacon') {
             obj.type = 'mark';
-            obj.item = objective._props.target[0];
-            obj.item_id = objective._props.target[0];
-            obj.item_name = this.locales.en[`${objective._props.target[0]} Name`];
-            obj.zoneKeys = [objective._props.zoneId];
-        } else if (objective._parent === 'LeaveItemAtLocation') {
-            obj.count = parseInt(objective._props.value);
-            obj.zoneKeys = [objective._props.zoneId];
-            if (this.items[objective._props.target[0]]._props.QuestItem) {
+            obj.item = objective.target[0];
+            obj.item_id = objective.target[0];
+            obj.item_name = this.locales.en[`${objective.target[0]} Name`];
+            obj.zoneKeys = [objective.zoneId];
+        } else if (objective.conditionType === 'LeaveItemAtLocation') {
+            obj.count = parseInt(objective.value);
+            obj.zoneKeys = [objective.zoneId];
+            if (this.items[objective.target[0]]._props.QuestItem) {
                 obj.type = 'plantQuestItem';
-                obj.item_id = objective._props.target[0];
-                this.questItems[objective._props.target[0]] = {
-                    id: objective._props.target[0]
+                obj.item_id = objective.target[0];
+                this.questItems[objective.target[0]] = {
+                    id: objective.target[0]
                 };
             } else {
                 obj.type = 'plantItem';
-                obj.item = objective._props.target[0];
-                obj.item_name = this.locales.en[`${objective._props.target[0]} Name`];
+                obj.item = objective.target[0];
+                obj.item_name = this.locales.en[`${objective.target[0]} Name`];
                 obj.dogTagLevel = 0;
                 obj.maxDurability = 100;
                 obj.minDurability = 0;
                 obj.foundInRaid = false;
             }
-        } else if (objective._parent === 'Skill') {
+        } else if (objective.conditionType === 'Skill') {
             obj.type = 'skill';
             obj.skillLevel = {
-                name: this.addTranslation(objective._props.target),
-                level: objective._props.value,
+                name: this.addTranslation(objective.target),
+                level: objective.value,
             };
-        } else if (objective._parent === 'WeaponAssembly') {
+        } else if (objective.conditionType === 'WeaponAssembly') {
             obj.type = 'buildWeapon';
-            obj.item = objective._props.target[0];
-            obj.item_name = this.locales.en[`${objective._props.target[0]} Name`];
-            objective._props.ergonomics.value = parseInt(objective._props.ergonomics.value);
-            objective._props.recoil.value = parseInt(objective._props.recoil.value);
+            obj.item = objective.target[0];
+            obj.item_name = this.locales.en[`${objective.target[0]} Name`];
+            objective.ergonomics.value = parseInt(objective.ergonomics.value);
+            objective.recoil.value = parseInt(objective.recoil.value);
             obj.attributes = [
                 {
                     name: 'accuracy',
-                    requirement: objective._props.baseAccuracy
+                    requirement: objective.baseAccuracy
                 },
                 {
                     name: 'durability',
-                    requirement: objective._props.durability
+                    requirement: objective.durability
                 },
                 {
                     name: 'effectiveDistance',
-                    requirement: objective._props.effectiveDistance
+                    requirement: objective.effectiveDistance
                 },
                 {
                     name: 'ergonomics',
-                    requirement: objective._props.ergonomics
+                    requirement: objective.ergonomics
                 },
                 {
                     name: 'height',
-                    requirement: objective._props.height
+                    requirement: objective.height
                 },
                 {
                     name: 'magazineCapacity',
-                    requirement: objective._props.magazineCapacity
+                    requirement: objective.magazineCapacity
                 },
                 {
                     name: 'muzzleVelocity',
-                    requirement: objective._props.muzzleVelocity
+                    requirement: objective.muzzleVelocity
                 },
                 {
                     name: 'recoil',
-                    requirement: objective._props.recoil
+                    requirement: objective.recoil
                 },
                 {
                     name: 'weight',
-                    requirement: objective._props.weight
+                    requirement: objective.weight
                 },
                 {
                     name: 'width',
-                    requirement: objective._props.width
+                    requirement: objective.width
                 }
             ];
             for (const att of obj.attributes) {
                 att.requirement.value = parseFloat(att.requirement.value);
             }
-            /*obj.accuracy = objective._props.baseAccuracy;
-            obj.durability = objective._props.durability;
-            obj.effectiveDistance = objective._props.effectiveDistance;
-            obj.ergonomics = objective._props.ergonomics;
-            obj.height = objective._props.height;
-            obj.magazineCapacity = objective._props.magazineCapacity;
-            obj.muzzleVelocity = objective._props.muzzleVelocity;
-            obj.recoil = objective._props.recoil;
-            obj.weight = objective._props.weight;
-            obj.width = objective._props.width;
+            /*obj.accuracy = objective.baseAccuracy;
+            obj.durability = objective.durability;
+            obj.effectiveDistance = objective.effectiveDistance;
+            obj.ergonomics = objective.ergonomics;
+            obj.height = objective.height;
+            obj.magazineCapacity = objective.magazineCapacity;
+            obj.muzzleVelocity = objective.muzzleVelocity;
+            obj.recoil = objective.recoil;
+            obj.weight = objective.weight;
+            obj.width = objective.width;
             obj.ergonomics.value = parseInt(obj.ergonomics.value);
             obj.recoil.value = parseInt(obj.recoil.value);*/
             obj.containsAll = [];
             obj.containsOne = [];
             obj.containsCategory = [];
-            for (const itemId of objective._props.containsItems) {
+            for (const itemId of objective.containsItems) {
                 obj.containsAll.push({
                     id: itemId,
                     name: this.locales.en[`${itemId} Name`]
                 });
             }
-            for (const itemId of objective._props.hasItemFromCategory) {
+            for (const itemId of objective.hasItemFromCategory) {
                 if (this.itemMap[itemId] && this.itemMap[itemId].types.includes('disabled')) {
                     continue;
                 }
@@ -1392,43 +1466,43 @@ class UpdateQuestsJob extends DataJob {
                     }
                 });
             }
-        } else if (objective._parent === 'TraderLoyalty') {
+        } else if (objective.conditionType === 'TraderLoyalty') {
             obj.type = 'traderLevel';
-            obj.trader_id = objective._props.target;
-            obj.trader_name = this.locales.en[`${objective._props.target} Nickname`];
-            obj.level = objective._props.value;
-        } else if (objective._parent === 'TraderStanding') {
+            obj.trader_id = objective.target;
+            obj.trader_name = this.locales.en[`${objective.target} Nickname`];
+            obj.level = objective.value;
+        } else if (objective.conditionType === 'TraderStanding') {
             obj.type = 'traderStanding';
-            obj.trader_id = objective._props.target;
-            obj.trader_name = this.locales.en[`${objective._props.target} Nickname`];
-            obj.compareMethod = objective._props.compareMethod;
-            obj.value = objective._props.value;
-        } else if (objective._parent === 'VisitPlace') {
+            obj.trader_id = objective.target;
+            obj.trader_name = this.locales.en[`${objective.target} Nickname`];
+            obj.compareMethod = objective.compareMethod;
+            obj.value = objective.value;
+        } else if (objective.conditionType === 'VisitPlace') {
             obj.type = 'visit';
-        } else if (objective._parent === 'Quest') {
+        } else if (objective.conditionType === 'Quest') {
             obj.type = 'taskStatus';
-            obj.task = objective._props.target;
-            obj.quest_name = this.locales.en[`${objective._props.target} name`];
+            obj.task = objective.target;
+            obj.quest_name = this.locales.en[`${objective.target} name`];
             obj.status = [];
-            for (const statusCode of objective._props.status) {
+            for (const statusCode of objective.status) {
                 if (!questStatusMap[statusCode]) {
-                    this.logger.warn(`Unrecognized quest status "${statusCode}" for quest objective ${this.locales.en[`${req._props.target}`]} ${req._props.target}`);
+                    this.logger.warn(`Unrecognized quest status "${statusCode}" for quest objective ${this.locales.en[`${req.target}`]} ${req.target}`);
                     continue;
                 }
                 obj.status.push(questStatusMap[statusCode]);
             }
-        } else if (objective._parent === 'Level') {
+        } else if (objective.conditionType === 'Level') {
             obj.type = 'playerLevel';
-            obj.playerLevel = parseInt(objective._props.value);
+            obj.playerLevel = parseInt(objective.value);
         } else {
-            this.logger.warn(`Unrecognized type "${objective._parent}" for objective ${objective._props.id}`);
+            this.logger.warn(`Unrecognized type "${objective.conditionType}" for objective ${objective.id}`);
             return;
         }
         if (obj.zoneKeys.length > 0) {
             const reducedZones = obj.zoneKeys.reduce((reducedKeys, key) => {
                 if (!this.locales.en[key]) {
                     if (obj.type === 'shoot' || obj.type === 'extract' || obj.type === 'useItem') {
-                        this.logger.warn(`No translation for zone ${key} for objective ${objective._props.id}`);
+                        this.logger.warn(`No translation for zone ${key} for objective ${objective.id}`);
                     }
                     return reducedKeys;
                 }
@@ -1445,6 +1519,51 @@ class UpdateQuestsJob extends DataJob {
         return obj;
     }
 
+    processAchievement(ach) {
+        return {
+            id: ach.id,
+            name: this.addTranslation(`${ach.id} name`),
+            description: this.addTranslation(`${ach.id} description`),
+            side: this.addTranslation(ach.side),
+            rarity: ach.rarity,
+            conditions: ach.conditions.availableForFinish.map(c => this.formatObjective(ach.id, c, true)),
+        };
+    }
+
+    getMobMaps(mobName, locationSet) {
+        mobName = mobName.toLowerCase();
+        return Object.keys(this.locations.locations).reduce((onMaps, mapId) => {
+            const map = this.locations.locations[mapId];
+            if (mapId !== '59fc81d786f774390775787e' && (!map.Enabled || map.Locked)) {
+                return onMaps;
+            }
+            if (mobName === 'savage' && map.waves.some(w => w.WildSpawnType === 'assault')) {
+                onMaps.add(mapId);
+            }
+            if (mobName === 'marksman' && map.waves.some(w => w.WildSpawnType === 'marksman')) {
+                onMaps.add(mapId);
+            }
+            const boss = map.BossLocationSpawn.some(spawn => {
+                if (!spawn.BossChance) {
+                    return false;
+                }
+                if (spawn.BossName.toLowerCase() === mobName) {
+                    return true;
+                }
+                if (spawn.BossEscortAmount !== '0' && spawn.BossEscortType.toLowerCase() === mobName) {
+                    return true;
+                }
+                return !!spawn.Supports?.some(support => {
+                    return support.BossEscortAmount !== '0' && support.BossEscortType.toLowerCase() === mobName;
+                });
+            });
+            if (boss) {
+                onMaps.add(mapId);
+            }
+            return onMaps;
+        }, locationSet || new Set());
+    }
+
     async getTaskImageLink(task) {
         const s3FileName = `${task.id}.webp`;
         const s3ImageLink = `https://${process.env.S3_BUCKET}/${s3FileName}`;
@@ -1459,7 +1578,9 @@ const questItemLocations = {};
 
 const extractMap = {};
 
-const objectiveMap = {
+// Secure Folder 0013 appears on multiple maps
+// this restricts a particular objective to being found on one map
+const forceObjectiveMap = {
     '5a2819c886f77460ba564f38': '5704e554d2720bac5b8b456e',
     '5979fc2686f77426d702a0f2': '56f40101d2720b2a4d8b45d6',
 };

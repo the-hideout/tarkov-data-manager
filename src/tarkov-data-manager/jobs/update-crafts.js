@@ -18,7 +18,7 @@ class UpdateCraftsJob extends DataJob {
         const en = this.locales.en;
         const areas = await this.jobManager.jobOutput('update-hideout', this);
         const tasks = await this.jobManager.jobOutput('update-quests', this);
-        const presets = await this.jobManager.jobOutput('update-presets', this, true);
+        const presets = await this.jobManager.jobOutput('update-presets', this);
         const crafts = {
             Craft: [],
         };
@@ -53,6 +53,10 @@ class UpdateCraftsJob extends DataJob {
                 if (preset) {
                     endProduct = processedItems.get(preset.id);
                 }
+            }
+            if (craft.locked && !craft.requirements.some(req => req.type === 'QuestComplete')) {
+                this.logger.warn(`${id}: Craft for ${endProduct.name} is locked`);
+                continue;
             }
             if (!stations[en[station.name]]) {
                 stations[en[station.name]] = 0;

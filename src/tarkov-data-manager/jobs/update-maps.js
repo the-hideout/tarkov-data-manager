@@ -61,6 +61,10 @@ class UpdateMapsJob extends DataJob {
                     if (spawn.Categories.length === 0) {
                         return false;
                     }
+                    const categories = spawn.Categories.map(cat => cat.toLowerCase());
+                    if (map.waves.some(w => w.SpawnPoints.split(',').includes(spawn.BotZoneName) && w.WildSpawnType === 'marksman')) {
+                        categories.push('sniper');
+                    }
                     return {
                         position: spawn.Position,
                         sides: spawn.Sides.map(side => {
@@ -69,7 +73,7 @@ class UpdateMapsJob extends DataJob {
                             }
                             return side.toLowerCase();
                         }),
-                        categories: spawn.Categories.map(cat => cat.toLowerCase()),
+                        categories: categories,
                         zoneName: spawn.BotZoneName || spawn.Id,
                     };
                 }).filter(Boolean),
@@ -436,7 +440,7 @@ class UpdateMapsJob extends DataJob {
         const containedParts = parts.filter(p => {
             return !p.attributes.some(a => a.value === 'cartridges');
         });
-        for (const preset of Object.values(this.presets)) {
+        for (const preset of Object.values(this.presets.presets)) {
             if (preset.baseId !== baseItemId) {
                 continue;
             }
@@ -477,6 +481,12 @@ class UpdateMapsJob extends DataJob {
             };
             mods.push(slotMods);*/
             for (const modId of modList[id][slot]) {
+                if (!this.items.has(modId)) {
+                    continue;
+                }
+                if (this.items.get(modId).types.includes('disabled')) {
+                    continue;
+                }
                 mods.push({
                     item: modId,
                     item_name: this.items.get(modId).name,
@@ -570,7 +580,7 @@ class UpdateMapsJob extends DataJob {
                 const preset = this.matchEquipmentItemToPreset(equipmentItem);
                 if (preset) {
                     equipmentItem.item = preset.id;
-                    equipmentItem.item_name = preset.locale.en.name;
+                    equipmentItem.item_name = this.presets.locale.en[preset.name];
                     //add base item to preset
                     equipmentItem.contains.unshift({
                         item: id,

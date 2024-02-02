@@ -217,5 +217,23 @@
         "62863b9ae5b4f5010e0d30c8": [
             ["62987c658081af308d7558c6"]
         ]
+    },
+    "65733403eefc2c312a759ddb": {
+        "name": "Developer's Secrets - Part 1",
+        "65801ad655315fdce2096bec": [
+            ["6582dbe43a2e5248357dbe9a"]
+        ]
+    },
+    "6573382e557ff128bf3da536": {
+        "name": "Developer's Secrets - Part 2",
+        "6573382e557ff128bf3da537": [
+            ["6582dbf0b8d7830efc45016f"]
+        ]
+    },
+    "6573397ef3f8344c4575cd87": {
+        "name": "Properties All Around",
+        "6581676e7a18ff402fd23e68": [
+            ["6582dc5740562727a654ebb1"]
+        ]
     }
 }

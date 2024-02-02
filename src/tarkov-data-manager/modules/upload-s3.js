@@ -136,7 +136,7 @@ async function fileExistsInS3(filename) {
         return true;
     } catch (error) {
         if (error.name === 'NotFound') {
-            console.log(filename, 'not found')
+            console.log('%s not found', filename)
             return false;
         }
         return Promise.reject(error);

@@ -100,6 +100,9 @@ const methods = {
 
         try {
             const itemsPromise = methods.get(refreshItems);
+
+            const wipes = await query('SELECT * FROM wipe ORDER BY start_date desc limit 1');
+            const currentWipe = wipes[0];
             
             const price24hTimer = timer('item-24h-price-query');
             const price24hPromise = new Promise(async (resolve, reject) => {
@@ -145,6 +148,8 @@ const methods = {
                         item_id
                     FROM 
                         price_data
+                    WHERE
+                        timestamp > ?
                     GROUP BY
                         item_id
                 ) b
@@ -152,7 +157,7 @@ const methods = {
                     a.item_id = b.item_id AND a.timestamp = b.max_timestamp
                 GROUP BY
                     a.item_id, a.timestamp;
-            `).then(results => {
+            `, [currentWipe.start_date]).then(results => {
                 lastLowPriceTimer.end();
                 return results;
             });
@@ -302,23 +307,26 @@ const methods = {
                 changeValues[property]  = value;
             }
         }
-        if (Object.keys(changeValues) === 0) {
+        if (Object.keys(changeValues).length === 0) {
             return;
         }
-        console.log(`Setting ${id} properties to`, changeValues);
-        const propertyNames = [];
-        const propertyValues = [];
+        console.log(`Setting ${currentItemData.name} ${id} properties to`, changeValues);
+        const fieldNames = [];
+        const placeHolderValues = [];
         for (const property in changeValues) {
             if (property === 'properties') {
                 currentItemData[property] = properties[property];
             } else {
                 currentItemData[property] = changeValues[property];
             }
-            propertyNames.push(`${property} = ?`);
-            propertyValues.push(changeValues[property])
+            fieldNames.push(`${property} = ?`);
+            placeHolderValues.push(changeValues[property])
         }
-        myData.set(id, currentItemData);
-        return query(`UPDATE item_data SET ${propertyNames.join(', ')} WHERE id = ?`, [...propertyValues, id]);
+        placeHolderValues.push(id);
+        return query(`UPDATE item_data SET ${fieldNames.join(', ')} WHERE id = ?`, placeHolderValues).then(result => {
+            myData.set(id, currentItemData);
+            return result;
+        });
     },
     addItem: async (values) => {
         if (!values.id) {

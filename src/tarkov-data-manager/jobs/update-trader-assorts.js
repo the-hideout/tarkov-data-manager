@@ -16,7 +16,7 @@ class UpdateTraderAssortsJob extends DataJob {
         [this.tasks, this.traders, this.presets, this.items, this.en] = await Promise.all([
             this.jobManager.jobOutput('update-quests', this),
             this.jobManager.jobOutput('update-traders', this),
-            this.jobManager.jobOutput('update-presets', this, true),
+            this.jobManager.jobOutput('update-presets', this),
             remoteData.get(),
             tarkovData.locale('en'),
         ]);
@@ -33,6 +33,27 @@ class UpdateTraderAssortsJob extends DataJob {
                 tarkovData.traderAssorts(traderId, true).catch(error => {
                     this.logger.error(`Error downloading assorts: ${error.message}`);
                     return tarkovData.traderAssorts(traderId, false);
+                }).then(assorts => {
+                    assorts.items = assorts.items.reduce((items, item) => {
+                        if (item.parentId === 'hideout') {
+                            items.push({
+                                _id: item._id,
+                                _items: [
+                                    {
+                                        _id: item._id,
+                                        _tpl: item._tpl,
+                                        upd: item.upd,
+                                    }
+                                ],
+                            });
+                        } else {
+                            const parentItem = items.find(i => i._items.some(ii => ii._id === item.parentId));
+                            //console.log(item.parentId, parentItem);
+                            parentItem._items.push(item);
+                        }
+                        return items;
+                    }, []);
+                    return assorts;
                 }),
                 tarkovData.traderQuestAssorts(traderId, true).catch(error => {
                     this.logger.error(`Error downloading quest assorts: ${error.message}`);
@@ -47,65 +68,48 @@ class UpdateTraderAssortsJob extends DataJob {
                 }),
                 Promise.resolve(traderId),
             ]).then(([assort, questAssort, realTraderId]) => {
-                assorts[realTraderId] = assort.items.reduce((allOffers, offer) => {
-                    if (offer.parentId === 'hideout') {
-                        allOffers.push({
-                            id: offer._id,
-                            item: offer._tpl,
-                            itemName: this.items.get(offer._tpl).name,
-                            baseItem: offer._tpl,
-                            stock: offer.upd.StackObjectsCount,
-                            unlimitedStock: Boolean(offer.upd.UnlimitedCount),
-                            buyLimit: offer.upd.BuyRestrictionMax || 0,
-                            taskUnlock: questAssort[offer._id],
-                            minLevel: assort.loyal_level_items[offer._id],
-                            barter: false,
-                            contains: [],
-                            cost: assort.barter_scheme[offer._id][0].map(req => {
-                                let reqId = req._tpl;
-                                if (req.side) {
-                                    reqId = dogTagSideMap[req.side];
-                                }
-                                return {
-                                    item: reqId,
-                                    itemName: this.items.get(reqId).name,
-                                    count: req.count,
-                                    dogTagLevel: req.level,
-                                    dogTagSide: req.side,
-                                };
-                            }),
-                        });
-                    } else {
-                        const parentOffer = allOffers.find(o => {
-                            if (o.id === offer.parentId) {
-                                return true;
+                assorts[realTraderId] = assort.items.map(offer => {
+                    return {
+                        id: offer._id,
+                        item: offer._items[0]._tpl,
+                        itemName: this.items.get(offer._items[0]._tpl).name,
+                        baseItem: offer._items[0]._tpl,
+                        stock: offer._items[0].upd.StackObjectsCount,
+                        unlimitedStock: Boolean(offer._items[0].upd.UnlimitedCount),
+                        buyLimit: offer._items[0].upd.BuyRestrictionMax || 0,
+                        taskUnlock: questAssort[offer._id],
+                        minLevel: assort.loyal_level_items[offer._id],
+                        barter: false,
+                        _items: offer._items,
+                        contains: offer._items.reduce((contents, i) => {
+                            const existingPart = contents.find(cont => cont.item === i._tpl);
+                            if (existingPart) {
+                                existingPart.count += i.upd?.StackObjectsCount || 1
+                            } else {
+                                contents.push({
+                                    id: i._id,
+                                    item: i._tpl,
+                                    itemName: this.items.get(i._tpl).name,
+                                    count: i.upd?.StackObjectsCount || 1,
+                                });
                             }
-                            for (const contained of o.contains) {
-                                if (contained.id === offer.parentId) {
-                                    return true;
-                                }
+                            return contents;
+                        }, []),
+                        cost: assort.barter_scheme[offer._id][0].map(req => {
+                            let reqId = req._tpl;
+                            if (req.side) {
+                                reqId = dogTagSideMap[req.side];
                             }
-                            return false;
-                        });
-                        if (!parentOffer) {
-                            this.logger.log('Could not find parent offer for', offer);
-                            return allOffers;
-                        }
-                        const existingPart = parentOffer.contains.find(cont => cont.item === offer._tpl);
-                        if (existingPart) {
-                            existingPart.count += offer.upd?.StackObjectsCount || 1
-                        } else {
-                            parentOffer.contains.push({
-                                id: offer._id,
-                                item: offer._tpl,
-                                itemName: this.items.get(offer._tpl).name,
-                                count: offer.upd?.StackObjectsCount || 1,
-                            });
-                        }
-                    }
-                    return allOffers;
-                }, []);
-                //return assorts[realTraderId];
+                            return {
+                                item: reqId,
+                                itemName: this.items.get(reqId).name,
+                                count: req.count,
+                                dogTagLevel: req.level,
+                                dogTagSide: req.side,
+                            };
+                        }),
+                    };
+                });
             }));
         };
         await Promise.all(traderAssortPromises);
@@ -118,9 +122,9 @@ class UpdateTraderAssortsJob extends DataJob {
                 if (preset) {
                     offer.item = preset.id;
                     offer.itemName = preset.name;
-                } else if (offer.contains.length > 0) {
-                    this.logger.warn('Could not match preset for offer');
-                    this.logger.log(JSON.stringify(offer, null, 4));
+                } else if (offer.contains.length > 1) {
+                    //this.logger.warn('Could not match preset for offer');
+                    //this.logger.log(JSON.stringify(offer, null, 4));
                 }
             }
         }
@@ -147,13 +151,10 @@ class UpdateTraderAssortsJob extends DataJob {
         const weaponPresets = Object.values(this.presets).filter(p => p.baseId === offer.item);
         presetLoop:
         for (const preset of weaponPresets) {
-            if (preset.containsItems.length -1 !== offer.contains.length) {
+            if (preset.containsItems.length !== offer.contains.length) {
                 continue;
             }
             for (const ci of preset.containsItems) {
-                if (ci.item.id === preset.baseId) {
-                    continue;
-                }
                 if (!offer.contains.some(part => part.item === ci.item.id)) {
                     continue presetLoop;
                 }

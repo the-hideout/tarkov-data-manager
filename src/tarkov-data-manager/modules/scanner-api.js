@@ -13,7 +13,7 @@ const { imageSizes } = imageFunctions;
 
 let refreshingUsers = false;
 let users = {};
-let presets = [];
+let presets = {};
 let presetsTimeout = false;
 
 const dogtags = [
@@ -28,7 +28,8 @@ const isDogtag = (id) => {
 const updatePresets = () => {
     try {
         const fileContents = fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json'));
-        presets = Object.values(JSON.parse(fileContents));
+        presets = JSON.parse(fileContents);
+        presets.presets = Object.values(presets.presets);
     } catch (error) {
         console.log('ScannerAPI error reading presets.json:', error.message);
     }
@@ -98,12 +99,12 @@ const queryResultToBatchItem = item => {
     let contains = item.contains ? item.contains.split(',') : [];
     let itemPresets = [];
     if (types.includes('gun')) {
-        itemPresets = presets.filter(testPreset => testPreset.baseId === item.id).map(preset => {
+        itemPresets = presets.presets.filter(testPreset => testPreset.baseId === item.id).map(preset => {
             if (preset.default) {
                 contains = preset.containsItems.reduce((parts, currentItem) => {
                     parts.push({
                         id: currentItem.item.id,
-                        name: currentItem.item.name,
+                        name: presets.locale.en[currentItem.item.name],
                         count: currentItem.count,
                     });
                     return parts;
@@ -129,7 +130,7 @@ const queryResultToBatchItem = item => {
             }
         });
     } else if (types.includes('preset')) {
-        const matchedPreset = presets.find(preset => preset.id === item.id);
+        const matchedPreset = presets.presets.find(preset => preset.id === item.id);
         if (matchedPreset) {
             contains = matchedPreset.map(contained => contained.item.id);
         }
@@ -877,6 +878,7 @@ const submitImage = (request, user) => {
             fields = {
                 id: fields.id[0],
                 type: fields.type[0],
+                presets: fields.presets ? fields.presets[0].split(',') : [],
                 overwrite: fields.overwrite ? fields.overwrite[0] : false,
             };
     
@@ -891,17 +893,29 @@ const submitImage = (request, user) => {
             };
 
             if (fields.type === 'source') {
-                if (fields.overwrite !== 'true') {
+                /*if (fields.overwrite !== 'true') {
                     for (const imgType of Object.keys(imageSizes)) {
                         if (checkImageExists(imgType)) {
-                            console.log(`Item ${fields.id} already has a ${imgType}`);
-                            response.errors.push(`Item ${fields.id} already has a ${imgType}`);
+                            console.log(`Item ${fields.id} already has a ${imgType} image`);
+                            response.errors.push(`Item ${fields.id} already has a ${imgType} image`);
                             return finish(response, files);
                         }
                     }
-                }
+                }*/
                 try {
-                    response.data = await createAndUploadFromSource(files[fields.type][0].filepath, fields.id);
+                    response.data = await createAndUploadFromSource(files[fields.type][0].filepath, fields.id, fields.overwrite);
+                    for (const presetId of fields.presets) {
+                        let matchedPreset;
+                        if (presetId === 'default') {
+                            matchedPreset = presets.presets.find(preset => preset.baseId === fields.id && preset.default);
+                        } else {
+                            matchedPreset = presets.presets.find(preset => preset.id === presetId);
+                        }
+                        if (matchedPreset) {
+                            const presetResult = await createAndUploadFromSource(files[presetId][0].filepath, matchedPreset.id, fields.overwrite);
+                            response.data.push(...presetResult);
+                        }
+                    }
                 } catch (error) {
                     console.error(error);
                     if (Array.isArray(error)) {

@@ -102,7 +102,7 @@ $(document).ready( function () {
         });
     });
 
-    $('a.btn.json-upload').click(function(event){
+    $('a.json-upload').click(function(event){
         const form = $('form.json-upload').first();
         const formData = new FormData(form[0]);
         if (!formData.has('file') || formData.get('file').size === 0) {

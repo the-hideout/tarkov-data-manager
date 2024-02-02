@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 const tarkovChanges = require('./tarkov-changes');
 const tarkovBot = require('./tarkov-bot');
@@ -24,6 +25,10 @@ async function addManualTranslations(lang, langCode) {
         ...manualTranslations[langCode],
         ...lang,
     };
+}
+
+const cachePath = (filename) => {
+    return path.join(__dirname, '..', 'cache', filename);   
 }
 
 const dataFunctions = {
@@ -88,6 +93,7 @@ const dataFunctions = {
             loot_containers: [],
             stationary_weapons: [],
             switches: [],
+            quest_items: [],
         };
         const excludedExtracts = {
             Shoreline: [
@@ -159,6 +165,13 @@ const dataFunctions = {
                     }
                 });
                 details[id].stationary_weapons = details[id].stationary_weapons || [];
+                details[id].quest_items = details[id].quest_items?.reduce((all, current) => {
+                    const p = current.location.position;
+                    if (p.x || p.y || p.z) {
+                        all.push(current);
+                    }
+                    return all;
+                }, []) || [];
             } catch (error) {
                 if (error.code === 'ENOENT') {
                     details[id] = emptyData;
@@ -172,8 +185,48 @@ const dataFunctions = {
     mapLoot: (download = false) => {
         return spt.mapLoot(download);
     },
-    quests: (download = false) => {
-        return spt.quests(download);
+    quests: async (download = false) => {
+        const mainQuests = await spt.quests(download);
+        try {
+            const partialQuests = JSON.parse(fs.readFileSync(cachePath('quests_partial.json')));
+            for (const quest of partialQuests) {
+                if (mainQuests[quest._id]) {
+                    continue;
+                }
+                /*quest.conditions.AvailableForFinish = quest.conditions.AvailableForFinish.map(obj => {
+                    const newObj = {
+                        _props: {
+                            ...obj,
+                            type: obj.type || obj.conditionType,
+                        },
+                        _parent: obj.conditionType,
+                    };
+                    if (newObj._props.counter?.conditions) {
+                        newObj._props.counter.conditions = newObj._props.counter.conditions.map(cond => {
+                            return {
+                                _parent: cond.conditionType,
+                                _props: {...cond},
+                            };
+                        });
+                    }
+                    return newObj;
+                });
+                quest.conditions.AvailableForStart = quest.conditions.AvailableForStart.map(cond => {
+                    return {
+                        _parent: cond.conditionType,
+                        _props: {
+                            ...cond,
+                        },
+                    }
+                });*/
+                mainQuests[quest._id] = quest;
+            }
+        } catch (error) {
+            if (error.code !== 'ENOENT') {
+                return Promise.reject(error);
+            }
+        }
+        return mainQuests;
     },
     questConfig: (download = false) => {
         return spt.questConfig(download);
@@ -186,6 +239,13 @@ const dataFunctions = {
     },
     traderQuestAssorts: async (traderId, download = false) => {
         return spt.traderQuestAssorts(traderId, download);
+    },
+    achievements: async (download = false) => {
+        try {
+            return JSON.parse(fs.readFileSync(cachePath('achievements.json'))).elements;
+        } catch (error) {
+            return [];
+        }
     },
 };
 

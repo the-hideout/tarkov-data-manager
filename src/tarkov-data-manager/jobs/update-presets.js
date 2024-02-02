@@ -1,10 +1,11 @@
 const fs = require('fs');
 const path = require('path');
 
+const { imageFunctions } = require('tarkov-dev-image-generator');
+
 const normalizeName = require('../modules/normalize-name');
 const { initPresetData, getPresetData } = require('../modules/preset-data');
 const tarkovData = require('../modules/tarkov-data');
-const { getTranslations, setLocales } = require('../modules/get-translation');
 const remoteData = require('../modules/remote-data');
 const { regenerateFromExisting } = require('../modules/image-create');
 const DataJob = require('../modules/data-job');
@@ -18,26 +19,26 @@ class UpdatePresetsJob extends DataJob {
 
     run = async () => {
         this.logger.log('Updating presets');
-        const [presets, items, locales, credits, localItems] = await Promise.all([
+        const [presets, items, credits, localItems] = await Promise.all([
             tarkovData.globals().then(glob => glob['ItemPresets']),
             tarkovData.items(),
-            tarkovData.locales(),
             tarkovData.credits(),
             remoteData.get(),
         ]);
 
-        setLocales(locales);
-
         initPresetData(items, credits);
 
-        const manualPresets = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'manual_presets.json')));
+        JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', 'manual_presets.json'))).forEach(p => {
+            p._changeWeaponName = true;
+            presets[p._id] = p;
+        });
 
         this.presetsData = {};
+        this.kvData.presets = this.presetsData;
 
         const defaults = {};
 
         const ignorePresets = [
-            '5a32808386f774764a3226d9',
             '5a8c436686f7740f394d10b5' // Glock 17 Tac HC is duplicate of Tac 3 5a88ad7b86f77479aa7226af
         ];
         for (const presetId in presets) {
@@ -50,39 +51,86 @@ class UpdatePresetsJob extends DataJob {
             }
             const firstItem = {
                 id: baseItem._id,
-                name: locales.en[`${baseItem._id} Name`]
+                name: this.getTranslation([`${baseItem._id} Name`])
             };
             const presetData = {
                 id: presetId,
-                name: locales.en[`${baseItem._id} Name`],
-                shortName: locales.en[`${baseItem._id} ShortName`],
+                name: this.addTranslation(`${presetId} Name`, (lang, langCode) => {
+                    let baseName = lang[`${firstItem.id} Name`];
+                    if (!baseName && langCode !== 'en') {
+                        baseName = this.locales.en[`${firstItem.id} Name`];
+                    }
+                    if (!preset._changeWeaponName) {
+                        return baseName;
+                    }
+                    const append = preset.appendName || presetId;
+                    if (lang[append]) {
+                        return baseName + ' ' + lang[append];
+                    }
+                    if (langCode !== 'en'  && this.locales.en[append]) {
+                        return baseName + ' ' + this.locales.en[append];
+                    }
+                    return baseName;
+                }),
+                shortName: this.addTranslation(`${presetId} ShortName`, (lang, langCode) => {
+                    let baseName = lang[`${firstItem.id} ShortName`];
+                    if (!baseName && langCode !== 'en') {
+                        baseName = this.locales.en[`${firstItem.id} ShortName`];
+                    }
+                    if (!preset._changeWeaponName) {
+                        return baseName;
+                    }
+                    const append = preset.appendName || presetId;
+                    if (lang[append]) {
+                        return baseName + ' ' + lang[append];
+                    }
+                    if (langCode !== 'en'  && this.locales.en[append]) {
+                        return baseName + ' ' + this.locales.en[append];
+                    }
+                    return baseName;
+                }),
                 //description: en.templates[baseItem._id].Description,
                 normalized_name: false,
                 baseId: firstItem.id,
                 width: baseItem._props.Width,
                 height: baseItem._props.Height,
-                weight: baseItem._props.Weight,
+                weight: Math.round(baseItem._props.Weight * 100) / 100,
                 baseValue: credits[firstItem.id],
+                ergonomics: baseItem._props.Ergonomics,
+                verticalRecoil: baseItem._props.RecoilForceUp,
+                horizontalRecoil: baseItem._props.RecoilForceBack,
                 backgroundColor: baseItem._props.BackgroundColor,
                 bsgCategoryId: baseItem._parent,
                 types: ['preset'],
-                default: true,
+                default: preset._encyclopedia === firstItem.id,
+                _items: preset._items,
                 containsItems: [{
                     item: firstItem,
                     count: 1
                 }],
-                locale: {}
+                armorOnly: true,
+                noFlea: !items[baseItem._id]._props.CanSellOnRagfair,
             }
-            presetData.locale = getTranslations({
-                name: `${baseItem._id} Name`,
-                shortName: `${baseItem._id} ShortName`
-            }, this.logger);
+
+            // add parts to preset
+            // check if any are flea banned
+            // skip built-in armor parts
             for (let i = 1; i < preset._items.length; i++) {
                 const part = preset._items[i];
+                if (!items[part._tpl]._props.CanSellOnRagfair) {
+                    presetData.noFlea = true;
+                }
+                // skip built-in armor parts
+                if (items[part._tpl]._parent === '65649eb40bf0ed77b8044453') {
+                    continue;
+                }
+                if (items[part._tpl]._parent !== '644120aa86ffbe10ee032b6f') {
+                    presetData.armorOnly = false;
+                }
                 const partData = {
                     item: {
                         id: part._tpl,
-                        name: locales.en[`${part._tpl} Name`],
+                        name: this.getTranslation([`${part._tpl} Name`]),
                     },
                     count: 1
                 };
@@ -96,23 +144,15 @@ class UpdatePresetsJob extends DataJob {
                     presetData.containsItems.push(partData);
                 }
             }
-            presetData.weight = Math.round(presetData.weight * 100) / 100;
-            if (preset._changeWeaponName && locales.en[presetId]) {
-                presetData.name += ' '+locales.en[presetId];
-                presetData.shortName += ' '+locales.en[presetId];
-                presetData.locale = getTranslations({
-                    name: (lang) => {
-                        return lang[`${firstItem.id} Name`] + ' ' + lang[presetId];
-                    },
-                    shortName: (lang) => {
-                        return lang[`${firstItem.id} ShortName`] + ' ' + lang[presetId];
-                    }
-                }, this.logger);
+            if (presetData.containsItems.length === 1) {
+                this.logger.log(`Skipping empty preset for ${this.getTranslation(presetData.name)}`);
+                const dbItem = localItems.get(presetId);
+                if (dbItem && !dbItem.types.includes('disabled')) {
+                    await remoteData.addType(presetId, 'disabled');
+                }
+                continue;
             }
-            if (preset._encyclopedia !== presetData.baseId) {
-                presetData.default = false;
-            }
-            presetData.normalized_name = normalizeName(presetData.name);
+            presetData.normalized_name = normalizeName(this.getTranslation(presetData.name));
             this.validateNormalizedName(presetData);
             let itemPresetData = await getPresetData(presetData, this.logger);
             if (itemPresetData) {
@@ -124,58 +164,17 @@ class UpdatePresetsJob extends DataJob {
                 presetData.verticalRecoil = itemPresetData.verticalRecoil;
                 presetData.horizontalRecoil = itemPresetData.horizontalRecoil;
                 presetData.moa = itemPresetData.moa;
-            }
+            } 
             this.presetsData[presetId] = presetData;
             if (presetData.default && !defaults[firstItem.id]) {
                 defaults[firstItem.id] = presetData;
             } else if (presetData.default) {
-                existingDefault = defaults[firstItem.id];
+                const existingDefault = defaults[firstItem.id];
                 this.logger.warn(`Preset ${presetData.name} ${presetId} cannot replace ${existingDefault.name} ${existingDefault.id} as default preset`);
             }
-            this.logger.succeed(`Completed ${presetData.name} preset (${presetData.containsItems.length+1} parts)`);
+            this.logger.succeed(`Completed ${this.getTranslation(presetData.name)} preset (${presetData.containsItems.length} parts)`);
         }
-        // add manual presets
-        for (const presetData of manualPresets) {
-            const baseItem = items[presetData.baseId];
-            presetData.backgroundColor = baseItem._props.BackgroundColor;
-            presetData.bsgCategoryId = baseItem._parent;
-            presetData.types = ['preset'];
 
-            let itemPresetData = await getPresetData(presetData, this.logger);
-            if (itemPresetData) {
-                presetData.width = itemPresetData.width;
-                presetData.height = itemPresetData.height;
-                presetData.weight = itemPresetData.weight;
-                presetData.baseValue = itemPresetData.baseValue;
-                presetData.ergonomics = itemPresetData.ergonomics;
-                presetData.verticalRecoil = itemPresetData.verticalRecoil;
-                presetData.horizontalRecoil = itemPresetData.horizontalRecoil;
-            } else {
-                presetData.width = baseItem._props.Width;
-                presetData.height = baseItem._props.Height;
-                presetData.weight = baseItem._props.Weight;
-                presetData.baseValue = credits[baseItem._id];
-                presetData.ergonomics = baseItem._props.Ergonomics;
-                presetData.verticalRecoil = baseItem._props.RecoilForceUp;
-                presetData.horizontalRecoil = baseItem._props.RecoilForceBack;
-            }
-
-            presetData.locale = getTranslations({
-                name: (lang) => {
-                    return lang[`${baseItem._id} Name`] + ' ' + (lang[presetData.appendName] || locales.en[presetData.appendName]);
-                },
-                shortName: (lang) => {
-                    return lang[`${baseItem._id} ShortName`] + ' ' + (lang[presetData.appendName] || locales.en[presetData.appendName]);
-                }
-            }, this.logger);
-            presetData.name = presetData.locale.en.name;
-            presetData.shortName = presetData.locale.en.shortName;
-            presetData.normalized_name = normalizeName(presetData.name);
-            this.validateNormalizedName(presetData);
-            delete presetData.appendName;
-            this.presetsData[presetData.id] = presetData;
-            this.logger.succeed(`Completed ${presetData.name} manual preset (${presetData.containsItems.length} parts)`);
-        }
         // add dog tag preset
         const bearTag = items['59f32bb586f774757e1e8442'];
         const getDogTagName = lang => {
@@ -185,10 +184,12 @@ class UpdatePresetsJob extends DataJob {
         };
         this.presetsData['customdogtags12345678910'] = {
             id: 'customdogtags12345678910',
-            name: getDogTagName(locales.en),
-            shortName: getDogTagName(locales.en),
+            name: this.addTranslation('customdogtags12345678910 Name', getDogTagName),
+            shortName: this.addTranslation('customdogtags12345678910 ShortName', getDogTagName),
+            //name: getDogTagName(this.locales.en),
+            //shortName: getDogTagName(this.locales.en),
             //description: en.templates[baseItem._id].Description,
-            normalized_name: normalizeName(getDogTagName(locales.en)),
+            normalized_name: normalizeName(this.getTranslation('customdogtags12345678910 Name')),
             baseId: bearTag._id,
             width: bearTag._props.Width,
             height: bearTag._props.Height,
@@ -212,7 +213,6 @@ class UpdatePresetsJob extends DataJob {
                     count: 1
                 }
             ],
-            locale: getTranslations({name: getDogTagName, shortName: getDogTagName}, this.logger)
         };
 
         // check for missing default presets
@@ -250,19 +250,22 @@ class UpdatePresetsJob extends DataJob {
                 continue;
             }
             const baseName = preset.containsItems.find(contained => contained.item.id === preset.baseId).item.name;
-            if (baseName !== preset.name) {
+            if (baseName !== this.getTranslation(preset.name)) {
                 continue;
             }
-            preset.name = preset.name + ' ' + locales.en.Default;
-            preset.normalized_name = normalizeName(preset.name);
-            preset.locale = getTranslations({
-                name: (lang) => {
-                    return lang[`${preset.baseId} Name`] + ' ' + lang.Default;
-                },
-                shortName: (lang) => {
-                    return lang[`${preset.baseId} ShortName`] + ' ' + lang.Default;
+            preset.name = this.addTranslation(`${presetId} Name`, (lang, langCode) => {
+                if (langCode !== 'en' && (!lang[`${preset.baseId} Name`] || !lang.Default)) {
+                    lang = this.locales.en;
                 }
-            }, this.logger);
+                return lang[`${preset.baseId} Name`] + ' ' + lang.Default;
+            });
+            preset.shortName = this.addTranslation(`${presetId} ShortName`, (lang, langCode) => {
+                if (langCode !== 'en' && (!lang[`${preset.baseId} ShortName`] || !lang.Default)) {
+                    lang = this.locales.en;
+                }
+                return lang[`${preset.baseId} ShortName`] + ' ' + lang.Default;
+            })
+            preset.normalized_name = normalizeName(this.getTranslation(preset.name));
         }
 
         const queries = [];
@@ -283,7 +286,10 @@ class UpdatePresetsJob extends DataJob {
                 continue;
             }
             const p = this.presetsData[id];
-            if (item.short_name !== p.shortName || item.width !== p.width || item.height !== p.height || item.properties.backgroundColor !== p.backgroundColor) {
+            if (p.armorOnly) {
+                continue;
+            }
+            if (item.short_name !== this.getTranslation(p.shortName) || item.width !== p.width || item.height !== p.height || item.properties.backgroundColor !== p.backgroundColor) {
                 regnerateImages.push(p);
             }
         }
@@ -294,8 +300,8 @@ class UpdatePresetsJob extends DataJob {
             const p = this.presetsData[presetId];
             queries.push(remoteData.addItem({
                 id: p.id,
-                name: p.name,
-                short_name: p.shortName,
+                name: this.getTranslation(p.name),
+                short_name: this.getTranslation(p.shortName),
                 normalized_name: p.normalized_name,
                 width: p.width,
                 height: p.height,
@@ -307,15 +313,49 @@ class UpdatePresetsJob extends DataJob {
                 if (results.insertId !== 0) {
                     this.logger.log(`${p.name} added`);
                     newPresets.push(`${p.name} ${presetId}`);
+                }    
+                if (p.armorOnly) {
+                    // this preset consists of only armor items
+                    // shares images with base item
+                    const baseItem = localItems.get(p.baseId);
+                    const pItem = localItems.get(p.id);
+                    const updateFields = {};
+                    for (const imgType in imageFunctions.imageSizes) {
+                        const fieldName = imageFunctions.imageSizes[imgType].field;
+                        if (!pItem[fieldName] && baseItem[fieldName]) {
+                            updateFields[fieldName] = baseItem[fieldName];
+                        }
+                    }
+                    if (Object.keys(updateFields).length > 0) {
+                        this.logger.log(`Updating ${p.name} ${p.id} images to match base item (${baseItem.id}) images`);
+                        queries.push(remoteData.setProperties(p.id, updateFields).catch(error => {
+                            console.log(error);
+                            this.logger.error(`Error updating ${p.name} ${p.id} images to base ${baseItem.id} images: ${error.message}`);
+                        }));
+                    }
                 }
             }).catch(error => {
                 this.logger.error(`Error updating preset in DB`);
                 this.logger.error(error);
             }));
-            queries.push(remoteData.addType(p.id, 'preset').catch(error => {
-                this.logger.error(`Error inserting preset type for ${p.name} ${p.id}`);
-                this.logger.error(error);
-            }));
+            const localItem = localItems.get(p.id);
+            if (!localItem?.types.includes('preset')) {
+                queries.push(remoteData.addType(p.id, 'preset').catch(error => {
+                    this.logger.error(`Error inserting preset type for ${p.name} ${p.id}`);
+                    this.logger.error(error);
+                }));
+            }
+            if (p.noFlea && !localItem?.types.includes('no-flea')) {    
+                queries.push(remoteData.addType(p.id, 'no-flea').catch(error => {
+                    this.logger.error(`Error inserting no-flea type for ${p.name} ${p.id}`);
+                    this.logger.error(error);
+                }));
+            } else if (!p.noFlea && localItem?.types.includes('no-flea')) {
+                queries.push(remoteData.removeType(p.id, 'no-flea').catch(error => {
+                    this.logger.error(`Error removing no-flea type for ${p.name} ${p.id}`);
+                    this.logger.error(error);
+                }));
+            }
         }
         if (newPresets.length > 0) {
             this.discordAlert({
@@ -344,16 +384,25 @@ class UpdatePresetsJob extends DataJob {
 
         // make sure we don't include any disabled presets
         this.presetsData = Object.keys(this.presetsData).reduce((all, presetId) => {
-            console.log(`${presetId} ${localItems.has(presetId)} ${localItems.get(presetId)?.types.includes('disabled')}`);
+            //console.log(`${presetId} ${localItems.has(presetId)} ${localItems.get(presetId)?.types.includes('disabled')}`);
             if (localItems.has(presetId) && !localItems.get(presetId).types.includes('disabled')) {
                 all[presetId] = this.presetsData[presetId];
             }
             return all;
         }, {});
 
-        fs.writeFileSync(path.join(__dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(this.presetsData, null, 4));
+        for (const langCode in this.kvData.locale) {
+            for (const key in this.kvData.locale[langCode]) {
+                if (!Object.values(this.presetsData).some(preset => preset.name === key || preset.shortName === key)) {
+                    this.removeTranslation(key);
+                }
+            }
+        }
+
+        await this.fillTranslations();
+        fs.writeFileSync(path.join(__dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(this.kvData, null, 4));
         await Promise.allSettled(queries);
-        return this.presetsData;
+        return this.kvData;
     }
 
     validateNormalizedName = (preset, attempt = 1) => {

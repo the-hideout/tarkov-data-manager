@@ -100,6 +100,9 @@ const getSlots = (item) => {
         {pattern: /CAMORA/, replacement: 'PATRON_IN_WEAPON'},
     ];
     return item._props.Slots.map(slot => {
+        if (slot._props.filters.some(f => f.armorColliders || f.armorPlateColliders)) {
+            return false;
+        }
         let nameKey = slot._name.toUpperCase();
         for (const rep of slotReplacements) {
             nameKey = nameKey.replace(rep.pattern, rep.replacement);
@@ -125,7 +128,47 @@ const getSlots = (item) => {
         };
         if (missingTranslations.length > 0) job.logger.warn(`Could not find ${missingTranslations.join(', ')} label for ${nameKey} slot of ${item._id}`);
         return formattedSlot;
-    });
+    }).filter(Boolean);
+};
+
+const getArmorSlots = (item) => {
+    return item._props.Slots.map(slot => {
+        if (!slot._props.filters.some(f => f.armorColliders || f.armorPlateColliders)) {
+            return false;
+        }
+        const slotName = slot._name;
+        const slotInfo = slot._props.filters[0];
+        const newSlot = {
+            id: slotInfo._id,
+            nameId: slotName,
+        };
+        if (slotInfo.locked) {
+            const plateItem = job.bsgItems[slotInfo.Plate];
+            newSlot.bluntThroughput = plateItem._props.BluntThroughput,
+            newSlot.class = parseInt(plateItem._props.armorClass),
+            newSlot.durability = parseInt(plateItem._props.Durability),
+            newSlot.repairCost = parseInt(plateItem._props.RepairCost),
+            newSlot.speedPenalty = parseInt(plateItem._props.speedPenaltyPercent) / 100,
+            newSlot.turnPenalty = parseInt(plateItem._props.mousePenalty) / 100,
+            newSlot.ergoPenalty = parseInt(plateItem._props.weaponErgonomicPenalty),
+            newSlot.armor_material_id = plateItem._props.ArmorMaterial,
+            newSlot.zones = job.addTranslation(slotInfo.armorColliders.map(collider => `Collider Type ${collider}`)),
+            newSlot.armorType = job.addTranslation(plateItem._props.ArmorType, (lang) => {
+                if (plateItem._props.ArmorType !== 'None') {
+                    return lang[plateItem._props.ArmorType];
+                }
+                return lang['NONE'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
+                    return substr.toLowerCase();
+                });
+            });
+            newSlot.baseValue = job.credits[slotInfo.Plate];
+        } else {
+            newSlot.zones = job.addTranslation(slotInfo.armorPlateColliders.map(collider => `Armor Zone ${collider}`));
+            //newSlot.defaultPlate = slotInfo.Plate;
+            newSlot.allowedPlates = slotInfo.Filter;
+        }
+        return newSlot;
+    }).filter(Boolean);
 };
 
 const effectMap = {
@@ -164,9 +207,31 @@ const getArmorZonesFromSlots = (slots) => {
                     zones.push(`Collider Type ${collider}`);
                 }
             }
+            for (const collider of filter.armorPlateColliders) {
+                if (!zones.includes(`Armor Zone ${collider}`)) {
+                    zones.push(`Armor Zone ${collider}`);
+                }
+            }
         }
         return zones;
     }, []);
+};
+
+const getArmorClass = (item) => {
+    let armorClass = parseInt(item._props.armorClass);
+    if (!item._props.Slots) {
+        return armorClass;
+    }
+    return item._props.Slots.reduce((armorClass, slot) => {
+        const plateId = slot._props.filters[0].Plate;
+        if (!plateId) {
+            return armorClass;
+        }
+        const plate = job.bsgItems[plateId];
+        //console.log(plateId, plate);
+        const plateClass = parseInt(plate._props.armorClass);
+        return Math.max(armorClass, plateClass);
+    }, armorClass);
 };
 
 const grenadeMap = {
@@ -227,11 +292,12 @@ const getItemProperties = async (item) => {
                 ...getGrids(item)
             };
         }
-        if (item._props.armorClass) {
+        const armorClass = getArmorClass(item);
+        if (armorClass) {
             properties = {
                 ...properties,
                 bluntThroughput: item._props.BluntThroughput,
-                class: parseInt(item._props.armorClass),
+                class: armorClass,
                 durability: parseInt(item._props.Durability),
                 repairCost: parseInt(item._props.RepairCost),
                 speedPenalty: parseInt(item._props.speedPenaltyPercent) / 100,
@@ -247,6 +313,7 @@ const getItemProperties = async (item) => {
                         return substr.toLowerCase();
                     });
                 }),
+                armorSlots: getArmorSlots(item),
             };
         }
     } else if (item._parent === '5448e53e4bdc2d60728b4567') {
@@ -287,7 +354,7 @@ const getItemProperties = async (item) => {
         properties = {
             propertiesType: 'ItemPropertiesGlasses',
             bluntThroughput: item._props.BluntThroughput,
-            class: parseInt(item._props.armorClass),
+            class: getArmorClass(item),
             durability: parseInt(item._props.Durability),
             repairCost: parseInt(item._props.RepairCost),
             blindnessProtection: item._props.BlindnessProtection,
@@ -298,11 +365,12 @@ const getItemProperties = async (item) => {
         };
     } else if (hasCategory(item, ['5a341c4086f77401f2541505', '57bef4c42459772e8d35a53b', '5a341c4686f77469e155819e'])) {
         // headwear and ArmoredEquipment and FaceCover
-        if (item._props.armorClass && parseInt(item._props.armorClass) > 0) {
+        const armorClass = getArmorClass(item);
+        if (armorClass) {
             // armored stuff only only
             properties = {
                 bluntThroughput: item._props.BluntThroughput,
-                class: parseInt(item._props.armorClass),
+                class: armorClass,
                 durability: parseInt(item._props.Durability),
                 repairCost: parseInt(item._props.RepairCost),
                 speedPenalty: parseInt(item._props.speedPenaltyPercent) / 100,
@@ -323,6 +391,7 @@ const getItemProperties = async (item) => {
                     });
                 }),
                 slots: getSlots(item),
+                armorSlots: getArmorSlots(item),
             };
             if (hasCategory(item, ['5a341c4086f77401f2541505', '5a341c4686f77469e155819e'])) {
                 properties.propertiesType = 'ItemPropertiesHelmet';
