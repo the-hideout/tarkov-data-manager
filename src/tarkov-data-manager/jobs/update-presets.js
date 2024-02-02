@@ -110,7 +110,7 @@ class UpdatePresetsJob extends DataJob {
                 }],
                 armorOnly: true,
                 noFlea: !items[baseItem._id]._props.CanSellOnRagfair,
-            }
+            };
 
             // add parts to preset
             // check if any are flea banned

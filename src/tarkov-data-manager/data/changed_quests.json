@@ -1177,5 +1177,65 @@
                 "items": ["5c0e53c886f7747fa54205c7", "5c0e51be86f774598e797894"]
             }
         }
+    },
+    "60e71b62a0beca400d69efc4": {
+        "name": "Escort",
+        "propertiesChanged": {
+            "experience": 177000
+        },
+        "finishRewardsChanged": {
+            "skillLevelReward": [
+                {
+                    "name": "Melee",
+                    "level": 5
+                },
+                {
+                    "name": "Pistol",
+                    "level": 5
+                },
+                {
+                    "name": "Strength",
+                    "level": 5
+                }
+            ],
+            "items": [
+                {
+                    "item": "65766adc234b9f6e050a431a",
+                    "item_name": "6B43 Zabralo-Sh body armor (Digital Flora)",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": [],
+                    "base_item_id": "545cdb794bdc2d3a198b456a"
+                },
+                {
+                    "item": "5f60c74e3b85f6263c145586",
+                    "item_name": "Rys-T bulletproof helmet (Black)",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5f60c85b58eff926626a60f7",
+                    "item_name": "Rys-T face shield",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "craftUnlock": [
+                {
+                    "items": [
+                        {
+                            "id": "5f60c74e3b85f6263c145586",
+                            "name": "Rys-T bulletproof helmet (Black)",
+                            "count": 1
+                        }
+                    ],
+                    "station_id": "5d484fba654e7600691aadf7",
+                    "trader_name": "Lavatory",
+                    "level": 3
+                }
+            ]
+        }
     }
 }

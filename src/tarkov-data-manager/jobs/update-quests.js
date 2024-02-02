@@ -678,7 +678,22 @@ class UpdateQuestsJob extends DataJob {
                 rewardData.contains.push(containedItem);
             }
         }
-        if (!rewardData.contains.length > 0) {
+        const armorTypes = [
+            '5448e54d4bdc2dcc718b4568',
+            '5448e5284bdc2dcb718b4567'
+        ];
+        if (armorTypes.includes(this.items[rewardData.item]._parent)) {
+            // all armors are default presets
+            const matchedPreset = Object.values(this.presets).find(preset => {
+                return preset.baseId === rewardData.item && preset.default;
+            });
+            if (matchedPreset) {
+                rewardData.item = matchedPreset.id;
+                //rewardData.item_name = matchedPreset.name;
+                rewardData.base_item_id = matchedPreset.baseId;
+            }
+        }
+        if (rewardData.contains.length === 0) {
             return rewardData;
         }
         const matchedPreset = Object.values(this.presets).find(preset => {
