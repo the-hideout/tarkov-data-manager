@@ -190,7 +190,7 @@ class DataJob {
     }
 
     cloudflareUpload = async (kvName, data) => {
-        if (!this.idSuffixLength) {            
+        if (!this.idSuffixLength) {
             if (typeof data !== 'string') {
                 data = JSON.stringify(data);
             }
