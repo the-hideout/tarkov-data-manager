@@ -171,7 +171,7 @@ class DataJob {
         });
         const uploadTime = new Date() - uploadStart;
         if (response.success) {
-            this.writeDump();
+            this.writeDump(data);
             this.logger.success(`Successful Cloudflare put of ${kvName} in ${uploadTime} ms`);
             stellate.purge(kvName, this.logger);
         } else {
@@ -191,9 +191,6 @@ class DataJob {
 
     cloudflareUpload = async (kvName, data) => {
         if (!this.idSuffixLength) {
-            if (typeof data !== 'string') {
-                data = JSON.stringify(data);
-            }
             return cloudflare.put(kvName, data).catch(error => {
                 this.logger.error(error);
                 return {success: false, errors: [], messages: []};
@@ -212,12 +209,9 @@ class DataJob {
                 return matching;
             }, {});
             this.writeDump(partData, `${kvName}_${hexKey}`);
-            uploads.push(cloudflare.put(`${kvName}_${hexKey}`, JSON.stringify(partData)).catch(error => {
+            uploads.push(cloudflare.put(`${kvName}_${hexKey}`, partData).catch(error => {
                 this.logger.error(error);
                 return {success: false, errors: [], messages: []};
-            }).then(response => {
-                this.writeDump(partData, `${kvName}_${hexKey}`);
-                return response;
             }));
         }
         const uploadResults = await Promise.allSettled(uploads);
