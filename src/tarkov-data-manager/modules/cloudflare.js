@@ -1,5 +1,3 @@
-const fs = require('fs');
-const path = require('path');
 //const zlib = require('zlib');
 
 const got = require('got');
@@ -72,18 +70,7 @@ const putValue = async (key, value) => {
         value = JSON.stringify(value);
     } 
     //return doRequest('PUT', 'values', key, zlib.gzipSync(value).toString(encoding), false, {compression: 'gzip', encoding: encoding}).then(response => {
-    return doRequest('PUT', 'values', key, value, false, {}).then(response => {
-        const newName = path.join(__dirname, '..', 'dumps', `${key.split("/").pop().toLowerCase()}.json`);
-        const oldName = newName.replace('.json', '_old.json');
-        try {
-            fs.renameSync(newName, oldName);
-        } catch (error) {
-            // do nothing
-        }
-        fs.writeFileSync(newName, JSON.stringify(JSON.parse(value), null, 4));
-        //fs.writeFileSync(newName, value);
-        return response;
-    });
+    return doRequest('PUT', 'values', key, value, false, {});
 };
 
 const getKeys = async () => {

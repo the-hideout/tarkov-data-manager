@@ -10,7 +10,7 @@ const defaultJobs = {
     'update-quests': '3-59/10 * * * *',
     'update-maps': '4-59/10 * * * *',
     'check-scanners': '6,36 * * * *',
-    'archive-prices': '37 0,8,16 * * *',
+    'archive-prices': '37 0 * * *',
     'verify-wiki': '7 9 * * *',
     'update-trader-assorts': '36 11,23 * * *',
     'update-trader-prices': '46 11,23 * * *',
@@ -18,6 +18,7 @@ const defaultJobs = {
     'update-quest-images': '16 1,7,13,19 * * *',
     'update-historical-prices': '26 * * * *',
     'update-spt-data': '56 * * * *',
+    'update-archived-prices': '38 0 * * *',
 };
 // Too much memory :'(
 // 'update-longtime-data': '49 8 * * *'

@@ -3,11 +3,12 @@
         "name": "Collector",
         "taskRequirementsAdded": [
             {
-                "task": "5c0bc91486f7746ab41857a2",
-                "name": "Silent Caliber",
+                "task": "5c0bbaa886f7746941031d82",
+                "name": "Bullshit",
                 "status": [
                     "complete"
-                ]
+                ],
+                "notes": "Silent Caliber not required. Reported in tarkovmonitor discord by KDR."
             }
         ],
         "___taskRequirementsRemoved": [
@@ -42,6 +43,29 @@
             {
                 "id": "5d25bfd086f77442734d3007",
                 "name": "The Survivalist Path - Zhivchik"
+            }
+        ],
+        "objectivesAdded": [
+            {
+                "id": "65b10c6a8511b7ef8694e060",
+                "description": "65b10c6a8511b7ef8694e060",
+                "type": "giveItem",
+                "count": 1,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "item_id": "62a09e08de7ac81993580532",
+                "item_name": "Glorious E lightweight armored mask",
+                "item": "62a09e08de7ac81993580532",
+                "items": [
+                    "62a09e08de7ac81993580532"
+                ],
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true,
+                "zones": []
             }
         ],
         "__objectivesRemoved": [
@@ -1123,6 +1147,95 @@
         "name": "Burning Rubber",
         "propertiesChanged" : {
             "minPlayerLevel": 1
+        }
+    },
+    "5ae4496986f774459e77beb6": {
+        "name": "Sew it Good - Part 3",
+        "objectivePropertiesChanged": {
+            "5ae9bb6986f77415a869b40b": {
+                "item_id": "5c0e53c886f7747fa54205c7",
+                "item_name": "6B13 assault armor (Digital Flora)",
+                "item": "5c0e53c886f7747fa54205c7",
+                "items": ["5c0e53c886f7747fa54205c7", "5c0e51be86f774598e797894"]
+            },
+            "5ae9bc6e86f7746e0026222c": {
+                "item_id": "5c0e53c886f7747fa54205c7",
+                "item_name": "6B13 assault armor (Digital Flora)",
+                "item": "5c0e53c886f7747fa54205c7",
+                "items": ["5c0e53c886f7747fa54205c7", "5c0e51be86f774598e797894"]
+            },
+            "5ae9be7f86f7746c6337153d": {
+                "item_id": "5c0e53c886f7747fa54205c7",
+                "item_name": "6B13 assault armor (Digital Flora)",
+                "item": "5c0e53c886f7747fa54205c7",
+                "items": ["5c0e53c886f7747fa54205c7", "5c0e51be86f774598e797894"]
+            },
+            "5ae9bea886f77468ab400e64": {
+                "item_id": "5c0e53c886f7747fa54205c7",
+                "item_name": "6B13 assault armor (Digital Flora)",
+                "item": "5c0e53c886f7747fa54205c7",
+                "items": ["5c0e53c886f7747fa54205c7", "5c0e51be86f774598e797894"]
+            }
+        }
+    },
+    "60e71b62a0beca400d69efc4": {
+        "name": "Escort",
+        "propertiesChanged": {
+            "experience": 177000
+        },
+        "finishRewardsChanged": {
+            "skillLevelReward": [
+                {
+                    "name": "Melee",
+                    "level": 5
+                },
+                {
+                    "name": "Pistol",
+                    "level": 5
+                },
+                {
+                    "name": "Strength",
+                    "level": 5
+                }
+            ],
+            "items": [
+                {
+                    "item": "65766adc234b9f6e050a431a",
+                    "item_name": "6B43 Zabralo-Sh body armor (Digital Flora)",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": [],
+                    "base_item_id": "545cdb794bdc2d3a198b456a"
+                },
+                {
+                    "item": "5f60c74e3b85f6263c145586",
+                    "item_name": "Rys-T bulletproof helmet (Black)",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5f60c85b58eff926626a60f7",
+                    "item_name": "Rys-T face shield",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "craftUnlock": [
+                {
+                    "items": [
+                        {
+                            "id": "5f60c74e3b85f6263c145586",
+                            "name": "Rys-T bulletproof helmet (Black)",
+                            "count": 1
+                        }
+                    ],
+                    "station_id": "5d484fba654e7600691aadf7",
+                    "trader_name": "Lavatory",
+                    "level": 3
+                }
+            ]
         }
     }
 }

@@ -21,6 +21,7 @@ class UpdateQuestsJob extends DataJob {
             this.tdQuests,
             this.rawQuestData,
             this.achievements,
+            this.achievementStats,
             this.items,
             this.locations,
             this.mapLoot,
@@ -44,6 +45,7 @@ class UpdateQuestsJob extends DataJob {
                 return tarkovData.quests(false);
             }),
             tarkovData.achievements(),
+            tarkovData.achievementStats(),
             tarkovData.items(),
             tarkovData.locations(),
             tarkovData.mapLoot().then(result => Object.keys(result).reduce((all, mapId) => {
@@ -138,6 +140,9 @@ class UpdateQuestsJob extends DataJob {
                                 return weapons;
                             }, []);
                         }
+                    }
+                    if (obj.item && !obj.items) {
+                        obj.items = [obj.item];
                     }
                     this.addMapFromDescription(obj);
                 }
@@ -236,10 +241,6 @@ class UpdateQuestsJob extends DataJob {
         const filteredPrerequisiteTasks = {};
         const missingImages = [];
         for (const quest of quests.Task) {
-            /*quest.descriptionMessageId = this.locales.en.quest[quest.id]?.description;
-            quest.startMessageId = this.locales.en.quest[quest.id]?.startedMessageText;
-            quest.successMessageId = this.locales.en.quest[quest.id]?.successMessageText;
-            quest.failMessageId = this.locales.en.quest[quest.id]?.failMessageText;*/
             quest.normalizedName = normalizeName(this.locales.en[quest.name])+(quest.factionName !== 'Any' ? `-${normalizeName(quest.factionName)}` : '');
 
             const removeReqs = [];
@@ -385,12 +386,22 @@ class UpdateQuestsJob extends DataJob {
                 quest.taskImageLink = `https://${process.env.S3_BUCKET}/unknown-task.webp`;
                 missingImages.push(quest.id);
             }
+
+            for (const obj of quest.objectives) {
+                if (!obj.locale_map) {
+                    continue;
+                }
+                for (const key of Object.values(obj.locale_map)) {
+                    this.addTranslation(key);
+                }
+                delete obj.locale_map;
+            }
         }
         if (Object.keys(filteredPrerequisiteTasks).length > 0) {
             this.logger.warn('Filtered out redundant prerequisite tasks:');
             for (const questId in filteredPrerequisiteTasks) {
                 const quest = quests.Task.find(q => q.id === questId);
-                this.logger.warn(`${this.locales.en[quest.name]} ${questId}: ${filteredPrerequisiteTasks[questId]}`);
+                this.logger.log(`${this.locales.en[quest.name]} ${questId}: ${filteredPrerequisiteTasks[questId]}`);
             }
         }
 
@@ -427,7 +438,7 @@ class UpdateQuestsJob extends DataJob {
         if (noQuestData.length > 0) {
             this.logger.warn(`No quest data found for:`);
             for (const noData of noQuestData) {
-                this.logger.warn(noData);
+                this.logger.log(noData);
             }
         }
 
@@ -667,7 +678,22 @@ class UpdateQuestsJob extends DataJob {
                 rewardData.contains.push(containedItem);
             }
         }
-        if (!rewardData.contains.length > 0) {
+        const armorTypes = [
+            '5448e54d4bdc2dcc718b4568',
+            '5448e5284bdc2dcb718b4567'
+        ];
+        if (armorTypes.includes(this.items[rewardData.item]._parent)) {
+            // all armors are default presets
+            const matchedPreset = Object.values(this.presets).find(preset => {
+                return preset.baseId === rewardData.item && preset.default;
+            });
+            if (matchedPreset) {
+                rewardData.item = matchedPreset.id;
+                //rewardData.item_name = matchedPreset.name;
+                rewardData.base_item_id = matchedPreset.baseId;
+            }
+        }
+        if (rewardData.contains.length === 0) {
             return rewardData;
         }
         const matchedPreset = Object.values(this.presets).find(preset => {
@@ -1125,7 +1151,7 @@ class UpdateQuestsJob extends DataJob {
             } else {
                 obj.type = `${verb}Item`;
                 obj.item = objective.target[0];
-                obj.items = objective.target;
+                obj.items = objective.target.filter(id => this.itemResults.has(id) && !this.itemResults.get(id).types.includes('disabled'));
                 obj.dogTagLevel = objective.dogtagLevel;
                 obj.maxDurability = objective.maxDurability;
                 obj.minDurability = objective.minDurability;
@@ -1365,6 +1391,7 @@ class UpdateQuestsJob extends DataJob {
             } else {
                 obj.type = 'plantItem';
                 obj.item = objective.target[0];
+                obj.items = objective.target.filter(id => this.itemResults.has(id) && !this.itemResults.get(id).types.includes('disabled'));
                 obj.item_name = this.locales.en[`${objective.target[0]} Name`];
                 obj.dogTagLevel = 0;
                 obj.maxDurability = 100;
@@ -1523,10 +1550,13 @@ class UpdateQuestsJob extends DataJob {
         return {
             id: ach.id,
             name: this.addTranslation(`${ach.id} name`),
+            normalizedName: normalizeName(this.getTranslation(`${ach.id} name`)),
             description: this.addTranslation(`${ach.id} description`),
+            hidden: ach.hidden,
             side: this.addTranslation(ach.side),
-            rarity: ach.rarity,
-            conditions: ach.conditions.availableForFinish.map(c => this.formatObjective(ach.id, c, true)),
+            rarity: this.addTranslation(`Achievements/Tab/${ach.rarity}Rarity`),
+            //conditions: ach.conditions.availableForFinish.map(c => this.formatObjective(ach.id, c, true)),
+            playersCompletedPercent: this.achievementStats[ach.id] || 0,
         };
     }
 
