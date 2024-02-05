@@ -292,7 +292,10 @@ const getItemProperties = async (item) => {
             properties.propertiesType = 'ItemPropertiesChestRig';
             properties = {
                 ...properties,
-                ...getGrids(item)
+                speedPenalty: parseFloat(item._props.speedPenaltyPercent) / 100,
+                turnPenalty: parseFloat(item._props.mousePenalty) / 100,
+                ergoPenalty: parseFloat(item._props.weaponErgonomicPenalty) / 100,
+                ...getGrids(item),
             };
         }
         const armorClass = getArmorClass(item);
@@ -303,9 +306,6 @@ const getItemProperties = async (item) => {
                 class: armorClass,
                 durability: parseInt(item._props.Durability),
                 repairCost: parseInt(item._props.RepairCost),
-                speedPenalty: parseFloat(item._props.speedPenaltyPercent) / 100,
-                turnPenalty: parseFloat(item._props.mousePenalty) / 100,
-                ergoPenalty: parseFloat(item._props.weaponErgonomicPenalty) / 100,
                 armor_material_id: item._props.ArmorMaterial,
                 zones: job.addTranslation(getArmorZones(item)),
                 armorType: job.addTranslation(item._props.ArmorType, (lang) => {
