@@ -4,7 +4,7 @@
 version: 2
 updates:
   - package-ecosystem: github-actions
-    directory: "./src/tarkov-data-manager"
+    directory: "/"
     groups:
       github-actions:
         patterns:
@@ -12,7 +12,7 @@ updates:
     schedule:
       interval: monthly
   - package-ecosystem: npm
-    directory: "/"
+    directory: "./src/tarkov-data-manager"
     groups:
       npm-dependencies:
         patterns:
