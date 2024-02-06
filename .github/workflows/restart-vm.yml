@@ -12,12 +12,12 @@ jobs:
 
     steps:
       - name: azure login
-        uses: azure/login@de95379fe4dadc2defb305917eaa7e5dde727294 # pin@v1.5.1
+        uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # pin@v1.6.1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: restart vm
-        uses: azure/CLI@b0e31ae20280d899279f14c36e877b4c6916e2d3 # pin@v1.0.8
+        uses: azure/CLI@4db43908b9df2e7ac93c8275a8f9a448c59338dd # pin@v1.0.9
         with:
           azcliversion: 2.50.0
           inlineScript: |
