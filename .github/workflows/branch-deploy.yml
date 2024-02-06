@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: github/branch-deploy@v8.1.2
+      - uses: github/branch-deploy@v9.0.0
         id: branch-deploy
         with:
           admins: the-hideout/core-contributors
@@ -32,7 +32,7 @@ jobs:
         with:
           ref: ${{ steps.branch-deploy.outputs.ref }}
 
-      - uses: azure/login@de95379fe4dadc2defb305917eaa7e5dde727294 # pin@v1.5.1
+      - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # pin@v1.6.1
         if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
@@ -116,7 +116,7 @@ jobs:
 
       - name: SSH Remote Deploy
         if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
-        uses: appleboy/ssh-action@55dabf81b49d4120609345970c91507e2d734799 # pin@v1.0.0
+        uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # pin@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
@@ -125,7 +125,7 @@ jobs:
           script_stop: true
           script: ~/tarkov-data-manager/script/deploy -r="${{ steps.branch-deploy.outputs.ref }}" -f="${{ steps.branch-deploy.outputs.fork_checkout }}" -d="tarkov-data-manager" -n="${{ steps.branch-deploy.outputs.fork_full_name }}"
 
-      - uses: actions/setup-python@65d7f2d534ac1bc67fcd62888c5f4f3d2cb2b236 # pin@v4.7.1
+      - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # pin@v5.0.0
         if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
         with:
           python-version: '3.10'
