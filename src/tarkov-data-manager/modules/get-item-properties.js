@@ -196,8 +196,10 @@ const getStimEffects = (item) => {
     return stimEffects;
 };
 
-const getArmorZonesFromSlots = (slots) => {
-    return slots.reduce((zones, slot) => {
+const getArmorZones = (item) => {
+    const armorZones = item._props.armorColliders?.map(collider => `Collider Type ${collider}`) || [];
+    armorZones.push(...item._props.armorPlateColliders?.map(collider => `Armor Zone ${collider}`) || []);
+    return item._props.Slots.reduce((zones, slot) => {
         for (const filter of slot._props.filters) {
             if (!filter.armorColliders) {
                 continue;
@@ -214,7 +216,7 @@ const getArmorZonesFromSlots = (slots) => {
             }
         }
         return zones;
-    }, []);
+    }, armorZones);
 };
 
 const getArmorClass = (item) => {
@@ -266,6 +268,7 @@ const getItemProperties = async (item) => {
             ricochetChance: item._props.RicochetChance,
             penetrationChance: item._props.PenetrationChance,
             penetrationPower: item._props.PenetrationPower,
+            penetrationPowerDeviation: item._props.PenetrationPowerDiviation,
             accuracy: item._props.ammoAccr,
             accuracyModifier: item._props.ammoAccr / 100,
             recoil: item._props.ammoRec,
@@ -304,7 +307,7 @@ const getItemProperties = async (item) => {
                 turnPenalty: parseInt(item._props.mousePenalty) / 100,
                 ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
                 armor_material_id: item._props.ArmorMaterial,
-                zones: job.addTranslation(getArmorZonesFromSlots(item._props.Slots)),
+                zones: job.addTranslation(getArmorZones(item)),
                 armorType: job.addTranslation(item._props.ArmorType, (lang) => {
                     if (item._props.ArmorType !== 'None') {
                         return lang[item._props.ArmorType];
@@ -381,7 +384,7 @@ const getItemProperties = async (item) => {
                 ricochetY: item._props.RicochetParams.y,
                 ricochetZ: item._props.RicochetParams.z,
                 armor_material_id: item._props.ArmorMaterial,
-                headZones: job.addTranslation(getArmorZonesFromSlots(item._props.Slots)),
+                headZones: job.addTranslation(getArmorZones(item)),
                 armorType: job.addTranslation(item._props.ArmorType, (lang) => {
                     if (item._props.ArmorType !== 'None') {
                         return lang[item._props.ArmorType];

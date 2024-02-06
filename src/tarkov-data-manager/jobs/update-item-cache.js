@@ -48,6 +48,11 @@ class UpdateItemCacheJob extends DataJob {
         const itemTypesSet = new Set();
         this.bsgCategories = {};
         this.handbookCategories = {};
+        this.kvData = {
+            Item: itemData,
+            ItemCategory: this.bsgCategories,
+            HandbookCategory: this.handbookCategories
+        }
         initPresetData(this.bsgItems, this.credits);
 
         await setItemPropertiesOptions({
@@ -391,21 +396,14 @@ class UpdateItemCacheJob extends DataJob {
             });
         }
 
-        const itemsData = {
-            Item: itemData,
-            ItemCategory: this.bsgCategories,
-            HandbookCategory: this.handbookCategories,
-            ItemType: ['any', ...itemTypesSet].sort(),
-            FleaMarket: fleaData,
-            ArmorMaterial: armorData,
-            PlayerLevel: levelData,
-            LanguageCode: Object.keys(this.locales).sort(),
-            ...this.kvData,
-        };
-        await this.cloudflarePut(itemsData);
+        this.kvData.ItemType = ['any', ...itemTypesSet].sort(),
+        this.kvData.FleaMarket = fleaData,
+        this.kvData.ArmorMaterial = armorData,
+        this.kvData.PlayerLevel = levelData,
+        this.kvData.LanguageCode = Object.keys(this.locales).sort(),
+        await this.cloudflarePut();
 
         const schemaData = {
-            updated: new Date(),
             ItemType: ['any', ...itemTypesSet].sort().join('\n '),
             ItemCategory: Object.values(this.bsgCategories).map(cat => cat.enumName).sort().join('\n  '),
             HandbookCategory: Object.values(this.handbookCategories).map(cat => cat.enumName).sort().join('\n  '),
@@ -413,7 +411,7 @@ class UpdateItemCacheJob extends DataJob {
         };
         await this.cloudflarePut(schemaData, 'schema_data');
 
-        return itemsData;
+        return this.kvData;
     }
 
     addCategory(id) {
@@ -438,8 +436,8 @@ class UpdateItemCacheJob extends DataJob {
                 }
             }),
         };
-        this.bsgCategories[id].normalizedName = normalizeName(this.kvData.locale.en[this.bsgCategories[id].name]);
-        this.bsgCategories[id].enumName = catNameToEnum(this.kvData.locale.en[this.bsgCategories[id].name]);
+        this.bsgCategories[id].normalizedName = normalizeName(this.getTranslation(this.bsgCategories[id].name));
+        this.bsgCategories[id].enumName = catNameToEnum(this.getTranslation(this.bsgCategories[id].name));
     
         this.addCategory(this.bsgCategories[id].parent_id);
     }

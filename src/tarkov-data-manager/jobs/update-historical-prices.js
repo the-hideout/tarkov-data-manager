@@ -9,13 +9,14 @@ class UpdateHistoricalPricesJob extends DataJob {
     constructor() {
         super('update-historical-prices');
         this.kvName = 'historical_price_data';
+        this.idSuffixLength = 1;
+        this.apiType = 'historicalPricePoint';
     }
 
     async run() {
         const priceWindow = new Date(new Date().setDate(new Date().getDate() - historicalPriceDays));
-        const itemPriceData = await fs.readFile(path.join(__dirname, '..', 'dumps', 'historical_price_data.json')).then(buffer => {
-            const parsed = JSON.parse(buffer);
-            return parsed.historicalPricePoint;
+        const itemPriceData = await fs.readFile(path.join(__dirname, '..', 'dumps', `historical_price_data.json`)).then(buffer => {
+            return JSON.parse(buffer)[this.apiType];
         }).catch(error => {
             if (error.code !== 'ENOENT') {
                 console.log(error);
@@ -78,11 +79,27 @@ class UpdateHistoricalPricesJob extends DataJob {
             });
         }
 
-        this.kvData = {
-            historicalPricePoint: itemPriceData
-        };
-
+        this.kvData = {};
+        this.kvData[this.apiType] = itemPriceData;
         await this.cloudflarePut();
+        this.logger.success('Done with historical prices');
+        return this.kvData;
+
+        const uploads = [];
+        for (const hexChar in itemPriceData) {
+            uploads.push(this.cloudflarePut(
+                {historicalPricePoint: itemPriceData[hexChar]},
+                `historical_price_data_${hexChar}`
+            ));
+        }
+        await Promise.allSettled(uploads).then(results => {
+            for (const result of results) {
+                if (result.status === 'fulfilled') {
+                    continue;
+                }
+                this.logger.error(result.reason);
+            }
+        });
 
         this.logger.success('Done with historical prices');
         // Possibility to POST to a Discord webhook here with cron status details

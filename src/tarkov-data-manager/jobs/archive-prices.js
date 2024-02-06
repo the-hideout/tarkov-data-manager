@@ -11,6 +11,7 @@ class ArchivePricesJob extends DataJob {
         // get the archive cutoff
         const today = new Date();
         let cutoff = new Date(new Date().setDate(today.getDate() - 30));
+        cutoff.setUTCHours(0, 0, 0, 0);
         // if we wanted to keep all prices since start of wipe
         /*const wipes = await this.query('SELECT * FROM wipe ORDER BY start_date desc limit 1');
         if (wipes.length > 0) {

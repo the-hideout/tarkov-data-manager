@@ -137,6 +137,9 @@ const getLocales = async (download) => {
 };
 
 module.exports = {
+    achievements: (download) => {
+        return downloadJson('achievements.json', `${sptDataPath}templates/achievements.json`, download);
+    },
     handbook: (download) => {
         return downloadJson('handbook.json', `${sptDataPath}templates/handbook.json`, download);
     },
