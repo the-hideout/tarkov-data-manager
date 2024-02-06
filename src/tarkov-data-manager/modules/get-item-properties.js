@@ -148,9 +148,9 @@ const getArmorSlots = (item) => {
             newSlot.class = parseInt(plateItem._props.armorClass),
             newSlot.durability = parseInt(plateItem._props.Durability),
             newSlot.repairCost = parseInt(plateItem._props.RepairCost),
-            newSlot.speedPenalty = parseInt(plateItem._props.speedPenaltyPercent) / 100,
-            newSlot.turnPenalty = parseInt(plateItem._props.mousePenalty) / 100,
-            newSlot.ergoPenalty = parseInt(plateItem._props.weaponErgonomicPenalty),
+            newSlot.speedPenalty = parseFloat(plateItem._props.speedPenaltyPercent) / 100,
+            newSlot.turnPenalty = parseFloat(plateItem._props.mousePenalty) / 100,
+            newSlot.ergoPenalty = parseFloat(plateItem._props.weaponErgonomicPenalty) / 100,
             newSlot.armor_material_id = plateItem._props.ArmorMaterial,
             newSlot.zones = job.addTranslation(slotInfo.armorColliders.map(collider => `Collider Type ${collider}`)),
             newSlot.armorType = job.addTranslation(plateItem._props.ArmorType, (lang) => {
@@ -292,7 +292,10 @@ const getItemProperties = async (item) => {
             properties.propertiesType = 'ItemPropertiesChestRig';
             properties = {
                 ...properties,
-                ...getGrids(item)
+                speedPenalty: parseFloat(item._props.speedPenaltyPercent) / 100,
+                turnPenalty: parseFloat(item._props.mousePenalty) / 100,
+                ergoPenalty: parseFloat(item._props.weaponErgonomicPenalty) / 100,
+                ...getGrids(item),
             };
         }
         const armorClass = getArmorClass(item);
@@ -303,9 +306,6 @@ const getItemProperties = async (item) => {
                 class: armorClass,
                 durability: parseInt(item._props.Durability),
                 repairCost: parseInt(item._props.RepairCost),
-                speedPenalty: parseInt(item._props.speedPenaltyPercent) / 100,
-                turnPenalty: parseInt(item._props.mousePenalty) / 100,
-                ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
                 armor_material_id: item._props.ArmorMaterial,
                 zones: job.addTranslation(getArmorZones(item)),
                 armorType: job.addTranslation(item._props.ArmorType, (lang) => {
@@ -322,9 +322,9 @@ const getItemProperties = async (item) => {
     } else if (item._parent === '5448e53e4bdc2d60728b4567') {
         properties = {
             propertiesType: 'ItemPropertiesBackpack',
-            speedPenalty: parseInt(item._props.speedPenaltyPercent) / 100,
-            turnPenalty: parseInt(item._props.mousePenalty) / 100,
-            ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
+            speedPenalty: parseFloat(item._props.speedPenaltyPercent) / 100,
+            turnPenalty: parseFloat(item._props.mousePenalty) / 100,
+            ergoPenalty: parseFloat(item._props.weaponErgonomicPenalty) / 100,
             ...getGrids(item)
         };
     } else if (item._parent === '543be6564bdc2df4348b4568') {
@@ -361,9 +361,9 @@ const getItemProperties = async (item) => {
             durability: parseInt(item._props.Durability),
             repairCost: parseInt(item._props.RepairCost),
             blindnessProtection: item._props.BlindnessProtection,
-            speedPenalty: parseInt(item._props.speedPenaltyPercent) / 100,
-            turnPenalty: parseInt(item._props.mousePenalty) / 100,
-            ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
+            speedPenalty: parseFloat(item._props.speedPenaltyPercent) / 100,
+            turnPenalty: parseFloat(item._props.mousePenalty) / 100,
+            ergoPenalty: parseFloat(item._props.weaponErgonomicPenalty) / 100,
             armor_material_id: item._props.ArmorMaterial,
         };
     } else if (hasCategory(item, ['5a341c4086f77401f2541505', '57bef4c42459772e8d35a53b', '5a341c4686f77469e155819e'])) {
@@ -376,9 +376,9 @@ const getItemProperties = async (item) => {
                 class: armorClass,
                 durability: parseInt(item._props.Durability),
                 repairCost: parseInt(item._props.RepairCost),
-                speedPenalty: parseInt(item._props.speedPenaltyPercent) / 100,
-                turnPenalty: parseInt(item._props.mousePenalty) / 100,
-                ergoPenalty: parseInt(item._props.weaponErgonomicPenalty),
+                speedPenalty: parseFloat(item._props.speedPenaltyPercent) / 100,
+                turnPenalty: parseFloat(item._props.mousePenalty) / 100,
+                ergoPenalty: parseFloat(item._props.weaponErgonomicPenalty) /100,
                 blindnessProtection: item._props.BlindnessProtection,
                 ricochetX: item._props.RicochetParams.x,
                 ricochetY: item._props.RicochetParams.y,
