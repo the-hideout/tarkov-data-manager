@@ -1273,5 +1273,13 @@
                 }
             ]
         }
+    },
+    "59675d6c86f7740a842fc482": {
+        "name": "Ice Cream Cones",
+        "objectivePropertiesChanged": {
+            "5a3fbe3a86f77414422e0d9b": {
+                "zoneKeys": ["bunker1"]
+            }
+        }
     }
 }
