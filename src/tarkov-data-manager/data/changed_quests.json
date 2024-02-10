@@ -1237,5 +1237,49 @@
                 }
             ]
         }
+    },
+    "63967028c4a91c5cb76abd81": {
+        "name": "Trouble in the Big City",
+        "finishRewardsChanged": {
+            "traderStanding": [
+                {
+                    "trader_id": "638f541a29ffd1183d187f57",
+                    "name": "Lightkeeper",
+                    "standing": 0.05
+                }
+            ],
+            "offerUnlock": [
+                {
+                    "id": "63a2359ef194393ecf632fa2",
+                    "trader_id": "5a7c2eca46aef81a7ca2145d",
+                    "trader_name": "Mechanic",
+                    "level": 4,
+                    "item": "6389c85357baa773a825b356",
+                    "item_name": "Advanced current converter",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "id": "012345678901234567890123",
+                    "trader_id": "5935c25fb3acc3127c3d8cd9",
+                    "trader_name": "Peacekeeper",
+                    "level": 4,
+                    "item": "657eb3773271d8578610fe28",
+                    "item_name": "SIG MCX SPEAR 6.8x51 assault rifle Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "59675d6c86f7740a842fc482": {
+        "name": "Ice Cream Cones",
+        "objectivePropertiesChanged": {
+            "5a3fbe3a86f77414422e0d9b": {
+                "zoneKeys": ["bunker1"]
+            }
+        }
     }
 }

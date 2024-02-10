@@ -285,16 +285,17 @@ const getItemProperties = async (item) => {
         }
     } else if (hasCategory(item, ['5448e54d4bdc2dcc718b4568', '5448e5284bdc2dcb718b4567'])) {
         // armor vests and tactical rigs
-        properties = {};
+        properties = {
+            speedPenalty: parseFloat(item._props.speedPenaltyPercent) / 100,
+            turnPenalty: parseFloat(item._props.mousePenalty) / 100,
+            ergoPenalty: parseFloat(item._props.weaponErgonomicPenalty) / 100.0,
+        };
         if (item._parent === '5448e54d4bdc2dcc718b4568') {
             properties.propertiesType = 'ItemPropertiesArmor';
         } else if (item._parent === '5448e5284bdc2dcb718b4567') {
             properties.propertiesType = 'ItemPropertiesChestRig';
             properties = {
                 ...properties,
-                speedPenalty: parseFloat(item._props.speedPenaltyPercent) / 100,
-                turnPenalty: parseFloat(item._props.mousePenalty) / 100,
-                ergoPenalty: parseFloat(item._props.weaponErgonomicPenalty) / 100,
                 ...getGrids(item),
             };
         }
