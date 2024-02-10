@@ -394,6 +394,7 @@ const getItemProperties = async (item) => {
                         return substr.toLowerCase();
                     });
                 }),
+                slots: getSlots(item),
                 armorSlots: getArmorSlots(item),
             };
             if (hasCategory(item, ['5a341c4086f77401f2541505', '5a341c4686f77469e155819e'])) {
