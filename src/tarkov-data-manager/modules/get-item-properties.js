@@ -407,7 +407,12 @@ const getItemProperties = async (item) => {
                 properties.propertiesType = 'ItemPropertiesArmorAttachment';
             } else if (item._parent === '644120aa86ffbe10ee032b6f') {
                 properties.propertiesType = 'ItemPropertiesArmorAttachment';
-            }
+            } 
+        } else if (item._parent === '5a341c4086f77401f2541505') {
+            properties = {
+                slots: getSlots(item),
+                propertiesType: 'ItemPropertiesHeadwear',
+            };
         }
     } else if (hasCategory(item, ['5795f317245977243854e041', '5671435f4bdc2d96058b4569', '5448bf274bdc2dfc2f8b456a'])) {
         properties = {
