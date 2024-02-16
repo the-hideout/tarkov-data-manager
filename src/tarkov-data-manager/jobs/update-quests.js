@@ -1613,6 +1613,7 @@ const extractMap = {};
 const forceObjectiveMap = {
     '5a2819c886f77460ba564f38': '5704e554d2720bac5b8b456e',
     '5979fc2686f77426d702a0f2': '56f40101d2720b2a4d8b45d6',
+    '5a3fbe3a86f77414422e0d9b': '5704e3c2d2720bac5b8b4567',
 };
 
 const questStatusMap = {
