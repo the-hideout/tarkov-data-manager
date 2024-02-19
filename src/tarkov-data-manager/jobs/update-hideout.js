@@ -3,6 +3,7 @@ const got = require('got');
 const tarkovData = require('../modules/tarkov-data');
 const normalizeName = require('../modules/normalize-name');
 const DataJob = require('../modules/data-job');
+const s3 = require('../modules/upload-s3');
 
 const skipAreas = {
     '5df8a81f8f77747fcf5f5702': true, // christmas tree
@@ -23,6 +24,7 @@ class UpdateHideoutJob extends DataJob {
                 resolveBodyOnly: true,
             })
         ]);
+        const s3Images = s3.getLocalBucketContents();
         this.kvData.HideoutStation = [];
         const areasByType = {};
         for (const stationId in this.data) {
@@ -40,12 +42,20 @@ class UpdateHideoutJob extends DataJob {
                 normalizedName: normalizeName(this.getTranslation(`hideout_area_${station.type}_name`)),
                 areaType: station.type,
                 levels: [],
+                imageLink: `https://${process.env.S3_BUCKET}/station-unknown.png`,
             };
+            const fileName = `station-${stationData.normalizedName}.png`;
+            if (s3Images.includes(fileName)) {
+                stationData.imageLink = `https://${process.env.S3_BUCKET}/${fileName}`;
+            }
             if (!station.enabled || skipAreas[stationId]) {
                 this.logger.log(`❌ ${this.getTranslation(stationData.name)}`);
                 continue;
             }
             this.logger.log(`✔️ ${this.getTranslation(stationData.name)}`);
+            if (stationData.imageLink.includes('station-unknown')) {
+                this.logger.warn(`Missing image`);
+            }
             for (const tdStation of this.tdHideout.stations) {
                 if (tdStation.locales.en.toLowerCase() === this.getTranslation(stationData.name).toLowerCase()) {
                     stationData.tarkovDataId = tdStation.id;
