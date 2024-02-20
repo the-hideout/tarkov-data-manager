@@ -846,20 +846,20 @@
             ]
         }
     },
-    "__60e71b9bbd90872cb85440f3": {
+    "60e71b9bbd90872cb85440f3": {
         "name": "Capturing Outposts",
         "objectivePropertiesChanged": {
             "60ec2229fd1bf4491c4e4552": {
                 "zoneKeys": [
-                    "prapor_27_resort"
+                    "prapor_27_3"
                 ],
                 "zoneNames": [
-                    "prapor_27_resort"
+                    "prapor_27_3"
                 ]
             }
         },
         "translationKeys": [
-            "prapor_27_resort"
+            "prapor_27_3"
         ]
     },
     "__5ac3464c86f7741d651d6877": {
