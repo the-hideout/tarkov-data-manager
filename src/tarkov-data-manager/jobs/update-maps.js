@@ -594,7 +594,10 @@ class UpdateMapsJob extends DataJob {
         }
         bossInfo.items = [];
         for (const slotName in bossExtraData.inventory.items) {
-            for (const id of bossExtraData.inventory.items[slotName]) {
+            if (slotName === 'SecuredContainer') {
+                continue;
+            }
+            for (const id in bossExtraData.inventory.items[slotName]) {
                 if (bossInfo.items.some(item => item.id === id)) {
                     continue;
                 }
