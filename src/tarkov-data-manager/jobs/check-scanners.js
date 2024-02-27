@@ -70,7 +70,7 @@ class CheckScansJob extends DataJob {
                 continue;
             }
             if (scannerFlags.ignoreMissingScans & scanner.flags) {
-                this.logger.log(`Ignoring scanner ${scanner.name} for missing scans`);
+                this.logger.log(`Skipping missing scans alert for scanner ${scanner.name} due to ignore flag`);
                 continue;
             }
             if (!(userFlags.insertPlayerPrices & scanner.user_flags) && !(userFlags.insertTraderPrices & scanner.user_flags)) {
