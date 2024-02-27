@@ -1237,7 +1237,7 @@ class UpdateQuestsJob extends DataJob {
                     }
                     let targetCode = cond.target;
                     obj.targetNames = [this.addMobTranslation(targetCode)];
-                    if (cond.savageRole) {
+                    if (cond.savageRole?.length) {
                         const ignoreRoles = [
                             'assault',
                             'cursedAssault',
