@@ -1554,7 +1554,9 @@ class UpdateQuestsJob extends DataJob {
             description: this.addTranslation(`${ach.id} description`),
             hidden: ach.hidden,
             side: this.addTranslation(ach.side),
+            normalizedSide: normalizeName(this.getTranslation(ach.side)),
             rarity: this.addTranslation(`Achievements/Tab/${ach.rarity}Rarity`),
+            normalizedRarity: normalizeName(this.getTranslation(`Achievements/Tab/${ach.rarity}Rarity`)),
             //conditions: ach.conditions.availableForFinish.map(c => this.formatObjective(ach.id, c, true)),
             playersCompletedPercent: this.achievementStats[ach.id] || 0,
         };

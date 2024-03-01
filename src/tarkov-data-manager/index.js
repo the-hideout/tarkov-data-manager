@@ -32,7 +32,7 @@ const {connection, query, format} = require('./modules/db-connection');
 const timer = require('./modules/console-timer');
 const scannerApi = require('./modules/scanner-api');
 const webhookApi = require('./modules/webhook-api');
-const queueApi = require('./modules/queue-api');
+const publicApi = require('./modules/public-api');
 const { uploadToS3, getImages, getLocalBucketContents, addFileToBucket, deleteFromBucket, renameFile, copyFile } = require('./modules/upload-s3');
 const { createAndUploadFromSource, regenerateFromExisting } = require('./modules/image-create');
 
@@ -1905,7 +1905,11 @@ app.post('/api/webhooks/:hooksource/:webhookid/:webhookkey', async (req, res) =>
 });
 
 app.post('/api/queue', async (req, res) => {
-    queueApi.handle(req, res);
+    publicApi.queue(req, res);
+});
+
+app.post('/api/goons', async (req, res) => {
+    publicApi.goons(req, res);
 });
 
 const server = app.listen(port, () => {
