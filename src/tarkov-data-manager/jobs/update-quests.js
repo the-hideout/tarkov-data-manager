@@ -1559,6 +1559,7 @@ class UpdateQuestsJob extends DataJob {
             normalizedRarity: normalizeName(this.getTranslation(`Achievements/Tab/${ach.rarity}Rarity`)),
             //conditions: ach.conditions.availableForFinish.map(c => this.formatObjective(ach.id, c, true)),
             playersCompletedPercent: this.achievementStats[ach.id] || 0,
+            adjustedPlayersCompletedPercent: parseFloat((((this.achievementStats[ach.id] || 0) / this.achievementStats['65141c30ec10ff011f17cc3b']) * 100).toFixed(2)),
         };
     }
 
