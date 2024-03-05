@@ -148,8 +148,9 @@ module.exports = {
         }
 
         try {
+            const ipAddress = req.headers['cf-connecting-ip'] || req.ip;
             // Insert the data into the database
-            await query(`INSERT INTO goon_reports (map, timestamp, reporter_id, reporter_ip) VALUES (?, ?, ?, ?)`, [data.map, data.timestamp, data.reporterId, req.ip]);
+            await query(`INSERT INTO goon_reports (map, timestamp, reporter_id, reporter_ip) VALUES (?, ?, ?, ?)`, [data.map, data.timestamp, data.reporterId, ipAddress]);
             res.json({ status: "success" });
             return;
         } catch (error) {
