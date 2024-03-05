@@ -92,7 +92,7 @@ const validateGoons = async (req, res) => {
             res.status(400).send("value 'timestamp' is required");
             return false;
         } else {
-            timestamp = new Date(parseInt(req.body.timestamp));
+            timestamp = new Date(req.body.timestamp);
         }
 
         let reporterId;
@@ -103,7 +103,7 @@ const validateGoons = async (req, res) => {
             reporterId = req.body.accountId;
         }
 
-        return { map, timestamp, reporterId, reporterIp: req.socket.remoteAddress  };
+        return { map, timestamp, reporterId };
     } catch (error) {
         alert({
             title: `Error during public-api goons validation`,
@@ -126,7 +126,7 @@ module.exports = {
 
         try {
             // Insert the data into the database
-            await query(format(`INSERT INTO queue_data (map, time, type) VALUES (?, ?, ?)`, [data.map, data.time, data.type]));
+            await query(`INSERT INTO queue_data (map, time, type) VALUES (?, ?, ?)`, [data.map, data.time, data.type]);
             res.json({ status: "success" });
             return;
         } catch (error) {
@@ -134,7 +134,7 @@ module.exports = {
                 title: `Error during queue-api execution`,
                 message: error.toString()
             });
-            res.status(500).send('failure');
+            res.status(500).json({status: 'failure'});
             return;
         }
     },
@@ -149,7 +149,7 @@ module.exports = {
 
         try {
             // Insert the data into the database
-            await query(format(`INSERT INTO goon_reports (map, timestamp, reporter_id, reporter_ip) VALUES (?, ?, ?, ?)`, [data.map, data.timestamp, data.reporterId, reporterIp]));
+            await query(`INSERT INTO goon_reports (map, timestamp, reporter_id, reporter_ip) VALUES (?, ?, ?, ?)`, [data.map, data.timestamp, data.reporterId, req.ip]);
             res.json({ status: "success" });
             return;
         } catch (error) {
@@ -157,7 +157,7 @@ module.exports = {
                 title: `Error during queue-api execution`,
                 message: error.toString()
             });
-            res.status(500).send('failure');
+            res.status(500).json({status: 'failure'});
             return;
         }
     },

@@ -73,6 +73,12 @@ function maybe(fn) {
             return true;
         }
 
+        if (req.path.startsWith('/api/goons')) {
+            next();
+
+            return true;
+        }
+
         fn(req, res, next);
     }
 };
@@ -96,6 +102,8 @@ if (app.get('env') === 'production') {
     app.set('trust proxy', 1);
     sess.cookie.secure = true;
 }
+
+app.set('trust proxy', true);
 
 //app.use(bodyParser.json());
 app.use(express.static('public'));
