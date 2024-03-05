@@ -279,6 +279,8 @@ const getItemProperties = async (item) => {
             durabilityBurnFactor: item._props.DurabilityBurnModificator,
             heatFactor: item._props.HeatFactor,
             staminaBurnPerDamage: item._props.StaminaBurnPerDamage,
+            misfireChance: item._props.MalfMisfireChance,
+            failureToFeedChance: item._props.MalfFeedChance,
         };
         if (item._props.IsLightAndSoundShot) {
             properties.ammoType = 'flashbang';
