@@ -35,7 +35,7 @@ services:
       - SQLD_NODE="primary"
       - SQLD_HTTP_LISTEN_ADDR=0.0.0.0:8081
       - SQLD_GRPC_LISTEN_ADDR=0.0.0.0:5001
-      - SQLD_ENABLE_BOTTOMLESS_REPLICATION=true # set this to false if you are doing local dev work
+      - SQLD_ENABLE_BOTTOMLESS_REPLICATION=true # set this to false if you are doing local dev work unless you want to sync with the production database
       - LIBSQL_BOTTOMLESS_AWS_DEFAULT_REGION=us-east-1
       - LIBSQL_BOTTOMLESS_BUCKET=the-hideout-libsql
     ports:
