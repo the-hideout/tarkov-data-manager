@@ -1,5 +1,5 @@
 #cache/
-creds.env
+creds*.env
 node_modules
 *.sql
 bsg-data.json

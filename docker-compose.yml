@@ -19,64 +19,73 @@ services:
       - ./src/tarkov-data-manager/dumps:/app/dumps
       - ./src/tarkov-data-manager/node-logs:/home/node/.npm/_logs
     depends_on:
-      - writer
-      - reader
+      - primary
+      - replica
       - nginx
 
-  writer:
+  # the primary node for the libsql database
+  primary:
     # https://github.com/tursodatabase/libsql/pkgs/container/libsql-server/184665658?tag=v0.23.4
     build:
       context: ./src/libsql
       dockerfile: ./Dockerfile
     environment:
-      - SQLD_NODE=primary
-      - SQLD_ENABLE_BOTTOMLESS_REPLICATION=true
-      - LIBSQL_BOTTOMLESS_ENDPOINT=http://s3:9000
-      - LIBSQL_BOTTOMLESS_AWS_ACCESS_KEY_ID=minioadmin
-      - LIBSQL_BOTTOMLESS_AWS_SECRET_ACCESS_KEY=minioadmin
-      - LIBSQL_BOTTOMLESS_AWS_DEFAULT_REGION=us-east-1
-      - RUST_LOG=info,bottomless=trace
+      - SQLD_NODE="primary"
+      - SQLD_HTTP_LISTEN_ADDR=0.0.0.0:8081
+      - SQLD_GRPC_LISTEN_ADDR=0.0.0.0:5001
+      # - SQLD_ENABLE_BOTTOMLESS_REPLICATION=true
+      # - LIBSQL_BOTTOMLESS_BUCKET="the-hideout-libsql"
+      # - LIBSQL_BOTTOMLESS_ENDPOINT="http://s3:9000"
+      # - LIBSQL_BOTTOMLESS_AWS_DEFAULT_REGION="us-east-1"
+      # - RUST_LOG="info,bottomless=trace"
+      - RUST_LOG="info"
     ports:
-      - "6000:5000"
-    depends_on:
-      - s3
+      - "8081:8081" # HTTP API
+      - "5001:5001" # gRPC API
+    # depends_on:
+    #   - s3
     volumes:
       - libsql_data:/var/lib/sqld
 
-  reader:
+  # the replica node for the libsql database
+  replica:
     # https://github.com/tursodatabase/libsql/pkgs/container/libsql-server/184665658?tag=v0.23.4
     build:
       context: ./src/libsql
       dockerfile: ./Dockerfile
     environment:
       - SQLD_NODE=replica
-      - SQLD_PRIMARY_URL=http://writer:5001
-      - SQLD_HTTP_LISTEN_ADDR=0.0.0.0:8080
+      - SQLD_PRIMARY_URL=http://primary:5001
+      - SQLD_HTTP_LISTEN_ADDR=0.0.0.0:8082
     depends_on:
-      - writer
+      - primary
     volumes:
       - libsql_data:/var/lib/sqld
+    ports:
+      - "8082:8082" # HTTP API
+      - "5002:5002" # gRPC API
 
   nginx:
     image: nginx:1.25.4
     volumes:
-      - ./src/libsql/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./src/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - reader
+      - replica
     ports:
-      - "6001:6001"
+      - "6002:6002"
       - "8080:8080"
-  s3:
-    image: minio/minio:RELEASE.2024-03-07T00-43-48Z
-    command: ["minio", "server", "/data"]
-    ports:
-      - "9000:9000" # API port
-      # - "9001:9001" # Console port
-    volumes:
-      - ./data/minio_data:/data
-    env_file: 
-      - ./src/minio/config.env
-      - ./src/minio/creds.env
+
+  # s3:
+  #   image: minio/minio:RELEASE.2024-03-07T00-43-48Z
+  #   command: ["minio", "server", "/data"]
+  #   ports:
+  #     - "9000:9000" # API port
+  #     # - "9001:9001" # Console port
+  #   volumes:
+  #     - ./data/minio_data:/data
+  #   env_file: 
+  #     - ./src/minio/config.env
+  #     - ./src/minio/creds.env
 
   caddy:
     container_name: caddy-service
@@ -96,6 +105,11 @@ services:
       PROXY_BACKEND: tarkov_data_manager
       PROXY_PORT: 4000
       DOMAIN: ${DOMAIN}
+
+  # a dev container that has curl on a basic ubuntu image
+  curl:
+    image: curlimages/curl:latest
+    command: ["tail", "-f", "/dev/null"]
 
 volumes:
   minio_data:
