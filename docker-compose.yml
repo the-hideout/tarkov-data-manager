@@ -21,7 +21,7 @@ services:
     depends_on:
       - primary
       - replica
-      - nginx
+      - db_proxy
 
   # the primary node for the libsql database
   primary:
@@ -65,7 +65,7 @@ services:
       - "8082:8082" # HTTP API
       - "5002:5002" # gRPC API
 
-  nginx:
+  db_proxy:
     image: nginx:1.25.4
     volumes:
       - ./src/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
