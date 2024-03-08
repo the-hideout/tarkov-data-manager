@@ -29,21 +29,18 @@ services:
     build:
       context: ./src/libsql
       dockerfile: ./Dockerfile
+    env_file: 
+      - ./src/libsql/creds.env
     environment:
       - SQLD_NODE="primary"
       - SQLD_HTTP_LISTEN_ADDR=0.0.0.0:8081
       - SQLD_GRPC_LISTEN_ADDR=0.0.0.0:5001
-      # - SQLD_ENABLE_BOTTOMLESS_REPLICATION=true
-      # - LIBSQL_BOTTOMLESS_BUCKET="the-hideout-libsql"
-      # - LIBSQL_BOTTOMLESS_ENDPOINT="http://s3:9000"
-      # - LIBSQL_BOTTOMLESS_AWS_DEFAULT_REGION="us-east-1"
-      # - RUST_LOG="info,bottomless=trace"
-      - RUST_LOG="info"
+      - SQLD_ENABLE_BOTTOMLESS_REPLICATION=true # set this to false if you are doing local dev work
+      - LIBSQL_BOTTOMLESS_AWS_DEFAULT_REGION=us-east-1
+      - LIBSQL_BOTTOMLESS_BUCKET=the-hideout-libsql
     ports:
       - "8081:8081" # HTTP API
       - "5001:5001" # gRPC API
-    # depends_on:
-    #   - s3
     volumes:
       - libsql_data:/var/lib/sqld
     healthcheck:
@@ -85,18 +82,6 @@ services:
       - "6002:6002"
       - "8080:8080"
 
-  # s3:
-  #   image: minio/minio:RELEASE.2024-03-07T00-43-48Z
-  #   command: ["minio", "server", "/data"]
-  #   ports:
-  #     - "9000:9000" # API port
-  #     # - "9001:9001" # Console port
-  #   volumes:
-  #     - ./data/minio_data:/data
-  #   env_file: 
-  #     - ./src/minio/config.env
-  #     - ./src/minio/creds.env
-
   caddy:
     container_name: caddy-service
     restart: unless-stopped
@@ -122,7 +107,6 @@ services:
     command: ["tail", "-f", "/dev/null"]
 
 volumes:
-  minio_data:
   caddy_data:
   caddy_config:
   settings:
