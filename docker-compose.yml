@@ -18,6 +18,64 @@ services:
       - ./src/tarkov-data-manager/logs:/app/logs
       - ./src/tarkov-data-manager/dumps:/app/dumps
       - ./src/tarkov-data-manager/node-logs:/home/node/.npm/_logs
+    depends_on:
+      - writer
+      - reader
+      - nginx
+
+  writer:
+    # https://github.com/tursodatabase/libsql/pkgs/container/libsql-server/184665658?tag=v0.23.4
+    build:
+      context: ./src/libsql
+      dockerfile: ./Dockerfile
+    environment:
+      - SQLD_NODE=primary
+      - SQLD_ENABLE_BOTTOMLESS_REPLICATION=true
+      - LIBSQL_BOTTOMLESS_ENDPOINT=http://s3:9000
+      - LIBSQL_BOTTOMLESS_AWS_ACCESS_KEY_ID=minioadmin
+      - LIBSQL_BOTTOMLESS_AWS_SECRET_ACCESS_KEY=minioadmin
+      - LIBSQL_BOTTOMLESS_AWS_DEFAULT_REGION=us-east-1
+      - RUST_LOG=info,bottomless=debug
+    ports:
+      - "6000:5000"
+    depends_on:
+      - s3
+    volumes:
+      - libsql_data:/var/lib/sqld
+
+  reader:
+    # https://github.com/tursodatabase/libsql/pkgs/container/libsql-server/184665658?tag=v0.23.4
+    build:
+      context: ./src/libsql
+      dockerfile: ./Dockerfile
+    environment:
+      - SQLD_NODE=replica
+      - SQLD_PRIMARY_URL=http://writer:5001
+      - SQLD_HTTP_LISTEN_ADDR=0.0.0.0:8080
+    depends_on:
+      - writer
+    volumes:
+      - libsql_data:/var/lib/sqld
+
+  nginx:
+    image: nginx:1.25.4
+    volumes:
+      - ./src/libsql/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - reader
+    ports:
+      - "6001:6001"
+      - "8080:8080"
+  s3:
+    image: minio/minio:RELEASE.2024-03-07T00-43-48Z
+    ports:
+      - "9000:9000" # API port
+      # - "9001:9001" # Console port
+    volumes:
+      - ./data/minio_data:/data
+    env_file: 
+      - ./src/minio/config.env
+      - ./src/minio/creds.env
 
   caddy:
     container_name: caddy-service
@@ -39,9 +97,16 @@ services:
       DOMAIN: ${DOMAIN}
 
 volumes:
+  minio_data:
   caddy_data:
   caddy_config:
   settings:
   cache:
   logs:
   dumps:
+  libsql_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./data/libsql_data
