@@ -35,7 +35,7 @@ services:
       - LIBSQL_BOTTOMLESS_AWS_ACCESS_KEY_ID=minioadmin
       - LIBSQL_BOTTOMLESS_AWS_SECRET_ACCESS_KEY=minioadmin
       - LIBSQL_BOTTOMLESS_AWS_DEFAULT_REGION=us-east-1
-      - RUST_LOG=info,bottomless=debug
+      - RUST_LOG=info,bottomless=trace
     ports:
       - "6000:5000"
     depends_on:
@@ -68,6 +68,7 @@ services:
       - "8080:8080"
   s3:
     image: minio/minio:RELEASE.2024-03-07T00-43-48Z
+    command: ["minio", "server", "/data"]
     ports:
       - "9000:9000" # API port
       # - "9001:9001" # Console port
