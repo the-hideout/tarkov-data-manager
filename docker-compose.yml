@@ -46,6 +46,11 @@ services:
     #   - s3
     volumes:
       - libsql_data:/var/lib/sqld
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # the replica node for the libsql database
   replica:
@@ -64,6 +69,11 @@ services:
     ports:
       - "8082:8082" # HTTP API
       - "5002:5002" # gRPC API
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   db_proxy:
     image: nginx:1.25.4
