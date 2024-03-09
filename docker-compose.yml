@@ -38,6 +38,8 @@ services:
       - SQLD_ENABLE_BOTTOMLESS_REPLICATION=true # set this to false if you are doing local dev work unless you want to sync with the production database
       - LIBSQL_BOTTOMLESS_AWS_DEFAULT_REGION=us-east-1
       - LIBSQL_BOTTOMLESS_BUCKET=the-hideout-libsql
+      - SQLD_MAX_RESPONSE_SIZE=10MB
+      - SQLD_MAX_TOTAL_RESPONSE_SIZE=32MB
     ports:
       - "8081:8081" # HTTP API
       - "5001:5001" # gRPC API
