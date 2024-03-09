@@ -11,6 +11,9 @@ RUN chown -R node:node /root
 RUN mkdir -p /home/node/.npm
 RUN chown -R 1000:1000 "/home/node/.npm"
 
+# Update certificate store
+RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
+
 COPY --chown=node:node . .
 
 RUN npm install
