@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# not used at this time at all
+
+# The SQL file
+SQL_FILE="db/dump.sql"
+
+# The database host
+DB_HOST="db_proxy:8080"
+
+# Temporary file for the batch of statements
+TMP_FILE=$(mktemp)
+
+# Counter for the number of statements in the current batch
+COUNT=0
+
+# Function to send a batch of statements to the database
+send_batch() {
+    # Convert the batch of statements into a JSON array
+    STATEMENTS=$(jq -R . "$TMP_FILE" | jq -s .)
+
+    # Send the statements to the database
+    curl -d "{\"statements\": $STATEMENTS}" "$DB_HOST"
+
+    # Reset the counter
+    COUNT=0
+
+    # Clear the temporary file
+    > "$TMP_FILE"
+}
+
+# Read the SQL file line by line
+while IFS= read -r LINE; do
+    # If the line is not empty
+    if [[ -n "$LINE" ]]; then
+        # Add the statement to the batch
+        echo "$LINE" >> "$TMP_FILE"
+
+        # Increment the counter
+        ((COUNT++))
+
+        # If the batch has 50 statements or the line is a COMMIT statement, send it to the database
+        if (( COUNT == 50 )) || [[ "$LINE" == COMMIT* ]]; then
+            send_batch
+        fi
+    fi
+done < "$SQL_FILE"
+
+# If there are any remaining statements, send them to the database
+if (( COUNT > 0 )); then
+    send_batch
+fi
+
+# Delete the temporary file
+rm "$TMP_FILE"
