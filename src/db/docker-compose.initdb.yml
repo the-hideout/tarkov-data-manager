@@ -1,0 +1,29 @@
+# these are db_init production override values for the docker-compose.yml file
+# these only get injected when running the following command:
+# docker-compose -f docker-compose.yml -f docker-compose.initdb.yml up
+
+# NOTE: This file should really only ever have to be used one time, to initialize the database from scratch (or to reinitialize it)
+# Using this config assumes that you have a mysql dump file in the ./tmp/db_init directory (ex: ./tmp/db_init/init.sql or ./tmp/db_init/init.sql.gz)
+
+services:
+  db:
+    env_file:
+      - src/db/creds.env
+    volumes:
+      - db_init:/docker-entrypoint-initdb.d
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./data/mysql_data # host location
+
+  db_init:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./tmp/db_init # host location
