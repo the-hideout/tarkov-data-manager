@@ -9,7 +9,7 @@ const pool = mysql.createPool({
     connectionLimit: 10,
     queueLimit: 0,
     ssl: {
-        rejectUnauthorized: true
+        rejectUnauthorized: false // our db in the docker stack just uses a self-signed cert
     },
     timezone: 'Z', // database uses Zulu (utc) time
 });
