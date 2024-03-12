@@ -49,6 +49,7 @@ services:
     command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_DATABASE: tarkov
+      TZ: UTC
     ports:
       - 3306:3306
 
