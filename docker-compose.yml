@@ -19,6 +19,8 @@ services:
       - ./src/tarkov-data-manager/logs:/app/logs
       - ./src/tarkov-data-manager/dumps:/app/dumps
       - ./src/tarkov-data-manager/node-logs:/home/node/.npm/_logs
+    depends_on:
+      - database
 
   caddy:
     container_name: caddy-service
@@ -39,7 +41,7 @@ services:
       PROXY_PORT: 4000
       DOMAIN: ${DOMAIN}
 
-  db:
+  database:
     build:
       context: ./src/db
       dockerfile: ./Dockerfile

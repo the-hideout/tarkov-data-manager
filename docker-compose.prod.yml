@@ -3,7 +3,7 @@
 # docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
 
 services:
-  db:
+  database:
     env_file:
       - src/db/creds.env
     volumes:

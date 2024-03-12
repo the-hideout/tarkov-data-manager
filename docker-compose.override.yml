@@ -3,11 +3,19 @@
 # these values are automatically injected when running `docker-compose up`
 
 services:
-  db:
+  database:
     environment:
       MYSQL_ROOT_PASSWORD: password
     volumes:
       - db_data_dev:/docker-entrypoint-initdb.d
+
+  tarkov_data_manager:
+    environment:
+      DB_PASS: password
+
+  caddy:
+    environment:
+      DOMAIN: localhost
 
 volumes:
   db_data_dev:

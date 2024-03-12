@@ -17,4 +17,4 @@ RUN npm install
 
 USER node
 
-CMD [ "npm", "run", "start" ]
+CMD ./script/wait-for-it.sh database:3306 -- npm run start

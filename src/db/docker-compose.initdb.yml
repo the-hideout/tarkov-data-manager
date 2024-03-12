@@ -6,7 +6,7 @@
 # Using this config assumes that you have a mysql dump file in the ./tmp/db_init directory (ex: ./tmp/db_init/init.sql or ./tmp/db_init/init.sql.gz)
 
 services:
-  db:
+  database:
     env_file:
       - src/db/creds.env
     volumes:
