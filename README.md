@@ -61,6 +61,12 @@ You now have two options to start the docker-compose stack (both do the exact sa
 
 Browse to your web app when it starts up [localhost](https://localhost).
 
+You can test that the database has initialized correctly with the sample data by exec'ing onto the database container and running the following command:
+
+```bash
+mysql -u root -p'password' -e "USE tarkov; SELECT COUNT(*) FROM price_data;"
+```
+
 ### creds.env variables
 
 The following variables should be configured in your creds.env file for the data manager to function properly:

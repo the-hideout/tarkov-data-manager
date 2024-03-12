@@ -15,4 +15,4 @@ volumes:
     driver_opts:
       o: bind
       type: none
-      device: ./sample # host location
+      device: ./src/db/sample # host location
