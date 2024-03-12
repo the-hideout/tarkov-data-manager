@@ -1,0 +1,18 @@
+# these are production override values for the docker-compose.yml file
+# these only get injected when running the following command:
+# docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+
+services:
+  db:
+    env_file:
+      - src/db/creds.env
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./data/mysql_data # host location

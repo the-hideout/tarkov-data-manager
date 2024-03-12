@@ -1,4 +1,5 @@
 # To build the entire stack run 'make run'
+# this is the base docker-compose file
 
 services:
   tarkov_data_manager:
@@ -37,6 +38,17 @@ services:
       PROXY_BACKEND: tarkov_data_manager
       PROXY_PORT: 4000
       DOMAIN: ${DOMAIN}
+
+  db:
+    build:
+      context: ./src/db
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: tarkov
+    ports:
+      - 3306:3306
 
 volumes:
   caddy_data:
