@@ -3,6 +3,10 @@
 # docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
 
 services:
+  tarkov_data_manager:
+    environment:
+      NODE_ENV: "production"
+
   database:
     env_file:
       - src/db/creds.env

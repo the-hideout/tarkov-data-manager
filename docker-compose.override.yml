@@ -12,6 +12,7 @@ services:
   tarkov_data_manager:
     environment:
       DB_PASS: password
+      NODE_ENV: dev
 
   caddy:
     environment:
