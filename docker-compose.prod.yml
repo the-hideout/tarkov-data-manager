@@ -5,7 +5,7 @@
 services:
   tarkov_data_manager:
     environment:
-      NODE_ENV: "production"
+      NODE_ENV: production
 
   database:
     env_file:
