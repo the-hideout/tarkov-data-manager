@@ -36,7 +36,7 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
         };
     }
 
-    let namespace = process.env.NODE_ENV !== 'dev' ? '2e6feba88a9e4097b6d2209191ed4ae5' : '17fd725f04984e408d4a70b37c817171';
+    let namespace = process.env.NODE_ENV === 'production' ? '2e6feba88a9e4097b6d2209191ed4ae5' : '17fd725f04984e408d4a70b37c817171';
     //namespace = '2e6feba88a9e4097b6d2209191ed4ae5'; // force production
 
     let keyPath = '';
