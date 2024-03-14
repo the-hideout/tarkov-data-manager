@@ -113,6 +113,10 @@ const dataFunctions = {
             Shoreline: [
                 'Alpinist'
             ],
+            TarkovStreets: [
+                'Exit_E1',
+                'Exit_E6',
+            ]
         };
         const excludedZones = {
             RezervBase: [
