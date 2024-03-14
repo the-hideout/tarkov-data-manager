@@ -31,7 +31,7 @@ def process_file(file_path, output_dir):
     print(f"File processed: {file_path} -> {output_file}")
 
 # Parse command line arguments
-parser = argparse.ArgumentParser(description='Convert MySQL dump to SQLite dump')
+parser = argparse.ArgumentParser(description='Preformat mysql dump files for import')
 group = parser.add_mutually_exclusive_group(required=True)
 group.add_argument('--file', help='Path to MySQL dump file')
 group.add_argument('--dir', help='Directory containing MySQL dump files')

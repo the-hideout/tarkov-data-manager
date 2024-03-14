@@ -1,0 +1,18 @@
+#!/bin/bash
+
+mkdir -p tmp/planetscale-dumps
+mkdir -p tmp/planetscale-dumps/fmt
+mkdir -p tmp/planetscale-dumps/out
+
+echo "Dumping planetscale the entire tarkov/main database"
+pscale database dump tarkov main
+
+# move any directory starting with pscale_dump_tarkov_main to /tmp/planetscale-dumps
+echo "Moving the dump to tmp/planetscale-dumps"
+mv pscale_dump_tarkov_main/* tmp/planetscale-dumps
+
+echo "Preprocessing the dump"
+python3 script/maintenance/preprocess.py --dir tmp/planetscale-dumps/<whereitsaved> --out tmp/planetscale-dumps/fmt
+
+echo "Combining the dump into one jump sql file"
+cat tmp/planetscale-dumps/fmt/*.sql > tmp/planetscale-dumps/out/combined_json_escaped.sql
