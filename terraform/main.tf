@@ -52,50 +52,13 @@ resource "azurerm_public_ip" "tdm_public_ip" {
   }
 }
 
-# Create Network Security Group and rule
-resource "azurerm_network_security_group" "tdm_sec_group" {
-  name                = "${var.PROJECT_NAME}_security_group"
-  location            = var.CLOUD_LOCATION
-  resource_group_name = azurerm_resource_group.tdm_rg.name
-
-  security_rule {
-    name                       = "SSH"
-    priority                   = 300
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "TCP"
-    source_port_range          = "*"
-    destination_port_range     = "22"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "HTTP"
-    priority                   = 301
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "TCP"
-    source_port_range          = "*"
-    destination_port_range     = "80"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  security_rule {
-    name                       = "HTTPS"
-    priority                   = 302
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "TCP"
-    source_port_range          = "*"
-    destination_port_range     = "443"
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-
-  tags = {
-    managed_by = "terraform"
+data "terraform_remote_state" "network" {
+  backend = "remote"
+  config = {
+    organization = "the-hideout"
+    workspaces = {
+      name = "tdm-network"
+    }
   }
 }
 
@@ -120,7 +83,7 @@ resource "azurerm_network_interface" "tdm_nic" {
 # Connect the security group to the network interface
 resource "azurerm_network_interface_security_group_association" "tdm_sec_group_association" {
   network_interface_id      = azurerm_network_interface.tdm_nic.id
-  network_security_group_id = azurerm_network_security_group.tdm_sec_group.id
+  network_security_group_id = data.terraform_remote_state.network.outputs.tdm_sec_group_id
 }
 
 # Create (and display) an SSH key
