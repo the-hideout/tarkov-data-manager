@@ -111,8 +111,13 @@ const dataFunctions = {
         };
         const excludedExtracts = {
             Shoreline: [
-                'Alpinist'
+                'exit_ALL_alpinist_shoreline'
             ],
+            TarkovStreets: [
+                'Exit_E1', // Old Stylobate Building Elevator
+                'Exit_E6', // Old Scav Checkpoint
+                'E6_new', // new Scav Checkpoint
+            ]
         };
         const excludedZones = {
             RezervBase: [
@@ -136,7 +141,7 @@ const dataFunctions = {
                     if (extract.location.size.x <= 1 && extract.location.size.y <= 1 && extract.location.size.z <= 1) {
                         return extracts;
                     }
-                    if (excludedExtracts[map.Id]?.includes(extract.settings.Name)) {
+                    if (excludedExtracts[map.Id]?.includes(extract.name)) {
                         return extracts;
                     }
                     let duplicateExtract = extracts.find(e => {
