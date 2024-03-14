@@ -114,8 +114,9 @@ const dataFunctions = {
                 'exit_ALL_alpinist_shoreline'
             ],
             TarkovStreets: [
-                'Exit_E1',
-                'Exit_E6',
+                'Exit_E1', // Old Stylobate Building Elevator
+                'Exit_E6', // Old Scav Checkpoint
+                'E6_new', // new Scav Checkpoint
             ]
         };
         const excludedZones = {
