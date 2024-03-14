@@ -17,7 +17,7 @@ async function waitForDb() {
             }
 
         } catch (error) {
-            console.error('Database not ready yet, retrying in 1 second');
+            console.error(`Database not ready yet, retrying in 1 second - error: ${error}`);
             await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before the next attempt
         }
     }

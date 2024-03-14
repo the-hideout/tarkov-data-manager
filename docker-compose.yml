@@ -46,9 +46,11 @@ services:
       context: ./src/db
       dockerfile: ./Dockerfile
     restart: unless-stopped
-    command: --default-authentication-plugin=mysql_native_password
+    command: --default-authentication-plugin=mysql_native_password --require_secure_transport=ON
     environment:
       MYSQL_DATABASE: tarkov
+      MYSQL_SSL_CERT: /etc/mysql/certs/server-cert.pem
+      MYSQL_SSL_KEY: /etc/mysql/certs/server-key.pem
       TZ: UTC # force UTC timezone
     ports:
       - 3306:3306
