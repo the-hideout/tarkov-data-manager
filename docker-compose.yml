@@ -46,7 +46,7 @@ services:
       context: ./src/db
       dockerfile: ./Dockerfile
     restart: unless-stopped
-    command: --default-authentication-plugin=mysql_native_password --require_secure_transport=ON
+    command: --default-authentication-plugin=caching_sha2_password --require_secure_transport=ON
     environment:
       MYSQL_DATABASE: tarkov
       MYSQL_SSL_CERT: /etc/mysql/certs/server-cert.pem
