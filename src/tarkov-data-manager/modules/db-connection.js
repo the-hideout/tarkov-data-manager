@@ -83,5 +83,6 @@ module.exports = {
                 resolve(true);
             });
         });
-    }
+    },
+    maxQueryRows: Number.MAX_SAFE_INTEGER,
 };

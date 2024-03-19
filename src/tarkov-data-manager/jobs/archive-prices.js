@@ -79,7 +79,7 @@ class ArchivePricesJob extends DataJob {
     deletePricesThrough = async (mysqlDateCutoff) => {
         // delete archived prices from main price table
         // can only delete 100k at a time, so need to loop
-        const batchSize = 100000;
+        const batchSize = this.maxQueryRows;
         let deletedCount = 0;
         const deleteStart = new Date();
         while (true) {

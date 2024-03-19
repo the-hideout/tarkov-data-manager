@@ -3,7 +3,7 @@ const path = require('path');
 
 const cloudflare = require('../modules/cloudflare');
 const stellate = require('../modules/stellate');
-const { query, jobComplete } = require('../modules/db-connection');
+const { query, jobComplete, maxQueryRows } = require('../modules/db-connection');
 const JobLogger = require('./job-logger');
 const { alert } = require('./webhook');
 const tarkovData = require('./tarkov-data');
@@ -44,6 +44,7 @@ class DataJob {
         ];
         this.writeFolder = 'dumps';
         this.warnOnTranslationKeySubstitution = false;
+        this.maxQueryRows = maxQueryRows;
     }
 
     cleanup() {

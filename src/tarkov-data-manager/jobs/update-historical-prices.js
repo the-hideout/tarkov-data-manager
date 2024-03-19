@@ -39,7 +39,7 @@ class UpdateHistoricalPricesJob extends DataJob {
 
         this.logger.log(`Using query cutoff of ${dateCutoff}`);
 
-        const batchSize = 100000;
+        const batchSize = this.maxQueryRows;
         let offset = 0;
         const historicalPriceData = [];
         this.logger.time('historical-prices-query');
@@ -55,7 +55,7 @@ class UpdateHistoricalPricesJob extends DataJob {
                 ORDER BY timestamp, item_id
                 LIMIT ?, ?
             `, [dateCutoff, offset, batchSize]);
-            historicalPriceData.push(...queryResults);
+            queryResults.forEach(r => historicalPriceData.push(r));
             if (queryResults.length > 0) {
                 this.logger.log(`Retrieved ${offset + queryResults.length} prices through ${queryResults[queryResults.length-1].timestamp}${queryResults.length === batchSize ? '...' : ''}`);
             } else {

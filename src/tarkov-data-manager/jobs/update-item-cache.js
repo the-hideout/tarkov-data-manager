@@ -396,6 +396,31 @@ class UpdateItemCacheJob extends DataJob {
             });
         }
 
+        this.kvData.Skill = [];
+        for (const skillKey in this.globals.config.SkillsSettings) {
+            const skillData = this.globals.config.SkillsSettings[skillKey];
+            //console.log(skillKey, typeof skillData);
+            if (typeof skillData !== 'object') {
+                continue;
+            }
+            if (!this.locales.en[skillKey]) {
+                continue;
+            }
+            this.kvData.Skill.push({
+                id: skillKey,
+                name: this.addTranslation(skillKey),
+            });
+        }
+
+        this.kvData.Mastering = this.globals.config.Mastering.map(m => {
+            return {
+                id: m.Name,
+                weapons: m.Templates,
+                level2: m.Level2,
+                level3: m.Level3,
+            };
+        });
+
         this.kvData.ItemType = ['any', ...itemTypesSet].sort(),
         this.kvData.FleaMarket = fleaData,
         this.kvData.ArmorMaterial = armorData,
