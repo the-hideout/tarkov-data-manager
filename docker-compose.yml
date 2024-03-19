@@ -1,4 +1,5 @@
 # To build the entire stack run 'make run'
+# this is the base docker-compose file
 
 services:
   tarkov_data_manager:
@@ -18,6 +19,8 @@ services:
       - ./src/tarkov-data-manager/logs:/app/logs
       - ./src/tarkov-data-manager/dumps:/app/dumps
       - ./src/tarkov-data-manager/node-logs:/home/node/.npm/_logs
+    depends_on:
+      - database
 
   caddy:
     container_name: caddy-service
@@ -37,6 +40,20 @@ services:
       PROXY_BACKEND: tarkov_data_manager
       PROXY_PORT: 4000
       DOMAIN: ${DOMAIN}
+
+  database:
+    build:
+      context: ./src/db
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    command: --default-authentication-plugin=caching_sha2_password --require_secure_transport=ON
+    environment:
+      MYSQL_DATABASE: tarkov
+      MYSQL_SSL_CERT: /etc/mysql/certs/server-cert.pem
+      MYSQL_SSL_KEY: /etc/mysql/certs/server-key.pem
+      TZ: UTC # force UTC timezone
+    ports:
+      - 3306:3306
 
 volumes:
   caddy_data:

@@ -1,0 +1,34 @@
+# these override values, are overlayed on top of the default values...
+# in the base docker-compose.yml file
+# these values are automatically injected when running `docker-compose up`
+
+services:
+  database:
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - db_data_dev:/docker-entrypoint-initdb.d
+      - db_dev_certs:/etc/mysql/certs
+
+  tarkov_data_manager:
+    environment:
+      DB_PASS: password
+      NODE_ENV: dev
+
+  caddy:
+    environment:
+      DOMAIN: localhost
+
+volumes:
+  db_data_dev:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./src/db/sample # host location
+  db_dev_certs:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./src/db/dev_certs # host location

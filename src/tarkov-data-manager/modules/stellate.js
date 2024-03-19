@@ -33,7 +33,7 @@ async function purge(dataName, logger = false) {
         purgeBody.push((`_purgeQuery(queries: [${queries.join(', ')}], soft: true)`));
     }
     let url = 'https://admin.stellate.co/tarkov-dev-api';
-    if (process.env.NODE_ENV === 'dev') {
+    if (process.env.NODE_ENV !== 'production') {
         url += '-dev';
         delay = 0; // if we're in dev mode, don't delay the purge
     }

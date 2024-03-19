@@ -1,0 +1,29 @@
+# these are production override values for the docker-compose.yml file
+# these only get injected when running the following command:
+# docker-compose -f docker-compose.yml -f docker-compose.prod.yml up
+
+services:
+  tarkov_data_manager:
+    environment:
+      NODE_ENV: production
+
+  database:
+    env_file:
+      - src/db/creds.env
+    volumes:
+      - db_data:/var/lib/mysql
+      - db_prod_certs:/etc/mysql/certs
+
+volumes:
+  db_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./data/mysql_data # host location
+  db_prod_certs:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./src/db/prod_certs # host location

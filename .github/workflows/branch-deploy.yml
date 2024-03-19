@@ -32,87 +32,87 @@ jobs:
         with:
           ref: ${{ steps.branch-deploy.outputs.ref }}
 
-      - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # pin@v1.6.1
-        if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      # - uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # pin@v1.6.1
+      #   if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # pin@v3.0.0
-        if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
-        with:
-          terraform_version: 1.1.7
-          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+      # - uses: hashicorp/setup-terraform@a1502cd9e758c50496cc9ac5308c4843bcd56d36 # pin@v3.0.0
+      #   if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
+      #   with:
+      #     terraform_version: 1.1.7
+      #     cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Terraform init
-        id: init
-        if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
-        working-directory: terraform/
-        run: terraform init
+      # - name: Terraform init
+      #   id: init
+      #   if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
+      #   working-directory: terraform/
+      #   run: terraform init
 
-      ### NOOP DEPLOY ###
+      # ### NOOP DEPLOY ###
 
-      - name: Terraform fmt
-        if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop == 'true' }}
-        working-directory: terraform/
-        id: fmt
-        run: terraform fmt -check
-        continue-on-error: true
+      # - name: Terraform fmt
+      #   if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop == 'true' }}
+      #   working-directory: terraform/
+      #   id: fmt
+      #   run: terraform fmt -check
+      #   continue-on-error: true
 
-      - name: Terraform validate
-        if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop == 'true' }}
-        working-directory: terraform/
-        id: validate
-        run: terraform validate -no-color
+      # - name: Terraform validate
+      #   if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop == 'true' }}
+      #   working-directory: terraform/
+      #   id: validate
+      #   run: terraform validate -no-color
 
-      - name: Terraform plan
-        if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop == 'true' }}
-        working-directory: terraform/
-        id: plan
-        env:
-          TF_VAR_CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          TF_VAR_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          TF_VAR_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
-          TF_VAR_TENANT_ID: ${{ secrets.TENANT_ID }}
-        run: terraform plan -no-color
-        continue-on-error: true
+      # - name: Terraform plan
+      #   if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop == 'true' }}
+      #   working-directory: terraform/
+      #   id: plan
+      #   env:
+      #     TF_VAR_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      #     TF_VAR_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+      #     TF_VAR_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+      #     TF_VAR_TENANT_ID: ${{ secrets.TENANT_ID }}
+      #   run: terraform plan -no-color
+      #   continue-on-error: true
 
-      # Post comment on PR with development plan info
-      - uses: thollander/actions-comment-pull-request@v2
-        if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop == 'true' }}
-        env:
-          PLAN: "terraform ${{ steps.plan.outputs.stdout }}"
-        with:
-          message: |
-            `### Terraform Plan - Production (noop) 🪐
-            - Terraform Format and Style 🖌: \`${{ steps.fmt.outcome }}\`
-            - Terraform Initialization ⚙️: \`${{ steps.init.outcome }}\`
-            - Terraform Validation 🤖: \`${{ steps.validate.outcome }}\`
-            - Terraform Plan 📖: \`${{ steps.plan.outcome }}\`
+      # # Post comment on PR with development plan info
+      # - uses: thollander/actions-comment-pull-request@v2
+      #   if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop == 'true' }}
+      #   env:
+      #     PLAN: "terraform ${{ steps.plan.outputs.stdout }}"
+      #   with:
+      #     message: |
+      #       `### Terraform Plan - Production (noop) 🪐
+      #       - Terraform Format and Style 🖌: \`${{ steps.fmt.outcome }}\`
+      #       - Terraform Initialization ⚙️: \`${{ steps.init.outcome }}\`
+      #       - Terraform Validation 🤖: \`${{ steps.validate.outcome }}\`
+      #       - Terraform Plan 📖: \`${{ steps.plan.outcome }}\`
 
-            <details><summary>Show Plan</summary>
+      #       <details><summary>Show Plan</summary>
 
-            \`\`\`${process.env.PLAN}\`\`\`
+      #       \`\`\`${process.env.PLAN}\`\`\`
 
-            </details>
+      #       </details>
 
-            In addition to the plan, the branch: \`${{ steps.branch-deploy.outputs.ref }}\` would have been deployed
+      #       In addition to the plan, the branch: \`${{ steps.branch-deploy.outputs.ref }}\` would have been deployed
 
-            > Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`terraform/\`, Workflow: \`${{ github.workflow }}\``;
+      #       > Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`terraform/\`, Workflow: \`${{ github.workflow }}\``;
 
-      #####################
+      # #####################
 
-      ### BRANCH DEPLOY ###
+      # ### BRANCH DEPLOY ###
 
-      - name: Terraform apply
-        if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
-        working-directory: terraform/
-        env:
-          # Creds
-          TF_VAR_CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          TF_VAR_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          TF_VAR_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
-          TF_VAR_TENANT_ID: ${{ secrets.TENANT_ID }}
-        run: terraform apply -auto-approve
+      # - name: Terraform apply
+      #   if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
+      #   working-directory: terraform/
+      #   env:
+      #     # Creds
+      #     TF_VAR_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      #     TF_VAR_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+      #     TF_VAR_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+      #     TF_VAR_TENANT_ID: ${{ secrets.TENANT_ID }}
+      #   run: terraform apply -auto-approve
 
       - name: SSH Remote Deploy
         if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}

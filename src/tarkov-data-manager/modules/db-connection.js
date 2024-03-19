@@ -1,15 +1,15 @@
 const mysql = require('mysql2');
 
 const pool = mysql.createPool({
-    host     : process.env.PSCALE_URL || process.env.DATABASE_HOST,
-    user     : process.env.PSCALE_USER,
-    password : process.env.PSCALE_PASS,
+    host     : process.env.DATABASE_HOST,
+    user     : process.env.DB_USER,
+    password : process.env.DB_PASS,
     database : process.env.DATABASE_NAME,
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
     ssl: {
-        rejectUnauthorized: true
+        rejectUnauthorized: false // allow self-signed certs
     },
     timezone: 'Z', // database uses Zulu (utc) time
 });

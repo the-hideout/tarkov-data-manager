@@ -1,4 +1,4 @@
-FROM node:19.3.0-alpine3.16
+FROM node:19.3.0-slim
 
 WORKDIR /app
 
@@ -11,10 +11,13 @@ RUN chown -R node:node /root
 RUN mkdir -p /home/node/.npm
 RUN chown -R 1000:1000 "/home/node/.npm"
 
+# Update certificate store
+RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
+
 COPY --chown=node:node . .
 
 RUN npm install
 
 USER node
 
-CMD [ "npm", "run", "start" ]
+CMD ./script/wait-for-it.sh database:3306 -- node script/wait-for-db.js && npm run start
