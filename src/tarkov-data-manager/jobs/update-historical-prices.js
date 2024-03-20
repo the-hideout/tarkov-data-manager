@@ -84,26 +84,6 @@ class UpdateHistoricalPricesJob extends DataJob {
         await this.cloudflarePut();
         this.logger.success('Done with historical prices');
         return this.kvData;
-
-        const uploads = [];
-        for (const hexChar in itemPriceData) {
-            uploads.push(this.cloudflarePut(
-                {historicalPricePoint: itemPriceData[hexChar]},
-                `historical_price_data_${hexChar}`
-            ));
-        }
-        await Promise.allSettled(uploads).then(results => {
-            for (const result of results) {
-                if (result.status === 'fulfilled') {
-                    continue;
-                }
-                this.logger.error(result.reason);
-            }
-        });
-
-        this.logger.success('Done with historical prices');
-        // Possibility to POST to a Discord webhook here with cron status details
-        return this.kvData;
     }
 }
 

@@ -84,5 +84,5 @@ module.exports = {
             });
         });
     },
-    maxQueryRows: Number.MAX_SAFE_INTEGER,
+    maxQueryRows: 1000000,
 };

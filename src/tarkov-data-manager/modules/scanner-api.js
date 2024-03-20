@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const formidable = require('formidable');
+const { EventEmitter } = require('events');
 
 const { query } = require('./db-connection');
 const { dashToCamelCase } = require('./string-functions');
@@ -11,10 +12,14 @@ const { imageFunctions } = require('tarkov-dev-image-generator');
 
 const { imageSizes } = imageFunctions;
 
+const emitter = new EventEmitter();
+
 let refreshingUsers = false;
 let users = {};
 let presets = {};
 let presetsTimeout = false;
+
+const commandQueue = [];
 
 const dogtags = [
     '59f32bb586f774757e1e8442',
@@ -976,6 +981,7 @@ const submitData = (options) => {
             response.errors.push(String(error));
         }
     }
+    emitter.emit('jsonUpdate', options);
     return response;
 };
 
@@ -1181,6 +1187,10 @@ module.exports = {
                 return res.json({errors: ['You are not authorized to perform that action'], warnings: [], data: {}});
             }
         }
+        if (resource === 'command-queue') {
+            const command = commandQueue.shift();
+            return res.json({errors: [], warnings: [], data: command});
+        }
         try {
             const scannerName = req.headers.scanner;
             if (!scannerName && !response) {
@@ -1257,5 +1267,23 @@ module.exports = {
     waitForActions: async () => {
         if (refreshingUsers) return refreshingUsers;
         return Promise.resolve();
-    }
+    },
+    addCommand: (type, data) => {
+        if (data && !Array.isArray(data)) {
+            data = [data];
+        }
+        commandQueue.push({
+            type,
+            data,
+        });
+    },
+    on: (event, listener) => {
+        return emitter.on(event, listener);
+    },
+    off: (event, listener) => {
+        return emitter.off(event, listener);
+    },
+    once: (event, listener) => {
+        return emitter.once(event, listener);
+    },
 };
