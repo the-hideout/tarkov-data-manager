@@ -55,6 +55,16 @@ services:
     ports:
       - 3306:3306
 
+  backup:
+    build:
+      context: ./src/backup
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    env_file: 
+      - ./src/backup/config.env
+    depends_on:
+      - database
+
 volumes:
   caddy_data:
   caddy_config:

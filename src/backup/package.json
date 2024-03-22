@@ -4,15 +4,15 @@
     "description": "A service to backup DB dumps to Azure Blob Storage",
     "main": "index.js",
     "engines": {
-      "node": "19.x"
+        "node": "19.x"
     },
     "scripts": {
-      "start": "node --max-old-space-size=3000 index.js"
+        "start": "node index.js"
     },
     "license": "ISC",
     "dependencies": {
-      "dotenv": "^16.4.5",
-      "node-schedule": "^2.1.1"
+        "mysql2": "^3.9.2",
+        "mysqldump-wrapper": "^0.0.2",
+        "node-cron": "^3.0.3"
     }
-  }
-  
+}
