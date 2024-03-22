@@ -12,7 +12,6 @@
     "license": "ISC",
     "dependencies": {
         "mysql2": "^3.9.2",
-        "mysqldump-wrapper": "^0.0.2",
         "node-cron": "^3.0.3"
     }
 }
