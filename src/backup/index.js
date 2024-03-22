@@ -19,7 +19,7 @@ async function upload() {
 
 // run twice a day at 1am and 12pm
 // '*/15 * * * *' runs every 15 minutes for testing
-cron.schedule('*/5 * * * *', () => {
+cron.schedule('0 1,12 * * *', () => {
     try {
         console.log('running database backup cron job')
 
