@@ -10,11 +10,18 @@ const uploadOptions = {
 }
 
 async function upload() {
+    if (process.env.NODE_ENV !== 'production') {
+        console.log('skipping upload to Azure Blob Storage in development environment');
+        return;
+    }
+
+    console.log('uploading backup file to Azure Blob Storage');
     const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
     const containerClient = blobServiceClient.getContainerClient(containerName);
     const blockBlobClient = containerClient.getBlockBlobClient(fileName);
 
     await blockBlobClient.uploadFile(fileName, uploadOptions);
+    console.log('upload complete');
 }
 
 // run twice a day at 1am and 12pm
@@ -64,10 +71,8 @@ cron.schedule('0 1,12 * * *', () => {
             });
           }).then(() => {
             console.log(`backup file: ${fileName}`);
-            console.log('uploading backup file to Azure Blob Storage');
             return upload();
           }).then(() => {
-            console.log('upload complete');
             console.log('database backup cron job finished successfully');
           }).catch((error) => {
             console.error('error during backup or upload:', error);
