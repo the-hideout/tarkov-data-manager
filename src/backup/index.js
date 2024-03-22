@@ -1,10 +1,25 @@
 const cron = require('node-cron')
 const { spawn } = require('child_process');
 const fs = require('fs');
+const { BlobServiceClient } = require("@azure/storage-blob");
 
 const fileName = 'dump.sql.gz'
+const containerName = 'database-backups'
+const uploadOptions = {
+    tier: 'Cold',
+}
 
-cron.schedule('* * * * *', () => {
+async function upload() {
+    const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
+    const containerClient = blobServiceClient.getContainerClient(containerName);
+    const blockBlobClient = containerClient.getBlockBlobClient(fileName);
+
+    await blockBlobClient.uploadFile(fileName, uploadOptions);
+}
+
+// run twice a day at 1am and 12pm
+// '*/15 * * * *' runs every 15 minutes for testing
+cron.schedule('0 1,12 * * *', () => {
     console.log('running database backup cron job')
 
     const dump = spawn('mysqldump', [
@@ -40,7 +55,15 @@ cron.schedule('* * * * *', () => {
         }
     });
 
-    console.log('database backup cron job finished')
     console.log(`backup file: ${fileName}`)
     console.log('backup file size: ' + fs.statSync(fileName).size + ' bytes')
+
+    console.log('uploading backup file to Azure Blob Storage')
+    upload().then(() => {
+        console.log('upload complete');
+        console.log('database backup cron job finished successfully')
+    }).catch((error) => {
+        console.error('error during upload:', error);
+        console.log('database backup cron job finished with errors')
+    });
 })
