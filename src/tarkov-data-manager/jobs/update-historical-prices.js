@@ -42,6 +42,9 @@ class UpdateHistoricalPricesJob extends DataJob {
         const batchSize = this.maxQueryRows;
         let offset = 0;
         const historicalPriceData = [];
+        this.logger.log('dateCutoff: '+dateCutoff);
+        this.logger.log('offset: '+offset);
+        this.logger.log('batchSize: '+batchSize);
         this.logger.time('historical-prices-query');
         while (true) {
             const queryResults = await this.query(`
