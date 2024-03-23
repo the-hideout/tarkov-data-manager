@@ -40,6 +40,7 @@ class DataJob {
             'writeFolder',
             'idSuffixLength',
             'apiType',
+            'maxQueryRows',
             ...options.saveFields,
         ];
         this.writeFolder = 'dumps';
