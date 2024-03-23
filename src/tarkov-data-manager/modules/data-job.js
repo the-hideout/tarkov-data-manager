@@ -531,7 +531,23 @@ class DataJob {
     }
 
     hasTranslation = (key, langCode = 'en') => {
-        return typeof this.locales[langCode][key] !== 'undefined';
+        let deepSearch = false;
+        if (typeof langCode === 'boolean') {
+            deepSearch = langCode;
+            langCode = 'en';
+        }
+        if (typeof this.locales[langCode][key] !== 'undefined') {
+            return true;
+        }
+        if (!deepSearch) {
+            return false;
+        }
+        for (const k in this.locales.en) {
+            if (k.toLowerCase() === key.toLowerCase()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     getIdSuffix(id) {

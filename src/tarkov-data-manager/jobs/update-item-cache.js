@@ -403,7 +403,8 @@ class UpdateItemCacheJob extends DataJob {
             if (typeof skillData !== 'object') {
                 continue;
             }
-            if (!this.locales.en[skillKey]) {
+            if (!this.hasTranslation(skillKey, true)) {
+                console.log('skipping', skillKey);
                 continue;
             }
             this.kvData.Skill.push({
