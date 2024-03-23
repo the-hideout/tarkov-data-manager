@@ -1,0 +1,18 @@
+{
+    "name": "db-backup-service",
+    "version": "1.0.0",
+    "description": "A service to backup DB dumps to Azure Blob Storage",
+    "main": "index.js",
+    "engines": {
+        "node": "19.x"
+    },
+    "scripts": {
+        "start": "node index.js"
+    },
+    "license": "ISC",
+    "dependencies": {
+        "@azure/storage-blob": "^12.17.0",
+        "mysql2": "^3.9.2",
+        "node-cron": "^3.0.3"
+    }
+}

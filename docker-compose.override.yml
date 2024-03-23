@@ -15,6 +15,10 @@ services:
       DB_PASS: password
       NODE_ENV: dev
 
+  backup:
+    environment:
+      DB_PASS: password
+
   caddy:
     environment:
       DOMAIN: localhost

@@ -14,6 +14,12 @@ services:
       - db_data:/var/lib/mysql
       - db_prod_certs:/etc/mysql/certs
 
+  backup:
+    environment:
+      NODE_ENV: production
+    env_file:
+      - ./src/backup/creds.env
+
 volumes:
   db_data:
     driver: local
