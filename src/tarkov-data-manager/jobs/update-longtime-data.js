@@ -47,7 +47,7 @@ class UpdateLangJob extends DataJob {
         }
     
         this.logger.time(`longtime-price-query-all`);
-        const batchSize = 100000;
+        const batchSize = this.maxQueryRows;
         let offset = 0;
         const priceSql = `
             SELECT
@@ -56,14 +56,14 @@ class UpdateLangJob extends DataJob {
                 price_data
             WHERE
                 timestamp > '2021-12-14'
-            LIMIT ?, 100000
+            LIMIT ?, ?
         `;
-        const historicalPriceData = await this.query(priceSql, [offset]);
-        let moreResults = historicalPriceData.length === 100000;
+        const historicalPriceData = await this.query(priceSql, [offset, batchSize]);
+        let moreResults = historicalPriceData.length === batchSize;
         while (moreResults) {
             offset += batchSize;
-            const moreData = await this.query(priceSql, [offset]);
-            historicalPriceData.push(...moreData);
+            const moreData = await this.query(priceSql, [offset, batchSize]);
+            moreData.forEach(r => historicalPriceData.push(r));
             if (moreData.length < batchSize) {
                 moreResults = false;
             }

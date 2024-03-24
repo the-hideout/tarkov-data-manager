@@ -539,7 +539,7 @@ const getItemProperties = async (item) => {
         }
         properties = {
             propertiesType: 'ItemPropertiesPainkiller',
-            uses: item._props.MaxHpResource | 1,
+            uses: item._props.MaxHpResource || 1,
             useTime: item._props.medUseTime,
             cures: Object.keys(effects_damage).filter(status => {
                 return status !== 'RadExposure';

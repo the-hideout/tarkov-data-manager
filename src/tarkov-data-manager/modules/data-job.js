@@ -3,7 +3,7 @@ const path = require('path');
 
 const cloudflare = require('../modules/cloudflare');
 const stellate = require('../modules/stellate');
-const { query, jobComplete } = require('../modules/db-connection');
+const { query, jobComplete, maxQueryRows } = require('../modules/db-connection');
 const JobLogger = require('./job-logger');
 const { alert } = require('./webhook');
 const tarkovData = require('./tarkov-data');
@@ -40,10 +40,12 @@ class DataJob {
             'writeFolder',
             'idSuffixLength',
             'apiType',
+            'maxQueryRows',
             ...options.saveFields,
         ];
         this.writeFolder = 'dumps';
         this.warnOnTranslationKeySubstitution = false;
+        this.maxQueryRows = maxQueryRows;
     }
 
     cleanup() {
@@ -529,7 +531,23 @@ class DataJob {
     }
 
     hasTranslation = (key, langCode = 'en') => {
-        return typeof this.locales[langCode][key] !== 'undefined';
+        let deepSearch = false;
+        if (typeof langCode === 'boolean') {
+            deepSearch = langCode;
+            langCode = 'en';
+        }
+        if (typeof this.locales[langCode][key] !== 'undefined') {
+            return true;
+        }
+        if (!deepSearch) {
+            return false;
+        }
+        for (const k in this.locales.en) {
+            if (k.toLowerCase() === key.toLowerCase()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     getIdSuffix(id) {

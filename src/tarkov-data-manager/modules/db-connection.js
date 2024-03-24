@@ -83,5 +83,6 @@ module.exports = {
                 resolve(true);
             });
         });
-    }
+    },
+    maxQueryRows: 100000,
 };
