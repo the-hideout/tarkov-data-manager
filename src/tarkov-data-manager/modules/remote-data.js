@@ -1,6 +1,6 @@
 const midmean = require('compute-midmean');
 const timer = require('./console-timer');
-const {query} = require('./db-connection');
+const { query, maxQueryRows } = require('./db-connection');
 
 let myData = false;
 let lastRefresh = new Date(0);
@@ -106,7 +106,7 @@ const methods = {
             
             const price24hTimer = timer('item-24h-price-query');
             const price24hPromise = new Promise(async (resolve, reject) => {
-                const batchSize = 100000;
+                const batchSize = maxQueryRows;
                 let offset = 0;
                 try {
                     const priceResults = [];
@@ -119,9 +119,9 @@ const methods = {
                                 price_data
                             WHERE
                                 timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)
-                            LIMIT ?, 100000
-                        `, [offset]);
-                        priceResults.push(...moreData);
+                            LIMIT ?, ?
+                        `, [offset, batchSize]);
+                        moreData.forEach(r => priceResults.push(r));
                         if (moreData.length < batchSize) {
                             break;
                         }

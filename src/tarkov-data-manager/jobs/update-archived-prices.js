@@ -36,7 +36,7 @@ class UpdateArchivedPricesJob extends DataJob {
 
         this.logger.log(`Using query cutoff of ${dateCutoff}`);
 
-        const batchSize = 100000;
+        const batchSize = this.maxQueryRows;
         let offset = 0;
         const archivedPriceData = [];
         this.logger.time('archived-prices-query');
@@ -51,7 +51,7 @@ class UpdateArchivedPricesJob extends DataJob {
                 ORDER BY price_date, item_id
                 LIMIT ?, ?
             `, [dateCutoff, offset, batchSize]);
-            archivedPriceData.push(...queryResults);
+            queryResults.forEach(r => archivedPriceData.push(r));
             if (queryResults.length > 0) {
                 this.logger.log(`Retrieved ${offset + queryResults.length} prices through ${queryResults[queryResults.length-1].price_date}${queryResults.length === batchSize ? '...' : ''}`);
             } else {
