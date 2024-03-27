@@ -81,8 +81,8 @@ const methods = {
                     ...result,
                     types: result.types?.split(',') || [],
                     updated: result.last_update,
-                    lastLowPrice: 0,
-                    avg24hPrice: 0,
+                    lastLowPrice: null,
+                    avg24hPrice: null,
                 };
                 if (!preparedData.properties) preparedData.properties = {};
                 returnData.set(result.id, preparedData);
@@ -214,7 +214,7 @@ const methods = {
                 }
 
                 item24hPrices[itemId]?.sort();
-                item.avg24hPrice = getInterquartileMean(item24hPrices[itemId] || []);
+                item.avg24hPrice = getInterquartileMean(item24hPrices[itemId] || []) || null;
                 item.low24hPrice = item24hPrices[itemId]?.at(0);
                 item.high24hPrice = item24hPrices[itemId]?.at(item24hPrices[itemId]?.length - 1);
 
