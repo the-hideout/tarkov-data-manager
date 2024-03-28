@@ -19,6 +19,7 @@ const defaultJobs = {
     'update-historical-prices': '26 * * * *',
     'update-spt-data': '56 * * * *',
     'update-archived-prices': '38 0 * * *',
+    'update-game-status': '*/15 * * * *',
 };
 // Too much memory :'(
 // 'update-longtime-data': '49 8 * * *'

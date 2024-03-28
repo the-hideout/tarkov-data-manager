@@ -8,6 +8,7 @@ const { dashToCamelCase } = require('./string-functions');
 const remoteData = require('./remote-data');
 const { uploadToS3 } = require('./upload-s3');
 const { createAndUploadFromSource } = require('./image-create');
+const webSocketServer = require('./websocket-server');
 const { imageFunctions } = require('tarkov-dev-image-generator');
 
 const { imageSizes } = imageFunctions;
@@ -1268,14 +1269,8 @@ module.exports = {
         if (refreshingUsers) return refreshingUsers;
         return Promise.resolve();
     },
-    addCommand: (type, data) => {
-        if (data && !Array.isArray(data)) {
-            data = [data];
-        }
-        commandQueue.push({
-            type,
-            data,
-        });
+    getJson: (jsonName) => {
+        return webSocketServer.getJson(jsonName);
     },
     on: (event, listener) => {
         return emitter.on(event, listener);

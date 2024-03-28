@@ -8,12 +8,12 @@ const sendMessage = (sessionID, type, data) => {
     }));
 };
 
-const sendCommand = (sessionID, command) => {
+const sendCommand = (sessionID, command, data) => {
     wsClients[sessionID].send(JSON.stringify({
         sessionID: sessionID,
         type: 'command',
-        data: command,
-        password: WS_PASSWORD
+        name: command,
+        data,
     }));
 }
 
@@ -26,12 +26,14 @@ getScannerValue = (sessionID, settingName) => {
 };
 
 function startListener(channel) {
-    const WEBSOCKET_SERVER = 'wss://socket.tarkov.dev';
-    //const WEBSOCKET_SERVER = 'ws://localhost:8080';
+    //const WEBSOCKET_SERVER = 'wss://socket.tarkov.dev';
+    const WEBSOCKET_SERVER = 'ws://localhost:8443';
     let logMessages = [];
 
     const ws = new WebSocket(WEBSOCKET_SERVER);
     ws.sessionID = channel;
+    ws.status = 'unknown';
+    updateStatus(ws);
     ws.settings = {};
 
     const heartbeat = function heartbeat() {
@@ -55,9 +57,10 @@ function startListener(channel) {
         console.log(`Listening for messages from ${channel}`);
 
         ws.send(JSON.stringify({
-            sessionID: channel,
+            sessionId: channel,
             type: 'connect',
-            role: 'listener'
+            role: 'listener',
+            password: WS_PASSWORD,
         }));
     };
 
@@ -88,14 +91,17 @@ function startListener(channel) {
                 $('#modal-click .scanner-last-screenshot').attr('src', ws.settings.lastScreenshot);
             }
             return;
-        } else if (message.type === 'logHistory' && logMessages.length < 2) {
+        } else if (message.type === 'fullStatus' && logMessages.length < 2) {
+            ws.status = message.data.status;
             logMessages = [];
-            for (let i = 0; i < message.data.length; i++) {
-                logMessages.push(ansi_up.ansi_to_html(message.data[i]));
+            for (let i = 0; i < message.data.log.length; i++) {
+                logMessages.push(ansi_up.ansi_to_html(message.data.log[i]));
             }
-        }
-
-        if (message.type !== 'logHistory') {
+            updateStatus(ws);
+        } else if (message.type === 'status') {
+            ws.status = message.data.status;
+            updateStatus(ws);
+        } else {
             const html = ansi_up.ansi_to_html(message.data);
             logMessages.push(html);
         }
@@ -114,6 +120,44 @@ function startListener(channel) {
         // console.log(message.data);
     };
     wsClients[channel] = ws;
+};
+
+const updateStatus = (client) => {
+    const scannerName = client.sessionID;
+    const status = client.status;
+    console.log(scannerName, status);
+    if (status === 'unknown') {
+        $(`#dropdown-${scannerName} li.resume-scanner`).css('display', 'none');
+        $(`#dropdown-${scannerName} li.pause-scanner`).css('display', 'none');
+        $(`#dropdown-${scannerName} li.restart-scanner`).css('display', 'none');
+        $(`#dropdown-${scannerName} li.shutdown-scanner`).css('display', 'none');
+        $(`#dropdown-${scannerName} li.click-scanner`).css('display', 'none');
+        $(`#dropdown-${scannerName} li.update-scanner`).css('display', 'none');
+        $(`#dropdown-${scannerName} li.set-trader-scan-day`).css('display', 'none');
+        $(`#dropdown-${scannerName} li.screenshot-scanner`).css('display', 'none');
+        $(`#dropdown-${scannerName} li.generate-images-scanner`).css('display', 'none');
+    }
+    if (status === 'scanning') {
+        $(`#dropdown-${scannerName} li.pause-scanner`).css('display', '');
+        $(`#dropdown-${scannerName} li.resume-scanner`).css('display', 'none');
+        $(`#dropdown-${scannerName} li.restart-scanner`).css('display', '');
+        $(`#dropdown-${scannerName} li.shutdown-scanner`).css('display', '');
+        $(`#dropdown-${scannerName} li.generate-images-scanner`).css('display', 'none');
+    }
+    if (status === 'paused' || status === 'idle') {
+        $(`#dropdown-${scannerName} li.pause-scanner`).css('display', 'none');
+        $(`#dropdown-${scannerName} li.resume-scanner`).css('display', '');
+        $(`#dropdown-${scannerName} li.restart-scanner`).css('display', '');
+        $(`#dropdown-${scannerName} li.shutdown-scanner`).css('display', '');
+        $(`#dropdown-${scannerName} li.generate-images-scanner`).css('display', '');
+    }
+    if (status === 'loading' || status === 'stopping' || status === 'closed') {
+        $(`#dropdown-${scannerName} li.pause-scanner`).css('display', 'none');
+        $(`#dropdown-${scannerName} li.resume-scanner`).css('display', 'none');
+        $(`#dropdown-${scannerName} li.restart-scanner`).css('display', 'none');
+        $(`#dropdown-${scannerName} li.shutdown-scanner`).css('display', 'none');
+        $(`#dropdown-${scannerName} li.generate-images-scanner`).css('display', 'none');
+    }
 };
 
 let table = false;
@@ -176,8 +220,8 @@ $(document).ready( function () {
             return;
         }
         sendCommand(scannerName, 'pause');
-        $(event.target).closest('li').css('display', 'none');
-        $(event.target).closest('ul').find('li.resume-scanner').css('display', '');
+        //$(event.target).closest('li').css('display', 'none');
+        //$(event.target).closest('ul').find('li.resume-scanner').css('display', '');
     });
 
     $('a.resume-scanner').click(function(event){
@@ -187,8 +231,8 @@ $(document).ready( function () {
             return;
         }
         sendCommand(scannerName, 'resume');
-        $(event.target).closest('li').css('display', 'none');
-        $(event.target).closest('ul').find('li.pause-scanner').css('display', '');
+        //$(event.target).closest('li').css('display', 'none');
+        //$(event.target).closest('ul').find('li.pause-scanner').css('display', '');
     });
 
     $('a.generate-images-scanner').click(function(event){
@@ -197,7 +241,7 @@ $(document).ready( function () {
         if (!wsClients[scannerName]) {
             return;
         }
-        sendCommand(scannerName, 'generate-images');
+        sendCommand(scannerName, 'generateImages');
     });
 
     $('a.screenshot-scanner').click(function(event){
@@ -267,7 +311,7 @@ $(document).ready( function () {
         if (!wsClients[scannerName]) {
             return;
         }
-        sendCommand(scannerName, 'repeat-log');
+        sendCommand(scannerName, 'repeatLog');
     });
 
     $('a.set-trader-scan-day').click(function(event){
