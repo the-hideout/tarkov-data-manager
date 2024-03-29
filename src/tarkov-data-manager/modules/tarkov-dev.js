@@ -36,6 +36,12 @@ const tarkovDevData = {
         fs.writeFileSync(cachePath(filename), JSON.stringify(newJson, null, 4));
         return newJson;
     },
+    achievements: async (refresh = false) => {
+        return tarkovDevData.get('achievements', refresh);
+    },
+    achievement_stats: async (refresh = false) => {
+        return tarkovDevData.get('achievement_stats', refresh);
+    },
     items: async (refresh = false) => {
         return tarkovDevData.get('items', refresh);
     },
