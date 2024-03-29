@@ -13,6 +13,7 @@ services:
       - ./src/tarkov-data-manager/creds.env
     ports:
       - 4000:4000
+      - 8443:8443
     volumes:
       - ./src/tarkov-data-manager/settings:/app/settings
       - ./src/tarkov-data-manager/cache:/app/cache
