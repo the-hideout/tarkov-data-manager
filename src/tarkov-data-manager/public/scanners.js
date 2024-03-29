@@ -26,8 +26,8 @@ getScannerValue = (sessionID, settingName) => {
 };
 
 function startListener(channel) {
-    //const WEBSOCKET_SERVER = 'wss://socket.tarkov.dev';
-    const WEBSOCKET_SERVER = 'ws://localhost:8443';
+    const WEBSOCKET_SERVER = 'wss://manager.tarkov.dev:8443';
+    //const WEBSOCKET_SERVER = 'ws://localhost:5000';
     let logMessages = [];
 
     const ws = new WebSocket(WEBSOCKET_SERVER);
