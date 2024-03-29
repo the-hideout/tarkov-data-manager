@@ -192,7 +192,7 @@ const webSocketServer = {
         while (!wss.listening) {
             await sleep(100);
         }
-        if (false && process.env.TEST_JOB === 'true') {
+        if (process.env.TEST_JOB === 'true') {
             while (webSocketServer.connectedScanners().length < 1) {
                 await sleep(1000);
             }
