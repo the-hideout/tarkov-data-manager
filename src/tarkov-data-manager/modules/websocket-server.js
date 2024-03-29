@@ -18,10 +18,10 @@ const pingMessage = JSON.stringify({
     type: 'ping',
 });
 
-const sendMessage = (sessionID, type, data) => {
+const sendMessage = (sessionId, type, data) => {
     const sentMessages = []
     wss.clients.forEach((client) => {
-        if (client.readyState !== WebSocket.OPEN || client.sessionID !== sessionID || client.role !== 'listener' ) {
+        if (client.readyState !== WebSocket.OPEN || client.sessionId !== sessionId || client.role !== 'listener' ) {
             return;
         }
         sentMessages.push(client.send(JSON.stringify({
