@@ -192,7 +192,7 @@ const webSocketServer = {
         while (!wss.listening) {
             await sleep(100);
         }
-        if (process.env.TEST_JOB === 'true') {
+        if (false && process.env.TEST_JOB === 'true') {
             while (webSocketServer.connectedScanners().length < 1) {
                 await sleep(1000);
             }
@@ -200,7 +200,7 @@ const webSocketServer = {
         const connectedJson = ['status'];
         const clients = connectedJson.includes(jsonName) ? webSocketServer.connectedScanners() : webSocketServer.availableScanners();
         if (clients.length === 0) {
-            return Promise.reject(`No scanners available to refresh ${jsonName} JSON`);
+            return Promise.reject(new Error(`No scanners available to refresh ${jsonName} JSON`));
         }
         const client = clients[Math.floor(Math.random()*clients.length)];
         return webSocketServer.sendCommand(client.sessionId, 'getJson', {name: jsonName})
