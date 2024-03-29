@@ -15,23 +15,17 @@ class UpdateGameStatusJob extends DataJob {
     }
 
     async run() {
-        let globalStatus = {
-            message: 'N/A',
-            status: 2,
-        };
-
         const status = await tarkovData.status(true);
 
-        let globalStatusMessage = status.global.message;
-        if (globalStatusMessage === 'Access denied' && status.global.status !== null && status.global.status !== undefined) {
-            globalStatusMessage = ''
+        if (status.global.message === 'Access denied' && status.global.status !== null && status.global.status !== undefined) {
+            status.global.message = ''
         }
 
         const generalStatus = {
             name: 'Global',
-            message: globalStatusMessage,
-            status: globalStatus.status,
-            statusCode: statusMap[globalStatus.status],
+            message: status.global.message,
+            status: status.global.status,
+            statusCode: statusMap[status.global.status],
         };
          
         this.kvData = {
