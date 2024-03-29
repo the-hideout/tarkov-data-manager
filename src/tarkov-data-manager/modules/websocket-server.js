@@ -8,7 +8,7 @@ const sleep = require('./sleep');
 const emitter = new EventEmitter();
 
 const wss = new WebSocket.Server({
-    port: process.env.WS_PORT || 8443,
+    port: process.env.WS_PORT || 5000,
 }, () => {
     wss.listening = true;
 });
