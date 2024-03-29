@@ -722,7 +722,6 @@ app.get('/scanners', async (req, res) => {
     const clients = webSocketServer.connectedScanners();
     const userFlags = scannerApi.getUserFlags();
     const scannerFlags = scannerApi.getScannerFlags();
-    const dateNow = new Date();
     clients.forEach(client => {
         const scanner = scanners.find(s => s.name === client.sessionId);
         if (!scanner) {
@@ -732,7 +731,7 @@ app.get('/scanners', async (req, res) => {
         if (!(scanner.flags & userFlags.insertPlayerPrices) && !(scanner.flags & userFlags.insertTraderPrices)) return;
         let mostRecentScan = scanner.last_scan > scanner.trader_last_scan ? scanner.last_scan : scanner.trader_last_scan;
         mostRecentScan = mostRecentScan ? mostRecentScan : 0;
-        if (dateNow - mostRecentScan < 1000 * 60 * 5) {
+        if (client.status === 'scanning') {
             activeScanners.push({...scanner, timestamp: mostRecentScan});
         } else {
             inactiveScanners.push({...scanner, timestamp: mostRecentScan});
