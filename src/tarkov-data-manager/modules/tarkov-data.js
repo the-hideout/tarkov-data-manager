@@ -4,6 +4,7 @@ const path = require('path');
 const tarkovChanges = require('./tarkov-changes');
 const tarkovBot = require('./tarkov-bot');
 const spt = require('./tarkov-spt');
+const tarkovDevData = require('./tarkov-dev');
 
 let manualTranslations = {};
 try {
@@ -249,6 +250,9 @@ const dataFunctions = {
     },
     questConfig: (download = false) => {
         return spt.questConfig(download);
+    },
+    status: (download = false) => {
+        return tarkovDevData.status(download);
     },
     traders: (download = false) => {
         return tarkovChanges.traders(download);

@@ -3,7 +3,7 @@ const got = require('got');
 const kvDelta = require('./kv-delta');
 
 const ignoreData = [
-    'schema_data'
+    'schema_data',
 ];
 
 async function purge(dataName, logger = false) {

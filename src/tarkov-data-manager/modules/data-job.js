@@ -6,6 +6,7 @@ const stellate = require('../modules/stellate');
 const { query, jobComplete, maxQueryRows } = require('../modules/db-connection');
 const JobLogger = require('./job-logger');
 const { alert } = require('./webhook');
+const webSocketServer = require('./websocket-server');
 const tarkovData = require('./tarkov-data');
 
 const verbose = false;
@@ -137,6 +138,9 @@ class DataJob {
         if (!options?.parent) {
             await jobComplete();
         } 
+        if (process.env.TEST_JOB === 'true') {
+            webSocketServer.close();
+        }
         if (throwError) {
             return Promise.reject(throwError);
         }

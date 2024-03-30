@@ -35,6 +35,7 @@ const webhookApi = require('./modules/webhook-api');
 const publicApi = require('./modules/public-api');
 const { uploadToS3, getImages, getLocalBucketContents, addFileToBucket, deleteFromBucket, renameFile, copyFile } = require('./modules/upload-s3');
 const { createAndUploadFromSource, regenerateFromExisting } = require('./modules/image-create');
+const webSocketServer = require('./modules/websocket-server');
 
 vm.runInThisContext(fs.readFileSync(__dirname + '/public/common.js'))
 
@@ -718,15 +719,19 @@ app.get('/scanners', async (req, res) => {
         SELECT scanner.*, COALESCE(scanner_user.flags, 0) as flags, COALESCE(scanner_user.disabled, 1) as disabled FROM scanner
         LEFT JOIN scanner_user on scanner_user.id = scanner.scanner_user_id
     `);
+    const clients = webSocketServer.connectedScanners();
     const userFlags = scannerApi.getUserFlags();
     const scannerFlags = scannerApi.getScannerFlags();
-    const dateNow = new Date();
-    scanners.forEach(scanner => {
+    clients.forEach(client => {
+        const scanner = scanners.find(s => s.name === client.sessionId);
+        if (!scanner) {
+            return;
+        }
         if (scanner.disabled) return;
         if (!(scanner.flags & userFlags.insertPlayerPrices) && !(scanner.flags & userFlags.insertTraderPrices)) return;
         let mostRecentScan = scanner.last_scan > scanner.trader_last_scan ? scanner.last_scan : scanner.trader_last_scan;
         mostRecentScan = mostRecentScan ? mostRecentScan : 0;
-        if (dateNow - mostRecentScan < 1000 * 60 * 5) {
+        if (client.status === 'scanning') {
             activeScanners.push({...scanner, timestamp: mostRecentScan});
         } else {
             inactiveScanners.push({...scanner, timestamp: mostRecentScan});
@@ -1952,6 +1957,7 @@ const server = app.listen(port, () => {
                     resolve();
                 });
             });
+            await webSocketServer.close();
         } catch (error) {
             console.log(error);
         }
