@@ -74,7 +74,7 @@ wss.on('connection', (client) => {
                 return;
             }
             if (message.password !== process.env.WS_PASSWORD) {
-                console.log('No connect password provided; dropping message', message);
+                console.log('No valid connect password provided; dropping message', message);
                 return;
             }
             if (!message.role) {

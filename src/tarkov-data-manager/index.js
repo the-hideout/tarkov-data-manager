@@ -304,7 +304,7 @@ const getFooter = (req) => {
 };
 
 app.get('/', async (req, res) => {
-    const activeScanners = await query('SELECT id FROM scanner WHERE last_scan > DATE_SUB(NOW(),INTERVAL 5 MINUTE) OR trader_last_scan > DATE_SUB(NOW(),INTERVAL 5 MINUTE)');
+    const activeScanners = webSocketServer.connectedScanners();
     const imageFields = [
         'image_8x_link',
         'image_512_link',
