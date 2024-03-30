@@ -713,8 +713,6 @@ app.get('/items/get', async (req, res) => {
 });
 
 app.get('/scanners', async (req, res) => {
-    const activeScanners = [];
-    const inactiveScanners = [];
     const scanners = await query(`
         SELECT scanner.*, COALESCE(scanner_user.flags, 0) as flags, COALESCE(scanner_user.disabled, 1) as disabled FROM scanner
         LEFT JOIN scanner_user on scanner_user.id = scanner.scanner_user_id
@@ -722,20 +720,13 @@ app.get('/scanners', async (req, res) => {
     const clients = webSocketServer.connectedScanners();
     const userFlags = scannerApi.getUserFlags();
     const scannerFlags = scannerApi.getScannerFlags();
-    clients.forEach(client => {
+    const activeScanners = clients.filter(client => {
         const scanner = scanners.find(s => s.name === client.sessionId);
         if (!scanner) {
-            return;
+            return false;
         }
-        if (scanner.disabled) return;
-        if (!(scanner.flags & userFlags.insertPlayerPrices) && !(scanner.flags & userFlags.insertTraderPrices)) return;
-        let mostRecentScan = scanner.last_scan > scanner.trader_last_scan ? scanner.last_scan : scanner.trader_last_scan;
-        mostRecentScan = mostRecentScan ? mostRecentScan : 0;
-        if (client.status === 'scanning') {
-            activeScanners.push({...scanner, timestamp: mostRecentScan});
-        } else {
-            inactiveScanners.push({...scanner, timestamp: mostRecentScan});
-        }
+        if (scanner.disabled) return false;
+        return true;
     });
     let scannerFlagsString = '';
     for (const flagName in scannerFlags) {
@@ -763,7 +754,7 @@ app.get('/scanners', async (req, res) => {
             <ul class="collapsible" data-collapsible="collapsible">
                 <li class="${activeClass}">
                     <div class="collapsible-header">
-                        <span class="tooltipped" data-tooltip="${scanner.timestamp}" data-position="right" style="vertical-align: middle">
+                        <span class="tooltipped" style="vertical-align: middle">
                             <!--button class="waves-effect waves-light btn-small shutdown-scanner" type="button" data-scanner-name="${encodeURIComponent(scanner.name)}"><i class="material-icons left">power_settings_new</i>${scanner.name}</button-->
                             <a class="dropdown-trigger btn scanner-dropdown" href="#" data-target="dropdown-${scanner.name}"><i class="material-icons left">arrow_drop_down</i>${scanner.name}</a>
                             <ul id="dropdown-${scanner.name}" class="dropdown-content">
@@ -807,13 +798,6 @@ app.get('/scanners', async (req, res) => {
             <div id="activescanners" class="col s12">
                 <div class="scanners-wrapper row">
                     ${activeScanners.map((latestScan) => {
-                        return getScannerStuff(latestScan, true);
-                    }).join('')}
-                </div>
-            </div>
-            <div id="inactivescanners" class="col s12">
-                <div class="scanners-wrapper row">
-                    ${inactiveScanners.map((latestScan) => {
                         return getScannerStuff(latestScan, true);
                     }).join('')}
                 </div>
