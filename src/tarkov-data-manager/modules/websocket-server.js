@@ -83,9 +83,12 @@ wss.on('connection', (client) => {
             }
             clearTimeout(authTimeout);
             client.sessionId = message.sessionId;
-            client.status = message.status;
             client.role = message.role;
 
+            if (client.role === 'scanner') {
+                client.status = message.status;
+                client.fleaMarketAvailable = message.fleaMarketAvailable;
+            }
             if (client.role === 'listener') {
                 // a listener just connected
                 // tell scanner to transmit its log history
@@ -179,7 +182,7 @@ const webSocketServer = {
     connectedScanners() {
         return [...wss.clients].filter(client => client.readyState === WebSocket.OPEN && client.role === 'scanner');
     },
-    availableScanners() {
+    launchedScanners() {
         const connected = webSocketServer.connectedScanners();
         const availableStatuses = [
             'scanning',
@@ -198,7 +201,14 @@ const webSocketServer = {
             }
         }
         const connectedJson = ['status'];
-        const clients = connectedJson.includes(jsonName) ? webSocketServer.connectedScanners() : webSocketServer.availableScanners();
+        const fleaMarketJson = ['credits'];
+        let clients = connectedJson.includes(jsonName) ? webSocketServer.connectedScanners() : webSocketServer.launchedScanners();
+        if (fleaMarketJson.includes(jsonName)) {
+            const fleaClients = clients.filter(c => c.fleaMarketAvailable);
+            if (fleaClients.length > 0) {
+                clients = fleaClients;
+            }
+        }
         if (clients.length === 0) {
             return Promise.reject(new Error(`No scanners available to refresh ${jsonName} JSON`));
         }

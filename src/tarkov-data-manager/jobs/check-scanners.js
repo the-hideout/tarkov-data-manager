@@ -2,7 +2,7 @@ const got = require('got');
 const { DateTime } = require('luxon');
 
 const scannerApi = require('../modules/scanner-api');
-const tarkovDevData = require('../modules/tarkov-dev');
+const tarkovDevData = require('../modules/tarkov-dev-data');
 const DataJob = require('../modules/data-job');
 
 class CheckScansJob extends DataJob {
