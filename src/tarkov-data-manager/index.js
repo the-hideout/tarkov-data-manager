@@ -759,7 +759,7 @@ app.get('/scanners', async (req, res) => {
                             <a class="dropdown-trigger btn scanner-dropdown" href="#" data-target="dropdown-${scanner.name}"><i class="material-icons left">arrow_drop_down</i>${scanner.name}</a>
                             <ul id="dropdown-${scanner.name}" class="dropdown-content">
                                 <li class="pause-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="pause-scanner"><i class="material-icons left">pause</i>Pause</a></li>
-                                <li class="resume-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}" style="display:none;"><a href="#!" class="resume-scanner"><i class="material-icons left">play_arrow</i>Resume</a></li>
+                                <li class="resume-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}" style="display:none;"><a href="#!" class="resume-scanner"><i class="material-icons left">play_arrow</i>Start</a></li>
                                 <!--li class="screenshot-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="screenshot-scanner"><i class="material-icons left">camera_alt</i>Screenshot</a></li-->
                                 <li class="click-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="click-scanner"><i class="material-icons left">mouse</i>Click</a></li>
                                 <li class="update-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="update-scanner"><i class="material-icons left">system_update_alt</i>Update</a></li>
