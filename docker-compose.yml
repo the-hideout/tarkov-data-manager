@@ -13,6 +13,7 @@ services:
       - ./src/tarkov-data-manager/creds.env
     ports:
       - 4000:4000
+      - 5000:5000
     volumes:
       - ./src/tarkov-data-manager/settings:/app/settings
       - ./src/tarkov-data-manager/cache:/app/cache
@@ -31,6 +32,7 @@ services:
     ports:
       - 80:80
       - 443:443
+      - 8443:8443
     volumes:
       - ./data/caddy_data:/data
       - ./data/caddy_config:/config
@@ -39,6 +41,7 @@ services:
     environment:
       PROXY_BACKEND: tarkov_data_manager
       PROXY_PORT: 4000
+      PROXY_PORT_WS: 5000
       DOMAIN: ${DOMAIN}
 
   database:

@@ -2,6 +2,7 @@ const got = require('got');
 const { DateTime } = require('luxon');
 
 const scannerApi = require('../modules/scanner-api');
+const tarkovDevData = require('../modules/tarkov-dev');
 const DataJob = require('../modules/data-job');
 
 class CheckScansJob extends DataJob {
@@ -11,10 +12,7 @@ class CheckScansJob extends DataJob {
 
     async run() {
         const [services, scanners] = await Promise.all([
-            got('https://status.escapefromtarkov.com/api/services', {
-                responseType: 'json',
-                resolveBodyOnly: true
-            }).catch(error => {
+            tarkovDevData.status().then(status => status.services).catch(error => {
                 this.logger.error(`Error getting EFT services status: ${error.message}`);
                 return [];
             }),
