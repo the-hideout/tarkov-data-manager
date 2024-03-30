@@ -754,7 +754,7 @@ app.get('/scanners', async (req, res) => {
             <ul class="collapsible" data-collapsible="collapsible">
                 <li class="${activeClass}">
                     <div class="collapsible-header">
-                        <span class="tooltipped" style="vertical-align: middle">
+                        <span style="vertical-align: middle">
                             <!--button class="waves-effect waves-light btn-small shutdown-scanner" type="button" data-scanner-name="${encodeURIComponent(scanner.name)}"><i class="material-icons left">power_settings_new</i>${scanner.name}</button-->
                             <a class="dropdown-trigger btn scanner-dropdown" href="#" data-target="dropdown-${scanner.name}"><i class="material-icons left">arrow_drop_down</i>${scanner.name}</a>
                             <ul id="dropdown-${scanner.name}" class="dropdown-content">
