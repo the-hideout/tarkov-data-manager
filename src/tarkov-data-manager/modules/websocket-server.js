@@ -88,6 +88,7 @@ wss.on('connection', (client) => {
             if (client.role === 'scanner') {
                 client.status = message.status;
                 client.fleaMarketAvailable = message.fleaMarketAvailable;
+                client.name = client.sessionId;
             }
             if (client.role === 'listener') {
                 // a listener just connected

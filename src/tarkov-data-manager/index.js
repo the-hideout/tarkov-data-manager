@@ -791,7 +791,6 @@ app.get('/scanners', async (req, res) => {
             <div class="col s12">
                 <ul class="tabs">
                     <li class="tab col s4"><a href="#activescanners" class="active">Active Scanners</a></li>
-                    <li class="tab col s4"><a href="#inactivescanners">Inactive Scanners</a></li>
                     <li class="tab col s4"><a href="#scannerusers">Scanner Users</a></li>
                 </ul>
             </div>
