@@ -4,15 +4,17 @@ const path = require('path');
 const webSocketServer = require('./websocket-server');
 
 const availableFiles = [
-    'areas',
+    'achievements',
+    'achievement_stats',
+    /*'areas',
     'crafts',
     'credits',
     'items',
     'globals',
     'locale_en',
     'locations',
-    'traders',
-    'status',
+    'traders',*/
+    //'status',
 ];
 
 const cachePath = (filename) => {
@@ -68,6 +70,22 @@ const tarkovDevData = {
     },
     status: async (refresh = false) => {
         return tarkovDevData.get('status', refresh);
+    },
+    downloadAll: async() => {
+        const results = {
+            errors: {},
+        };
+        const promises = [];
+        for (const jsonName of availableFiles) {
+            promises.push(tarkovDevData.get(jsonName, true).then(data => {
+                results[jsonName] = data;
+                return data;
+            }).catch(error => {
+                results.errors[jsonName] = error;
+            }));
+        }
+        await Promise.allSettled(promises);
+        return results;
     },
 }
 
