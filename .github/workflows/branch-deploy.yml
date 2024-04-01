@@ -125,15 +125,15 @@ jobs:
           script_stop: true
           script: ~/tarkov-data-manager/script/deploy -r="${{ steps.branch-deploy.outputs.ref }}" -f="${{ steps.branch-deploy.outputs.fork_checkout }}" -d="tarkov-data-manager" -n="${{ steps.branch-deploy.outputs.fork_full_name }}"
 
-      - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # pin@v5.0.0
-        if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
-        with:
-          python-version: '3.10'
-          cache: 'pip'
+      # - uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # pin@v5.0.0
+      #   if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
+      #   with:
+      #     python-version: '3.10'
+      #     cache: 'pip'
 
-      - name: health
-        if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
-        working-directory: script/health
-        run: |
-          pip install -r requirements.txt
-          python health.py
+      # - name: health
+      #   if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
+      #   working-directory: script/health
+      #   run: |
+      #     pip install -r requirements.txt
+      #     python health.py
