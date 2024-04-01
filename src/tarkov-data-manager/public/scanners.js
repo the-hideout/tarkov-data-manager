@@ -69,7 +69,7 @@ function startListener(channel) {
 
         const ansi_up = new AnsiUp;
 
-        if(message.type === 'ping'){
+        if (message.type === 'ping') {
             heartbeat();
 
             ws.send(JSON.stringify({type: 'pong'}));

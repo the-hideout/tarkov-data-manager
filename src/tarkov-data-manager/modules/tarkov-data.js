@@ -4,7 +4,7 @@ const path = require('path');
 const tarkovChanges = require('./tarkov-changes');
 const tarkovBot = require('./tarkov-bot');
 const spt = require('./tarkov-spt');
-const tarkovDevData = require('./tarkov-dev');
+const tarkovDevData = require('./tarkov-dev-data');
 
 let manualTranslations = {};
 try {
