@@ -29,7 +29,6 @@ const sptLangs = {
 }
 
 const branches = [
-    '3.8.0',
     'master',
 ];
 
