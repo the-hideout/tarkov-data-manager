@@ -369,9 +369,16 @@ class UpdateMapsJob extends DataJob {
                 mapData.bosses.push(bossData);
             }
             mapData.enemies = [...enemySet].map(enemy => this.addMobTranslation(enemy));
-            mapData.name = this.addTranslation(`${id} Name`, (lang) => {
+            mapData.name = this.addTranslation(`${id} Name`, (lang, langCode) => {
                 if (id === '59fc81d786f774390775787e' && lang.factory4_night) {
                     return lang.factory4_night;
+                }
+                if (id === '65b8d6f5cdde2479cb2a3125') {
+                    if (lang['653e6760052c01c1c805532f Name']) {
+                        return lang['653e6760052c01c1c805532f Name']+' 21+';
+                    } else if (langCode !== 'en') {
+                        return this.locales.en['653e6760052c01c1c805532f Name']+' 21+';
+                    }
                 }
                 return lang[`${id} Name`];
             }),
