@@ -417,6 +417,14 @@ class UpdateMapsJob extends DataJob {
         if (item.types.includes('quest')) {
             return false;
         }
+        const ornaments = [
+            '5df8a6a186f77412640e2e80', // red
+            '5df8a72c86f77412640e2e83', // white
+            '5df8a77486f77412672a1e3f', // purple
+        ];
+        if (ornaments.includes(id)) {
+            return false;
+        }
         return true;
     }
 
