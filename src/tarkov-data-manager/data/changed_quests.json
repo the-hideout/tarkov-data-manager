@@ -1281,5 +1281,24 @@
                 "zoneKeys": ["bunker1"]
             }
         }
+    },
+    "5c12452c86f7744b83469073": {
+        "name": "Perfect Mediator",
+        "objectivesAdded": [
+            {
+                "id": "65e08db1a97b2cd4e452432d",
+                "description": "65e08db1a97b2cd4e452432d",
+                "type": "traderLevel",
+                "count": 4,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "trader_id": "5c0647fdd443bc2504c2d371",
+                "trader_name": "Jaeger",
+                "level": 4,
+                "zones": []
+            }
+        ]
     }
 }

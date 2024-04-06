@@ -115,11 +115,14 @@ class UpdateTraderPricesJob extends DataJob {
                 id: offer.item_id,
                 item_name: item.name,
                 vendor: {
+                    traderOfferId: offer.id,
                     trader: trader.id,
                     trader_id: trader.id,
                     traderLevel: offer.min_level,
                     minTraderLevel: offer.min_level,
                     taskUnlock: questUnlock?.id,
+                    restockAmount: assort ? assort.stock : offer.restock_amount,
+                    buyLimit: offer.buy_limit,
                 },
                 source: trader.normalizedName,
                 price: Math.round(offer.price), // prices in API are Int; we should convert to float
@@ -135,9 +138,6 @@ class UpdateTraderPricesJob extends DataJob {
                         value: offer.min_level,
                     }
                 ],
-                restockAmount: assort ? assort.stock : offer.restock_amount,
-                buyLimit: offer.buy_limit,
-                traderOfferId: offer.id,
             };
             if (questUnlock) {
                 cashPrice.requirements.push({

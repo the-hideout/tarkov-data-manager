@@ -42,10 +42,22 @@ class UpdateMapsJob extends DataJob {
             const mapData = {
                 id: id,
                 tarkovDataId: null,
-                name: this.addTranslation(`${id} Name`),
-                normalizedName: normalizeName(this.locales.en[`${id} Name`]),
+                name: this.addTranslation(`${id} Name`, (lang, langCode) => {
+                    if (id === '59fc81d786f774390775787e' && lang.factory4_night) {
+                        return lang.factory4_night;
+                    }
+                    if (id === '65b8d6f5cdde2479cb2a3125') {
+                        if (lang['653e6760052c01c1c805532f Name']) {
+                            return lang['653e6760052c01c1c805532f Name']+' 21+';
+                        } else if (langCode !== 'en') {
+                            return this.locales.en['653e6760052c01c1c805532f Name']+' 21+';
+                        }
+                    }
+                    return lang[`${id} Name`];
+                }),
+                normalizedName: '', // set below using the EN translation of name
                 nameId: map.Id,
-                description: this.locales.en[`${id} Description`],
+                description: this.addTranslation(`${id} Description`),
                 wiki: 'https://escapefromtarkov.fandom.com/wiki/'+this.locales.en[`${id} Name`].replace(/ /g, '_'),
                 enemies: [],
                 raidDuration: map.EscapeTimeLimit,
@@ -369,13 +381,6 @@ class UpdateMapsJob extends DataJob {
                 mapData.bosses.push(bossData);
             }
             mapData.enemies = [...enemySet].map(enemy => this.addMobTranslation(enemy));
-            mapData.name = this.addTranslation(`${id} Name`, (lang) => {
-                if (id === '59fc81d786f774390775787e' && lang.factory4_night) {
-                    return lang.factory4_night;
-                }
-                return lang[`${id} Name`];
-            }),
-            mapData.description = this.addTranslation(`${id} Description`),
             mapData.normalizedName = normalizeName(this.kvData.locale.en[mapData.name]);
             this.kvData.Map.push(mapData);
         }
@@ -410,6 +415,14 @@ class UpdateMapsJob extends DataJob {
             return false;
         }
         if (item.types.includes('quest')) {
+            return false;
+        }
+        const ornaments = [
+            '5df8a6a186f77412640e2e80', // red
+            '5df8a72c86f77412640e2e83', // white
+            '5df8a77486f77412672a1e3f', // purple
+        ];
+        if (ornaments.includes(id)) {
             return false;
         }
         return true;
