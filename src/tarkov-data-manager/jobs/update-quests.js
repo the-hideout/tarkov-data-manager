@@ -1570,6 +1570,9 @@ class UpdateQuestsJob extends DataJob {
             if (mapId !== '59fc81d786f774390775787e' && (!map.Enabled || map.Locked)) {
                 return onMaps;
             }
+            if (!this.maps.some(m => m.id === mapId)) {
+                return onMaps;
+            }
             if (mobName === 'savage' && map.waves.some(w => w.WildSpawnType === 'assault')) {
                 onMaps.add(mapId);
             }
