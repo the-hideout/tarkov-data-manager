@@ -559,6 +559,9 @@ class UpdateQuestsJob extends DataJob {
             if (forceMap && forceMap !== mapId) {
                 continue;
             }
+            if (!this.maps.some(m => m.id === mapId)) {
+                continue;
+            }
             const spawns = this.mapLoot[mapId].reduce((allSpawns, lootInfo) => {
                 if (lootInfo.template.Items.some(lootItem => lootItem._tpl === questItemId)) {
                     allSpawns.push(lootInfo.template.Position);
