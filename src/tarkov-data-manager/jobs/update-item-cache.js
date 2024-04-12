@@ -415,7 +415,7 @@ class UpdateItemCacheJob extends DataJob {
         this.kvData.Mastering = this.globals.config.Mastering.map(m => {
             return {
                 id: m.Name,
-                weapons: m.Templates,
+                weapons: m.Templates.filter(id => !!itemData[id]),
                 level2: m.Level2,
                 level3: m.Level3,
             };

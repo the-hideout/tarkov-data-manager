@@ -104,14 +104,13 @@ wss.on('connection', (client) => {
             return;
         }
 
-        //const sessionId = client.sessionId;
         if (!client.sessionId) {
             console.log('Not authenticated, dropping message', message);
             return;
         }
 
         if (message.type === 'command') {
-            return webSocketServer.sendCommand(sessionId, message.name, message.data);
+            return webSocketServer.sendCommand(client.sessionId, message.name, message.data);
         }
 
         if (message.type === 'commandResponse') {
