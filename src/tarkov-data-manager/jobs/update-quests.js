@@ -68,6 +68,23 @@ class UpdateQuestsJob extends DataJob {
         this.presets = await this.jobManager.jobOutput('update-presets', this);
         this.itemMap = await this.jobManager.jobOutput('update-item-cache', this);
 
+        // only keep details for active maps
+        this.mapDetails = Object.keys(this.mapDetails).reduce((valid, mapId) => {
+            console.log(mapId);
+            if (this.maps.some(m => m.id === mapId)) {
+                valid[mapId] = this.mapDetails[mapId];
+            }
+            return valid;
+        }, {});
+
+        // only keep loot for active maps
+        this.mapLoot = Object.keys(this.mapLoot).reduce((valid, mapId) => {
+            if (this.maps.some(m => m.id === mapId)) {
+                valid[mapId] = this.mapLoot[mapId];
+            }
+            return valid;
+        }, {});
+
         const questItemMap = new Map();
         for (const [id, item] of this.itemResults) {
             if (item.types.includes('quest')) {
@@ -557,9 +574,6 @@ class UpdateQuestsJob extends DataJob {
                 spawnsPerMap[mapId] = 0;
             }
             if (forceMap && forceMap !== mapId) {
-                continue;
-            }
-            if (!this.maps.some(m => m.id === mapId)) {
                 continue;
             }
             const spawns = this.mapLoot[mapId].reduce((allSpawns, lootInfo) => {
