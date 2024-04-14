@@ -38,7 +38,10 @@ class UpdateMapsJob extends DataJob {
                 this.logger.log(`❌ ${this.locales.en[`${id} Name`] || ''} ${id}`);
                 continue;
             }
-            this.logger.log(`✔️ ${this.locales.en[`${id} Name`]} ${id}`);
+            if (!this.locales.en[`${id} Name`]) {
+                this.logger.log(`❌ Map ${map.Id} ${id} has no translation`);
+                continue;
+            }
             const mapData = {
                 id: id,
                 tarkovDataId: null,
@@ -49,9 +52,10 @@ class UpdateMapsJob extends DataJob {
                     if (id === '65b8d6f5cdde2479cb2a3125') {
                         if (lang['653e6760052c01c1c805532f Name']) {
                             return lang['653e6760052c01c1c805532f Name']+' 21+';
-                        } else if (langCode !== 'en') {
+                        } else if (langCode !== 'en' && this.locales.en['653e6760052c01c1c805532f Name']) {
                             return this.locales.en['653e6760052c01c1c805532f Name']+' 21+';
                         }
+                        return 'Ground Zero 21+';
                     }
                     return lang[`${id} Name`];
                 }),
@@ -63,7 +67,7 @@ class UpdateMapsJob extends DataJob {
                 raidDuration: map.EscapeTimeLimit,
                 players: map.MinPlayers+'-'+map.MaxPlayers,
                 bosses: [],
-                coordinateToCardinalRotation: 180,
+                coordinateToCardinalRotation: this.mapDetails[id].north_rotation || 180,
                 spawns: map.SpawnPointParams.map(spawn => {
                     if (spawn.Sides.includes('Usec') && spawn.Sides.includes('Bear')) {
                         spawn.Sides = spawn.Sides.filter(side => !['Usec', 'Bear', 'Pmc'].includes(side));
@@ -242,10 +246,15 @@ class UpdateMapsJob extends DataJob {
                 accessKeys: map.AccessKeys,
                 accessKeysMinPlayerLevel: map.MinPlayerLvlAccessKeys,
             };
+            this.logger.log(`✔️ ${this.getTranslation(mapData.name)} ${id}`);
+            mapData.normalizedName = normalizeName(this.getTranslation(mapData.name));
+
             if (this.mapRotationData[id]) {
                 mapData.coordinateToCardinalRotation = this.mapRotationData[id].rotation;
             }
+
             if (typeof idMap[id] !== 'undefined') mapData.tarkovDataId = idMap[id];
+
             const enemySet = new Set();
             for (const wave of map.waves) {
                 if (wave.WildSpawnType === 'assault') {
@@ -381,7 +390,7 @@ class UpdateMapsJob extends DataJob {
                 mapData.bosses.push(bossData);
             }
             mapData.enemies = [...enemySet].map(enemy => this.addMobTranslation(enemy));
-            mapData.normalizedName = normalizeName(this.kvData.locale.en[mapData.name]);
+
             this.kvData.Map.push(mapData);
         }
 
