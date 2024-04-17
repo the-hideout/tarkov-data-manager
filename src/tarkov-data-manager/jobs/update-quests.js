@@ -87,7 +87,7 @@ class UpdateQuestsJob extends DataJob {
 
         const questItemMap = new Map();
         for (const [id, item] of this.itemResults) {
-            if (item.types.includes('quest')) {
+            if (item.types?.includes('quest')) {
                 questItemMap.set(id, item);
             }
         }
