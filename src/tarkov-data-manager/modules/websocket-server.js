@@ -46,60 +46,50 @@ const pingInterval = setInterval(() => {
     });
 }, 10000);
 
-wss.on('connection', (client) => {
-    client.isAlive = true;
-    client.status = 'unknown';
-    const authTimeout = setTimeout(() => {
-        if (client.authenticated) {
-            return;
-        }
-        console.log(`Terminating ws client for lack of authentication`);
+wss.on('connection', (client, req) => {
+    const url = new URL(`http://localhost${req.url}`);
+    let terminateReason = false;
+    if (url.searchParams.get('password') !== process.env.WS_PASSWORD) {
+        terminateReason = 'authentication';
+    }
+    if (!url.searchParams.get('sessionid')) {
+        terminateReason = 'session ID';
+    }
+    if (!url.searchParams.get('role')) {
+        terminateReason = 'role';
+    }
+    if (terminateReason) {
+        console.log(`Terminating ws client missing valid ${terminateReason}`);
         client.terminate();
-        client.terminated = new Date();
-    }, 60000);
+        return;
+    }
+    
+    client.sessionId = url.searchParams.get('sessionid');
+    client.role = url.searchParams.get('role');
+    client.isAlive = true;
     client.log = [];
+
+    if (client.role === 'scanner') {
+        client.status = url.searchParams.get('status') || 'unknown';
+        client.fleaMarketAvailable = url.searchParams.get('fleamarketavailable') === 'true';
+        client.name = client.sessionId;
+    }
+    if (client.role === 'listener') {
+        // a listener just connected
+        // tell scanner to transmit its log history
+        webSocketServer.sendCommand(client.sessionId, 'fullStatus').then(commandResponse => {
+            client.send(JSON.stringify({
+                type: 'fullStatus',
+                data: commandResponse.data,
+            }));
+        });
+    }
 
     client.on('message', (rawMessage) => {
         const message = JSON.parse(rawMessage);
 
         if (message.type === 'pong') {
             client.isAlive = true;
-
-            return;
-        }
-
-        if (message.type === 'connect') {
-            if (!message.sessionId) {
-                console.log('No connect session Id provided; dropping message', message);
-                return;
-            }
-            if (message.password !== process.env.WS_PASSWORD) {
-                console.log('No valid connect password provided; dropping message', message);
-                return;
-            }
-            if (!message.role) {
-                console.log('No client role provided; dropping message', message);
-                return;
-            }
-            clearTimeout(authTimeout);
-            client.sessionId = message.sessionId;
-            client.role = message.role;
-
-            if (client.role === 'scanner') {
-                client.status = message.status;
-                client.fleaMarketAvailable = message.fleaMarketAvailable;
-                client.name = client.sessionId;
-            }
-            if (client.role === 'listener') {
-                // a listener just connected
-                // tell scanner to transmit its log history
-                webSocketServer.sendCommand(client.sessionId, 'fullStatus').then(commandResponse => {
-                    client.send(JSON.stringify({
-                        type: 'fullStatus',
-                        data: commandResponse.data,
-                    }));
-                });
-            }
 
             return;
         }

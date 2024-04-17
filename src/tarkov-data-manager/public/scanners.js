@@ -30,7 +30,8 @@ function startListener(channel) {
     //const WEBSOCKET_SERVER = 'ws://localhost:5000';
     let logMessages = [];
 
-    const ws = new WebSocket(WEBSOCKET_SERVER);
+    const queryString = `?password=${encodeURIComponent(WS_PASSWORD)}&sessionid=${encodeURIComponent(channel)}&role=listener`;
+    const ws = new WebSocket(WEBSOCKET_SERVER+queryString);
     ws.sessionID = channel;
     ws.status = 'unknown';
     updateStatus(ws);
@@ -55,13 +56,6 @@ function startListener(channel) {
         heartbeat();
 
         console.log(`Listening for messages from ${channel}`);
-
-        ws.send(JSON.stringify({
-            sessionId: channel,
-            type: 'connect',
-            role: 'listener',
-            password: WS_PASSWORD,
-        }));
     };
 
     ws.onmessage = (rawMessage) => {
