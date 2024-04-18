@@ -57,7 +57,6 @@ const printClients = () => {
 };
 
 wss.on('connection', (client, req) => {
-    console.log(req.url);
     const url = new URL(`http://localhost${req.url}`);
     let terminateReason = false;
     if (url.searchParams.get('password') !== process.env.WS_PASSWORD) {
