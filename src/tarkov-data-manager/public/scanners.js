@@ -64,7 +64,7 @@ function startListener(channel) {
 
     ws.onmessage = (rawMessage) => {
         const message = JSON.parse(rawMessage.data);
-        //console.log(message);
+        //console.log(ws.sessionID, message);
 
         const ansi_up = new AnsiUp;
 
