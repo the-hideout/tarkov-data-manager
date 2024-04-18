@@ -58,6 +58,10 @@ function startListener(channel) {
         console.log(`Listening for messages from ${channel}`);
     };
 
+    ws.onerror = (error) => {
+        console.log('Error opening websocket connection', error);
+    }
+
     ws.onmessage = (rawMessage) => {
         const message = JSON.parse(rawMessage.data);
 
