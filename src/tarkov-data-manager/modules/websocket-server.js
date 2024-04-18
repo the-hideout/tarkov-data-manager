@@ -46,7 +46,18 @@ const pingInterval = setInterval(() => {
     });
 }, 10000);
 
+const printClients = () => {
+    console.log('Websocket clients:');
+    wss.clients.forEach((client) => {
+        console.log(`${client.sessionId}: ${client.role}`);
+    });
+    if (wss.clients.size === 0) {
+        console.log('none');
+    }
+};
+
 wss.on('connection', (client, req) => {
+    console.log(req.url);
     const url = new URL(`http://localhost${req.url}`);
     let terminateReason = false;
     if (url.searchParams.get('password') !== process.env.WS_PASSWORD) {
@@ -84,6 +95,7 @@ wss.on('connection', (client, req) => {
             }));
         });
     }
+    printClients();
 
     client.on('message', (rawMessage) => {
         const message = JSON.parse(rawMessage);
@@ -118,6 +130,10 @@ wss.on('connection', (client, req) => {
             client.status = message.data;
             sendMessage(client.sessionId, 'status', message.data);
         }
+    });
+
+    client.on('close', () => {
+        printClients();
     });
 });
 
