@@ -1,3 +1,5 @@
+const WEBSOCKET_SERVER = 'wss://manager.tarkov.dev:8443';
+//const WEBSOCKET_SERVER = 'ws://localhost:5000';
 const wsClients = {};
 
 const sendMessage = (sessionID, type, data) => {
@@ -26,11 +28,10 @@ getScannerValue = (sessionID, settingName) => {
 };
 
 function startListener(channel) {
-    const WEBSOCKET_SERVER = 'wss://manager.tarkov.dev:8443';
-    //const WEBSOCKET_SERVER = 'ws://localhost:5000';
     let logMessages = [];
 
-    const ws = new WebSocket(WEBSOCKET_SERVER);
+    const queryString = `?password=${encodeURIComponent(WS_PASSWORD)}&sessionid=${encodeURIComponent(channel)}&role=listener`;
+    const ws = new WebSocket(WEBSOCKET_SERVER+queryString);
     ws.sessionID = channel;
     ws.status = 'unknown';
     updateStatus(ws);
@@ -55,17 +56,15 @@ function startListener(channel) {
         heartbeat();
 
         console.log(`Listening for messages from ${channel}`);
-
-        ws.send(JSON.stringify({
-            sessionId: channel,
-            type: 'connect',
-            role: 'listener',
-            password: WS_PASSWORD,
-        }));
     };
+
+    ws.onerror = (error) => {
+        console.log('Error opening websocket connection', error);
+    }
 
     ws.onmessage = (rawMessage) => {
         const message = JSON.parse(rawMessage.data);
+        //console.log(ws.sessionID, message);
 
         const ansi_up = new AnsiUp;
 
@@ -162,7 +161,7 @@ const updateStatus = (client) => {
 
 let table = false;
 
-$(document).ready( function () {
+$(document).ready(function () {
     M.Collapsible.init($('.collapsible'));
     M.Tooltip.init($('.tooltipped'));
     M.Dropdown.init($('.dropdown-trigger.scanner-dropdown'), {constrainWidth: false});
@@ -626,4 +625,12 @@ $(document).ready( function () {
         M.Modal.getInstance(document.getElementById('modal-edit-user')).open();
         $('#modal-edit-user .username').focus();
     });
-} );
+});
+
+window.addEventListener('beforeunload', function (e) {
+    for (const client of Object.values(wsClients)) {
+        if (client?.readyState === WebSocket.OPEN) {
+            client.terminate();
+        }
+    }
+});
