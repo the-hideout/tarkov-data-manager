@@ -21,6 +21,7 @@ const defaultJobs = {
     'update-spt-data': '56 * * * *',
     'update-archived-prices': '38 0 * * *',
     'update-game-status': '*/15 * * * *',
+    'start-trader-scan': '30 9,21 * * *',
 };
 // Too much memory :'(
 // 'update-longtime-data': '49 8 * * *'

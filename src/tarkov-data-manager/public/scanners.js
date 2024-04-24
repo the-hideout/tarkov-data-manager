@@ -98,7 +98,7 @@ function startListener(channel) {
             }
             updateStatus(ws);
         } else if (message.type === 'status') {
-            ws.status = message.data.status;
+            ws.status = message.data.status || message.data;
             updateStatus(ws);
         } else {
             const html = ansi_up.ansi_to_html(message.data);

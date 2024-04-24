@@ -682,6 +682,11 @@ const releaseItem = async (options) => {
     return response;
 };
 
+const traderScanInProgress = async () => {
+    const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
+    return activeScan.length > 0;
+};
+
 const startTraderScan = async (options) => {
     const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL OR ended >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)');
     if (activeScan.length > 0) {
@@ -1153,6 +1158,10 @@ const renameScanner = async (options) => {
     return response;
 };
 
+webSocketServer.on('scannerStatusUpdated', client => {
+
+});
+
 module.exports = {
     request: async (req, res, resource) => {
         const username = req.headers.username;
@@ -1225,6 +1234,13 @@ module.exports = {
                     response = await insertTraderRestock(options);
                 }
             }*/
+            if (resource === 'trader-scan-active') {
+                response = {
+                    errors: [],
+                    warnings: [],
+                    data: await traderScanInProgress(),
+                };
+            }
             if (resource === 'trader-scan') {
                 if (req.method === 'POST') {
                     options.scanner = await getScanner(options, false);
@@ -1269,6 +1285,8 @@ module.exports = {
         if (refreshingUsers) return refreshingUsers;
         return Promise.resolve();
     },
+    traderScanInProgress: traderScanInProgress,
+    startTraderScan: startTraderScan,
     getJson: (jsonName) => {
         return webSocketServer.getJson(jsonName);
     },
