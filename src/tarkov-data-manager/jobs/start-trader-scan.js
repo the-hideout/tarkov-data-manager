@@ -9,7 +9,7 @@ class StartTraderScanJob extends DataJob {
 
     async run() {
         this.logger.log('Starting trader scan...');
-        if (await scannerApi.traderScanInProgress()) {
+        if (await scannerApi.currentTraderScan()) {
             this.logger.log('Trader scan already in progress');
         } else {
             await scannerApi.startTraderScan({scanner: {id: 0}});

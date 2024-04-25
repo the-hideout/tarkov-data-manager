@@ -67,7 +67,6 @@ const getOptions = (options, user) => {
         imageOnly: false,
         batchSize: 50,
         offersFrom: 2,
-        limitTraderScan: true,
         trustTraderUnlocks: false,
         scanned: false,
         offerCount: undefined
@@ -192,7 +191,7 @@ const queryResultToBatchItem = item => {
         '59d36a0086f7747e673f3946'
     ]
 } */
-// relevant options: limitItem, imageOnly, batchSize, offersFrom, limitTraderScan
+// relevant options: limitItem, imageOnly, batchSize, offersFrom
 const getItems = async(options) => {
     const user = options.user;
     const response = {errors: [], warnings: [], data: []};
@@ -290,14 +289,11 @@ const getItems = async(options) => {
             conditions.push('item_data.checkout_scanner_id = ?');
         } else {
             // trader-only price checkout
-            const params = [options.scanner.id, options.scanner.id];
-            let lastScanCondition = '';
-            if (options.limitTraderScan) {
-                const traderScanSession = await startTraderScan(options);
-                lastScanCondition = 'AND (trader_last_scan <= ? OR trader_last_scan IS NULL)';
-                params.push(traderScanSession.data.started);
+            const traderScanSession = await currentTraderScan();
+            if (!traderScanSession) {
+                response.data = [];
+                return response;
             }
-            params.push(options.batchSize);
             await query(`
                 UPDATE item_data
                 SET trader_checkout_scanner_id = ?
@@ -305,10 +301,11 @@ const getItems = async(options) => {
                     NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                     NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                     NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'only-flea') AND 
-                    NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${lastScanCondition} )
+                    NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') AND
+                    (trader_last_scan <= ? OR trader_last_scan IS NULL) )
                 ORDER BY trader_last_scan, id
                 LIMIT ?
-            `, params);
+            `, [options.scanner.id, options.scanner.id, traderScanSession.data.started, options.batchSize]);
     
             conditions.push('item_data.trader_checkout_scanner_id = ?');
         }
@@ -341,7 +338,7 @@ const getItems = async(options) => {
         `, [options.scanner.id]).then(items => {
             return items.filter(item => Boolean(item.name)).map(queryResultToBatchItem);
         });
-        if (response.data.length === 0 && options.offersFrom === 1 && options.limitTraderScan) {
+        if (response.data.length === 0 && options.offersFrom === 1) {
             await endTraderScan();
         }
     } catch (error) {
@@ -682,9 +679,12 @@ const releaseItem = async (options) => {
     return response;
 };
 
-const traderScanInProgress = async () => {
+const currentTraderScan = async () => {
     const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
-    return activeScan.length > 0;
+    if (activeScan.length === 0) {
+        return false;
+    }
+    return activeScan[0];
 };
 
 const startTraderScan = async (options) => {
@@ -1238,17 +1238,8 @@ module.exports = {
                 response = {
                     errors: [],
                     warnings: [],
-                    data: await traderScanInProgress(),
+                    data: !!await currentTraderScan(),
                 };
-            }
-            if (resource === 'trader-scan') {
-                if (req.method === 'POST') {
-                    options.scanner = await getScanner(options, false);
-                    response = await startTraderScan(options);
-                }
-                if (req.method === 'PATCH') {
-                    response = await endTraderScan(options);
-                }
             }
             if (resource === 'offers') {
                 if (req.method === 'POST') {
@@ -1285,8 +1276,8 @@ module.exports = {
         if (refreshingUsers) return refreshingUsers;
         return Promise.resolve();
     },
-    traderScanInProgress: traderScanInProgress,
-    startTraderScan: startTraderScan,
+    currentTraderScan,
+    startTraderScan,
     getJson: (jsonName) => {
         return webSocketServer.getJson(jsonName);
     },
