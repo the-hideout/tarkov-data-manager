@@ -305,7 +305,7 @@ const getItems = async(options) => {
                     (trader_last_scan <= ? OR trader_last_scan IS NULL) )
                 ORDER BY trader_last_scan, id
                 LIMIT ?
-            `, [options.scanner.id, options.scanner.id, traderScanSession.data.started, options.batchSize]);
+            `, [options.scanner.id, options.scanner.id, traderScanSession.started, options.batchSize]);
     
             conditions.push('item_data.trader_checkout_scanner_id = ?');
         }
