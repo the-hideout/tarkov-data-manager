@@ -128,29 +128,41 @@
         ]
     },
     {
-        "_id": "fnfivesevenfdenosights01",
-        "appendName": "Stripped",
+        "_id": "fnfivesevenfdeironsights",
+        "appendName": "55818ac54bdc2d5b648b456e Name",
         "_items": [
             {
-                "_id": "658d5e6883b5f011ca09c35e",
+                "_id": "661d0c1394286d110601aaac",
                 "_tpl": "5d67abc1a4b93614ec50137f"
             },
             {
-                "_id": "658d5e6883b5f011ca09c35f",
+                "_id": "661d0c1394286d110601aaad",
                 "_tpl": "5d3eb5b6a4b9361eab311902",
-                "parentId": "658d5e6883b5f011ca09c35e",
+                "parentId": "661d0c1394286d110601aaac",
                 "slotId": "mod_barrel"
             },
             {
-                "_id": "658d5e6883b5f011ca09c360",
+                "_id": "661d0c1394286d110601aaae",
                 "_tpl": "5d3eb44aa4b93650d64e4979",
-                "parentId": "658d5e6883b5f011ca09c35e",
+                "parentId": "661d0c1394286d110601aaac",
                 "slotId": "mod_reciever"
             },
             {
-                "_id": "658d5e6883b5f011ca09c361",
+                "_id": "661d0c1394286d110601aaaf",
+                "_tpl": "5d3eb4aba4b93650d64e497d",
+                "parentId": "661d0c1394286d110601aaae",
+                "slotId": "mod_sight_rear"
+            },
+            {
+                "_id": "661d0c1394286d110601aab0",
+                "_tpl": "5d3eb536a4b9363b1f22f8e2",
+                "parentId": "661d0c1394286d110601aaae",
+                "slotId": "mod_sight_front"
+            },
+            {
+                "_id": "661d0c1394286d110601aab1",
                 "_tpl": "5d3eb5eca4b9363b1f22f8e4",
-                "parentId": "658d5e6883b5f011ca09c35e",
+                "parentId": "661d0c1394286d110601aaac",
                 "slotId": "mod_magazine"
             }
         ]
@@ -1434,46 +1446,6 @@
                 "_tpl": "578395e82459774a0e553c7b",
                 "parentId": "658d5e6f83b5f011ca09c5e2",
                 "slotId": "mod_stock"
-            }
-        ]
-    },
-    {
-        "_id": "fnfivesevenfdeironsights",
-        "appendName": "55818ac54bdc2d5b648b456e Name",
-        "_items": [
-            {
-                "_id": "661d0c1394286d110601aaac",
-                "_tpl": "5d67abc1a4b93614ec50137f"
-            },
-            {
-                "_id": "661d0c1394286d110601aaad",
-                "_tpl": "5d3eb5b6a4b9361eab311902",
-                "parentId": "661d0c1394286d110601aaac",
-                "slotId": "mod_barrel"
-            },
-            {
-                "_id": "661d0c1394286d110601aaae",
-                "_tpl": "5d3eb44aa4b93650d64e4979",
-                "parentId": "661d0c1394286d110601aaac",
-                "slotId": "mod_reciever"
-            },
-            {
-                "_id": "661d0c1394286d110601aaaf",
-                "_tpl": "5d3eb4aba4b93650d64e497d",
-                "parentId": "661d0c1394286d110601aaae",
-                "slotId": "mod_sight_rear"
-            },
-            {
-                "_id": "661d0c1394286d110601aab0",
-                "_tpl": "5d3eb536a4b9363b1f22f8e2",
-                "parentId": "661d0c1394286d110601aaae",
-                "slotId": "mod_sight_front"
-            },
-            {
-                "_id": "661d0c1394286d110601aab1",
-                "_tpl": "5d3eb5eca4b9363b1f22f8e4",
-                "parentId": "661d0c1394286d110601aaac",
-                "slotId": "mod_magazine"
             }
         ]
     },
