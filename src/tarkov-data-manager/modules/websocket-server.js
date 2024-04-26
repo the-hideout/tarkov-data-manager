@@ -129,10 +129,8 @@ wss.on('connection', (client, req) => {
         }
 
         if (message.type === 'status') {
-            client.status = message.data.status || message.data;
-            if (message.data.settings) {
-                client.settings = message.data.settings;
-            }
+            client.status = message.data.status;
+            client.settings = message.data.settings;
             emitter.emit('scannerStatusUpdated', client);
             sendMessage(client.sessionId, 'status', message.data);
         }

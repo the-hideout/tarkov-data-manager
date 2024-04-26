@@ -91,7 +91,7 @@ function startListener(channel) {
             }
             return;
         } else if (message.type === 'fullStatus' && logMessages.length < 2) {
-            ws.status = message.data.status;
+            ws.status = message.data.settings.scannerStatus;
             logMessages = [];
             for (let i = 0; i < message.data.log.length; i++) {
                 logMessages.push(ansi_up.ansi_to_html(message.data.log[i]));
