@@ -24,7 +24,7 @@ class CheckImageLinksJob extends DataJob {
             getBucketContents()
         ]);
 
-        const activeItems = [...itemData.values()].filter(item => !item.types.includes('disabled'));
+        const activeItems = [...itemData.values()].filter(item => !item.types?.includes('disabled'));
 
         this.logger.log(`Retrieved ${allKeys.length} S3 bucket images`);
 
