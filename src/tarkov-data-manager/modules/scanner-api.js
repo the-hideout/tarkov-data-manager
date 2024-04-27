@@ -42,10 +42,6 @@ const updatePresets = () => {
             all[p.baseId].push(p);
             return all;
         }, {});
-        presets.byId = Object.values(presets.presets).reduce((all, p) => {
-            all[p.id] = p;
-            return all;
-        }, {});
     } catch (error) {
         console.log('ScannerAPI error reading presets.json:', error.message);
     }
@@ -143,8 +139,8 @@ const queryResultToBatchItem = item => {
                 }, []),
             }
         });
-    } else if (presets.byId[item.id]) {
-        contains = presets.byId[item.id].containsItems.reduce((parts, currentItem) => {
+    } else if (presets.presets[item.id]) {
+        contains = presets.presets[item.id].containsItems.reduce((parts, currentItem) => {
             parts.push({
                 id: currentItem.item.id,
                 name: currentItem.item.name,
@@ -933,7 +929,7 @@ const submitImage = (request, user) => {
                         if (presetId === 'default') {
                             matchedPreset = presets.byBase[fields.id]?.find(preset => preset.default);
                         } else {
-                            matchedPreset = presets.byId[presetId];
+                            matchedPreset = presets.presets[presetId];
                         }
                         if (matchedPreset) {
                             const presetResult = await createAndUploadFromSource(files[presetId][0].filepath, matchedPreset.id, fields.overwrite);
