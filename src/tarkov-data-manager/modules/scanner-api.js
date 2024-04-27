@@ -35,7 +35,17 @@ const updatePresets = () => {
     try {
         const fileContents = fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json'));
         presets = JSON.parse(fileContents);
-        presets.presets = Object.values(presets.presets);
+        presets.byBase = Object.values(presets.presets).reduce((all, p) => {
+            if (!all[p.baseId]) {
+                all[p.baseId] = [];
+            }
+            all[p.baseId].push(p);
+            return all;
+        }, {});
+        presets.byId = Object.values(presets.presets).reduce((all, p) => {
+            all[p.id] = p;
+            return all;
+        }, {});
     } catch (error) {
         console.log('ScannerAPI error reading presets.json:', error.message);
     }
@@ -100,11 +110,10 @@ const getOptions = (options, user) => {
 };
 
 const queryResultToBatchItem = item => {
-    const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
     let contains = item.contains ? item.contains.split(',') : [];
     let itemPresets = [];
-    if (types.includes('gun')) {
-        itemPresets = presets.presets.filter(testPreset => testPreset.baseId === item.id).map(preset => {
+    if (presets.byBase[item.id]) {
+        itemPresets = presets.byBase[item.id].map(preset => {
             if (preset.default) {
                 contains = preset.containsItems.reduce((parts, currentItem) => {
                     parts.push({
@@ -131,21 +140,25 @@ const queryResultToBatchItem = item => {
                         count: currentItem.count,
                     });
                     return parts;
-                }, [])
+                }, []),
             }
         });
-    } else if (types.includes('preset')) {
-        const matchedPreset = presets.presets.find(preset => preset.id === item.id);
-        if (matchedPreset) {
-            contains = matchedPreset.map(contained => contained.item.id);
-        }
+    } else if (presets.byId[item.id]) {
+        contains = presets.byId[item.id].containsItems.reduce((parts, currentItem) => {
+            parts.push({
+                id: currentItem.item.id,
+                name: currentItem.item.name,
+                count: currentItem.count,
+            });
+            return parts;
+        }, []);
     }
     const backgroundColor = item.properties?.backgroundColor ? item.properties.backgroundColor : 'default';
     return {
         id: item.id,
         name: String(item.name),
         shortName: String(item.short_name),
-        types: types,
+        types: item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [],
         backgroundColor: backgroundColor,
         width: item.width ? item.width : 1,
         height: item.height ? item.height : 1,
@@ -918,9 +931,9 @@ const submitImage = (request, user) => {
                     for (const presetId of fields.presets) {
                         let matchedPreset;
                         if (presetId === 'default') {
-                            matchedPreset = presets.presets.find(preset => preset.baseId === fields.id && preset.default);
+                            matchedPreset = presets.byBase[fields.id]?.find(preset => preset.default);
                         } else {
-                            matchedPreset = presets.presets.find(preset => preset.id === presetId);
+                            matchedPreset = presets.byId[presetId];
                         }
                         if (matchedPreset) {
                             const presetResult = await createAndUploadFromSource(files[presetId][0].filepath, matchedPreset.id, fields.overwrite);
