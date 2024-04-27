@@ -109,6 +109,7 @@ const dataFunctions = {
             stationary_weapons: [],
             switches: [],
             quest_items: [],
+            spawns: [],
         };
         const excludedExtracts = {
             Shoreline: [
