@@ -96,7 +96,7 @@ wss.on('connection', (client, req) => {
     if (url.searchParams.get('password') !== process.env.WS_PASSWORD && !validateUser(url.searchParams.get('username'), url.searchParams.get('password'))) {
         terminateReason = 'authentication';
     }
-    if (!url.searchParams.get('sessionid')) {
+    if (!url.searchParams.get('sessionid') && url.searchParams.get('role') !== 'overseer') {
         terminateReason = 'session ID';
     }
     if (!url.searchParams.get('role') || !validRoles.includes(url.searchParams.get('role'))) {
@@ -138,7 +138,8 @@ wss.on('connection', (client, req) => {
                 return;
             }
             webSocketServer.sendCommand(scanner.sessionId, 'fullStatus').then(commandResponse => {
-                scanner.send(JSON.stringify({
+                client.send(JSON.stringify({
+                    sessionId: scanner.sessionId,
                     type: 'fullStatus',
                     data: commandResponse.data,
                 }));
@@ -156,13 +157,13 @@ wss.on('connection', (client, req) => {
             return;
         }
 
-        if (!client.sessionId) {
+        if (!client.sessionId && !client.role === 'overseer') {
             console.log('Not authenticated, dropping message', message);
             return;
         }
 
         if (message.type === 'command') {
-            return webSocketServer.sendCommand(client.sessionId, message.name, message.data);
+            return webSocketServer.sendCommand(client.sessionId || message.sessionId, message.name, message.data);
         }
 
         if (message.type === 'commandResponse') {

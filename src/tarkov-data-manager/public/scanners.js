@@ -1,130 +1,269 @@
-const WEBSOCKET_SERVER = 'wss://manager.tarkov.dev:8443';
-//const WEBSOCKET_SERVER = 'ws://localhost:5000';
-const wsClients = {};
+//const WEBSOCKET_SERVER = 'wss://manager.tarkov.dev:8443';
+const WEBSOCKET_SERVER = 'ws://localhost:5000';
+
+let client = false;
+const scannerData = {};
 
 const sendMessage = (sessionID, type, data) => {
-    wsClients[sessionID].send(JSON.stringify({
-        sessionID: sessionID,
+    client.send(JSON.stringify({
+        sessionId: sessionID,
         type: type,
         data: data
     }));
 };
 
 const sendCommand = (sessionID, command, data) => {
-    wsClients[sessionID].send(JSON.stringify({
-        sessionID: sessionID,
+    client.send(JSON.stringify({
+        sessionId: sessionID,
         type: 'command',
         name: command,
         data,
     }));
 }
 
-getScannerValue = (sessionID, settingName) => {
-    return wsClients[sessionID].send(JSON.stringify({
-        sessionID: sessionID,
-        type: 'getValue',
-        data: {name: settingName}
-    }));
-};
+const addScanner = (sessionId, status = 'unknown') => {
+    const scannerDiv = document.createElement('div');
+    scannerDiv.id = `scanner-element-${sessionId}`;
+    scannerDiv.classList.add('scanner', 'col', 's12', 'xl6');
 
-function startListener(channel) {
-    let logMessages = [];
+    const collapsibleUl = document.createElement('ul');
+    scannerDiv.append(collapsibleUl);
+    collapsibleUl.classList.add('collapsible');
+    collapsibleUl.dataset.collapsible = 'collapsible';
+    const collapsibleLi = document.createElement('li');
+    collapsibleUl.append(collapsibleLi);
+    collapsibleLi.classList.add('active');
+    const collapsibleHeader = document.createElement('div');
+    collapsibleLi.append(collapsibleHeader);
+    collapsibleHeader.classList.add('collapsible-header');
 
-    const queryString = `?password=${encodeURIComponent(WS_PASSWORD)}&sessionid=${encodeURIComponent(channel)}&role=listener`;
-    const ws = new WebSocket(WEBSOCKET_SERVER+queryString);
-    ws.sessionID = channel;
-    ws.status = 'unknown';
-    updateStatus(ws);
-    ws.settings = {};
+    const header = document.createElement('span');
+    collapsibleHeader.append(header);
+    header.id = `scanner-header-${sessionId}`;
+    header.classList.add('tooltipped', 'scanner-header')
+    header.dataset.tooltip = status;
 
-    const heartbeat = function heartbeat() {
-        clearTimeout(ws.pingTimeout);
+    const menuButton = document.createElement('a');
+    header.append(menuButton);
+    menuButton.classList.add('dropdown-trigger', 'btn', 'scanner-dropdown');
+    menuButton.setAttribute('href', '#');
+    menuButton.dataset.target = `dropdown-${sessionId}`;
+    menuButton.innerHTML = `<i class="material-icons left">arrow_drop_down</i>${sessionId}`;
 
-        // Use `WebSocket#terminate()`, which immediately destroys the connection,
-        // instead of `WebSocket#close()`, which waits for the close timer.
-        // Delay should be equal to the interval at which your server
-        // sends out pings plus a conservative assumption of the latency.
-        ws.pingTimeout = setTimeout(() => {
-            if(ws?.terminate){
-                console.log(`terminating ${ws.sessionID}`);
-                ws.terminate();
-            }
-        }, 30000 + 35000);
-    };
+    const menu = document.createElement('ul');
+    header.append(menu);
+    menu.id = `dropdown-${sessionId}`;
+    menu.classList.add('dropdown-content');
 
-    ws.onopen = () => {
-        heartbeat();
-
-        console.log(`Listening for messages from ${channel}`);
-    };
-
-    ws.onerror = (error) => {
-        console.log('Error opening websocket connection', error);
+    const buttons = [
+        {
+            key: 'pause',
+            icon: 'pause',
+            label: 'Pause',
+        },
+        {
+            key: 'resume',
+            icon: 'play_arrow',
+            label: 'Start',
+        },
+        {
+            key: 'restart',
+            icon: 'refresh',
+            label: 'Restart',
+        },
+        {
+            key: 'shutdown',
+            icon: 'power_settings_new',
+            label: 'Shutdown',
+        },
+    ];
+    for (const buttonData of buttons) {    
+        const btn = document.createElement('li');
+        menu.append(btn);
+        btn.classList.add(`${buttonData.key}-scanner`);
+        btn.dataset.scannerName = sessionId;
+        const link = document.createElement('a');
+        btn.append(link);
+        link.setAttribute('href', '#!');
+        link.classList.add(`${buttonData.key}-scanner`);
+        link.innerHTML = `<i class="material-icons left">${buttonData.icon}</i>${buttonData.label}`;
     }
 
-    ws.onmessage = (rawMessage) => {
+    const messagesDiv = document.createElement('div');
+    collapsibleLi.append(messagesDiv);
+    messagesDiv.classList.add('collapsible-body', 'log-messages', `log-messages-${sessionId}`);
+
+    document.getElementById('activescanners').getElementsByClassName('scanners-wrapper')[0].append(scannerDiv);
+
+    M.Collapsible.init($(`#scanner-element-${sessionId} .collapsible`));
+    M.Tooltip.init($(`#scanner-element-${sessionId} .tooltipped`));
+    M.Dropdown.init($(`#scanner-element-${sessionId} .dropdown-trigger.scanner-dropdown`), {constrainWidth: false});
+
+    
+
+    $(scannerDiv).find('.scanner-dropdown').click(function(event){
+        event.stopPropagation();
+    });
+
+    $(scannerDiv).find('a.restart-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        $('#modal-restart-confirm .modal-restart-confirm-scanner-name').text(scannerName);
+        $('#modal-restart-confirm .restart-confirm').data('scannerName', scannerName);
+        M.Modal.getInstance(document.getElementById('modal-restart-confirm')).open();
+    });
+
+    $(scannerDiv).find('a.shutdown-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        $('#modal-shutdown-confirm .modal-shutdown-confirm-scanner-name').text(scannerName);
+        $('#modal-shutdown-confirm .shutdown-confirm').data('scannerName', scannerName);
+        M.Modal.getInstance(document.getElementById('modal-shutdown-confirm')).open();
+    });
+
+    $(scannerDiv).find('a.pause-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        sendCommand(scannerName, 'pause');
+        //$(event.target).closest('li').css('display', 'none');
+        //$(event.target).closest('ul').find('li.resume-scanner').css('display', '');
+    });
+
+    $(scannerDiv).find('a.resume-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        sendCommand(scannerName, 'resume');
+        //$(event.target).closest('li').css('display', 'none');
+        //$(event.target).closest('ul').find('li.pause-scanner').css('display', '');
+    });
+
+    $(scannerDiv).find('a.generate-images-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        sendCommand(scannerName, 'generateImages');
+    });
+
+    $(scannerDiv).find('a.screenshot-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        sendCommand(scannerName, 'screenshot');
+    });
+
+    $(scannerDiv).find('a.click-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        $('#modal-click .scanner-click-name').text(scannerName);
+        $('#modal-click .click-x').val('');
+        $('#modal-click .click-y').val('');
+        $('#modal-click .scanner-last-screenshot').attr('src', '');
+        /*if (wsClients[scannerName] && wsClients[scannerName].settings.lastScreenshot) {
+            $('#modal-click .scanner-last-screenshot').attr('src', wsClients[scannerName].settings.lastScreenshot);
+        }*/
+        $('#modal-click .do-click').data('scannerName', scannerName);
+        M.Modal.getInstance(document.getElementById('modal-click')).open();
+    });
+
+    $(scannerDiv).find('a.update-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        sendCommand(scannerName, 'update');
+    });
+
+    $(scannerDiv).find('a.log-repeat-scanner').click(function(event){
+        event.stopPropagation();
+        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
+        sendCommand(scannerName, 'repeatLog');
+    });
+};
+
+const removeScanner = (scannerName) => {
+    document.querySelector(`#scanner-element-${scannerName}`).remove();
+    scannerData[scannerName] = undefined;
+};
+
+const heartbeat = function heartbeat() {
+    clearTimeout(client.pingTimeout);
+
+    // Delay should be equal to the interval at which your server
+    // sends out pings plus a conservative assumption of the latency.
+    client.pingTimeout = setTimeout(() => {
+        console.log(`Reconnecting`);
+        setupClient();
+    }, 10000 + 15000);
+};
+
+function setupClient() {
+    if (client) {
+        console.log('Terminating existing websocket client');
+        try {
+            clearTimeout(client.pingTimeout);
+            // Use `WebSocket#terminate()`, which immediately destroys the connection,
+            // instead of `WebSocket#close()`, which waits for the close timer.
+            client.terminate();
+        } catch (error) {
+            console.log(`Error terminating websocket server: ${error}`);
+        }
+    }
+    console.log('Establishing new websocket connection');
+    const queryString = `?password=${encodeURIComponent(WS_PASSWORD)}&role=overseer`;
+    client = new WebSocket(WEBSOCKET_SERVER+queryString);
+
+    client.onopen = () => {
+        heartbeat();
+    };
+
+    client.onerror = (error) => {
+        if (client.readyState !== WebSocket.OPEN) {
+            console.log(`Error opening WebSocket connection: ${error}`);
+            setTimeout(setupClient, 5000);
+        }
+    }
+
+    client.onmessage = (rawMessage) => {
         const message = JSON.parse(rawMessage.data);
         //console.log(ws.sessionID, message);
 
-        const ansi_up = new AnsiUp;
-
         if (message.type === 'ping') {
             heartbeat();
-
-            ws.send(JSON.stringify({type: 'pong'}));
-
-            return true;
-        } else if (message.type === 'command') {
+            client.send(JSON.stringify({type: 'pong'}));
             return;
-        } else if (message.type === 'scannerValue') {
-            console.log(`Setting scanner values for ${ws.sessionID}`);
-            ws.settings[message.data.name] = message.data.value;
-        } else if (message.type === 'scannerValues') {
-            console.log(`Setting scanner values for ${ws.sessionID}`);
-            ws.settings = {
-                ...ws.settings,
-                ...message.data
-            };
-            let openScanner = decodeURIComponent($('#modal-click .do-click').first().data('scannerName'));
-            if (openScanner == channel) {
-                $('#modal-click .scanner-last-screenshot').attr('src', ws.settings.lastScreenshot);
-            }
-            return;
-        } else if (message.type === 'fullStatus' && logMessages.length < 2) {
-            ws.status = message.data.settings.scannerStatus;
-            logMessages = [];
-            for (let i = 0; i < message.data.log.length; i++) {
-                logMessages.push(ansi_up.ansi_to_html(message.data.log[i]));
-            }
-            updateStatus(ws);
-        } else if (message.type === 'status') {
-            ws.status = message.data.status;
-            updateStatus(ws);
-        } else {
-            const html = ansi_up.ansi_to_html(message.data);
-            logMessages.push(html);
         }
-        
-        logMessages = logMessages.slice(-100);
-
-        const wrapper = document.querySelector(`.log-messages-${channel}`);
-
-        const atBottom = wrapper.scrollTop + wrapper.offsetHeight > wrapper.scrollHeight;
-
-        wrapper.innerHTML = logMessages.join('<br>');
-
-        if (atBottom) {
-            wrapper.scrollTop = wrapper.scrollHeight;
+        console.log(message);
+        if (message.type === 'connected') {
+            updateStatus(message.sessionId, message.data.status);
+        }
+        if (message.type === 'disconnect') {
+            //removeScanner(message.sessionId);
+        }
+        if (message.type === 'fullStatus') {
+            updateStatus(message.sessionId, message.data.settings.scannerStatus);
+            addLogMessages(message.sessionId, message.data.log);
+        }
+        if (message.type === 'status') {
+            updateStatus(message.sessionId, message.data.status);
         } 
-        // console.log(message.data);
+        if (message.type === 'debug') {
+            addLogMessages(message.sessionId, [message.data]);
+        }
     };
-    wsClients[channel] = ws;
 };
 
-const updateStatus = (client) => {
-    const scannerName = client.sessionID;
-    const status = client.status;
-    console.log(scannerName, status);
+const checkScannerExists = (scannerName, status = 'unknown') => {
+    if (!scannerData[scannerName]) {
+        scannerData[scannerName] = {
+            status: status,
+            log: [],
+        };
+    }
+    const element = document.querySelector(`#scanner-element-${scannerName}`);
+    if (!element) {
+        addScanner(scannerName, status);
+    }
+}
+
+const updateStatus = (scannerName, status) => {
+    checkScannerExists(scannerName, status);
+    document.querySelector(`#scanner-header-${scannerName}`).dataset.tooltip = status;
     if (status === 'unknown') {
         $(`#dropdown-${scannerName} li.resume-scanner`).css('display', 'none');
         $(`#dropdown-${scannerName} li.pause-scanner`).css('display', 'none');
@@ -132,7 +271,6 @@ const updateStatus = (client) => {
         $(`#dropdown-${scannerName} li.shutdown-scanner`).css('display', 'none');
         $(`#dropdown-${scannerName} li.click-scanner`).css('display', 'none');
         $(`#dropdown-${scannerName} li.update-scanner`).css('display', 'none');
-        $(`#dropdown-${scannerName} li.set-trader-scan-day`).css('display', 'none');
         $(`#dropdown-${scannerName} li.screenshot-scanner`).css('display', 'none');
         $(`#dropdown-${scannerName} li.generate-images-scanner`).css('display', 'none');
     }
@@ -159,9 +297,36 @@ const updateStatus = (client) => {
     }
 };
 
+const addLogMessages = (scannerName, messages) => {
+    checkScannerExists(scannerName);
+    const ansi_up = new AnsiUp();
+    for (const msg of messages) {
+        const html = ansi_up.ansi_to_html(msg);
+        scannerData[scannerName].log.push(html);
+    }
+
+    scannerData[scannerName].log = scannerData[scannerName].log.slice(-100);
+
+    const wrapper = document.querySelector(`.log-messages-${scannerName}`);
+
+    if (!wrapper) {
+        return;
+    }
+
+    const atBottom = wrapper.scrollTop + wrapper.offsetHeight > wrapper.scrollHeight;
+
+    wrapper.innerHTML = scannerData[scannerName].log.join('<br>');
+
+    if (atBottom) {
+        wrapper.scrollTop = wrapper.scrollHeight;
+    } 
+    // console.log(message.data);
+};
+
 let table = false;
 
 $(document).ready(function () {
+    setupClient();
     M.Collapsible.init($('.collapsible'));
     M.Tooltip.init($('.tooltipped'));
     M.Dropdown.init($('.dropdown-trigger.scanner-dropdown'), {constrainWidth: false});
@@ -176,94 +341,9 @@ $(document).ready(function () {
         }, {capture: true});
     });*/
 
-    $('.scanner-dropdown').click(function(event){
-        event.stopPropagation();
-    });
-
-    $('a.restart-scanner').click(function(event){
-        event.stopPropagation();
-        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
-        $('#modal-restart-confirm .modal-restart-confirm-scanner-name').text(scannerName);
-        $('#modal-restart-confirm .restart-confirm').data('scannerName', scannerName);
-        M.Modal.getInstance(document.getElementById('modal-restart-confirm')).open();
-    });
-
     $('#modal-restart-confirm .restart-confirm').click(function(event){
         let scannerName = decodeURIComponent($(event.target).data('scannerName'));
-        if (!wsClients[scannerName]) {
-            return;
-        }
         sendCommand(scannerName, 'restart');
-    });
-
-    $('a.shutdown-scanner').click(function(event){
-        event.stopPropagation();
-        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
-        $('#modal-shutdown-confirm .modal-shutdown-confirm-scanner-name').text(scannerName);
-        $('#modal-shutdown-confirm .shutdown-confirm').data('scannerName', scannerName);
-        M.Modal.getInstance(document.getElementById('modal-shutdown-confirm')).open();
-    });
-
-    $('#modal-shutdown-confirm .shutdown-confirm').click(function(event){
-        let scannerName = decodeURIComponent($(event.target).data('scannerName'));
-        if (!wsClients[scannerName]) {
-            return;
-        }
-        sendCommand(scannerName, 'shutdown');
-    });
-
-    $('a.pause-scanner').click(function(event){
-        event.stopPropagation();
-        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
-        if (!wsClients[scannerName]) {
-            return;
-        }
-        sendCommand(scannerName, 'pause');
-        //$(event.target).closest('li').css('display', 'none');
-        //$(event.target).closest('ul').find('li.resume-scanner').css('display', '');
-    });
-
-    $('a.resume-scanner').click(function(event){
-        event.stopPropagation();
-        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
-        if (!wsClients[scannerName]) {
-            return;
-        }
-        sendCommand(scannerName, 'resume');
-        //$(event.target).closest('li').css('display', 'none');
-        //$(event.target).closest('ul').find('li.pause-scanner').css('display', '');
-    });
-
-    $('a.generate-images-scanner').click(function(event){
-        event.stopPropagation();
-        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
-        if (!wsClients[scannerName]) {
-            return;
-        }
-        sendCommand(scannerName, 'generateImages');
-    });
-
-    $('a.screenshot-scanner').click(function(event){
-        event.stopPropagation();
-        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
-        if (!wsClients[scannerName]) {
-            return;
-        }
-        sendCommand(scannerName, 'screenshot');
-    });
-
-    $('a.click-scanner').click(function(event){
-        event.stopPropagation();
-        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
-        $('#modal-click .scanner-click-name').text(scannerName);
-        $('#modal-click .click-x').val('');
-        $('#modal-click .click-y').val('');
-        $('#modal-click .scanner-last-screenshot').attr('src', '');
-        if (wsClients[scannerName] && wsClients[scannerName].settings.lastScreenshot) {
-            $('#modal-click .scanner-last-screenshot').attr('src', wsClients[scannerName].settings.lastScreenshot);
-        }
-        $('#modal-click .do-click').data('scannerName', scannerName);
-        M.Modal.getInstance(document.getElementById('modal-click')).open();
     });
 
     $('#modal-click a.refresh-screenshot').click(function(event){
@@ -287,47 +367,14 @@ $(document).ready(function () {
 
     $('#modal-click .do-click').click(function(event){
         let scannerName = decodeURIComponent($(event.target).data('scannerName'));
-        if (!wsClients[scannerName]) {
-            return;
-        }
         const x = $('#modal-click input.click-x').val();
         const y = $('#modal-click input.click-y').val();
         sendCommand(scannerName, {clickX: x, clickY: y});
     });
 
-    $('a.update-scanner').click(function(event){
-        event.stopPropagation();
-        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
-        if (!wsClients[scannerName]) {
-            return;
-        }
-        sendCommand(scannerName, 'update');
-    });
-
-    $('a.log-repeat-scanner').click(function(event){
-        event.stopPropagation();
-        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
-        if (!wsClients[scannerName]) {
-            return;
-        }
-        sendCommand(scannerName, 'repeatLog');
-    });
-
-    $('a.set-trader-scan-day').click(function(event){
-        event.stopPropagation();
-        let scannerName = decodeURIComponent($(event.target).closest('li').data('scannerName'));
-        $('#modal-trader-scan-day .modal-trader-scan-day-scanner-name').text(scannerName);
-        $('#modal-trader-scan-day .trader-scan-day-confirm').data('scannerName', scannerName);
-        M.Modal.getInstance(document.getElementById('modal-trader-scan-day')).open();
-    });
-
-    $('#modal-trader-scan-day .trader-scan-day-confirm').click(function(event){
+    $('#modal-shutdown-confirm .shutdown-confirm').click(function(event){
         let scannerName = decodeURIComponent($(event.target).data('scannerName'));
-        if (!wsClients[scannerName]) {
-            return;
-        }
-        const scanDay = $('#modal-trader-scan-day select').val();
-        sendCommand(scannerName, {setting: 'TRADER_SCAN_DAY', value: scanDay});
+        sendCommand(scannerName, 'shutdown');
     });
 
     $('a.edit-item-save').click(function(event){
@@ -625,12 +672,4 @@ $(document).ready(function () {
         M.Modal.getInstance(document.getElementById('modal-edit-user')).open();
         $('#modal-edit-user .username').focus();
     });
-});
-
-window.addEventListener('beforeunload', function (e) {
-    for (const client of Object.values(wsClients)) {
-        if (client?.readyState === WebSocket.OPEN) {
-            client.terminate();
-        }
-    }
 });
