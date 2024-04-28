@@ -81,7 +81,10 @@ wss.on('connection', (client, req) => {
 
     if (client.role === 'scanner') {
         client.status = url.searchParams.get('status') || 'unknown';
-        client.fleaMarketAvailable = url.searchParams.get('fleamarketavailable') === 'true';
+        client.settings = {
+            fleaMarketAvailable: url.searchParams.get('fleamarket') === 'true',
+            scanMode: url.searchParams.get('scanmode') ? url.searchParams.get('scanmode') : 'auto',
+        };
         client.name = client.sessionId;
     }
     if (client.role === 'listener') {
@@ -126,7 +129,9 @@ wss.on('connection', (client, req) => {
         }
 
         if (message.type === 'status') {
-            client.status = message.data;
+            client.status = message.data.status;
+            client.settings = message.data.settings;
+            emitter.emit('scannerStatusUpdated', client);
             sendMessage(client.sessionId, 'status', message.data);
         }
     });
@@ -209,7 +214,7 @@ const webSocketServer = {
         const fleaMarketJson = ['credits'];
         let clients = connectedJson.includes(jsonName) ? webSocketServer.connectedScanners() : webSocketServer.launchedScanners();
         if (fleaMarketJson.includes(jsonName)) {
-            const fleaClients = clients.filter(c => c.fleaMarketAvailable);
+            const fleaClients = clients.filter(c => c.settings.fleaMarketAvailable);
             if (fleaClients.length > 0) {
                 clients = fleaClients;
             }
@@ -219,7 +224,16 @@ const webSocketServer = {
         }
         const client = clients[Math.floor(Math.random()*clients.length)];
         return webSocketServer.sendCommand(client.sessionId, 'getJson', {name: jsonName})
-    }
+    },
+    on: (event, listener) => {
+        return emitter.on(event, listener);
+    },
+    off: (event, listener) => {
+        return emitter.off(event, listener);
+    },
+    once: (event, listener) => {
+        return emitter.once(event, listener);
+    },
 };
 
 module.exports = webSocketServer;
