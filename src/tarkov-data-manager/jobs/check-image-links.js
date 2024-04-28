@@ -24,7 +24,7 @@ class CheckImageLinksJob extends DataJob {
             getBucketContents()
         ]);
 
-        const activeItems = [...itemData.values()].filter(item => !item.types.includes('disabled'));
+        const activeItems = [...itemData.values()].filter(item => !item.types?.includes('disabled'));
 
         this.logger.log(`Retrieved ${allKeys.length} S3 bucket images`);
 
@@ -46,7 +46,7 @@ class CheckImageLinksJob extends DataJob {
                     }
                 }
             }
-            if (item.base_image_link) {
+            if (item.image_8x_link) {
                 baseKeys.push(item.id);
             }
         }
@@ -87,8 +87,7 @@ class CheckImageLinksJob extends DataJob {
 
         this.logger.log(`${deadLinks} dead item image links found`);
         this.logger.log(`${oldImages} old item image links found`);
-        this.logger.log(`${baseKeys.length} of ${activeItems.length} active items have base images`);
-        fs.writeFileSync(path.join(__dirname, '..', 'public', 'data', 'existing-bases.json'), JSON.stringify(baseKeys, null, 4));
+        this.logger.log(`${baseKeys.length} of ${activeItems.length} active items have 8x images`);
     }
 }
 
