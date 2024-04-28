@@ -4,8 +4,42 @@ const WebSocket = require('ws');
 const { v4: uuidv4 } = require('uuid');
 
 const sleep = require('./sleep');
+const { query } = require('./db-connection');
 
 const emitter = new EventEmitter();
+
+const validRoles = [
+    'scanner',
+    'listener',
+    'overseer',
+];
+
+let users = {};
+
+const refreshUsers = async () => {
+    const results = await query('SELECT * from scanner_user WHERE disabled=0');
+    const scannerUsers = {};
+    const scannerQueries = [];
+    for (const user of results) {
+        scannerUsers[user.username] = user;
+        scannerQueries.push(query('SELECT * from scanner WHERE scanner_user_id = ?', user.id).then(scanners => {
+            scannerUsers[user.username].scanners = scanners;
+        }));
+    }
+    await Promise.all(scannerQueries);
+    users = scannerUsers;
+};
+refreshUsers();
+
+const validateUser = (username, password) => {
+    if (!username || !password) {
+        return false;
+    }
+    if (!users[username]?.password === password) {
+        return false;
+    }
+    return true;
+};
 
 const wss = new WebSocket.Server({
     port: process.env.WS_PORT || 5000,
@@ -14,17 +48,14 @@ const wss = new WebSocket.Server({
 });
 wss.listening = false;
 
-const pingMessage = JSON.stringify({
-    type: 'ping',
-});
-
 const sendMessage = (sessionId, type, data) => {
     const sentMessages = []
     wss.clients.forEach((client) => {
-        if (client.readyState !== WebSocket.OPEN || client.sessionId !== sessionId || client.role !== 'listener' ) {
+        if (client.readyState !== WebSocket.OPEN || (client.sessionId !== sessionId || client.role !== 'listener')  || client.role !== 'overseer') {
             return;
         }
         sentMessages.push(client.send(JSON.stringify({
+            sessionId: client.role === 'overseer' ? sessionId : undefined,
             type: type,
             data: data,
         })));
@@ -38,11 +69,14 @@ const pingInterval = setInterval(() => {
     wss.clients.forEach((client) => {
         if (client.isAlive === false) {
             console.log(`terminating ${client.sessionId}`);
+            sendMessage(client.sessionId, 'disconnect');
             return client.terminate();
         }
 
         client.isAlive = false;
-        client.send(pingMessage);
+        client.send(JSON.stringify({
+            type: 'ping',
+        }));
     });
 }, 10000);
 
@@ -59,13 +93,13 @@ const printClients = () => {
 wss.on('connection', (client, req) => {
     const url = new URL(`http://localhost${req.url}`);
     let terminateReason = false;
-    if (url.searchParams.get('password') !== process.env.WS_PASSWORD) {
+    if (url.searchParams.get('password') !== process.env.WS_PASSWORD && !validateUser(url.searchParams.get('username'), url.searchParams.get('password'))) {
         terminateReason = 'authentication';
     }
     if (!url.searchParams.get('sessionid')) {
         terminateReason = 'session ID';
     }
-    if (!url.searchParams.get('role')) {
+    if (!url.searchParams.get('role') || !validRoles.includes(url.searchParams.get('role'))) {
         terminateReason = 'role';
     }
     if (terminateReason) {
@@ -86,6 +120,7 @@ wss.on('connection', (client, req) => {
             scanMode: url.searchParams.get('scanmode') ? url.searchParams.get('scanmode') : 'auto',
         };
         client.name = client.sessionId;
+        sendMessage(client.sessionId, 'connected', {status: client.status, settings: client.settings});
     }
     if (client.role === 'listener') {
         // a listener just connected
@@ -95,6 +130,19 @@ wss.on('connection', (client, req) => {
                 type: 'fullStatus',
                 data: commandResponse.data,
             }));
+        });
+    }
+    if (client.role === 'overseer') {
+        wss.clients.forEach((scanner) => {
+            if (scanner.readyState !== WebSocket.OPEN || scanner.role !== 'scanner') {
+                return;
+            }
+            webSocketServer.sendCommand(scanner.sessionId, 'fullStatus').then(commandResponse => {
+                scanner.send(JSON.stringify({
+                    type: 'fullStatus',
+                    data: commandResponse.data,
+                }));
+            });
         });
     }
     printClients();
@@ -137,6 +185,7 @@ wss.on('connection', (client, req) => {
     });
 
     client.on('close', () => {
+        sendMessage(client.sessionId, 'disconnect');
         printClients();
     });
 });
