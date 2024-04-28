@@ -35,7 +35,13 @@ const updatePresets = () => {
     try {
         const fileContents = fs.readFileSync(path.join(__dirname, '..', 'cache', 'presets.json'));
         presets = JSON.parse(fileContents);
-        presets.presets = Object.values(presets.presets);
+        presets.byBase = Object.values(presets.presets).reduce((all, p) => {
+            if (!all[p.baseId]) {
+                all[p.baseId] = [];
+            }
+            all[p.baseId].push(p);
+            return all;
+        }, {});
     } catch (error) {
         console.log('ScannerAPI error reading presets.json:', error.message);
     }
@@ -67,7 +73,6 @@ const getOptions = (options, user) => {
         imageOnly: false,
         batchSize: 50,
         offersFrom: 2,
-        limitTraderScan: true,
         trustTraderUnlocks: false,
         scanned: false,
         offerCount: undefined
@@ -101,11 +106,10 @@ const getOptions = (options, user) => {
 };
 
 const queryResultToBatchItem = item => {
-    const types = item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [];
     let contains = item.contains ? item.contains.split(',') : [];
     let itemPresets = [];
-    if (types.includes('gun')) {
-        itemPresets = presets.presets.filter(testPreset => testPreset.baseId === item.id).map(preset => {
+    if (presets.byBase[item.id]) {
+        itemPresets = presets.byBase[item.id].map(preset => {
             if (preset.default) {
                 contains = preset.containsItems.reduce((parts, currentItem) => {
                     parts.push({
@@ -132,21 +136,25 @@ const queryResultToBatchItem = item => {
                         count: currentItem.count,
                     });
                     return parts;
-                }, [])
+                }, []),
             }
         });
-    } else if (types.includes('preset')) {
-        const matchedPreset = presets.presets.find(preset => preset.id === item.id);
-        if (matchedPreset) {
-            contains = matchedPreset.map(contained => contained.item.id);
-        }
+    } else if (presets.presets[item.id]) {
+        contains = presets.presets[item.id].containsItems.reduce((parts, currentItem) => {
+            parts.push({
+                id: currentItem.item.id,
+                name: currentItem.item.name,
+                count: currentItem.count,
+            });
+            return parts;
+        }, []);
     }
     const backgroundColor = item.properties?.backgroundColor ? item.properties.backgroundColor : 'default';
     return {
         id: item.id,
         name: String(item.name),
         shortName: String(item.short_name),
-        types: types,
+        types: item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [],
         backgroundColor: backgroundColor,
         width: item.width ? item.width : 1,
         height: item.height ? item.height : 1,
@@ -192,7 +200,7 @@ const queryResultToBatchItem = item => {
         '59d36a0086f7747e673f3946'
     ]
 } */
-// relevant options: limitItem, imageOnly, batchSize, offersFrom, limitTraderScan
+// relevant options: limitItem, imageOnly, batchSize, offersFrom
 const getItems = async(options) => {
     const user = options.user;
     const response = {errors: [], warnings: [], data: []};
@@ -290,14 +298,11 @@ const getItems = async(options) => {
             conditions.push('item_data.checkout_scanner_id = ?');
         } else {
             // trader-only price checkout
-            const params = [options.scanner.id, options.scanner.id];
-            let lastScanCondition = '';
-            if (options.limitTraderScan) {
-                const traderScanSession = await startTraderScan(options);
-                lastScanCondition = 'AND (trader_last_scan <= ? OR trader_last_scan IS NULL)';
-                params.push(traderScanSession.data.started);
+            const traderScanSession = await currentTraderScan();
+            if (!traderScanSession) {
+                response.data = [];
+                return response;
             }
-            params.push(options.batchSize);
             await query(`
                 UPDATE item_data
                 SET trader_checkout_scanner_id = ?
@@ -305,10 +310,11 @@ const getItems = async(options) => {
                     NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                     NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                     NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'only-flea') AND 
-                    NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${lastScanCondition} )
+                    NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') AND
+                    (trader_last_scan <= ? OR trader_last_scan IS NULL) )
                 ORDER BY trader_last_scan, id
                 LIMIT ?
-            `, params);
+            `, [options.scanner.id, options.scanner.id, traderScanSession.started, options.batchSize]);
     
             conditions.push('item_data.trader_checkout_scanner_id = ?');
         }
@@ -341,7 +347,7 @@ const getItems = async(options) => {
         `, [options.scanner.id]).then(items => {
             return items.filter(item => Boolean(item.name)).map(queryResultToBatchItem);
         });
-        if (response.data.length === 0 && options.offersFrom === 1 && options.limitTraderScan) {
+        if (response.data.length === 0 && options.offersFrom === 1) {
             await endTraderScan();
         }
     } catch (error) {
@@ -682,6 +688,14 @@ const releaseItem = async (options) => {
     return response;
 };
 
+const currentTraderScan = async () => {
+    const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
+    if (activeScan.length === 0) {
+        return false;
+    }
+    return activeScan[0];
+};
+
 const startTraderScan = async (options) => {
     const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL OR ended >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)');
     if (activeScan.length > 0) {
@@ -913,9 +927,9 @@ const submitImage = (request, user) => {
                     for (const presetId of fields.presets) {
                         let matchedPreset;
                         if (presetId === 'default') {
-                            matchedPreset = presets.presets.find(preset => preset.baseId === fields.id && preset.default);
+                            matchedPreset = presets.byBase[fields.id]?.find(preset => preset.default);
                         } else {
-                            matchedPreset = presets.presets.find(preset => preset.id === presetId);
+                            matchedPreset = presets.presets[presetId];
                         }
                         if (matchedPreset) {
                             const presetResult = await createAndUploadFromSource(files[presetId][0].filepath, matchedPreset.id, fields.overwrite);
@@ -1153,6 +1167,10 @@ const renameScanner = async (options) => {
     return response;
 };
 
+webSocketServer.on('scannerStatusUpdated', client => {
+
+});
+
 module.exports = {
     request: async (req, res, resource) => {
         const username = req.headers.username;
@@ -1225,14 +1243,12 @@ module.exports = {
                     response = await insertTraderRestock(options);
                 }
             }*/
-            if (resource === 'trader-scan') {
-                if (req.method === 'POST') {
-                    options.scanner = await getScanner(options, false);
-                    response = await startTraderScan(options);
-                }
-                if (req.method === 'PATCH') {
-                    response = await endTraderScan(options);
-                }
+            if (resource === 'trader-scan-active') {
+                response = {
+                    errors: [],
+                    warnings: [],
+                    data: !!await currentTraderScan(),
+                };
             }
             if (resource === 'offers') {
                 if (req.method === 'POST') {
@@ -1269,6 +1285,8 @@ module.exports = {
         if (refreshingUsers) return refreshingUsers;
         return Promise.resolve();
     },
+    currentTraderScan,
+    startTraderScan,
     getJson: (jsonName) => {
         return webSocketServer.getJson(jsonName);
     },

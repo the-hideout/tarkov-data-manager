@@ -367,8 +367,7 @@ const methods = {
                     types: [],
                     updated: new Date(),
                 });
-            }
-            if (insertResult.affectedRows > 0) {
+            } else if (insertResult.affectedRows > 0) {
                 myData.set(values.id, {
                     ...myData.get(values.id),
                     ...values,

@@ -109,15 +109,30 @@ const dataFunctions = {
             stationary_weapons: [],
             switches: [],
             quest_items: [],
+            spawns: [],
         };
         const excludedExtracts = {
             Shoreline: [
-                'exit_ALL_alpinist_shoreline'
+                {
+                    name: 'exit_ALL_alpinist_shoreline',
+                }
             ],
             TarkovStreets: [
-                'Exit_E1', // Old Stylobate Building Elevator
-                'Exit_E6', // Old Scav Checkpoint
-                'E6_new', // new Scav Checkpoint
+                { // Old Stylobate Building Elevator
+                    name: 'Exit_E1',
+                },
+                { // Old Scav Checkpoint
+                    name: 'Exit_E6',
+                },
+                { // new Scav Checkpoint
+                    name:'E6_new',
+                },
+                { // old Crash Site
+                    name: 'Exit_E4_new',
+                    requirements: {
+                        status: 'Pending',
+                    }
+                }
             ]
         };
         const excludedZones = {
@@ -142,8 +157,21 @@ const dataFunctions = {
                     if (extract.location.size.x <= 1 && extract.location.size.y <= 1 && extract.location.size.z <= 1) {
                         return extracts;
                     }
-                    if (excludedExtracts[map.Id]?.includes(extract.name)) {
-                        return extracts;
+                    const excludeTest = excludedExtracts[map.Id]?.find(e => e.name === extract.name);
+                    if (excludeTest) {
+                        if (!excludeTest.requirements) {
+                            return extracts;
+                        }
+                        let matched = true;
+                        for (const property in excludeTest.requirements) {
+                            if (excludeTest.requirements[property] !== extract[property]) {
+                                matched = false;
+                                break;
+                            }
+                        }
+                        if (matched) {
+                            return extracts;
+                        }
                     }
                     let duplicateExtract = extracts.find(e => {
                         if (e.settings.Name !== extract.settings.Name) {

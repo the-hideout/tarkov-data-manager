@@ -1300,5 +1300,110 @@
                 "zones": []
             }
         ]
+    },
+    "5c0d4c12d09282029f539173": {
+        "name": "Peacekeeping Mission",
+        "objectivesAdded": [
+            {
+                "id": "63aec4fe6d6c3377e64b9f39",
+                "description": "63aec4fe6d6c3377e64b9f39",
+                "type": "shoot",
+                "count": 12,
+                "optional": false,
+                "locationNames": [
+                    "5714dc692459777137212e12 Name"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "zoneNames": [],
+                "target": "Savage",
+                "shotType": "kill",
+                "bodyParts": [],
+                "usingWeapon": [
+                    {
+                        "id": "5447a9cd4bdc2dbd208b4567",
+                        "name": "Colt M4A1 5.56x45 assault rifle"
+                    }
+                ],
+                "usingWeaponMods": [],
+                "distance": {
+                    "compareMethod": ">=",
+                    "value": 0
+                },
+                "timeFromHour": 0,
+                "timeUntilHour": 0,
+                "wearing": [
+                    [
+                        {
+                            "id": "5aa7d03ae5b5b00016327db5",
+                            "name": "UNTAR helmet"
+                        },
+                        {
+                            "id": "5ab8e4ed86f7742d8e50c7fa",
+                            "name": "MF-UNTAR body armor"
+                        }
+                    ]
+                ],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "targetNames": [
+                    "Savage"
+                ],
+                "playerHealthEffect": null,
+                "zones": []
+            },
+            {
+                "id": "65e08aa9f5879b2586d5fd4c",
+                "description": "65e08aa9f5879b2586d5fd4c",
+                "type": "shoot",
+                "count": 12,
+                "optional": false,
+                "locationNames": [
+                    "65b8d6f5cdde2479cb2a3125 Name"
+                ],
+                "map_ids": [
+                    "65b8d6f5cdde2479cb2a3125"
+                ],
+                "zoneNames": [],
+                "target": "Savage",
+                "shotType": "kill",
+                "bodyParts": [],
+                "usingWeapon": [
+                    {
+                        "id": "5447a9cd4bdc2dbd208b4567",
+                        "name": "Colt M4A1 5.56x45 assault rifle"
+                    }
+                ],
+                "usingWeaponMods": [],
+                "distance": {
+                    "compareMethod": ">=",
+                    "value": 0
+                },
+                "timeFromHour": 0,
+                "timeUntilHour": 0,
+                "wearing": [
+                    [
+                        {
+                            "id": "5aa7d03ae5b5b00016327db5",
+                            "name": "UNTAR helmet"
+                        },
+                        {
+                            "id": "5ab8e4ed86f7742d8e50c7fa",
+                            "name": "MF-UNTAR body armor"
+                        }
+                    ]
+                ],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "targetNames": [
+                    "Savage"
+                ],
+                "playerHealthEffect": null,
+                "zones": []
+            }
+        ]
     }
 }

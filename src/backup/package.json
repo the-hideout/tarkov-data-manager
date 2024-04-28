@@ -12,7 +12,7 @@
     "license": "ISC",
     "dependencies": {
         "@azure/storage-blob": "^12.17.0",
-        "mysql2": "^3.9.4",
+        "mysql2": "^3.9.7",
         "node-cron": "^3.0.3"
     }
 }

@@ -70,7 +70,6 @@ class UpdateQuestsJob extends DataJob {
 
         // only keep details for active maps
         this.mapDetails = Object.keys(this.mapDetails).reduce((valid, mapId) => {
-            console.log(mapId);
             if (this.maps.some(m => m.id === mapId)) {
                 valid[mapId] = this.mapDetails[mapId];
             }
@@ -87,7 +86,7 @@ class UpdateQuestsJob extends DataJob {
 
         const questItemMap = new Map();
         for (const [id, item] of this.itemResults) {
-            if (item.types.includes('quest')) {
+            if (item.types?.includes('quest')) {
                 questItemMap.set(id, item);
             }
         }
