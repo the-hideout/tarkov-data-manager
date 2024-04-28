@@ -1,5 +1,5 @@
-//const WEBSOCKET_SERVER = 'wss://manager.tarkov.dev:8443';
-const WEBSOCKET_SERVER = 'ws://localhost:5000';
+const WEBSOCKET_SERVER = 'wss://manager.tarkov.dev:8443';
+//const WEBSOCKET_SERVER = 'ws://localhost:5000';
 
 let client = false;
 const scannerData = {};
