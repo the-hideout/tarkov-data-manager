@@ -51,7 +51,7 @@ wss.listening = false;
 const sendMessage = (sessionId, type, data) => {
     const sentMessages = []
     wss.clients.forEach((client) => {
-        if (client.readyState !== WebSocket.OPEN || (client.sessionId !== sessionId || client.role !== 'listener')  || client.role !== 'overseer') {
+        if (client.readyState !== WebSocket.OPEN || (client.sessionId !== sessionId && client.role !== 'overseer') || (client.role !== 'listener' && client.role !== 'overseer')) {
             return;
         }
         sentMessages.push(client.send(JSON.stringify({
