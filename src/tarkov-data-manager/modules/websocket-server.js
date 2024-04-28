@@ -83,7 +83,7 @@ wss.on('connection', (client, req) => {
         client.status = url.searchParams.get('status') || 'unknown';
         client.settings = {
             fleaMarketAvailable: url.searchParams.get('fleamarket') === 'true',
-            scanMode: url.searchParams.get('scanmode') ? parseInt(url.searchParams.get('scanmode')) : 'auto',
+            scanMode: url.searchParams.get('scanmode') ? url.searchParams.get('scanmode') : 'auto',
         };
         client.name = client.sessionId;
     }
