@@ -4,7 +4,7 @@ const WebSocket = require('ws');
 const { v4: uuidv4 } = require('uuid');
 
 const sleep = require('./sleep');
-const { query } = require('./db-connection');
+const scannerFramework = require('./scanner-framework');
 
 const emitter = new EventEmitter();
 
@@ -13,33 +13,6 @@ const validRoles = [
     'listener',
     'overseer',
 ];
-
-let users = {};
-
-const refreshUsers = async () => {
-    const results = await query('SELECT * from scanner_user WHERE disabled=0');
-    const scannerUsers = {};
-    const scannerQueries = [];
-    for (const user of results) {
-        scannerUsers[user.username] = user;
-        scannerQueries.push(query('SELECT * from scanner WHERE scanner_user_id = ?', user.id).then(scanners => {
-            scannerUsers[user.username].scanners = scanners;
-        }));
-    }
-    await Promise.all(scannerQueries);
-    users = scannerUsers;
-};
-refreshUsers();
-
-const validateUser = (username, password) => {
-    if (!username || !password) {
-        return false;
-    }
-    if (!users[username]?.password === password) {
-        return false;
-    }
-    return true;
-};
 
 const wss = new WebSocket.Server({
     port: process.env.WS_PORT || 5000,
@@ -93,7 +66,7 @@ const printClients = () => {
 wss.on('connection', (client, req) => {
     const url = new URL(`http://localhost${req.url}`);
     let terminateReason = false;
-    if (url.searchParams.get('password') !== process.env.WS_PASSWORD && !validateUser(url.searchParams.get('username'), url.searchParams.get('password'))) {
+    if (url.searchParams.get('password') !== process.env.WS_PASSWORD && !scannerFramework.validateUser(url.searchParams.get('username'), url.searchParams.get('password'))) {
         terminateReason = 'authentication';
     }
     if (!url.searchParams.get('sessionid') && url.searchParams.get('role') !== 'overseer') {
@@ -114,6 +87,7 @@ wss.on('connection', (client, req) => {
     client.log = [];
 
     if (client.role === 'scanner') {
+        client.username = url.searchParams.get('username');
         client.status = url.searchParams.get('status') || 'unknown';
         client.settings = {
             fleaMarketAvailable: url.searchParams.get('fleamarket') === 'true',
@@ -123,6 +97,7 @@ wss.on('connection', (client, req) => {
         sendMessage(client.sessionId, 'connected', {status: client.status, settings: client.settings});
     }
     if (client.role === 'listener') {
+        client.username = url.searchParams.get('username');
         // a listener just connected
         // tell scanner to transmit its log history
         webSocketServer.sendCommand(client.sessionId, 'fullStatus').then(commandResponse => {
@@ -198,6 +173,24 @@ wss.on('error', error => {
 wss.on('close', () => {
     clearInterval(pingInterval);
 });
+
+const disconnectUser = (username) => {
+    wss.clients.forEach((client) => {
+        if (client.role === 'overseer') {
+            return;
+        }
+        if (client.username !== username) {
+            return;
+        }
+        if (client.readyState !== WebSocket.OPEN) {
+            return;
+        }
+        client.terminate();
+    });
+};
+
+scannerFramework.on('userDeleted', disconnectUser);
+scannerFramework.on('userDisabled', disconnectUser);
 
 const webSocketServer = {
     close() {

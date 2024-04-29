@@ -30,6 +30,7 @@ const remoteData = require('./modules/remote-data');
 const jobs = require('./jobs');
 const {connection, query, format} = require('./modules/db-connection');
 const timer = require('./modules/console-timer');
+const { userFlags, scannerFlags, refreshUsers: refreshScannerUsers } = require('./modules/scanner-framework');
 const scannerApi = require('./modules/scanner-api');
 const webhookApi = require('./modules/webhook-api');
 const publicApi = require('./modules/public-api');
@@ -713,8 +714,6 @@ app.get('/items/get', async (req, res) => {
 });
 
 app.get('/scanners', async (req, res) => {
-    const userFlags = scannerApi.getUserFlags();
-    const scannerFlags = scannerApi.getScannerFlags();
     let scannerFlagsString = '';
     for (const flagName in scannerFlags) {
         const flagValue = scannerFlags[flagName];
@@ -944,7 +943,7 @@ app.post('/scanners/add-user', urlencodedParser, async (req, res) => {
         const user_disabled = req.body.user_disabled ? 1 : 0;
         console.log('inserting user');
         await query(format('INSERT INTO scanner_user (username, password, disabled) VALUES (?, ?, ?)', [req.body.username, req.body.password, user_disabled]))
-        scannerApi.refreshUsers();
+        refreshScannerUsers();
         response.message = `Created user ${req.body.username}`;
     } catch (error) {
         response.errors.push(error.message);
@@ -985,7 +984,7 @@ app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
             await query(format(`UPDATE scanner_user SET ${updateFields.map(field => {
                 return `${field} = ?`;
             }).join(', ')} WHERE id='${userCheck.id}'`, updateValues));
-            scannerApi.refreshUsers();
+            refreshScannerUsers();
             response.message = `Updated ${updateFields.join(', ')}`;
         }
     } catch (error) {
@@ -1000,7 +999,7 @@ app.post('/scanners/delete-user', urlencodedParser, async (req, res) => {
         let deleteResult = await query(format('DELETE FROM scanner_user WHERE username=?', [req.body.username]));
         if (deleteResult.affectedRows > 0) {
             response.message = `User ${req.body.username} deleted`;
-            scannerApi.refreshUsers();
+            refreshScannerUsers();
         } else {
             response.errors.push(`User ${req.body.username} not found`);
         }
@@ -1015,7 +1014,7 @@ app.post('/scanners/user-flags', urlencodedParser, async (req, res) => {
     try {
         await query(format('UPDATE scanner_user SET flags=? WHERE id=?', [req.body.flags, req.body.id]));
         response.message = `Set flags to ${req.body.flags}`;
-        scannerApi.refreshUsers();
+        refreshScannerUsers();
     } catch (error) {
         response.errors.push(error.message);
     }
@@ -1027,7 +1026,7 @@ app.post('/scanners/scanner-flags', urlencodedParser, async (req, res) => {
     try {
         await query(format('UPDATE scanner SET flags=? WHERE id=?', [req.body.flags, req.body.id]));
         response.message = `Set flags to ${req.body.flags}`;
-        //scannerApi.refreshUsers();
+        //refreshScannerUsers();
     } catch (error) {
         response.errors.push(error.message);
     }
