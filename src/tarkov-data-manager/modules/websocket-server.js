@@ -174,7 +174,7 @@ wss.on('close', () => {
     clearInterval(pingInterval);
 });
 
-const disconnectUser = (username) => {
+scannerFramework.on('userDisabled', (username) => {
     wss.clients.forEach((client) => {
         if (client.role === 'overseer') {
             return;
@@ -187,10 +187,7 @@ const disconnectUser = (username) => {
         }
         client.terminate();
     });
-};
-
-scannerFramework.on('userDeleted', disconnectUser);
-scannerFramework.on('userDisabled', disconnectUser);
+});
 
 const webSocketServer = {
     close() {

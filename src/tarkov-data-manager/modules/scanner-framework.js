@@ -29,7 +29,7 @@ const refreshUsers = async () => {
         const newestUser = results.find(r => r.username === username);
         if (!newestUser) {
             users[username] = undefined;
-            emitter.emit('userDeleted', username);
+            emitter.emit('userDisabled', username);
             continue;
         }
         if (users[username].flags && !newestUser.flags) {
