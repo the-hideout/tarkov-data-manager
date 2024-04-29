@@ -35,7 +35,7 @@ const validateUser = (username, password) => {
     if (!username || !password) {
         return false;
     }
-    if (!users[username]?.password === password) {
+    if (users[username]?.password !== password) {
         return false;
     }
     return true;
