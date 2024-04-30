@@ -1,3 +1,5 @@
+const { EventEmitter } = require('events');
+
 const { query } = require('./db-connection');
 
 const emitter = new EventEmitter();
