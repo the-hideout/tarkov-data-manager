@@ -39,7 +39,7 @@ const refreshUsers = async () => {
         }
     }
     for (const user of results) {
-        const oldScanners = users[user.username]?.scanners;
+        const oldScanners = users[user.username]?.scanners || [];
         user.scanners = oldScanners;
         users[user.username] = user;
         scannerQueries.push(query('SELECT * from scanner WHERE scanner_user_id = ?', user.id).then(scanners => {
