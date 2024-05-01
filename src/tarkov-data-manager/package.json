@@ -42,6 +42,6 @@
     "tarkov-dev-image-generator": "^2.2.2",
     "unidecode": "^1.0.1",
     "uuid": "^9.0.1",
-    "ws": "^8.16.0"
+    "ws": "^8.17.0"
   }
 }
