@@ -8,7 +8,7 @@ const sendMessage = (sessionID, type, data) => {
     client.send(JSON.stringify({
         sessionId: sessionID,
         type: type,
-        data: data
+        data,
     }));
 };
 

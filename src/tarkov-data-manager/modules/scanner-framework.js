@@ -47,6 +47,7 @@ const refreshUsers = async () => {
         }));
     }
     await Promise.all(scannerQueries);
+    emitter.emit('usersUpdated');
 };
 
 refreshUsers();

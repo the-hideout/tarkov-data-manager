@@ -138,10 +138,13 @@ wss.on('connection', (client, req) => {
         }
 
         if (message.type === 'command') {
+            // commands issued by overseer / listeners are forwarded to scanners
             return webSocketServer.sendCommand(client.sessionId || message.sessionId, message.name, message.data);
         }
 
         if (message.type === 'commandResponse') {
+            // fire the commandResponse event
+            // enables promise in sendCommand function to fulfill
             emitter.emit('commandResponse', message);
             return;
         }
@@ -157,6 +160,23 @@ wss.on('connection', (client, req) => {
             client.settings = message.data.settings;
             emitter.emit('scannerStatusUpdated', client);
             sendMessage(client.sessionId, 'status', message.data);
+        }
+
+        if (message.type === 'request') {
+            // scanner has requested something
+            const response = {
+                requestId: message.requestId,
+            };
+            try {
+
+            } catch (error) {
+                response.error = error.message;
+            }
+            client.send(JSON.stringify({
+                type: 'requestResponse',
+                requestId: message.requestId,
+                data: response,
+            }));
         }
     });
 
@@ -219,7 +239,7 @@ const webSocketServer = {
             commandResponseTimeout = setTimeout(() => {
                 emitter.off('commandResponse', commandResponseHandler);
                 resolve({error: 'Timed out waiting for response'});
-            }, 60000 * 30);
+            }, 1000 * 30);
             emitter.on('commandResponse', commandResponseHandler);
             client.send(JSON.stringify({
                 type: 'command',
@@ -263,7 +283,11 @@ const webSocketServer = {
             return Promise.reject(new Error(`No scanners available to refresh ${jsonName} JSON`));
         }
         const client = clients[Math.floor(Math.random()*clients.length)];
-        return webSocketServer.sendCommand(client.sessionId, 'getJson', {name: jsonName})
+        const response = await webSocketServer.sendCommand(client.sessionId, 'getJson', {name: jsonName});
+        if (response.error) {
+            return Promise.reject(new Error(response.error));
+        }
+        return response.data;
     },
     on: (event, listener) => {
         return emitter.on(event, listener);
