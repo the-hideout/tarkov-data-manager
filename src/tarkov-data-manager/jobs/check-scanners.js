@@ -1,7 +1,7 @@
 const got = require('got');
 const { DateTime } = require('luxon');
 
-const scannerApi = require('../modules/scanner-api');
+const { scannerFlags, userFlags } = require('../modules/scanner-framework');
 const tarkovDevData = require('../modules/tarkov-dev-data');
 const DataJob = require('../modules/data-job');
 
@@ -31,8 +31,6 @@ class CheckScansJob extends DataJob {
             }
         }
 
-        const userFlags = scannerApi.getUserFlags();
-        const scannerFlags = scannerApi.getScannerFlags();
         const scanCutoff = new Date() - (1000 * 60 * 15);
         const dateNow = DateTime.now();
         for (const scanner of scanners) {
@@ -98,7 +96,6 @@ class CheckScansJob extends DataJob {
         }
 
         // Possibility to POST to a Discord webhook here with cron status details
-        //await scannerApi.waitForActions();
     }
 }
 
