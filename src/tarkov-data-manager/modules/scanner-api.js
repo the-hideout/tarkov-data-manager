@@ -1,26 +1,20 @@
 const fs = require('fs');
 const path = require('path');
+
 const formidable = require('formidable');
-const { EventEmitter } = require('events');
+const { imageFunctions } = require('tarkov-dev-image-generator');
 
 const { query } = require('./db-connection');
 const { dashToCamelCase } = require('./string-functions');
 const remoteData = require('./remote-data');
 const { uploadToS3 } = require('./upload-s3');
 const { createAndUploadFromSource } = require('./image-create');
-const webSocketServer = require('./websocket-server');
-const { imageFunctions } = require('tarkov-dev-image-generator');
+const { users, userFlags, scannerFlags } = require('./scanner-framework');
 
 const { imageSizes } = imageFunctions;
 
-const emitter = new EventEmitter();
-
-let refreshingUsers = false;
-let users = {};
 let presets = {};
 let presetsTimeout = false;
-
-const commandQueue = [];
 
 const dogtags = [
     '59f32bb586f774757e1e8442',
@@ -167,12 +161,6 @@ const queryResultToBatchItem = item => {
         needs512pxImage: item.needs_512px_image ? true : false,
         needs8xImage: item.needs_8x_image ? true : false,
         presets: itemPresets,
-        // Backwards compatibility
-        /*short_name: String(item.short_name),
-        needs_base_image: existingBaseImages.length > 0 && !existingBaseImages.includes(item.id),
-        needs_image: item.needs_image ? true : false,
-        needs_grid_image: item.needs_grid_image ? true : false,
-        needs_icon_image: item.needs_icon_image ? true : false*/
     };
 };
 
@@ -996,52 +984,8 @@ const submitData = (options) => {
             response.errors.push(String(error));
         }
     }
-    emitter.emit('jsonUpdate', options);
     return response;
 };
-
-const userFlags = {
-    disabled: 0,
-    insertPlayerPrices: 1,
-    insertTraderPrices: 2,
-    trustTraderUnlocks: 4,
-    skipPriceInsert: 8,
-    jsonDownload: 16,
-    overwriteImages: 32,
-    submitData: 64,
-};
-
-const scannerFlags = {
-    none: 0,
-    ignoreMissingScans: 1,
-    skipPriceInsert: 2
-};
-
-const refreshUsers = async () => {
-    if (refreshingUsers) return refreshingUsers;
-    refreshingUsers = new Promise((resolve, reject) => {
-        query('SELECT * from scanner_user WHERE disabled=0').then(results => {
-            users = {};
-            const scannerQueries = [];
-            for (const user of results) {
-                users[user.username] = user;
-                scannerQueries.push(query('SELECT * from scanner WHERE scanner_user_id = ?', user.id).then(scanners => {
-                    users[user.username].scanners = scanners;
-                }));
-            }
-            Promise.all(scannerQueries).then(() => {
-                resolve();
-            }).catch(error => {
-                reject(error);
-            });
-        });
-    }).finally(() => {
-        refreshingUsers = false;
-    });
-    return refreshingUsers;
-};
-
-refreshUsers();
 
 const createScanner = async (user, scannerName) => {
     if (!(userFlags.insertPlayerPrices & user.flags) && !(userFlags.insertTraderPrices & user.flags)) {
@@ -1064,11 +1008,6 @@ const createScanner = async (user, scannerName) => {
         }
         throw error;
     }
-};
-
-const getUser = async (username) => {
-    if (refreshingUsers) await refreshingUsers;
-    return users[username];
 };
 
 const getScanner = async (options, createMissing) => {
@@ -1167,15 +1106,11 @@ const renameScanner = async (options) => {
     return response;
 };
 
-webSocketServer.on('scannerStatusUpdated', client => {
-
-});
-
 module.exports = {
     request: async (req, res, resource) => {
         const username = req.headers.username;
         const password = req.headers.password;
-        const user = await getUser(username);
+        const user =  users[username];
         if ((!username || !password) || !user || !user.password || (user.password !== password)) {
             res.json({errors: ['access denied'], warnings: [], data: {}});
             return;
@@ -1205,10 +1140,6 @@ module.exports = {
             } else {
                 return res.json({errors: ['You are not authorized to perform that action'], warnings: [], data: {}});
             }
-        }
-        if (resource === 'command-queue') {
-            const command = commandQueue.shift();
-            return res.json({errors: [], warnings: [], data: command});
         }
         try {
             const scannerName = req.headers.scanner;
@@ -1270,33 +1201,6 @@ module.exports = {
         }
         res.json({errors: ['unrecognized request'], warnings: [], data: {}});
     },
-    refreshUsers: refreshUsers,
-    getUserFlags: () => {
-        return {
-            ...userFlags
-        }
-    },
-    getScannerFlags: () => {
-        return {
-            ...scannerFlags
-        }
-    },
-    waitForActions: async () => {
-        if (refreshingUsers) return refreshingUsers;
-        return Promise.resolve();
-    },
     currentTraderScan,
     startTraderScan,
-    getJson: (jsonName) => {
-        return webSocketServer.getJson(jsonName);
-    },
-    on: (event, listener) => {
-        return emitter.on(event, listener);
-    },
-    off: (event, listener) => {
-        return emitter.off(event, listener);
-    },
-    once: (event, listener) => {
-        return emitter.once(event, listener);
-    },
 };

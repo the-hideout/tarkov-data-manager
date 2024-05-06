@@ -4,7 +4,7 @@ const WebSocket = require('ws');
 const { v4: uuidv4 } = require('uuid');
 
 const sleep = require('./sleep');
-const { query } = require('./db-connection');
+const scannerFramework = require('./scanner-framework');
 
 const emitter = new EventEmitter();
 
@@ -13,33 +13,6 @@ const validRoles = [
     'listener',
     'overseer',
 ];
-
-let users = {};
-
-const refreshUsers = async () => {
-    const results = await query('SELECT * from scanner_user WHERE disabled=0');
-    const scannerUsers = {};
-    const scannerQueries = [];
-    for (const user of results) {
-        scannerUsers[user.username] = user;
-        scannerQueries.push(query('SELECT * from scanner WHERE scanner_user_id = ?', user.id).then(scanners => {
-            scannerUsers[user.username].scanners = scanners;
-        }));
-    }
-    await Promise.all(scannerQueries);
-    users = scannerUsers;
-};
-refreshUsers();
-
-const validateUser = (username, password) => {
-    if (!username || !password) {
-        return false;
-    }
-    if (users[username]?.password !== password) {
-        return false;
-    }
-    return true;
-};
 
 const wss = new WebSocket.Server({
     port: process.env.WS_PORT || 5000,
@@ -93,10 +66,10 @@ const printClients = () => {
 wss.on('connection', (client, req) => {
     const url = new URL(`http://localhost${req.url}`);
     let terminateReason = false;
-    if (url.searchParams.get('password') !== process.env.WS_PASSWORD && !validateUser(url.searchParams.get('username'), url.searchParams.get('password'))) {
+    if (url.searchParams.get('password') !== process.env.WS_PASSWORD && !scannerFramework.validateUser(url.searchParams.get('username'), url.searchParams.get('password'))) {
         terminateReason = 'authentication';
     }
-    if (!url.searchParams.get('sessionid')) {
+    if (!url.searchParams.get('sessionid') && url.searchParams.get('role') !== 'overseer') {
         terminateReason = 'session ID';
     }
     if (!url.searchParams.get('role') || !validRoles.includes(url.searchParams.get('role'))) {
@@ -114,6 +87,7 @@ wss.on('connection', (client, req) => {
     client.log = [];
 
     if (client.role === 'scanner') {
+        client.username = url.searchParams.get('username');
         client.status = url.searchParams.get('status') || 'unknown';
         client.settings = {
             fleaMarketAvailable: url.searchParams.get('fleamarket') === 'true',
@@ -123,6 +97,7 @@ wss.on('connection', (client, req) => {
         sendMessage(client.sessionId, 'connected', {status: client.status, settings: client.settings});
     }
     if (client.role === 'listener') {
+        client.username = url.searchParams.get('username');
         // a listener just connected
         // tell scanner to transmit its log history
         webSocketServer.sendCommand(client.sessionId, 'fullStatus').then(commandResponse => {
@@ -138,7 +113,8 @@ wss.on('connection', (client, req) => {
                 return;
             }
             webSocketServer.sendCommand(scanner.sessionId, 'fullStatus').then(commandResponse => {
-                scanner.send(JSON.stringify({
+                client.send(JSON.stringify({
+                    sessionId: scanner.sessionId,
                     type: 'fullStatus',
                     data: commandResponse.data,
                 }));
@@ -156,16 +132,19 @@ wss.on('connection', (client, req) => {
             return;
         }
 
-        if (!client.sessionId) {
+        if (!client.sessionId && !client.role === 'overseer') {
             console.log('Not authenticated, dropping message', message);
             return;
         }
 
         if (message.type === 'command') {
-            return webSocketServer.sendCommand(client.sessionId, message.name, message.data);
+            // commands issued by overseer / listeners are forwarded to scanners
+            return webSocketServer.sendCommand(client.sessionId || message.sessionId, message.name, message.data);
         }
 
         if (message.type === 'commandResponse') {
+            // fire the commandResponse event
+            // enables promise in sendCommand function to fulfill
             emitter.emit('commandResponse', message);
             return;
         }
@@ -182,6 +161,23 @@ wss.on('connection', (client, req) => {
             emitter.emit('scannerStatusUpdated', client);
             sendMessage(client.sessionId, 'status', message.data);
         }
+
+        if (message.type === 'request') {
+            // scanner has requested something
+            const response = {
+                requestId: message.requestId,
+            };
+            try {
+
+            } catch (error) {
+                response.error = error.message;
+            }
+            client.send(JSON.stringify({
+                type: 'requestResponse',
+                requestId: message.requestId,
+                data: response,
+            }));
+        }
     });
 
     client.on('close', () => {
@@ -196,6 +192,21 @@ wss.on('error', error => {
 
 wss.on('close', () => {
     clearInterval(pingInterval);
+});
+
+scannerFramework.on('userDisabled', (username) => {
+    wss.clients.forEach((client) => {
+        if (client.role === 'overseer') {
+            return;
+        }
+        if (client.username !== username) {
+            return;
+        }
+        if (client.readyState !== WebSocket.OPEN) {
+            return;
+        }
+        client.terminate();
+    });
 });
 
 const webSocketServer = {
@@ -228,7 +239,7 @@ const webSocketServer = {
             commandResponseTimeout = setTimeout(() => {
                 emitter.off('commandResponse', commandResponseHandler);
                 resolve({error: 'Timed out waiting for response'});
-            }, 60000 * 30);
+            }, 1000 * 30);
             emitter.on('commandResponse', commandResponseHandler);
             client.send(JSON.stringify({
                 type: 'command',
@@ -272,7 +283,11 @@ const webSocketServer = {
             return Promise.reject(new Error(`No scanners available to refresh ${jsonName} JSON`));
         }
         const client = clients[Math.floor(Math.random()*clients.length)];
-        return webSocketServer.sendCommand(client.sessionId, 'getJson', {name: jsonName})
+        const response = await webSocketServer.sendCommand(client.sessionId, 'getJson', {name: jsonName});
+        if (response.error) {
+            return Promise.reject(new Error(response.error));
+        }
+        return response.data;
     },
     on: (event, listener) => {
         return emitter.on(event, listener);
