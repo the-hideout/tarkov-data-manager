@@ -30,6 +30,7 @@ const remoteData = require('./modules/remote-data');
 const jobs = require('./jobs');
 const {connection, query, format} = require('./modules/db-connection');
 const timer = require('./modules/console-timer');
+const { userFlags, scannerFlags, refreshUsers: refreshScannerUsers } = require('./modules/scanner-framework');
 const scannerApi = require('./modules/scanner-api');
 const webhookApi = require('./modules/webhook-api');
 const publicApi = require('./modules/public-api');
@@ -713,21 +714,6 @@ app.get('/items/get', async (req, res) => {
 });
 
 app.get('/scanners', async (req, res) => {
-    const scanners = await query(`
-        SELECT scanner.*, COALESCE(scanner_user.flags, 0) as flags, COALESCE(scanner_user.disabled, 1) as disabled FROM scanner
-        LEFT JOIN scanner_user on scanner_user.id = scanner.scanner_user_id
-    `);
-    const clients = webSocketServer.connectedScanners();
-    const userFlags = scannerApi.getUserFlags();
-    const scannerFlags = scannerApi.getScannerFlags();
-    const activeScanners = clients.filter(client => {
-        const scanner = scanners.find(s => s.name === client.sessionId);
-        if (!scanner) {
-            return false;
-        }
-        if (scanner.disabled) return false;
-        return true;
-    });
     let scannerFlagsString = '';
     for (const flagName in scannerFlags) {
         const flagValue = scannerFlags[flagName];
@@ -744,42 +730,6 @@ app.get('/scanners', async (req, res) => {
         </div>
         `;
     }
-    const getScannerStuff = (scanner, active) => {
-        let activeClass = '';
-        if (active) {
-            activeClass = ' active';
-        }
-        return `
-        <div class="scanner col s12 xl6">
-            <ul class="collapsible" data-collapsible="collapsible">
-                <li class="${activeClass}">
-                    <div class="collapsible-header">
-                        <span class="tooltipped" data-tooltip="${scanner.status}" style="vertical-align: middle">
-                            <!--button class="waves-effect waves-light btn-small shutdown-scanner" type="button" data-scanner-name="${encodeURIComponent(scanner.name)}"><i class="material-icons left">power_settings_new</i>${scanner.name}</button-->
-                            <a class="dropdown-trigger btn scanner-dropdown" href="#" data-target="dropdown-${scanner.name}"><i class="material-icons left">arrow_drop_down</i>${scanner.name}</a>
-                            <ul id="dropdown-${scanner.name}" class="dropdown-content">
-                                <li class="pause-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="pause-scanner"><i class="material-icons left">pause</i>Pause</a></li>
-                                <li class="resume-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}" style="display:none;"><a href="#!" class="resume-scanner"><i class="material-icons left">play_arrow</i>Start</a></li>
-                                <!--li class="screenshot-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="screenshot-scanner"><i class="material-icons left">camera_alt</i>Screenshot</a></li-->
-                                <li class="click-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="click-scanner"><i class="material-icons left">mouse</i>Click</a></li>
-                                <li class="update-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="update-scanner"><i class="material-icons left">system_update_alt</i>Update</a></li>
-                                <!--li class="log-repeat-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="log-repeat-scanner"><i class="material-icons left">event_note</i>Repeat log</a></li-->
-                                <li class="generate-images-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="generate-images-scanner"><i class="material-icons left">image</i>Generate Images</a></li>
-                                <li class="set-trader-scan-day" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="set-trader-scan-day"><i class="material-icons left">schedule</i>Set Trader Scan Day</a></li>
-                                <li class="restart-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="restart-scanner"><i class="material-icons left">refresh</i>Restart</a></li>
-                                <li class="shutdown-scanner" data-scanner-name="${encodeURIComponent(scanner.name)}"><a href="#!" class="shutdown-scanner"><i class="material-icons left">power_settings_new</i>Shutdown</a></li>
-                            </ul>
-                        </span>
-                    </div>
-                    <div class="collapsible-body log-messages log-messages-${scanner.name}"></div>
-                    <script>
-                        startListener('${scanner.name}');
-                    </script>
-                </li>
-            </ul>
-        </div>
-        `;
-    };
     res.send(`${getHeader(req, {include: 'datatables'})}
         <script>
             const WS_PASSWORD = '${process.env.WS_PASSWORD}';
@@ -796,9 +746,6 @@ app.get('/scanners', async (req, res) => {
             </div>
             <div id="activescanners" class="col s12">
                 <div class="scanners-wrapper row">
-                    ${activeScanners.map((latestScan) => {
-                        return getScannerStuff(latestScan, true);
-                    }).join('')}
                 </div>
             </div>
             <div id="scannerusers" class="col s12">
@@ -996,7 +943,7 @@ app.post('/scanners/add-user', urlencodedParser, async (req, res) => {
         const user_disabled = req.body.user_disabled ? 1 : 0;
         console.log('inserting user');
         await query(format('INSERT INTO scanner_user (username, password, disabled) VALUES (?, ?, ?)', [req.body.username, req.body.password, user_disabled]))
-        scannerApi.refreshUsers();
+        refreshScannerUsers();
         response.message = `Created user ${req.body.username}`;
     } catch (error) {
         response.errors.push(error.message);
@@ -1037,7 +984,7 @@ app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
             await query(format(`UPDATE scanner_user SET ${updateFields.map(field => {
                 return `${field} = ?`;
             }).join(', ')} WHERE id='${userCheck.id}'`, updateValues));
-            scannerApi.refreshUsers();
+            refreshScannerUsers();
             response.message = `Updated ${updateFields.join(', ')}`;
         }
     } catch (error) {
@@ -1052,7 +999,7 @@ app.post('/scanners/delete-user', urlencodedParser, async (req, res) => {
         let deleteResult = await query(format('DELETE FROM scanner_user WHERE username=?', [req.body.username]));
         if (deleteResult.affectedRows > 0) {
             response.message = `User ${req.body.username} deleted`;
-            scannerApi.refreshUsers();
+            refreshScannerUsers();
         } else {
             response.errors.push(`User ${req.body.username} not found`);
         }
@@ -1067,7 +1014,7 @@ app.post('/scanners/user-flags', urlencodedParser, async (req, res) => {
     try {
         await query(format('UPDATE scanner_user SET flags=? WHERE id=?', [req.body.flags, req.body.id]));
         response.message = `Set flags to ${req.body.flags}`;
-        scannerApi.refreshUsers();
+        refreshScannerUsers();
     } catch (error) {
         response.errors.push(error.message);
     }
@@ -1079,7 +1026,7 @@ app.post('/scanners/scanner-flags', urlencodedParser, async (req, res) => {
     try {
         await query(format('UPDATE scanner SET flags=? WHERE id=?', [req.body.flags, req.body.id]));
         response.message = `Set flags to ${req.body.flags}`;
-        //scannerApi.refreshUsers();
+        //refreshScannerUsers();
     } catch (error) {
         response.errors.push(error.message);
     }
