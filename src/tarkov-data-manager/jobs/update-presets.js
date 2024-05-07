@@ -395,7 +395,7 @@ class UpdatePresetsJob extends DataJob {
         // make sure we don't include any disabled presets
         this.presetsData = Object.keys(this.presetsData).reduce((all, presetId) => {
             //console.log(`${presetId} ${localItems.has(presetId)} ${localItems.get(presetId)?.types.includes('disabled')}`);
-            if (localItems.has(presetId) && !localItems.get(presetId).types.includes('disabled')) {
+            if (localItems.has(presetId) && !localItems.get(presetId).types?.includes('disabled')) {
                 all[presetId] = this.presetsData[presetId];
             }
             return all;
