@@ -100,59 +100,32 @@ const getOptions = (options, user) => {
 };
 
 const queryResultToBatchItem = item => {
-    let contains = item.contains ? item.contains.split(',') : [];
+    let contains = [];
     let itemPresets = [];
     if (presets.byBase[item.id]) {
         itemPresets = presets.byBase[item.id].map(preset => {
-            if (preset.default) {
-                contains = preset.containsItems.reduce((parts, currentItem) => {
-                    parts.push({
-                        id: currentItem.item.id,
-                        name: presets.locale.en[currentItem.item.name],
-                        count: currentItem.count,
-                    });
-                    return parts;
-                }, []);
-            }
             return {
                 id: preset.id,
-                name: preset.name,
-                shortName: preset.shortName,
+                name: presets.locale.en[preset.name],
+                shortName: presets.locale.en[preset.shortName],
                 types: preset.types,
                 backgroundColor: preset.backgroundColor,
                 width: preset.width,
                 height: preset.height,
                 default: preset.default,
-                contains: preset.containsItems.reduce((parts, currentItem) => {
-                    parts.push({
-                        id: currentItem.item.id,
-                        name: currentItem.item.name,
-                        count: currentItem.count,
-                    });
-                    return parts;
-                }, []),
+                items: preset.items,
             }
         });
-    } else if (presets.presets[item.id]) {
-        contains = presets.presets[item.id].containsItems.reduce((parts, currentItem) => {
-            parts.push({
-                id: currentItem.item.id,
-                name: currentItem.item.name,
-                count: currentItem.count,
-            });
-            return parts;
-        }, []);
     }
-    const backgroundColor = item.properties?.backgroundColor ? item.properties.backgroundColor : 'default';
     return {
         id: item.id,
         name: String(item.name),
         shortName: String(item.short_name),
         types: item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [],
-        backgroundColor: backgroundColor,
+        backgroundColor: item.properties?.backgroundColor ? item.properties.backgroundColor : 'default',
         width: item.width ? item.width : 1,
         height: item.height ? item.height : 1,
-        contains: contains,
+        items: contains,
         matchIndex: item.match_index,
         needsBaseImage: item.needs_base_image ? true : false,
         needsImage: item.needs_image ? true : false,
@@ -179,13 +152,17 @@ const queryResultToBatchItem = item => {
     needs8xImage: false,
     types: [ 'gun', 'wearable' ],
     contains: [
-        '564ca99c4bdc2d16268b4589',
-        '57dc324a24597759501edc20',
-        '57dc32dc245977596d4ef3d3',
-        '57dc334d245977597164366f',
-        '57dc347d245977596754e7a1',
-        '57e3dba62459770f0c32322b',
-        '59d36a0086f7747e673f3946'
+        {
+            _id: '61a9f9234e42d705e3133837',
+            _tpl: '57dc2fa62459775949412633',
+        },
+        {
+            _id: '61a9f9234e42d705e3133838',
+            _tpl: '57e3dba62459770f0c32322b',
+            parentId: '61a9f9234e42d705e3133837',
+            slotId: 'mod_pistol_grip'
+        },
+        ...
     ]
 } */
 // relevant options: limitItem, imageOnly, batchSize, offersFrom

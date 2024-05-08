@@ -103,7 +103,7 @@ class UpdatePresetsJob extends DataJob {
                 bsgCategoryId: baseItem._parent,
                 types: ['preset'],
                 default: preset._encyclopedia === firstItem.id,
-                _items: preset._items,
+                items: preset._items.filter(i => items[i._tpl]._parent !== '65649eb40bf0ed77b8044453'), // skip built-in armor parts
                 containsItems: [{
                     item: firstItem,
                     count: 1
@@ -114,15 +114,10 @@ class UpdatePresetsJob extends DataJob {
 
             // add parts to preset
             // check if any are flea banned
-            // skip built-in armor parts
-            for (let i = 1; i < preset._items.length; i++) {
-                const part = preset._items[i];
+            for (let i = 1; i < presetData.items.length; i++) {
+                const part = presetData.items[i];
                 if (!items[part._tpl]._props.CanSellOnRagfair) {
                     presetData.noFlea = true;
-                }
-                // skip built-in armor parts
-                if (items[part._tpl]._parent === '65649eb40bf0ed77b8044453') {
-                    continue;
                 }
                 if (items[part._tpl]._parent !== '644120aa86ffbe10ee032b6f') {
                     presetData.armorOnly = false;
@@ -213,7 +208,7 @@ class UpdatePresetsJob extends DataJob {
                     count: 1
                 }
             ],
-            _items: [
+            items: [
                 {
                     _id: '000000000000000000000001',
                     _tpl: bearTag._id,
@@ -315,7 +310,7 @@ class UpdatePresetsJob extends DataJob {
                 normalized_name: p.normalized_name,
                 width: p.width,
                 height: p.height,
-                properties: {backgroundColor: p.backgroundColor, _items: p._items},
+                properties: {backgroundColor: p.backgroundColor, items: p.items},
             }).then(results => {
                 /*if (results.affectedRows > 0) {
                     this.logger.log(`${p.name} updated`);
@@ -395,7 +390,7 @@ class UpdatePresetsJob extends DataJob {
         // make sure we don't include any disabled presets
         this.presetsData = Object.keys(this.presetsData).reduce((all, presetId) => {
             //console.log(`${presetId} ${localItems.has(presetId)} ${localItems.get(presetId)?.types.includes('disabled')}`);
-            if (localItems.has(presetId) && !localItems.get(presetId).types.includes('disabled')) {
+            if (localItems.has(presetId) && !localItems.get(presetId).types?.includes('disabled')) {
                 all[presetId] = this.presetsData[presetId];
             }
             return all;
