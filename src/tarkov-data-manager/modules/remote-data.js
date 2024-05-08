@@ -304,7 +304,7 @@ const methods = {
                 value = JSON.stringify(value);
             }
             if (currentValue !== value) {
-                changeValues[property]  = value;
+                changeValues[property] = value;
             }
         }
         if (Object.keys(changeValues).length === 0) {
@@ -314,17 +314,18 @@ const methods = {
         const fieldNames = [];
         const placeHolderValues = [];
         for (const property in changeValues) {
-            if (property === 'properties') {
-                currentItemData[property] = properties[property];
-            } else {
-                currentItemData[property] = changeValues[property];
-            }
             fieldNames.push(`${property} = ?`);
             placeHolderValues.push(changeValues[property])
         }
         placeHolderValues.push(id);
         return query(`UPDATE item_data SET ${fieldNames.join(', ')} WHERE id = ?`, placeHolderValues).then(result => {
-            myData.set(id, currentItemData);
+            for (const property in changeValues) {
+                if (property === 'properties') {
+                    currentItemData[property] = properties[property];
+                } else {
+                    currentItemData[property] = changeValues[property];
+                }
+            }
             return result;
         });
     },
