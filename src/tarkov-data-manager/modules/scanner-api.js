@@ -9,7 +9,7 @@ const { dashToCamelCase } = require('./string-functions');
 const remoteData = require('./remote-data');
 const { uploadToS3 } = require('./upload-s3');
 const { createAndUploadFromSource } = require('./image-create');
-const { getUsers, getScanner, createScanner, userFlags, scannerFlags } = require('./scanner-framework');
+const { getUsers, getScanner, userFlags, scannerFlags } = require('./scanner-framework');
 
 const { imageSizes } = imageFunctions;
 
