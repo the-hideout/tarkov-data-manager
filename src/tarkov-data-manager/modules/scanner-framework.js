@@ -72,8 +72,6 @@ const scannerFramework = {
         try {
             const results = await query('SELECT * from scanner_user WHERE disabled=0');
             const scannerQueries = [];
-            
-            const users = await scannerFramework.getUsers();
             for (const username in users) {
                 const newestUser = results.find(r => r.username === username);
                 if (!newestUser) {
@@ -97,8 +95,7 @@ const scannerFramework = {
         } catch (error) {
             console.error('Error refreshing users', error);
         }
-        emitter.emit('usersUpdated');
-        usersUpdated = false;
+        usersUpdating = false;
     },
     userFlags,
     scannerFlags,

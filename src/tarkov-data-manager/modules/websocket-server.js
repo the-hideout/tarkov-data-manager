@@ -281,7 +281,7 @@ const webSocketServer = {
             }
         }
         if (clients.length === 0) {
-            return Promise.reject(new Error(`No scanners available to refresh ${jsonName} JSON`));
+            return Promise.reject(new Error('No scanners available'));
         }
         if (clients.length > 1) {
             clients = clients.filter(c => c.sessionId !== lastJsonScanner);
