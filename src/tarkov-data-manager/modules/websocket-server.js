@@ -14,6 +14,8 @@ const validRoles = [
     'overseer',
 ];
 
+let lastJsonScanner;
+
 const wss = new WebSocket.Server({
     port: process.env.WS_PORT || 5000,
 }, () => {
@@ -63,10 +65,10 @@ const printClients = () => {
     }
 };
 
-wss.on('connection', (client, req) => {
+wss.on('connection', async (client, req) => {
     const url = new URL(`http://localhost${req.url}`);
     let terminateReason = false;
-    if (url.searchParams.get('password') !== process.env.WS_PASSWORD && !scannerFramework.validateUser(url.searchParams.get('username'), url.searchParams.get('password'))) {
+    if (url.searchParams.get('password') !== process.env.WS_PASSWORD && !await scannerFramework.validateUser(url.searchParams.get('username'), url.searchParams.get('password'))) {
         terminateReason = 'authentication';
     }
     if (!url.searchParams.get('sessionid') && url.searchParams.get('role') !== 'overseer') {
@@ -221,13 +223,12 @@ const webSocketServer = {
     },
     async sendCommand(sessionId, name, data) {
         return new Promise((resolve) => {
-            let commandId, commandResponseTimeout;
-
             const client = [...wss.clients].find(c => c.readyState === WebSocket.OPEN && c.sessionId === sessionId && c.role === 'scanner');
             if (!client) {
                 return resolve({error: `Could not find scanner with name ${sessionId}`});
             }
-            commandId = uuidv4();
+            let commandResponseTimeout;
+            const commandId = uuidv4();
             const commandResponseHandler = (message) => {
                 if (message.commandId !== commandId) {
                     return;
@@ -238,7 +239,7 @@ const webSocketServer = {
             };
             commandResponseTimeout = setTimeout(() => {
                 emitter.off('commandResponse', commandResponseHandler);
-                resolve({error: 'Timed out waiting for response'});
+                resolve({error: `Timed out waiting for response from ${client.sessionId}`});
             }, 1000 * 30);
             emitter.on('commandResponse', commandResponseHandler);
             client.send(JSON.stringify({
@@ -282,7 +283,11 @@ const webSocketServer = {
         if (clients.length === 0) {
             return Promise.reject(new Error(`No scanners available to refresh ${jsonName} JSON`));
         }
+        if (clients.length > 1) {
+            clients = clients.filter(c => c.sessionId !== lastJsonScanner);
+        }
         const client = clients[Math.floor(Math.random()*clients.length)];
+        lastJsonScanner = client.sessionId;
         const response = await webSocketServer.sendCommand(client.sessionId, 'getJson', {name: jsonName});
         if (response.error) {
             return Promise.reject(new Error(response.error));

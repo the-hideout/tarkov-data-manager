@@ -19,7 +19,7 @@ class UpdateTdDataJob extends DataJob {
             const errors = [];
             for (const jsonName in results.errors) {
                 this.logger.warn(`Error downloading ${jsonName}: ${results.errors[jsonName]}`);
-                errors.push(`${results.errors[jsonName]}`);
+                errors.push(`${jsonName} - ${results.errors[jsonName]}`);
             }
             this.discordAlert({
                 title: 'Error(s) updating TD data',
