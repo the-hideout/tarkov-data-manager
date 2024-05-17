@@ -294,7 +294,9 @@ const webSocketServer = {
             if (errorMessage.includes('is not valid JSON')) {
                 errorMessage = 'Invalid JSON';
             }
-            errorMessage += ` from ${client.sessionId}`;
+            if (!errorMessage.includes(`from ${client.sessionId}`)) {
+                errorMessage += ` from ${client.sessionId}`;
+            }
             return Promise.reject(new Error(errorMessage));
         }
         return response.data;
