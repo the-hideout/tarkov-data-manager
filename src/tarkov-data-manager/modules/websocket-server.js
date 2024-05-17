@@ -290,7 +290,12 @@ const webSocketServer = {
         lastJsonScanner = client.sessionId;
         const response = await webSocketServer.sendCommand(client.sessionId, 'getJson', {name: jsonName});
         if (response.error) {
-            return Promise.reject(new Error(response.error));
+            let errorMessage = response.error;
+            if (errorMessage.includes('is not valid JSON')) {
+                errorMessage = 'Invalid JSON';
+            }
+            errorMessage += ` from ${client.sessionId}`;
+            return Promise.reject(new Error(errorMessage));
         }
         return response.data;
     },
