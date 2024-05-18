@@ -1,16 +1,16 @@
 {
   "name": "tarkov-data-manager",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.mjs",
   "engines": {
     "node": "20.x"
   },
   "scripts": {
     "test": "node -r dotenv/config --trace-warnings test.js",
-    "dev": "nodemon -r dotenv/config --trace-warnings --ignore cache index.js",
-    "start": "node --max-old-space-size=3000 index.js",
-    "job": "node -r dotenv/config --trace-warnings test-job.js",
+    "dev": "nodemon -r dotenv/config --trace-warnings --ignore cache index.mjs",
+    "start": "node --max-old-space-size=3000 index.mjs",
+    "job": "node -r dotenv/config --trace-warnings test-job.mjs",
     "put-kvs": "node -r dotenv/config --trace-warnings populate-kvs.js",
     "kv-locale": "node -r dotenv/config --trace-warnings ./scripts/generate-kv-locale.js"
   },
@@ -20,8 +20,6 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.461.0",
     "@aws-sdk/credential-providers": "^3.461.0",
-    "@sentry/node": "^7.57.0",
-    "@sentry/tracing": "^7.57.0",
     "adm-zip": "^0.5.12",
     "body-parser": "^1.20.2",
     "chalk": "^4.1.2",
@@ -33,7 +31,7 @@
     "express": "^4.19.2",
     "form-data": "^4.0.0",
     "formidable": "^3.5.1",
-    "got": "^11.8.6",
+    "got": "^14.3.0",
     "luxon": "^3.4.4",
     "mysql2": "^3.9.7",
     "node-schedule": "^2.1.1",

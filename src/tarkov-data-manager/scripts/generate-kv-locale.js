@@ -9,7 +9,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const { connection, jobComplete } = require('../modules/db-connection');
-const { jobOutput } = require('../jobs');
+const { jobOutput } = require('../jobs/index.mjs');
 
 const localeJobs = [
     'update-traders',

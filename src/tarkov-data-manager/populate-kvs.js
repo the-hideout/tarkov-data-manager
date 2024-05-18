@@ -6,8 +6,8 @@ if (process.env.NODE_ENV !== 'production') {
     process.env.VERBOSE_LOGS = 'true';
 }
 
-const { connection, jobComplete } = require('./modules/db-connection');
-const {runJob} = require('./jobs');
+const { connection, jobComplete } = require('./modules/db-connection.mjs');
+const {runJob} = require('./jobs/index.mjs');
 
 const kvJobs = [
     'update-barters',
