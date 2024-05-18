@@ -9,7 +9,7 @@ const { dashToCamelCase } = require('./string-functions');
 const remoteData = require('./remote-data');
 const { uploadToS3 } = require('./upload-s3');
 const { createAndUploadFromSource } = require('./image-create');
-const { users, userFlags, scannerFlags } = require('./scanner-framework');
+const { getUsers, getScanner, userFlags, scannerFlags } = require('./scanner-framework');
 
 const { imageSizes } = imageFunctions;
 
@@ -964,44 +964,8 @@ const submitData = (options) => {
     return response;
 };
 
-const createScanner = async (user, scannerName) => {
-    if (!(userFlags.insertPlayerPrices & user.flags) && !(userFlags.insertTraderPrices & user.flags)) {
-        throw new Error('User not authorized to insert prices');
-    }
-    if (user.scanners.length >= user.max_scanners) {
-        throw new Error(`Could not find scanner with name ${scannerName} and user already ad maximum scanners (${options.user.max_scanners})`);
-    }
-    if (scannerName.match(/[^a-zA-Z0-9_-]/g)) {
-        throw new Error('Scanner names can only contain letters, numbers, dashes (-) and underscores (_)');
-    }
-    try {
-        const result = await query('INSERT INTO scanner (scanner_user_id, name) VALUES (?, ?)', [user.id, scannerName]);
-        const newScanner = {id: result.insertId, name: scannerName, scanner_user_id: user.id, flags: 0};
-        user.scanners.push(newScanner);
-        return newScanner;
-    } catch (error) {
-        if (error.toString().includes('Duplicate entry')) {
-            throw new Error(`Scanner ${scannerName} already exists`);
-        }
-        throw error;
-    }
-};
-
-const getScanner = async (options, createMissing) => {
-    for (const scanner of options.user.scanners) {
-        if (scanner.name === options.scannerName) {
-            return scanner;
-        }
-    }
-    if (!createMissing) {
-        throw new Error(`Scanner with name ${options.scannerName} not found`);
-    }
-    const newScanner = await createScanner(options.user, options.scannerName);
-    return newScanner;
-};
-
 const getScannerId = async (options, createMissing) => {
-    const scanner = await getScanner(options. createMissing);
+    const scanner = await getScanner(options, createMissing);
     return scanner.id;
 };
 
@@ -1087,7 +1051,7 @@ module.exports = {
     request: async (req, res, resource) => {
         const username = req.headers.username;
         const password = req.headers.password;
-        const user =  users[username];
+        const user = (await getUsers())[username];
         if ((!username || !password) || !user || !user.password || (user.password !== password)) {
             res.json({errors: ['access denied'], warnings: [], data: {}});
             return;

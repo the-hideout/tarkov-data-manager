@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "engines": {
-    "node": "19.x"
+    "node": "20.x"
   },
   "scripts": {
     "test": "node -r dotenv/config --trace-warnings test.js",

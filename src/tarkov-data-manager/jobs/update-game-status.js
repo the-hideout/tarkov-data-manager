@@ -46,6 +46,7 @@ class UpdateGameStatusJob extends DataJob {
             }
         };
         await this.cloudflarePut();
+        return this.kvData;
     }
 }
 

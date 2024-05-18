@@ -350,6 +350,12 @@ class UpdatePresetsJob extends DataJob {
                     this.logger.error(error);
                 }));
             }
+            if (localItem?.types.includes('disabled')) {
+                queries.push(remoteData.removeType(p.id, 'disabled').catch(error => {
+                    this.logger.error(`Error removing disabled type for ${p.name} ${p.id}`);
+                    this.logger.error(error);
+                }));
+            }
             if (p.noFlea && !localItem?.types.includes('no-flea')) {    
                 queries.push(remoteData.addType(p.id, 'no-flea').catch(error => {
                     this.logger.error(`Error inserting no-flea type for ${p.name} ${p.id}`);
