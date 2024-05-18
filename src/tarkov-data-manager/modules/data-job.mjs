@@ -4,7 +4,7 @@ import path from 'node:path';
 import cloudflare from './cloudflare.mjs';
 import stellate from './stellate.mjs';
 import { query, jobComplete, maxQueryRows } from'./db-connection.mjs';
-import JobLogger from './job-logger.js';
+import JobLogger from './job-logger.mjs';
 import { alert } from './webhook.js';
 import webSocketServer from './websocket-server.mjs';
 import tarkovData from'./tarkov-data.mjs';

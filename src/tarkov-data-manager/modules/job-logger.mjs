@@ -1,19 +1,19 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
 
-const chalk = require('chalk');
-const { DateTime } = require('luxon');
+import chalk from 'chalk';
+import { DateTime } from 'luxon';
 
 const writeLog = (jobName, messages) => {
     try {
-        fs.mkdirSync(path.join(__dirname, '..', 'logs'));
+        fs.mkdirSync(path.join(import.meta.dirname, '..', 'logs'));
     } catch (error) {
         if (error.code !== 'EEXIST') {
             console.log(error);
         }
     }
     try {
-        fs.writeFileSync(path.join(__dirname, '..', 'logs', jobName+'.log'), JSON.stringify(messages, null, 4), {encoding: 'utf8'});
+        fs.writeFileSync(path.join(import.meta.dirname, '..', 'logs', jobName+'.log'), JSON.stringify(messages, null, 4), {encoding: 'utf8'});
     } catch (error) {
         console.log(`Error writing log file for ${jobName}`, error);
     }
@@ -135,7 +135,7 @@ class JobLogger {
         }
         let oldMessages = [];
         try {
-            oldMessages = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'logs', this.jobName+'.log')));
+            oldMessages = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, '..', 'logs', this.jobName+'.log')));
         } catch (error) {
             if (error.code !== 'ENOENT') {
                 console.log(error);
@@ -150,4 +150,4 @@ class JobLogger {
     }
 }
 
-module.exports = JobLogger;
+export default JobLogger;

@@ -1,5 +1,5 @@
 const { query, jobComplete } = require('./db-connection.mjs');
-const JobLogger = require('../modules/job-logger');
+const JobLogger = require('./job-logger.mjs');
 const { alert } = require('../modules/webhook');
 const {jobOutput} = require('../jobs/index.mjs');
 
