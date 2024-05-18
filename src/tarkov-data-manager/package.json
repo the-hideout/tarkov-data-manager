@@ -7,12 +7,12 @@
     "node": "20.x"
   },
   "scripts": {
-    "test": "node -r dotenv/config --trace-warnings test.js",
+    "test": "node -r dotenv/config --trace-warnings test.mjs",
     "dev": "nodemon -r dotenv/config --trace-warnings --ignore cache index.mjs",
     "start": "node --max-old-space-size=3000 index.mjs",
     "job": "node -r dotenv/config --trace-warnings test-job.mjs",
-    "put-kvs": "node -r dotenv/config --trace-warnings populate-kvs.js",
-    "kv-locale": "node -r dotenv/config --trace-warnings ./scripts/generate-kv-locale.js"
+    "put-kvs": "node -r dotenv/config --trace-warnings populate-kvs.mjs",
+    "kv-locale": "node -r dotenv/config --trace-warnings ./scripts/generate-kv-locale.mjs"
   },
   "keywords": [],
   "author": "",

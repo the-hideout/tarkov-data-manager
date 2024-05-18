@@ -1,13 +1,8 @@
-if (process.env.NODE_ENV !== 'production') {
-    const dotenv = require("dotenv");
-    dotenv.config({path : './creds.env'});
-    dotenv.config({path : './config.env'});
-    process.env.NODE_ENV = 'dev';
-    process.env.VERBOSE_LOGS = 'true';
-}
+import './modules/configure-env.mjs'
+import { connection, jobComplete } from './modules/db-connection.mjs';
+import {runJob} from './jobs/index.mjs';
 
-const { connection, jobComplete } = require('./modules/db-connection.mjs');
-const {runJob} = require('./jobs/index.mjs');
+process.env.VERBOSE_LOGS = 'true';
 
 const kvJobs = [
     'update-barters',
