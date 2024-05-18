@@ -50,7 +50,7 @@ const jsonRequest = async (dataType, params, logger = false) => {
 };
 
 const cachePath = (filename) => {
-    return path.join(__dirname, '..', 'cache', filename);   
+    return path.join(import.meta.dirname, '..', 'cache', filename);   
 }
 
 const tarkovBot = {
