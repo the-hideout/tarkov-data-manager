@@ -137,9 +137,9 @@ class DataJob {
         this.logger.end();
         if (!options?.parent) {
             await jobComplete();
-        } 
-        if (process.env.TEST_JOB === 'true') {
-            webSocketServer.close();
+            if (process.env.TEST_JOB === 'true') {
+                webSocketServer.close();
+            }
         }
         if (throwError) {
             return Promise.reject(throwError);

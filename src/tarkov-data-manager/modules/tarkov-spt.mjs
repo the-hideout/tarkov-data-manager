@@ -42,14 +42,13 @@ const setBranch = async () => {
     if (!process.env.SPT_TOKEN) {
         return Promise.reject(new Error('SPT_TOKEN not set'));
     }
-    searchParams = {
-        access_token: process.env.SPT_TOKEN,
-    };
     const url = `https://dev.sp-tarkov.com/api/v1/repos/SPT-AKI/Server/branches`;
     const response = await got(url, {
         responseType: 'json',
         resolveBodyOnly: true,
-        searchParams: searchParams,
+        searchParams: {
+            access_token: process.env.SPT_TOKEN,
+        },
     });
     for (const b of branches) {    
         if (response.some(remoteBranch => remoteBranch.name === b)) {
@@ -183,7 +182,7 @@ const tarkovSpt = {
                 'test',
                 'usec',
             ];
-            for (fileData of botFiles) {
+            for (const fileData of botFiles) {
                 if (exclude.some(ex => `${ex}.json` === fileData.name)) {
                     continue;
                 }
@@ -196,7 +195,7 @@ const tarkovSpt = {
         for (const filename in botIndex) {
             botData[filename.replace('.json', '')] = downloadJson(filename, botIndex[filename], download);
         }
-        for (botKey in botData) {
+        for (const botKey in botData) {
             botData[botKey] = await botData[botKey];
         }
         return botData;

@@ -26,12 +26,15 @@ class JobLogger {
         this.messages = [];
         this.timers = {};
         this.writeLog = writeLog;
-        this.verbose = process.env.VERBOSE_LOGS == 'true';
         this.parentLogger = false;
     }
 
+    verbose() {
+        return process.env.VERBOSE_LOGS === 'true';
+    }
+
     log(message) {
-        if (this.verbose) console.log(message);
+        if (this.verbose()) console.log(message);
         if (typeof message === 'object') {
             message = JSON.stringify(message, null, 4);
         }
@@ -48,7 +51,7 @@ class JobLogger {
                 message = chalk.red(`${new Date()}\n${message.toString()}`);
             }
         }
-        if (this.verbose) console.error(message);
+        if (this.verbose()) console.error(message);
         this.addMessage(message);
     }
 
@@ -62,7 +65,7 @@ class JobLogger {
         } else if (typeof message === 'object') {
             message = JSON.stringify(message, null, 4);
         }
-        if (this.verbose) console.warn(message);
+        if (this.verbose()) console.warn(message);
         this.addMessage(message);
     }
 
@@ -72,7 +75,7 @@ class JobLogger {
         } else if (typeof message === 'object') {
             message = JSON.stringify(message, null, 4);
         }
-        if (this.verbose) console.log(message);
+        if (this.verbose()) console.log(message);
         this.addMessage(message);
     }
 
@@ -90,7 +93,7 @@ class JobLogger {
     end() {
         const endMessage = `${this.jobName} ended ${DateTime.now().toRelative({ base: this.startTime })}`;
         this.log(endMessage);
-        //if (this.verbose) console.log(endMessage);
+        //if (this.verbose()) console.log(endMessage);
         if (this.writeLog) writeLog(this.jobName, this.messages);
         this.messages.length = 0;
         this.startTime = DateTime.fromMillis(0);
