@@ -1,4 +1,4 @@
-FROM node:19.3.0-slim
+FROM node:20.13.1-slim
 
 WORKDIR /app
 
@@ -23,4 +23,4 @@ RUN npm install
 
 USER node
 
-CMD ./script/wait-for-it.sh database:3306 -- node script/wait-for-db.js && npm run start
+CMD ./script/wait-for-it.sh database:3306 -- node script/wait-for-db.mjs && npm run start
