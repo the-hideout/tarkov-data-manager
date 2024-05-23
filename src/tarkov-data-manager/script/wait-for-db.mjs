@@ -1,4 +1,4 @@
-const {query} = require('../modules/db-connection');
+import {query} from '../modules/db-connection.mjs';
 
 async function waitForDb() {
     const maxAttempts = 300;
