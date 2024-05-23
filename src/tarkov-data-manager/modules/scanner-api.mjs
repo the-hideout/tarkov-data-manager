@@ -827,7 +827,7 @@ const getJson = (options) => {
 
 const submitImage = (request, user) => {
     const response = {errors: [], warnings: [], data: []};
-    const form = formidable.formidable({
+    const form = formidable({
         multiples: true,
         uploadDir: path.join(import.meta.dirname, '..', 'cache'),
     });

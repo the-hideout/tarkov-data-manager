@@ -407,7 +407,7 @@ app.post('/items/edit/:id', async (req, res) => {
     const currentItemData = allItemData.get(req.params.id);
     let updated = false;
     const response = {success: false, message: 'No changes made.', errors: []};
-    const form = formidable.formidable({
+    const form = formidable({
         multiples: true,
         allowEmptyFiles: true,
         minFileSize: 0,
@@ -1442,7 +1442,7 @@ app.post('/json/:dir', async (req, res) => {
         response.errors.push(`${dir} is not a valid JSON directory`);
         return res.json(response);
     }
-    const form = formidable.formidable({
+    const form = formidable({
         multiples: true,
         uploadDir: path.join(import.meta.dirname, 'cache'),
     });
@@ -1629,7 +1629,7 @@ app.put('/s3-bucket/?*/:file', async (req, res) => {
 
 app.post('/s3-bucket', async (req, res) => {
     const response = {json: [], errors: []};
-    const form = formidable.formidable({
+    const form = formidable({
         multiples: true,
         uploadDir: path.join(import.meta.dirname, 'cache'),
     });
