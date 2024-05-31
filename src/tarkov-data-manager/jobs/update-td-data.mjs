@@ -9,7 +9,7 @@ class UpdateTdDataJob extends DataJob {
     async run() {
         this.logger.log('Downloading data from...');
         this.logger.time('td-download');
-        const results = await tarkovDevData.downloadAll();
+        const results = await tarkovDevData.downloadAll('regular');
         if (Object.keys(results).length > 1) {
             this.logger.log(`Downloaded ${Object.keys(results).filter(key => key !== 'errors').join(', ')}`);
         }

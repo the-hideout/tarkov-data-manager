@@ -61,7 +61,7 @@ updatePresets();
 // trustTraderUnlocks = true means the information provided about trader minimum levels and quests will be used
 //      to create missing trader offers.
 // scanned is a toggle to indicate whether to set an item as scanned or release it
-const getOptions = (options, user) => {
+const getOptions = async (options, user) => {
     const defaultOptions = {
         limitItem: false,
         imageOnly: false,
@@ -69,7 +69,10 @@ const getOptions = (options, user) => {
         offersFrom: 2,
         trustTraderUnlocks: false,
         scanned: false,
-        offerCount: undefined
+        offerCount: undefined,
+        sessionMode: 'regular',
+        fleaMarketAvailable: false,
+        pveFleaMarketAvailable: false,
     }
     const mergedOptions = {
         ...defaultOptions,
@@ -95,6 +98,29 @@ const getOptions = (options, user) => {
         } else {
             mergedOptions.offersFrom = 2;
         }
+    }
+    if (typeof options.offersFrom === 'undefined') {
+        // if offersFrom isn't specified, it depends on if flea is available
+        mergedOptions.offersFrom = mergedOptions.fleaMarketAvailable || mergedOptions.pveFleaMarketAvailable ? 2 : 1;
+    }
+    if (typeof options.sessionMode === 'undefined') {
+        // if sessionMode isn't specified, it depends on if PVE flea is available
+        mergedOptions.sessionMode = mergedOptions.pveFleaMarketAvailable ? 'pve' : 'regular';
+    }
+    if (mergedOptions.offersFrom === 1 && mergedOptions.sessionMode === 'pve') {
+        // don't scan PVE trader prices
+        mergedOptions.sessionMode === 'regular';
+    }
+    if (mergedOptions.sessionMode === 'pve' && typeof options.offersFrom === 'undefined') {
+        // if in PVE mode and there's a trader scan, switch to trader scanning
+        mergedOptions.traderScanSession = await currentTraderScan();
+        if (mergedOptions.traderScanSession) {
+            mergedOptions.sessionMode = 'regular';
+            mergedOptions.offersFrom = 1;
+        }
+    }
+    if (mergedOptions.offersFrom === 1 && typeof mergedOptions.traderScanSession === 'undefined') {
+        mergedOptions.traderScanSession = await currentTraderScan();
     }
     return mergedOptions;
 };
@@ -137,7 +163,7 @@ const queryResultToBatchItem = item => {
     };
 };
 
-/* on success, response.data is an array of items with the following format:
+/* on success, response.data.items is an array of items with the following format:
 {
     id: '57dc2fa62459775949412633',
     name: 'Kalashnikov AKS-74U 5.45x39 assault rifle',
@@ -168,14 +194,19 @@ const queryResultToBatchItem = item => {
 // relevant options: limitItem, imageOnly, batchSize, offersFrom
 const getItems = async(options) => {
     const user = options.user;
-    const response = {errors: [], warnings: [], data: []};
+    const response = {errors: [], warnings: [], data: {
+        settings: {
+            offersFrom: options.offersFrom,
+            sessionMode: options.sessionMode,
+        },
+    }};
     try {
         if (options.limitItem) {
             let itemIds = options.limitItem;
             if (!Array.isArray(itemIds)) {
                 itemIds = [itemIds];
             }
-            response.data = await query(`
+            response.data.items = await query(`
                 SELECT
                     item_data.id,
                     name,
@@ -203,7 +234,7 @@ const getItems = async(options) => {
             return response;
         }
         if (options.imageOnly) {
-            response.data = await query(`
+            response.data.items = await query(`
                 SELECT
                     item_data.id,
                     name,
@@ -241,31 +272,35 @@ const getItems = async(options) => {
         }
     
         let conditions = [];
-        if (options.offersFrom == 2 || options.offersFrom == 0) {
+        if (options.offersFrom === 2 || options.offersFrom === 0) {
             // if just players, exclude no-flea
             let nofleaCondition = '';
             if (options.offersFrom == 2) {
                 nofleaCondition = 'AND NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = \'no-flea\')';
             }
+
+            let prefix = '';
+            if (options.sessionMode === 'pve') {
+                prefix = 'pve_';
+            }
             // player price checkout
             // works if we include trader prices too
             await query(`
                 UPDATE item_data
-                SET checkout_scanner_id = ?
+                SET ${prefix}checkout_scanner_id = ?
                 WHERE (checkout_scanner_id IS NULL OR checkout_scanner_id = ?) AND
                     NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                     NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                     NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${nofleaCondition} 
                 ORDER BY last_scan, id
                 LIMIT ?
-            `, [options.scanner.id,options.scanner.id,options.batchSize]);
+            `, [options.scanner.id, options.scanner.id, options.batchSize]);
     
-            conditions.push('item_data.checkout_scanner_id = ?');
+            conditions.push(`item_data.checkout_scanner_id = ?`);
         } else {
             // trader-only price checkout
-            const traderScanSession = await currentTraderScan();
-            if (!traderScanSession) {
-                response.data = [];
+            if (!options.traderScanSession) {
+                response.data.items = [];
                 return response;
             }
             await query(`
@@ -279,16 +314,16 @@ const getItems = async(options) => {
                     (trader_last_scan <= ? OR trader_last_scan IS NULL) )
                 ORDER BY trader_last_scan, id
                 LIMIT ?
-            `, [options.scanner.id, options.scanner.id, traderScanSession.started, options.batchSize]);
+            `, [options.scanner.id, options.scanner.id, options.traderScanSession.started, options.batchSize]);
     
-            conditions.push('item_data.trader_checkout_scanner_id = ?');
+            conditions.push(`item_data.${prefix}trader_checkout_scanner_id = ?`);
         }
     
         let where = '';
         if (conditions.length > 0) {
             where = `WHERE ${conditions.join(' AND ')}`;
         }
-        response.data = await query(`
+        response.data.items = await query(`
             SELECT
                 item_data.id,
                 name,
@@ -312,8 +347,13 @@ const getItems = async(options) => {
         `, [options.scanner.id]).then(items => {
             return items.filter(item => Boolean(item.name)).map(queryResultToBatchItem);
         });
-        if (response.data.length === 0 && options.offersFrom === 1) {
+        if (response.data.items.length === 0 && options.offersFrom === 1) {
             await endTraderScan();
+            if (options.fleaMarketAvailable || options.pveFleaMarketAvailable) {
+                options.offersFrom = undefined;
+                options.sessionMode = undefined;
+                return getItems(options);
+            }
         }
     } catch (error) {
         response.errors.push(String(error));
@@ -363,6 +403,7 @@ const insertPrices = async (options) => {
     const response = {errors: [], warnings: [], data: [0, 0]};
     const itemId = options.itemId;
     let itemPrices = options.itemPrices;
+    const pve = options.sessionMode === 'pve' ? 1 : 0;
     if (!itemId) {
         response.errors.push('no item id specified');
     }
@@ -390,19 +431,18 @@ const insertPrices = async (options) => {
     }
     let playerInsert = Promise.resolve({affectedRows: 0});
     let traderInsert = Promise.resolve({affectedRows: 0});
-    const dateTime = new Date();
     if (playerPrices.length > 0 && userFlags.insertPlayerPrices & user.flags) {
         // player prices
         const placeholders = [];
         const values = [];
         for (let i = 0; i < playerPrices.length; i++) {
-            placeholders.push('(?, ?, ?, now())');
-            values.push(itemId, playerPrices[i].price, options.scanner.id);
+            placeholders.push('(?, ?, ?, now(), ?)');
+            values.push(itemId, playerPrices[i].price, options.scanner.id, pve);
         }
         if (skipInsert) {
             response.warnings.push(`Skipped insert of ${playerPrices.length} player prices`);
         } else {
-            playerInsert = query(`INSERT INTO price_data (item_id, price, scanner_id, timestamp) VALUES ${placeholders.join(', ')}`, values);
+            playerInsert = query(`INSERT INTO price_data (item_id, price, scanner_id, timestamp, pve) VALUES ${placeholders.join(', ')}`, values);
         }
     } else if (playerPrices.length > 0) {
         playerInsert = Promise.reject(new Error('User not authorized to insert player prices'));
@@ -614,7 +654,10 @@ const releaseItem = async (options) => {
     let setLastScan = false;
     if (options.offersFrom === 1) {
         trader = 'trader_'
+    } else if (options.sessionMode === 'pve') {
+        trader = 'pve_' + trader;
     }
+
     if (itemScanned && itemId && !skipInsert) {
         scanned = `, ${trader}last_scan = now()`;
         if (options.offerCount) {
@@ -1066,7 +1109,7 @@ const scannerApi = {
             if (typeof options !== 'object') {
                 options = {};
             }
-            options = getOptions(options, user);
+            options = await getOptions(options, user);
         }
         if (resource === 'json') {
             if (user.flags & userFlags.jsonDownload) {

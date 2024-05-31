@@ -21,7 +21,9 @@ const sendCommand = (sessionID, command, data) => {
     }));
 }
 
-const addScanner = (sessionId, status = 'unknown') => {
+const addScanner = (sessionId, settings) => {
+    const status = settings?.scanStatus || 'unknown';
+    const sessionMode = settings?.sessionMode || 'unknown';
     const scannerDiv = document.createElement('div');
     scannerDiv.id = `scanner-element-${sessionId}`;
     scannerDiv.classList.add('scanner', 'col', 's12', 'xl6');
@@ -41,7 +43,7 @@ const addScanner = (sessionId, status = 'unknown') => {
     collapsibleHeader.append(header);
     header.id = `scanner-header-${sessionId}`;
     header.classList.add('tooltipped', 'scanner-header')
-    header.dataset.tooltip = status;
+    header.dataset.tooltip = `${status} (${sessionMode})`;
 
     const menuButton = document.createElement('a');
     header.append(menuButton);
@@ -230,40 +232,42 @@ function setupClient() {
         }
         console.log(message);
         if (message.type === 'connected') {
-            updateStatus(message.sessionId, message.data.status);
+            updateStatus(message.sessionId, message.data.settings);
         }
         if (message.type === 'disconnect') {
             //removeScanner(message.sessionId);
         }
         if (message.type === 'fullStatus') {
-            updateStatus(message.sessionId, message.data.settings.scannerStatus);
+            updateStatus(message.sessionId, message.data.settings);
             addLogMessages(message.sessionId, message.data.log);
         }
-        if (message.type === 'status') {
-            updateStatus(message.sessionId, message.data.status);
-        } 
+        if (message.type === 'settingsChanged') {
+            updateStatus(message.sessionId, message.data);
+        }
         if (message.type === 'debug') {
             addLogMessages(message.sessionId, [message.data]);
         }
     };
 };
 
-const checkScannerExists = (scannerName, status = 'unknown') => {
+const checkScannerExists = (scannerName, settings) => {
     if (!scannerData[scannerName]) {
         scannerData[scannerName] = {
-            status: status,
+            settings: settings,
             log: [],
         };
     }
     const element = document.querySelector(`#scanner-element-${scannerName}`);
     if (!element) {
-        addScanner(scannerName, status);
+        addScanner(scannerName, settings);
     }
 }
 
-const updateStatus = (scannerName, status) => {
-    checkScannerExists(scannerName, status);
-    document.querySelector(`#scanner-header-${scannerName}`).dataset.tooltip = status;
+const updateStatus = (scannerName, settings) => {
+    checkScannerExists(scannerName, settings);
+    const status = settings?.scanStatus || 'unknown';
+    const sessionMode = settings?.sessionMode || 'unknown';
+    document.querySelector(`#scanner-header-${scannerName}`).dataset.tooltip = `${status} (${sessionMode})`;
     if (status === 'unknown') {
         $(`#dropdown-${scannerName} li.resume-scanner`).css('display', 'none');
         $(`#dropdown-${scannerName} li.pause-scanner`).css('display', 'none');

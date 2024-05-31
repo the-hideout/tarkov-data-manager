@@ -74,7 +74,7 @@ const methods = {
 
             const returnData = new Map();
 
-            for(const result of results){
+            for (const result of results) {
                 Reflect.deleteProperty(result, 'item_id');
                 Reflect.deleteProperty(result, 'base_price');
 
@@ -84,6 +84,8 @@ const methods = {
                     updated: result.last_update,
                     lastLowPrice: null,
                     avg24hPrice: null,
+                    lastLowPricePve: null,
+                    avg24hPricePve: null,
                 };
                 if (!preparedData.properties) preparedData.properties = {};
                 returnData.set(result.id, preparedData);
@@ -119,7 +121,8 @@ const methods = {
                             FROM
                                 price_data
                             WHERE
-                                timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)
+                                timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY) AND
+                                pve = 0
                             LIMIT ?, ?
                         `, [offset, batchSize]);
                         moreData.forEach(r => priceResults.push(r));
@@ -150,7 +153,8 @@ const methods = {
                     FROM 
                         price_data
                     WHERE
-                        timestamp > ?
+                        timestamp > ? AND
+                        pve = 0
                     GROUP BY
                         item_id
                 ) b
@@ -167,7 +171,8 @@ const methods = {
             const avgPriceYesterdayPromise = query(`
                 SELECT
                     avg(price) AS priceYesterday,
-                    item_id
+                    item_id,
+                    pve
                 FROM
                     price_data
                 WHERE
@@ -175,7 +180,7 @@ const methods = {
                 AND
                     timestamp < DATE_SUB(NOW(), INTERVAL 1 DAY)
                 GROUP BY
-                    item_id
+                    item_id, pve
             `).then(results => {
                 priceYesterdayTimer.end();
                 return results;
@@ -219,7 +224,7 @@ const methods = {
                 item.low24hPrice = item24hPrices[itemId]?.at(0);
                 item.high24hPrice = item24hPrices[itemId]?.at(item24hPrices[itemId]?.length - 1);
 
-                const itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === itemId);
+                const itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === itemId && !row.pve);
                 if (!itemPriceYesterday || item.avg24hPrice === 0) {
                     item.changeLast48h = 0;
                     item.changeLast48hPercent = 0;

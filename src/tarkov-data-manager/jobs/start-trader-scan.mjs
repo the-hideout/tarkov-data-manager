@@ -15,14 +15,14 @@ class StartTraderScanJob extends DataJob {
             await scannerApi.startTraderScan({scanner: {id: 0}});
         }
 
-        //let scanners = webSocketServer.launchedScanners().filter(c => c.status === 'idle' && c.settings.scanMode === 'auto');
+        //let scanners = webSocketServer.launchedScanners().filter(c => c.settings.scanStatus === 'idle' && c.settings.scanMode === 'auto');
         for (const scanner of webSocketServer.launchedScanners()) {
-            this.logger.log(`${scanner.name} ${scanner.status} ${scanner.settings.scanMode}`);
-            if (scanner.status !== 'idle' || scanner.settings.scanMode !== 'auto') {
+            this.logger.log(`${scanner.name} ${scanner.settings.scanStatus} ${scanner.settings.scanMode}`);
+            if (scanner.ssettings.scanStatus !== 'idle' || scanner.settings.scanMode !== 'auto') {
                 continue;
             }
             this.logger.log(`Starting ${scanner.name}`);
-            await webSocketServer.sendCommand(scanner.name, 'changeSetting', {name: 'offersFrom', value: 1});
+            //await webSocketServer.sendCommand(scanner.name, 'changeSetting', {name: 'offersFrom', value: 1});
             await webSocketServer.sendCommand(scanner.name, 'resume');
         }
     }

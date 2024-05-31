@@ -50,7 +50,8 @@ class UpdateHistoricalPricesJob extends DataJob {
                 FROM
                     price_data
                 WHERE
-                    timestamp > ?
+                    timestamp > ? AND
+                    pve = 0
                 GROUP BY item_id, timestamp
                 ORDER BY timestamp, item_id
                 LIMIT ?, ?
