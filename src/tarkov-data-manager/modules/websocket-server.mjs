@@ -91,21 +91,7 @@ wss.on('connection', async (client, req) => {
 
     if (client.role === 'scanner') {
         client.username = url.searchParams.get('username');
-        const skipParams = [
-            'username',
-            'password',
-            'role',
-            'sessionid',
-        ];
-        for (const [key, value] of url.searchParams.entries()) {
-            if (skipParams.includes(key)) {
-                continue;
-            }
-            client.settings[key] = value;
-            if (value === 'true' || value === 'false') {
-                client.settings[key] = value === 'true';
-            }
-        }
+        client.settings = JSON.parse(url.searchParams.get('settings'));
         client.settings.scanStatus = client.settings.scanStatus || 'unknown';
         client.name = client.sessionId;
         sendMessage(client.sessionId, 'connected', client.settings);
