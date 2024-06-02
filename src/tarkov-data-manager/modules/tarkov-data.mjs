@@ -36,7 +36,7 @@ const dataFunctions = {
     achievements: async (download = false, sessionMode = 'regular') => {
         return tarkovDevData.achievements(download, sessionMode = 'regular');
     },
-    achievementStats: (download = false) => {
+    achievementStats: (download = false, sessionMode = 'regular') => {
         return tarkovDevData.achievementStats(download, sessionMode = 'regular');
     },
     areas: (download = false) => {
