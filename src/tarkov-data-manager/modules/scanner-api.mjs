@@ -272,16 +272,17 @@ const getItems = async(options) => {
         }
     
         let conditions = [];
+
+        let prefix = '';
+        if (options.sessionMode === 'pve') {
+            prefix = 'pve_';
+        }
+        
         if (options.offersFrom === 2 || options.offersFrom === 0) {
             // if just players, exclude no-flea
             let nofleaCondition = '';
             if (options.offersFrom == 2) {
                 nofleaCondition = 'AND NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = \'no-flea\')';
-            }
-
-            let prefix = '';
-            if (options.sessionMode === 'pve') {
-                prefix = 'pve_';
             }
             // player price checkout
             // works if we include trader prices too
