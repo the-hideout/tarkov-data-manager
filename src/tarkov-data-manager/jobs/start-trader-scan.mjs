@@ -18,7 +18,7 @@ class StartTraderScanJob extends DataJob {
         //let scanners = webSocketServer.launchedScanners().filter(c => c.settings.scanStatus === 'idle' && c.settings.scanMode === 'auto');
         for (const scanner of webSocketServer.launchedScanners()) {
             this.logger.log(`${scanner.name} ${scanner.settings.scanStatus} ${scanner.settings.scanMode}`);
-            if (scanner.ssettings.scanStatus !== 'idle' || scanner.settings.scanMode !== 'auto') {
+            if (scanner.settings.scanStatus !== 'idle' || scanner.settings.scanMode !== 'auto') {
                 continue;
             }
             this.logger.log(`Starting ${scanner.name}`);
