@@ -39,7 +39,7 @@ const tarkovDevData = {
     achievements: async (refresh = false, sessionMode = 'regular') => {
         return tarkovDevData.get('achievements', refresh, sessionMode);
     },
-    achievementStats: async (refresh = false) => {
+    achievementStats: async (refresh = false, sessionMode = 'regular') => {
         return tarkovDevData.get('achievement_stats', refresh, sessionMode);
     },
     items: async (refresh = false, sessionMode = 'regular') => {
