@@ -32,7 +32,10 @@ const tarkovDevData = {
                 return Promise.reject(error);
             }
         }
-        const newJson = await webSocketServer.getJson(jsonName, sessionMode);
+        let newJson = await webSocketServer.getJson(jsonName, sessionMode);
+        if (newJson.elements) {
+            newJson = newJson.elements;
+        }
         fs.writeFileSync(cachePath(filename), JSON.stringify(newJson, null, 4));
         return newJson;
     },
