@@ -104,7 +104,7 @@ class UpdateBartersJob extends DataJob {
             }
             const trader = this.traders.find(t => t.id === offer.trader_id);
             const questUnlock = this.getQuestUnlock(offer);
-            const assort = this.traderAssorts[trader.id].find(assort => assort.id === offer.id);
+            const assort = this.traderAssorts[trader.id]?.find(assort => assort.id === offer.id);
             const barter = {
                 id: offer.id,
                 trader_id: trader.id,

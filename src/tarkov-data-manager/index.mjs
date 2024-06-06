@@ -1784,7 +1784,7 @@ app.post('/wipes', async (req, res) => {
         console.log(`creating wipe: ${req.body.start_date} ${req.body.version}`);
         const result = await query('INSERT INTO wipe (start_date, version) VALUES (?, ?)', [req.body.start_date, req.body.version]);
         let lastPriceId = 0;
-        const lastPrice = await query('SELECT id FROM price_data WHERE pve=0 ORDER BY id DESC LIMIT 1');
+        const lastPrice = await query('SELECT id FROM price_data WHERE game_mode = 0 ORDER BY id DESC LIMIT 1');
         if (lastPrice.length > 0) {
             lastPriceId = lastPrice[0].id;
         }

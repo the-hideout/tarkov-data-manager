@@ -125,7 +125,7 @@ const methods = {
                             SELECT
                                 price,
                                 item_id,
-                                pve
+                                game_mode
                             FROM
                                 price_data
                             WHERE
@@ -151,25 +151,25 @@ const methods = {
                     a.item_id,
                     MIN(a.price) AS price,
                     timestamp,
-                    a.pve
+                    a.game_mode
                 FROM
                     price_data a
                 INNER JOIN (
                     SELECT
                         MAX(timestamp) AS max_timestamp,
                         item_id,
-                        pve
+                        game_mode
                     FROM 
                         price_data
                     WHERE
                         timestamp > ?
                     GROUP BY
-                        item_id, pve
+                        item_id, game_mode
                 ) b
                 ON
-                    a.item_id = b.item_id AND a.timestamp = b.max_timestamp AND a.pve = b.pve
+                    a.item_id = b.item_id AND a.timestamp = b.max_timestamp AND a.game_mode = b.game_mode
                 GROUP BY
-                    a.item_id, a.timestamp, a.pve;
+                    a.item_id, a.timestamp, a.game_mode;
             `, [currentWipe.start_date]).then(results => {
                 lastLowPriceTimer.end();
                 return results;
@@ -180,7 +180,7 @@ const methods = {
                 SELECT
                     avg(price) AS priceYesterday,
                     item_id,
-                    pve
+                    game_mode
                 FROM
                     price_data
                 WHERE
@@ -188,7 +188,7 @@ const methods = {
                 AND
                     timestamp < DATE_SUB(NOW(), INTERVAL 1 DAY)
                 GROUP BY
-                    item_id, pve
+                    item_id, game_mode
             `).then(results => {
                 priceYesterdayTimer.end();
                 return results;
@@ -212,10 +212,10 @@ const methods = {
             };
 
             price24hResults.forEach((resultRow) => {
-                if (!item24hPrices[resultRow.pve][resultRow.item_id]) {
-                    item24hPrices[resultRow.pve][resultRow.item_id] = [];
+                if (!item24hPrices[resultRow.game_mode][resultRow.item_id]) {
+                    item24hPrices[resultRow.game_mode][resultRow.item_id] = [];
                 }
-                item24hPrices[resultRow.pve][resultRow.item_id].push(resultRow.price);
+                item24hPrices[resultRow.game_mode][resultRow.item_id].push(resultRow.price);
             });
 
             for (const [itemId, item] of items) {
@@ -224,30 +224,30 @@ const methods = {
                     continue;
                 }
 
-                for (let pve = 0; pve < 2; pve++) {
-                    const fieldPve = pve ? pveSuffix : '';
+                for (let gameMode = 0; gameMode < 2; gameMode++) {
+                    const fieldSuffix = gameMode ? pveSuffix : '';
 
-                    const lastLowData = lastLowPriceResults.find(row => row.item_id === itemId && row.pve === pve);
+                    const lastLowData = lastLowPriceResults.find(row => row.item_id === itemId && row.game_mode === gameMode);
                     if (lastLowData) {
-                        item[`lastLowPrice${fieldPve}`] = lastLowData.price;
-                        if (!pve) {
+                        item[`lastLowPrice${fieldSuffix}`] = lastLowData.price;
+                        if (!gameMode) {
                             item.updated = lastLowData.timestamp;
                         }
                     }
     
-                    item24hPrices[pve][itemId]?.sort();
-                    item[`avg24hPrice${fieldPve}`] = getInterquartileMean(item24hPrices[pve][itemId] || []) || null;
-                    item[`low24hPrice${fieldPve}`] = item24hPrices[pve][itemId]?.at(0);
-                    item[`high24hPrice${fieldPve}`] = item24hPrices[pve][itemId]?.at(item24hPrices[pve][itemId]?.length - 1);
+                    item24hPrices[gameMode][itemId]?.sort();
+                    item[`avg24hPrice${fieldSuffix}`] = getInterquartileMean(item24hPrices[gameMode][itemId] || []) || null;
+                    item[`low24hPrice${fieldSuffix}`] = item24hPrices[gameMode][itemId]?.at(0);
+                    item[`high24hPrice${fieldSuffix}`] = item24hPrices[gameMode][itemId]?.at(item24hPrices[gameMode][itemId]?.length - 1);
     
-                    const itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === itemId && row.pve === pve);
-                    if (!itemPriceYesterday || item[`avg24hPrice${fieldPve}`] === 0) {
-                        item[`changeLast48h${fieldPve}`] = 0;
-                        item[`changeLast48hPercent${fieldPve}`] = 0;
+                    const itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === itemId && row.game_mode === gameMode);
+                    if (!itemPriceYesterday || item[`avg24hPrice${fieldSuffix}`] === 0) {
+                        item[`changeLast48h${fieldSuffix}`] = 0;
+                        item[`changeLast48hPercent${fieldSuffix}`] = 0;
                     } else {
-                        item[`changeLast48h${fieldPve}`] = Math.round(item[`avg24hPrice${fieldPve}`] - itemPriceYesterday.priceYesterday);
-                        const percentOfDayBefore = item[`avg24hPrice${fieldPve}`] / itemPriceYesterday.priceYesterday;
-                        item[`changeLast48hPercent${fieldPve}`] = Math.round((percentOfDayBefore - 1) * 100 * 100) / 100;
+                        item[`changeLast48h${fieldSuffix}`] = Math.round(item[`avg24hPrice${fieldSuffix}`] - itemPriceYesterday.priceYesterday);
+                        const percentOfDayBefore = item[`avg24hPrice${fieldSuffix}`] / itemPriceYesterday.priceYesterday;
+                        item[`changeLast48hPercent${fieldSuffix}`] = Math.round((percentOfDayBefore - 1) * 100 * 100) / 100;
                     }
                 }
             }
@@ -392,9 +392,11 @@ const methods = {
                     updated: new Date(),
                 });
             } else if (insertResult.affectedRows > 0) {
+                const currentItemData = myData.get(values.id);
                 myData.set(values.id, {
-                    ...myData.get(values.id),
+                    ...currentItemData,
                     ...values,
+                    types: currentItemData?.types ?? [],
                 });
             }
             return insertResult;

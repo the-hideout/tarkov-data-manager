@@ -1,4 +1,6 @@
 import { EventEmitter } from 'node:events';
+import fs from 'node:fs';
+import path from 'node:path';
 
 import imgGen from 'tarkov-dev-image-generator';
 
@@ -584,23 +586,23 @@ const scannerApi = {
         const escapedValues = [];
         let where = [];
         let scanned = '';
-        let trader = '';
+        let prefix = '';
         let setLastScan = false;
         if (options.offersFrom === 1) {
-            trader = 'trader_'
+            prefix = 'trader_'
         } else if (options.sessionMode === 'pve') {
-            trader = 'pve_' + trader;
+            prefix = 'pve_' + prefix;
         }
     
         if (itemScanned && itemId && !skipInsert) {
-            scanned = `, ${trader}last_scan = now()`;
+            scanned = `, ${prefix}last_scan = now()`;
             if (options.offerCount) {
                 scanned += `, last_offer_count = ?`;
                 escapedValues.push(options.offerCount);
             }
             setLastScan = true;
         } else if (!itemScanned || skipInsert) {
-            where.push(`item_data.${trader}checkout_scanner_id = ?`);
+            where.push(`item_data.${prefix}checkout_scanner_id = ?`);
             escapedValues.push(options.scanner.id);
         }
         if (itemId) {
@@ -609,7 +611,7 @@ const scannerApi = {
         }
         let sql = `
             UPDATE item_data
-            SET ${trader}checkout_scanner_id = NULL${scanned}
+            SET ${prefix}checkout_scanner_id = NULL${scanned}
             WHERE ${where.join(' AND ')}
         `;
         try {
@@ -617,7 +619,7 @@ const scannerApi = {
                 if (setLastScan) {
                     query(`
                         UPDATE scanner
-                        SET ${trader}last_scan = now()
+                        SET ${prefix}last_scan = now()
                         WHERE id = ?
                     `, [options.scanner.id]);
                 }
@@ -707,7 +709,7 @@ const scannerApi = {
             if (skipInsert) {
                 response.warnings.push(`Skipped insert of ${playerPrices.length} player prices`);
             } else {
-                playerInsert = query(`INSERT INTO price_data (item_id, price, scanner_id, timestamp, pve) VALUES ${placeholders.join(', ')}`, values);
+                playerInsert = query(`INSERT INTO price_data (item_id, price, scanner_id, timestamp, game_mode) VALUES ${placeholders.join(', ')}`, values);
             }
         } else if (playerPrices.length > 0) {
             playerInsert = Promise.reject(new Error('User not authorized to insert player prices'));
