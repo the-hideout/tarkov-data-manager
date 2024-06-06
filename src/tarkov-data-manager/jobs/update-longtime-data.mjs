@@ -16,7 +16,8 @@ class UpdateLangJob extends DataJob {
             FROM
                 price_data
             WHERE
-                timestamp > '2021-12-14'
+                timestamp > '2021-12-14' AND
+                pve = 0
             AND
                 item_id
             IN (?)`, [Object.values(keys[map])]);
@@ -55,7 +56,8 @@ class UpdateLangJob extends DataJob {
             FROM
                 price_data
             WHERE
-                timestamp > '2021-12-14'
+                timestamp > '2021-12-14' AND
+                pve = 0
             LIMIT ?, ?
         `;
         const historicalPriceData = await this.query(priceSql, [offset, batchSize]);

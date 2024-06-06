@@ -5,6 +5,7 @@ import { query, maxQueryRows } from './db-connection.mjs';
 
 let myData = false;
 let lastRefresh = new Date(0);
+const pveSuffix = 'Pve';
 
 const getInterquartileMean = (validValues) => {
     if(validValues.length === 0){
@@ -74,7 +75,7 @@ const methods = {
 
             const returnData = new Map();
 
-            for(const result of results){
+            for (const result of results) {
                 Reflect.deleteProperty(result, 'item_id');
                 Reflect.deleteProperty(result, 'base_price');
 
@@ -84,6 +85,14 @@ const methods = {
                     updated: result.last_update,
                     lastLowPrice: null,
                     avg24hPrice: null,
+                    high24hPrice: null,
+                    changeLast48h: null,
+                    changeLast48hPercent: null,
+                    lastLowPricePve: null,
+                    avg24hPricePve: null,
+                    high24hPricePve: null,
+                    changeLast48hPve: null,
+                    changeLast48hPercentPve: null,
                 };
                 if (!preparedData.properties) preparedData.properties = {};
                 returnData.set(result.id, preparedData);
@@ -115,7 +124,8 @@ const methods = {
                         const moreData = await query(`
                             SELECT
                                 price,
-                                item_id
+                                item_id,
+                                pve
                             FROM
                                 price_data
                             WHERE
@@ -140,24 +150,26 @@ const methods = {
                 SELECT
                     a.item_id,
                     MIN(a.price) AS price,
-                    timestamp
+                    timestamp,
+                    a.pve
                 FROM
                     price_data a
                 INNER JOIN (
                     SELECT
                         MAX(timestamp) AS max_timestamp,
-                        item_id
+                        item_id,
+                        pve
                     FROM 
                         price_data
                     WHERE
                         timestamp > ?
                     GROUP BY
-                        item_id
+                        item_id, pve
                 ) b
                 ON
-                    a.item_id = b.item_id AND a.timestamp = b.max_timestamp
+                    a.item_id = b.item_id AND a.timestamp = b.max_timestamp AND a.pve = b.pve
                 GROUP BY
-                    a.item_id, a.timestamp;
+                    a.item_id, a.timestamp, a.pve;
             `, [currentWipe.start_date]).then(results => {
                 lastLowPriceTimer.end();
                 return results;
@@ -167,7 +179,8 @@ const methods = {
             const avgPriceYesterdayPromise = query(`
                 SELECT
                     avg(price) AS priceYesterday,
-                    item_id
+                    item_id,
+                    pve
                 FROM
                     price_data
                 WHERE
@@ -175,7 +188,7 @@ const methods = {
                 AND
                     timestamp < DATE_SUB(NOW(), INTERVAL 1 DAY)
                 GROUP BY
-                    item_id
+                    item_id, pve
             `).then(results => {
                 priceYesterdayTimer.end();
                 return results;
@@ -193,13 +206,16 @@ const methods = {
                 avgPriceYesterdayPromise,
             ]);
 
-            const item24hPrices = {};
+            const item24hPrices = {
+                0: {},
+                1: {},
+            };
 
             price24hResults.forEach((resultRow) => {
-                if (!item24hPrices[resultRow.item_id]) {
-                    item24hPrices[resultRow.item_id] = [];
+                if (!item24hPrices[resultRow.pve][resultRow.item_id]) {
+                    item24hPrices[resultRow.pve][resultRow.item_id] = [];
                 }
-                item24hPrices[resultRow.item_id].push(resultRow.price);
+                item24hPrices[resultRow.pve][resultRow.item_id].push(resultRow.price);
             });
 
             for (const [itemId, item] of items) {
@@ -208,25 +224,31 @@ const methods = {
                     continue;
                 }
 
-                const lastLowData = lastLowPriceResults.find(row => row.item_id === itemId);
-                if (lastLowData) {
-                    item.lastLowPrice = lastLowData.price;
-                    item.updated = lastLowData.timestamp;
-                }
+                for (let pve = 0; pve < 2; pve++) {
+                    const fieldPve = pve ? pveSuffix : '';
 
-                item24hPrices[itemId]?.sort();
-                item.avg24hPrice = getInterquartileMean(item24hPrices[itemId] || []) || null;
-                item.low24hPrice = item24hPrices[itemId]?.at(0);
-                item.high24hPrice = item24hPrices[itemId]?.at(item24hPrices[itemId]?.length - 1);
-
-                const itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === itemId);
-                if (!itemPriceYesterday || item.avg24hPrice === 0) {
-                    item.changeLast48h = 0;
-                    item.changeLast48hPercent = 0;
-                } else {
-                    item.changeLast48h = Math.round(item.avg24hPrice - itemPriceYesterday.priceYesterday);
-                    const percentOfDayBefore = item.avg24hPrice / itemPriceYesterday.priceYesterday;
-                    item.changeLast48hPercent = Math.round((percentOfDayBefore - 1) * 100 * 100) / 100;
+                    const lastLowData = lastLowPriceResults.find(row => row.item_id === itemId && row.pve === pve);
+                    if (lastLowData) {
+                        item[`lastLowPrice${fieldPve}`] = lastLowData.price;
+                        if (!pve) {
+                            item.updated = lastLowData.timestamp;
+                        }
+                    }
+    
+                    item24hPrices[pve][itemId]?.sort();
+                    item[`avg24hPrice${fieldPve}`] = getInterquartileMean(item24hPrices[pve][itemId] || []) || null;
+                    item[`low24hPrice${fieldPve}`] = item24hPrices[pve][itemId]?.at(0);
+                    item[`high24hPrice${fieldPve}`] = item24hPrices[pve][itemId]?.at(item24hPrices[pve][itemId]?.length - 1);
+    
+                    const itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === itemId && row.pve === pve);
+                    if (!itemPriceYesterday || item[`avg24hPrice${fieldPve}`] === 0) {
+                        item[`changeLast48h${fieldPve}`] = 0;
+                        item[`changeLast48hPercent${fieldPve}`] = 0;
+                    } else {
+                        item[`changeLast48h${fieldPve}`] = Math.round(item[`avg24hPrice${fieldPve}`] - itemPriceYesterday.priceYesterday);
+                        const percentOfDayBefore = item[`avg24hPrice${fieldPve}`] / itemPriceYesterday.priceYesterday;
+                        item[`changeLast48hPercent${fieldPve}`] = Math.round((percentOfDayBefore - 1) * 100 * 100) / 100;
+                    }
                 }
             }
             return items;

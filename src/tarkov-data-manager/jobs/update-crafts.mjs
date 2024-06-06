@@ -2,6 +2,13 @@ import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import DataJob from '../modules/data-job.mjs';
 
+const skipCrafts = [
+    '66140c4a9688754de10dac07', // from event quest Take Two 660427dd7eb22f375205b656
+    '660c2dbaa2a92e70cc074863', // from event quest Decryption Hurdles - Part 3 6604233fe73f456f6a07466b
+    '6617cdb6b24b0ea24505f618', // from event quest Radio Club 6605a079ab236c96120c92c1
+    '661e6c26750e453380391f55', // from event quest Getting to the Core 66042b8bab236c96120c929f
+];
+
 class UpdateCraftsJob extends DataJob {
     constructor() {
         super('update-crafts');
@@ -58,6 +65,10 @@ class UpdateCraftsJob extends DataJob {
                 this.logger.warn(`${id}: Craft for ${endProduct.name} is locked`);
                 continue;
             }
+            if (skipCrafts.includes(id)) {
+                //this.logger.warn(`${id}: Craft for ${endProduct.name} is skipped`);
+                continue;
+            }
             if (!stations[en[station.name]]) {
                 stations[en[station.name]] = 0;
             }
@@ -75,7 +86,8 @@ class UpdateCraftsJob extends DataJob {
                 station_id: station.id,
                 sourceName: en[station.name],
                 duration: craft.productionTime,
-                requirements: []
+                requirements: [],
+                gameEditions: [],
             };
             let level = false;
             let skip = false;
@@ -177,6 +189,8 @@ class UpdateCraftsJob extends DataJob {
                         stringValue: task.id,
                     });
                     craftData.taskUnlock = task.id;
+                } else if (req.type === 'GameVersion') {
+                    craftData.gameEditions = req.gameVersions;
                 } else {
                     this.logger.warn(`${id}: Unknown craft requirement type ${req.type}`);
                 }
