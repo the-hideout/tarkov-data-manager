@@ -88,6 +88,88 @@
         ]
     },
     {
+        "_id": "aks74plum000000000000001",
+        "appendName": "5dd7f8c524e5d7504a4e3077",
+        "_items": [
+            {
+                "_id": "6661c52a81bbfcdd2c071ea6",
+                "_tpl": "5bf3e0490db83400196199af"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071ea7",
+                "_tpl": "59c6633186f7740cf0493bb9",
+                "parentId": "6661c52a81bbfcdd2c071ea6",
+                "slotId": "mod_gas_block"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071ea8",
+                "_tpl": "5c9a1c422e221600106f69f0",
+                "parentId": "6661c52a81bbfcdd2c071ea7",
+                "slotId": "mod_handguard"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071ea9",
+                "_tpl": "57cffb66245977632f391a99",
+                "parentId": "6661c52a81bbfcdd2c071ea8",
+                "slotId": "mod_foregrip"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071eaa",
+                "_tpl": "6269220d70b6c02e665f2635",
+                "parentId": "6661c52a81bbfcdd2c071ea8",
+                "slotId": "mod_mount_000"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071eab",
+                "_tpl": "5cc9c20cd7f00c001336c65d",
+                "parentId": "6661c52a81bbfcdd2c071eaa",
+                "slotId": "mod_tactical"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071eac",
+                "_tpl": "5649ad3f4bdc2df8348b4585",
+                "parentId": "6661c52a81bbfcdd2c071ea6",
+                "slotId": "mod_pistol_grip"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071ead",
+                "_tpl": "5d2c76ed48f03532f2136169",
+                "parentId": "6661c52a81bbfcdd2c071ea6",
+                "slotId": "mod_reciever"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071eae",
+                "_tpl": "5c0505e00db834001b735073",
+                "parentId": "6661c52a81bbfcdd2c071ead",
+                "slotId": "mod_scope"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071eaf",
+                "_tpl": "5ab626e4d8ce87272e4c6e43",
+                "parentId": "6661c52a81bbfcdd2c071ea6",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071eb0",
+                "_tpl": "5a0c59791526d8dba737bba7",
+                "parentId": "6661c52a81bbfcdd2c071eaf",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071eb1",
+                "_tpl": "5cbdaf89ae9215000e5b9c94",
+                "parentId": "6661c52a81bbfcdd2c071ea6",
+                "slotId": "mod_magazine"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071eb2",
+                "_tpl": "615d8f5dd92c473c770212ef",
+                "parentId": "6661c52a81bbfcdd2c071ea6",
+                "slotId": "mod_muzzle"
+            }
+        ]
+    },
+    {
         "_id": "altynfaceshield",
         "appendName": "FaceShield",
         "_items": [
