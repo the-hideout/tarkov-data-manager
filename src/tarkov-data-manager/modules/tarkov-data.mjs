@@ -33,19 +33,11 @@ const cachePath = (filename) => {
 }
 
 const dataFunctions = {
-    achievements: async (download = false) => {
-        try {
-            return JSON.parse(fs.readFileSync(cachePath('achievements.json'))).elements;
-        } catch (error) {
-            return spt.achievements(download);
-        }
+    achievements: async (download = false, sessionMode = 'regular') => {
+        return tarkovDevData.achievements(download, sessionMode = 'regular');
     },
-    achievementStats: (download = false) => {
-        try {
-            return JSON.parse(fs.readFileSync(cachePath('achievement_stats.json'))).elements;
-        } catch (error) {
-            return {};
-        }
+    achievementStats: (download = false, sessionMode = 'regular') => {
+        return tarkovDevData.achievementStats(download, sessionMode = 'regular');
     },
     areas: (download = false) => {
         return tarkovChanges.areas(download);

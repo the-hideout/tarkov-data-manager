@@ -87,16 +87,14 @@ wss.on('connection', async (client, req) => {
     client.role = url.searchParams.get('role');
     client.isAlive = true;
     client.log = [];
+    client.settings = {};
 
     if (client.role === 'scanner') {
         client.username = url.searchParams.get('username');
-        client.status = url.searchParams.get('status') || 'unknown';
-        client.settings = {
-            fleaMarketAvailable: url.searchParams.get('fleamarket') === 'true',
-            scanMode: url.searchParams.get('scanmode') ? url.searchParams.get('scanmode') : 'auto',
-        };
+        client.settings = JSON.parse(url.searchParams.get('settings'));
+        client.settings.scanStatus = client.settings.scanStatus || 'unknown';
         client.name = client.sessionId;
-        sendMessage(client.sessionId, 'connected', {status: client.status, settings: client.settings});
+        sendMessage(client.sessionId, 'connected', client.settings);
     }
     if (client.role === 'listener') {
         client.username = url.searchParams.get('username');
@@ -157,11 +155,12 @@ wss.on('connection', async (client, req) => {
             return;
         }
 
-        if (message.type === 'status') {
-            client.status = message.data.status;
-            client.settings = message.data.settings;
-            emitter.emit('scannerStatusUpdated', client);
-            sendMessage(client.sessionId, 'status', message.data);
+        if (message.type === 'settingsChanged') {
+            for (const settingName in message.data) {
+                client.settings[settingName] = message.data[settingName];
+            }
+            //console.log(client.sessionId, client.settings);
+            sendMessage(client.sessionId, 'settingsChanged', client.settings);
         }
 
         if (message.type === 'request') {
@@ -260,9 +259,9 @@ const webSocketServer = {
             'idle',
             'paused'
         ];
-        return connected.filter(client => availableStatuses.includes(client.status));
+        return connected.filter(client => availableStatuses.includes(client.settings.scanStatus));
     },
-    async getJson(jsonName) {
+    async getJson(jsonName, sessionMode = 'regular') {
         while (!wss.listening) {
             await sleep(100);
         }
@@ -273,7 +272,11 @@ const webSocketServer = {
         }
         const connectedJson = ['status'];
         const fleaMarketJson = ['credits'];
+        const anySessionMode = ['status', 'achievements'];
         let clients = connectedJson.includes(jsonName) ? webSocketServer.connectedScanners() : webSocketServer.launchedScanners();
+        if (!anySessionMode.includes(jsonName)) {
+            clients = clients.filter(c => c.settings.sessionMode === sessionMode);
+        }
         if (fleaMarketJson.includes(jsonName)) {
             const fleaClients = clients.filter(c => c.settings.fleaMarketAvailable);
             if (fleaClients.length > 0) {

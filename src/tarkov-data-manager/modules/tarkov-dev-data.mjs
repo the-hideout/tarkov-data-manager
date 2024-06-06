@@ -22,8 +22,9 @@ const cachePath = (filename) => {
 }
 
 const tarkovDevData = {
-    get: async (jsonName, refresh = false) => {
-        const filename = `${jsonName}.json`;
+    get: async (jsonName, refresh = false, sessionMode = 'regular') => {
+        const sessionModeQualifier = sessionMode === 'regular' ? '' : `_${sessionMode}`;
+        const filename = `${jsonName}${sessionModeQualifier}.json`;
         if (!refresh) {
             try {
                 return JSON.parse(fs.readFileSync(cachePath(filename)));
@@ -31,50 +32,53 @@ const tarkovDevData = {
                 return Promise.reject(error);
             }
         }
-        const newJson = await webSocketServer.getJson(jsonName);
+        let newJson = await webSocketServer.getJson(jsonName, sessionMode);
+        if (newJson.elements) {
+            newJson = newJson.elements;
+        }
         fs.writeFileSync(cachePath(filename), JSON.stringify(newJson, null, 4));
         return newJson;
     },
-    achievements: async (refresh = false) => {
-        return tarkovDevData.get('achievements', refresh);
+    achievements: async (refresh = false, sessionMode = 'regular') => {
+        return tarkovDevData.get('achievements', refresh, sessionMode);
     },
-    achievement_stats: async (refresh = false) => {
-        return tarkovDevData.get('achievement_stats', refresh);
+    achievementStats: async (refresh = false, sessionMode = 'regular') => {
+        return tarkovDevData.get('achievement_stats', refresh, sessionMode);
     },
-    items: async (refresh = false) => {
-        return tarkovDevData.get('items', refresh);
+    items: async (refresh = false, sessionMode = 'regular') => {
+        return tarkovDevData.get('items', refresh, sessionMode);
     },
-    crafts: async (refresh = false) => {
-        return tarkovDevData.get('crafts', refresh);
+    crafts: async (refresh = false, sessionMode = 'regular') => {
+        return tarkovDevData.get('crafts', refresh, sessionMode);
     },
-    credits: async (refresh = false) => {
-        return tarkovDevData.get('credits', refresh);
+    credits: async (refresh = false, sessionMode = 'regular') => {
+        return tarkovDevData.get('credits', refresh, sessionMode);
     },
-    locale_en: async (refresh = false) => {
-        return tarkovDevData.get('locale_en', refresh);
+    locale_en: async (refresh = false, sessionMode = 'regular') => {
+        return tarkovDevData.get('locale_en', refresh, sessionMode);
     },
-    locations: async (refresh = false) => {
-        return tarkovDevData.get('locations', refresh);
+    locations: async (refresh = false, sessionMode = 'regular') => {
+        return tarkovDevData.get('locations', refresh, sessionMode);
     },
-    globals: async(refresh = false) => {
-        return tarkovDevData.get('globals', refresh);
+    globals: async(refresh = false, sessionMode = 'regular') => {
+        return tarkovDevData.get('globals', refresh, sessionMode);
     },
-    areas: async(refresh = false) => {
-        return tarkovDevData.get('areas', refresh);
+    areas: async(refresh = false, sessionMode = 'regular') => {
+        return tarkovDevData.get('areas', refresh, sessionMode);
     },
-    traders: async (refresh = false) => {
-        return tarkovDevData.get('trader', refresh);
+    traders: async (refresh = false, sessionMode = 'regular') => {
+        return tarkovDevData.get('trader', refresh, sessionMode);
     },
     status: async (refresh = false) => {
         return tarkovDevData.get('status', refresh);
     },
-    downloadAll: async() => {
+    downloadAll: async(sessionMode = 'regular') => {
         const results = {
             errors: {},
         };
         const promises = [];
         for (const jsonName of availableFiles) {
-            promises.push(tarkovDevData.get(jsonName, true).then(data => {
+            promises.push(tarkovDevData.get(jsonName, true, sessionMode).then(data => {
                 results[jsonName] = data;
                 return data;
             }).catch(error => {

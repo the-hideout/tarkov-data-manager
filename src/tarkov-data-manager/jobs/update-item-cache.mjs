@@ -289,6 +289,14 @@ class UpdateItemCacheJob extends DataJob {
             item.changeLast48h = baseItem.changeLast48h;
             item.changeLast48hPercent = baseItem.changeLast48hPercent;
             item.lastOfferCount = baseItem.lastOfferCount;
+
+            item.lastLowPricePve = baseItem.lastLowPricePve;
+            item.avg24hPricePve = baseItem.avg24hPricePve;
+            item.low24hPricePve = baseItem.low24hPricePve;
+            item.high24hPricePve = baseItem.high24hPricePve;
+            item.changeLast48hPve = baseItem.changeLast48hPve;
+            item.changeLast48hPercentPve = baseItem.changeLast48hPercentPve;
+            item.lastOfferCountPve = baseItem.lastOfferCountPve;
         }
 
         // populate child ids for tempalte categories
