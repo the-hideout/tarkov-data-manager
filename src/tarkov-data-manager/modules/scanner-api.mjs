@@ -458,7 +458,6 @@ const scannerApi = {
                         types.item_id = item_data.id
                     WHERE NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
-                        NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') AND 
                         (item_data.image_link IS NULL OR item_data.image_link = '' OR 
                         item_data.base_image_link IS NULL OR item_data.base_image_link = '' OR 
                         item_data.grid_image_link IS NULL OR item_data.grid_image_link = '' OR 
