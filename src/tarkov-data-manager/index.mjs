@@ -14,8 +14,8 @@ import remoteData from './modules/remote-data.mjs';
 import jobs from './jobs/index.mjs';
 import {connection, query, format} from './modules/db-connection.mjs';
 import timer from './modules/console-timer.js';
-import { userFlags, scannerFlags, refreshScannerUsers } from './modules/scanner-framework.mjs';
-import scannerApi from './modules/scanner-api.mjs';
+import { userFlags, scannerFlags, refreshScannerUsers } from './modules/scanner-api.mjs';
+import scannerHttpApi from './modules/scanner-http-api.mjs';
 import webhookApi from './modules/webhook-api.mjs';
 import publicApi from './modules/public-api.mjs';
 import { uploadToS3, getImages, getLocalBucketContents, addFileToBucket, deleteFromBucket, renameFile, copyFile } from './modules/upload-s3.mjs';
@@ -1824,7 +1824,7 @@ app.delete('/wipes/:id', async (req, res) => {
 });
 
 app.all('/api/scanner/:resource', async (req, res) => {
-    scannerApi.request(req, res, req.params.resource);
+    scannerHttpApi.request(req, res, req.params.resource);
 });
 
 app.post('/api/webhooks/:hooksource/:webhookid/:webhookkey', async (req, res) => {
