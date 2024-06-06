@@ -2460,6 +2460,76 @@
         ]
     },
     {
+        "_id": "vssvintorezokp7dt0000001",
+        "appendName": "57486e672459770abd687134 ShortName",
+        "_items": [
+            {
+                "_id": "6661c52a81bbfcdd2c071e61",
+                "_tpl": "57838ad32459774a17445cd2"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071e62",
+                "_tpl": "57838c962459774a1651ec63",
+                "parentId": "6661c52a81bbfcdd2c071e61",
+                "slotId": "mod_muzzle"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071e63",
+                "_tpl": "59eb7ebe86f7740b373438ce",
+                "parentId": "6661c52a81bbfcdd2c071e62",
+                "slotId": "mod_mount_000"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071e64",
+                "_tpl": "64806bdd26c80811d408d37a",
+                "parentId": "6661c52a81bbfcdd2c071e63",
+                "slotId": "mod_foregrip"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071e65",
+                "_tpl": "646f6322f43d0c5d62063715",
+                "parentId": "6661c52a81bbfcdd2c071e63",
+                "slotId": "mod_tactical_000"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071e66",
+                "_tpl": "646f62fee779812413011ab7",
+                "parentId": "6661c52a81bbfcdd2c071e65",
+                "slotId": "mod_tactical"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071e67",
+                "_tpl": "578395e82459774a0e553c7b",
+                "parentId": "6661c52a81bbfcdd2c071e61",
+                "slotId": "mod_stock"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071e68",
+                "_tpl": "57838f9f2459774a150289a0",
+                "parentId": "6661c52a81bbfcdd2c071e61",
+                "slotId": "mod_magazine"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071e69",
+                "_tpl": "578395402459774a256959b5",
+                "parentId": "6661c52a81bbfcdd2c071e61",
+                "slotId": "mod_reciever"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071e6a",
+                "_tpl": "5648ac824bdc2ded0b8b457d",
+                "parentId": "6661c52a81bbfcdd2c071e61",
+                "slotId": "mod_charge"
+            },
+            {
+                "_id": "6661c52a81bbfcdd2c071e6b",
+                "_tpl": "57486e672459770abd687134",
+                "parentId": "6661c52a81bbfcdd2c071e61",
+                "slotId": "mod_mount_004"
+            }
+        ]
+    },
+    {
         "_id": "opscorefastmtfsrac000001",
         "appendName": "5a16b9fffcdbcb0176308b34 ShortName",
         "_items": [
