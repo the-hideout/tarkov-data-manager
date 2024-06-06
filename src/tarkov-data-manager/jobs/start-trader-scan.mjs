@@ -12,7 +12,7 @@ class StartTraderScanJob extends DataJob {
         if (await scannerApi.currentTraderScan()) {
             this.logger.log('Trader scan already in progress');
         } else {
-            await scannerApi.startTraderScan({scanner: {id: 0}});
+            await scannerApi.startTraderScan();
         }
 
         //let scanners = webSocketServer.launchedScanners().filter(c => c.settings.scanStatus === 'idle' && c.settings.scanMode === 'auto');

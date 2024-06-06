@@ -989,7 +989,7 @@ const scannerApi = {
         }
         return activeScan[0];
     },
-    startTraderScan: async (options) => {
+    startTraderScan: async () => {
         const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL OR ended >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)');
         if (activeScan.length > 0) {
             return {
@@ -999,8 +999,8 @@ const scannerApi = {
                 }
             }
         }
-        await query('INSERT INTO trader_offer_scan (scanner_id) VALUES (?)', [options.scanner.id]);
-        return startTraderScan(options);
+        await query('INSERT INTO trader_offer_scan VALUES ()');
+        return scannerApi.currentTraderScan();
     },
     submitJson: (options) => {
         const response = {errors: [], warnings: [], data: {}};
