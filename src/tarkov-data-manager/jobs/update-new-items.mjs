@@ -105,6 +105,7 @@ class UpdateNewItemsJob extends DataJob {
             name = String(name).trim();
             shortname = String(shortname).trim();
             if (name.match(doNotUse) || name === '') continue;
+            if (shortname === '') continue;
             const normalized = normalizeName(name);
 
             try {
