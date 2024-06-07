@@ -83,6 +83,9 @@ class UpdateQuestImagesJob extends DataJob {
             }
             const $ = cheerio.load(await pageResponse.text());
             const imageUrl = $('.va-infobox-mainimage-image img').first().attr('src');
+            if (!imageUrl) {
+                continue;
+            }
             const imageResponse = await fetch(imageUrl);
             if (!imageResponse.ok) {
                 continue;
