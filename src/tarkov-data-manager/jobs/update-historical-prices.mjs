@@ -62,7 +62,7 @@ class UpdateHistoricalPricesJob extends DataJob {
                         price_data
                     WHERE
                         timestamp > ? AND
-                        pve = ?
+                        game_mode = ?
                     GROUP BY item_id, timestamp
                     ORDER BY timestamp, item_id
                     LIMIT ?, ?

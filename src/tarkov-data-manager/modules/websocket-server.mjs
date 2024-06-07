@@ -4,7 +4,7 @@ import WebSocket from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 
 import sleep from './sleep.js';
-import scannerFramework from './scanner-framework.mjs';
+import scannerApi from './scanner-api.mjs';
 
 const emitter = new EventEmitter();
 
@@ -68,7 +68,7 @@ const printClients = () => {
 wss.on('connection', async (client, req) => {
     const url = new URL(`http://localhost${req.url}`);
     let terminateReason = false;
-    if (url.searchParams.get('password') !== process.env.WS_PASSWORD && !await scannerFramework.validateUser(url.searchParams.get('username'), url.searchParams.get('password'))) {
+    if (url.searchParams.get('password') !== process.env.WS_PASSWORD && !await scannerApi.validateUser(url.searchParams.get('username'), url.searchParams.get('password'))) {
         terminateReason = 'authentication';
     }
     if (!url.searchParams.get('sessionid') && url.searchParams.get('role') !== 'overseer') {
@@ -195,7 +195,7 @@ wss.on('close', () => {
     clearInterval(pingInterval);
 });
 
-scannerFramework.on('userDisabled', (username) => {
+scannerApi.on('userDisabled', (username) => {
     wss.clients.forEach((client) => {
         if (client.role === 'overseer') {
             return;

@@ -59,7 +59,7 @@ class UpdateArchivedPricesJob extends DataJob {
                         price_archive
                     WHERE
                         price_date > ? AND
-                        pve = ?
+                        game_mode = ?
                     ORDER BY price_date, item_id
                     LIMIT ?, ?
                 `, [dateCutoff, pve, offset, batchSize]);

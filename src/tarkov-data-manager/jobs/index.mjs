@@ -23,8 +23,6 @@ const defaultJobs = {
     'update-game-status': '*/15 * * * *',
     'start-trader-scan': '30 9,21 * * *',
 };
-// Too much memory :'(
-// 'update-longtime-data': '49 8 * * *'
 
 // these jobs only run on the given schedule when not in dev mode
 const nonDevJobs = {};

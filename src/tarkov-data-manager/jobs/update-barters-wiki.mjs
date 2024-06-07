@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import got from 'got';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 
 import remoteData from '../modules/remote-data.mjs';
 import fixName from '../modules/wiki-replacements.js';

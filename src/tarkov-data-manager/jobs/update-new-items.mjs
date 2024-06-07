@@ -105,6 +105,7 @@ class UpdateNewItemsJob extends DataJob {
             name = String(name).trim();
             shortname = String(shortname).trim();
             if (name.match(doNotUse) || name === '') continue;
+            if (shortname === '') continue;
             const normalized = normalizeName(name);
 
             try {
@@ -197,6 +198,7 @@ const secureContainers = [
     '5857a8bc2459772bad15db29', // gamma
     '5c093ca986f7740a1867ab12', // kappa
     '5732ee6a24597719ae0c0281', // waist pouch
+    '664a55d84a90fc2c8a6305c9', // theta
 ];
 
 export default UpdateNewItemsJob;

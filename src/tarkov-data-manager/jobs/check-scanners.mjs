@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 
-import { scannerFlags, userFlags } from '../modules/scanner-framework.mjs';
+import { scannerFlags, userFlags } from '../modules/scanner-api.mjs';
 import tarkovDevData from '../modules/tarkov-dev-data.mjs';
 import DataJob from '../modules/data-job.mjs';
 
