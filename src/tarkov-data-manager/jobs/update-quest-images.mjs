@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import sharp from 'sharp';
 
 import DataJob from '../modules/data-job.mjs';
