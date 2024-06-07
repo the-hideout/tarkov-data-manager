@@ -1171,14 +1171,14 @@
                 },
                 {
                     "item": "62e153bcdb1a5c41971c1b5b",
-                    "item_name": " SR-2M 9x21 30-round magazine",
+                    "item_name": "SR-2M 9x21 30-round magazine",
                     "count": 3,
                     "contains": [],
                     "attributes": []
                 },
                 {
                     "item": "657025c4c5d7d4cb4d078582",
-                    "item_name": " 9x21mm PS gzh ammo pack (30 pcs)",
+                    "item_name": "9x21mm PS gzh ammo pack (30 pcs)",
                     "count": 4,
                     "contains": [],
                     "attributes": []
@@ -2012,7 +2012,7 @@
                     "attributes": []
                 },
                 {
-                    "item": " 6297738b9f1b474e440c45b5 ",
+                    "item": "6297738b9f1b474e440c45b5",
                     "item_name": "HK G36 5.56x45 assault rifle Default",
                     "count": 1,
                     "contains": [],
@@ -2143,7 +2143,7 @@
                     "attributes": []
                 },
                 {
-                    "item": " 584147982459775a6c55e931",
+                    "item": "584147982459775a6c55e931",
                     "item_name": "Kalashnikov AKS-74UB 5.45x39 assault rifle Default",
                     "count": 1,
                     "contains": [],
