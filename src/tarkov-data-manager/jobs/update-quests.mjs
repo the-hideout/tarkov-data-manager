@@ -110,6 +110,10 @@ class UpdateQuestsJob extends DataJob {
                 this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - localization not found`);
                 continue;
             }
+            if (skipQuests.includes(questId)) {
+                this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - manual skip`);
+                continue;
+            }
             quests.Task.push(this.formatRawQuest(this.rawQuestData[questId]));
         }
         
@@ -1629,6 +1633,10 @@ class UpdateQuestsJob extends DataJob {
 const questItemLocations = {};
 
 const extractMap = {};
+
+const skipQuests = [
+    '6603fe74e773dcf3b0099f88', // The Tarkov Mystery
+];
 
 // Secure Folder 0013 appears on multiple maps
 // this restricts a particular objective to being found on one map
