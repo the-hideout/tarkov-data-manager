@@ -2349,5 +2349,132 @@
         "experience": 5000,
         "tarkovDataId": null,
         "factionName": "Any"
+    },
+    "66058cbf2f19c31a5a1337ec": {
+        "id": "66058cbf2f19c31a5a1337ec",
+        "name": "Create a Distraction - Part 2",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "location_id": "5714dc692459777137212e12",
+        "locationName": "Streets of Tarkov",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "66058cbd9f59e625462acc8e",
+                "name": "Create a Distraction - Part 1",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "660d5effb318c171fb1ca234",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "target": "followerBoar",
+                "count": 3,
+                "shotType": "kill",
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            },
+            {
+                "id": "660d5f5a99b1db9725ca1543",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "target": "followerKolontayAssault",
+                "count": 3,
+                "shotType": "kill",
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.07
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "657eb281b0bc0f28b178311e",
+                    "item_name": "Degtyarev RPD 7.62x39 machine gun Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "6513f0a194c72326990a3868",
+                    "item_name": "RPD 7.62x39 \"Buben\" 100-round box",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "64b7af5a8532cf95ee0a0dbd",
+                    "item_name": "7.62x39mm FMJ",
+                    "count": 200,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 10000,
+        "tarkovDataId": null,
+        "factionName": "Any"
     }
 }
