@@ -715,6 +715,7 @@ class UpdateQuestsJob extends DataJob {
                 rewardData.item = matchedPreset.id;
                 //rewardData.item_name = matchedPreset.name;
                 rewardData.base_item_id = matchedPreset.baseId;
+                rewardData.contains = [];
                 return rewardData;
             }
         }
