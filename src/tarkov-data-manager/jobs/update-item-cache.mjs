@@ -439,8 +439,10 @@ class UpdateItemCacheJob extends DataJob {
         const schemaData = {
             ItemType: ['any', ...itemTypesSet].sort().join('\n '),
             ItemCategory: Object.values(this.bsgCategories).map(cat => cat.enumName).sort().join('\n  '),
+            //ItemSourceName: [],
             HandbookCategory: Object.values(this.handbookCategories).map(cat => cat.enumName).sort().join('\n  '),
             LanguageCode: Object.keys(this.locales).sort().join('\n '),
+            //TraderName: [],
         };
         await this.cloudflarePut(schemaData, 'schema_data');
 
