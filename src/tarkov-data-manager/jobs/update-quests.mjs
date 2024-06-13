@@ -682,6 +682,10 @@ class UpdateQuestsJob extends DataJob {
         }
         for (let i = 1; i < reward.items.length; i++) {
             const item = reward.items[i];
+            if (this.items[item._tpl]._parent === '65649eb40bf0ed77b8044453') {
+                // skip built-in armor inserts
+                continue;
+            }
             const containedItem = {
                 item: item._tpl,
                 name: this.locales.en[`${item._tpl} Name`],
@@ -700,7 +704,7 @@ class UpdateQuestsJob extends DataJob {
         }
         const armorTypes = [
             '5448e54d4bdc2dcc718b4568',
-            '5448e5284bdc2dcb718b4567'
+            '5448e5284bdc2dcb718b4567',
         ];
         if (armorTypes.includes(this.items[rewardData.item]._parent)) {
             // all armors are default presets
@@ -711,6 +715,8 @@ class UpdateQuestsJob extends DataJob {
                 rewardData.item = matchedPreset.id;
                 //rewardData.item_name = matchedPreset.name;
                 rewardData.base_item_id = matchedPreset.baseId;
+                rewardData.contains = [];
+                return rewardData;
             }
         }
         if (rewardData.contains.length === 0) {

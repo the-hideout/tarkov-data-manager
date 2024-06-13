@@ -266,7 +266,7 @@ const getItemProperties = async (item) => {
             armorDamage: item._props.ArmorDamage,
             fragmentationChance: item._props.FragmentationChance,
             ricochetChance: item._props.RicochetChance,
-            penetrationChance: item._props.PenetrationChance,
+            penetrationChance: item._props.PenetrationChanceObstacle,
             penetrationPower: item._props.PenetrationPower,
             penetrationPowerDeviation: item._props.PenetrationPowerDiviation,
             accuracy: item._props.ammoAccr,

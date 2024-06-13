@@ -31,6 +31,10 @@ class UpdatePresetsJob extends DataJob {
         initPresetData(items, credits);
 
         JSON.parse(fs.readFileSync(path.join(import.meta.dirname, '..', 'data', 'manual_presets.json'))).forEach(p => {
+            if (!p._id.match(/^[a-zA-Z0-9]{23}[a-f0-9]$/)) {
+                this.logger.error(`${p._id} is not a valid id`);
+                return;
+            }
             p._changeWeaponName = true;
             presets[p._id] = p;
         });
