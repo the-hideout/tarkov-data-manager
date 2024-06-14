@@ -8,6 +8,9 @@ import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import normalizeName from '../modules/normalize-name.js';
 import { getLocalBucketContents } from '../modules/upload-s3.mjs';
+import presetData from '../modules/preset-data.mjs';
+import webSocketServer from '../modules/websocket-server.mjs';
+import { createAndUploadFromSource } from '../modules/image-create.mjs';
 
 class UpdateQuestsJob extends DataJob {
     constructor() {
@@ -65,7 +68,7 @@ class UpdateQuestsJob extends DataJob {
         this.maps = await this.jobManager.jobOutput('update-maps', this);
         this.hideout = await this.jobManager.jobOutput('update-hideout', this);
         this.traders = await this.jobManager.jobOutput('update-traders', this);
-        this.presets = await this.jobManager.jobOutput('update-presets', this);
+        this.presets = presetData.presets.presets;
         this.itemMap = await this.jobManager.jobOutput('update-item-cache', this);
 
         // only keep details for active maps
@@ -114,7 +117,7 @@ class UpdateQuestsJob extends DataJob {
                 this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - manual skip`);
                 continue;
             }
-            quests.Task.push(this.formatRawQuest(this.rawQuestData[questId]));
+            quests.Task.push(await this.formatRawQuest(this.rawQuestData[questId]));
         }
         
         for (const questId in this.missingQuests) {
@@ -669,7 +672,7 @@ class UpdateQuestsJob extends DataJob {
         obj.map_ids.push(foundMap.id);
     }
 
-    getRewardItems = (reward) => {
+    getRewardItems = async (reward) => {
         const rewardData = {
             item: reward.items[0]._tpl,
             item_name: this.locales.en[`${reward.items[0]._tpl} Name`],
@@ -702,6 +705,8 @@ class UpdateQuestsJob extends DataJob {
                 rewardData.contains.push(containedItem);
             }
         }
+
+        // check if item is armor
         const armorTypes = [
             '5448e54d4bdc2dcc718b4568',
             '5448e5284bdc2dcb718b4567',
@@ -719,10 +724,12 @@ class UpdateQuestsJob extends DataJob {
                 return rewardData;
             }
         }
+        // contains no items, so not a preset
         if (rewardData.contains.length === 0) {
             return rewardData;
         }
-        const matchedPreset = Object.values(this.presets).find(preset => {
+
+        let matchedPreset = Object.values(this.presets).find(preset => {
             if (preset.baseId !== rewardData.item) return false;
             if (preset.containsItems.length !== rewardData.contains.length+1) return false;
             for (const part of preset.containsItems) {
@@ -733,6 +740,20 @@ class UpdateQuestsJob extends DataJob {
             }
             return true;
         });
+
+        if (!matchedPreset) {
+            try {
+                const presetImage = await webSocketServer.getJsonImage(reward);
+                const matchedPresetData = await presetData.addJsonPreset(reward);
+                matchedPreset = matchedPresetData.preset;
+                await createAndUploadFromSource(presetImage, matchedPreset.id);
+            } catch (error) {
+                this.logger.error(`Error creating JSON preset: ${error.message}`);
+            }
+        } else {
+            await presetData.presetUsed(matchedPreset.id);
+        }
+
         if (matchedPreset) {
             //this.logger.success('Reward matches preset '+matchedPreset.name);
             rewardData.item = matchedPreset.id;
@@ -753,7 +774,7 @@ class UpdateQuestsJob extends DataJob {
         return rewardData;
     }
 
-    loadRewards = (questData, rewardsType, sourceRewards) => {
+    loadRewards = async (questData, rewardsType, sourceRewards) => {
         for (const reward of sourceRewards) {
             if (reward.type === 'Experience') {
                 questData.experience = parseInt(reward.value);
@@ -764,7 +785,7 @@ class UpdateQuestsJob extends DataJob {
                     standing: parseFloat(reward.value)
                 });
             } else if (reward.type === 'Item') {
-                questData[rewardsType].items.push(this.getRewardItems(reward));
+                questData[rewardsType].items.push(await this.getRewardItems(reward));
             } else if (reward.type === 'AssortmentUnlock') {
                 if (!this.locales.en[`${reward.items[0]._tpl} Name`]) {
                     this.logger.warn(`No name found for unlock item "${reward.items[0]._tpl}" for completion reward ${reward.id} of ${questData.name}`);
@@ -789,7 +810,7 @@ class UpdateQuestsJob extends DataJob {
                 }*/
                 unlock = {
                     ...unlock,
-                    ...this.getRewardItems(reward)
+                    ...await this.getRewardItems(reward)
                 };
                 questData[rewardsType].offerUnlock.push(unlock);
             } else if (reward.type === 'Skill') {
@@ -859,7 +880,7 @@ class UpdateQuestsJob extends DataJob {
         }
     }
 
-    formatRawQuest = (quest) => {
+    formatRawQuest = async (quest) => {
         const questId = quest._id;
         this.logger.log(`Processing ${this.locales.en[`${questId} name`]} ${questId}`);
         /*if (!en.locations[quest.location]) {
@@ -981,8 +1002,8 @@ class UpdateQuestsJob extends DataJob {
                 this.logger.warn(`Unrecognized quest prerequisite type ${req.conditionType} for quest requirement ${req.id} of ${questData.name}`)
             }
         }
-        this.loadRewards(questData, 'finishRewards', quest.rewards.Success);
-        this.loadRewards(questData, 'startRewards', quest.rewards.Started);
+        await this.loadRewards(questData, 'finishRewards', quest.rewards.Success);
+        await this.loadRewards(questData, 'startRewards', quest.rewards.Started);
         this.loadRewards(questData, 'failureOutcome', quest.rewards.Fail);
         if (factionMap[questData.id]) questData.factionName = factionMap[questData.id];
         if (this.missingQuests[questData.id]) delete this.missingQuests[questData.id];

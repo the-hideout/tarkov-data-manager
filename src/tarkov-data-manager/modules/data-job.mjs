@@ -3,6 +3,7 @@ import path from 'node:path';
 
 import cloudflare from './cloudflare.mjs';
 import stellate from './stellate.mjs';
+import TranslationHelper from './translation-helper.mjs';
 import { query, jobComplete, maxQueryRows } from'./db-connection.mjs';
 import JobLogger from './job-logger.mjs';
 import { alert } from './webhook.js';
@@ -45,7 +46,6 @@ class DataJob {
             ...options.saveFields,
         ];
         this.writeFolder = 'dumps';
-        this.warnOnTranslationKeySubstitution = false;
         this.maxQueryRows = maxQueryRows;
     }
 
@@ -65,6 +65,10 @@ class DataJob {
         this.startDate = new Date();
         this.kvData = {};
         this.locales = await tarkovData.locales();
+        this.translationHelper = new TranslationHelper({
+            locales: this.locales,
+            logger: this.logger,
+        })
         this.translationKeyMap = {};
         this.translationKeys = new Set();
         if (options && options.parent) {
@@ -155,7 +159,8 @@ class DataJob {
         if (!data) {
             data = this.kvData;
         }
-        await this.fillTranslations(data);
+        data.locale = await this.fillTranslations();
+        
         let kvName = kvOverride || this.kvName;
         if (!kvName) {
             return Promise.reject(new Error('Must set kvName property before calling cloudflarePut'));
@@ -263,295 +268,41 @@ class DataJob {
     }
 
     addTranslation = (key, langCode, value) => {
-        if (!this.kvData.locale) {
-            this.kvData.locale = {};
-        }
-        if (typeof langCode === 'function') {
-            if (typeof key === 'string') {
-                for (const langC in this.locales) {    
-                    if (!this.kvData.locale[langC]) {
-                        this.kvData.locale[langC] = {};
-                    }
-                    this.kvData.locale[langC][key] = langCode(this.locales[langC], langC);
-                }
-            } else if (Array.isArray(key)) {
-                for (const k of key) {    
-                    for (const langC in this.locales) {   
-                        if (!this.kvData.locale[langC]) {
-                            this.kvData.locale[langC] = {};
-                        }
-                        this.kvData.locale[langC][k] = langCode(k, this.locales[langC], langC);
-                    }
-                }
-            } else {
-                this.logger.warn(`${typeof key} is not a valid translation key`);
-            }
-            return key;
-        }
-        if (Array.isArray(key)) {
-            for (const k of key) {
-                if (!this.kvData.locale[k]){
-                    this.kvData.locale[k] = {};
-                }
-                if (langCode && value) {
-                    if (!this.kvData.locale[langCode]) {
-                        this.kvData.locale[langCode] = {};
-                    }
-                    this.kvData.locale[langCode][key] = value;
-                } else {
-                    this.translationKeys.add(k);
-                }
-            }
-            return key;
-        }
-        if (langCode) {
-            if (typeof value !== 'undefined') {
-                if (!this.kvData.locale[langCode]) {
-                    this.kvData.locale[langCode] = {};
-                }
-                this.kvData.locale[langCode][key] = value;
-            } else {
-                throw new Error(`Cannot assign undefined value to ${langCode} ${key}`);
-            }
-        } else {
-            if (typeof this.locales.en[key] !== 'undefined') {
-                this.translationKeys.add(key);
-            } else if (!this.translationKeyMap[key]) {
-                if (typeof this.locales.en[key] === 'undefined') {
-                    for (const dictKey in this.locales.en) {
-                        if (dictKey.toLowerCase() === key.toLowerCase()) {
-                            this.translationKeyMap[key] = dictKey;
-                            if (this.warnOnTranslationKeySubstitution) {
-                                this.logger.warn(`Translation key substition for ${key}: ${dictKey}`);
-                            }
-                            //return dictKey;
-                            break;
-                        }
-                    }
-                }
-                if (!this.translationKeyMap[key]) {
-                    this.logger.warn(`Translation key not found: ${key}`);
-                }
-                this.translationKeys.add(key);
-            }
-        }
-        return key;
+        return this.translationHelper.addTranslation(key, langCode, value);
     }
 
     mergeTranslations = (newTranslations, target) => {
-        if (!target) {
-            target = this.kvData;
-        }
-        if (!target.locale) {
-            target.locale = {};
-        }
-        for (const langCode in newTranslations) {
-            if (!target.locale[langCode]) {
-                target.locale[langCode] = {};
-            }
-            for (const key in newTranslations[langCode]) {
-                if (target.locale[langCode][key]) {
-                    continue;
-                }
-                target.locale[langCode][key] = newTranslations[langCode][key];
-            }
-        }
+        return this.translationHelper.mergeTranslations(newTranslations, target);
     }
 
     removeTranslation = (key, target) => {
-        if (!target) {
-            target = this.kvData;
-        }
-        if (!target.locale) {
-            target.locale = {};
-        }
-        for (const langCode in target.locale) {
-            target.locale[langCode][key] = undefined;
-        }
+        return this.translationHelper.removeTranslation(key, target);
     }
 
     getTranslation = (key, langCode = 'en', target) => {
-        if (!target) {
-            target = this.kvData;
-        }
-        if (!target.locale) {
-            target.locale = {};
-        }
-        if (!target.locale[langCode]) {
-            target.locale[langCode] = {};
-        }
-        if (typeof target.locale[langCode][key] !== 'undefined') {
-            return target.locale[langCode][key];
-        }
-        const usedKey = this.translationKeyMap[key] ? this.translationKeyMap[key] : key;
-        if (typeof usedKey === 'function') {
-            target.locale[langCode][key] = usedKey(key, langCode, this.locales[langCode]);
-            return target.locale[langCode][key];
-        }
-        target.locale[langCode][key] = this.locales[langCode][usedKey];
-        if (typeof target.locale[langCode][key] === 'undefined' && langCode === 'en') {
-            target.locale[langCode][key] = usedKey;
-            //return Promise.reject(new Error(`Missing translation for ${key}`));
-        }
-        return target.locale[langCode][key];
+        return this.translationHelper.getTranslation(key, langCode, target);
     }
 
     fillTranslations = async (target) => {
-        if (!target) {
-            target = this.kvData;
-        }
-        if (!target.locale) {
-            return;
-        }
-        for (const langCode in this.locales) {
-            if (!target.locale[langCode]) {
-                target.locale[langCode] = {};
-            }
-            for (const key of this.translationKeys) {
-                this.getTranslation(key, langCode, target);
-            }
-        }
-        for (const langCode in target.locale) {
-            if (langCode === 'en') {
-                continue;
-            }
-            for (const key in target.locale[langCode]) {
-                if (target.locale.en[key] === target.locale[langCode][key]) {
-                    delete target.locale[langCode][key];
-                }
-            }
-            if (Object.keys(target.locale[langCode]).length < 1) {
-                delete target.locale[langCode];
-            }
-        }
+        return this.translationHelper.fillTranslations(target);
+    }
+
+    getMobKey = (enemy) => {
+        return this.translationHelper.getMobKey(enemy);
+    }
+
+    addMobTranslation = (key) => {
+        return this.translationHelper.addMobTranslation(key);
+    }
+
+    hasTranslation = (key, langCode = 'en') => {
+        return this.translationHelper.hasTranslation(key, langCode);
     }
 
     query = async (sql, params) => {
         const queryPromise = query(sql, params);;
         this.queries.push(queryPromise);
         return queryPromise;
-    }
-
-    getMobKey = (enemy) => {
-        const keySubs = {
-            arenaFighterEvent: 'ArenaFighterEvent',
-            followerTagilla: 'bossTagilla',
-            AnyPmc: 'AnyPMC',
-            exUsec: 'ExUsec',
-            marksman: 'Marksman',
-            pmcBot: 'PmcBot',
-            savage: 'Savage',
-        };
-        return keySubs[enemy] || enemy;
-    }
-
-    addMobTranslation = (key) => {
-        if (typeof this.locales.en[key] !== 'undefined') {
-            this.translationKeys.add(key);
-        } else if (typeof this.translationKeyMap[key] === 'undefined') {
-            let foundKey = this.getMobKey(key);
-            let found = false;
-            if (enemyKeyMap[key]) {
-                foundKey = enemyKeyMap[key];
-            }
-            if (this.locales.en[foundKey]) {
-                this.translationKeyMap[key] = foundKey;
-                found = true;
-            }
-            const enemyKeys = [
-                `QuestCondition/Elimination/Kill/BotRole/${foundKey}`,
-                `QuestCondition/Elimination/Kill/Target/${foundKey}`,
-                `ScavRole/${foundKey}`,
-            ];
-            for (const enemyKey of enemyKeys) {
-                if (found) {
-                    break;
-                }
-                if (this.locales.en[enemyKey]) {
-                    this.translationKeyMap[key] = enemyKey;
-                    found = true;
-                    break;
-                }
-            }
-            
-            if (key.includes('follower') && !key.includes('BigPipe') && !key.includes('BirdEye')) {
-                this.translationKeyMap[key] = (key, langCode, lang) => {    
-                    const nameParts = [];
-                    const guardTypePattern = /Assault|Security|Scout|Snipe/;
-                    const bossKey = key.replace('follower', 'boss').replace(guardTypePattern, '');
-                    this.addMobTranslation(bossKey);
-                    this.addMobTranslation('Follower');
-                    nameParts.push(this.getTranslation(bossKey, langCode));
-                    nameParts.push(this.getTranslation('Follower', langCode));
-                    const guardTypeMatch = key.match(guardTypePattern);
-                    if (guardTypeMatch) {
-                        if (lang[`follower${guardTypeMatch[0]}`]) {
-                            nameParts.push(`(${lang[`follower${guardTypeMatch[0]}`]})`);
-                        } else {
-                            nameParts.push(`(${guardTypeMatch[0]})`);
-                        }
-                    }
-                    return nameParts.join(' ');
-                };
-            }
-            if (key === 'peacefullZryachiyEvent') {
-                this.addMobTranslation('bossZryachiy');
-                this.translationKeyMap[key] = (key, langCode, lang) => {
-                    return `${this.getTranslation('bossZryachiy', langCode)} (${lang.Peaceful || 'Peaceful'})`;
-                };
-            }
-            if (key === 'ravangeZryachiyEvent') {
-                this.addMobTranslation('bossZryachiy');
-                this.translationKeyMap[key] = (key, langCode, lang) => {
-                    return `${this.getTranslation('bossZryachiy', langCode)} (${lang['6530e8587cbfc1e309011e37 ShortName'] || 'Vengeful'})`;
-                };
-                
-            }
-            if (key === 'sectactPriestEvent') {
-                this.addMobTranslation('sectantPriest');
-                this.translationKeyMap[key] = (key, langCode, lang) => {
-                    return `${this.getTranslation('sectantPriest', langCode)} (${lang.Ritual})`;
-                };
-            }
-            for (const enemyKey of enemyKeys) {
-                if (found) {
-                    break;
-                }
-                for (const key in this.locales.en) {
-                    if (key.toLowerCase() === enemyKey.toLowerCase()) {
-                        this.translationKeyMap[key] = enemyKey;
-                        found = true;
-                        break;
-                    }
-                }
-            }
-
-            if (!this.translationKeyMap[key]) {
-                this.logger.warn(`Translation key not found: ${key}`);
-            }
-            this.translationKeys.add(key);
-        }
-        return key;
-    }
-
-    hasTranslation = (key, langCode = 'en') => {
-        let deepSearch = false;
-        if (typeof langCode === 'boolean') {
-            deepSearch = langCode;
-            langCode = 'en';
-        }
-        if (typeof this.locales[langCode][key] !== 'undefined') {
-            return true;
-        }
-        if (!deepSearch) {
-            return false;
-        }
-        for (const k in this.locales.en) {
-            if (k.toLowerCase() === key.toLowerCase()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     getIdSuffix(id) {
@@ -573,13 +324,5 @@ class DataJob {
         return keys;
     }
 }
-
-const enemyKeyMap = {
-    //'assault': 'ArenaFighterEvent',
-    'scavs': 'Savage',
-    'sniper': 'Marksman',
-    'sectantWarrior': 'cursedAssault',
-    'bossZryachiy': '63626d904aa74b8fe30ab426 ShortName',
-};
 
 export default DataJob;

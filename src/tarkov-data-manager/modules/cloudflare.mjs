@@ -1,7 +1,6 @@
 //import zlib from 'zlib';
 
 import got from 'got';
-import FormData from 'form-data';
 
 const BASE_URL = 'https://api.cloudflare.com/client/v4/';
 

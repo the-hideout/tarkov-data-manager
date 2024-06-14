@@ -109,7 +109,7 @@ class UpdateNewItemsJob extends DataJob {
             const normalized = normalizeName(name);
 
             try {
-                const results = await remoteData.addItem({
+                await remoteData.addItem({
                     id: item._id,
                     name: name,
                     short_name: shortname,
@@ -118,14 +118,9 @@ class UpdateNewItemsJob extends DataJob {
                     height: item._props.Height,
                     properties: {backgroundColor: item._props.BackgroundColor},
                 });
-                if (results.affectedRows > 0){
-                    console.log(`${name} updated`);
-                }
 
-                if (results.insertId !== 0){
-                    console.log(`${name} added`);
-                    addedItems.push(`${name} ${item._id}`);
-                }
+                console.log(`${name} added`);
+                addedItems.push(`${name} ${item._id}`);
 
                 if (item._props.QuestItem){
                     await remoteData.addType(item._id, 'quest')

@@ -11,6 +11,7 @@ import AdmZip from 'adm-zip';
 
 import './modules/configure-env.mjs';
 import remoteData from './modules/remote-data.mjs';
+import tarkovData from './modules/tarkov-data.mjs';
 import jobs from './jobs/index.mjs';
 import {connection, query, format} from './modules/db-connection.mjs';
 import timer from './modules/console-timer.js';
@@ -249,6 +250,7 @@ const getHeader = (req, options) => {
                         <li class="${req.url === '/json' ? 'active' : ''}"><a href="/json">JSON</a></li>
                         <li class="${req.url === '/s3-bucket' ? 'active' : ''}"><a href="/s3-bucket">S3 Bucket</a></li>
                         <li class="${req.url === '/wipes' ? 'active' : ''}"><a href="/wipes">Wipes</a></li>
+                        <li class="${req.url === '/presets' ? 'active' : ''}"><a href="/presets">Presets</a></li>
                         <!--li class="${req.url === '/trader-prices' ? 'active' : ''}"><a href="/trader-prices">Trader Prices</a></li-->
                     </ul>
                 </div>
@@ -261,7 +263,8 @@ const getHeader = (req, options) => {
                 <li class="${req.url === '/crons' ? 'active' : ''}"><a href="/crons">Crons</a></li>
                 <li class="${req.url === '/json' ? 'active' : ''}"><a href="/json">JSON</a></li>
                 <li class="${req.url === '/s3-bucket' ? 'active' : ''}"><a href="/s3-bucket">S3 Bucket</a></li>
-                <li class="${req.url === '/wipes' ? 'active' : ''}"><a href="/crons">Wipes</a></li>
+                <li class="${req.url === '/wipes' ? 'active' : ''}"><a href="/wipes">Wipes</a></li>
+                <li class="${req.url === '/presets' ? 'active' : ''}"><a href="/presets">Presets</a></li>
                 <!--li class="${req.url === '/trader-prices' ? 'active' : ''}"><a href="/trader-prices">Trader Prices</a></li-->
             </ul>
             <div class="container">
@@ -1821,6 +1824,95 @@ app.delete('/wipes/:id', async (req, res) => {
         response.errors.push(error.message);
     }
     res.json(response);
+});
+
+app.get('/presets', async (req, res) => {
+    res.send(`${getHeader(req, {include: 'datatables'})}
+        <script src="/presets.js"></script>
+        <div class="row">
+            <div class="col s12">
+                <!--a href="#" class="waves-effect waves-light btn add-preset tooltipped" data-tooltip="Add preset"><i class="material-icons">add</i></a-->
+                <table class="highlight main">
+                    <thead>
+                        <tr>
+                            <th>
+                                id
+                            </th>
+                            <th>
+                                name
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="modal-edit-preset" class="modal modal-fixed-footer">
+            <div class="modal-content">
+                <h4></h4>
+                <h5></h5>
+                <h6></h6>
+                <div class="row">
+                    <form class="col s12 post-url" method="post" action="/presets">
+                        <div class="row">
+                            <div class="input-field s12">
+                                <input value="" id="append_name" type="text" class="validate append_name" name="append_name" placeholder=" ">
+                                <label for="append_name">Append Name</label>
+                            </div>
+                        </div>
+                        <div class="row short-name-buttons"></div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="waves-effect waves-green btn edit-wipe-save">Save</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+            </div>
+        </div>
+        <div id="modal-delete-confirm" class="modal">
+            <div class="modal-content">
+                <h4>Confirm Delete</h4>
+                <div>Are you sure you want to delete <span class="modal-delete-confirm-preset-name"></span>?</div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat delete-confirm">Yes</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat delete-cancel">No</a>
+            </div>
+        </div>
+    ${getFooter(req)}`);
+});
+
+app.get('/presets/get', async (req, res) => {
+    const [presets, en] = await Promise.all([
+        query('SELECT * FROM manual_preset'),
+        tarkovData.locale('en'),
+    ]);
+    for (const preset of presets) {
+        const baseItemId = preset.items[0]._tpl;
+        const append = en[preset.append_name] ?? preset.append_name;
+        preset.name = `${en[`${baseItemId} Name`]} ${append}`;
+        preset.shortName = `${en[`${baseItemId} ShortName`]} ${append}`;
+        preset.itemNames = preset.items.map(item => {
+            return {
+                id: item._tpl,
+                name: en[`${item._tpl} Name`],
+                shortName: en[`${item._tpl} ShortName`],
+            };
+        });
+    }
+    res.json(presets);
+});
+
+app.put('/presets/:id', async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        await query('UPDATE manual_preset SET append_name = ? WHERE id = ?', [req.body.append_name, req.params.id]);
+        response.message = 'Preset updated';
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.send(response);
 });
 
 app.all('/api/scanner/:resource', async (req, res) => {

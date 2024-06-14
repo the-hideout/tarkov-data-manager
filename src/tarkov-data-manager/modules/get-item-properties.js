@@ -236,6 +236,22 @@ const getArmorClass = (item) => {
     }, armorClass);
 };
 
+const getArmorDurability = (item) => {
+    if (!item._props.Slots) {
+        return 0;
+    }
+    return item._props.Slots.reduce((armorDurability, slot) => {
+        const plateId = slot._props.filters[0].Plate;
+        if (!plateId) {
+            return armorDurability;
+        }
+        const plate = job.bsgItems[plateId];
+        //console.log(plateId, plate);
+        const plateDurability = parseInt(plate._props.MaxDurability);
+        return armorDurability + plateDurability;
+    }, 0);
+};
+
 const grenadeMap = {
     'Grenade_new': 'Grenade',
     'Grenade_new2': 'Impact Grenade',
@@ -307,7 +323,7 @@ const getItemProperties = async (item) => {
                 ...properties,
                 bluntThroughput: item._props.BluntThroughput,
                 class: armorClass,
-                durability: parseInt(item._props.Durability),
+                durability: getArmorDurability(item),
                 repairCost: parseInt(item._props.RepairCost),
                 armor_material_id: item._props.ArmorMaterial,
                 zones: job.addTranslation(getArmorZones(item)),
@@ -361,7 +377,7 @@ const getItemProperties = async (item) => {
             propertiesType: 'ItemPropertiesGlasses',
             bluntThroughput: item._props.BluntThroughput,
             class: getArmorClass(item),
-            durability: parseInt(item._props.Durability),
+            durability: getArmorDurability(item),
             repairCost: parseInt(item._props.RepairCost),
             blindnessProtection: item._props.BlindnessProtection,
             speedPenalty: parseFloat(item._props.speedPenaltyPercent) / 100,
@@ -377,7 +393,7 @@ const getItemProperties = async (item) => {
             properties = {
                 bluntThroughput: item._props.BluntThroughput,
                 class: armorClass,
-                durability: parseInt(item._props.Durability),
+                durability: getArmorDurability(item),
                 repairCost: parseInt(item._props.RepairCost),
                 speedPenalty: parseFloat(item._props.speedPenaltyPercent) / 100,
                 turnPenalty: parseFloat(item._props.mousePenalty) / 100,

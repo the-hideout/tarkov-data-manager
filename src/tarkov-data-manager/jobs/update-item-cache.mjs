@@ -4,7 +4,7 @@ import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import { dashToCamelCase, camelCaseToTitleCase } from '../modules/string-functions.mjs';
 import { setItemPropertiesOptions, getSpecialItemProperties } from '../modules/get-item-properties.js';
-import { initPresetData, getPresetData } from '../modules/preset-data.mjs';
+import { initPresetData, getPresetProperties } from '../modules/preset-data.mjs';
 import normalizeName from '../modules/normalize-name.js';
 
 class UpdateItemCacheJob extends DataJob {
@@ -95,6 +95,9 @@ class UpdateItemCacheJob extends DataJob {
             Reflect.deleteProperty(itemData[key], 'disabled');
             Reflect.deleteProperty(itemData[key], 'properties');
 
+            const ignoreMissingBaseValueCategories = [
+                '62f109593b54472778797866', // RandomLootContainer
+            ];
             // add base value
             if (this.presets[key]) {
                 itemData[key].basePrice = this.presets[key].baseValue;
@@ -109,7 +112,7 @@ class UpdateItemCacheJob extends DataJob {
                         itemData[key].basePrice += this.credits[filter.Plate];
                     });
                 });
-            }  else {
+            }  else if (this.bsgItems[key] && !ignoreMissingBaseValueCategories.includes(this.bsgItems[key]?._parent)) {
                 this.logger.warn(`Unknown base value for ${this.getTranslation(itemData[key].name)} ${key}`);
             }
 
@@ -137,7 +140,7 @@ class UpdateItemCacheJob extends DataJob {
                         }, []);
                     }
 
-                    const defaultData = await getPresetData(itemData[key], this.logger);
+                    const defaultData = await getPresetProperties(itemData[key], this.logger);
                     itemData[key].properties.defaultWidth = defaultData.width;
                     itemData[key].properties.defaultHeight = defaultData.height;
                     itemData[key].properties.defaultErgonomics = defaultData.ergonomics;

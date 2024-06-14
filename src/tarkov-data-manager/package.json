@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "node -r dotenv/config --trace-warnings test.mjs",
-    "dev": "nodemon -r dotenv/config --trace-warnings --ignore cache index.mjs",
+    "dev": "nodemon -r dotenv/config --trace-warnings index.mjs",
     "start": "node --max-old-space-size=3000 index.mjs",
     "job": "node -r dotenv/config --trace-warnings test-job.mjs",
     "put-kvs": "node -r dotenv/config --trace-warnings populate-kvs.mjs",
@@ -29,17 +29,19 @@
     "discord.js": "^14.15.2",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "form-data": "^4.0.0",
     "formidable": "^3.5.1",
     "got": "^14.3.0",
     "luxon": "^3.4.4",
     "mysql2": "^3.10.0",
     "node-schedule": "^2.1.1",
-    "nodemon": "^3.1.2",
+    "nodemon": "^3.1.3",
     "sharp": "0.32.6",
     "tarkov-dev-image-generator": "^2.2.2",
     "unidecode": "^1.0.1",
-    "uuid": "^9.0.1",
     "ws": "^8.17.0"
+  },
+  "nodemonConfig": {
+    "ignore": ["package.json", "dumps", "cache", "data", "logs", "node-logs", "public", "script", "scripts"],
+    "delay": 2500
   }
 }

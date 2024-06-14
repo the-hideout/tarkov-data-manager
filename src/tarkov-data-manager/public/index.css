@@ -34,3 +34,8 @@ tr:hover {
 .scanner-header {
     vertical-align: middle;
 }
+
+.preset-name-button {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}

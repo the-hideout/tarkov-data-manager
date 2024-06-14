@@ -1,8 +1,11 @@
+import { EventEmitter } from 'node:events';
+
 import midmean from 'compute-midmean';
 
 import timer from './console-timer.js';
 import { query, maxQueryRows } from './db-connection.mjs';
 
+const emitter = new EventEmitter();
 let myData = false;
 let lastRefresh = new Date(0);
 const pveSuffix = 'Pve';
@@ -100,6 +103,7 @@ const methods = {
 
             myData = returnData;
             lastRefresh = new Date();
+            emitter.emit('updated', myData);
             return returnData;
         } catch (error) {
             return Promise.reject(error);
@@ -302,11 +306,11 @@ const methods = {
     },
     setProperty: async (id, property, value) => {
         const currentItemData = myData.get(id);
-        if (currentItemData[property] === value)
+        if (currentItemData[property] === value) {
             return false;
+        }
         console.log(`Setting ${property} to ${value} for ${id}`);
         currentItemData[property] = value;
-        myData.set(id, currentItemData);
         return query(`UPDATE item_data SET ${property} = ? WHERE id = ?`, [value, id]);
     },
     setProperties: async (id, properties) => {
@@ -385,22 +389,26 @@ const methods = {
             ON DUPLICATE KEY UPDATE
                 ${updateFields.join(', ')}
         `, [...insertValues, ...updateValues]).then(insertResult => {
-            if (insertResult.insertId !== 0){
-                myData.set(values.id, {
-                    ...values,
-                    types: [],
-                    updated: new Date(),
-                });
-            } else if (insertResult.affectedRows > 0) {
+            if (insertResult.affectedRows > 0) {
                 const currentItemData = myData.get(values.id);
                 myData.set(values.id, {
                     ...currentItemData,
                     ...values,
                     types: currentItemData?.types ?? [],
+                    updated: currentItemData?.updated ?? new Date(),
                 });
             }
             return insertResult;
         });
+    },
+    on: (event, listener) => {
+        return emitter.on(event, listener);
+    },
+    off: (event, listener) => {
+        return emitter.off(event, listener);
+    },
+    once: (event, listener) => {
+        return emitter.once(event, listener);
     },
 };
 
