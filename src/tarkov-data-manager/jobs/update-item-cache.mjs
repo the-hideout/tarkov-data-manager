@@ -4,7 +4,6 @@ import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import { dashToCamelCase, camelCaseToTitleCase } from '../modules/string-functions.mjs';
 import { setItemPropertiesOptions, getSpecialItemProperties } from '../modules/get-item-properties.js';
-import { initPresetData, getPresetProperties } from '../modules/preset-data.mjs';
 import normalizeName from '../modules/normalize-name.js';
 
 class UpdateItemCacheJob extends DataJob {
@@ -53,7 +52,6 @@ class UpdateItemCacheJob extends DataJob {
             ItemCategory: this.bsgCategories,
             HandbookCategory: this.handbookCategories
         }
-        initPresetData(this.bsgItems, this.credits);
 
         await setItemPropertiesOptions({
             job: this,
@@ -140,13 +138,12 @@ class UpdateItemCacheJob extends DataJob {
                         }, []);
                     }
 
-                    const defaultData = await getPresetProperties(itemData[key], this.logger);
-                    itemData[key].properties.defaultWidth = defaultData.width;
-                    itemData[key].properties.defaultHeight = defaultData.height;
-                    itemData[key].properties.defaultErgonomics = defaultData.ergonomics;
-                    itemData[key].properties.defaultRecoilVertical = defaultData.verticalRecoil;
-                    itemData[key].properties.defaultRecoilHorizontal = defaultData.horizontalRecoil;
-                    itemData[key].properties.defaultWeight = defaultData.weight;
+                    itemData[key].properties.defaultWidth = preset?.width ?? null;
+                    itemData[key].properties.defaultHeight = preset?.height ?? null;
+                    itemData[key].properties.defaultErgonomics = preset?.ergonomics ?? null;
+                    itemData[key].properties.defaultRecoilVertical = preset?.verticalRecoil ?? null;
+                    itemData[key].properties.defaultRecoilHorizontal = preset?.horizontalRecoil ?? null;
+                    itemData[key].properties.defaultWeight = preset?.weight ?? null;
                 }
                 // add ammo box contents
                 if (itemData[key].bsgCategoryId === '543be5cb4bdc2deb348b4568') {

@@ -74,14 +74,18 @@ const presetData = {
         let barrelDeviationMax = 100.0;
         for (const contained of item.containsItems) {
             let partId = contained.item;
-            if (typeof partId === 'object') partId = partId.id;
+            if (typeof partId === 'object') {
+                partId = partId.id;
+            }
             const part = items[partId];
     
-            if(!part){
+            if (!part) {
                 if (logger) logger.warn(`Could not find part ${partId} of preset ${item.id}`);
                 continue;
             }
-            if (part._id === baseItem._id) continue;
+            if (part._id === baseItem._id) {
+                continue;
+            }
     
             for (const dir of directions) {
                 if (part._props.ExtraSizeForceAdd) {
@@ -265,14 +269,14 @@ const presetData = {
         presetData.validateNormalizedName(processedPreset);
         let itemPresetData = await presetData.getPresetProperties(processedPreset, logger);
         if (itemPresetData) {
-            presetData.width = itemPresetData.width;
-            presetData.height = itemPresetData.height;
-            presetData.weight = itemPresetData.weight;
-            presetData.baseValue = itemPresetData.baseValue;//credits[baseItem._id];
-            presetData.ergonomics = itemPresetData.ergonomics;
-            presetData.verticalRecoil = itemPresetData.verticalRecoil;
-            presetData.horizontalRecoil = itemPresetData.horizontalRecoil;
-            presetData.moa = itemPresetData.moa;
+            processedPreset.width = itemPresetData.width;
+            processedPreset.height = itemPresetData.height;
+            processedPreset.weight = itemPresetData.weight;
+            processedPreset.baseValue = itemPresetData.baseValue;//credits[baseItem._id];
+            processedPreset.ergonomics = itemPresetData.ergonomics;
+            processedPreset.verticalRecoil = itemPresetData.verticalRecoil;
+            processedPreset.horizontalRecoil = itemPresetData.horizontalRecoil;
+            processedPreset.moa = itemPresetData.moa;
         }
         return {preset: processedPreset, locale: await t.fillTranslations()};
     },

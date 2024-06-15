@@ -197,7 +197,8 @@ class UpdatePresetsJob extends DataJob {
             if (item.types.includes('disabled')) {
                 continue;
             }
-            if (!this.presetsData[id]) {
+            const p = this.presetsData[id];
+            if (!p) {
                 this.logger.warn(`Preset ${item.name} ${id} is no longer valid; disabling`);
                 queries.push(remoteData.addType(id, 'disabled').catch(error => {
                     this.logger.error(`Error disabling ${item.name} ${id}`);
@@ -205,11 +206,11 @@ class UpdatePresetsJob extends DataJob {
                 }));
                 continue;
             }
-            const p = this.presetsData[id];
             if (p.armorOnly) {
                 continue;
             }
             if (item.short_name !== this.getTranslation(p.shortName) || item.width !== p.width || item.height !== p.height || item.properties.backgroundColor !== p.backgroundColor) {
+                continue;
                 regnerateImages.push(p);
             }
         }
