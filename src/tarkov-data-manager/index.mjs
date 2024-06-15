@@ -392,6 +392,35 @@ app.post('/items/regenerate-images/:id', async (req, res) => {
     res.send(response);
 });
 
+app.post('/items/refresh-images/:id', async (req, res) => {
+    const response = {success: false, message: 'Error refreshing images', errors: []};
+    try {
+        const items = await remoteData.get();
+        const item = items.get(req.params.id);
+        if (!item) {
+            throw new Error(`Item ${req.params.id} not found`);
+        }
+        let newImage;
+        if (item.types.includes('preset')) {
+            newImage = await webSocketServer.getJsonImage(item.properties.items);
+        } else {
+            const results = await webSocketServer.getImages(item.id);
+            newImage = results[item.id];
+        }
+        
+        await createAndUploadFromSource(newImage, item.id);
+        response.message = `Refreshed ${item.id} images from EFT`;
+        response.success = true;
+    } catch (error) {
+        if (Array.isArray(error)) {
+            response.errors = error.map(err => err.message || err);
+        } else {
+            response.errors.push(error.message || error);
+        }
+    }
+    res.send(response);
+});
+
 app.get('/items/download-images/:id', async (req, res) => {
     const response = await getImages(req.params.id);
     const zip = new AdmZip();

@@ -107,8 +107,9 @@ $(document).ready( async function () {
                             ${item.grid_image_link ? existingImageElement(item.id, 'grid', item.grid_image_link): missingImageElement('grid')}
                             ${item.icon_link ? existingImageElement(item.id, 'icon', item.icon_link) : missingImageElement('icon')}
                         </div>
-                        <div class="">
+                        <div class="row">
                             ${item.image_8x_link || item.base_image_link ? `<a class="waves-effect waves-light regenerate btn-small tooltipped" data-id="${item.id}" data-tooltip="Regenerate images from source"><i class="material-icons">refresh</i></a>` : ''}
+                            <a class="waves-effect waves-light refresh-images btn-small tooltipped" data-id="${item.id}" data-tooltip="Refresh images from game"><i class="material-icons">sync</i></a>
                         </div>
                     `;
                 }
@@ -215,6 +216,23 @@ $(document).ready( async function () {
                 }
                 $(target).addClass('disabled');
                 fetch(`/items/regenerate-images/${$(target).data('id')}`, {method: 'POST'}).then(response => response.json()).then(data => {
+                    $(target).removeClass('disabled');
+                    M.toast({text: data.message});
+                    for (const error of data.errors) {
+                        M.toast({text: error});
+                    }
+                });
+            });
+
+            $('.btn-small.refresh-images').off('click');
+            $('.btn-small.refresh-images').click(event => {
+                console.log(event);
+                let target = event.target;
+                if (target.nodeName !== 'A') {
+                    target = target.parentElement;
+                }
+                $(target).addClass('disabled');
+                fetch(`/items/refresh-images/${$(target).data('id')}`, {method: 'POST'}).then(response => response.json()).then(data => {
                     $(target).removeClass('disabled');
                     M.toast({text: data.message});
                     for (const error of data.errors) {

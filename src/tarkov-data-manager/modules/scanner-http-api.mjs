@@ -2,43 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import formidable from 'formidable';
-import imgGen from 'tarkov-dev-image-generator';
 
-import remoteData from './remote-data.mjs';
-import { uploadToS3 } from './upload-s3.mjs';
-import { createAndUploadFromSource } from './image-create.mjs';
 import scannerApi from './scanner-api.mjs';
-
-const { imageSizes } = imgGen.imageFunctions;
-
-let presets = {};
-let presetsTimeout = false;
-
-const updatePresets = () => {
-    try {
-        const fileContents = fs.readFileSync(path.join(import.meta.dirname, '..', 'cache', 'presets.json'));
-        presets = JSON.parse(fileContents);
-        presets.byBase = Object.values(presets.presets).reduce((all, p) => {
-            if (!all[p.baseId]) {
-                all[p.baseId] = [];
-            }
-            all[p.baseId].push(p);
-            return all;
-        }, {});
-    } catch (error) {
-        console.log('ScannerAPI error reading presets.json:', error.message);
-    }
-};
-
-fs.watch(path.join(import.meta.dirname, '..', 'cache'), {persistent: false}, (eventType, filename) => {
-    if (filename === 'presets.json') {
-        clearTimeout(presetsTimeout);
-        presetsTimeout = setTimeout(updatePresets, 100);
-        
-    }
-});
-
-updatePresets();
 
 const getJson = (options) => {
     const response = {errors: [], warnings: [], data: {}};
@@ -62,10 +27,9 @@ const getJson = (options) => {
     return response;
 };
 
-const submitImage = (request, user) => {
+const submitImage = async (request, user) => {
     const response = {errors: [], warnings: [], data: []};
     const form = formidable({
-        multiples: true,
         uploadDir: path.join(import.meta.dirname, '..', 'cache'),
     });
 
@@ -76,113 +40,39 @@ const submitImage = (request, user) => {
         return response;
     }
 
-    return new Promise(resolve => {
-        const finish = (response, files) => {
-            if (files) {
-                for (const key in files.file) {
-                    let file = files.file[key][0];
-                    fs.rm(file.filepath, error => {
-                        if (error) {
-                            console.log(`Error deleting ${file.filepath}`, error);
-                        }
-                    });
-                }
-            }
-            resolve(response);
-        };
-        form.parse(request, async (err, fields, files) => {
-            if (err) {
-                console.log(err);
-                response.errors.push(String(err));
-                return resolve(response);
-            }
+    let fields;
+    let files;
 
-            fields = {
-                id: fields.id[0],
-                type: fields.type[0],
-                presets: fields.presets ? fields.presets[0].split(',') : [],
-                overwrite: fields.overwrite ? fields.overwrite[0] : false,
-            };
-    
-            //console.log(fields);
-            //console.log(JSON.stringify(files, null, 4));
-    
-            const allItemData = await remoteData.get();
-            const currentItemData = allItemData.get(fields.id);
-            const checkImageExists = imageType => {
-                const field = imageSizes[imageType].field;
-                return currentItemData[field];
-            };
-
-            if (fields.type === 'source') {
-                /*if (fields.overwrite !== 'true') {
-                    for (const imgType of Object.keys(imageSizes)) {
-                        if (checkImageExists(imgType)) {
-                            console.log(`Item ${fields.id} already has a ${imgType} image`);
-                            response.errors.push(`Item ${fields.id} already has a ${imgType} image`);
-                            return finish(response, files);
-                        }
-                    }
-                }*/
-                try {
-                    response.data = await createAndUploadFromSource(files[fields.type][0].filepath, fields.id, fields.overwrite);
-                    for (const presetId of fields.presets) {
-                        let matchedPreset;
-                        if (presetId === 'default') {
-                            matchedPreset = presets.byBase[fields.id]?.find(preset => preset.default);
-                        } else {
-                            matchedPreset = presets.presets[presetId];
-                        }
-                        if (matchedPreset) {
-                            const presetResult = await createAndUploadFromSource(files[presetId][0].filepath, matchedPreset.id, fields.overwrite);
-                            response.data.push(...presetResult);
-                        }
-                    }
-                } catch (error) {
-                    console.error(error);
-                    if (Array.isArray(error)) {
-                        response.errors.push(...error.map(err => String(err)));
-                    } else {
-                        response.errors.push(String(error));
-                    }
-                    return finish(response, files);
-                }
-                return finish(response, files);
-            }
-    
-            if(!Object.keys(imageSizes).includes(fields.type)) {
-                console.log(`Invalid image type: ${fields.type}`);
-                response.errors.push(`Invalid image type: ${fields.type}`);
-                return finish(response, files);
-            }
-    
-            let imageExists = checkImageExists(fields.type);
-
-            if (imageExists && fields.overwrite !== 'true' && !(scannerApi.userFlags.overwriteImages & user.flags)) {
-                console.log(`Item ${fields.id} already has a ${fields.type}`);
-                response.errors.push(`Item ${fields.id} already has a ${fields.type}`);
-                return finish(response, files);
-            }
-    
-            try {
-                response.data.push({
-                    type: fields.type,
-                    purged: await uploadToS3(files[fields.type][0].filepath, fields.type, fields.id)
-                });
-            } catch (error) {
-                console.error(error);
-                if (Array.isArray(error)) {
-                    response.errors.push(...error.map(err => String(err)));
-                } else {
-                    response.errors.push(String(error));
-                }
-                return finish(response, files);
-            }
-    
-            console.log(`${fields.id} ${fields.type} updated`);
-            return finish(response, files);
+    try {
+        [fields, files] = await form.parse(request);
+        const imagePaths = {};
+        for (const itemId of fields.id[0].split(',')) {
+            imagePaths[itemId] = files[itemId][0].filepath;
+        }
+        const apiResponse = await scannerApi.submitSourceImages({
+            images: imagePaths,
+            overwrite: fields.overwrite[0],
         });
-    });
+        response.data = apiResponse.data;
+        response.warnings = apiResponse.warnings;
+        response.errors = apiResponse.errors;
+    } catch (error) {
+        console.error(error);
+        response.errors.push(String(error));
+    }
+
+    if (files) {
+        for (const key in files) {
+            for (const file of files[key]) {
+                fs.rm(file.filepath, error => {
+                    if (error) {
+                        console.log(`Error deleting ${file.filepath}`, error);
+                    }
+                });
+            }
+        }
+    }
+    return response;
 };
 
 const scannerHttpApi = {

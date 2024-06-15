@@ -1048,7 +1048,7 @@ const scannerApi = {
             }
         }
 
-        return finish(response, files);
+        return response;
     },
     // options has properties: id, type, image, overwrite
     // id is the item id, type is the type of image, 
