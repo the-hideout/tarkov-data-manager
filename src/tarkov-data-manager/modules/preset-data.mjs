@@ -415,7 +415,10 @@ const presetData = {
         }
         emitter.emit('updated', presets);
     },
-    findPreset: (items) => {
+    itemsMatch: (itemsA, itemsB) => {
+        if (itemsA.length !== itemsB.length) {
+            return false;
+        }
         const getPartPath = (part, parts) => {
             const getParent = (part1) => {
                 return parts.find(part2 => part1.parentId === part2._id);
@@ -428,43 +431,52 @@ const presetData = {
             }
             return tpls;
         };
-        for (const preset of Object.values(presets.presets)) {
-            if (preset.items.length !== items.length) {
-                continue;
+        // for every part in A, there is a matching part in B
+        return itemsA.every(partA => {
+            if (!itemsB.some(partB => partB._tpl === partA._tpl)) {
+                // B has no part of the same item
+                return false;
             }
-            const partsMatch = preset.items.every(presetPart => {
-                if (!items.some(p => p._tpl === presetPart._tpl)) {
+            const partPathA = getPartPath(partA, itemsA);
+            return itemsB.some(partB => {
+                if (partA._tpl !== partB._tpl) {
+                    // this isn't the same item
                     return false;
                 }
-                const presetPartPath = getPartPath(presetPart, preset.items);
-                return items.some(itemPart => {
-                    if (itemPart._tpl !== presetPart._tpl) {
+                const partPathB = getPartPath(partB, itemsB);
+                if (partPathA.length !== partPathB.length) {
+                    // there are more parts in one path
+                    return false;
+                }
+                for (let i = 0; i < partPathA.length; i++) {
+                    const pathItemA = partPathA[i];
+                    const pathItemB = partPathB[i];
+                    if (pathItemB._tpl !== pathItemA._tpl) {
+                        // the items at this step of the path don't match
                         return false;
                     }
-                    const itemPartPath = getPartPath(itemPart, items);
-                    if (presetPartPath.length !== itemPartPath.length) {
+                    if (pathItemB.slotId !== pathItemA.slotId) {
+                        // the items are attached to different slots
                         return false;
                     }
-                    for (let i = 0; i < presetPartPath.length; i++) {
-                        const presetPathItem = presetPartPath[i];
-                        const itemPathItem = itemPartPath[i];
-                        if (presetPathItem._tpl !== itemPathItem._tpl) {
-                            return false;
-                        }
-                        if (presetPathItem.slotId !== itemPathItem.slotId) {
-                            return false;
-                        }
-                        if (presetPathItem.parentId && presetPathItem.upd?.StackObjectsCount !== itemPathItem.upd?.StackObjectsCount) {
-                            return false;
-                        }
+                    if (pathItemB.parentId && pathItemB.upd?.StackObjectsCount !== pathItemA.upd?.StackObjectsCount) {
+                        // there are a differnt number of items (ammmo)
+                        return false;
                     }
-                    return true;
-                });
+                    if (pathItemA.location !== pathItemB.location) {
+                        // the item is in a different location (ammo)
+                        return false;
+                    }
+                }
+                return true;
             });
-            if (!partsMatch) {
-                continue;
+        });
+    },
+    findPreset: (items) => {
+        for (const preset of Object.values(presets.presets)) {
+            if (presetData.itemsMatch(items, preset.items)) {
+                return preset;
             }
-            return preset;
         }
         return false;
     },

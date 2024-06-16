@@ -62,6 +62,9 @@ const getFilterConstraints = (item, grid) => {
                 if (!disabledItemIds.includes(allowed)) constraints.allowedItems.push(allowed);
                 continue;
             }
+            if (!job.bsgItems[allowed]) {
+                continue;
+            }
             if (job.bsgItems[allowed]._type === 'Item') continue;
             constraints.allowedCategories.push(allowed);
         }
@@ -420,10 +423,13 @@ const getItemProperties = async (item) => {
                 properties.deafening = item._props.DeafStrength;
                 properties.blocksHeadset = item._props.BlocksEarpiece;
             } else if (item._parent === '57bef4c42459772e8d35a53b') {
+                // armored equipment
                 properties.propertiesType = 'ItemPropertiesArmorAttachment';
             } else if (item._parent === '65649eb40bf0ed77b8044453') {
+                // built-in inserts
                 properties.propertiesType = 'ItemPropertiesArmorAttachment';
             } else if (item._parent === '644120aa86ffbe10ee032b6f') {
+                // armor plate
                 properties.propertiesType = 'ItemPropertiesArmorAttachment';
             } 
         } else if (item._parent === '5a341c4086f77401f2541505') {

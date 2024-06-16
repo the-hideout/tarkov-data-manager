@@ -401,6 +401,30 @@ const methods = {
             return insertResult;
         });
     },
+    removeItem: async (id) => {
+        if (!id) {
+            return Promise.reject(new Error('You must provide id to remove an item'));
+        }
+        await methods.get();
+        if (!myData.has(id)) {
+            return Promise.reject(new Error(`Item ${id} not found`));
+        }
+        const result = await query('DELETE FROM item_data WHERE id = ?', [id]);
+        myData.delete(id);
+        return result;
+    },
+    hasPrices: async (id) => {
+        const fleaPrice = await query('select count(id) as num from price_data where item_id = ?', [id]);
+        if (fleaPrice[0].num !== 0) {
+            return true;
+        }
+        const priceArchive = await query('select count(item_id) as num from price_archive where item_id = ?', [id]);
+        if (priceArchive[0].num !== 0) {
+            return true;
+        }
+        const traderOffer = await query('select count(id) as num from trader_offers where item_id = ?', [id]);
+        return traderOffer[0].num !== 0;
+    },
     on: (event, listener) => {
         return emitter.on(event, listener);
     },

@@ -42,6 +42,12 @@ class UpdateItemNamesJob extends DataJob {
             i++;
             const item = bsgData[itemId];
             if (!item || !item._props) {
+                // use to periodically clean up the DB
+                /*if (!item && !localItem.types.includes('preset') && localItem.types.includes('disabled') && !await remoteData.hasPrices(itemId)) {
+                    await this.query('DELETE FROM item_data WHERE id = ?', [itemId]);
+                    await this.query('DELETE FROM types WHERE item_id = ?', [itemId]);
+                    this.logger.log(`Deleted removed item ${localItem.name} ${itemId}`);
+                }*/
                 continue;
             }
 

@@ -20,50 +20,50 @@ class UpdateNewItemsJob extends DataJob {
         this.logger.log('Checking for new items');
 
         const items = Object.values(bsgData).filter((bsgObject) => {
-            if(!bsgObject._props){
+            if (!bsgObject._props) {
                 return false;
             }
 
-            if(bsgObject._type !== 'Item'){
+            if (bsgObject._type !== 'Item') {
                 return false;
             }
 
-            if(secureContainers.includes(bsgObject._id)){
+            if (secureContainers.includes(bsgObject._id)) {
                 return true;
             }
 
-            if(ignoreMap.includes(bsgObject._id)){
+            if (ignoreMap.includes(bsgObject._id)) {
                 return false;
             }
 
             // Parent is LootContainer
-            if(bsgObject._parent === '566965d44bdc2d814c8b4571'){
+            if (bsgObject._parent === '566965d44bdc2d814c8b4571') {
                 return false;
             }
 
             // Parent is MobContainer
             // Removes all secure containers, which is why we do the above check first
-            if(bsgObject._parent === '5448bf274bdc2dfc2f8b456a'){
+            if (bsgObject._parent === '5448bf274bdc2dfc2f8b456a') {
                 return false;
             }
 
             // Parent is Stash
-            if(bsgObject._parent === '566abbb64bdc2d144c8b457d'){
+            if (bsgObject._parent === '566abbb64bdc2d144c8b457d') {
                 return false;
             }
 
             // Parent is Pockets
-            if(bsgObject._parent === '557596e64bdc2dc2118b4571'){
+            if (bsgObject._parent === '557596e64bdc2dc2118b4571') {
                 return false;
             }
 
             // Parent is Inventory
-            if(bsgObject._parent === '55d720f24bdc2d88028b456d'){
+            if (bsgObject._parent === '55d720f24bdc2d88028b456d') {
                 return false;
             }
 
             // Parent is Sorting table
-            if(bsgObject._parent === '6050cac987d3f925bf016837'){
+            if (bsgObject._parent === '6050cac987d3f925bf016837') {
                 return false;
             }
 
@@ -80,8 +80,8 @@ class UpdateNewItemsJob extends DataJob {
             // 5b9b9020e7ef6f5716480215 dogtagt
 
             // Removes shrapnel etc
-            if(bsgObject._props.StackMinRandom === 0){
-                return false
+            if (bsgObject._props.StackMinRandom === 0) {
+                return false;
             }
 
             return true;

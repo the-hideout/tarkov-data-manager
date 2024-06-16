@@ -195,6 +195,11 @@ class UpdatePresetsJob extends DataJob {
                 continue;
             }
             if (item.types.includes('disabled')) {
+                if (!remoteData.hasPrices(id)) {
+                    await query('DELETE FROM item_data WHERE id = ?', [id]);
+                    await query('DELETE FROM types WHERE item_id = ?', [id]);
+                    this.logger.log(`Deleted unused preset ${item.name} ${id}`);
+                }
                 continue;
             }
             const p = this.presetsData[id];
@@ -210,7 +215,6 @@ class UpdatePresetsJob extends DataJob {
                 continue;
             }
             if (item.short_name !== this.getTranslation(p.shortName) || item.width !== p.width || item.height !== p.height || item.properties.backgroundColor !== p.backgroundColor) {
-                continue;
                 regnerateImages.push(p);
             }
         }
