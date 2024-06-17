@@ -540,6 +540,16 @@ class UpdateQuestsJob extends DataJob {
             }
             if (questItemMap.has(id)) {
                 const itemData = questItemMap.get(id);
+                if (!itemData.image_8x_link && webSocketServer.launchedScanners() > 0) {
+                    try {
+                        const images = await webSocketServer.getImages(id);
+                        const image = images[id];
+                        await createAndUploadFromSource(image, id);
+                        this.logger.success(`Created ${id} quest item images`);
+                    } catch (error) {
+                        this.logger.error(`Error creating ${id} quest item images ${error}`);
+                    }
+                }
                 this.questItems[id].iconLink = itemData.icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
                 this.questItems[id].gridImageLink = itemData.grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
                 this.questItems[id].baseImageLink = itemData.base_image_link || 'https://assets.tarkov.dev/unknown-item-base-image.png';
@@ -751,6 +761,9 @@ class UpdateQuestsJob extends DataJob {
                 this.logger.error(`Error creating JSON preset: ${error.message}`);
             }
         } else {
+            // update last_used value of preset
+            // calling here ensures that only prior-existing presets
+            // are updated instead of updating a newly-created one
             await presetData.presetUsed(matchedPreset.id);
         }
 

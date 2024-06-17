@@ -5,6 +5,8 @@ import tarkovData from '../modules/tarkov-data.mjs';
 import { dashToCamelCase, camelCaseToTitleCase } from '../modules/string-functions.mjs';
 import { setItemPropertiesOptions, getSpecialItemProperties } from '../modules/get-item-properties.js';
 import normalizeName from '../modules/normalize-name.js';
+import webSocketServer from '../modules/websocket-server.mjs';
+import { createAndUploadFromSource } from '../modules/image-create.mjs';
 
 class UpdateItemCacheJob extends DataJob {
     constructor() {
@@ -61,6 +63,22 @@ class UpdateItemCacheJob extends DataJob {
                 continue;
             if (!this.bsgItems[key] && !this.presets[key])
                 continue;
+
+            if (!value.image_8x_link && webSocketServer.launchedScanners() > 0) {
+                try {
+                    let image;
+                    if (value.types.includes('preset')) {
+                        image = await webSocketServer.getJsonImage(value.properties.items);
+                    } else {
+                        const images = await webSocketServer.getImages(key);
+                        image = images[key];
+                    }
+                    await createAndUploadFromSource(image, key);
+                    this.logger.success(`Created ${key} item images`);
+                } catch (error) {
+                    this.logger.error(`Error creating ${key} item images ${error}`);
+                }
+            }
 
             itemData[key] = {
                 ...value,
