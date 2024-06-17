@@ -4,8 +4,9 @@ import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import { dashToCamelCase, camelCaseToTitleCase } from '../modules/string-functions.mjs';
 import { setItemPropertiesOptions, getSpecialItemProperties } from '../modules/get-item-properties.js';
-import { initPresetData, getPresetData } from '../modules/preset-data.mjs';
 import normalizeName from '../modules/normalize-name.js';
+import webSocketServer from '../modules/websocket-server.mjs';
+import { createAndUploadFromSource } from '../modules/image-create.mjs';
 
 class UpdateItemCacheJob extends DataJob {
     constructor() {
@@ -53,7 +54,6 @@ class UpdateItemCacheJob extends DataJob {
             ItemCategory: this.bsgCategories,
             HandbookCategory: this.handbookCategories
         }
-        initPresetData(this.bsgItems, this.credits);
 
         await setItemPropertiesOptions({
             job: this,
@@ -63,6 +63,22 @@ class UpdateItemCacheJob extends DataJob {
                 continue;
             if (!this.bsgItems[key] && !this.presets[key])
                 continue;
+
+            if (!value.image_8x_link && webSocketServer.launchedScanners() > 0) {
+                try {
+                    let image;
+                    if (value.types.includes('preset')) {
+                        image = await webSocketServer.getJsonImage(value.properties.items);
+                    } else {
+                        const images = await webSocketServer.getImages(key);
+                        image = images[key];
+                    }
+                    await createAndUploadFromSource(image, key);
+                    this.logger.success(`Created ${key} item images`);
+                } catch (error) {
+                    this.logger.error(`Error creating ${key} item images ${error}`);
+                }
+            }
 
             itemData[key] = {
                 ...value,
@@ -95,6 +111,9 @@ class UpdateItemCacheJob extends DataJob {
             Reflect.deleteProperty(itemData[key], 'disabled');
             Reflect.deleteProperty(itemData[key], 'properties');
 
+            const ignoreMissingBaseValueCategories = [
+                '62f109593b54472778797866', // RandomLootContainer
+            ];
             // add base value
             if (this.presets[key]) {
                 itemData[key].basePrice = this.presets[key].baseValue;
@@ -109,7 +128,7 @@ class UpdateItemCacheJob extends DataJob {
                         itemData[key].basePrice += this.credits[filter.Plate];
                     });
                 });
-            }  else {
+            }  else if (this.bsgItems[key] && !ignoreMissingBaseValueCategories.includes(this.bsgItems[key]?._parent)) {
                 this.logger.warn(`Unknown base value for ${this.getTranslation(itemData[key].name)} ${key}`);
             }
 
@@ -137,13 +156,12 @@ class UpdateItemCacheJob extends DataJob {
                         }, []);
                     }
 
-                    const defaultData = await getPresetData(itemData[key], this.logger);
-                    itemData[key].properties.defaultWidth = defaultData.width;
-                    itemData[key].properties.defaultHeight = defaultData.height;
-                    itemData[key].properties.defaultErgonomics = defaultData.ergonomics;
-                    itemData[key].properties.defaultRecoilVertical = defaultData.verticalRecoil;
-                    itemData[key].properties.defaultRecoilHorizontal = defaultData.horizontalRecoil;
-                    itemData[key].properties.defaultWeight = defaultData.weight;
+                    itemData[key].properties.defaultWidth = preset?.width ?? null;
+                    itemData[key].properties.defaultHeight = preset?.height ?? null;
+                    itemData[key].properties.defaultErgonomics = preset?.ergonomics ?? null;
+                    itemData[key].properties.defaultRecoilVertical = preset?.verticalRecoil ?? null;
+                    itemData[key].properties.defaultRecoilHorizontal = preset?.horizontalRecoil ?? null;
+                    itemData[key].properties.defaultWeight = preset?.weight ?? null;
                 }
                 // add ammo box contents
                 if (itemData[key].bsgCategoryId === '543be5cb4bdc2deb348b4568') {

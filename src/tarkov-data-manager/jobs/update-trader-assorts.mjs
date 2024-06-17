@@ -82,6 +82,9 @@ class UpdateTraderAssortsJob extends DataJob {
                         barter: false,
                         _items: offer._items,
                         contains: offer._items.reduce((contents, i) => {
+                            if (!this.items.get(i._tpl)) {
+                                return contents;
+                            }
                             const existingPart = contents.find(cont => cont.item === i._tpl);
                             if (existingPart) {
                                 existingPart.count += i.upd?.StackObjectsCount || 1

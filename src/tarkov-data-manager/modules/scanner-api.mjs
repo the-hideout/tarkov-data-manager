@@ -10,6 +10,7 @@ import { dashToCamelCase } from './string-functions.mjs';
 import dogtags from './dogtags.mjs';
 import { uploadToS3 } from './upload-s3.mjs';
 import { createAndUploadFromSource } from './image-create.mjs';
+import presetData from './preset-data.mjs';
 
 const { imageSizes } = imgGen.imageFunctions;
 
@@ -18,7 +19,6 @@ const emitter = new EventEmitter();
 const users = {};
 let usersUpdating = true;
 let presets = {};
-let presetsTimeout = false;
 
 export const userFlags = {
     disabled: 0,
@@ -37,10 +37,11 @@ export const scannerFlags = {
     skipPriceInsert: 2
 };
 
-const updatePresets = () => {
+const updatePresets = (newPresets) => {
     try {
-        const fileContents = fs.readFileSync(path.join(import.meta.dirname, '..', 'cache', 'presets.json'));
-        presets = JSON.parse(fileContents);
+        presets = {
+            ...newPresets
+        };
         presets.byBase = Object.values(presets.presets).reduce((all, p) => {
             if (!all[p.baseId]) {
                 all[p.baseId] = [];
@@ -49,19 +50,13 @@ const updatePresets = () => {
             return all;
         }, {});
     } catch (error) {
-        console.log('ScannerAPI error reading presets.json:', error.message);
+        console.log('ScannerAPI error updating presets:', error.message);
     }
 };
 
-fs.watch(path.join(import.meta.dirname, '..', 'cache'), {persistent: false}, (eventType, filename) => {
-    if (filename === 'presets.json') {
-        clearTimeout(presetsTimeout);
-        presetsTimeout = setTimeout(updatePresets, 100);
-        
-    }
-});
+presetData.on('updated', updatePresets);
 
-updatePresets();
+updatePresets(presetData.presets);
 
 const queryResultToBatchItem = item => {
     let contains = [];
@@ -1053,7 +1048,7 @@ const scannerApi = {
             }
         }
 
-        return finish(response, files);
+        return response;
     },
     // options has properties: id, type, image, overwrite
     // id is the item id, type is the type of image, 
@@ -1101,6 +1096,25 @@ const scannerApi = {
         }
 
         return response;
+    },
+    createPresetFromOffer: async (offer, presetImage = false) => {
+        if (!presetImage) {
+            presetImage = await webSocketServer.getJsonImage(reward);
+        }
+        const newPresetData = await presetData.addJsonPreset(offer);
+        const newPreset = newPresetData.preset;
+        await createAndUploadFromSource(presetImage, newPreset.id);
+        return {
+            id: newPreset.id,
+            name: newPresetData.locale.en[newPreset.name],
+            shortName: newPresetData.locale.en[newPreset.shortName],
+            types: newPreset.types,
+            backgroundColor: newPreset.backgroundColor,
+            width: newPreset.width,
+            height: newPreset.height,
+            default: newPreset.default,
+            items: newPreset.items,
+        };
     },
     on: (event, listener) => {
         return emitter.on(event, listener);

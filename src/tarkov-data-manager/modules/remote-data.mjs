@@ -1,8 +1,11 @@
+import { EventEmitter } from 'node:events';
+
 import midmean from 'compute-midmean';
 
 import timer from './console-timer.js';
 import { query, maxQueryRows } from './db-connection.mjs';
 
+const emitter = new EventEmitter();
 let myData = false;
 let lastRefresh = new Date(0);
 const pveSuffix = 'Pve';
@@ -100,6 +103,7 @@ const methods = {
 
             myData = returnData;
             lastRefresh = new Date();
+            emitter.emit('updated', myData);
             return returnData;
         } catch (error) {
             return Promise.reject(error);
@@ -302,11 +306,11 @@ const methods = {
     },
     setProperty: async (id, property, value) => {
         const currentItemData = myData.get(id);
-        if (currentItemData[property] === value)
+        if (currentItemData[property] === value) {
             return false;
+        }
         console.log(`Setting ${property} to ${value} for ${id}`);
         currentItemData[property] = value;
-        myData.set(id, currentItemData);
         return query(`UPDATE item_data SET ${property} = ? WHERE id = ?`, [value, id]);
     },
     setProperties: async (id, properties) => {
@@ -385,22 +389,50 @@ const methods = {
             ON DUPLICATE KEY UPDATE
                 ${updateFields.join(', ')}
         `, [...insertValues, ...updateValues]).then(insertResult => {
-            if (insertResult.insertId !== 0){
-                myData.set(values.id, {
-                    ...values,
-                    types: [],
-                    updated: new Date(),
-                });
-            } else if (insertResult.affectedRows > 0) {
+            if (insertResult.affectedRows > 0) {
                 const currentItemData = myData.get(values.id);
                 myData.set(values.id, {
                     ...currentItemData,
                     ...values,
                     types: currentItemData?.types ?? [],
+                    updated: currentItemData?.updated ?? new Date(),
                 });
             }
             return insertResult;
         });
+    },
+    removeItem: async (id) => {
+        if (!id) {
+            return Promise.reject(new Error('You must provide id to remove an item'));
+        }
+        await methods.get();
+        if (!myData.has(id)) {
+            return Promise.reject(new Error(`Item ${id} not found`));
+        }
+        const result = await query('DELETE FROM item_data WHERE id = ?', [id]);
+        myData.delete(id);
+        return result;
+    },
+    hasPrices: async (id) => {
+        const fleaPrice = await query('select count(id) as num from price_data where item_id = ?', [id]);
+        if (fleaPrice[0].num !== 0) {
+            return true;
+        }
+        const priceArchive = await query('select count(item_id) as num from price_archive where item_id = ?', [id]);
+        if (priceArchive[0].num !== 0) {
+            return true;
+        }
+        const traderOffer = await query('select count(id) as num from trader_offers where item_id = ?', [id]);
+        return traderOffer[0].num !== 0;
+    },
+    on: (event, listener) => {
+        return emitter.on(event, listener);
+    },
+    off: (event, listener) => {
+        return emitter.off(event, listener);
+    },
+    once: (event, listener) => {
+        return emitter.once(event, listener);
     },
 };
 

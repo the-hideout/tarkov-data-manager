@@ -1,7 +1,8 @@
 import { EventEmitter } from 'node:events';
+import crypto from 'node:crypto';
 
 import WebSocket from 'ws';
-import { v4 as uuidv4 } from 'uuid';
+import sharp from 'sharp';
 
 import sleep from './sleep.js';
 import scannerApi from './scanner-api.mjs';
@@ -123,7 +124,7 @@ wss.on('connection', async (client, req) => {
     }
     printClients();
 
-    client.on('message', (rawMessage) => {
+    client.on('message', async (rawMessage) => {
         const message = JSON.parse(rawMessage);
 
         if (message.type === 'pong') {
@@ -165,11 +166,15 @@ wss.on('connection', async (client, req) => {
 
         if (message.type === 'request') {
             // scanner has requested something
-            const response = {
-                requestId: message.requestId,
-            };
+            let response = {};
             try {
-
+                if (message.name === 'createPresetFromOffer') {
+                    let image;
+                    if (message.data.image) {
+                        image = sharp(Buffer.from(message.data.image, 'base64'));
+                    }
+                    response = await scannerApi.createPresetFromOffer(message.data.offer, image);
+                }
             } catch (error) {
                 response.error = error.message;
             }
@@ -220,14 +225,14 @@ const webSocketServer = {
             });
         });
     },
-    async sendCommand(sessionId, name, data) {
+    async sendCommand(sessionId, name, data, timeout = 30000) {
         return new Promise((resolve) => {
             const client = [...wss.clients].find(c => c.readyState === WebSocket.OPEN && c.sessionId === sessionId && c.role === 'scanner');
             if (!client) {
                 return resolve({error: `Could not find scanner with name ${sessionId}`});
             }
             let commandResponseTimeout;
-            const commandId = uuidv4();
+            const commandId = crypto.randomUUID();
             const commandResponseHandler = (message) => {
                 if (message.commandId !== commandId) {
                     return;
@@ -239,7 +244,7 @@ const webSocketServer = {
             commandResponseTimeout = setTimeout(() => {
                 emitter.off('commandResponse', commandResponseHandler);
                 resolve({error: `Timed out waiting for response from ${client.sessionId}`});
-            }, 1000 * 30);
+            }, timeout);
             emitter.on('commandResponse', commandResponseHandler);
             client.send(JSON.stringify({
                 type: 'command',
@@ -303,6 +308,58 @@ const webSocketServer = {
             return Promise.reject(new Error(errorMessage));
         }
         return response.data;
+    },
+    getImages: async (id) => {
+        while (!wss.listening) {
+            await sleep(100);
+        }
+        if (process.env.TEST_JOB === 'true') {
+            while (webSocketServer.connectedScanners().length < 1) {
+                await sleep(1000);
+            }
+        }
+        const clients = webSocketServer.launchedScanners();
+        if (clients.length === 0) {
+            return Promise.reject(new Error('No scanners available'));
+        }
+        const client = clients[Math.floor(Math.random()*clients.length)];
+        const response = await webSocketServer.sendCommand(client.sessionId, 'getImages', {id}, 60000);
+        if (response.error) {
+            let errorMessage = response.error;
+            if (!errorMessage.includes(`from ${client.sessionId}`)) {
+                errorMessage += ` from ${client.sessionId}`;
+            }
+            return Promise.reject(new Error(errorMessage));
+        }
+        const images = {};
+        for (const imageId in response.data) {
+            images[imageId] = sharp(Buffer.from(response.data[imageId], 'base64'));
+        }
+        return images;
+    },
+    getJsonImage: async (json) => {
+        while (!wss.listening) {
+            await sleep(100);
+        }
+        if (process.env.TEST_JOB === 'true') {
+            while (webSocketServer.connectedScanners().length < 1) {
+                await sleep(1000);
+            }
+        }
+        const clients = webSocketServer.launchedScanners();
+        if (clients.length === 0) {
+            return Promise.reject(new Error('No scanners available'));
+        }
+        const client = clients[Math.floor(Math.random()*clients.length)];
+        const response = await webSocketServer.sendCommand(client.sessionId, 'getJsonImage', {json}, 60000);
+        if (response.error) {
+            let errorMessage = response.error;
+            if (!errorMessage.includes(`from ${client.sessionId}`)) {
+                errorMessage += ` from ${client.sessionId}`;
+            }
+            return Promise.reject(new Error(errorMessage));
+        }
+        return sharp(Buffer.from(response.data, 'base64'));
     },
     on: (event, listener) => {
         return emitter.on(event, listener);

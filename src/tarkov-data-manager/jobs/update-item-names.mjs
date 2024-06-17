@@ -42,8 +42,19 @@ class UpdateItemNamesJob extends DataJob {
             i++;
             const item = bsgData[itemId];
             if (!item || !item._props) {
+                // use to periodically clean up the DB
+                /*if (!item && !localItem.types.includes('preset') && localItem.types.includes('disabled') && !await remoteData.hasPrices(itemId)) {
+                    await this.query('DELETE FROM item_data WHERE id = ?', [itemId]);
+                    await this.query('DELETE FROM types WHERE item_id = ?', [itemId]);
+                    this.logger.log(`Deleted removed item ${localItem.name} ${itemId}`);
+                }*/
                 continue;
-            }
+            } /*else if (item && item._parent === '65649eb40bf0ed77b8044453' && localItem.types.includes('disabled')) {
+                // remove built-in armor inserts
+                await this.query('DELETE FROM item_data WHERE id = ?', [itemId]);
+                await this.query('DELETE FROM types WHERE item_id = ?', [itemId]);
+                this.logger.log(`Deleted built-in armor ${localItem.name} ${itemId}`);
+            }*/
 
             let name = localItem.name;
             let shortname = localItem.short_name;
