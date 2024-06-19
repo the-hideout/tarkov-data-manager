@@ -376,30 +376,31 @@ class UpdateItemCacheJob extends DataJob {
         }
 
         const fleaData = {
-            name: 'FleaMarket',
+            name: this.addTranslation('FleaMarket', (lang) => {
+                return lang['RAG FAIR'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
+                    return substr.toLowerCase();
+                });
+            }),
             normalizedName: 'flea-market',
             minPlayerLevel: this.globals.config.RagFair.minUserLevel,
             enabled: this.globals.config.RagFair.enabled,
             sellOfferFeeRate: (this.globals.config.RagFair.communityItemTax / 100),
             sellRequirementFeeRate: (this.globals.config.RagFair.communityRequirementTax / 100),
-            reputationLevels: [],
+            foundInRaidRequired: this.globals.config.RagFair.isOnlyFoundInRaidAllowed,
+            reputationLevels: this.globals.config.RagFair.maxActiveOfferCount.reduce((levels, offerCount) => {
+                if (levels.length > 0 && levels[levels.length-1].offers === offerCount.count) {
+                    levels[levels.length-1].maxRep = offerCount.to;
+                    return levels;
+                }
+                levels.push({
+                    offers: offerCount.count,
+                    offersSpecialEditions: offerCount.countForSpecialEditions,
+                    minRep: offerCount.from,
+                    maxRep: offerCount.to
+                });
+                return levels;
+            }, []),
         };
-        for (const langCode in this.locales) {
-            this.addTranslation('FleaMarket', langCode, this.locales[langCode]['RAG FAIR'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
-                return substr.toLowerCase();
-            }));
-        }
-        for (const offerCount of this.globals.config.RagFair.maxActiveOfferCount) {
-            if (fleaData.reputationLevels.length > 0 && fleaData.reputationLevels[fleaData.reputationLevels.length-1].offers == offerCount.count) {
-                fleaData.reputationLevels[fleaData.reputationLevels.length-1].maxRep = offerCount.to;
-                continue;
-            }
-            fleaData.reputationLevels.push({
-                offers: offerCount.count,
-                minRep: offerCount.from,
-                maxRep: offerCount.to
-            });
-        }
 
         const armorData = {};
         for (const armorTypeId in this.globals.config.ArmorMaterials) {
