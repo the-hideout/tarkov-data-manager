@@ -9,6 +9,8 @@ import JobLogger from './job-logger.mjs';
 import { alert } from './webhook.js';
 import webSocketServer from './websocket-server.mjs';
 import tarkovData from'./tarkov-data.mjs';
+import normalizeName from './normalize-name.js';
+import gameModes from './game-modes.mjs';
 
 const verbose = false;
 
@@ -43,10 +45,12 @@ class DataJob {
             'idSuffixLength',
             'apiType',
             'maxQueryRows',
+            'gameModes',
             ...options.saveFields,
         ];
         this.writeFolder = 'dumps';
         this.maxQueryRows = maxQueryRows;
+        this.gameModes = gameModes;
     }
 
     cleanup() {
@@ -265,6 +269,10 @@ class DataJob {
         const messagePromise = alert(options, this.logger);
         this.discordAlertQueue.push(messagePromise);
         return messagePromise;
+    }
+
+    normalizeName = (name) => {
+        return normalizeName(name);
     }
 
     addTranslation = (key, langCode, value) => {

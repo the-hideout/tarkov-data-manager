@@ -6,7 +6,6 @@ import got from 'got';
 import DataJob from '../modules/data-job.mjs';
 import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
-import normalizeName from '../modules/normalize-name.js';
 import { getLocalBucketContents } from '../modules/upload-s3.mjs';
 import presetData from '../modules/preset-data.mjs';
 import webSocketServer from '../modules/websocket-server.mjs';
@@ -65,9 +64,9 @@ class UpdateQuestsJob extends DataJob {
             tarkovData.questConfig(),
             getLocalBucketContents(),
         ]);
-        this.maps = await this.jobManager.jobOutput('update-maps', this);
+        this.maps = (await this.jobManager.jobOutput('update-maps', this)).regular;
         this.hideout = await this.jobManager.jobOutput('update-hideout', this);
-        this.traders = await this.jobManager.jobOutput('update-traders', this);
+        this.traders = (await this.jobManager.jobOutput('update-traders', this)).regular;
         this.presets = presetData.presets.presets;
         this.itemMap = await this.jobManager.jobOutput('update-item-cache', this);
 
@@ -264,7 +263,7 @@ class UpdateQuestsJob extends DataJob {
         const filteredPrerequisiteTasks = {};
         const missingImages = [];
         for (const quest of quests.Task) {
-            quest.normalizedName = normalizeName(this.locales.en[quest.name])+(quest.factionName !== 'Any' ? `-${normalizeName(quest.factionName)}` : '');
+            quest.normalizedName = this.normalizeName(this.locales.en[quest.name])+(quest.factionName !== 'Any' ? `-${this.normalizeName(quest.factionName)}` : '');
 
             const removeReqs = [];
             for (const req of quest.taskRequirements) {
@@ -559,7 +558,7 @@ class UpdateQuestsJob extends DataJob {
             } else {
                 this.logger.warn(`Quest item ${id} not found in DB`);
             }
-            this.questItems[id].normalizedName = normalizeName(this.locales.en[this.questItems[id].name]);
+            this.questItems[id].normalizedName = this.normalizeName(this.locales.en[this.questItems[id].name]);
         }
 
         if (missingImages.length > 0) {
@@ -576,6 +575,21 @@ class UpdateQuestsJob extends DataJob {
         quests.locale = this.kvData.locale;
 
         await this.cloudflarePut(quests);
+
+        const pveQuests = {
+            ...quests,
+        };
+        pveQuests.Task = quests.Task.filter(task => {
+            if (task.trader === '6617beeaa9cfa777ca915b7c') {
+                return false;
+            }
+            if (task.finishRewards.traderUnlock.some(unlock => unlock.trader_id === '6617beeaa9cfa777ca915b7c')) {
+                return false;
+            }
+            return true;
+        });
+        await this.cloudflarePut(pveQuests, `${this.kvName}_pve`);
+
         this.logger.success(`Finished processing ${quests.Task.length} quests`);
         return quests;
     }
@@ -1610,13 +1624,13 @@ class UpdateQuestsJob extends DataJob {
         return {
             id: ach.id,
             name: this.addTranslation(`${ach.id} name`),
-            normalizedName: normalizeName(this.getTranslation(`${ach.id} name`)),
+            normalizedName: this.normalizeName(this.getTranslation(`${ach.id} name`)),
             description: this.addTranslation(`${ach.id} description`),
             hidden: ach.hidden,
             side: this.addTranslation(ach.side),
-            normalizedSide: normalizeName(this.getTranslation(ach.side)),
+            normalizedSide: this.normalizeName(this.getTranslation(ach.side)),
             rarity: this.addTranslation(`Achievements/Tab/${ach.rarity}Rarity`),
-            normalizedRarity: normalizeName(this.getTranslation(`Achievements/Tab/${ach.rarity}Rarity`)),
+            normalizedRarity: this.normalizeName(this.getTranslation(`Achievements/Tab/${ach.rarity}Rarity`)),
             //conditions: ach.conditions.availableForFinish.map(c => this.formatObjective(ach.id, c, true)),
             playersCompletedPercent: this.achievementStats[ach.id] || 0,
             adjustedPlayersCompletedPercent: parseFloat((((this.achievementStats[ach.id] || 0) / this.achievementStats['65141c30ec10ff011f17cc3b']) * 100).toFixed(2)),

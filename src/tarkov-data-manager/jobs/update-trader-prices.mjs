@@ -3,12 +3,12 @@ import tarkovData from '../modules/tarkov-data.mjs';
 import remoteData from '../modules/remote-data.mjs';
 
 const skipOffers = {
-    jaeger: {
+    '5c0647fdd443bc2504c2d371': { // jaeger
         1: [
             '59e0d99486f7744a32234762', // Bloodhounds
         ],
     },
-    mechanic: {
+    '5a7c2eca46aef81a7ca2145d': { //mechanic
         1: [
             '5656eb674bdc2d35148b457c', // Failed Setup
             '62e7e7bbe6da9612f743f1e0', // Failed Setup
@@ -19,12 +19,12 @@ const skipOffers = {
             '5b07db875acfc40dc528a5f6' // AR-15 Tactical Dynamics Skeletonized pistol grip
         ],
     },
-    peacekeeper: {
+    '5935c25fb3acc3127c3d8cd9': { // peacekeeper
         1: [
             '601aa3d2b2bcb34913271e6d' // 7.62x39mm MAI AP
         ]
     },
-    skier: {
+    '58330581ace78e27b8b10cee': { // skier
         1: [
             '584148f2245977598f1ad387', // skier doesn't sell mp-133
             '5efb0da7a29a85116f6ea05f', // Hint
@@ -50,7 +50,7 @@ class UpdateTraderPricesJob extends DataJob {
         };
         [this.tasks, this.traders, this.traderAssorts, this.items, this.credits, this.en] = await Promise.all([
             this.jobManager.jobOutput('update-quests', this),
-            this.jobManager.jobOutput('update-traders', this),
+            tarkovData.traders(),
             this.jobManager.jobOutput('update-trader-assorts', this, true),
             remoteData.get(),
             tarkovData.credits(),
@@ -89,12 +89,14 @@ class UpdateTraderPricesJob extends DataJob {
             if (this.skipOffer(offer)) {
                 continue;
             }
+            if (!this.traders[offer.trader_id]) {
+                continue;
+            }
             const item = this.items.get(offer.item_id);
             if (item.types.includes('disabled')) {
                 this.logger.warn(`Skipping disabled item ${item.name} ${item.id}`);
                 continue;
             }
-            const trader = this.traders.find(t => t.id === offer.trader_id);
             let questUnlock = null;
             try {
                 questUnlock = this.getQuestUnlock(offer);
@@ -110,21 +112,21 @@ class UpdateTraderPricesJob extends DataJob {
                     this.logger.error(`Error checking quest unlock: ${error.message}`);
                 }
             }
-            const assort = this.traderAssorts[trader.id].find(assort => assort.id === offer.id);
+            const assort = this.traderAssorts[offer.trader_id].find(assort => assort.id === offer.id);
             const cashPrice = {
                 id: offer.item_id,
                 item_name: item.name,
                 vendor: {
                     traderOfferId: offer.id,
-                    trader: trader.id,
-                    trader_id: trader.id,
+                    trader: offer.trader_id,
+                    trader_id: offer.trader_id,
                     traderLevel: offer.min_level,
                     minTraderLevel: offer.min_level,
                     taskUnlock: questUnlock?.id,
                     restockAmount: assort ? assort.stock : offer.restock_amount,
                     buyLimit: offer.buy_limit,
                 },
-                source: trader.normalizedName,
+                source: this.normalizeName(this.locales.en[`${offer.trader_id} Nickname`]),
                 price: Math.round(offer.price), // prices in API are Int; we should convert to float
                 priceRUB: Math.round(offer.price * this.currencyValues[offer.currency]),
                 updated: offer.updated,
@@ -189,10 +191,9 @@ class UpdateTraderPricesJob extends DataJob {
         if (!offer.locked) {
             return null;
         }
-        const trader = this.traders.find(t => t.id === offer.trader_id);
         const itemId = offer.item_id;
         for (const quest of this.tasks) {
-            const match = unlockMatches(itemId, quest.startRewards, trader.id) || unlockMatches(itemId, quest.finishRewards, trader.id);
+            const match = unlockMatches(itemId, quest.startRewards, offer.trader_id) || unlockMatches(itemId, quest.finishRewards, offer.trader_id);
             if (match) {
                 return {
                     id: quest.id,
@@ -201,27 +202,30 @@ class UpdateTraderPricesJob extends DataJob {
                 };
             }
         }
-        const error = new Error(`Unknown quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${offer.min_level} ${this.items.get(itemId).name} ${itemId}`);
+        const traderNormalizedName = this.normalizeName(this.locales.en[`${offer.trader_id} Nickname`]);
+        const error = new Error(`Unknown quest unlock for trader offer ${offer.id}: ${traderNormalizedName} ${offer.min_level} ${this.items.get(itemId).name} ${itemId}`);
         error.code = 'UNKNOWN_QUEST_UNLOCK';
-        error.trader = trader.normalizedName;
+        error.trader = traderNormalizedName;
         error.item = this.items.get(itemId).name;
-        //this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${offer.min_level} ${this.items.get(itemId).name} ${itemId}`);
+        //this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${traderNormalizedName} ${offer.min_level} ${this.items.get(itemId).name} ${itemId}`);
         throw error;
     }
 
     getTraderByName = (traderName) => {
-        return this.traders.find(t => this.locales.en[t.name].toLowerCase() === traderName.toLowerCase());
+        for (const traderId in this.traders) {
+            const normalized = this.normalizeName(this.locales.en[`${traderId} Nickname`]);
+            return normalized === traderName.toLowerCase();
+        };
     }
 
     skipOffer = (offer) => {
-        const trader = this.traders.find(t => t.id === offer.trader_id);
-        if (!skipOffers[trader.normalizedName]) {
+        if (!skipOffers[offer.trader_id]) {
             return false;
         }
-        if (!skipOffers[trader.normalizedName][offer.min_level]) {
+        if (!skipOffers[offer.trader_id][offer.min_level]) {
             return false;
         }
-        if (!skipOffers[trader.normalizedName][offer.min_level].includes(offer.item_id)) {
+        if (!skipOffers[offer.trader_id][offer.min_level].includes(offer.item_id)) {
             return false;
         }
         return true;

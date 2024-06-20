@@ -1,7 +1,6 @@
 // imports new items from the game data
 
 import DataJob from '../modules/data-job.mjs';
-import normalizeName from '../modules/normalize-name.js';
 import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 
@@ -106,7 +105,7 @@ class UpdateNewItemsJob extends DataJob {
             shortname = String(shortname).trim();
             if (name.match(doNotUse) || name === '') continue;
             if (shortname === '') continue;
-            const normalized = normalizeName(name);
+            const normalized = this.normalizeName(name);
 
             try {
                 await remoteData.addItem({

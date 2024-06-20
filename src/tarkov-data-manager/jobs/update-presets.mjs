@@ -4,7 +4,6 @@ import path from 'node:path';
 import imgGen from 'tarkov-dev-image-generator';
 
 import DataJob from '../modules/data-job.mjs';
-import normalizeName from '../modules/normalize-name.js';
 import presetsHelper from '../modules/preset-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import remoteData from '../modules/remote-data.mjs';
@@ -99,7 +98,7 @@ class UpdatePresetsJob extends DataJob {
             //name: getDogTagName(this.locales.en),
             //shortName: getDogTagName(this.locales.en),
             //description: en.templates[baseItem._id].Description,
-            normalized_name: normalizeName(this.getTranslation('customdogtags12345678910 Name')),
+            normalized_name: this.normalizeName(this.getTranslation('customdogtags12345678910 Name')),
             baseId: bearTag._id,
             width: bearTag._props.Width,
             height: bearTag._props.Height,
@@ -185,7 +184,7 @@ class UpdatePresetsJob extends DataJob {
                 }
                 return lang[`${preset.baseId} ShortName`] + ' ' + lang.Default;
             })
-            preset.normalized_name = normalizeName(this.getTranslation(preset.name));
+            preset.normalized_name = this.normalizeName(this.getTranslation(preset.name));
         }
 
         const queries = [];

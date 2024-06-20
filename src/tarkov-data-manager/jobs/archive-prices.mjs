@@ -23,15 +23,15 @@ class ArchivePricesJob extends DataJob {
 
         // archive max_days_per_run number of days
         for (let i = 0; i < max_days_per_run; i++) {
-            for (let gameMode = 0; gameMode < 2; gameMode++) {
-                const gameModeName = gameMode ? 'pve' : 'regular';
+            for (const gameMode of this.gameModes) {
+                const gameModeName = gameMode.name;
                 // get the price with the oldest timestamp
                 const oldestPrice = await this.query(`
                     SELECT * FROM price_data 
                     WHERE timestamp < ? AND game_mode = ?
                     ORDER BY timestamp
                     LIMIT 1
-                `, [cutoff, gameMode]);
+                `, [cutoff, gameMode.value]);
                 if (oldestPrice.length === 0) {
                     this.logger.success(`No ${gameModeName} prices found before ${cutoff}`);
                     return;
@@ -47,12 +47,12 @@ class ArchivePricesJob extends DataJob {
                     FROM price_data 
                     WHERE timestamp >= ? AND timestamp < ? + INTERVAL 1 DAY AND game_mode = ?
                     GROUP BY item_id
-                `, [archiveDate, archiveDate, gameMode]);
+                `, [archiveDate, archiveDate, gameMode.value]);
     
                 // add min and average prices to price archive insert
                 const insertValues = [];
                 for (const itemPrice of itemPrices) {
-                    insertValues.push(itemPrice.item_id, archiveDate, itemPrice.min_price, Math.round(itemPrice.avg_price), gameMode);
+                    insertValues.push(itemPrice.item_id, archiveDate, itemPrice.min_price, Math.round(itemPrice.avg_price), gameMode.value);
                 }
     
                 // insert archived prices
