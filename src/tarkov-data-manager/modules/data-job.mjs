@@ -160,7 +160,6 @@ class DataJob {
     }
 
     cloudflarePut = async (data, kvOverride, gameMode) => {
-        console.log('cloudflarePut', gameMode);
         if (!data) {
             data = this.kvData;
         }
@@ -209,7 +208,6 @@ class DataJob {
     }
 
     cloudflareUpload = async (kvName, data, gameMode) => {
-        console.log('cloudflareUpload', gameMode);
         if (!this.idSuffixLength) {
             return cloudflare.put(kvName, data).catch(error => {
                 this.logger.error(error);
