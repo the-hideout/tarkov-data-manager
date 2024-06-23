@@ -529,6 +529,9 @@ class UpdateMapsJob extends DataJob {
                 if (this.items.get(modId).types.includes('disabled')) {
                     continue;
                 }
+                if (mods.some(m => m.item === modId)) {
+                    continue;
+                }
                 mods.push({
                     item: modId,
                     item_name: this.items.get(modId).name,
