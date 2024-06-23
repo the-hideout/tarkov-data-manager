@@ -19,7 +19,7 @@ class UpdateQueueTimesJob extends DataJob {
         timestamps.push({ details: 'last 7 days', timestamp: DateTime.now()().minus({days: 7}).toFormat('yyyy-LL-dd HH:mm:ss')});
 
         // Fetch all current maps
-        const allMaps = (await this.jobManager.jobOutput('update-maps', this)).regular;
+        const allMaps = await this.jobManager.jobOutput('update-maps', this);
 
         const queueTimes = {};
         for (const timestamp of timestamps) {

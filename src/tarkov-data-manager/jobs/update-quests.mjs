@@ -64,7 +64,7 @@ class UpdateQuestsJob extends DataJob {
             tarkovData.questConfig(),
             getLocalBucketContents(),
         ]);
-        this.maps = (await this.jobManager.jobOutput('update-maps', this));
+        this.maps = await this.jobManager.jobOutput('update-maps', this);
         this.hideout = await this.jobManager.jobOutput('update-hideout', this);
         this.traders = (await this.jobManager.jobOutput('update-traders', this));
         this.presets = presetData.presets.presets;

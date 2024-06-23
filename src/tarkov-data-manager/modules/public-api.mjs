@@ -14,7 +14,7 @@ const validateMap = async (req, res) => {
         // console.log('public-api: using cached map data');
     } else {
         // Fetch all current maps
-        const allMapsRaw = (await jobOutput('update-maps')).regular;
+        const allMapsRaw = await jobOutput('update-maps');
 
         // Update the allMaps object in the memory cache
         allMaps.timestamp = DateTime.now().toFormat('yyyy-LL-dd HH:mm:ss');
