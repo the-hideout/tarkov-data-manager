@@ -84,7 +84,7 @@ class UpdateArchivedPricesJob extends DataJob {
             }
     
             this.kvData[gameMode.name][this.apiType] = archivedPrices;
-            await this.cloudflarePut(this.kvData[gameMode.name], kvName);
+            await this.cloudflarePut(this.kvData[gameMode.name], this.kvName, gameMode.name);
             this.logger.log(`Uploaded ${gameMode.name} prices`);
         }
 

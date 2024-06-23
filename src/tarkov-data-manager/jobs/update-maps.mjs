@@ -18,7 +18,7 @@ class UpdateMapsJob extends DataJob {
         [this.items, this.presets, this.botInfo, this.mapDetails, this.eftItems] = await Promise.all([
             remoteData.get(),
             this.jobManager.jobOutput('update-presets', this, true),
-            tarkovData.botsInfo(false),
+            tarkovData.botsInfo(),
             tarkovData.mapDetails(),
             tarkovData.items(),
         ]);
@@ -33,7 +33,7 @@ class UpdateMapsJob extends DataJob {
             this.kvData[gameMode.name] = {
                 Map: [],
             };
-            const locations = await tarkovData.locations(false, gameMode.name);
+            const locations = await tarkovData.locations({gameMode: gameMode.name});
             this.logger.log(`Processing ${gameMode.name} maps...`);
             for (const id in locations.locations) {
                 const map = locations.locations[id];

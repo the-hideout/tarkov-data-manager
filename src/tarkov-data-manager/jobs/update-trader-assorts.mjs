@@ -54,9 +54,9 @@ class UpdateTraderAssortsJob extends DataJob {
                     }, []);
                     return assorts;
                 }),
-                tarkovData.traderQuestAssorts(traderId, true).catch(error => {
+                tarkovData.traderQuestAssorts(traderId, {download: true}).catch(error => {
                     this.logger.error(`Error downloading quest assorts: ${error.message}`);
-                    return tarkovData.traderQuestAssorts(traderId, false);
+                    return tarkovData.traderQuestAssorts(traderId);
                 }).then(questAssort => {
                     return Object.keys(questAssort).reduce((allUnlocks, questStatus) => {
                         for (const assortId of Object.keys(questAssort[questStatus])) {

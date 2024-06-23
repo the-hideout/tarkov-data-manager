@@ -159,7 +159,8 @@ class DataJob {
         this.logger.error('run method not implemented');
     }
 
-    cloudflarePut = async (data, kvOverride) => {
+    cloudflarePut = async (data, kvOverride, gameMode) => {
+        console.log('cloudflarePut', gameMode);
         if (!data) {
             data = this.kvData;
         }
@@ -180,10 +181,13 @@ class DataJob {
             data.expiration = expireDate;
         }
         const uploadStart = new Date();
-        const response = await this.cloudflareUpload(kvName, data).catch(error => {
+        const response = await this.cloudflareUpload(kvName, data, gameMode).catch(error => {
             this.logger.error(error);
             return {success: false, errors: [], messages: []};
         });
+        if (gameMode && gameMode !== 'regular') {
+            kvName += `_${gameMode}`;
+        }
         const uploadTime = new Date() - uploadStart;
         if (response.success) {
             this.writeDump(data, kvName);
@@ -204,7 +208,8 @@ class DataJob {
         }
     }
 
-    cloudflareUpload = async (kvName, data) => {
+    cloudflareUpload = async (kvName, data, gameMode) => {
+        console.log('cloudflareUpload', gameMode);
         if (!this.idSuffixLength) {
             return cloudflare.put(kvName, data).catch(error => {
                 this.logger.error(error);
@@ -223,8 +228,12 @@ class DataJob {
                 }
                 return matching;
             }, {});
-            this.writeDump(partData, `${kvName}_${hexKey}`);
-            uploads.push(cloudflare.put(`${kvName}_${hexKey}`, partData).catch(error => {
+            let idKey = `${kvName}_${hexKey}`;
+            if (gameMode && gameMode !== 'regular') {
+                idKey += `_${gameMode}`;
+            }
+            this.writeDump(partData, idKey);
+            uploads.push(cloudflare.put(idKey, partData).catch(error => {
                 this.logger.error(error);
                 return {success: false, errors: [], messages: []};
             }));

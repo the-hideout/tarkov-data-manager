@@ -14,9 +14,9 @@ class GameDataJob extends DataJob {
         await this.jobManager.runJob('update-tc-data', {parent: this});
 
         this.logger.log('Updating handbook...');
-        await tarkovData.handbook(true).catch(error => {
+        await tarkovData.handbook({download: true}).catch(error => {
             this.logger.error(error);
-            return tarkovData.handbook(false);
+            return tarkovData.handbook({download: true});
         });
 
         const subJobs = [

@@ -3,11 +3,22 @@ import path from 'node:path';
 
 import got from 'got';
 
-const jsonRequest = async (path) => {
+import dataOptions from './data-options.mjs';
+
+const defaultOptions = dataOptions.default;
+const merge = dataOptions.merge;
+
+const jsonRequest = async (filename, options) => {
     if (!process.env.TC_URL || !process.env.TC_USERNAME || !process.env.TC_PASSWORD) {
         return Promise.reject(new Error('TC_URL, TC_USERNAME, or TC_PASSWORD not set'));
     }
-    const response = await got(process.env.TC_URL+path, {
+    const { gameMode } = options;
+    let path = process.env.TC_URL;
+    if (gameMode !== 'regular') {
+        path = path.replace('//files', `//${gameMode}-files`);
+    }
+    console.log('downloading', path+filename);
+    const response = await got(path+filename, {
         method: 'POST',
         username: process.env.TC_USERNAME,
         password: process.env.TC_PASSWORD,
@@ -25,36 +36,23 @@ const jsonRequest = async (path) => {
             }
         },
     });
+    console.log('downloaded', path+filename);
     if (!response) return Promise.reject(new Error(`Tarkov Changes returned null result for ${path}`));
     return response;
 };
 
 const availableFiles = {
-    crafts: {
-        requestName: 'crafts.json'
-    },
-    credits: {
-        requestName: 'credits.json'
-    },
-    items: {
-        requestName: 'items.json'
-    },
-    globals: {
-        requestName: 'globals.json'
-    },
-    areas: {
-        requestName: 'areas.json'
-    },
+    crafts: {},
+    credits: {},
+    items: {},
+    globals: {},
+    areas: {},
     traders: {
-        requestName: 'traders_clean.json',
-        fileName: 'traders.json'
+        requestName: 'traders_clean',
     },
-    locations: {
-        requestName: 'locations.json'
-    },
+    locations: {},
     locale_en: {
-        requestName: 'locale_en_td.json',
-        fileName: 'locale_en.json',
+        requestName: 'locale_en_td',
     },
 };
 
@@ -63,54 +61,62 @@ const cachePath = (filename) => {
 }
 
 const tarkovChanges = {
-    get: async (fileName, download = false, saveFileName = false) => {
-        let returnValue = false;
+    get: async (file, options) => {
+        const { download, gameMode } = merge(options);
+        const requestFileName = (availableFiles[file].requestName ?? file) + '.json';
+        const saveFileName = file + (gameMode === 'regular' ? '' : `_${gameMode}`) + '.json';
         if (download) {
-            returnValue = await jsonRequest(fileName);
-            fs.writeFileSync(cachePath(saveFileName || fileName), JSON.stringify(returnValue, null, 4));
+            const returnValue = await jsonRequest(requestFileName, options);
+            fs.writeFileSync(cachePath(saveFileName), JSON.stringify(returnValue, null, 4));
             return returnValue;
         }
         try {
-            return JSON.parse(fs.readFileSync(cachePath(saveFileName || fileName)));
+            return JSON.parse(fs.readFileSync(cachePath(saveFileName)));
         } catch (error) {
             if (error.code === 'ENOENT') {
-                return tarkovChanges.get(fileName, true, saveFileName);
+                return tarkovChanges.get(file, {...options, download: true});
             }
             return Promise.reject(error);
         }
     },
-    items: async (download = false) => {
-        return tarkovChanges.get('items.json', download);
+    items: async (options = defaultOptions) => {
+        return tarkovChanges.get('items', merge(options));
     },
-    crafts: async (download = false) => {
-        return tarkovChanges.get('crafts.json', download);
+    crafts: async (options = defaultOptions) => {
+        return tarkovChanges.get('crafts', merge(options));
     },
-    credits: async (download = false) => {
-        return tarkovChanges.get('credits.json', download);
+    credits: async (options = defaultOptions) => {
+        return tarkovChanges.get('credits', merge(options));
     },
-    locale_en: async (download = false) => {
-        return tarkovChanges.get('locale_en_td.json', download, 'locale_en.json');
+    locale_en: async (options = defaultOptions) => {
+        return tarkovChanges.get('locale_en', merge(options));
     },
-    locations: async (download = false) => {
-        return tarkovChanges.get('locations.json', download);
+    locations: async (options = defaultOptions) => {
+        return tarkovChanges.get('locations', merge(options));
     },
-    globals: async(download = false) => {
-        return tarkovChanges.get('globals.json', download);
+    globals: async(options = defaultOptions) => {
+        return tarkovChanges.get('globals', merge(options));
     },
-    areas: async(download = false) => {
-        return tarkovChanges.get('areas.json', download);
+    areas: async(options = defaultOptions) => {
+        return tarkovChanges.get('areas', merge(options));
     },
-    traders: async (download = false) => {
-        return tarkovChanges.get('traders_clean.json', download, 'traders.json');
+    traders: async (options = defaultOptions) => {
+        return tarkovChanges.get('traders', merge(options));
     },
-    downloadAll: async (returnPartial = false) => {
+    downloadAll: async (options = defaultOptions) => {
+        options = {...merge(options), download: true};
+        const skip = {
+            pve: [
+                'items',
+                'credits',
+                'locale_en',
+            ],
+        };
         const promises = [];
         for (const file in availableFiles) {
             if (availableFiles[file].skip) continue;
-            const fileSource = availableFiles[file].fileName || availableFiles[file].requestName;
-            //console.log(fileSource);
-            //promises.push(tarkovChanges.get(fileSource, true, availableFiles[file]).then(data => {return {name: availableFiles[fileSource] || fileSource, data: data}}));
-            promises.push(tarkovChanges[file](true, availableFiles[file]).then(data => {return {name: availableFiles[fileSource] || file, data: data}}));
+            if (skip[options.gameMode]?.includes(file)) continue;
+            promises.push(tarkovChanges[file](options).then(data => {return {name: file, data: data}}));
         }
         //promises.push(getSptLocales(true).then(data => {return {name: 'locales', data: data}}));
         const results = await Promise.allSettled(promises);
@@ -123,7 +129,7 @@ const tarkovChanges = {
                 errors.push(results[i].reason.message);
             }
         }
-        if (returnPartial && Object.values(values).length > 0) {
+        if (options.returnPartial && Object.values(values).length > 0) {
             values.errors = errors;
             return values;
         }

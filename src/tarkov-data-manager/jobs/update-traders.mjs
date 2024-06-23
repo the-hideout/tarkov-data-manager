@@ -16,18 +16,24 @@ class UpdateTradersJob extends DataJob {
             responseType: 'json',
             resolveBodyOnly: true,
         });
+        const skipTraders = {
+            pve: ['6617beeaa9cfa777ca915b7c'] // Ref
+        };
         this.kvData = {};
         const s3Images = s3.getLocalBucketContents();
         for (const gameMode of this.gameModes) {
             this.logger.log(`Processing ${gameMode.name} traders...`);
             [this.tradersData, this.globals] = await Promise.all([
-                tarkovData.traders(false, gameMode.name),
-                tarkovData.globals(false, gameMode.name),
+                tarkovData.traders({gameMode: gameMode.name}),
+                tarkovData.globals({gameMode: gameMode.name}),
             ]);
             this.kvData[gameMode.name] = {
                 Trader: []
             };
             for (const traderId in this.tradersData) {
+                if (skipTraders[gameMode.name]?.includes(traderId)) {
+                    continue;
+                }
                 const trader = this.tradersData[traderId];
                 const date = new Date(trader.nextResupply*1000);
                 //date.setHours(date.getHours() +5);

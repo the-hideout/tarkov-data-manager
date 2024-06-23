@@ -5,6 +5,7 @@ import tarkovChanges from './tarkov-changes.mjs';
 import tarkovBot from './tarkov-bot.mjs';
 import spt from './tarkov-spt.mjs';
 import tarkovDevData from './tarkov-dev-data.mjs';
+import dataOptions from './data-options.mjs';
 
 let manualTranslations = {};
 try {
@@ -32,47 +33,49 @@ const cachePath = (filename) => {
     return path.join(import.meta.dirname, '..', 'cache', filename);   
 }
 
+const defaultOptions = dataOptions.default;
+
 const dataFunctions = {
-    achievements: async (download = false, sessionMode = 'regular') => {
-        return tarkovDevData.achievements(download, sessionMode = 'regular');
+    achievements: async (options = defaultOptions) => {
+        return tarkovDevData.achievements(options);
     },
-    achievementStats: (download = false, sessionMode = 'regular') => {
-        return tarkovDevData.achievementStats(download, sessionMode = 'regular');
+    achievementStats: (options = defaultOptions) => {
+        return tarkovDevData.achievementStats(options);
     },
-    areas: (download = false) => {
-        return tarkovChanges.areas(download);
+    areas: (options = defaultOptions) => {
+        return tarkovChanges.areas(options);
     },
-    botInfo: (botKey, download = false) => {
-        return spt.botInfo(botKey, download);
+    botInfo: (botKey, options = defaultOptions) => {
+        return spt.botInfo(botKey, options);
     },
-    botsInfo: async (download = true) => {
-        return spt.botsInfo(download);
+    botsInfo: async (options = defaultOptions) => {
+        return spt.botsInfo(options);
     },
-    crafts: (download = false) => {
-        return tarkovChanges.crafts(download);
+    crafts: (options = defaultOptions) => {
+        return tarkovChanges.crafts(options);
     },
-    credits: (download = false) => {
-        return tarkovChanges.credits(download);
+    credits: (options = defaultOptions) => {
+        return tarkovChanges.credits(options);
     },
-    globals: (download = false) => {
-        return tarkovChanges.globals(download);
+    globals: (options = defaultOptions) => {
+        return tarkovChanges.globals(options);
     },
-    handbook: (download = false) => {
-        return spt.handbook(download);
+    handbook: (options = defaultOptions) => {
+        return spt.handbook(options);
     },
-    items: (download = false) => {
-        return tarkovChanges.items(download);
+    items: (options = defaultOptions) => {
+        return tarkovChanges.items(options);
     },
-    locale: (lang = 'en', download = false) => {
-        if (lang == 'en') return addManualTranslations(tarkovChanges.locale_en(download), lang);
-        //if (lang == 'ru') return tarkovBot.locale('ru', download);
-        return addManualTranslations(spt.locale(lang, download), lang);
+    locale: (lang = 'en', options = defaultOptions) => {
+        if (lang === 'en') return addManualTranslations(tarkovChanges.locale_en(options), lang);
+        //if (lang == 'ru') return tarkovBot.locale('ru', options);
+        return addManualTranslations(spt.locale(lang, options), lang);
     },
-    locales: async (download = false) => {
+    locales: async (options = defaultOptions) => {
         const [en, others] = await Promise.all([
-            addManualTranslations(tarkovChanges.locale_en(download), 'en'),
-            //addManualTranslations(tarkovBot.locale('ru', download), 'ru'),
-            spt.locales(download).then(async langs => {
+            addManualTranslations(tarkovChanges.locale_en(options), 'en'),
+            //addManualTranslations(tarkovBot.locale('ru', options), 'ru'),
+            spt.locales(options).then(async langs => {
                 const mergedLangs = {};
                 const langCodes = Object.keys(langs);
                 for (const langCode of langCodes) {
@@ -86,8 +89,8 @@ const dataFunctions = {
             ...others
         }
     },
-    locations: (download = false) => {
-        return tarkovChanges.locations(download);
+    locations: (options = defaultOptions) => {
+        return tarkovChanges.locations(options);
     },
     mapDetails: async () => {
         const emptyData = {
@@ -222,11 +225,11 @@ const dataFunctions = {
         }
         return details;
     },
-    mapLoot: (download = false) => {
-        return spt.mapLoot(download);
+    mapLoot: (options = defaultOptions) => {
+        return spt.mapLoot(options);
     },
-    quests: async (download = false) => {
-        const mainQuests = await spt.quests(download);
+    quests: async (options = defaultOptions) => {
+        const mainQuests = await spt.quests(options);
         try {
             const partialQuests = JSON.parse(fs.readFileSync(cachePath('quests_partial.json')));
             for (const quest of partialQuests) {
@@ -268,20 +271,20 @@ const dataFunctions = {
         }
         return mainQuests;
     },
-    questConfig: (download = false) => {
-        return spt.questConfig(download);
+    questConfig: (options = defaultOptions) => {
+        return spt.questConfig(options);
     },
-    status: (download = false) => {
-        return tarkovDevData.status(download);
+    status: (options = defaultOptions) => {
+        return tarkovDevData.status(options);
     },
-    traders: (download = false) => {
-        return tarkovChanges.traders(download);
+    traders: (options = defaultOptions) => {
+        return tarkovChanges.traders(options);
     },
-    traderAssorts: async (traderId, download = false) => {
-        return spt.traderAssorts(traderId, download);
+    traderAssorts: async (traderId, options = defaultOptions) => {
+        return spt.traderAssorts(traderId, options);
     },
-    traderQuestAssorts: async (traderId, download = false) => {
-        return spt.traderQuestAssorts(traderId, download);
+    traderQuestAssorts: async (traderId, options = defaultOptions) => {
+        return spt.traderQuestAssorts(traderId, options);
     },
 };
 

@@ -5,6 +5,7 @@ import got from 'got';
 
 import tarkovChanges from './tarkov-changes.mjs';
 import discordWebhook from './webhook.js';
+import dataOptions from './data-options.mjs';
 
 const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/media/branch/{branch}/project/assets/';
 const sptDataPath = `${sptPath}database/`;
@@ -33,6 +34,9 @@ const branches = [
 ];
 
 let branch;
+
+const defaultOptions = dataOptions.default;
+const merge = dataOptions.merge;
 
 const cachePath = (filename) => {
     return path.join(import.meta.dirname, '..', 'cache', filename);   
@@ -108,49 +112,50 @@ const apiRequest = async (request, searchParams) => {
     });
 };
 
-const getLocale = async (locale, download) => {
-    if (sptLangs[locale]) {
-        locale = sptLangs[locale];
-    }
-    return downloadJson(`locale_${locale}.json`, `${sptDataPath}locales/global/${locale}.json`, download);
-};
-
-const getLocales = async (download) => {
-    const langCodes = Object.keys(sptLangs);
-    const localePromises = [];
-    for (const locale of langCodes) {
-        localePromises.push(getLocale(locale, download).then(localeData => {
-            return {
-                locale: locale,
-                data: localeData
-            }
-        }));
-    }
-    const translations = await Promise.all(localePromises);
-    const locales = {};
-    for (const localeData of translations) {
-        locales[localeData.locale] = localeData.data;
-    }
-    return locales;
-};
-
 const tarkovSpt = {
-    achievements: (download) => {
+    achievements: (options = defaultOptions) => {
+        const { download } = merge(options);
         return downloadJson('achievements.json', `${sptDataPath}templates/achievements.json`, download);
     },
-    handbook: (download) => {
+    handbook: (options = defaultOptions) => {
+        const { download } = merge(options);
         return downloadJson('handbook.json', `${sptDataPath}templates/handbook.json`, download);
     },
-    locale: getLocale,
-    locales: getLocales,
-    quests: (download) => {
+    locale: async (locale, options = defaultOptions) => {
+        const { download } = merge(options);
+        if (sptLangs[locale]) {
+            locale = sptLangs[locale];
+        }
+        return downloadJson(`locale_${locale}.json`, `${sptDataPath}locales/global/${locale}.json`, download);
+    },
+    locales: async (options = defaultOptions) => {
+        const langCodes = Object.keys(sptLangs);
+        const localePromises = [];
+        for (const locale of langCodes) {
+            localePromises.push(tarkovSpt.locale(locale, options).then(localeData => {
+                return {
+                    locale: locale,
+                    data: localeData
+                }
+            }));
+        }
+        const translations = await Promise.all(localePromises);
+        const locales = {};
+        for (const localeData of translations) {
+            locales[localeData.locale] = localeData.data;
+        }
+        return locales;
+    },
+    quests: (options = defaultOptions) => {
+        const { download } = merge(options);
         return downloadJson('quests.json', `${sptDataPath}templates/quests.json`, download);
     },
-    questConfig: (download) => {
+    questConfig: (options = defaultOptions) => {
+        const { download } = merge(options);
         return downloadJson('questConfig.json', `${sptConfigPath}quest.json`, download);
     },
-    mapLoot: async (download) => {
-        //return downloadJson(`${mapNameId.toLowerCase()}_loot.json`, `${sptDataPath}locations/${mapNameId.toLowerCase()}/looseLoot.json`, download, true, 'spawnpointsForced');
+    mapLoot: async (options = defaultOptions) => {
+        const { download } = merge(options);
         const mapLoot = {};
         const locations = await tarkovChanges.locations();
         for (const id in locations.locations) {
@@ -167,12 +172,14 @@ const tarkovSpt = {
         }
         return mapLoot;
     },
-    botInfo: async (botKey, download = true) => {
+    botInfo: async (botKey, options = defaultOptions) => {
+        const { download } = merge(options, {download: true});
         botKey = botKey.toLowerCase();
         //return downloadJson(`${botKey}.json`, `${sptDataPath}bots/types/${botKey}.json`, download);
         return await module.exports.botsInfo(download)[botKey.toLowerCase()];
     },
-    botsInfo: async (download = true) => {
+    botsInfo: async (options = defaultOptions) => {
+        const { download } = merge(options, {download: true});
         let botIndex = {};
         const botData = {};
         if (!fs.existsSync(cachePath('bots_index.json')) || download) {
@@ -200,7 +207,8 @@ const tarkovSpt = {
         }
         return botData;
     },
-    traderAssorts: async (traderId, download) => {
+    traderAssorts: async (traderId, options = defaultOptions) => {
+        const { download } = merge(options);
         return downloadJson(`${traderId}_assort.json`, `${sptDataPath}traders/${traderId}/assort.json`, download).catch(error => {
             if (!error.message.includes('Response code 404')) {
                 return Promise.reject(error);
@@ -212,7 +220,8 @@ const tarkovSpt = {
             };
         });
     },
-    traderQuestAssorts: async (traderId, download) => {
+    traderQuestAssorts: async (traderId, options = defaultOptions) => {
+        const { download } = merge(options);
         return downloadJson(`${traderId}_questassort.json`, `${sptDataPath}traders/${traderId}/questassort.json`, download).catch(error => {
             if (!error.message.includes('Response code 404')) {
                 return Promise.reject(error);
