@@ -294,7 +294,8 @@ const presetData = {
         }
     },
     addJsonPreset: async (json, logger) => {
-        const existingPreset = presetData.findPreset(json._items);
+        const items = json.items ?? json._items;
+        const existingPreset = presetData.findPreset(items);
         if (existingPreset) {
             return Promise.reject(new Error(`Specified preset already exists as ${existingPreset.id}`));
         }
@@ -323,8 +324,9 @@ const presetData = {
             'mod_handguard',
             'mod_pistol_grip',
             'mod_equipment',
+            'mod_equipment_001',
+            'mod_equipment_000',
         ];
-        const items = json.items ?? json._items;
         for (const slotName of slotNames) {
             for (let i = items.length - 1; i > -1; i--) {
                 const part = items[i];
