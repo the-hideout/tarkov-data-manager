@@ -1883,7 +1883,7 @@ app.get('/presets', async (req, res) => {
                 <h5></h5>
                 <h6></h6>
                 <div class="row">
-                    <form class="col s12 post-url" method="post" action="/presets">
+                    <form class="col s12 post-url" method="put" action="/presets">
                         <div class="row">
                             <div class="input-field s12">
                                 <input value="" id="append_name" type="text" class="validate append_name" name="append_name" placeholder=" ">
@@ -1895,7 +1895,7 @@ app.get('/presets', async (req, res) => {
                 </div>
             </div>
             <div class="modal-footer">
-                <a href="#!" class="waves-effect waves-green btn edit-wipe-save">Save</a>
+                <a href="#!" class="waves-effect waves-green btn edit-preset-save">Save</a>
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
             </div>
         </div>

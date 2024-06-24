@@ -74,7 +74,7 @@ $(document).ready( function () {
                 }
                 //$('#modal-edit-preset .version').val(target.data('version'));
                 const form = $('#modal-edit-preset').find('form').first();
-                form.attr('action', `/preset/${target.data('id')}`);
+                form.attr('action', `/presets/${target.data('id')}`);
                 form.attr('method', 'PUT');
                 M.Modal.getInstance(document.getElementById('modal-edit-preset')).open();
                 //M.updateTextFields();
