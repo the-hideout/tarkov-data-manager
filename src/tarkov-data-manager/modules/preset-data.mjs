@@ -308,7 +308,7 @@ const presetData = {
         let presetNum = Object.keys(dbPresets).length + 1;
         let id;
         while (true) {
-            id = `${idPrefix}${String(presetNum).padStart(12, '0')}`;
+            id = `${idPrefix}${presetNum.toString(16).padStart(12, '0')}`;
             if (!dbPresets[id]) {
                 break;
             }
