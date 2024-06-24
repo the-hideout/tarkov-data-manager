@@ -17,7 +17,6 @@ const jsonRequest = async (filename, options) => {
     if (gameMode !== 'regular') {
         path = path.replace('//files', `//${gameMode}-files`);
     }
-    console.log('downloading', path+filename);
     const response = await got(path+filename, {
         method: 'POST',
         username: process.env.TC_USERNAME,
@@ -36,7 +35,6 @@ const jsonRequest = async (filename, options) => {
             }
         },
     });
-    console.log('downloaded', path+filename);
     if (!response) return Promise.reject(new Error(`Tarkov Changes returned null result for ${path}`));
     return response;
 };
