@@ -11,6 +11,7 @@ import webSocketServer from './websocket-server.mjs';
 import tarkovData from'./tarkov-data.mjs';
 import normalizeName from './normalize-name.js';
 import gameModes from './game-modes.mjs';
+import emitter from './emitter.mjs';
 
 const verbose = false;
 
@@ -28,7 +29,13 @@ class DataJob {
             options.saveFields = [];
         }
         if (options.name) this.name = options.name;
-        if (options.jobManager) this.jobManager = options.jobManager;
+        if (options.jobManager) {
+            this.jobManager = options.jobManager;
+        }
+
+        if (this.name && this.jobManager) {
+            this.lastCompletion = this.jobManager.lastRun(this.name);
+        }
 
         if (!this.name) this.name = path.basename(import.meta.filename, '.mjs');
         this.logger = new JobLogger(this.name);
@@ -143,6 +150,10 @@ class DataJob {
         await Promise.allSettled(this.queries);
         this.cleanup();
         this.logger.end();
+        if (this.name && this.jobManager) {
+            this.lastCompletion = this.jobManager.lastRun(this.name);
+        }
+        emitter.emit(`jobComplete_${this.name}`);
         if (!options?.parent) {
             await jobComplete();
             if (process.env.TEST_JOB === 'true') {

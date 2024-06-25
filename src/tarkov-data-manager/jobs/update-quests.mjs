@@ -12,8 +12,8 @@ import webSocketServer from '../modules/websocket-server.mjs';
 import { createAndUploadFromSource } from '../modules/image-create.mjs';
 
 class UpdateQuestsJob extends DataJob {
-    constructor() {
-        super('update-quests');
+    constructor(options) {
+        super({...options, name: 'update-quests'});
         this.kvName = 'quest_data';
     }
 

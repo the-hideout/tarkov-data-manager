@@ -8,8 +8,8 @@ import tarkovData from '../modules/tarkov-data.mjs';
 import { getLocalBucketContents, uploadAnyImage } from '../modules/upload-s3.mjs';
 
 class UpdateQuestImagesJob extends DataJob {
-    constructor() {
-        super('update-quest-images');
+    constructor(options) {
+        super({...options, name: 'update-quest-images'});
     }
 
     async run() {

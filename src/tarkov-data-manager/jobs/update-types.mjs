@@ -3,8 +3,8 @@ import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 
 class UpdateTypesJob extends DataJob {
-    constructor() {
-        super('update-types');
+    constructor(options) {
+        super({...options, name: 'update-types'});
     }
 
     run = async () => {

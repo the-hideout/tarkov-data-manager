@@ -5,8 +5,8 @@ import tarkovDevData from '../modules/tarkov-dev-data.mjs';
 import DataJob from '../modules/data-job.mjs';
 
 class CheckScansJob extends DataJob {
-    constructor() {
-        super('check-scanners');
+    constructor(options) {
+        super({...options, name: 'check-scanners'});
     }
 
     async run() {

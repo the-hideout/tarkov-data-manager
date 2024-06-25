@@ -8,8 +8,8 @@ import webSocketServer from '../modules/websocket-server.mjs';
 import { createAndUploadFromSource } from '../modules/image-create.mjs';
 
 class UpdateItemCacheJob extends DataJob {
-    constructor() {
-        super('update-item-cache');
+    constructor(options) {
+        super({...options, name: 'update-item-cache'});
         this.kvName = 'item_data';
     }
 

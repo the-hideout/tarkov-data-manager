@@ -10,8 +10,8 @@ import { regenerateFromExisting } from '../modules/image-create.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 
 class UpdateItemNamesJob extends DataJob {
-    constructor() {
-        super('update-item-names');
+    constructor(options) {
+        super({...options, name: 'update-item-names'});
     }
 
     run = async () => {

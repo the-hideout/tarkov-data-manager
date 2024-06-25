@@ -4,8 +4,8 @@ import DataJob from '../modules/data-job.mjs';
 import remoteData from '../modules/remote-data.mjs';
 
 class VerifyWikiJob extends DataJob {
-    constructor() {
-        super('verify-wiki');
+    constructor(options) {
+        super({...options, name: 'verify-wiki'});
     }
 
     async run() {

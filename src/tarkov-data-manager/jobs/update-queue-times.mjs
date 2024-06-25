@@ -4,8 +4,8 @@ import { DateTime } from 'luxon';
 import DataJob from '../modules/data-job.mjs';
 
 class UpdateQueueTimesJob extends DataJob {
-    constructor() {
-        super('update-queue-times');
+    constructor(options) {
+        super({...options, name: 'update-queue-times'});
         this.kvName = 'queue_data';
     }
 

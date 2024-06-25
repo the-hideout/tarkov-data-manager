@@ -8,8 +8,8 @@ import tarkovData from '../modules/tarkov-data.mjs';
 import s3 from '../modules/upload-s3.mjs';
 
 class UpdateMapsJob extends DataJob {
-    constructor() {
-        super('update-maps');
+    constructor(options) {
+        super({...options, name: 'update-maps'});
         this.kvName = 'map_data';
     }
 

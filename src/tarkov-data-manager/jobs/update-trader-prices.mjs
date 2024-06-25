@@ -36,8 +36,8 @@ const skipOffers = {
 };
 
 class UpdateTraderPricesJob extends DataJob {
-    constructor() {
-        super('update-trader-prices');
+    constructor(options) {
+        super({...options, name: 'update-trader-prices'});
         this.writeFolder = 'cache';
         this.kvName = 'trader_price_data';
     }

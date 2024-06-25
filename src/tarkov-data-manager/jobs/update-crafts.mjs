@@ -10,8 +10,8 @@ const skipCrafts = [
 ];
 
 class UpdateCraftsJob extends DataJob {
-    constructor() {
-        super('update-crafts');
+    constructor(options) {
+        super({...options, name: 'update-crafts'});
         this.kvName = 'craft_data';
     }
 

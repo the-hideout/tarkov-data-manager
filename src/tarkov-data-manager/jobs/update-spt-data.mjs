@@ -2,8 +2,8 @@ import DataJob from '../modules/data-job.mjs';
 import spt from '../modules/tarkov-spt.mjs';
 
 class UpdateLangJob extends DataJob {
-    constructor() {
-        super('update-spt-data');
+    constructor(options) {
+        super({...options, name: 'update-spt-data'});
     }
 
     run = async () => {
