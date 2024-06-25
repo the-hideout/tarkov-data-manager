@@ -1183,6 +1183,42 @@
         "propertiesChanged": {
             "experience": 177000
         },
+        "objectivesAdded": [
+            {
+                "id": "65e09b343458a36a766837c7",
+                "description": "65e09b343458a36a766837c7",
+                "type": "shoot",
+                "count": 4,
+                "optional": false,
+                "locationNames": [
+                    "65b8d6f5cdde2479cb2a3125 Name"
+                ],
+                "map_ids": [
+                    "65b8d6f5cdde2479cb2a3125"
+                ],
+                "zoneNames": [],
+                "target": "AnyPmc",
+                "shotType": "kill",
+                "bodyParts": [],
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "distance": {
+                    "compareMethod": ">=",
+                    "value": 0
+                },
+                "timeFromHour": 0,
+                "timeUntilHour": 0,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "targetNames": [
+                    "AnyPmc"
+                ],
+                "playerHealthEffect": null,
+                "zones": []
+            }
+        ],
         "finishRewardsChanged": {
             "skillLevelReward": [
                 {
