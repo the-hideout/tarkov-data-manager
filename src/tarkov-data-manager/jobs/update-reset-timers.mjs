@@ -1,4 +1,5 @@
 import DataJob from '../modules/data-job.mjs';
+import tarkovData from '../modules/tarkov-data.mjs';
 
 class UpdateResetTimersJob extends DataJob {
     constructor() {
@@ -7,13 +8,14 @@ class UpdateResetTimersJob extends DataJob {
     }
 
     async run() {
-        const traders = await this.jobManager.jobOutput('update-traders', this);
+        const traders = await tarkovData.traders();
 
         const resetTimes = {};
-        for (const trader of traders) {
+        for (const id in traders) {
+            const trader = traders[id];
             const date = new Date(trader.nextResupply*1000);
             date.setHours(date.getHours() +5);
-            resetTimes[trader.normalizedName] = date;
+            resetTimes[this.normalizeName(this.locales.en[`${id} Nickname`])] = date;
         }
         /*const resetTimes = {};
         const results = await query(`

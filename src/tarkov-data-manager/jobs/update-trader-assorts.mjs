@@ -15,7 +15,7 @@ class UpdateTraderAssortsJob extends DataJob {
     async run() {
         [this.tasks, this.traders, this.presets, this.items, this.en] = await Promise.all([
             this.jobManager.jobOutput('update-quests', this),
-            this.jobManager.jobOutput('update-traders', this),
+            tarkovData.traders(),
             this.jobManager.jobOutput('update-presets', this),
             remoteData.get(),
             tarkovData.locale('en'),
@@ -27,8 +27,7 @@ class UpdateTraderAssortsJob extends DataJob {
         };
         const assorts = {};
         const traderAssortPromises = [];
-        for (const trader of this.traders) {
-            const traderId = trader.id;
+        for (const traderId in this.traders) {
             traderAssortPromises.push(Promise.all([
                 tarkovData.traderAssorts(traderId, true).catch(error => {
                     this.logger.error(`Error downloading assorts: ${error.message}`);
@@ -55,9 +54,9 @@ class UpdateTraderAssortsJob extends DataJob {
                     }, []);
                     return assorts;
                 }),
-                tarkovData.traderQuestAssorts(traderId, true).catch(error => {
+                tarkovData.traderQuestAssorts(traderId, {download: true}).catch(error => {
                     this.logger.error(`Error downloading quest assorts: ${error.message}`);
-                    return tarkovData.traderQuestAssorts(traderId, false);
+                    return tarkovData.traderQuestAssorts(traderId);
                 }).then(questAssort => {
                     return Object.keys(questAssort).reduce((allUnlocks, questStatus) => {
                         for (const assortId of Object.keys(questAssort[questStatus])) {
@@ -135,8 +134,8 @@ class UpdateTraderAssortsJob extends DataJob {
             return Promise.reject(new Error('No trader offers found'));
         }
         for (const traderId in assorts) {
-            const trader = this.traders.find(t => t.id === traderId);
-            this.logger.log(`✔️ ${this.en[trader.name]}: ${assorts[traderId].length} offers`);
+            //const trader = this.traders.find(t => t.id === traderId);
+            this.logger.log(`✔️ ${this.en[`${traderId} Nickname`]}: ${assorts[traderId].length} offers`);
         }
         fs.writeFileSync(path.join(import.meta.dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(assorts, null, 4));
         this.logger.success(`Successful processing of trader offers`);

@@ -297,6 +297,8 @@ const enemyKeyMap = {
     'sniper': 'Marksman',
     'sectantWarrior': 'cursedAssault',
     'bossZryachiy': '63626d904aa74b8fe30ab426 ShortName',
+    'pmcBEAR': 'BEAR',
+    'pmcUSEC': 'USEC',
 };
 
 export default TranslationHelper;

@@ -4,11 +4,11 @@ import midmean from 'compute-midmean';
 
 import timer from './console-timer.js';
 import { query, maxQueryRows } from './db-connection.mjs';
+import gameModes from './game-modes.mjs';
 
 const emitter = new EventEmitter();
 let myData = false;
 let lastRefresh = new Date(0);
-const pveSuffix = 'Pve';
 
 const getInterquartileMean = (validValues) => {
     if(validValues.length === 0){
@@ -228,23 +228,23 @@ const methods = {
                     continue;
                 }
 
-                for (let gameMode = 0; gameMode < 2; gameMode++) {
-                    const fieldSuffix = gameMode ? pveSuffix : '';
+                for (const gameMode of gameModes){
+                    const fieldSuffix = gameMode.name === 'regular' ? '' : `_${gameMode.name}`;
 
-                    const lastLowData = lastLowPriceResults.find(row => row.item_id === itemId && row.game_mode === gameMode);
+                    const lastLowData = lastLowPriceResults.find(row => row.item_id === itemId && row.game_mode === gameMode.value);
                     if (lastLowData) {
                         item[`lastLowPrice${fieldSuffix}`] = lastLowData.price;
-                        if (!gameMode) {
+                        if (gameMode.name === 'regular') {
                             item.updated = lastLowData.timestamp;
                         }
                     }
     
-                    item24hPrices[gameMode][itemId]?.sort();
-                    item[`avg24hPrice${fieldSuffix}`] = getInterquartileMean(item24hPrices[gameMode][itemId] || []) || null;
-                    item[`low24hPrice${fieldSuffix}`] = item24hPrices[gameMode][itemId]?.at(0);
-                    item[`high24hPrice${fieldSuffix}`] = item24hPrices[gameMode][itemId]?.at(item24hPrices[gameMode][itemId]?.length - 1);
+                    item24hPrices[gameMode.value][itemId]?.sort();
+                    item[`avg24hPrice${fieldSuffix}`] = getInterquartileMean(item24hPrices[gameMode.value][itemId] || []) || null;
+                    item[`low24hPrice${fieldSuffix}`] = item24hPrices[gameMode.value][itemId]?.at(0);
+                    item[`high24hPrice${fieldSuffix}`] = item24hPrices[gameMode.value][itemId]?.at(item24hPrices[gameMode.value][itemId]?.length - 1);
     
-                    const itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === itemId && row.game_mode === gameMode);
+                    const itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === itemId && row.game_mode === gameMode.value);
                     if (!itemPriceYesterday || item[`avg24hPrice${fieldSuffix}`] === 0) {
                         item[`changeLast48h${fieldSuffix}`] = 0;
                         item[`changeLast48hPercent${fieldSuffix}`] = 0;

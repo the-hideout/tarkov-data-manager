@@ -4,7 +4,6 @@ import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import { dashToCamelCase, camelCaseToTitleCase } from '../modules/string-functions.mjs';
 import { setItemPropertiesOptions, getSpecialItemProperties } from '../modules/get-item-properties.js';
-import normalizeName from '../modules/normalize-name.js';
 import webSocketServer from '../modules/websocket-server.mjs';
 import { createAndUploadFromSource } from '../modules/image-create.mjs';
 
@@ -23,6 +22,7 @@ class UpdateItemCacheJob extends DataJob {
             this.globals, 
             this.itemMap,
             this.handbook,
+            this.traders,
         ] = await Promise.all([
             tarkovData.items(), 
             tarkovData.credits(),
@@ -33,8 +33,8 @@ class UpdateItemCacheJob extends DataJob {
                 return results;
             }),
             tarkovData.handbook(),
+            tarkovData.traders(),
         ]);
-        this.traderData = await this.jobManager.jobOutput('update-traders', this);
         this.presets = await this.jobManager.jobOutput('update-presets', this, true);
         this.presetsLocale = this.presets.locale;
         this.presets = this.presets.presets;
@@ -58,6 +58,15 @@ class UpdateItemCacheJob extends DataJob {
         await setItemPropertiesOptions({
             job: this,
         });
+            
+        const priceFields = [
+            'lastLowPrice',
+            'avg24hPrice',
+            'low24hPrice',
+            'high24hPrice',
+            'changeLast48h',
+            'changeLast48hPercent',
+        ];
         for (const [key, value] of this.itemMap.entries()) {
             if (value.types.includes('disabled') || value.types.includes('quest'))
                 continue;
@@ -81,10 +90,15 @@ class UpdateItemCacheJob extends DataJob {
             }
 
             itemData[key] = {
-                ...value,
+                id: value.id,
                 name: `${key} Name`,
                 shortName: `${key} ShortName`,
                 normalizedName: value.normalized_name,
+                description: value.description,
+                updated: value.updated,
+                width: value.width,
+                height: value.height,
+                weight: value.weight,
                 lastOfferCount: value.last_offer_count,
                 types: value.types.map(type => dashToCamelCase(type)).filter(type => type !== 'onlyFlea'),
                 wikiLink: value.wiki_link,
@@ -101,6 +115,10 @@ class UpdateItemCacheJob extends DataJob {
                 categories: [],
                 handbookCategories: [],
             };
+
+            for (const fieldName of priceFields) {
+                itemData[key][fieldName] = value[fieldName];
+            }
 
             // clean up unused fields
             for (const fieldName in itemData[key]) {
@@ -448,11 +466,11 @@ class UpdateItemCacheJob extends DataJob {
             };
         });
 
-        this.kvData.ItemType = ['any', ...itemTypesSet].sort(),
-        this.kvData.FleaMarket = fleaData,
-        this.kvData.ArmorMaterial = armorData,
-        this.kvData.PlayerLevel = levelData,
-        this.kvData.LanguageCode = Object.keys(this.locales).sort(),
+        this.kvData.ItemType = ['any', ...itemTypesSet].sort();
+        this.kvData.FleaMarket = fleaData;
+        this.kvData.ArmorMaterial = armorData;
+        this.kvData.PlayerLevel = levelData;
+        this.kvData.LanguageCode = Object.keys(this.locales).sort();
         await this.cloudflarePut();
 
         const schemaData = {
@@ -464,6 +482,28 @@ class UpdateItemCacheJob extends DataJob {
             //TraderName: [],
         };
         await this.cloudflarePut(schemaData, 'schema_data');
+
+        for (const gameMode of this.gameModes) {
+            if (gameMode.name === 'regular') {
+                continue;
+            }
+            const modeData = {
+                ...this.kvData,
+            };
+            modeData.Item = {};
+            for (const id in this.kvData.Item) {
+                const item = this.kvData.Item[id];
+                modeData.Item[id] = {
+                    ...item,
+                    traderPrices: item.traderPrices.filter(tp => tp.trader !== '6617beeaa9cfa777ca915b7c'),
+                };
+                const dbItem = this.itemMap.get(id);
+                for (const fieldName of priceFields) {
+                    modeData.Item[id][fieldName] = dbItem[`${fieldName}_${gameMode.name}`];
+                }
+            }
+            await this.cloudflarePut(modeData, `${this.kvName}_${gameMode.name}`);
+        }
 
         return this.kvData;
     }
@@ -490,7 +530,7 @@ class UpdateItemCacheJob extends DataJob {
                 }
             }),
         };
-        this.bsgCategories[id].normalizedName = normalizeName(this.getTranslation(this.bsgCategories[id].name));
+        this.bsgCategories[id].normalizedName = this.normalizeName(this.getTranslation(this.bsgCategories[id].name));
         this.bsgCategories[id].enumName = catNameToEnum(this.getTranslation(this.bsgCategories[id].name));
     
         this.addCategory(this.bsgCategories[id].parent_id);
@@ -503,7 +543,7 @@ class UpdateItemCacheJob extends DataJob {
         this.handbookCategories[id] = {
             id: id,
             name: this.addTranslation(id),
-            normalizedName: normalizeName(this.locales.en[id]),
+            normalizedName: this.normalizeName(this.locales.en[id]),
             enumName: catNameToEnum(this.locales.en[id]),
             parent_id: null,
             child_ids: [],
@@ -516,9 +556,10 @@ class UpdateItemCacheJob extends DataJob {
     }
 
     getTraderMultiplier(traderId) {
-        for (const trader of this.traderData) {
-            if (trader.id === traderId) {
-                return trader.levels[0].payRate;
+        for (const id in this.traders) {
+            if (id === traderId) {
+                const buyCoef = parseInt(this.traders[id].loyaltyLevels[0].buy_price_coef);
+                return buyCoef ? (100 - buyCoef) / 100 : 0.0001;
             }
         }
         throw error (`Trader with id ${traderId} not found in traders data`);
@@ -570,8 +611,9 @@ class UpdateItemCacheJob extends DataJob {
         };
         const currencyId = dataMaps.currencyIsoId;
 
-        for (const trader of this.traderData) {
-            if (trader.items_buy_prohibited.id_list.includes(item.id) || dataMaps.sellToTrader[trader.name]?.prohibitedAdded?.ids.includes(item.id)) {
+        for (const traderId in this.traders) {
+            const trader = this.traders[traderId];
+            if (trader.items_buy_prohibited.id_list.includes(item.id)) {
                 continue;
             }
             if (trader.items_buy_prohibited.category.some(bannedCatId => item.categories.includes(bannedCatId))) {
@@ -581,7 +623,7 @@ class UpdateItemCacheJob extends DataJob {
                 continue;
             }
             let currency = trader.currency;
-            let priceRUB = Math.floor(this.getTraderMultiplier(trader.id) * item.basePrice);
+            let priceRUB = Math.floor(this.getTraderMultiplier(traderId) * item.basePrice);
             let priceCUR = priceRUB;
             if (currency !== 'RUB') {
                 // for if we ever switch the price field to a float
@@ -593,14 +635,15 @@ class UpdateItemCacheJob extends DataJob {
                     priceCUR = 0;
                 }
             }
+            const tradername = this.locales.en[`${traderId} Nickname`];
             traderPrices.push({
-                name: this.locales.en[trader.name],
+                name: tradername,
                 price: priceCUR,
                 currency: currency,
                 currencyItem: currencyId[currency],
                 priceRUB: priceRUB,
-                trader: trader.id,
-                source: trader.normalizedName,
+                trader: traderId,
+                source: this.normalizeName(tradername),
             });
         }
         return traderPrices;

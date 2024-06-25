@@ -6,7 +6,6 @@ import got from 'got';
 import DataJob from '../modules/data-job.mjs';
 import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
-import normalizeName from '../modules/normalize-name.js';
 import { getLocalBucketContents } from '../modules/upload-s3.mjs';
 import presetData from '../modules/preset-data.mjs';
 import webSocketServer from '../modules/websocket-server.mjs';
@@ -67,7 +66,7 @@ class UpdateQuestsJob extends DataJob {
         ]);
         this.maps = await this.jobManager.jobOutput('update-maps', this);
         this.hideout = await this.jobManager.jobOutput('update-hideout', this);
-        this.traders = await this.jobManager.jobOutput('update-traders', this);
+        this.traders = (await this.jobManager.jobOutput('update-traders', this));
         this.presets = presetData.presets.presets;
         this.itemMap = await this.jobManager.jobOutput('update-item-cache', this);
 
@@ -264,7 +263,7 @@ class UpdateQuestsJob extends DataJob {
         const filteredPrerequisiteTasks = {};
         const missingImages = [];
         for (const quest of quests.Task) {
-            quest.normalizedName = normalizeName(this.locales.en[quest.name])+(quest.factionName !== 'Any' ? `-${normalizeName(quest.factionName)}` : '');
+            quest.normalizedName = this.normalizeName(this.locales.en[quest.name])+(quest.factionName !== 'Any' ? `-${this.normalizeName(quest.factionName)}` : '');
 
             const removeReqs = [];
             for (const req of quest.taskRequirements) {
@@ -559,7 +558,7 @@ class UpdateQuestsJob extends DataJob {
             } else {
                 this.logger.warn(`Quest item ${id} not found in DB`);
             }
-            this.questItems[id].normalizedName = normalizeName(this.locales.en[this.questItems[id].name]);
+            this.questItems[id].normalizedName = this.normalizeName(this.locales.en[this.questItems[id].name]);
         }
 
         if (missingImages.length > 0) {
@@ -576,6 +575,44 @@ class UpdateQuestsJob extends DataJob {
         quests.locale = this.kvData.locale;
 
         await this.cloudflarePut(quests);
+
+        const pveQuests = {
+            ...quests,
+        };
+        const nonPveTraders = ['6617beeaa9cfa777ca915b7c'];
+        pveQuests.Task = quests.Task.reduce((validTasks, task) => {
+            if (nonPveTraders.includes(task.trader)) {
+                return validTasks;
+            }
+            if (task.finishRewards.traderUnlock.some(unlock => nonPveTraders.includes(unlock.trader_id))) {
+                return validTasks;
+            }
+            const pveTask = {
+                ...task,
+                startRewards: {
+                    ...task.startRewards,
+                    traderStanding: task.startRewards.traderStanding.filter(standing => {
+                        return !nonPveTraders.includes(standing.trader_id);
+                    }),
+                    offerUnlock: task.startRewards.offerUnlock.filter(reward => {
+                        return !nonPveTraders.includes(reward.trader_id);
+                    }),
+                },
+                finishRewards: {
+                    ...task.finishRewards,
+                    traderStanding: task.finishRewards.traderStanding.filter(standing => {
+                        return !nonPveTraders.includes(standing.trader_id);
+                    }),
+                    offerUnlock: task.finishRewards.offerUnlock.filter(reward => {
+                        return !nonPveTraders.includes(reward.trader_id);
+                    }),
+                },
+            };
+            validTasks.push(pveTask);
+            return validTasks;
+        }, []);
+        await this.cloudflarePut(pveQuests, `${this.kvName}_pve`);
+
         this.logger.success(`Finished processing ${quests.Task.length} quests`);
         return quests;
     }
@@ -1610,13 +1647,13 @@ class UpdateQuestsJob extends DataJob {
         return {
             id: ach.id,
             name: this.addTranslation(`${ach.id} name`),
-            normalizedName: normalizeName(this.getTranslation(`${ach.id} name`)),
+            normalizedName: this.normalizeName(this.getTranslation(`${ach.id} name`)),
             description: this.addTranslation(`${ach.id} description`),
             hidden: ach.hidden,
             side: this.addTranslation(ach.side),
-            normalizedSide: normalizeName(this.getTranslation(ach.side)),
+            normalizedSide: this.normalizeName(this.getTranslation(ach.side)),
             rarity: this.addTranslation(`Achievements/Tab/${ach.rarity}Rarity`),
-            normalizedRarity: normalizeName(this.getTranslation(`Achievements/Tab/${ach.rarity}Rarity`)),
+            normalizedRarity: this.normalizeName(this.getTranslation(`Achievements/Tab/${ach.rarity}Rarity`)),
             //conditions: ach.conditions.availableForFinish.map(c => this.formatObjective(ach.id, c, true)),
             playersCompletedPercent: this.achievementStats[ach.id] || 0,
             adjustedPlayersCompletedPercent: parseFloat((((this.achievementStats[ach.id] || 0) / this.achievementStats['65141c30ec10ff011f17cc3b']) * 100).toFixed(2)),

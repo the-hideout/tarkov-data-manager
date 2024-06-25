@@ -4,7 +4,6 @@ import crypto from 'node:crypto';
 import DataJob from '../modules/data-job.mjs';
 import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
-import normalizeName from '../modules/normalize-name.js';
 //import mapQueueTimes from '../modules/map-queue-times';
 import s3 from '../modules/upload-s3.mjs';
 
@@ -19,7 +18,7 @@ class UpdateMapsJob extends DataJob {
         [this.items, this.presets, this.botInfo, this.mapDetails, this.eftItems] = await Promise.all([
             remoteData.get(),
             this.jobManager.jobOutput('update-presets', this, true),
-            tarkovData.botsInfo(false),
+            tarkovData.botsInfo(),
             tarkovData.mapDetails(),
             tarkovData.items(),
         ]);
@@ -28,402 +27,411 @@ class UpdateMapsJob extends DataJob {
         this.processedBosses = {};
         this.lootContainers = {};
         this.stationaryWeapons = {};
-        const locations = await tarkovData.locations();
         this.s3Images = s3.getLocalBucketContents();
-        this.kvData.Map = [];
-        this.logger.log('Processing maps...');
-        for (const id in locations.locations) {
-            const map = locations.locations[id];
-            if (id !== '59fc81d786f774390775787e' && (!map.Enabled || map.Locked)) {
-                this.logger.log(`❌ ${this.locales.en[`${id} Name`] || ''} ${id}`);
-                continue;
-            }
-            if (!this.locales.en[`${id} Name`]) {
-                this.logger.log(`❌ Map ${map.Id} ${id} has no translation`);
-                continue;
-            }
-            const mapData = {
-                id: id,
-                tarkovDataId: null,
-                name: this.addTranslation(`${id} Name`, (lang, langCode) => {
-                    if (id === '59fc81d786f774390775787e' && lang.factory4_night) {
-                        return lang.factory4_night;
-                    }
-                    if (id === '65b8d6f5cdde2479cb2a3125') {
-                        if (lang['653e6760052c01c1c805532f Name']) {
-                            return lang['653e6760052c01c1c805532f Name']+' 21+';
-                        } else if (langCode !== 'en' && this.locales.en['653e6760052c01c1c805532f Name']) {
-                            return this.locales.en['653e6760052c01c1c805532f Name']+' 21+';
+        this.kvData = {};
+        for (const gameMode of this.gameModes) {
+            this.kvData[gameMode.name] = {
+                Map: [],
+            };
+            const locations = await tarkovData.locations({gameMode: gameMode.name});
+            this.logger.log(`Processing ${gameMode.name} maps...`);
+            for (const id in locations.locations) {
+                const map = locations.locations[id];
+                if (id !== '59fc81d786f774390775787e' && (!map.Enabled || map.Locked)) {
+                    this.logger.log(`❌ ${this.locales.en[`${id} Name`] || ''} ${id}`);
+                    continue;
+                }
+                if (!this.locales.en[`${id} Name`]) {
+                    this.logger.log(`❌ Map ${map.Id} ${id} has no translation`);
+                    continue;
+                }
+                const mapData = {
+                    id: id,
+                    tarkovDataId: null,
+                    name: this.addTranslation(`${id} Name`, (lang, langCode) => {
+                        if (id === '59fc81d786f774390775787e' && lang.factory4_night) {
+                            return lang.factory4_night;
                         }
-                        return 'Ground Zero 21+';
-                    }
-                    return lang[`${id} Name`];
-                }),
-                normalizedName: '', // set below using the EN translation of name
-                nameId: map.Id,
-                description: this.addTranslation(`${id} Description`),
-                wiki: 'https://escapefromtarkov.fandom.com/wiki/'+this.locales.en[`${id} Name`].replace(/ /g, '_'),
-                enemies: [],
-                raidDuration: map.EscapeTimeLimit,
-                players: map.MinPlayers+'-'+map.MaxPlayers,
-                bosses: [],
-                coordinateToCardinalRotation: this.mapDetails[id].north_rotation || 180,
-                spawns: map.SpawnPointParams.map(spawn => {
-                    if (spawn.Sides.includes('Usec') && spawn.Sides.includes('Bear')) {
-                        spawn.Sides = spawn.Sides.filter(side => !['Usec', 'Bear', 'Pmc'].includes(side));
-                        spawn.Sides.push('Pmc');
-                    }
-                    spawn.Categories = spawn.Categories.filter(cat => !['Coop', 'Opposite', 'Group'].includes(cat));
-                    if (spawn.Categories.length === 0) {
-                        return false;
-                    }
-                    const categories = spawn.Categories.map(cat => cat.toLowerCase());
-                    if (map.waves.some(w => w.SpawnPoints.split(',').includes(spawn.BotZoneName) && w.WildSpawnType === 'marksman')) {
-                        categories.push('sniper');
-                    }
-                    let zoneName = spawn.BotZoneName;
-                    if (!zoneName) {
-                        for (const zone of this.mapDetails[id].spawns) {
-                            if (zone.spawnPoints.some(p => p.id === spawn.Id)) {
-                                zoneName = zone.name;
-                                break;
+                        if (id === '65b8d6f5cdde2479cb2a3125') {
+                            if (lang['653e6760052c01c1c805532f Name']) {
+                                return lang['653e6760052c01c1c805532f Name']+' 21+';
+                            } else if (langCode !== 'en' && this.locales.en['653e6760052c01c1c805532f Name']) {
+                                return this.locales.en['653e6760052c01c1c805532f Name']+' 21+';
                             }
+                            return 'Ground Zero 21+';
                         }
+                        return lang[`${id} Name`];
+                    }),
+                    normalizedName: '', // set below using the EN translation of name
+                    nameId: map.Id,
+                    description: this.addTranslation(`${id} Description`),
+                    wiki: 'https://escapefromtarkov.fandom.com/wiki/'+this.locales.en[`${id} Name`].replace(/ /g, '_'),
+                    enemies: [],
+                    raidDuration: map.EscapeTimeLimit,
+                    players: map.MinPlayers+'-'+map.MaxPlayers,
+                    bosses: [],
+                    coordinateToCardinalRotation: this.mapDetails[id].north_rotation || 180,
+                    spawns: map.SpawnPointParams.map(spawn => {
+                        if (spawn.Sides.includes('Usec') && spawn.Sides.includes('Bear')) {
+                            spawn.Sides = spawn.Sides.filter(side => !['Usec', 'Bear', 'Pmc'].includes(side));
+                            spawn.Sides.push('Pmc');
+                        }
+                        spawn.Categories = spawn.Categories.filter(cat => !['Coop', 'Opposite', 'Group'].includes(cat));
+                        if (spawn.Categories.length === 0) {
+                            return false;
+                        }
+                        const categories = spawn.Categories.map(cat => cat.toLowerCase());
+                        if (map.waves.some(w => w.SpawnPoints.split(',').includes(spawn.BotZoneName) && w.WildSpawnType === 'marksman')) {
+                            categories.push('sniper');
+                        }
+                        let zoneName = spawn.BotZoneName;
                         if (!zoneName) {
-                            zoneName = spawn.Id;
-                        }
-                    }
-                    return {
-                        position: spawn.Position,
-                        sides: spawn.Sides.map(side => {
-                            if (side === 'Savage') {
-                                return 'scav';
-                            }
-                            return side.toLowerCase();
-                        }),
-                        categories: categories,
-                        zoneName,
-                    };
-                }).filter(Boolean),
-                extracts: this.mapDetails[id].extracts.map(extract => {
-                    return {
-                        id: this.getId(id, extract),
-                        name: this.addTranslation(extract.settings.Name),
-                        faction: exfilFactions[extract.exfilType],
-                        switch: this.mapDetails[id].switches.reduce((found, current) => {
-                            if (found) {
-                                return found;
-                            }
-                            if (!extract.exfilSwitchId) {
-                                return found;
-                            }
-                            if (current.id === extract.exfilSwitchId) {
-                                found = this.getId(id, current);
-                            }
-                            return found;
-                        }, false),
-                        switches: extract.exfilSwitchIds.map(switchId => {
-                            const foundSwitch = this.mapDetails[id].switches.find(sw => sw.id === switchId && sw.hasCollider);
-                            return foundSwitch ? this.getId(id, foundSwitch) : false;
-                        }).filter(Boolean),
-                        ...extract.location,
-                    };
-                }),
-                locks: this.mapDetails[id].locks.map(lock => {
-                    const keyItem = this.items.get(lock.key);
-                    if (!keyItem || keyItem.types.includes('disabled')) {
-                        this.logger.warn(`Skipping lock for key ${lock.key}`)
-                        return false;
-                    }
-                    return {
-                        id: this.getId(id, lock),
-                        lockType: lock.lockType,
-                        key: lock.key,
-                        needsPower: lock.needsPower || false,
-                        ...lock.location,
-                    }
-                }).filter(Boolean),
-                hazards: this.mapDetails[id].hazards.map(hazard => {
-                    if (!hazardMap[hazard.hazardType]) {
-                        this.logger.warn(`Unknown hazard type: ${hazard.hazardType}`);
-                    }
-                    let hazardType = hazardMap[hazard.hazardType]?.id || hazard.hazardType;
-                    let hazardName = hazardMap[hazard.hazardType]?.name || hazard.hazardType;
-                    return {
-                        id: this.getId(id, hazard),
-                        hazardType: hazardType,
-                        name: this.addTranslation(hazardName),
-                        ...hazard.location,
-                    };
-                }),
-                lootContainers: this.mapDetails[id].loot_containers.map(container => {
-                    if (!container.lootParameters.Enabled) {
-                        return false;
-                    }
-                    return {
-                        lootContainer: this.getLootContainer(container),
-                        position: container.location.position,
-                    };
-                }).filter(Boolean),
-                /*lootPoints: this.mapDetails[id].loot_points.reduce((allLoot, rawLoot) => {
-                    const duplicateLootPoint = allLoot.find(l => l.position.x === rawLoot.lootParameters.Position.x && l.position.y === rawLoot.lootParameters.Position.y && l.position.z === rawLoot.lootParameters.Position.z);
-                    if (duplicateLootPoint) {
-                        for (const id of rawLoot.lootParameters.FilterInclusive) {
-                            if (!duplicateLootPoint.items.includes(id)) {
-                                duplicateLootPoint.items.push(id);
-                            }
-                        }
-                        return allLoot;
-                    }
-                    allLoot.push({
-                        //enabled: rawLoot.lootParameters.Enabled,
-                        chanceModifier: rawLoot.lootParameters.ChanceModifier,
-                        rarity: rawLoot.lootParameters.Rarity,
-                        items: rawLoot.lootParameters.FilterInclusive,
-                        position: rawLoot.lootParameters.Position,
-                        //selectedFilters: rawLoot.selectedFilters, // always null
-                        //spawnChance: rawLoot.lootParameters.SpawnChance, // always 0
-                        //alwaysSpawn: rawLoot.lootParameters.IsAlwaysSpawn, // always false
-                        //alwaysTrySpawnLoot: rawLoot.lootParameters.isAlwaysTrySpawnLoot, // always false
-                        //static: rawLoot.lootParameters.IsStatic, // always false
-                    });
-                    return allLoot;
-                }, []),*/
-                switches: this.mapDetails[id].switches.map(sw => {
-                    if (!sw.hasCollider) {
-                        return false;
-                    }
-                    const switchId = `${sw.id}_${sw.name}`.replace(/^(?:switch_)?/i, 'switch_');
-                    return {
-                        id: this.getId(id, sw),
-                        object_id: sw.id,
-                        object_name: sw.name,
-                        name: this.addTranslation(switchId),
-                        door: sw.doorId,
-                        switchType: sw.interactionType,
-                        activatedBy: this.mapDetails[id].switches.reduce((found, current) => {
-                            if (found) {
-                                return found;
-                            }
-                            if (!sw.previousSwitchId || !current.hasCollider) {
-                                return found;
-                            }
-                            if (current.id === sw.previousSwitchId) {
-                                found = this.getId(id, current);
-                            }
-                            return found;
-                        }, false),
-                        activates: [
-                            ...sw.nextSwitches.map(so => {
-                                return {
-                                    operation: so.operation,
-                                    switch: this.mapDetails[id].switches.reduce((found, current) => {
-                                        if (found) {
-                                            return found;
-                                        }
-                                        if (!current.hasCollider) {
-                                            return found;
-                                        }
-                                        if (current.id === so.targetSwitchId) {
-                                            found = this.getId(id, current);
-                                        }
-                                        return found;
-                                    }, false),
+                            for (const zone of this.mapDetails[id].spawns) {
+                                if (zone.spawnPoints.some(p => p.id === spawn.Id)) {
+                                    zoneName = zone.name;
+                                    break;
                                 }
-                            }).filter(so => so.switch),
-                            this.mapDetails[id].extracts.reduce((found, extract) => {
-                                if (found || !sw.extractId) {
+                            }
+                            if (!zoneName) {
+                                zoneName = spawn.Id;
+                            }
+                        }
+                        return {
+                            position: spawn.Position,
+                            sides: spawn.Sides.map(side => {
+                                if (side === 'Savage') {
+                                    return 'scav';
+                                }
+                                return side.toLowerCase();
+                            }),
+                            categories: categories,
+                            zoneName,
+                        };
+                    }).filter(Boolean),
+                    extracts: this.mapDetails[id].extracts.map(extract => {
+                        return {
+                            id: this.getId(id, extract),
+                            name: this.addTranslation(extract.settings.Name),
+                            faction: exfilFactions[extract.exfilType],
+                            switch: this.mapDetails[id].switches.reduce((found, current) => {
+                                if (found) {
                                     return found;
                                 }
-                                if (extract.name === sw.extractId && extract.exfilSwitchIds.includes(sw.id)) {
-                                    found = {
-                                        operation: "Unlock",
-                                        extract: this.getId(id, extract)
-                                    };
+                                if (!extract.exfilSwitchId) {
+                                    return found;
+                                }
+                                if (current.id === extract.exfilSwitchId) {
+                                    found = this.getId(id, current);
                                 }
                                 return found;
-                            }, null)
-                        ].filter(Boolean),
-                        ...sw.location,
-                    };
-                }).filter(Boolean),
-                stationaryWeapons: this.mapDetails[id].stationary_weapons.map(sw => {
-                    return {
-                        stationaryWeapon: this.getStationaryWeapon(sw.weaponItemId),
-                        position: sw.location.position,
-                    }
-                }),
-                minPlayerLevel: map.RequiredPlayerLevelMin,
-                maxPlayerLevel: map.RequiredPlayerLevelMax,
-                accessKeys: map.AccessKeys,
-                accessKeysMinPlayerLevel: map.MinPlayerLvlAccessKeys,
-            };
-            this.logger.log(`✔️ ${this.getTranslation(mapData.name)} ${id}`);
-            mapData.normalizedName = normalizeName(this.getTranslation(mapData.name));
-
-            if (this.mapRotationData[id]) {
-                mapData.coordinateToCardinalRotation = this.mapRotationData[id].rotation;
-            }
-
-            if (typeof idMap[id] !== 'undefined') mapData.tarkovDataId = idMap[id];
-
-            const enemySet = new Set();
-            for (const wave of map.waves) {
-                if (wave.WildSpawnType === 'assault') {
-                    enemySet.add('scavs');
-                } else if (wave.WildSpawnType === 'marksman') {
-                    enemySet.add('sniper');
-                }
-            }
-            for (const spawn of map.BossLocationSpawn) {
-                const bossData = {
-                    id: spawn.BossName,
-                    spawnChance: parseFloat(spawn.BossChance) / 100,
-                    spawnLocations: [],
-                    escorts: [],
-                    supports: [],
-                    spawnTime: spawn.Time,
-                    spawnTimeRandom: spawn.RandomTimeSpawn,
-                    spawnTrigger: null,
-                };
-                const bossInfo = await this.getBossInfo(spawn.BossName);
-                bossData.id = bossInfo.id;
-                const newBoss = !enemySet.has(bossData.id);
-                if (bossData.spawnChance === 0) {
-                    continue;
-                }
-                if (spawn.TriggerName === 'botEvent' && spawn.TriggerId === 'BossBoarBorn') {
-                    // filter out Kaban's sniper followers
-                    continue;
-                }
-                enemySet.add(bossData.id);
-                if (newBoss) {
-                    this.logger.log(` - ${this.getTranslation(bossInfo.name)}`);
-                }
-                const locationCount = {};
-                const spawnKeys = spawn.BossZone.split(',').filter(Boolean);
-                const locations = spawnKeys.map(zone => {
-                    let locationName = zone.replace(/Zone_?/, '').replace(/Bot/, '');
-                    if (!locationName) locationName = 'Anywhere';
-                    if (typeof locationCount[locationName] === 'undefined') locationCount[locationName] = {key: zone, count: 0};
-                    locationCount[locationName].count++;
-                    return locationName;
-                });
-                for (const key of spawnKeys) {
-                    if (!mapData.spawns.some(spawn => spawn.categories.includes('boss') && spawn.zoneName === key)) {
-                        mapData.spawns.forEach(spawn => {
-                            if (spawn.zoneName !== key) {
-                                return;
+                            }, false),
+                            switches: extract.exfilSwitchIds.map(switchId => {
+                                const foundSwitch = this.mapDetails[id].switches.find(sw => sw.id === switchId && sw.hasCollider);
+                                return foundSwitch ? this.getId(id, foundSwitch) : false;
+                            }).filter(Boolean),
+                            ...extract.location,
+                        };
+                    }),
+                    locks: this.mapDetails[id].locks.map(lock => {
+                        const keyItem = this.items.get(lock.key);
+                        if (!keyItem || keyItem.types.includes('disabled')) {
+                            this.logger.warn(`Skipping lock for key ${lock.key}`)
+                            return false;
+                        }
+                        return {
+                            id: this.getId(id, lock),
+                            lockType: lock.lockType,
+                            key: lock.key,
+                            needsPower: lock.needsPower || false,
+                            ...lock.location,
+                        }
+                    }).filter(Boolean),
+                    hazards: this.mapDetails[id].hazards.map(hazard => {
+                        if (!hazardMap[hazard.hazardType]) {
+                            this.logger.warn(`Unknown hazard type: ${hazard.hazardType}`);
+                        }
+                        let hazardType = hazardMap[hazard.hazardType]?.id || hazard.hazardType;
+                        let hazardName = hazardMap[hazard.hazardType]?.name || hazard.hazardType;
+                        return {
+                            id: this.getId(id, hazard),
+                            hazardType: hazardType,
+                            name: this.addTranslation(hazardName),
+                            ...hazard.location,
+                        };
+                    }),
+                    lootContainers: this.mapDetails[id].loot_containers.map(container => {
+                        if (!container.lootParameters.Enabled) {
+                            return false;
+                        }
+                        return {
+                            lootContainer: this.getLootContainer(container),
+                            position: container.location.position,
+                        };
+                    }).filter(Boolean),
+                    /*lootPoints: this.mapDetails[id].loot_points.reduce((allLoot, rawLoot) => {
+                        const duplicateLootPoint = allLoot.find(l => l.position.x === rawLoot.lootParameters.Position.x && l.position.y === rawLoot.lootParameters.Position.y && l.position.z === rawLoot.lootParameters.Position.z);
+                        if (duplicateLootPoint) {
+                            for (const id of rawLoot.lootParameters.FilterInclusive) {
+                                if (!duplicateLootPoint.items.includes(id)) {
+                                    duplicateLootPoint.items.push(id);
+                                }
                             }
-                            spawn.categories.push('boss');
+                            return allLoot;
+                        }
+                        allLoot.push({
+                            //enabled: rawLoot.lootParameters.Enabled,
+                            chanceModifier: rawLoot.lootParameters.ChanceModifier,
+                            rarity: rawLoot.lootParameters.Rarity,
+                            items: rawLoot.lootParameters.FilterInclusive,
+                            position: rawLoot.lootParameters.Position,
+                            //selectedFilters: rawLoot.selectedFilters, // always null
+                            //spawnChance: rawLoot.lootParameters.SpawnChance, // always 0
+                            //alwaysSpawn: rawLoot.lootParameters.IsAlwaysSpawn, // always false
+                            //alwaysTrySpawnLoot: rawLoot.lootParameters.isAlwaysTrySpawnLoot, // always false
+                            //static: rawLoot.lootParameters.IsStatic, // always false
                         });
+                        return allLoot;
+                    }, []),*/
+                    switches: this.mapDetails[id].switches.map(sw => {
+                        if (!sw.hasCollider) {
+                            return false;
+                        }
+                        const switchId = `${sw.id}_${sw.name}`.replace(/^(?:switch_)?/i, 'switch_');
+                        return {
+                            id: this.getId(id, sw),
+                            object_id: sw.id,
+                            object_name: sw.name,
+                            name: this.addTranslation(switchId),
+                            door: sw.doorId,
+                            switchType: sw.interactionType,
+                            activatedBy: this.mapDetails[id].switches.reduce((found, current) => {
+                                if (found) {
+                                    return found;
+                                }
+                                if (!sw.previousSwitchId || !current.hasCollider) {
+                                    return found;
+                                }
+                                if (current.id === sw.previousSwitchId) {
+                                    found = this.getId(id, current);
+                                }
+                                return found;
+                            }, false),
+                            activates: [
+                                ...sw.nextSwitches.map(so => {
+                                    return {
+                                        operation: so.operation,
+                                        switch: this.mapDetails[id].switches.reduce((found, current) => {
+                                            if (found) {
+                                                return found;
+                                            }
+                                            if (!current.hasCollider) {
+                                                return found;
+                                            }
+                                            if (current.id === so.targetSwitchId) {
+                                                found = this.getId(id, current);
+                                            }
+                                            return found;
+                                        }, false),
+                                    }
+                                }).filter(so => so.switch),
+                                this.mapDetails[id].extracts.reduce((found, extract) => {
+                                    if (found || !sw.extractId) {
+                                        return found;
+                                    }
+                                    if (extract.name === sw.extractId && extract.exfilSwitchIds.includes(sw.id)) {
+                                        found = {
+                                            operation: "Unlock",
+                                            extract: this.getId(id, extract)
+                                        };
+                                    }
+                                    return found;
+                                }, null)
+                            ].filter(Boolean),
+                            ...sw.location,
+                        };
+                    }).filter(Boolean),
+                    stationaryWeapons: this.mapDetails[id].stationary_weapons.map(sw => {
+                        return {
+                            stationaryWeapon: this.getStationaryWeapon(sw.weaponItemId),
+                            position: sw.location.position,
+                        }
+                    }),
+                    minPlayerLevel: map.RequiredPlayerLevelMin,
+                    maxPlayerLevel: map.RequiredPlayerLevelMax,
+                    accessKeys: map.AccessKeys,
+                    accessKeysMinPlayerLevel: map.MinPlayerLvlAccessKeys,
+                };
+                this.logger.log(`✔️ ${this.getTranslation(mapData.name)} ${id}`);
+                mapData.normalizedName = this.normalizeName(this.getTranslation(mapData.name));
+    
+                if (this.mapRotationData[id]) {
+                    mapData.coordinateToCardinalRotation = this.mapRotationData[id].rotation;
+                }
+    
+                if (typeof idMap[id] !== 'undefined') mapData.tarkovDataId = idMap[id];
+    
+                const enemySet = new Set();
+                for (const wave of map.waves) {
+                    if (wave.WildSpawnType === 'assault') {
+                        enemySet.add('scavs');
+                    } else if (wave.WildSpawnType === 'marksman') {
+                        enemySet.add('sniper');
                     }
                 }
-                for (const locationName in locationCount) {
-                    let spawns = mapData.spawns.filter(spawn => spawn.zoneName === locationCount[locationName].key && (spawn.categories.includes('boss') || spawn.categories.includes('all')));
-                    if (spawns.length === 0 && locationCount[locationName].key !== 'BotZone') {
-                        const cleanKey = locationCount[locationName].key.replace('Zone', '');
-                        const foundSpawn = mapData.spawns.find(spawn => spawn.zoneName?.startsWith(cleanKey));
-                        if (foundSpawn) {
-                            foundSpawn.zoneName = locationCount[locationName].key;
-                            if (!foundSpawn.categories.includes('boss')) {
-                                foundSpawn.categories.push('boss');
-                            }
-                            spawns.push(foundSpawn);
+                for (const spawn of map.BossLocationSpawn) {
+                    const bossData = {
+                        id: spawn.BossName,
+                        spawnChance: parseFloat(spawn.BossChance) / 100,
+                        spawnLocations: [],
+                        escorts: [],
+                        supports: [],
+                        spawnTime: spawn.Time,
+                        spawnTimeRandom: spawn.RandomTimeSpawn,
+                        spawnTrigger: null,
+                    };
+                    const bossInfo = await this.getBossInfo(spawn.BossName);
+                    bossData.id = bossInfo.id;
+                    const newBoss = !enemySet.has(bossData.id);
+                    if (bossData.spawnChance === 0) {
+                        continue;
+                    }
+                    if (spawn.TriggerName === 'botEvent' && spawn.TriggerId === 'BossBoarBorn') {
+                        // filter out Kaban's sniper followers
+                        continue;
+                    }
+                    enemySet.add(bossData.id);
+                    if (newBoss) {
+                        this.logger.log(` - ${this.getTranslation(bossInfo.name)}`);
+                    }
+                    const locationCount = {};
+                    const spawnKeys = spawn.BossZone.split(',').filter(Boolean);
+                    const locations = spawnKeys.map(zone => {
+                        let locationName = zone.replace(/Zone_?/, '').replace(/Bot/, '');
+                        if (!locationName) locationName = 'Anywhere';
+                        if (typeof locationCount[locationName] === 'undefined') locationCount[locationName] = {key: zone, count: 0};
+                        locationCount[locationName].count++;
+                        return locationName;
+                    });
+                    for (const key of spawnKeys) {
+                        if (!mapData.spawns.some(spawn => spawn.categories.includes('boss') && spawn.zoneName === key)) {
+                            mapData.spawns.forEach(spawn => {
+                                if (spawn.zoneName !== key) {
+                                    return;
+                                }
+                                spawn.categories.push('boss');
+                            });
                         }
                     }
-                    bossData.spawnLocations.push({
-                        name: this.addTranslation(locationCount[locationName].key, (lang, langCode) => {
-                            if (lang[locationCount[locationName].key]) {
-                                return lang[locationCount[locationName].key];
+                    for (const locationName in locationCount) {
+                        let spawns = mapData.spawns.filter(spawn => spawn.zoneName === locationCount[locationName].key && (spawn.categories.includes('boss') || spawn.categories.includes('all')));
+                        if (spawns.length === 0 && locationCount[locationName].key !== 'BotZone') {
+                            const cleanKey = locationCount[locationName].key.replace('Zone', '');
+                            const foundSpawn = mapData.spawns.find(spawn => spawn.zoneName?.startsWith(cleanKey));
+                            if (foundSpawn) {
+                                foundSpawn.zoneName = locationCount[locationName].key;
+                                if (!foundSpawn.categories.includes('boss')) {
+                                    foundSpawn.categories.push('boss');
+                                }
+                                spawns.push(foundSpawn);
                             }
-                            if (langCode !== 'en' && this.locales.en[locationCount[locationName].key]) {
-                                return this.locales.en[locationCount[locationName].key];
-                            }
-                            this.logger.warn(`No translation found for spawn location ${locationCount[locationName].key}`);
-                            return locationName;
-                        }),
-                        chance: Math.round((locationCount[locationName].count / locations.length) * 100) / 100,
-                        spawnKey: locationCount[locationName].key,
-                        positions: spawns.map(spawn => spawn.position),
-                    });
-                }
-                if (spawn.BossEscortAmount !== '0') {
-                    let enemyData = await this.getBossInfo(spawn.BossEscortType);
-                    const newMob = !enemySet.has(enemyData.id);
-                    enemySet.add(enemyData.id);
-                    bossData.escorts.push({
-                        id: enemyData.id,
-                        amount: getChances(spawn.BossEscortAmount, 'count', true), 
-                    });
-                    if (newMob) {
-                        this.logger.log(` - ${this.getTranslation(enemyData.name)}`);
+                        }
+                        bossData.spawnLocations.push({
+                            name: this.addTranslation(locationCount[locationName].key, (lang, langCode) => {
+                                if (lang[locationCount[locationName].key]) {
+                                    return lang[locationCount[locationName].key];
+                                }
+                                if (langCode !== 'en' && this.locales.en[locationCount[locationName].key]) {
+                                    return this.locales.en[locationCount[locationName].key];
+                                }
+                                this.logger.warn(`No translation found for spawn location ${locationCount[locationName].key}`);
+                                return locationName;
+                            }),
+                            chance: Math.round((locationCount[locationName].count / locations.length) * 100) / 100,
+                            spawnKey: locationCount[locationName].key,
+                            positions: spawns.map(spawn => spawn.position),
+                        });
                     }
-                }
-                if (spawn.Supports) {
-                    for (const support of spawn.Supports) {
-                        if (support.BossEscortAmount === '0') continue;
-                        let enemyData = await this.getBossInfo(support.BossEscortType);
+                    if (spawn.BossEscortAmount !== '0') {
+                        let enemyData = await this.getBossInfo(spawn.BossEscortType);
                         const newMob = !enemySet.has(enemyData.id);
                         enemySet.add(enemyData.id);
                         bossData.escorts.push({
                             id: enemyData.id,
-                            amount: getChances(support.BossEscortAmount, 'count', true), 
+                            amount: getChances(spawn.BossEscortAmount, 'count', true), 
                         });
                         if (newMob) {
                             this.logger.log(` - ${this.getTranslation(enemyData.name)}`);
                         }
                     }
-                }
-
-                if (spawn.TriggerId && spawn.TriggerName === 'interactObject') {
-                    const switchId = this.mapDetails[id].switches.reduce((found, current) => {
-                        if (found) {
+                    if (spawn.Supports) {
+                        for (const support of spawn.Supports) {
+                            if (support.BossEscortAmount === '0') continue;
+                            let enemyData = await this.getBossInfo(support.BossEscortType);
+                            const newMob = !enemySet.has(enemyData.id);
+                            enemySet.add(enemyData.id);
+                            bossData.escorts.push({
+                                id: enemyData.id,
+                                amount: getChances(support.BossEscortAmount, 'count', true), 
+                            });
+                            if (newMob) {
+                                this.logger.log(` - ${this.getTranslation(enemyData.name)}`);
+                            }
+                        }
+                    }
+    
+                    if (spawn.TriggerId && spawn.TriggerName === 'interactObject') {
+                        const switchId = this.mapDetails[id].switches.reduce((found, current) => {
+                            if (found) {
+                                return found;
+                            }
+                            if (current.id === spawn.TriggerId) {
+                                found = current.id;
+                            }
                             return found;
+                        }, false)
+                        if (switchId) {
+                            //bossData.spawnTrigger = this.addTranslation('SwitchActivation');
+                            bossData.switch = this.getId(id, {id: switchId});
+                            bossData.switch_id = switchId;
+                        } else {
+                            this.logger.warn(`Could not find switch ${spawn.TriggerId}`);
                         }
-                        if (current.id === spawn.TriggerId) {
-                            found = current.id;
+                        if (this.locales.en[spawn.TriggerId]) {
+                            bossData.spawnTrigger = this.addTranslation(spawn.TriggerId);
+                        } else if (switchId) {
+                            bossData.spawnTrigger = this.addTranslation('Switch');
                         }
-                        return found;
-                    }, false)
-                    if (switchId) {
-                        //bossData.spawnTrigger = this.addTranslation('SwitchActivation');
-                        bossData.switch = this.getId(id, {id: switchId});
-                        bossData.switch_id = switchId;
-                    } else {
-                        this.logger.warn(`Could not find switch ${spawn.TriggerId}`);
                     }
-                    if (this.locales.en[spawn.TriggerId]) {
-                        bossData.spawnTrigger = this.addTranslation(spawn.TriggerId);
-                    } else if (switchId) {
-                        bossData.spawnTrigger = this.addTranslation('Switch');
-                    }
+                    mapData.bosses.push(bossData);
                 }
-                mapData.bosses.push(bossData);
+                mapData.enemies = [...enemySet].map(enemy => this.addMobTranslation(enemy));
+    
+                this.kvData[gameMode.name].Map.push(mapData);
             }
-            mapData.enemies = [...enemySet].map(enemy => this.addMobTranslation(enemy));
-
-            this.kvData.Map.push(mapData);
+    
+            //const queueTimes = await mapQueueTimes(maps.data, this.logger);
+            this.kvData[gameMode.name].Map = this.kvData[gameMode.name].Map.sort((a, b) => a.name.localeCompare(b.name)).map(map => {
+                return {
+                    ...map,
+                    //queueTimes: queueTimes[map.id]
+                };
+            });
+            this.logger.log(`Processed ${this.kvData[gameMode.name].Map.length} ${gameMode.name} maps`);
+    
+            this.kvData[gameMode.name].MobInfo = this.processedBosses;
+            this.kvData[gameMode.name].LootContainer = this.lootContainers;
+            this.kvData[gameMode.name].StationaryWeapon = this.stationaryWeapons;
+            this.logger.log(`Processed ${Object.keys(this.kvData[gameMode.name].MobInfo).length} mobs`);
+            for (const mob of Object.values(this.kvData[gameMode.name].MobInfo)) {
+                //this.logger.log(`✔️ ${this.kvData.locale.en[mob.name]}`);
+            }
+    
+            let kvName = this.kvName;
+            if (gameMode.name !== 'regular') {
+                kvName += `_${gameMode.name}`;
+            }
+            await this.cloudflarePut(this.kvData[gameMode.name], kvName);
         }
-
-        //const queueTimes = await mapQueueTimes(maps.data, this.logger);
-        this.kvData.Map = this.kvData.Map.sort((a, b) => a.name.localeCompare(b.name)).map(map => {
-            return {
-                ...map,
-                //queueTimes: queueTimes[map.id]
-            };
-        });
-        this.logger.log(`Processed ${this.kvData.Map.length} maps`);
-
-        this.kvData.MobInfo = this.processedBosses;
-        this.kvData.LootContainer = this.lootContainers;
-        this.kvData.StationaryWeapon = this.stationaryWeapons;
-        this.logger.log(`Processed ${Object.keys(this.kvData.MobInfo).length} mobs`);
-        for (const mob of Object.values(this.kvData.MobInfo)) {
-            //this.logger.log(`✔️ ${this.kvData.locale.en[mob.name]}`);
-        }
-
-        await this.cloudflarePut();
         return this.kvData;
     }
 
@@ -521,6 +529,9 @@ class UpdateMapsJob extends DataJob {
                 if (this.items.get(modId).types.includes('disabled')) {
                     continue;
                 }
+                if (mods.some(m => m.item === modId)) {
+                    continue;
+                }
                 mods.push({
                     item: modId,
                     item_name: this.items.get(modId).name,
@@ -550,7 +561,7 @@ class UpdateMapsJob extends DataJob {
         const bossInfo = {
             id: bossKey,
             name: this.addMobTranslation(bossKey),
-            normalizedName: normalizeName(this.getTranslation(bossKey, 'en')),
+            normalizedName: this.normalizeName(this.getTranslation(bossKey, 'en')),
             imagePortraitLink: `https://${process.env.S3_BUCKET}/unknown-mob-portrait.webp`,
             imagePosterLink: `https://${process.env.S3_BUCKET}/unknown-mob-poster.webp`,
             equipment: [],
@@ -663,7 +674,7 @@ class UpdateMapsJob extends DataJob {
         const container = {
             id: templateId,
             name: this.addTranslation(translationKey),
-            normalizedName: normalizeName(this.locales.en[translationKey]),
+            normalizedName: this.normalizeName(this.locales.en[translationKey]),
         };
         this.lootContainers[container.id] = container;
         return container.id;
@@ -677,7 +688,7 @@ class UpdateMapsJob extends DataJob {
             id: id,
             name: this.addTranslation(`${id} Name`),
             shortName: this.addTranslation(`${id} ShortName`),
-            normalizedName: normalizeName(this.locales.en[`${id} Name`]),
+            normalizedName: this.normalizeName(this.locales.en[`${id} Name`]),
         };
         this.stationaryWeapons[weap.id] = weap;
         return weap.id;

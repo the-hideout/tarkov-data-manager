@@ -12,16 +12,12 @@ class UpdateArchivedPricesJob extends DataJob {
     }
 
     async run() {
-        this.kvData = {
-            regular: {},
-            pve: {},
-        };
-        for (let pve = 0; pve < 2; pve++) {
+        this.kvData = {};
+        for (const gameMode of this.gameModes) {
+            this.kvData[gameMode.name] = {};
             let kvName = this.kvName;
-            let gameMode = 'regular';
-            if (pve) {
-                kvName = 'archived_price_pve_data';
-                gameMode = 'pve';
+            if (gameMode.name !== 'regular') {
+                kvName += `_${gameMode.name}`;
             }
             let dateCutoff = new Date(0);
             const archivedPrices = await fs.readFile(path.join(import.meta.dirname, '..', 'dumps', `${kvName}.json`)).then(buffer => {
@@ -30,7 +26,7 @@ class UpdateArchivedPricesJob extends DataJob {
                 if (error.code !== 'ENOENT') {
                     console.log(error);
                 }
-                this.logger.log(`Generating full archived ${gameMode} prices`);
+                this.logger.log(`Generating full archived ${gameMode.name} prices`);
                 return {};
             });
             
@@ -45,7 +41,7 @@ class UpdateArchivedPricesJob extends DataJob {
                 });
             }
     
-            this.logger.log(`Using ${gameMode} query cutoff of ${dateCutoff}`);
+            this.logger.log(`Using ${gameMode.name} query cutoff of ${dateCutoff}`);
     
             const batchSize = this.maxQueryRows;
             let offset = 0;
@@ -62,12 +58,12 @@ class UpdateArchivedPricesJob extends DataJob {
                         game_mode = ?
                     ORDER BY price_date, item_id
                     LIMIT ?, ?
-                `, [dateCutoff, pve, offset, batchSize]);
+                `, [dateCutoff, gameMode.value, offset, batchSize]);
                 queryResults.forEach(r => archivedPriceData.push(r));
                 if (queryResults.length > 0) {
-                    this.logger.log(`Retrieved ${offset + queryResults.length} ${gameMode} prices through ${queryResults[queryResults.length-1].price_date}${queryResults.length === batchSize ? '...' : ''}`);
+                    this.logger.log(`Retrieved ${offset + queryResults.length} ${gameMode.name} prices through ${queryResults[queryResults.length-1].price_date}${queryResults.length === batchSize ? '...' : ''}`);
                 } else {
-                    this.logger.log(`Retrieved no ${gameMode} prices`);
+                    this.logger.log(`Retrieved no ${gameMode.name} prices`);
                 }
                 if (queryResults.length !== batchSize) {
                     break;
@@ -87,9 +83,9 @@ class UpdateArchivedPricesJob extends DataJob {
                 });
             }
     
-            this.kvData[gameMode][this.apiType] = archivedPrices;
-            await this.cloudflarePut(this.kvData[gameMode], kvName);
-            this.logger.log(`Uploaded ${gameMode} prices`);
+            this.kvData[gameMode.name][this.apiType] = archivedPrices;
+            await this.cloudflarePut(this.kvData[gameMode.name], this.kvName, gameMode.name);
+            this.logger.log(`Uploaded ${gameMode.name} prices`);
         }
 
         this.logger.success('Done with archived prices');

@@ -14,7 +14,7 @@ class UpdateTraderPricesJob extends DataJob {
     async run() {
         [this.tasks, this.traders, this.traderAssorts, this.presets, this.items] = await Promise.all([
             this.jobManager.jobOutput('update-quests', this),
-            this.jobManager.jobOutput('update-traders', this),
+            tarkovData.traders(),
             this.jobManager.jobOutput('update-trader-assorts', this, true),
             this.jobManager.jobOutput('update-presets', this),
             remoteData.get(),
@@ -196,8 +196,8 @@ class UpdateTraderPricesJob extends DataJob {
                 id: traderItem.item_id,
                 item_name: this.items.get(traderItem.item_id).name,
                 vendor: {
-                    trader: trader.id,
-                    trader_id: trader.id,
+                    trader: trader._id,
+                    trader_id: trader._id,
                     traderLevel: minLevel,
                     minTraderLevel: minLevel,
                     taskUnlock: questUnlock ? questUnlock.id : null
@@ -222,7 +222,7 @@ class UpdateTraderPricesJob extends DataJob {
                     stringValue: questUnlock.id
                 });
             }
-            const matchingTraderOffers = this.traderAssorts[trader.id].reduce((matches, traderOffer) => {
+            const matchingTraderOffers = this.traderAssorts[trader._id].reduce((matches, traderOffer) => {
                 if (traderOffer.item !== offer.id && traderOffer.baseItem !== offer.id) {
                     return matches;
                 }
@@ -269,6 +269,9 @@ class UpdateTraderPricesJob extends DataJob {
         }
         this.logger.log('Checking assorts for missing offers...');
         for (const traderId in this.traderAssorts) {
+            const trader = this.traders[traderId];
+            const traderName = this.locales.en[`${traderId} Nickname`];
+            const traderNormalizedName = this.normalizeName(traderName);
             this.traderAssorts[traderId].forEach(offer => {
                 const traderOfferUsed = Object.keys(outputData).some(id => {
                     for (const to of outputData[id]) {
@@ -284,8 +287,8 @@ class UpdateTraderPricesJob extends DataJob {
                 let itemId = offer.item;
                 const item = this.items.get(itemId);
                 if (!item.types.includes('preset') && offer.contains.length > 0) {
-                    const trader = this.traders.find(t => t.id == traderId);
-                    this.logger.log('could not match preset for', item.name, trader.name, offer);
+                    this.logger.log(`Could not match preset for ${item.name} ${traderName} ${offer.id}`);
+                    console.log(offer);
                     return;
                 }
                 if (!item.types.includes('preset') && !item.types.includes('gun')) {
@@ -306,7 +309,6 @@ class UpdateTraderPricesJob extends DataJob {
                         return;
                     }
                 }
-                const trader = this.traders.find(t => t.id === traderId);
                 const newOffer = {
                     id: itemId,
                     item_name: item.name,
@@ -317,7 +319,7 @@ class UpdateTraderPricesJob extends DataJob {
                         minTraderLevel: offer.minLevel,
                         taskUnlock: offer.taskUnlock ? offer.taskUnlock : null
                     },
-                    source: trader.normalizedName,
+                    source: traderNormalizedName,
                     price: Math.ceil(offer.cost[0].count),
                     priceRUB: Math.round(offer.cost[0].count * currenciesNow[currencyISO[offer.cost[0].item]]),
                     updated: new Date(),
@@ -361,7 +363,7 @@ class UpdateTraderPricesJob extends DataJob {
             const trader = this.getTraderByName(traderItem.trader_name);
             const itemId = traderItem.item_id;
             for (const quest of this.tasks) {
-                const match = unlockMatches(itemId, quest.startRewards, trader.id) || unlockMatches(itemId, quest.finishRewards, trader.id);
+                const match = unlockMatches(itemId, quest.startRewards, trader._id) || unlockMatches(itemId, quest.finishRewards, trader._id);
                 if (match) {
                     return {
                         id: quest.id,
@@ -376,7 +378,10 @@ class UpdateTraderPricesJob extends DataJob {
     }
 
     getTraderByName = (traderName) => {
-        return this.traders.find(t => this.locales.en[t.name].toLowerCase() === traderName.toLowerCase());
+        return Object.values(this.traders).find(t => {
+            const normalized = this.normalizeName(this.locales.en[`${t._id} Nickname`]);
+            return normalized === traderName.toLowerCase();
+        });
     }
 }
 

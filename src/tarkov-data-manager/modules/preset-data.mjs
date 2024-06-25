@@ -294,7 +294,8 @@ const presetData = {
         }
     },
     addJsonPreset: async (json, logger) => {
-        const existingPreset = presetData.findPreset(json._items);
+        const items = json.items ?? json._items;
+        const existingPreset = presetData.findPreset(items);
         if (existingPreset) {
             return Promise.reject(new Error(`Specified preset already exists as ${existingPreset.id}`));
         }
@@ -308,7 +309,7 @@ const presetData = {
         let presetNum = Object.keys(dbPresets).length + 1;
         let id;
         while (true) {
-            id = `${idPrefix}${String(presetNum).padStart(12, '0')}`;
+            id = `${idPrefix}${presetNum.toString(16).padStart(12, '0')}`;
             if (!dbPresets[id]) {
                 break;
             }
@@ -317,20 +318,23 @@ const presetData = {
         let appendName = 'Stripped';
         const slotNames = [
             'mod_scope',
+            'mod_muzzle_001',
+            'mod_muzzle_000',
             'mod_muzzle',
             'mod_stock',
             'mod_magazine',
             'mod_handguard',
             'mod_pistol_grip',
             'mod_equipment',
+            'mod_equipment_001',
+            'mod_equipment_000',
         ];
-        const items = json.items ?? json._items;
-        for (const slotName of slotNames) {
+        slotLoop: for (const slotName of slotNames) {
             for (let i = items.length - 1; i > -1; i--) {
                 const part = items[i];
                 if (part.slotId === slotName) {
                     appendName = `${part._tpl} ShortName`;
-                    break;
+                    break slotLoop;
                 }
             }
         }

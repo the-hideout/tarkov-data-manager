@@ -2,7 +2,6 @@ import got from 'got';
 
 import DataJob from '../modules/data-job.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
-import normalizeName from '../modules/normalize-name.js';
 import s3 from '../modules/upload-s3.mjs';
 
 const skipAreas = {
@@ -39,7 +38,7 @@ class UpdateHideoutJob extends DataJob {
             const stationData = {
                 id: station._id,
                 name: this.addTranslation(`hideout_area_${station.type}_name`),
-                normalizedName: normalizeName(this.getTranslation(`hideout_area_${station.type}_name`)),
+                normalizedName: this.normalizeName(this.getTranslation(`hideout_area_${station.type}_name`)),
                 areaType: station.type,
                 levels: [],
                 imageLink: `https://${process.env.S3_BUCKET}/station-unknown.png`,

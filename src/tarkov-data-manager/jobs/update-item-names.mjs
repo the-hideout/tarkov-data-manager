@@ -4,7 +4,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import remoteData from '../modules/remote-data.mjs';
-import normalizeName from '../modules/normalize-name.js';
 
 import DataJob from '../modules/data-job.mjs';
 import { regenerateFromExisting } from '../modules/image-create.mjs';
@@ -76,14 +75,14 @@ class UpdateItemNamesJob extends DataJob {
             }
             name = en[`${itemId} Name`].toString().trim();
             shortname = en[`${itemId} ShortName`].toString().trim();
-            normalized = name ? normalizeName(name) : normalized;
+            normalized = name ? this.normalizeName(name) : normalized;
             bgColor = item._props.BackgroundColor;
             width = item._props.Width;
             height = item._props.Height;
             if ((!name || name == null) && normalized) {
                 name = normalized;
             } else if (name && !normalized) {
-                normalized = normalizeName(name);
+                normalized = this.normalizeName(name);
             }
 
             if (!localItem.types.includes('disabled')) {
@@ -130,7 +129,7 @@ class UpdateItemNamesJob extends DataJob {
             }
 
             const oldKey = localItem.normalized_name;
-            const newKey = normalizeName(name);
+            const newKey = this.normalizeName(name);
 
             if (oldKey !== newKey && currentDestinations.includes(oldKey)){
                 try {

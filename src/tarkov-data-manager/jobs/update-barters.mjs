@@ -3,7 +3,7 @@ import remoteData from '../modules/remote-data.mjs';
 import DataJob from '../modules/data-job.mjs';
 
 const skipOffers = {
-    jaeger: {
+    '5c0647fdd443bc2504c2d371': { // jaeger
         4: [
             {
                 reward: '5c110624d174af029e69734c', // T-7 Thermal Goggles with a Night Vision mount
@@ -19,7 +19,7 @@ const skipOffers = {
             }
         ],
     },
-    peacekeeper: {
+    '5935c25fb3acc3127c3d8cd9': { // peacekeeper
         1: [
             {
                 reward: '5c110624d174af029e69734c', // T-7 Thermal Goggles with a Night Vision mount
@@ -42,7 +42,7 @@ class UpdateBartersJob extends DataJob {
     async run() {
         [this.tasks, this.traders, this.traderAssorts, this.itemData, this.items, this.en] = await Promise.all([
             this.jobManager.jobOutput('update-quests', this),
-            this.jobManager.jobOutput('update-traders', this),
+            tarkovData.traders(),
             this.jobManager.jobOutput('update-trader-assorts', this, true),
             remoteData.get(),
             tarkovData.items(),
@@ -102,16 +102,16 @@ class UpdateBartersJob extends DataJob {
             if (this.skipOffer(offer, requirements.map(r => r.requirement_item_id))) {
                 continue;
             }
-            const trader = this.traders.find(t => t.id === offer.trader_id);
+            const traderName = this.en[`${offer.trader_id} Nickname`];
             const questUnlock = this.getQuestUnlock(offer);
-            const assort = this.traderAssorts[trader.id]?.find(assort => assort.id === offer.id);
+            const assort = this.traderAssorts[offer.trader_id]?.find(assort => assort.id === offer.id);
             const barter = {
                 id: offer.id,
-                trader_id: trader.id,
-                trader_name: this.en[trader.name],
-                trader: `${this.en[trader.name]} LL${offer.min_level}`,
-                source: `${this.en[trader.name]} LL${offer.min_level}`,
-                sourceName: trader.normalizedName,
+                trader_id: offer.trader_id,
+                trader_name: traderName,
+                trader: `${traderName} LL${offer.min_level}`,
+                source: `${traderName} LL${offer.min_level}`,
+                sourceName: this.normalizeName(traderName),
                 level: offer.min_level,
                 taskUnlock: questUnlock ? questUnlock.id : null,
                 rewardItems: [
@@ -183,6 +183,11 @@ class UpdateBartersJob extends DataJob {
         this.logger.log(`Unpacked ${ammoPacks} ammo pack barters`);
 
         await this.cloudflarePut({Barter: this.barters});
+
+        // exclude Ref from PVE barters
+        const pveBarters = this.barters.filter(b => b.trader_id !== '6617beeaa9cfa777ca915b7c');
+        await this.cloudflarePut({Barter: pveBarters}, `${this.kvName}_pve`);
+
         return this.barters;
     }
 
@@ -190,10 +195,9 @@ class UpdateBartersJob extends DataJob {
         if (!offer.locked) {
             return null;
         }
-        const trader = this.traders.find(t => t.id === offer.trader_id);
         const itemId = offer.item_id;
         for (const quest of this.tasks) {
-            const match = unlockMatches(itemId, quest.startRewards, trader.id) || unlockMatches(itemId, quest.finishRewards, trader.id);
+            const match = unlockMatches(itemId, quest.startRewards, offer.trader_id) || unlockMatches(itemId, quest.finishRewards, offer.trader_id);
             if (match) {
                 return {
                     id: quest.id,
@@ -202,19 +206,18 @@ class UpdateBartersJob extends DataJob {
                 };
             }
         }
-        this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${trader.normalizedName} ${offer.min_level} ${this.itemData.get(itemId).name} ${itemId}`);
+        this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${this.locales.en[`${offer.trader_id} Nickname`]} ${offer.min_level} ${this.itemData.get(itemId).name} ${itemId}`);
         return null;
     }
 
     skipOffer = (offer, requirements) => {
-        const trader = this.traders.find(t => t.id === offer.trader_id);
-        if (!skipOffers[trader.normalizedName]) {
+        if (!skipOffers[offer.trader_id]) {
             return false;
         }
-        if (!skipOffers[trader.normalizedName][offer.min_level]) {
+        if (!skipOffers[offer.trader_id][offer.min_level]) {
             return false;
         }
-        const rewardOffers = skipOffers[trader.normalizedName][offer.min_level].filter(o => o.reward === offer.item_id);
+        const rewardOffers = skipOffers[offer.trader_id][offer.min_level].filter(o => o.reward === offer.item_id);
         if (rewardOffers.length === 0) {
             return false;
         }
