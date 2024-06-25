@@ -318,6 +318,8 @@ const presetData = {
         let appendName = 'Stripped';
         const slotNames = [
             'mod_scope',
+            'mod_muzzle_001',
+            'mod_muzzle_000',
             'mod_muzzle',
             'mod_stock',
             'mod_magazine',
@@ -327,12 +329,12 @@ const presetData = {
             'mod_equipment_001',
             'mod_equipment_000',
         ];
-        for (const slotName of slotNames) {
+        slotLoop: for (const slotName of slotNames) {
             for (let i = items.length - 1; i > -1; i--) {
                 const part = items[i];
                 if (part.slotId === slotName) {
                     appendName = `${part._tpl} ShortName`;
-                    break;
+                    break slotLoop;
                 }
             }
         }
