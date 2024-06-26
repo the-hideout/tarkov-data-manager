@@ -213,7 +213,7 @@ class TranslationHelper {
             if (key.includes('follower') && !key.includes('BigPipe') && !key.includes('BirdEye')) {
                 this.translationKeyMap[key] = (key, langCode, lang) => {    
                     const nameParts = [];
-                    const guardTypePattern = /Assault|Security|Scout|Snipe/;
+                    const guardTypePattern = /Assault|Security|Scout|Snipe|Close1|Close2/;
                     const bossKey = key.replace('follower', 'boss').replace(guardTypePattern, '');
                     this.addMobTranslation(bossKey);
                     this.addMobTranslation('Follower');
