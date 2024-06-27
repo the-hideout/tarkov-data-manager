@@ -69,7 +69,7 @@ const validateQueue = async (req, res) => {
             }
         }
 
-        return { map: map, time: time, type: type };
+        return { map: map, time: time, type: type, gameMode: req.body.gameMode };
     } catch (error) {
         alert({
             title: `Error during public-api queue validation`,
