@@ -351,7 +351,7 @@ class UpdateMapsJob extends DataJob {
                             positions: spawns.map(spawn => spawn.position),
                         });
                     }
-                    if (spawn.BossEscortAmount !== '0') {
+                    if (spawn.BossEscortAmount !== '0' && !spawn.Supports?.length) {
                         let enemyData = await this.getBossInfo(spawn.BossEscortType);
                         const newMob = !enemySet.has(enemyData.id);
                         enemySet.add(enemyData.id);
