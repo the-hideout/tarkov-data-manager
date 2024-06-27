@@ -417,7 +417,7 @@ class UpdateMapsJob extends DataJob {
                 this.kvData[gameMode.name].Map.push(mapData);
             }
 
-            this.kvData[gameMode.name].GoonReport = this.goonReports.map(report => {
+            this.kvData[gameMode.name].GoonReport = this.goonReports.sort((a, b) => b.timestamp - a.timestamp).map(report => {
                 const map = this.kvData[gameMode.name].Map.find(m => m.nameId === report.map);
                 if (!map) {
                     this.logger.warn(`Could not find ${report.map} map`);
@@ -425,7 +425,7 @@ class UpdateMapsJob extends DataJob {
                 }
                 return {
                     map: map.id,
-                    timestamp: report.timestamp.getTime(),
+                    timestamp: `${report.timestamp.getTime()}`,
                 }
             }).filter(Boolean);
     
