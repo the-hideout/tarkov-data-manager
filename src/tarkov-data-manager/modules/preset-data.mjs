@@ -1,4 +1,3 @@
-import { EventEmitter } from 'node:events';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -7,6 +6,7 @@ import TranslationHelper from './translation-helper.mjs';
 import { query } from './db-connection.mjs';
 import remoteData from './remote-data.mjs';
 import normalizeName from './normalize-name.js';
+import emitter from './emitter.mjs';
 
 let items = false;
 let credits = false;
@@ -16,8 +16,6 @@ export const presets = {
     presets: {},
     locale: {},
 };
-
-const emitter = new EventEmitter();
 
 const defaultLogger = {
     log: console.log,
@@ -405,7 +403,7 @@ const presetData = {
             presets.presets[id] = undefined;
         }
         presets.locale = updatedPresets.locale;
-        emitter.emit('updated', presets);
+        emitter.emit('presetsUpdated', presets);
     },
     addPreset: (processedPreset) => {
         presets.presets[processedPreset.preset.id] = processedPreset.preset;
@@ -417,7 +415,7 @@ const presetData = {
                 presets.locale[langCode][key] = processedPreset.locale[langCode][key];
             }
         }
-        emitter.emit('updated', presets);
+        emitter.emit('presetsUpdated', presets);
     },
     itemsMatch: (itemsA, itemsB) => {
         if (itemsA.length !== itemsB.length) {
@@ -489,15 +487,6 @@ const presetData = {
         return result.affectedRows > 0;
     },
     presets,
-    on: (event, listener) => {
-        return emitter.on(event, listener);
-    },
-    off: (event, listener) => {
-        return emitter.off(event, listener);
-    },
-    once: (event, listener) => {
-        return emitter.once(event, listener);
-    },
 };
 
 export const { getPresetProperties, init: initPresetData, addJsonPreset } = presetData;

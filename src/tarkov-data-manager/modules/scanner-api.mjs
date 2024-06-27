@@ -52,7 +52,7 @@ const updatePresets = (newPresets) => {
     }
 };
 
-presetData.on('updated', updatePresets);
+emitter.on('presetsUpdated', updatePresets);
 
 updatePresets(presetData.presets);
 

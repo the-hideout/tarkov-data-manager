@@ -1,4 +1,3 @@
-import { EventEmitter } from 'node:events';
 import crypto from 'node:crypto';
 
 import WebSocket from 'ws';
@@ -6,8 +5,7 @@ import sharp from 'sharp';
 
 import sleep from './sleep.js';
 import scannerApi from './scanner-api.mjs';
-
-const emitter = new EventEmitter();
+import emitter from './emitter.mjs';
 
 const validRoles = [
     'scanner',
@@ -360,15 +358,6 @@ const webSocketServer = {
             return Promise.reject(new Error(errorMessage));
         }
         return sharp(Buffer.from(response.data, 'base64'));
-    },
-    on: (event, listener) => {
-        return emitter.on(event, listener);
-    },
-    off: (event, listener) => {
-        return emitter.off(event, listener);
-    },
-    once: (event, listener) => {
-        return emitter.once(event, listener);
     },
 };
 
