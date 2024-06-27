@@ -103,7 +103,7 @@ const validateGoons = async (req, res) => {
             reporterId = req.body.accountId;
         }
 
-        return { map, timestamp, reporterId };
+        return { map, timestamp, reporterId, gameMode: req.body.gameMode };
     } catch (error) {
         alert({
             title: `Error during public-api goons validation`,
@@ -150,7 +150,7 @@ const publicApi = {
         try {
             const ipAddress = req.headers['cf-connecting-ip'] || req.ip;
             // Insert the data into the database
-            await query(`INSERT INTO goon_reports (map, timestamp, reporter_id, reporter_ip) VALUES (?, ?, ?, ?)`, [data.map, data.timestamp, data.reporterId, ipAddress]);
+            await query(`INSERT INTO goon_reports (map, game_mode, timestamp, reporter_id, reporter_ip) VALUES (?, ?, ?, ?, ?)`, [data.map, data.gameMode, data.timestamp, data.reporterId, ipAddress]);
             res.json({ status: "success" });
             return;
         } catch (error) {
