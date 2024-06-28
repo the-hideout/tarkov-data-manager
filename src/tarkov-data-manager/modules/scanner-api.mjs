@@ -685,6 +685,9 @@ const scannerApi = {
         if (response.errors.length > 0) {
             return response;
         }
+        if (presets.presets[itemId]) {
+            presetData.presetUsed(itemId);
+        }
         const playerPrices = [];
         const traderPrices = [];
         for (let i = 0; i < itemPrices.length; i++) {

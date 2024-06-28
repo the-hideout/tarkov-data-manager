@@ -341,7 +341,7 @@ const webSocketServer = {
         }
         if (process.env.TEST_JOB === 'true') {
             while (webSocketServer.connectedScanners().length < 1) {
-                await sleep(1000);
+                //await sleep(1000);
             }
         }
         const clients = webSocketServer.launchedScanners();
