@@ -930,6 +930,9 @@ const scannerApi = {
                 insertValues.price = null;
                 insertValues.currency = null;
             }
+            if (presets.presets[offer.item]) {
+                presetData.presetUsed(offer.item);
+            }
             const updateValues = Object.keys(insertValues).reduce((all, current) => {
                 if (current !== 'id') {
                     all[current] = insertValues[current];
