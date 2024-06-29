@@ -1,5 +1,5 @@
 {
-    "61e6e615eea2935bc018a2c5": {
+    "_61e6e615eea2935bc018a2c5": {
         "id": "61e6e615eea2935bc018a2c5",
         "name": "Compensation for Damage - Barkeep",
         "trader": "579dc571d53a0658a154fbec",
@@ -152,7 +152,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "626148251ed3bb5bcc5bd9ed": {
+    "_626148251ed3bb5bcc5bd9ed": {
         "id": "626148251ed3bb5bcc5bd9ed",
         "name": "Make Amends - Buyout",
         "trader": "5a7c2eca46aef81a7ca2145d",
@@ -228,7 +228,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "6261482fa4eb80027c4f2e11": {
+    "_6261482fa4eb80027c4f2e11": {
         "id": "6261482fa4eb80027c4f2e11",
         "name": "Make Amends - Equipment",
         "trader": "5a7c2eca46aef81a7ca2145d",
@@ -294,7 +294,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "626148334149f1149b5b12ca": {
+    "_626148334149f1149b5b12ca": {
         "id": "626148334149f1149b5b12ca",
         "name": "Make Amends - Security",
         "trader": "5a7c2eca46aef81a7ca2145d",
@@ -418,7 +418,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "62614836f7308432be1d44cc": {
+    "_62614836f7308432be1d44cc": {
         "id": "62614836f7308432be1d44cc",
         "name": "Make Amends - Sweep Up",
         "trader": "5a7c2eca46aef81a7ca2145d",
@@ -493,7 +493,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "6391d90f4ed9512be67647df": {
+    "_6391d90f4ed9512be67647df": {
         "id": "6391d90f4ed9512be67647df",
         "name": "Make Amends",
         "trader": "5a7c2eca46aef81a7ca2145d",
@@ -600,7 +600,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "64f5deac39e45b527a7c4232": {
+    "_64f5deac39e45b527a7c4232": {
         "id": "64f5deac39e45b527a7c4232",
         "name": "Test Drive - Part 3",
         "trader": "54cb50c76803fa8b248b4571",
@@ -844,7 +844,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "65733403eefc2c312a759ddb": {
+    "_65733403eefc2c312a759ddb": {
         "id": "65733403eefc2c312a759ddb",
         "name": "Developer's Secrets - Part 1",
         "trader": "5a7c2eca46aef81a7ca2145d",
@@ -977,7 +977,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "6573382e557ff128bf3da536": {
+    "_6573382e557ff128bf3da536": {
         "id": "6573382e557ff128bf3da536",
         "name": "Developer's Secrets - Part 2",
         "trader": "5a7c2eca46aef81a7ca2145d",
@@ -1082,7 +1082,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "6573397ef3f8344c4575cd87": {
+    "_6573397ef3f8344c4575cd87": {
         "id": "6573397ef3f8344c4575cd87",
         "name": "Properties All Around",
         "trader": "54cb50c76803fa8b248b4571",
@@ -1201,7 +1201,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "6573387d0b26ed4fde798de3": {
+    "_6573387d0b26ed4fde798de3": {
         "id": "6573387d0b26ed4fde798de3",
         "name": "Pets Won't Need It - Part 2",
         "trader": "54cb57776803fa99248b456e",
@@ -1348,7 +1348,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "6578ec473dbd035d04531a8d": {
+    "_6578ec473dbd035d04531a8d": {
         "id": "6578ec473dbd035d04531a8d",
         "name": "Steady Signal",
         "trader": "5a7c2eca46aef81a7ca2145d",
@@ -1517,7 +1517,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "64e7b9bffd30422ed03dad38": {
+    "_64e7b9bffd30422ed03dad38": {
         "id": "64e7b9bffd30422ed03dad38",
         "name": "Gendarmerie - District Patrol",
         "trader": "54cb50c76803fa8b248b4571",
@@ -1634,7 +1634,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "66058cb22cee99303f1ba067": {
+    "_66058cb22cee99303f1ba067": {
         "id": "66058cb22cee99303f1ba067",
         "name": "Easy Money - Part 1",
         "trader": "58330581ace78e27b8b10cee",
@@ -1730,7 +1730,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "66058cb5ae4719735349b9e8": {
+    "_66058cb5ae4719735349b9e8": {
         "id": "66058cb5ae4719735349b9e8",
         "name": "Easy Money - Part 2",
         "trader": "6617beeaa9cfa777ca915b7c",
@@ -1850,7 +1850,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "66058cb7c7f3584787181476": {
+    "_66058cb7c7f3584787181476": {
         "id": "66058cb7c7f3584787181476",
         "name": "Balancing - Part 1",
         "trader": "6617beeaa9cfa777ca915b7c",
@@ -1988,7 +1988,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "66058cb9e8e4f17985230805": {
+    "_66058cb9e8e4f17985230805": {
         "id": "66058cb9e8e4f17985230805",
         "name": "Balancing - Part 2",
         "trader": "6617beeaa9cfa777ca915b7c",
@@ -2119,7 +2119,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "66058cbb06ef1d50a60c1f46": {
+    "_66058cbb06ef1d50a60c1f46": {
         "id": "66058cbb06ef1d50a60c1f46",
         "name": "Surprise",
         "trader": "6617beeaa9cfa777ca915b7c",
@@ -2231,7 +2231,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "66058cbd9f59e625462acc8e": {
+    "_66058cbd9f59e625462acc8e": {
         "id": "66058cbd9f59e625462acc8e",
         "name": "Create a Distraction - Part 1",
         "trader": "6617beeaa9cfa777ca915b7c",
@@ -2350,7 +2350,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "66058cbf2f19c31a5a1337ec": {
+    "_66058cbf2f19c31a5a1337ec": {
         "id": "66058cbf2f19c31a5a1337ec",
         "name": "Create a Distraction - Part 2",
         "trader": "6617beeaa9cfa777ca915b7c",

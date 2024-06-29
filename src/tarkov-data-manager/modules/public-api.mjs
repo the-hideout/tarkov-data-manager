@@ -6,7 +6,7 @@ import { alert } from './webhook.js';
 
 const allMaps = { timestamp: DateTime.now().toFormat('yyyy-LL-dd HH:mm:ss'), maps: [] };
 
-const raidTypes = ['scav', 'pmc', 'unknown'];
+const raidTypes = ['scav', 'pmc', 'pve', 'unknown'];
 
 const validateMap = async (req, res) => {
     // Check if allMaps has data and is from the last 1 hour cache time
