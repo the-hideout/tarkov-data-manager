@@ -6,8 +6,8 @@ import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 
 class UpdateTraderAssortsJob extends DataJob {
-    constructor() {
-        super('update-trader-assorts');
+    constructor(options) {
+        super({...options, name: 'update-trader-assorts'});
         this.writeFolder = 'cache';
         this.kvName = 'trader_assorts';
     }

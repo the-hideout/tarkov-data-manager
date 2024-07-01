@@ -5,8 +5,8 @@ import tarkovData from '../modules/tarkov-data.mjs';
 import s3 from '../modules/upload-s3.mjs';
 
 class UpdateTradersJob extends DataJob {
-    constructor() {
-        super('update-traders');
+    constructor(options) {
+        super({...options, name: 'update-traders'});
         this.kvName = 'trader_data';
     }
 

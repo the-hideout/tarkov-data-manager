@@ -2,8 +2,8 @@ import DataJob from '../modules/data-job.mjs';
 import tarkovDevData from '../modules/tarkov-dev-data.mjs';
 
 class UpdateTdDataJob extends DataJob {
-    constructor() {
-        super('update-td-data');
+    constructor(options) {
+        super({...options, name: 'update-td-data'});
     }
 
     async run() {

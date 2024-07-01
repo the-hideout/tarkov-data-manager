@@ -3,8 +3,8 @@ import tarkovChanges from '../modules/tarkov-changes.mjs';
 import gameModes from '../modules/game-modes.mjs';
 
 class UpdateTcDataJob extends DataJob {
-    constructor() {
-        super('update-tc-data');
+    constructor(options) {
+        super({...options, name: 'update-tc-data'});
     }
 
     async run() {

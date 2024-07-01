@@ -3,8 +3,8 @@ import DataJob from '../modules/data-job.mjs';
 const max_days_per_run = 1;
 
 class ArchivePricesJob extends DataJob {
-    constructor() {
-        super('archive-prices');
+    constructor(options) {
+        super({...options, name: 'archive-prices'});
     }
 
     async run() {

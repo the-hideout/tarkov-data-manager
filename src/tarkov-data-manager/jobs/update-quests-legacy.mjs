@@ -3,8 +3,8 @@ import got from 'got';
 import DataJob from '../modules/data-job.mjs';
 
 class UpdateQuestsLegacyJob extends DataJob {
-    constructor() {
-        super('update-quests-legacy');
+    constructor(options) {
+        super({...options, name: 'update-quests-legacy'});
     }
 
     async run(options) {
