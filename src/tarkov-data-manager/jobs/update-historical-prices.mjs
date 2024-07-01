@@ -6,8 +6,8 @@ import DataJob from '../modules/data-job.mjs';
 const historicalPriceDays = 7;
 
 class UpdateHistoricalPricesJob extends DataJob {
-    constructor() {
-        super('update-historical-prices');
+    constructor(options) {
+        super({...options, name: 'update-historical-prices'});
         this.kvName = 'historical_price_data';
         this.idSuffixLength = 1;
         this.apiType = 'historicalPricePoint';

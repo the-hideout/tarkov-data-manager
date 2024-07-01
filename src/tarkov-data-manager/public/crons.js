@@ -26,7 +26,11 @@ $(document).ready( function () {
                 if (type !== 'display') {
                     return data;
                 }
-                return `<span class="tooltipped" data-tooltip="${data ? window.cronstrue.toString(data) : ''}">${data}</span>`
+                let tooltipText = '';
+                if (data) {
+                    tooltipText = data.includes(' ') ? window.cronstrue.toString(data) : `On event ${data}`;
+                }
+                return `<span class="tooltipped" data-tooltip="${tooltipText}">${data}</span>`
             }
         },
         {
@@ -128,7 +132,9 @@ $(document).ready( function () {
         try {
             $('#modal-edit-cron .cronstrue').text(window.cronstrue.toString(input.val()));
         } catch (error) {
-            console.log(error);
+            if (input.val().includes(' ')) {
+                console.log(error);
+            }
             $('#modal-edit-cron .cronstrue').text('');
         }
     });

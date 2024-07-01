@@ -8,19 +8,27 @@ import tarkovData from '../modules/tarkov-data.mjs';
 import s3 from '../modules/upload-s3.mjs';
 
 class UpdateMapsJob extends DataJob {
-    constructor() {
-        super('update-maps');
+    constructor(options) {
+        super({...options, name: 'update-maps'});
         this.kvName = 'map_data';
     }
 
     run = async () => {
         this.logger.log('Getting maps data...');
-        [this.items, this.presets, this.botInfo, this.mapDetails, this.eftItems] = await Promise.all([
+        [
+            this.items,
+            this.presets,
+            this.botInfo,
+            this.mapDetails,
+            this.eftItems,
+            this.goonReports,
+        ] = await Promise.all([
             remoteData.get(),
             this.jobManager.jobOutput('update-presets', this, true),
             tarkovData.botsInfo(),
             tarkovData.mapDetails(),
             tarkovData.items(),
+            this.query('SELECT * FROM goon_reports WHERE timestamp >= now() - INTERVAL 1 DAY'),
         ]);
         this.mapRotationData = JSON.parse(fs.readFileSync('./data/map_coordinates.json'));
         this.bossLoadouts = {};
@@ -408,6 +416,18 @@ class UpdateMapsJob extends DataJob {
     
                 this.kvData[gameMode.name].Map.push(mapData);
             }
+
+            this.kvData[gameMode.name].GoonReport = this.goonReports.sort((a, b) => b.timestamp - a.timestamp).map(report => {
+                const map = this.kvData[gameMode.name].Map.find(m => m.nameId === report.map);
+                if (!map) {
+                    this.logger.warn(`Could not find ${report.map} map`);
+                    return false;
+                }
+                return {
+                    map: map.id,
+                    timestamp: `${report.timestamp.getTime()}`,
+                }
+            }).filter(Boolean);
     
             //const queueTimes = await mapQueueTimes(maps.data, this.logger);
             this.kvData[gameMode.name].Map = this.kvData[gameMode.name].Map.sort((a, b) => a.name.localeCompare(b.name)).map(map => {

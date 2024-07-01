@@ -7,8 +7,8 @@ import { getBucketContents } from '../modules/upload-s3.mjs';
 const { imageFunctions } = imgGen;
 
 class CheckImageLinksJob extends DataJob {
-    constructor() {
-        super('check-image-links');
+    constructor(options) {
+        super({...options, name: 'check-image-links'});
     }
 
     async run() {

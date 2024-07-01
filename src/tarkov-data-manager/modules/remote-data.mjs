@@ -1,12 +1,10 @@
-import { EventEmitter } from 'node:events';
-
 import midmean from 'compute-midmean';
 
 import timer from './console-timer.js';
 import { query, maxQueryRows } from './db-connection.mjs';
 import gameModes from './game-modes.mjs';
+import emitter from './emitter.mjs';
 
-const emitter = new EventEmitter();
 let myData = false;
 let lastRefresh = new Date(0);
 
@@ -103,7 +101,7 @@ const methods = {
 
             myData = returnData;
             lastRefresh = new Date();
-            emitter.emit('updated', myData);
+            emitter.emit('dbItemsUpdated', myData);
             return returnData;
         } catch (error) {
             return Promise.reject(error);

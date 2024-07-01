@@ -3,8 +3,8 @@ import tarkovData from '../modules/tarkov-data.mjs';
 import DataJob from '../modules/data-job.mjs';
 
 class GameDataJob extends DataJob {
-    constructor() {
-        super('game-data');
+    constructor(options) {
+        super({...options, name: 'game-data'});
     }
 
     async run() {

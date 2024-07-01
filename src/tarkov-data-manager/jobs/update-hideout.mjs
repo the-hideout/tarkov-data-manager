@@ -9,8 +9,8 @@ const skipAreas = {
 };
 
 class UpdateHideoutJob extends DataJob {
-    constructor() {
-        super('update-hideout');
+    constructor(options) {
+        super({...options, name: 'update-hideout'});
         this.kvName = 'hideout_data';
     }
 

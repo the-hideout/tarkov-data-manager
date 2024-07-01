@@ -4,8 +4,8 @@ import path from 'node:path';
 import DataJob from '../modules/data-job.mjs';
 
 class UpdateArchivedPricesJob extends DataJob {
-    constructor() {
-        super('update-archived-prices');
+    constructor(options) {
+        super({...options, name: 'update-archived-prices'});
         this.kvName = 'archived_price_data';
         this.idSuffixLength = 1;
         this.apiType = 'ArchivedPrices';

@@ -5,8 +5,8 @@ import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 
 class UpdateNewItemsJob extends DataJob {
-    constructor() {
-        super('update-new-items');
+    constructor(options) {
+        super({...options, name: 'update-new-items'});
     }
 
     run = async () => {

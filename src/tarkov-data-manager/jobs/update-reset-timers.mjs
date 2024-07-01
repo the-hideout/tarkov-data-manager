@@ -2,8 +2,8 @@ import DataJob from '../modules/data-job.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 
 class UpdateResetTimersJob extends DataJob {
-    constructor() {
-        super('update-reset-timers');
+    constructor(options) {
+        super({...options, name: 'update-reset-timers'});
         this.kvName = 'reset_time_data';
     }
 

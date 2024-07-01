@@ -9,8 +9,8 @@ const statusMap = [
 ];
 
 class UpdateGameStatusJob extends DataJob {
-    constructor() {
-        super('update-game-status');
+    constructor(options) {
+        super({...options, name: 'update-game-status'});
         this.kvName = 'status_data';
     }
 

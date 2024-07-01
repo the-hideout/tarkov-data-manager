@@ -34,8 +34,8 @@ const skipOffers = {
 };
 
 class UpdateBartersJob extends DataJob {
-    constructor() {
-        super('update-barters');
+    constructor(options) {
+        super({...options, name: 'update-barters'});
         this.kvName = 'barter_data';
     }
 

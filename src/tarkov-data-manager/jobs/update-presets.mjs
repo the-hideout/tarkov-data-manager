@@ -12,8 +12,8 @@ import { regenerateFromExisting } from '../modules/image-create.mjs';
 const { imageFunctions } = imgGen;
 
 class UpdatePresetsJob extends DataJob {
-    constructor() {
-        super('update-presets');
+    constructor(options) {
+        super({...options, name: 'update-presets'});
         this.writeFolder = 'cache';
         this.kvName = 'presets';
     }

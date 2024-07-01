@@ -3,8 +3,8 @@ import got from 'got';
 import DataJob from '../modules/data-job.mjs';
 
 class UpdateHideoutLegacyJob extends DataJob {
-    constructor() {
-        super('update-hideout-legacy');
+    constructor(options) {
+        super({...options, name: 'update-hideout-legacy'});
     }
 
     async run(options) {

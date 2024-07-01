@@ -1,4 +1,3 @@
-import { EventEmitter } from 'node:events';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -11,10 +10,9 @@ import dogtags from './dogtags.mjs';
 import { uploadToS3 } from './upload-s3.mjs';
 import { createAndUploadFromSource } from './image-create.mjs';
 import presetData from './preset-data.mjs';
+import emitter from './emitter.mjs';
 
 const { imageSizes } = imgGen.imageFunctions;
-
-const emitter = new EventEmitter();
 
 const users = {};
 let usersUpdating = true;
@@ -54,7 +52,7 @@ const updatePresets = (newPresets) => {
     }
 };
 
-presetData.on('updated', updatePresets);
+emitter.on('presetsUpdated', updatePresets);
 
 updatePresets(presetData.presets);
 
@@ -97,6 +95,12 @@ const queryResultToBatchItem = item => {
 };
 
 const endTraderScan = async () => {
+    const checkout = await query('SELECT COUNT(id) checkout_count FROM item_data WHERE trader_checkout_scanner_id IS NOT NULL');
+    if (checkout[0].checkount_count > 0) {
+        return {
+            data: 'unable to end incomplete trader scan',
+        };
+    }
     const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
     if (activeScan.length < 1) {
         return {
@@ -109,6 +113,7 @@ const endTraderScan = async () => {
             data: 'unable to update active trader scan',
         }
     }
+    emitter.emit('traderScanEnded', activeScan);
     return {
         data: 'Trader scan ended',
     }
@@ -680,6 +685,9 @@ const scannerApi = {
         if (response.errors.length > 0) {
             return response;
         }
+        if (presets.presets[itemId]) {
+            presetData.presetUsed(itemId);
+        }
         const playerPrices = [];
         const traderPrices = [];
         for (let i = 0; i < itemPrices.length; i++) {
@@ -921,6 +929,9 @@ const scannerApi = {
             } else {
                 insertValues.price = null;
                 insertValues.currency = null;
+            }
+            if (presets.presets[offer.item]) {
+                presetData.presetUsed(offer.item);
             }
             const updateValues = Object.keys(insertValues).reduce((all, current) => {
                 if (current !== 'id') {

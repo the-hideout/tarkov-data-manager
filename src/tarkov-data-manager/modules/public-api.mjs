@@ -6,7 +6,7 @@ import { alert } from './webhook.js';
 
 const allMaps = { timestamp: DateTime.now().toFormat('yyyy-LL-dd HH:mm:ss'), maps: [] };
 
-const raidTypes = ['scav', 'pmc', 'unknown'];
+const raidTypes = ['scav', 'pmc', 'pve', 'unknown'];
 
 const validateMap = async (req, res) => {
     // Check if allMaps has data and is from the last 1 hour cache time
@@ -69,7 +69,7 @@ const validateQueue = async (req, res) => {
             }
         }
 
-        return { map: map, time: time, type: type };
+        return { map: map, time: time, type: type, gameMode: req.body.gameMode };
     } catch (error) {
         alert({
             title: `Error during public-api queue validation`,

@@ -12,8 +12,8 @@ import webSocketServer from '../modules/websocket-server.mjs';
 import { createAndUploadFromSource } from '../modules/image-create.mjs';
 
 class UpdateQuestsJob extends DataJob {
-    constructor() {
-        super('update-quests');
+    constructor(options) {
+        super({...options, name: 'update-quests'});
         this.kvName = 'quest_data';
     }
 
@@ -125,7 +125,7 @@ class UpdateQuestsJob extends DataJob {
             }
             const quest = this.missingQuests[questId];
             if (quests.Task.some(q => q.id === questId)) {
-                this.logger.warn(`Missing quest ${this.locales.en[quest.name]} ${quest.id} already exists...`);
+                this.logger.warn(`Missing quest ${quest.name} ${questId} already exists...`);
                 continue;
             }
             try {
@@ -1056,7 +1056,7 @@ class UpdateQuestsJob extends DataJob {
         await this.loadRewards(questData, 'startRewards', quest.rewards.Started);
         this.loadRewards(questData, 'failureOutcome', quest.rewards.Fail);
         if (factionMap[questData.id]) questData.factionName = factionMap[questData.id];
-        if (this.missingQuests[questData.id]) delete this.missingQuests[questData.id];
+        //if (this.missingQuests[questData.id]) delete this.missingQuests[questData.id];
     
         if (this.changedQuests[questData.id]) {
             if (this.changedQuests[questData.id].propertiesChanged) {

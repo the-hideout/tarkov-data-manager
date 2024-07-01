@@ -3,8 +3,8 @@ import webSocketServer from '../modules/websocket-server.mjs';
 import DataJob from '../modules/data-job.mjs';
 
 class StartTraderScanJob extends DataJob {
-    constructor() {
-        super('start-trader-scan');
+    constructor(options) {
+        super({...options, name: 'start-trader-scan'});
     }
 
     async run() {
