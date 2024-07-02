@@ -202,7 +202,7 @@ class DataJob {
         if (response.success) {
             this.writeDump(data, kvName);
             this.logger.success(`Successful Cloudflare put of ${kvName} in ${uploadTime} ms`);
-            stellate.purge(kvName, this.logger);
+            //stellate.purge(kvName, this.logger);
         } else {
             const errorMessages = [];
             for (let i = 0; i < response.errors.length; i++) {
