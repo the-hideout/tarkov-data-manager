@@ -18,6 +18,10 @@ const availableFiles = [
     //'status',
 ];
 
+const arrayToDictionary = [
+    'traders',
+];
+
 const defaultOptions = dataOptions.default;
 const merge = dataOptions.merge;
 
@@ -42,6 +46,12 @@ const tarkovDevData = {
         let newJson = await webSocketServer.getJson(jsonName, gameMode);
         if (newJson.elements) {
             newJson = newJson.elements;
+        }
+        if (Array.isArray(newJson) && arrayToDictionary.includes(jsonName)) {
+            newJson = newJson.reduce((all, current) => {
+                all[current.id ?? current._id] = current;
+                return all;
+            }, {});
         }
         fs.writeFileSync(cachePath(filename), JSON.stringify(newJson, null, 4));
         return newJson;
