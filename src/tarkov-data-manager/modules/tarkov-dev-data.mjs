@@ -34,7 +34,9 @@ const tarkovDevData = {
             try {
                 return JSON.parse(fs.readFileSync(cachePath(filename)));
             } catch (error) {
-                return Promise.reject(error);
+                if (error.code !== 'ENOENT') {
+                    return Promise.reject(error);
+                }
             }
         }
         let newJson = await webSocketServer.getJson(jsonName, gameMode);
