@@ -72,7 +72,7 @@ const tarkovDevData = {
         return tarkovDevData.get('areas', options);
     },
     traders: async (options = defaultOptions) => {
-        return tarkovDevData.get('trader', options);
+        return tarkovDevData.get('traders', options);
     },
     status: async (options = defaultOptions) => {
         return tarkovDevData.get('status', options);
