@@ -53,6 +53,7 @@ class DataJob {
             'apiType',
             'maxQueryRows',
             'gameModes',
+            'lastCompletion',
             ...options.saveFields,
         ];
         this.writeFolder = 'dumps';
@@ -153,7 +154,9 @@ class DataJob {
         if (this.name && this.jobManager) {
             this.lastCompletion = this.jobManager.lastRun(this.name);
         }
-        emitter.emit(`jobComplete_${this.name}`);
+        if (this.name) {
+            emitter.emit(`jobComplete_${this.name}`);
+        }
         if (!options?.parent) {
             await jobComplete();
             if (process.env.TEST_JOB === 'true') {

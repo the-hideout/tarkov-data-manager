@@ -2,6 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 
 import schedule from 'node-schedule';
+import cron from 'cron-validator';
 
 import emitter from '../modules/emitter.mjs';
 
@@ -86,7 +87,8 @@ const scheduleJob = function(name, cronSchedule) {
     if (!cronSchedule) {
         return;
     }
-    console.log(`Setting up ${name} job to run ${cronSchedule}`);
+    const isCron = cron.isValidCron(cronSchedule);
+    console.log(`Setting up ${name} job to run${isCron ? '' : ' on'} ${cronSchedule}`);
 
     const jobFunction = async () => {
         if (process.env.SKIP_JOBS === 'true') {
@@ -102,7 +104,7 @@ const scheduleJob = function(name, cronSchedule) {
         }
         console.timeEnd(name);
     };
-    if (cronSchedule.includes(' ')) {
+    if (isCron) {
         const job = schedule.scheduleJob(cronSchedule, jobFunction);
         jobs[name].cronSchedule = cronSchedule;
 
