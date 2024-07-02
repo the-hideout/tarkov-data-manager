@@ -278,7 +278,7 @@ const dataFunctions = {
         return tarkovDevData.status(options);
     },
     traders: (options = defaultOptions) => {
-        return tarkovDevData.traders(options);
+        return tarkovChanges.traders(options);
     },
     traderAssorts: async (traderId, options = defaultOptions) => {
         return spt.traderAssorts(traderId, options);

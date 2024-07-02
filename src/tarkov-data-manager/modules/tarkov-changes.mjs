@@ -45,9 +45,9 @@ const availableFiles = {
     items: {},
     globals: {},
     areas: {},
-    /*traders: {
+    traders: {
         requestName: 'traders_clean',
-    },*/
+    },
     locations: {},
     locale_en: {
         requestName: 'locale_en_td',

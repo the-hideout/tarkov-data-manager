@@ -13,12 +13,14 @@ const availableFiles = [
     'items',
     'globals',
     'locale_en',
-    'locations',*/
-    'traders',
+    'locations',
+    'traders',*/
     //'status',
 ];
 
 const arrayToDictionary = [
+    'areas',
+    'crafts',
     'traders',
 ];
 
