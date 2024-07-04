@@ -17,7 +17,6 @@ class UpdateTdDataJob extends DataJob {
         if (tradingService?.status === 1 && webSocketServer.launchedScanners().length === 0) {
             this.logger.log('Game is updating, skipping data update');
             return;
-
         }
 
         this.logger.log('Downloading data from...');
