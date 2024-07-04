@@ -1,5 +1,6 @@
 import DataJob from '../modules/data-job.mjs';
 import tarkovDevData from '../modules/tarkov-dev-data.mjs';
+import webSocketServer from '../modules/websocket-server.mjs';
 
 class UpdateTdDataJob extends DataJob {
     constructor(options) {
@@ -7,6 +8,18 @@ class UpdateTdDataJob extends DataJob {
     }
 
     async run() {
+        const services = await tarkovDevData.status().then(status => status.services).catch(error => {
+            this.logger.error(`Error getting EFT services status: ${error.message}`);
+            return [];
+        });
+
+        const tradingService = services.find(s => s.name === 'Trading');
+        if (tradingService?.status === 1 && webSocketServer.launchedScanners().length === 0) {
+            this.logger.log('Game is updating, skipping data update');
+            return;
+
+        }
+
         this.logger.log('Downloading data from...');
         this.logger.time('td-download');
         const results = await tarkovDevData.downloadAll('regular');

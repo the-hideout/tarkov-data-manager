@@ -23,7 +23,7 @@ class CheckScansJob extends DataJob {
         ]);
 
         for (const service of services) {
-            if (!service.name === 'Trading') continue;
+            if (service.name !== 'Trading') continue;
             if (service.status === 1) {
                 this.logger.log('Game is updating, skipping scanner check')
                 return;
