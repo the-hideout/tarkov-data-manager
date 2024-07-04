@@ -18,6 +18,12 @@ const availableFiles = [
     //'status',
 ];
 
+const arrayToDictionary = [
+    'areas',
+    'crafts',
+    'traders',
+];
+
 const defaultOptions = dataOptions.default;
 const merge = dataOptions.merge;
 
@@ -34,12 +40,20 @@ const tarkovDevData = {
             try {
                 return JSON.parse(fs.readFileSync(cachePath(filename)));
             } catch (error) {
-                return Promise.reject(error);
+                if (error.code !== 'ENOENT') {
+                    return Promise.reject(error);
+                }
             }
         }
         let newJson = await webSocketServer.getJson(jsonName, gameMode);
         if (newJson.elements) {
             newJson = newJson.elements;
+        }
+        if (Array.isArray(newJson) && arrayToDictionary.includes(jsonName)) {
+            newJson = newJson.reduce((all, current) => {
+                all[current.id ?? current._id] = current;
+                return all;
+            }, {});
         }
         fs.writeFileSync(cachePath(filename), JSON.stringify(newJson, null, 4));
         return newJson;
@@ -72,7 +86,7 @@ const tarkovDevData = {
         return tarkovDevData.get('areas', options);
     },
     traders: async (options = defaultOptions) => {
-        return tarkovDevData.get('trader', options);
+        return tarkovDevData.get('traders', options);
     },
     status: async (options = defaultOptions) => {
         return tarkovDevData.get('status', options);

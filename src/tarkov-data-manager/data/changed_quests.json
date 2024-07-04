@@ -1149,7 +1149,7 @@
             "minPlayerLevel": 1
         }
     },
-    "5ae4496986f774459e77beb6": {
+    "_5ae4496986f774459e77beb6": {
         "name": "Sew it Good - Part 3",
         "objectivePropertiesChanged": {
             "5ae9bb6986f77415a869b40b": {
@@ -1274,7 +1274,7 @@
             ]
         }
     },
-    "63967028c4a91c5cb76abd81": {
+    "_63967028c4a91c5cb76abd81": {
         "name": "Trouble in the Big City",
         "finishRewardsChanged": {
             "traderStanding": [
