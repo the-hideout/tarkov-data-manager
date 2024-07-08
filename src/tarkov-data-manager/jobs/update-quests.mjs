@@ -13,7 +13,7 @@ import { createAndUploadFromSource } from '../modules/image-create.mjs';
 
 class UpdateQuestsJob extends DataJob {
     constructor(options) {
-        super({...options, name: 'update-quests'});
+        super({...options, name: 'update-quests', loadLocales: true});
         this.kvName = 'quest_data';
     }
 

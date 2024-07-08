@@ -6,7 +6,7 @@ import s3 from '../modules/upload-s3.mjs';
 
 class UpdateTradersJob extends DataJob {
     constructor(options) {
-        super({...options, name: 'update-traders'});
+        super({...options, name: 'update-traders', loadLocales: true});
         this.kvName = 'trader_data';
     }
 

@@ -17,12 +17,12 @@ class UpdateCraftsJob extends DataJob {
 
     run = async () => {
         this.logger.log('Loading json files...');
-        const [items, json, processedItems] = await Promise.all([
+        const [items, json, processedItems, en] = await Promise.all([
             tarkovData.items(),
             tarkovData.crafts(),
             remoteData.get(),
+            tarkovData.locale('en'),
         ]);
-        const en = this.locales.en;
         const areas = await this.jobManager.jobOutput('update-hideout', this);
         const tasks = await this.jobManager.jobOutput('update-quests', this);
         const presets = await this.jobManager.jobOutput('update-presets', this);

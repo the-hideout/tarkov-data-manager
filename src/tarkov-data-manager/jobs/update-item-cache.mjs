@@ -9,7 +9,7 @@ import { createAndUploadFromSource } from '../modules/image-create.mjs';
 
 class UpdateItemCacheJob extends DataJob {
     constructor(options) {
-        super({...options, name: 'update-item-cache'});
+        super({...options, name: 'update-item-cache', loadLocales: true});
         this.kvName = 'item_data';
     }
 

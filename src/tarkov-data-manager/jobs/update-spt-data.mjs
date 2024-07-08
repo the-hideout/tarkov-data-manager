@@ -9,20 +9,17 @@ class UpdateLangJob extends DataJob {
     run = async () => {
         this.logger.log('Downloading language data...');
         this.logger.time('lang-download');
-        const locales = await spt.locales(true);
-        this.logger.log(`Downloaded locales: ${Object.keys(locales).join(', ')}`);
+        this.logger.log(`Downloaded locales: ${Object.keys(await spt.locales(true)).join(', ')}`);
         this.logger.timeEnd('lang-download');
 
         this.logger.log('Downloading bot data...');
         this.logger.time('bot-download');
-        const bots = await spt.botsInfo(true);
-        this.logger.log(`Downloaded bots: ${Object.keys(bots).join(', ')}`);
+        this.logger.log(`Downloaded bots: ${Object.keys(await spt.botsInfo(true)).join(', ')}`);
         this.logger.timeEnd('bot-download');
 
         this.logger.log('Downloading loot data...');
         this.logger.time('loot-download');
-        const loot = await spt.mapLoot(true);
-        this.logger.log(`Downloaded loot: ${Object.keys(loot).join(', ')}`);
+        this.logger.log(`Downloaded loot: ${Object.keys(await spt.mapLoot(true)).join(', ')}`);
         this.logger.timeEnd('loot-download');
 
         this.logger.log('Downloading quest config data...');

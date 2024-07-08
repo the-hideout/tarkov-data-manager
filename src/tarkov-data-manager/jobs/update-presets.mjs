@@ -13,7 +13,7 @@ const { imageFunctions } = imgGen;
 
 class UpdatePresetsJob extends DataJob {
     constructor(options) {
-        super({...options, name: 'update-presets'});
+        super({...options, name: 'update-presets', loadLocales: true});
         this.writeFolder = 'cache';
         this.kvName = 'presets';
     }

@@ -12,12 +12,13 @@ class UpdateTraderPricesJob extends DataJob {
     }
 
     async run() {
-        [this.tasks, this.traders, this.traderAssorts, this.presets, this.items] = await Promise.all([
+        [this.tasks, this.traders, this.traderAssorts, this.presets, this.items, this.localeEn] = await Promise.all([
             this.jobManager.jobOutput('update-quests', this),
             tarkovData.traders(),
             this.jobManager.jobOutput('update-trader-assorts', this, true),
             this.jobManager.jobOutput('update-presets', this),
             remoteData.get(),
+            tarkovData.locale('en'),
         ]);
         for (const traderId in this.traderAssorts) {
             this.traderAssorts[traderId] = this.traderAssorts[traderId].filter(offer => !offer.barter);
@@ -270,7 +271,7 @@ class UpdateTraderPricesJob extends DataJob {
         this.logger.log('Checking assorts for missing offers...');
         for (const traderId in this.traderAssorts) {
             const trader = this.traders[traderId];
-            const traderName = this.locales.en[`${traderId} Nickname`];
+            const traderName = this.localeEn[`${traderId} Nickname`];
             const traderNormalizedName = this.normalizeName(traderName);
             this.traderAssorts[traderId].forEach(offer => {
                 const traderOfferUsed = Object.keys(outputData).some(id => {
@@ -379,7 +380,7 @@ class UpdateTraderPricesJob extends DataJob {
 
     getTraderByName = (traderName) => {
         return Object.values(this.traders).find(t => {
-            const normalized = this.normalizeName(this.locales.en[`${t._id} Nickname`]);
+            const normalized = this.normalizeName(this.localeEn[`${t._id} Nickname`]);
             return normalized === traderName.toLowerCase();
         });
     }
