@@ -402,7 +402,10 @@ app.post('/items/refresh-images/:id', async (req, res) => {
         }
         let newImage;
         if (item.types.includes('preset')) {
-            newImage = await webSocketServer.getJsonImage(item.properties.items);
+            newImage = await webSocketServer.getJsonImage({
+                id: item.id,
+                items: item.properties.items,
+            });
         } else {
             const results = await webSocketServer.getImages(item.id);
             newImage = results[item.id];
