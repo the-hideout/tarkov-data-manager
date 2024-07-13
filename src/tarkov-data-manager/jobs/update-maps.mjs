@@ -9,7 +9,7 @@ import s3 from '../modules/upload-s3.mjs';
 
 class UpdateMapsJob extends DataJob {
     constructor(options) {
-        super({...options, name: 'update-maps'});
+        super({...options, name: 'update-maps', loadLocales: true});
         this.kvName = 'map_data';
     }
 

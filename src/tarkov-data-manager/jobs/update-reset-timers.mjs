@@ -8,14 +8,17 @@ class UpdateResetTimersJob extends DataJob {
     }
 
     async run() {
-        const traders = await tarkovData.traders();
+        const [traders, en] = await Promise.all([
+            tarkovData.traders(),
+            tarkovData.locale('en'),
+        ]);
 
         const resetTimes = {};
         for (const id in traders) {
             const trader = traders[id];
             const date = new Date(trader.nextResupply*1000);
             date.setHours(date.getHours() +5);
-            resetTimes[this.normalizeName(this.locales.en[`${id} Nickname`])] = date;
+            resetTimes[this.normalizeName(en[`${id} Nickname`])] = date;
         }
         /*const resetTimes = {};
         const results = await query(`

@@ -13,9 +13,9 @@ class UpdateQuestImagesJob extends DataJob {
     }
 
     async run() {
-        [this.eftQuests, this.locales, this.quests, this.missingImages] = await Promise.all([
+        [this.eftQuests, this.localeEn, this.quests, this.missingImages] = await Promise.all([
             tarkovData.quests(),
-            tarkovData.locales(),
+            tarkovData.locale('en'),
             this.jobManager.jobOutput('update-quests', this),
             fs.readFile('./cache/quests_missing_images.json').then(fileString => {
                 return JSON.parse(fileString);
@@ -34,12 +34,12 @@ class UpdateQuestImagesJob extends DataJob {
         questLoop: for (const id of this.missingImages) {
             const s3FileName = `${id}.webp`;
             if (this.s3Images.includes(s3FileName)) {
-                this.logger.warn(`Image already exists for ${this.locales.en[`${id} name`]} ${id}`);
+                this.logger.warn(`Image already exists for ${this.localeEn[`${id} name`]} ${id}`);
                 continue;
             }
             const task = this.quests.find(t => t.id === id);
             if (!task) {
-                this.logger.error(`Task ${this.locales.en[`${id} name`]} ${id} was not found`);
+                this.logger.error(`Task ${this.localeEen[`${id} name`]} ${id} was not found`);
                 continue;
             }
             let imagePath = false;
@@ -62,7 +62,7 @@ class UpdateQuestImagesJob extends DataJob {
                             continue;
                         }
                         await uploadAnyImage(image, s3FileName, 'image/webp');
-                        this.logger.log(`Retrieved ${this.locales.en[`${id} name`]} ${id} image from SPT`);
+                        this.logger.log(`Retrieved ${this.localeEn[`${id} name`]} ${id} image from SPT`);
                         continue questLoop;
                     } catch (error) {
                         this.logger.error(`Error fetching ${imageId}.${ext} from SPT: ${error.stack}`);
@@ -73,7 +73,7 @@ class UpdateQuestImagesJob extends DataJob {
                 continue;
             }
             const pageResponse = await fetch(task.wikiLink).catch(error => {
-                this.logger.error(`Error fetching wiki page for ${this.locales.en[`${task.id} name`]} ${this.task.id}: ${error}`);
+                this.logger.error(`Error fetching wiki page for ${this.localeEn[`${task.id} name`]} ${this.task.id}: ${error}`);
                 return {
                     ok: false,
                 };
@@ -96,7 +96,7 @@ class UpdateQuestImagesJob extends DataJob {
                 continue;
             }
             await uploadAnyImage(image, s3FileName, 'image/webp');
-            this.logger.log(`Retrieved ${this.locales.en[`${task.id} name`]} ${task.id} image from wiki`);
+            this.logger.log(`Retrieved ${this.localeEn[`${task.id} name`]} ${task.id} image from wiki`);
         }
     }
 }

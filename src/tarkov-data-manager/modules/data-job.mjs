@@ -54,11 +54,13 @@ class DataJob {
             'maxQueryRows',
             'gameModes',
             'lastCompletion',
+            'loadLocales',
             ...options.saveFields,
         ];
         this.writeFolder = 'dumps';
         this.maxQueryRows = maxQueryRows;
         this.gameModes = gameModes;
+        this.loadLocales = !!options.loadLocales;
     }
 
     cleanup() {
@@ -76,13 +78,13 @@ class DataJob {
     async start(options) {
         this.startDate = new Date();
         this.kvData = {};
-        this.locales = await tarkovData.locales();
-        this.translationHelper = new TranslationHelper({
-            locales: this.locales,
-            logger: this.logger,
-        })
-        this.translationKeyMap = {};
-        this.translationKeys = new Set();
+        if (this.loadLocales) {
+            this.locales = await tarkovData.locales();
+            this.translationHelper = new TranslationHelper({
+                locales: this.locales,
+                logger: this.logger,
+            });
+        }
         if (options && options.parent) {
             this.logger.parentLogger = options.parent.logger;
         }
@@ -177,7 +179,9 @@ class DataJob {
         if (!data) {
             data = this.kvData;
         }
-        data.locale = await this.fillTranslations();
+        if (this.loadLocales) {
+            data.locale = await this.fillTranslations();
+        }
         
         let kvName = kvOverride || this.kvName;
         if (!kvName) {

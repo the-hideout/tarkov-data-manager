@@ -10,7 +10,7 @@ const skipAreas = {
 
 class UpdateHideoutJob extends DataJob {
     constructor(options) {
-        super({...options, name: 'update-hideout'});
+        super({...options, name: 'update-hideout', loadLocales: true});
         this.kvName = 'hideout_data';
     }
 

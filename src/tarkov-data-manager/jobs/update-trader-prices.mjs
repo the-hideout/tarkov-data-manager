@@ -126,7 +126,7 @@ class UpdateTraderPricesJob extends DataJob {
                     restockAmount: assort ? assort.stock : offer.restock_amount,
                     buyLimit: offer.buy_limit,
                 },
-                source: this.normalizeName(this.locales.en[`${offer.trader_id} Nickname`]),
+                source: this.normalizeName(this.en[`${offer.trader_id} Nickname`]),
                 price: Math.round(offer.price), // prices in API are Int; we should convert to float
                 priceRUB: Math.round(offer.price * this.currencyValues[offer.currency]),
                 updated: offer.updated,
@@ -202,7 +202,7 @@ class UpdateTraderPricesJob extends DataJob {
                 };
             }
         }
-        const traderNormalizedName = this.normalizeName(this.locales.en[`${offer.trader_id} Nickname`]);
+        const traderNormalizedName = this.normalizeName(this.en[`${offer.trader_id} Nickname`]);
         const error = new Error(`Unknown quest unlock for trader offer ${offer.id}: ${traderNormalizedName} ${offer.min_level} ${this.items.get(itemId).name} ${itemId}`);
         error.code = 'UNKNOWN_QUEST_UNLOCK';
         error.trader = traderNormalizedName;
@@ -213,7 +213,7 @@ class UpdateTraderPricesJob extends DataJob {
 
     getTraderByName = (traderName) => {
         for (const traderId in this.traders) {
-            const normalized = this.normalizeName(this.locales.en[`${traderId} Nickname`]);
+            const normalized = this.normalizeName(this.en[`${traderId} Nickname`]);
             return normalized === traderName.toLowerCase();
         };
     }

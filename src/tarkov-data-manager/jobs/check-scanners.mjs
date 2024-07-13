@@ -22,12 +22,10 @@ class CheckScansJob extends DataJob {
             `),
         ]);
 
-        for (const service of services) {
-            if (!service.name === 'Trading') continue;
-            if (service.status === 1) {
-                this.logger.log('Game is updating, skipping scanner check')
-                return;
-            }
+        const tradingService = services.find(s => s.name === 'Trading');
+        if (tradingService?.status === 1) {
+            this.logger.log('Game is updating, skipping scanner check');
+            return;
         }
 
         const scanCutoff = new Date() - (1000 * 60 * 15);

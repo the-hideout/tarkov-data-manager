@@ -206,7 +206,7 @@ class UpdateBartersJob extends DataJob {
                 };
             }
         }
-        this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${this.locales.en[`${offer.trader_id} Nickname`]} ${offer.min_level} ${this.itemData.get(itemId).name} ${itemId}`);
+        this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${this.en[`${offer.trader_id} Nickname`]} ${offer.min_level} ${this.itemData.get(itemId).name} ${itemId}`);
         return null;
     }
 
