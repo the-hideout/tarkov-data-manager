@@ -187,6 +187,24 @@ class UpdatePresetsJob extends DataJob {
             preset.normalized_name = this.normalizeName(this.getTranslation(preset.name));
         }
 
+        // make sure normalized names are unique
+        Object.values(this.presetsData).forEach((preset, i, presets) => {
+            if (i === 0) {
+                return;
+            }
+            const dupes = presets.filter((p, ii) => {
+                return (p.normalized_name === preset.normalized_name);
+            });
+            if (dupes.length === 1) {
+                return;
+            }
+            const position = dupes.indexOf(preset) + 1;
+            if (position === 1) {
+                return;
+            }
+            preset.normalized_name += `-${position}`;
+        });
+
         const queries = [];
         const regnerateImages = [];
         for (const [id, item] of this.dbItems.entries()) {
