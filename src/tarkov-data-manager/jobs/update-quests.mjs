@@ -1713,6 +1713,7 @@ const extractMap = {};
 
 const skipQuests = [
     '6603fe74e773dcf3b0099f88', // The Tarkov Mystery
+    '6658a15615cbb1b2c6014d5b', // Hustle 2024
 ];
 
 // Secure Folder 0013 appears on multiple maps
