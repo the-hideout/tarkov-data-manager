@@ -1,6 +1,6 @@
 import DataJob from '../modules/data-job.mjs';
 
-const max_days_per_run = 1;
+const max_days_per_run = 2;
 
 class ArchivePricesJob extends DataJob {
     constructor(options) {
@@ -24,7 +24,6 @@ class ArchivePricesJob extends DataJob {
         // archive max_days_per_run number of days
         for (let i = 0; i < max_days_per_run; i++) {
             for (const gameMode of this.gameModes) {
-                const gameModeName = gameMode.name;
                 // get the price with the oldest timestamp
                 const oldestPrice = await this.query(`
                     SELECT * FROM price_data 
@@ -33,13 +32,16 @@ class ArchivePricesJob extends DataJob {
                     LIMIT 1
                 `, [cutoff, gameMode.value]);
                 if (oldestPrice.length === 0) {
-                    this.logger.success(`No ${gameModeName} prices found before ${cutoff}`);
-                    return;
+                    // we don't have any prices before the cutoff
+                    // this means archiving is current, so nothing to do
+                    this.logger.success(`No ${gameMode.name} prices found before ${cutoff}`);
+                    continue;
                 }
                 // convert oldest price date to YYYY-MM-dd
+                // removes hours, mins, etc. to break at the start of the day
                 const archiveDate = this.getMysqlDate(oldestPrice[0].timestamp);
     
-                this.logger.log(`Archiving ${gameModeName} prices for ${archiveDate}`);
+                this.logger.log(`Archiving ${gameMode.name} prices for ${archiveDate}`);
     
                 // get minimum and average prices per item during day
                 const itemPrices = await this.query(`
@@ -65,10 +67,25 @@ class ArchivePricesJob extends DataJob {
                     ON DUPLICATE KEY UPDATE
                         price_min=VALUES(price_min), price_avg=VALUES(price_avg)
                 `, insertValues);
-                this.logger.log(`Inserted ${Object.keys(itemPrices).length} ${gameModeName} archived prices in ${new Date() - insertStart}ms`);
+                this.logger.log(`Inserted ${Object.keys(itemPrices).length} ${gameMode.name} archived prices in ${new Date() - insertStart}ms`);
     
-                // delete the prices we just archived
-                await this.deletePricesThrough(archiveDate, gameMode);
+                // delete the prices we just archived from main price table
+                // can only delete 100k at a time, so need to loop
+                const batchSize = this.maxQueryRows;
+                let deletedCount = 0;
+                const deleteStart = new Date();
+                while (true) {
+                    const deleteResult = await this.query(`
+                        DELETE FROM price_data 
+                        WHERE timestamp < ? + INTERVAL 1 DAY AND game_mode = ?
+                        LIMIT ?
+                    `, [archiveDate, gameMode.value, batchSize]);
+                    deletedCount += deleteResult.affectedRows;
+                    if (deleteResult.affectedRows < batchSize) {
+                        break;
+                    }
+                }
+                this.logger.log(`Deleted ${deletedCount} individual ${gameMode.name} prices in ${new Date() - deleteStart}ms`);
             }
         }
     }
@@ -76,27 +93,6 @@ class ArchivePricesJob extends DataJob {
     // converts js time to YYYY-MM-dd
     getMysqlDate = (jsDate) => {
         return jsDate.toISOString().slice(0, 10);
-    }
-
-    // deletes all prices through the given YYY-MM-dd date
-    deletePricesThrough = async (mysqlDateCutoff, gameMode) => {
-        // delete archived prices from main price table
-        // can only delete 100k at a time, so need to loop
-        const batchSize = this.maxQueryRows;
-        let deletedCount = 0;
-        const deleteStart = new Date();
-        while (true) {
-            const deleteResult = await this.query(`
-                DELETE FROM price_data 
-                WHERE timestamp < ? + INTERVAL 1 DAY AND game_mode = ?
-                LIMIT ?
-            `, [mysqlDateCutoff, gameMode.value, batchSize]);
-            deletedCount += deleteResult.affectedRows;
-            if (deleteResult.affectedRows < batchSize) {
-                break;
-            }
-        }
-        this.logger.log(`Deleted ${deletedCount} individual ${gameMode.name} prices in ${new Date() - deleteStart}ms`);
     }
 }
 
