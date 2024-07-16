@@ -68,7 +68,7 @@ class ArchivePricesJob extends DataJob {
                 this.logger.log(`Inserted ${Object.keys(itemPrices).length} ${gameModeName} archived prices in ${new Date() - insertStart}ms`);
     
                 // delete the prices we just archived
-                await this.deletePricesThrough(archiveDate);
+                await this.deletePricesThrough(archiveDate, gameMode);
             }
         }
     }
@@ -90,13 +90,13 @@ class ArchivePricesJob extends DataJob {
                 DELETE FROM price_data 
                 WHERE timestamp < ? + INTERVAL 1 DAY AND game_mode = ?
                 LIMIT ?
-            `, [mysqlDateCutoff, gameMode, batchSize]);
+            `, [mysqlDateCutoff, gameMode.value, batchSize]);
             deletedCount += deleteResult.affectedRows;
             if (deleteResult.affectedRows < batchSize) {
                 break;
             }
         }
-        this.logger.log(`Deleted ${deletedCount} individual prices in ${new Date() - deleteStart}ms`);
+        this.logger.log(`Deleted ${deletedCount} individual ${gameMode.name} prices in ${new Date() - deleteStart}ms`);
     }
 }
 
