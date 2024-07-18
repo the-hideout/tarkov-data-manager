@@ -1,3 +1,4 @@
+import "./instrument.mjs";
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
@@ -13,7 +14,7 @@ import './modules/configure-env.mjs';
 import remoteData from './modules/remote-data.mjs';
 import tarkovData from './modules/tarkov-data.mjs';
 import jobs from './jobs/index.mjs';
-import {connection, query, format} from './modules/db-connection.mjs';
+import { connection, query, format } from './modules/db-connection.mjs';
 import timer from './modules/console-timer.js';
 import { userFlags, scannerFlags, refreshScannerUsers } from './modules/scanner-api.mjs';
 import scannerHttpApi from './modules/scanner-http-api.mjs';
@@ -29,14 +30,14 @@ const app = express();
 const port = process.env.PORT || 4000;
 
 function maybe(fn) {
-    return function(req, res, next) {
+    return function (req, res, next) {
         if (req.path === '/auth' && req.method === 'POST') {
             next();
 
             return true;
         }
 
-        if(req.path.substring(0, 6) === '/data/'){
+        if (req.path.substring(0, 6) === '/data/') {
             next();
 
             return true;
@@ -95,8 +96,8 @@ app.set('trust proxy', true);
 //app.use(bodyParser.json());
 app.use(express.static('public'));
 app.use(session(sess));
-app.use(express.json({limit: '100mb'}));
-app.use(express.urlencoded({extended: true}));
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ extended: true }));
 app.use(maybe((req, res, next) => {
     if (req.session.loggedin) {
         next();
@@ -163,16 +164,16 @@ const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 try {
     fs.mkdirSync(path.join(import.meta.dirname, 'cache'));
-} catch (createError){
-    if(createError.code !== 'EEXIST'){
+} catch (createError) {
+    if (createError.code !== 'EEXIST') {
         console.error(createError);
     }
 }
 
 try {
     fs.mkdirSync(path.join(import.meta.dirname, 'dumps'));
-} catch (createError){
-    if(createError.code !== 'EEXIST'){
+} catch (createError) {
+    if (createError.code !== 'EEXIST') {
         console.error(createError);
     }
 }
@@ -182,7 +183,7 @@ function capitalizeFirstLetter(string) {
 }
 
 app.post('/auth', async (req, res) => {
-    const response = {success: false, message: 'Invalid username/password.'};
+    const response = { success: false, message: 'Invalid username/password.' };
     let username = req.body.username;
     let password = req.body.password;
     if (username && password) {
@@ -308,9 +309,9 @@ app.get('/', async (req, res) => {
     let untagged = [];
     const myData = await remoteData.get();
     for (const [key, item] of myData) {
-        if (item.types.length == 0) 
+        if (item.types.length == 0)
             untagged.push(item);
-        
+
         let missingImages = 0;
         if (!item.types.includes('disabled')) {
             if (!item.wiki_link && !item.types.includes('quest')) {
@@ -342,8 +343,8 @@ app.get('/', async (req, res) => {
                 <ul class="browser-default">
                     <li>Total: ${itemCount}</li>
                     ${untagged.length > 0 ? `<li>Untagged: ${untagged.length}</li>` : ''}
-                    ${missingImage.length > 0 ? `<li>Missing image(s): ${missingImage.length} items missing ${missingImageCount} total images</li>` : '' }
-                    ${missingWiki.length > 0 ? `<li>Missing wiki link: ${missingWiki.length}</li>` : '' }
+                    ${missingImage.length > 0 ? `<li>Missing image(s): ${missingImage.length} items missing ${missingImageCount} total images</li>` : ''}
+                    ${missingWiki.length > 0 ? `<li>Missing wiki link: ${missingWiki.length}</li>` : ''}
                 </ul>
             </div>
             <div class="section col s12">
@@ -361,7 +362,7 @@ app.get('/', async (req, res) => {
 
 app.post('/items/update-types/:id', async (request, response) => {
     //console.log(request.body, request.params.id);
-    const res = {errors: [], message: ''};
+    const res = { errors: [], message: '' };
     try {
         if (request.body.active) {
             await remoteData.addType(request.params.id, request.body.type);
@@ -377,7 +378,7 @@ app.post('/items/update-types/:id', async (request, response) => {
 });
 
 app.post('/items/regenerate-images/:id', async (req, res) => {
-    const response = {success: false, message: 'Error regenerating images', errors: []};
+    const response = { success: false, message: 'Error regenerating images', errors: [] };
     try {
         const results = await regenerateFromExisting(req.params.id);
         response.message = `Regenerated ${results.images.join(', ')} from ${results.source}`;
@@ -393,7 +394,7 @@ app.post('/items/regenerate-images/:id', async (req, res) => {
 });
 
 app.post('/items/refresh-images/:id', async (req, res) => {
-    const response = {success: false, message: 'Error refreshing images', errors: []};
+    const response = { success: false, message: 'Error refreshing images', errors: [] };
     try {
         const items = await remoteData.get();
         const item = items.get(req.params.id);
@@ -407,7 +408,7 @@ app.post('/items/refresh-images/:id', async (req, res) => {
             const results = await webSocketServer.getImages(item.id);
             newImage = results[item.id];
         }
-        
+
         await createAndUploadFromSource(newImage, item.id);
         response.message = `Refreshed ${item.id} images from EFT`;
         response.success = true;
@@ -438,7 +439,7 @@ app.post('/items/edit/:id', async (req, res) => {
     const allItemData = await remoteData.get();
     const currentItemData = allItemData.get(req.params.id);
     let updated = false;
-    const response = {success: false, message: 'No changes made.', errors: []};
+    const response = { success: false, message: 'No changes made.', errors: [] };
     const form = formidable({
         multiples: true,
         allowEmptyFiles: true,
@@ -486,24 +487,24 @@ app.post('/items/edit/:id', async (req, res) => {
                         const imageType = index.replace('-upload', '');
                         await uploadToS3(file.filepath, imageType, req.params.id);
                         updated = true;
-                    } catch (error){
+                    } catch (error) {
                         finish(files);
                         return reject(error);
                     }
                 }
 
                 let wikiLink = fields['wiki-link'][0];
-                if(wikiLink && wikiLink !== 'null' && currentItemData.wiki_link !== wikiLink){
+                if (wikiLink && wikiLink !== 'null' && currentItemData.wiki_link !== wikiLink) {
                     await remoteData.setProperty(req.params.id, 'wiki_link', wikiLink);
                     updated = true;
                 }
-            
+
                 let matchIndex = fields['match-index'][0];
                 if (matchIndex && matchIndex !== 'null' && currentItemData.match_index != matchIndex) {
                     await remoteData.setProperty(req.params.id, 'match_index', matchIndex);
                     updated = true;
                 }
-            
+
                 if (updated) {
                     response.success = true;
                     response.message = `${currentItemData.name} updated.\nWill be live in < 4 hours.`;
@@ -523,13 +524,13 @@ app.post('/items/edit/:id', async (req, res) => {
             response.errors.push(error.message);
         }
     }
-    
+
     return res.send(response);
 });
 
 app.get('/items', async (req, res) => {
     let typeFilters = '';
-    for(const type of AVAILABLE_TYPES){
+    for (const type of AVAILABLE_TYPES) {
         typeFilters = `${typeFilters}
         <div class="col s4 m3 l2">
             <label for="type-${type}">
@@ -539,7 +540,7 @@ app.get('/items', async (req, res) => {
         </div>`;
     }
     let specFilters = '';
-    for(const type of CUSTOM_HANDLERS){
+    for (const type of CUSTOM_HANDLERS) {
         specFilters = `${specFilters}
         <div class="col s4 m3 l2">
             <label for="type-${type}">
@@ -548,7 +549,7 @@ app.get('/items', async (req, res) => {
             </label>
         </div>`;
     }
-    res.send(`${getHeader(req, {include: 'datatables'})}
+    res.send(`${getHeader(req, { include: 'datatables' })}
         <script src="/items.js"></script>
         <div class="row">
             <div class="col s12">
@@ -701,10 +702,10 @@ app.get('/items/get', async (req, res) => {
     const myData = await remoteData.get();
     const items = [];
     const attributes = [
-        'id', 
-        'name', 
-        'shortname', 
-        'types', 
+        'id',
+        'name',
+        'shortname',
+        'types',
         'normalized_name',
         'wiki_link',
         'icon_link',
@@ -735,7 +736,7 @@ app.get('/scanners', async (req, res) => {
         const flagValue = scannerFlags[flagName];
         if (!flagValue) continue;
         const flagLabel = flagName.replace(/[A-Z]/g, capLetter => {
-            return ' '+capLetter.toLowerCase();
+            return ' ' + capLetter.toLowerCase();
         });
         scannerFlagsString = `${scannerFlagsString}
         <div class="col s12 l6 xl4 xxl3">
@@ -746,7 +747,7 @@ app.get('/scanners', async (req, res) => {
         </div>
         `;
     }
-    res.send(`${getHeader(req, {include: 'datatables'})}
+    res.send(`${getHeader(req, { include: 'datatables' })}
         <script>
             const WS_PASSWORD = '${process.env.WS_PASSWORD}';
             const userFlags = ${JSON.stringify(userFlags)};
@@ -932,7 +933,7 @@ app.get('/scanners/get-users', async (req, res) => {
 });
 
 app.post('/scanners/add-user', urlencodedParser, async (req, res) => {
-    const response = {message: 'No changes made.', errors: []};
+    const response = { message: 'No changes made.', errors: [] };
     if (!req.body.username) {
         response.errors.push('Username cannot be blank');
     }
@@ -969,7 +970,7 @@ app.post('/scanners/add-user', urlencodedParser, async (req, res) => {
 });
 
 app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
-    const response = {message: 'No changes made.', errors: []};
+    const response = { message: 'No changes made.', errors: [] };
     try {
         let id = req.body.user_id;
         let userCheck = await query(format('SELECT * from scanner_user WHERE id=?', [id]));
@@ -1010,7 +1011,7 @@ app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
 });
 
 app.post('/scanners/delete-user', urlencodedParser, async (req, res) => {
-    const response = {message: 'No changes made.', errors: []};
+    const response = { message: 'No changes made.', errors: [] };
     try {
         let deleteResult = await query(format('DELETE FROM scanner_user WHERE username=?', [req.body.username]));
         if (deleteResult.affectedRows > 0) {
@@ -1026,7 +1027,7 @@ app.post('/scanners/delete-user', urlencodedParser, async (req, res) => {
 });
 
 app.post('/scanners/user-flags', urlencodedParser, async (req, res) => {
-    const response = {message: 'No changes made.', errors: []};
+    const response = { message: 'No changes made.', errors: [] };
     try {
         await query(format('UPDATE scanner_user SET flags=? WHERE id=?', [req.body.flags, req.body.id]));
         response.message = `Set flags to ${req.body.flags}`;
@@ -1038,7 +1039,7 @@ app.post('/scanners/user-flags', urlencodedParser, async (req, res) => {
 });
 
 app.post('/scanners/scanner-flags', urlencodedParser, async (req, res) => {
-    const response = {message: 'No changes made.', errors: []};
+    const response = { message: 'No changes made.', errors: [] };
     try {
         await query(format('UPDATE scanner SET flags=? WHERE id=?', [req.body.flags, req.body.id]));
         response.message = `Set flags to ${req.body.flags}`;
@@ -1050,7 +1051,7 @@ app.post('/scanners/scanner-flags', urlencodedParser, async (req, res) => {
 });
 
 app.get('/webhooks', async (req, res) => {
-    res.send(`${getHeader(req, {include: 'datatables'})}
+    res.send(`${getHeader(req, { include: 'datatables' })}
         <script src="/webhooks.js"></script>
         <div class="row">
             <div class="col s12">
@@ -1105,7 +1106,7 @@ app.get('/webhooks/get', async (req, res) => {
 
 app.post('/webhooks', async (req, res) => {
     //add
-    const response = {message: 'No changes made.', errors: []};
+    const response = { message: 'No changes made.', errors: [] };
     if (!req.body.name) {
         response.errors.push('Name cannot be blank');
     }
@@ -1157,7 +1158,7 @@ app.post('/webhooks', async (req, res) => {
 
 app.put('/webhooks/:id', async (req, res) => {
     //edit
-    const response = {message: 'No changes made.', errors: []};
+    const response = { message: 'No changes made.', errors: [] };
     try {
         let hookCheck = await query(format('SELECT * from webhooks WHERE id=?', [req.params.id]));
         if (hookCheck.length == 0) {
@@ -1215,7 +1216,7 @@ app.put('/webhooks/:id', async (req, res) => {
 });
 
 app.delete('/webhooks/:id', async (req, res) => {
-    const response = {message: 'No changes made.', errors: []};
+    const response = { message: 'No changes made.', errors: [] };
     try {
         let deleteResult = await query(format('DELETE FROM webhooks WHERE id=?', [req.params.id]));
         if (deleteResult.affectedRows > 0) {
@@ -1232,7 +1233,7 @@ app.delete('/webhooks/:id', async (req, res) => {
 });
 
 app.get('/crons', async (req, res) => {
-    res.send(`${getHeader(req, {include: 'datatables'})}
+    res.send(`${getHeader(req, { include: 'datatables' })}
         <script src="/ansi_up.js"></script>
         <script src="/crons.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/cronstrue/2.11.0/cronstrue.min.js"></script>
@@ -1310,7 +1311,7 @@ app.get('/crons/get', async (req, res) => {
 
 app.get('/crons/get/:name', async (req, res) => {
     try {
-        const logMessages = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'logs', req.params.name+'.log'), {encoding: 'utf8'}));
+        const logMessages = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'logs', req.params.name + '.log'), { encoding: 'utf8' }));
         res.json(logMessages);
         return;
     } catch (error) {
@@ -1356,7 +1357,7 @@ app.get('/crons/run/:name', async (req, res) => {
 });
 
 app.get('/json', async (req, res) => {
-    res.send(`${getHeader(req, {include: 'datatables'})}
+    res.send(`${getHeader(req, { include: 'datatables' })}
         <script src="/ansi_up.js"></script>
         <script src="/json.js"></script>
         <div class="row">
@@ -1410,7 +1411,7 @@ app.get('/json', async (req, res) => {
 });
 
 app.get('/json/:dir', async (req, res) => {
-    const response = {json: [], errors: []};
+    const response = { json: [], errors: [] };
     const dir = req.params.dir;
     if (!validJsonDirs.includes(dir)) {
         response.errors.push(`${dir} is not a valid JSON directory`);
@@ -1451,9 +1452,9 @@ app.delete('/json/:dir/:file', async (req, res) => {
     let file = req.params.file;
     file = file.split('/').pop();
     file = file.split('\\').pop();
-    const response = {message: `${file} deleted`, errors: []};
+    const response = { message: `${file} deleted`, errors: [] };
     if (!validJsonDirs.includes(dir) || !file.endsWith('.json')) {
-        response.message = 'Error deleting '+file;
+        response.message = 'Error deleting ' + file;
         response.errors.push(`${dir} is not a valid directory`);
         return res.json(response);
     }
@@ -1461,14 +1462,14 @@ app.delete('/json/:dir/:file', async (req, res) => {
         fs.unlinkSync(`./${dir}/${file}`);
         res.send(response);
     } catch (error) {
-        response.message = 'Error deleting '+file;
+        response.message = 'Error deleting ' + file;
         response.errors.push(error.message);
         return res.json(response);
     }
 });
 
 app.post('/json/:dir', async (req, res) => {
-    const response = {json: [], errors: []};
+    const response = { json: [], errors: [] };
     const dir = req.params.dir;
     if (!validJsonDirs.includes(dir)) {
         response.errors.push(`${dir} is not a valid JSON directory`);
@@ -1528,7 +1529,7 @@ app.post('/json/:dir', async (req, res) => {
 });
 
 app.get('/s3-bucket', async (req, res) => {
-    res.send(`${getHeader(req, {include: 'datatables'})}
+    res.send(`${getHeader(req, { include: 'datatables' })}
         <script src="/ansi_up.js"></script>
         <script src="/s3-bucket.js"></script>
         <div class="row">
@@ -1610,7 +1611,7 @@ app.get('/s3-bucket', async (req, res) => {
 });
 
 app.get('/s3-bucket/get', async (req, res) => {
-    const response = {json: [], errors: []};
+    const response = { json: [], errors: [] };
     for (const key of getLocalBucketContents()) {
         response.json.push({
             name: key,
@@ -1621,7 +1622,7 @@ app.get('/s3-bucket/get', async (req, res) => {
 });
 
 app.delete('/s3-bucket/?*/:file', async (req, res) => {
-    const response = {message: 'No changes made.', errors: []};
+    const response = { message: 'No changes made.', errors: [] };
     try {
         const fullPath = req.params[0] || ''; // Captures the entire path
         const filename = path.join(fullPath, req.params.file);
@@ -1634,7 +1635,7 @@ app.delete('/s3-bucket/?*/:file', async (req, res) => {
 });
 
 app.post('/s3-bucket/?*/:file', async (req, res) => {
-    const response = {message: 'No changes made.', errors: []};
+    const response = { message: 'No changes made.', errors: [] };
     try {
         const fullPath = req.params[0] || ''; // Captures the entire path
         const filename = path.join(fullPath, req.params.file);
@@ -1647,7 +1648,7 @@ app.post('/s3-bucket/?*/:file', async (req, res) => {
 });
 
 app.put('/s3-bucket/?*/:file', async (req, res) => {
-    const response = {message: 'No changes made.', errors: []};
+    const response = { message: 'No changes made.', errors: [] };
     try {
         const fullPath = req.params[0] || ''; // Captures the entire path
         const filename = path.join(fullPath, req.params.file);
@@ -1660,7 +1661,7 @@ app.put('/s3-bucket/?*/:file', async (req, res) => {
 });
 
 app.post('/s3-bucket', async (req, res) => {
-    const response = {json: [], errors: []};
+    const response = { json: [], errors: [] };
     const form = formidable({
         multiples: true,
         uploadDir: path.join(import.meta.dirname, 'cache'),
@@ -1723,7 +1724,7 @@ app.post('/s3-bucket', async (req, res) => {
 });
 
 app.get('/wipes', async (req, res) => {
-    res.send(`${getHeader(req, {include: 'datatables'})}
+    res.send(`${getHeader(req, { include: 'datatables' })}
         <script src="/wipes.js"></script>
         <div class="row">
             <div class="col s12">
@@ -1782,7 +1783,7 @@ app.get('/wipes/get', async (req, res) => {
 
 app.post('/wipes', async (req, res) => {
     //add
-    const response = {message: 'No changes made.', errors: []};
+    const response = { message: 'No changes made.', errors: [] };
     if (!req.body.start_date) {
         response.errors.push('Start date cannot be blank');
     }
@@ -1829,7 +1830,7 @@ app.post('/wipes', async (req, res) => {
 });
 
 app.put('/wipes/:id', async (req, res) => {
-    const response = {message: 'No changes made.', errors: []};
+    const response = { message: 'No changes made.', errors: [] };
     try {
         await query('UPDATE wipe SET start_date=?, version=? WHERE id=?', [req.body.start_date, req.body.version, req.params.id]);
         response.message = `Wipe updated to ${req.body.start_date} (${req.body.version})`;
@@ -1840,7 +1841,7 @@ app.put('/wipes/:id', async (req, res) => {
 });
 
 app.delete('/wipes/:id', async (req, res) => {
-    const response = {message: 'No changes made.', errors: []};
+    const response = { message: 'No changes made.', errors: [] };
     try {
         let deleteResult = await query('DELETE FROM wipe WHERE id=?', [req.params.id]);
         if (deleteResult.affectedRows > 0) {
@@ -1856,7 +1857,7 @@ app.delete('/wipes/:id', async (req, res) => {
 });
 
 app.get('/presets', async (req, res) => {
-    res.send(`${getHeader(req, {include: 'datatables'})}
+    res.send(`${getHeader(req, { include: 'datatables' })}
         <script src="/presets.js"></script>
         <div class="row">
             <div class="col s12">
@@ -1934,7 +1935,7 @@ app.get('/presets/get', async (req, res) => {
 });
 
 app.put('/presets/:id', async (req, res) => {
-    const response = {message: 'No changes made.', errors: []};
+    const response = { message: 'No changes made.', errors: [] };
     try {
         await query('UPDATE manual_preset SET append_name = ? WHERE id = ?', [req.body.append_name, req.params.id]);
         response.message = 'Preset updated';
@@ -1949,7 +1950,7 @@ app.all('/api/scanner/:resource', async (req, res) => {
 });
 
 app.post('/api/webhooks/:hooksource/:webhookid/:webhookkey', async (req, res) => {
-    webhookApi.handle(req, res, req.params.hooksource, req.params.webhookid+'/'+req.params.webhookkey);
+    webhookApi.handle(req, res, req.params.hooksource, req.params.webhookid + '/' + req.params.webhookkey);
 });
 
 app.post('/api/queue', async (req, res) => {
@@ -2000,9 +2001,9 @@ const server = app.listen(port, () => {
         process.exit();
     };
     //gracefully shutdown on Ctrl+C
-    process.on( 'SIGINT', triggerShutdown);
+    process.on('SIGINT', triggerShutdown);
     //gracefully shutdown on Ctrl+Break
-    process.on( 'SIGBREAK', triggerShutdown);
+    process.on('SIGBREAK', triggerShutdown);
     //try to gracefully shutdown on terminal closed
-    process.on( 'SIGHUP', triggerShutdown);
+    process.on('SIGHUP', triggerShutdown);
 })();
