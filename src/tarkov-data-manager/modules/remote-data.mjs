@@ -1,5 +1,6 @@
 import midmean from 'compute-midmean';
 
+import normalizeName from './normalize-name.js';
 import timer from './console-timer.js';
 import { query, maxQueryRows } from './db-connection.mjs';
 import gameModes from './game-modes.mjs';
@@ -330,6 +331,9 @@ const methods = {
             }
             if (currentValue !== value) {
                 changeValues[property] = value;
+                if (property === 'name' && !properties.normalized_name) {
+                    changeValues.normalized_name = normalizeName(value);
+                }
             }
         }
         if (Object.keys(changeValues).length === 0) {

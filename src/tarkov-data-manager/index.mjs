@@ -407,7 +407,10 @@ app.post('/items/refresh-images/:id', async (req, res) => {
         }
         let newImage;
         if (item.types.includes('preset')) {
-            newImage = await webSocketServer.getJsonImage(item.properties.items);
+            newImage = await webSocketServer.getJsonImage({
+                id: item.id,
+                items: item.properties.items,
+            });
         } else {
             const results = await webSocketServer.getImages(item.id);
             newImage = results[item.id];
@@ -1875,6 +1878,9 @@ app.get('/presets', async (req, res) => {
                             <th>
                                 name
                             </th>
+                            <th>
+                                images
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1918,9 +1924,10 @@ app.get('/presets', async (req, res) => {
 });
 
 app.get('/presets/get', async (req, res) => {
-    const [presets, en] = await Promise.all([
+    const [presets, en, items] = await Promise.all([
         query('SELECT * FROM manual_preset'),
         tarkovData.locale('en'),
+        remoteData.get(),
     ]);
     for (const preset of presets) {
         const baseItemId = preset.items[0]._tpl;
@@ -1934,6 +1941,12 @@ app.get('/presets/get', async (req, res) => {
                 shortName: en[`${item._tpl} ShortName`],
             };
         });
+        preset.image_8x_link = items.get(preset.id)?.image_8x_link;
+        preset.image_512_link = items.get(preset.id)?.image_512_link;
+        preset.image_link = items.get(preset.id)?.image_link;
+        preset.base_image_link = items.get(preset.id)?.base_image_link;
+        preset.grid_image_link = items.get(preset.id)?.grid_image_link;
+        preset.icon_link = items.get(preset.id)?.icon_link;
     }
     res.json(presets);
 });
@@ -1941,8 +1954,27 @@ app.get('/presets/get', async (req, res) => {
 app.put('/presets/:id', async (req, res) => {
     const response = { message: 'No changes made.', errors: [] };
     try {
-        await query('UPDATE manual_preset SET append_name = ? WHERE id = ?', [req.body.append_name, req.params.id]);
-        response.message = 'Preset updated';
+        const preset = await query('SELECT * FROM manual_preset WHERE id = ?', [req.params.id]).then(results => results[0]);
+        if (preset.append_name !== req.body.append_name) {
+            await query('UPDATE manual_preset SET append_name = ? WHERE id = ?', [req.body.append_name, req.params.id]);
+            const [en, items] = await Promise.all([tarkovData.locale('en'), remoteData.get()]);
+            const baseItem = items.get(preset.items[0]._tpl);
+            await remoteData.setProperties(req.params.id, {
+                name: `${baseItem.name} ${en[req.body.append_name]}`,
+                short_name: `${baseItem.short_name} ${en[req.body.append_name]}`,
+            });
+            response.message = 'Preset updated';
+            try {
+                await regenerateFromExisting(req.params.id);
+            } catch (error) {
+                console.log(error);
+                if (Array.isArray(error)) {
+                    response.errors = error.map(err => err.message || err);
+                } else {
+                    response.errors.push(error.message || error);
+                }
+            }
+        }
     } catch (error) {
         response.errors.push(error.message);
     }
