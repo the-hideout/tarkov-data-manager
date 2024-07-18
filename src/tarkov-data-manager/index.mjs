@@ -229,6 +229,10 @@ const getHeader = (req, options) => {
             <!-- Compiled and minified JavaScript -->
             <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
             <script src="/common.js"></script>${includeJs}
+            <script
+            src="https://sentry.thaddeus.io/js-sdk-loader/d8037ad518717111eb52406de36cd204.min.js"
+            crossorigin="anonymous"
+            ></script>
             <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
             <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
             <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
