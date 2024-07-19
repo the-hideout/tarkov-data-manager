@@ -498,7 +498,7 @@ const scannerApi = {
                     LIMIT ?
                 `, [options.scanner.id, options.scanner.id, options.batchSize]);
         
-                conditions.push(`item_data.checkout_scanner_id = ?`);
+                conditions.push(`item_data.${prefix}checkout_scanner_id = ?`);
             } else {
                 // trader-only price checkout
                 if (!options.traderScanSession) {

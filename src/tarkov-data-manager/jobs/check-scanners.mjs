@@ -3,6 +3,7 @@ import { DateTime } from 'luxon';
 import { scannerFlags, userFlags } from '../modules/scanner-api.mjs';
 import tarkovDevData from '../modules/tarkov-dev-data.mjs';
 import DataJob from '../modules/data-job.mjs';
+import gameModes from '../modules/game-modes.mjs';
 
 class CheckScansJob extends DataJob {
     constructor(options) {
@@ -31,18 +32,25 @@ class CheckScansJob extends DataJob {
         const scanCutoff = new Date() - (1000 * 60 * 15);
         const dateNow = DateTime.now();
         for (const scanner of scanners) {
-            if (scanner.last_scan?.getTime() < scanCutoff) {
+            console.log(scanner.name);
+            if (scanner.last_scan?.getTime() ?? 0 < scanCutoff) {
                 this.logger.log(`${scanner.name} hasn't scanned player prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner.last_scan) })}; releasing any batches`);
-                this.query(`
-                    UPDATE
-                        item_data
-                    SET
-                        checkout_scanner_id = NULL
-                    WHERE
-                        checkout_scanner_id = ?;
-                `, [scanner.id]).catch(error => {
-                    this.logger.error(`Error clearing player batches for ${scanner.name}: ${error.message}`);
-                });
+                for (const gameMode of gameModes) {
+                    let prefix = '';
+                    if (gameMode.name !== 'regular') {
+                        prefix = 'pve_';
+                    }
+                    this.query(`
+                        UPDATE
+                            item_data
+                        SET
+                            ${prefix}checkout_scanner_id = NULL
+                        WHERE
+                            ${prefix}checkout_scanner_id = ?;
+                    `, [scanner.id]).catch(error => {
+                        this.logger.error(`Error clearing player batches for ${scanner.name}: ${error.message}`);
+                    });
+                }
             }
             if (scanner.trader_last_scan?.getTime() < scanCutoff) {
                 this.logger.log(`${scanner.name} hasn't scanned trader prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner.trader_last_scan) })}; releasing any batches`);
