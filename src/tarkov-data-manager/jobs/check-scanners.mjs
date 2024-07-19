@@ -32,14 +32,13 @@ class CheckScansJob extends DataJob {
         const scanCutoff = new Date() - (1000 * 60 * 15);
         const dateNow = DateTime.now();
         for (const scanner of scanners) {
-            console.log(scanner.name);
-            if (scanner.last_scan?.getTime() ?? 0 < scanCutoff) {
-                this.logger.log(`${scanner.name} hasn't scanned player prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner.last_scan) })}; releasing any batches`);
-                for (const gameMode of gameModes) {
-                    let prefix = '';
-                    if (gameMode.name !== 'regular') {
-                        prefix = 'pve_';
-                    }
+            for (const gameMode of gameModes) {
+                let prefix = '';
+                if (gameMode.name !== 'regular') {
+                    prefix = 'pve_';
+                }
+                if (scanner[`${prefix}last_scan`]?.getTime() ?? 0 < scanCutoff) {
+                    this.logger.log(`${scanner.name} hasn't scanned ${gameMode.name} player prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner.last_scan) })}; releasing any batches`);
                     this.query(`
                         UPDATE
                             item_data
@@ -66,7 +65,12 @@ class CheckScansJob extends DataJob {
                 });
             }
 
-            if ((!scanner.last_scan && !scanner.trader_last_scan) || scanner.disabled || userFlags.skipPriceInsert & scanner.user_flags) {
+            const lastScanTimestamp = Math.max(
+                scanner.last_scan?.getTime() ?? 0,
+                scanner.trader_last_scan?.getTime() ?? 0,
+                scanner.pve_last_scan?.getTime() ?? 0,
+            );
+            if ((!lastScanTimestamp) || scanner.disabled || userFlags.skipPriceInsert & scanner.user_flags) {
                 // ignore scanners that have never inserted a price
                 continue;
             }
@@ -79,10 +83,7 @@ class CheckScansJob extends DataJob {
                 continue;
             }
 
-            let lastScan = scanner.last_scan;
-            if (scanner.trader_last_scan > lastScan) {
-                lastScan = scanner.trader_last_scan;
-            }
+            const lastScan = new Date(lastScanTimestamp);
 
             const lastScanAge = Math.floor((new Date().getTime() - lastScan.getTime()) / 1000);
             this.logger.log(`${scanner.name}: Last scanned ${DateTime.fromJSDate(lastScan).toRelative()}`);
