@@ -352,14 +352,14 @@ const scannerApi = {
             // don't scan PVE trader prices
             mergedOptions.sessionMode === 'regular';
         }
-        if (mergedOptions.sessionMode === 'pve' && typeof options.offersFrom === 'undefined') {
+        /*if (mergedOptions.sessionMode === 'pve' && typeof options.offersFrom === 'undefined') {
             // if in PVE mode and there's a trader scan, switch to trader scanning
             mergedOptions.traderScanSession = await scannerApi.currentTraderScan();
             if (mergedOptions.traderScanSession) {
                 mergedOptions.sessionMode = 'regular';
                 mergedOptions.offersFrom = 1;
             }
-        }
+        }*/
         if (mergedOptions.offersFrom === 1 && typeof mergedOptions.traderScanSession === 'undefined') {
             mergedOptions.traderScanSession = await scannerApi.currentTraderScan();
         }
@@ -554,7 +554,7 @@ const scannerApi = {
                 if (options.fleaMarketAvailable || options.pveFleaMarketAvailable) {
                     options.offersFrom = undefined;
                     options.sessionMode = undefined;
-                    return getItems(options);
+                    return scannerApi.getItems(options);
                 }
             }
         } catch (error) {
