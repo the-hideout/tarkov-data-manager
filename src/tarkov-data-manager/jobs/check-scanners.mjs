@@ -17,7 +17,7 @@ class CheckScansJob extends DataJob {
                 return [];
             }),
             this.query(`
-                select scanner.id, name, last_scan, trader_last_scan, username, scanner.flags, scanner_user.flags as user_flags, disabled 
+                select scanner.id, name, last_scan, trader_last_scan, pve_last_scan, username, scanner.flags, scanner_user.flags as user_flags, disabled 
                 from scanner 
                 left join scanner_user on scanner_user.id = scanner.scanner_user_id
             `),
