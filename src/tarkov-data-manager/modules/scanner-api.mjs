@@ -17,6 +17,7 @@ const { imageSizes } = imgGen.imageFunctions;
 const users = {};
 let usersUpdating = true;
 let presets = {};
+let activeTraderScan = false;
 
 export const userFlags = {
     disabled: 0,
@@ -55,6 +56,15 @@ const updatePresets = (newPresets) => {
 emitter.on('presetsUpdated', updatePresets);
 
 updatePresets(presetData.presets);
+
+const refreshTraderScanStatus = async () => {
+    const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
+    if (activeScan.length > 0) {
+        activeTraderScan = activeScan[0];
+    }
+    activeTraderScan = false;
+    return activeTraderScan;
+};
 
 const queryResultToBatchItem = item => {
     let contains = [];
@@ -113,6 +123,7 @@ const endTraderScan = async () => {
             data: 'unable to update active trader scan',
         }
     }
+    activeTraderScan = false;
     emitter.emit('traderScanEnded', activeScan);
     return {
         data: 'Trader scan ended',
@@ -362,6 +373,12 @@ const scannerApi = {
         }*/
         if (mergedOptions.offersFrom === 1 && typeof mergedOptions.traderScanSession === 'undefined') {
             mergedOptions.traderScanSession = await scannerApi.currentTraderScan();
+        }
+        if (activeTraderScan && mergedOptions.sessionMode === 'regular' && typeof options.offersFrom === 'undefined') {
+            const batchStatus = await query('SELECT count(id) as batch_count FROM tarkov.item_data WHERE trader_checkout_scanner_id is not null;');
+            if (batchStatus.length > 0 && batchStatus[0].batch_count === 0) {
+                mergedOptions.offersFrom = 1;
+            }
         }
         return mergedOptions;
     },
@@ -989,24 +1006,29 @@ const scannerApi = {
         return response;
     },
     currentTraderScan: async () => {
-        const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
+        /*const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
         if (activeScan.length === 0) {
             return false;
         }
-        return activeScan[0];
+        return activeScan[0];*/
+        return activeTraderScan;
     },
     startTraderScan: async () => {
-        const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL OR ended >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)');
-        if (activeScan.length > 0) {
+        if (!activeTraderScan) {
+            await query('INSERT INTO trader_offer_scan VALUES ()');
+            await refreshTraderScanStatus();
+        }
+        if (!activeTraderScan) {
             return {
-                data: {
-                    id: activeScan[0].id,
-                    started: activeScan[0].started,
-                }
+                data: false,
             }
         }
-        await query('INSERT INTO trader_offer_scan VALUES ()');
-        return scannerApi.currentTraderScan();
+        return {
+            data: {
+                id: activeTraderScan.id,
+                started: activeTraderScan.started,
+            }
+        }
     },
     submitJson: (options) => {
         const response = {errors: [], warnings: [], data: {}};
