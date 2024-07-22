@@ -64,6 +64,7 @@ const refreshTraderScanStatus = async () => {
     } else {
         activeTraderScan = false;
     }
+    return false;
     return activeTraderScan;
 };
 
