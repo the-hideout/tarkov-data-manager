@@ -371,9 +371,6 @@ const scannerApi = {
                 mergedOptions.offersFrom = 1;
             }
         }*/
-        if (mergedOptions.offersFrom === 1 && typeof mergedOptions.traderScanSession === 'undefined') {
-            mergedOptions.traderScanSession = await scannerApi.currentTraderScan();
-        }
         if (typeof activeTraderScan === 'undefined') {
             await refreshTraderScanStatus().catch(error => {
                 console.log('Error refreshing trader scan status:', error);
@@ -389,6 +386,9 @@ const scannerApi = {
             if (activeTraderScan.scanner_name === options.scannerName) {
                 mergedOptions.offersFrom = 1;
             }
+        }
+        if (mergedOptions.offersFrom === 1 && typeof mergedOptions.traderScanSession === 'undefined') {
+            mergedOptions.traderScanSession = activeTraderScan;
         }
         return mergedOptions;
     },
