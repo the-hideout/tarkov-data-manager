@@ -61,8 +61,9 @@ const refreshTraderScanStatus = async () => {
     const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
     if (activeScan.length > 0) {
         activeTraderScan = activeScan[0];
+    } else {
+        activeTraderScan = false;
     }
-    activeTraderScan = false;
     return activeTraderScan;
 };
 
