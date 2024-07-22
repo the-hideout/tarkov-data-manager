@@ -17,7 +17,7 @@ const { imageSizes } = imgGen.imageFunctions;
 const users = {};
 let usersUpdating = true;
 let presets = {};
-let activeTraderScan = false;
+let activeTraderScan;
 
 export const userFlags = {
     disabled: 0,
@@ -65,10 +65,6 @@ const refreshTraderScanStatus = async () => {
     activeTraderScan = false;
     return activeTraderScan;
 };
-
-refreshTraderScanStatus().catch(error => {
-    console.log('Error refreshing trader scan status:', error);
-});
 
 const queryResultToBatchItem = item => {
     let contains = [];
@@ -378,9 +374,19 @@ const scannerApi = {
         if (mergedOptions.offersFrom === 1 && typeof mergedOptions.traderScanSession === 'undefined') {
             mergedOptions.traderScanSession = await scannerApi.currentTraderScan();
         }
-        if (activeTraderScan && mergedOptions.sessionMode === 'regular' && typeof options.offersFrom === 'undefined') {
-            const batchStatus = await query('SELECT count(id) as batch_count FROM tarkov.item_data WHERE trader_checkout_scanner_id is not null;');
-            if (batchStatus.length > 0 && batchStatus[0].batch_count === 0) {
+        if (typeof activeTraderScan === 'undefined') {
+            await refreshTraderScanStatus().catch(error => {
+                console.log('Error refreshing trader scan status:', error);
+            });
+        }
+        if (activeTraderScan) {
+            if (!activeTraderScan.scanner_id && mergedOptions.sessionMode === 'regular' && typeof options.offersFrom === 'undefined') {
+                await query('UPDATE trader_offer_scan SET scanner_id = ? WHERE id = ?', [options.scanner.id, activeTraderScan.id]).catch(error => {
+                    console.log('Error setting trader scan scanner:', error);
+                });
+                activeTraderScan.scanner_id = options.scanner.id;
+            }
+            if (activeTraderScan.scanner_id === options.scanner.id) {
                 mergedOptions.offersFrom = 1;
             }
         }
