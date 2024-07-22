@@ -381,7 +381,7 @@ const scannerApi = {
         }
         if (activeTraderScan) {
             if (!activeTraderScan.scanner_id && mergedOptions.sessionMode === 'regular' && typeof options.offersFrom === 'undefined') {
-                await query('UPDATE trader_offer_scan SET scanner_id = ? WHERE id = ?', [options.scanner.id, activeTraderScan.id]).catch(error => {
+                await scannerApi.setTraderScanScanner(options.scanner.id).catch(error => {
                     console.log('Error setting trader scan scanner:', error);
                 });
                 activeTraderScan.scanner_id = options.scanner.id;
@@ -1021,6 +1021,11 @@ const scannerApi = {
             return false;
         }
         return activeScan[0];*/
+        if (typeof activeTraderScan === 'undefined') {
+            await refreshTraderScanStatus().catch(error => {
+                console.log('Error refreshing trader scan status:', error);
+            });
+        }
         return activeTraderScan;
     },
     startTraderScan: async () => {
@@ -1039,6 +1044,15 @@ const scannerApi = {
                 started: activeTraderScan.started,
             }
         }
+    },
+    setTraderScanScanner: async (scannerId) => {
+        if (!activeTraderScan) {
+            return Promise.reject(new Error('Cannot set trader scan scanner with no active trader scan'));
+        }
+        return query('UPDATE trader_offer_scan SET scanner_id = ? WHERE id = ?', [scannerId, activeTraderScan.id]).then(result => {
+            activeTraderScan.scanner_id = scannerId;
+            return result;
+        });
     },
     submitJson: (options) => {
         const response = {errors: [], warnings: [], data: {}};
