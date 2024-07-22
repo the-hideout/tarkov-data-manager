@@ -376,7 +376,7 @@ const scannerApi = {
                 console.log('Error refreshing trader scan status:', error);
             });
         }
-        if (activeTraderScan && !mergedOptions.limitItem && !mergedOptions.imageOnly) {
+        if (activeTraderScan && options.trustTraderUnlocks && !mergedOptions.limitItem && !mergedOptions.imageOnly) {
             if (!activeTraderScan.scanner_name && mergedOptions.sessionMode === 'regular' && typeof options.offersFrom === 'undefined') {
                 await scannerApi.setTraderScanScanner(options.scannerName).catch(error => {
                     console.log('Error setting trader scan scanner:', error);
