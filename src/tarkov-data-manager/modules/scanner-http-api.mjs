@@ -113,7 +113,6 @@ const scannerHttpApi = {
             }
             if (resource === 'items') {
                 options.scanner = await scannerApi.getScanner(options, true);
-                options = await scannerApi.getOptions(options);
                 if (req.method === 'GET') {
                     response = await scannerApi.getItems(options);
                 }

@@ -423,15 +423,16 @@ const scannerApi = {
     // relevant options: limitItem, imageOnly, batchSize, offersFrom
     getItems: async (options) => {
         const user = options.user;
+        const batchOptions = await scannerApi.getOptions(options);
         const response = {errors: [], warnings: [], data: {
             settings: {
-                offersFrom: options.offersFrom,
-                sessionMode: options.sessionMode,
+                offersFrom: batchOptions.offersFrom,
+                sessionMode: batchOptions.sessionMode,
             },
         }};
         try {
-            if (options.limitItem) {
-                let itemIds = options.limitItem;
+            if (batchOptions.limitItem) {
+                let itemIds = batchOptions.limitItem;
                 if (!Array.isArray(itemIds)) {
                     itemIds = [itemIds];
                 }
@@ -462,7 +463,7 @@ const scannerApi = {
                 `, itemIds).then(items => items.map(queryResultToBatchItem));
                 return response;
             }
-            if (options.imageOnly) {
+            if (batchOptions.imageOnly) {
                 response.data.items = await query(`
                     SELECT
                         item_data.id,
@@ -502,14 +503,14 @@ const scannerApi = {
             let conditions = [];
     
             let prefix = '';
-            if (options.sessionMode === 'pve') {
+            if (batchOptions.sessionMode === 'pve') {
                 prefix = 'pve_';
             }
             
-            if (options.offersFrom === 2 || options.offersFrom === 0) {
+            if (batchOptions.offersFrom === 2 || batchOptions.offersFrom === 0) {
                 // if just players, exclude no-flea
                 let nofleaCondition = '';
-                if (options.offersFrom == 2) {
+                if (batchOptions.offersFrom == 2) {
                     nofleaCondition = 'AND NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = \'no-flea\')';
                 }
                 // player price checkout
@@ -523,12 +524,12 @@ const scannerApi = {
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${nofleaCondition} 
                     ORDER BY last_scan, id
                     LIMIT ?
-                `, [options.scanner.id, options.scanner.id, options.batchSize]);
+                `, [batchOptions.scanner.id, batchOptions.scanner.id, batchOptions.batchSize]);
         
                 conditions.push(`item_data.${prefix}checkout_scanner_id = ?`);
             } else {
                 // trader-only price checkout
-                if (!options.traderScanSession) {
+                if (!batchOptions.traderScanSession) {
                     response.data.items = [];
                     return response;
                 }
@@ -543,7 +544,7 @@ const scannerApi = {
                         (trader_last_scan <= ? OR trader_last_scan IS NULL) )
                     ORDER BY trader_last_scan, id
                     LIMIT ?
-                `, [options.scanner.id, options.scanner.id, options.traderScanSession.started, options.batchSize]);
+                `, [batchOptions.scanner.id, batchOptions.scanner.id, batchOptions.traderScanSession.started, batchOptions.batchSize]);
         
                 conditions.push(`item_data.${prefix}trader_checkout_scanner_id = ?`);
             }
@@ -573,14 +574,14 @@ const scannerApi = {
                 ${where}
                 GROUP BY item_data.id
                 ORDER BY item_data.last_scan
-            `, [options.scanner.id]).then(items => {
+            `, [batchOptions.scanner.id]).then(items => {
                 return items.filter(item => Boolean(item.name)).map(queryResultToBatchItem);
             });
-            if (response.data.items.length === 0 && options.offersFrom === 1) {
+            if (response.data.items.length === 0 && batchOptions.offersFrom === 1) {
                 await endTraderScan();
-                if (options.fleaMarketAvailable || options.pveFleaMarketAvailable) {
-                    options.offersFrom = undefined;
-                    options.sessionMode = undefined;
+                if (batchOptions.fleaMarketAvailable || batchOptions.pveFleaMarketAvailable) {
+                    batchOptions.offersFrom = undefined;
+                    batchOptions.sessionMode = undefined;
                     return scannerApi.getItems(options);
                 }
             }
