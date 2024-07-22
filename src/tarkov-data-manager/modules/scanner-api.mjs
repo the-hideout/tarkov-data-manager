@@ -577,11 +577,9 @@ const scannerApi = {
             `, [batchOptions.scanner.id]).then(items => {
                 return items.filter(item => Boolean(item.name)).map(queryResultToBatchItem);
             });
-            if (response.data.items.length === 0 && batchOptions.offersFrom === 1) {
+            if (response.data.items.length === 0) {
                 await endTraderScan();
-                if (batchOptions.fleaMarketAvailable || batchOptions.pveFleaMarketAvailable) {
-                    batchOptions.offersFrom = undefined;
-                    batchOptions.sessionMode = undefined;
+                if (options.fleaMarketAvailable || options.pveFleaMarketAvailable) {
                     return scannerApi.getItems(options);
                 }
             }
