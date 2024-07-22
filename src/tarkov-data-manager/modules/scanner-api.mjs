@@ -66,6 +66,10 @@ const refreshTraderScanStatus = async () => {
     return activeTraderScan;
 };
 
+refreshTraderScanStatus().catch(error => {
+    console.log('Error refreshing trader scan status:', error);
+});
+
 const queryResultToBatchItem = item => {
     let contains = [];
     let itemPresets = [];
