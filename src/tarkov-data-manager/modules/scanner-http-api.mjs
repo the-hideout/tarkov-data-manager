@@ -81,44 +81,39 @@ const scannerHttpApi = {
         const password = req.headers.password;
         const user = (await scannerApi.getUsers())[username];
         if ((!username || !password) || !user || !user.password || (user.password !== password)) {
-            res.json({errors: ['access denied'], warnings: [], data: {}});
-            return;
+            return res.json({errors: ['access denied'], warnings: [], data: {}});
         }
-        let response = false;
-        let options = {};
         if (resource === 'image') {
-            response = await submitImage(req, user);
-        }
-        if (!response) {
-            options = req.body;
-            if (typeof options !== 'object') {
-                options = {};
-            }
-            options = await scannerApi.getOptions(options, user);
+            return res.json(await submitImage(req, user));
         }
         if (resource === 'json') {
             if (user.flags & scannerApi.userFlags.jsonDownload) {
-                response = getJson(options);
+                return res.json(getJson({...req.body, scannerName: req.headers.scanner}));
             } else {
                 return res.json({errors: ['You are not authorized to perform that action'], warnings: [], data: {}});
             }
         }
         if (resource === 'submit-data') {
             if (user.flags & scannerApi.userFlags.submitData) {
-                response = scannerApi.submitJson(req.body);
+                return res.json(scannerApi.submitJson(req.body));
             } else {
                 return res.json({errors: ['You are not authorized to perform that action'], warnings: [], data: {}});
             }
         }
         try {
-            const scannerName = req.headers.scanner;
-            if (!scannerName && !response) {
-                res.json({errors: ['no scanner name specified'], warnings: [], data: {}});
-                return;
+            let response = false;
+            let options = req.body;
+            if (typeof options !== 'object') {
+                options = {};
             }
-            options.scannerName = scannerName;
+            options.user = user;
+            options.scannerName = req.headers.scanner;
+            if (!options.scannerName) {
+                return res.json({errors: ['no scanner name specified'], warnings: [], data: {}});
+            }
             if (resource === 'items') {
                 options.scanner = await scannerApi.getScanner(options, true);
+                options = await scannerApi.getOptions(options);
                 if (req.method === 'GET') {
                     response = await scannerApi.getItems(options);
                 }
@@ -159,14 +154,13 @@ const scannerHttpApi = {
             if (resource === 'ping' && req.method === 'GET') {
                 response = {errors: [], warnings: [], data: 'ok'};
             }
+            if (response) {
+                res.json(response);
+                return;
+            }
         } catch (error) {
             console.log('Scanner API Error', error);
-            res.json({errors: [String(error)], warnings: [], data: {}});
-            return;
-        }
-        if (response) {
-            res.json(response);
-            return;
+            return res.json({errors: [String(error)], warnings: [], data: {}});
         }
         res.json({errors: ['unrecognized request'], warnings: [], data: {}});
     },

@@ -64,7 +64,6 @@ const refreshTraderScanStatus = async () => {
     } else {
         activeTraderScan = false;
     }
-    return false;
     return activeTraderScan;
 };
 
@@ -315,7 +314,7 @@ const scannerApi = {
     // trustTraderUnlocks = true means the information provided about trader minimum levels and quests will be used
     //      to create missing trader offers.
     // scanned is a toggle to indicate whether to set an item as scanned or release it
-    getOptions: async (options, user) => {
+    getOptions: async (options) => {
         const defaultOptions = {
             limitItem: false,
             imageOnly: false,
@@ -331,7 +330,6 @@ const scannerApi = {
         const mergedOptions = {
             ...defaultOptions,
             ...options,
-            user: user
         };
         if (mergedOptions.batchSize > 200) {
             mergedOptions.batchSize = 200;
@@ -381,14 +379,14 @@ const scannerApi = {
                 console.log('Error refreshing trader scan status:', error);
             });
         }
-        if (activeTraderScan) {
-            if (!activeTraderScan.scanner_id && mergedOptions.sessionMode === 'regular' && typeof options.offersFrom === 'undefined') {
-                await scannerApi.setTraderScanScanner(options.scanner.id).catch(error => {
+        if (activeTraderScan && !mergedOptions.limitItem && !mergedOptions.imageOnly) {
+            if (!activeTraderScan.scanner_name && mergedOptions.sessionMode === 'regular' && typeof options.offersFrom === 'undefined') {
+                await scannerApi.setTraderScanScanner(options.scannerName).catch(error => {
                     console.log('Error setting trader scan scanner:', error);
                 });
-                activeTraderScan.scanner_id = options.scanner.id;
+                activeTraderScan.scanner_name = options.scannerName;
             }
-            if (activeTraderScan.scanner_id === options.scanner.id) {
+            if (activeTraderScan.scanner_name === options.scannerName) {
                 mergedOptions.offersFrom = 1;
             }
         }
@@ -1047,12 +1045,12 @@ const scannerApi = {
             }
         }
     },
-    setTraderScanScanner: async (scannerId) => {
+    setTraderScanScanner: async (scannerName) => {
         if (!activeTraderScan) {
             return Promise.reject(new Error('Cannot set trader scan scanner with no active trader scan'));
         }
-        return query('UPDATE trader_offer_scan SET scanner_id = ? WHERE id = ?', [scannerId, activeTraderScan.id]).then(result => {
-            activeTraderScan.scanner_id = scannerId;
+        return query('UPDATE trader_offer_scan SET scanner_name = ? WHERE id = ?', [scannerName, activeTraderScan.id]).then(result => {
+            activeTraderScan.scanner_name = scannerName;
             return result;
         });
     },
