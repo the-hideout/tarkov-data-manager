@@ -1,0 +1,22 @@
+name: start-vm
+
+on:
+  workflow_dispatch:
+
+jobs:
+  restart-vm:
+    runs-on: ubuntu-latest
+    environment: production-secrets
+
+    steps:
+      - name: azure login
+        uses: azure/login@6c251865b4e6290e7b78be643ea2d005bc51f69a # pin@v2.1.1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: start vm
+        uses: azure/CLI@965c8d7571d2231a54e321ddd07f7b10317f34d9 # pin@v2.0.0
+        with:
+          azcliversion: 2.50.0
+          inlineScript: |
+            az vm start --resource-group tdm_rg --name tdm_vm
