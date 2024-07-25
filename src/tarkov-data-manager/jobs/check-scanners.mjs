@@ -1,8 +1,9 @@
 import { DateTime } from 'luxon';
 
-import { scannerFlags, userFlags } from '../modules/scanner-api.mjs';
+import scannerApi, { scannerFlags, userFlags } from '../modules/scanner-api.mjs';
 import tarkovDevData from '../modules/tarkov-dev-data.mjs';
 import DataJob from '../modules/data-job.mjs';
+import gameModes from '../modules/game-modes.mjs';
 
 class CheckScansJob extends DataJob {
     constructor(options) {
@@ -10,16 +11,17 @@ class CheckScansJob extends DataJob {
     }
 
     async run() {
-        const [services, scanners] = await Promise.all([
+        const [services, scanners, activeTraderScan] = await Promise.all([
             tarkovDevData.status().then(status => status.services).catch(error => {
                 this.logger.error(`Error getting EFT services status: ${error.message}`);
                 return [];
             }),
             this.query(`
-                select scanner.id, name, last_scan, trader_last_scan, username, scanner.flags, scanner_user.flags as user_flags, disabled 
+                select scanner.id, name, last_scan, trader_last_scan, pve_last_scan, username, scanner.flags, scanner_user.flags as user_flags, disabled 
                 from scanner 
                 left join scanner_user on scanner_user.id = scanner.scanner_user_id
             `),
+            scannerApi.currentTraderScan(),
         ]);
 
         const tradingService = services.find(s => s.name === 'Trading');
@@ -31,18 +33,24 @@ class CheckScansJob extends DataJob {
         const scanCutoff = new Date() - (1000 * 60 * 15);
         const dateNow = DateTime.now();
         for (const scanner of scanners) {
-            if (scanner.last_scan?.getTime() < scanCutoff) {
-                this.logger.log(`${scanner.name} hasn't scanned player prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner.last_scan) })}; releasing any batches`);
-                this.query(`
-                    UPDATE
-                        item_data
-                    SET
-                        checkout_scanner_id = NULL
-                    WHERE
-                        checkout_scanner_id = ?;
-                `, [scanner.id]).catch(error => {
-                    this.logger.error(`Error clearing player batches for ${scanner.name}: ${error.message}`);
-                });
+            for (const gameMode of gameModes) {
+                let prefix = '';
+                if (gameMode.name !== 'regular') {
+                    prefix = 'pve_';
+                }
+                if (scanner[`${prefix}last_scan`]?.getTime() ?? 0 < scanCutoff) {
+                    this.logger.log(`${scanner.name} hasn't scanned ${gameMode.name} player prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner.last_scan) })}; releasing any batches`);
+                    this.query(`
+                        UPDATE
+                            item_data
+                        SET
+                            ${prefix}checkout_scanner_id = NULL
+                        WHERE
+                            ${prefix}checkout_scanner_id = ?;
+                    `, [scanner.id]).catch(error => {
+                        this.logger.error(`Error clearing player batches for ${scanner.name}: ${error.message}`);
+                    });
+                }
             }
             if (scanner.trader_last_scan?.getTime() < scanCutoff) {
                 this.logger.log(`${scanner.name} hasn't scanned trader prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner.trader_last_scan) })}; releasing any batches`);
@@ -56,9 +64,17 @@ class CheckScansJob extends DataJob {
                 `, [scanner.id]).catch(error => {
                     this.logger.error(`Error clearing trader batches for ${scanner.name}: ${error.message}`);
                 });
+                if (activeTraderScan?.scanner_id === scanner.id) {
+                    scannerApi.setTraderScanScanner(null);
+                }
             }
 
-            if ((!scanner.last_scan && !scanner.trader_last_scan) || scanner.disabled || userFlags.skipPriceInsert & scanner.user_flags) {
+            const lastScanTimestamp = Math.max(
+                scanner.last_scan?.getTime() ?? 0,
+                scanner.trader_last_scan?.getTime() ?? 0,
+                scanner.pve_last_scan?.getTime() ?? 0,
+            );
+            if ((!lastScanTimestamp) || scanner.disabled || userFlags.skipPriceInsert & scanner.user_flags) {
                 // ignore scanners that have never inserted a price
                 continue;
             }
@@ -71,10 +87,7 @@ class CheckScansJob extends DataJob {
                 continue;
             }
 
-            let lastScan = scanner.last_scan;
-            if (scanner.trader_last_scan > lastScan) {
-                lastScan = scanner.trader_last_scan;
-            }
+            const lastScan = new Date(lastScanTimestamp);
 
             const lastScanAge = Math.floor((new Date().getTime() - lastScan.getTime()) / 1000);
             this.logger.log(`${scanner.name}: Last scanned ${DateTime.fromJSDate(lastScan).toRelative()}`);

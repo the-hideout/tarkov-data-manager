@@ -17,6 +17,7 @@ const { imageSizes } = imgGen.imageFunctions;
 const users = {};
 let usersUpdating = true;
 let presets = {};
+let activeTraderScan;
 
 export const userFlags = {
     disabled: 0,
@@ -55,6 +56,16 @@ const updatePresets = (newPresets) => {
 emitter.on('presetsUpdated', updatePresets);
 
 updatePresets(presetData.presets);
+
+const refreshTraderScanStatus = async () => {
+    const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
+    if (activeScan.length > 0) {
+        activeTraderScan = activeScan[0];
+    } else {
+        activeTraderScan = false;
+    }
+    return activeTraderScan;
+};
 
 const queryResultToBatchItem = item => {
     let contains = [];
@@ -113,6 +124,7 @@ const endTraderScan = async () => {
             data: 'unable to update active trader scan',
         }
     }
+    activeTraderScan = false;
     emitter.emit('traderScanEnded', activeScan);
     return {
         data: 'Trader scan ended',
@@ -302,7 +314,7 @@ const scannerApi = {
     // trustTraderUnlocks = true means the information provided about trader minimum levels and quests will be used
     //      to create missing trader offers.
     // scanned is a toggle to indicate whether to set an item as scanned or release it
-    getOptions: async (options, user) => {
+    getOptions: async (options) => {
         const defaultOptions = {
             limitItem: false,
             imageOnly: false,
@@ -318,7 +330,6 @@ const scannerApi = {
         const mergedOptions = {
             ...defaultOptions,
             ...options,
-            user: user
         };
         if (mergedOptions.batchSize > 200) {
             mergedOptions.batchSize = 200;
@@ -352,16 +363,32 @@ const scannerApi = {
             // don't scan PVE trader prices
             mergedOptions.sessionMode === 'regular';
         }
-        if (mergedOptions.sessionMode === 'pve' && typeof options.offersFrom === 'undefined') {
+        /*if (mergedOptions.sessionMode === 'pve' && typeof options.offersFrom === 'undefined') {
             // if in PVE mode and there's a trader scan, switch to trader scanning
             mergedOptions.traderScanSession = await scannerApi.currentTraderScan();
             if (mergedOptions.traderScanSession) {
                 mergedOptions.sessionMode = 'regular';
                 mergedOptions.offersFrom = 1;
             }
+        }*/
+        if (typeof activeTraderScan === 'undefined') {
+            await refreshTraderScanStatus().catch(error => {
+                console.log('Error refreshing trader scan status:', error);
+            });
+        }
+        if (activeTraderScan && options.trustTraderUnlocks && !mergedOptions.limitItem && !mergedOptions.imageOnly) {
+            if (!activeTraderScan.scanner_name && mergedOptions.sessionMode === 'regular' && typeof options.offersFrom === 'undefined') {
+                await scannerApi.setTraderScanScanner(options.scannerName).catch(error => {
+                    console.log('Error setting trader scan scanner:', error);
+                });
+                activeTraderScan.scanner_name = options.scannerName;
+            }
+            if (activeTraderScan.scanner_name === options.scannerName) {
+                mergedOptions.offersFrom = 1;
+            }
         }
         if (mergedOptions.offersFrom === 1 && typeof mergedOptions.traderScanSession === 'undefined') {
-            mergedOptions.traderScanSession = await scannerApi.currentTraderScan();
+            mergedOptions.traderScanSession = activeTraderScan;
         }
         return mergedOptions;
     },
@@ -396,15 +423,16 @@ const scannerApi = {
     // relevant options: limitItem, imageOnly, batchSize, offersFrom
     getItems: async (options) => {
         const user = options.user;
+        const batchOptions = await scannerApi.getOptions(options);
         const response = {errors: [], warnings: [], data: {
             settings: {
-                offersFrom: options.offersFrom,
-                sessionMode: options.sessionMode,
+                offersFrom: batchOptions.offersFrom,
+                sessionMode: batchOptions.sessionMode,
             },
         }};
         try {
-            if (options.limitItem) {
-                let itemIds = options.limitItem;
+            if (batchOptions.limitItem) {
+                let itemIds = batchOptions.limitItem;
                 if (!Array.isArray(itemIds)) {
                     itemIds = [itemIds];
                 }
@@ -435,7 +463,7 @@ const scannerApi = {
                 `, itemIds).then(items => items.map(queryResultToBatchItem));
                 return response;
             }
-            if (options.imageOnly) {
+            if (batchOptions.imageOnly) {
                 response.data.items = await query(`
                     SELECT
                         item_data.id,
@@ -475,14 +503,14 @@ const scannerApi = {
             let conditions = [];
     
             let prefix = '';
-            if (options.sessionMode === 'pve') {
+            if (batchOptions.sessionMode === 'pve') {
                 prefix = 'pve_';
             }
             
-            if (options.offersFrom === 2 || options.offersFrom === 0) {
+            if (batchOptions.offersFrom === 2 || batchOptions.offersFrom === 0) {
                 // if just players, exclude no-flea
                 let nofleaCondition = '';
-                if (options.offersFrom == 2) {
+                if (batchOptions.offersFrom == 2) {
                     nofleaCondition = 'AND NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = \'no-flea\')';
                 }
                 // player price checkout
@@ -496,12 +524,12 @@ const scannerApi = {
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${nofleaCondition} 
                     ORDER BY last_scan, id
                     LIMIT ?
-                `, [options.scanner.id, options.scanner.id, options.batchSize]);
+                `, [batchOptions.scanner.id, batchOptions.scanner.id, batchOptions.batchSize]);
         
-                conditions.push(`item_data.checkout_scanner_id = ?`);
+                conditions.push(`item_data.${prefix}checkout_scanner_id = ?`);
             } else {
                 // trader-only price checkout
-                if (!options.traderScanSession) {
+                if (!batchOptions.traderScanSession) {
                     response.data.items = [];
                     return response;
                 }
@@ -516,7 +544,7 @@ const scannerApi = {
                         (trader_last_scan <= ? OR trader_last_scan IS NULL) )
                     ORDER BY trader_last_scan, id
                     LIMIT ?
-                `, [options.scanner.id, options.scanner.id, options.traderScanSession.started, options.batchSize]);
+                `, [batchOptions.scanner.id, batchOptions.scanner.id, batchOptions.traderScanSession.started, batchOptions.batchSize]);
         
                 conditions.push(`item_data.${prefix}trader_checkout_scanner_id = ?`);
             }
@@ -546,15 +574,13 @@ const scannerApi = {
                 ${where}
                 GROUP BY item_data.id
                 ORDER BY item_data.last_scan
-            `, [options.scanner.id]).then(items => {
+            `, [batchOptions.scanner.id]).then(items => {
                 return items.filter(item => Boolean(item.name)).map(queryResultToBatchItem);
             });
-            if (response.data.items.length === 0 && options.offersFrom === 1) {
+            if (response.data.items.length === 0) {
                 await endTraderScan();
                 if (options.fleaMarketAvailable || options.pveFleaMarketAvailable) {
-                    options.offersFrom = undefined;
-                    options.sessionMode = undefined;
-                    return getItems(options);
+                    return scannerApi.getItems(options);
                 }
             }
         } catch (error) {
@@ -989,24 +1015,43 @@ const scannerApi = {
         return response;
     },
     currentTraderScan: async () => {
-        const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
+        /*const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
         if (activeScan.length === 0) {
             return false;
         }
-        return activeScan[0];
+        return activeScan[0];*/
+        if (typeof activeTraderScan === 'undefined') {
+            await refreshTraderScanStatus().catch(error => {
+                console.log('Error refreshing trader scan status:', error);
+            });
+        }
+        return activeTraderScan;
     },
     startTraderScan: async () => {
-        const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL OR ended >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)');
-        if (activeScan.length > 0) {
+        if (!activeTraderScan) {
+            await query('INSERT INTO trader_offer_scan VALUES ()');
+            await refreshTraderScanStatus();
+        }
+        if (!activeTraderScan) {
             return {
-                data: {
-                    id: activeScan[0].id,
-                    started: activeScan[0].started,
-                }
+                data: false,
             }
         }
-        await query('INSERT INTO trader_offer_scan VALUES ()');
-        return scannerApi.currentTraderScan();
+        return {
+            data: {
+                id: activeTraderScan.id,
+                started: activeTraderScan.started,
+            }
+        }
+    },
+    setTraderScanScanner: async (scannerName) => {
+        if (!activeTraderScan) {
+            return Promise.reject(new Error('Cannot set trader scan scanner with no active trader scan'));
+        }
+        return query('UPDATE trader_offer_scan SET scanner_name = ? WHERE id = ?', [scannerName, activeTraderScan.id]).then(result => {
+            activeTraderScan.scanner_name = scannerName;
+            return result;
+        });
     },
     submitJson: (options) => {
         const response = {errors: [], warnings: [], data: {}};

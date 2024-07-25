@@ -22,8 +22,10 @@ class StartTraderScanJob extends DataJob {
                 continue;
             }
             this.logger.log(`Starting ${scanner.name}`);
+            await scannerApi.setTraderScanScanner(scanner.name);
             //await webSocketServer.sendCommand(scanner.name, 'changeSetting', {name: 'offersFrom', value: 1});
             await webSocketServer.sendCommand(scanner.name, 'resume');
+            break;
         }
     }
 }
