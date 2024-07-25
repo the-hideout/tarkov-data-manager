@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  restart-vm:
+  stop-vm:
     runs-on: ubuntu-latest
     environment: production-secrets
 

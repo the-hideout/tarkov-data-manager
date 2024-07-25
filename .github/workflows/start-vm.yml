@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  restart-vm:
+  start-vm:
     runs-on: ubuntu-latest
     environment: production-secrets
 
