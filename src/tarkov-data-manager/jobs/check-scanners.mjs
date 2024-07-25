@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon';
 
-import { scannerFlags, userFlags } from '../modules/scanner-api.mjs';
+import scannerApi, { scannerFlags, userFlags } from '../modules/scanner-api.mjs';
 import tarkovDevData from '../modules/tarkov-dev-data.mjs';
 import DataJob from '../modules/data-job.mjs';
 import gameModes from '../modules/game-modes.mjs';
@@ -11,7 +11,7 @@ class CheckScansJob extends DataJob {
     }
 
     async run() {
-        const [services, scanners] = await Promise.all([
+        const [services, scanners, activeTraderScan] = await Promise.all([
             tarkovDevData.status().then(status => status.services).catch(error => {
                 this.logger.error(`Error getting EFT services status: ${error.message}`);
                 return [];
@@ -21,6 +21,7 @@ class CheckScansJob extends DataJob {
                 from scanner 
                 left join scanner_user on scanner_user.id = scanner.scanner_user_id
             `),
+            scannerApi.currentTraderScan(),
         ]);
 
         const tradingService = services.find(s => s.name === 'Trading');
@@ -63,6 +64,9 @@ class CheckScansJob extends DataJob {
                 `, [scanner.id]).catch(error => {
                     this.logger.error(`Error clearing trader batches for ${scanner.name}: ${error.message}`);
                 });
+                if (activeTraderScan?.scanner_id === scanner.id) {
+                    scannerApi.setTraderScanScanner(null);
+                }
             }
 
             const lastScanTimestamp = Math.max(
