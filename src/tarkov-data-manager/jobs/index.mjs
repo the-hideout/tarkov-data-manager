@@ -78,6 +78,9 @@ for (const file of jobFiles) {
 }
 
 const scheduleJob = function(name, cronSchedule) {
+    if (!jobs[name] && !eventJobs[name]) {
+        console.log(`Can't schedule ${name}; not a valid job`);
+    }
     if (scheduledJobs[name]) {
         scheduledJobs[name].cancel();
     }
