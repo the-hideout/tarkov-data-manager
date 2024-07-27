@@ -15,17 +15,23 @@ class StartTraderScanJob extends DataJob {
             await scannerApi.startTraderScan();
         }
 
-        //let scanners = webSocketServer.launchedScanners().filter(c => c.settings.scanStatus === 'idle' && c.settings.scanMode === 'auto');
-        for (const scanner of webSocketServer.launchedScanners()) {
-            this.logger.log(`${scanner.name} ${scanner.settings.scanStatus} ${scanner.settings.scanMode}`);
-            if (scanner.settings.scanStatus !== 'idle' || scanner.settings.scanMode !== 'auto') {
-                continue;
+        const traderScan = await currentTraderScan();
+        if (!traderScan.scanner_name) {
+            for (const scanner of webSocketServer.launchedScanners()) {
+                if (scanner.settings.scanStatus !== 'idle' || scanner.settings.scanMode !== 'auto') {
+                    continue;
+                }
+                this.logger.log(`Starting ${scanner.name}`);
+                await scannerApi.setTraderScanScanner(scanner.name);
+                //await webSocketServer.sendCommand(scanner.name, 'changeSetting', {name: 'offersFrom', value: 1});
+                await webSocketServer.sendCommand(scanner.name, 'resume');
+                break;
             }
-            this.logger.log(`Starting ${scanner.name}`);
-            await scannerApi.setTraderScanScanner(scanner.name);
-            //await webSocketServer.sendCommand(scanner.name, 'changeSetting', {name: 'offersFrom', value: 1});
-            await webSocketServer.sendCommand(scanner.name, 'resume');
-            break;
+            if (!traderScan.scanner_name) {
+                this.logger.log('Could not find an idle scanner to assign');
+            }
+        } else {
+            this.logger.log(`${traderScan.scanner_name} already assigned to scan`);
         }
     }
 }

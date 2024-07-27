@@ -124,7 +124,6 @@ const scannerHttpApi = {
                 }
             }
             if (resource === 'scanner') {
-                options.scanner = await scannerApi.getScanner(options, false);
                 if (req.method === 'DELETE') {
                     response = await scannerApi.deleteScanner(options);
                 }

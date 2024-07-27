@@ -244,8 +244,7 @@ const scannerApi = {
         if (!createMissing) {
             throw new Error(`Scanner with name ${options.scannerName} not found`);
         }
-        const newScanner = await scannerApi.createScanner(options.user, options.scannerName);
-        return newScanner;
+        return scannerApi.createScanner(options.user, options.scannerName);
     },
     getUsers: async () => {
         if (usersUpdating) {
