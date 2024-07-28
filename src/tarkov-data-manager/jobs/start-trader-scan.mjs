@@ -15,7 +15,7 @@ class StartTraderScanJob extends DataJob {
             await scannerApi.startTraderScan();
         }
 
-        const traderScan = await currentTraderScan();
+        const traderScan = await scannerApi.currentTraderScan();
         if (!traderScan.scanner_name) {
             for (const scanner of webSocketServer.launchedScanners()) {
                 if (scanner.settings.scanStatus !== 'idle' || scanner.settings.scanMode !== 'auto') {

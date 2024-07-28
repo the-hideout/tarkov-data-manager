@@ -44,7 +44,7 @@ class UpdateHistoricalPricesJob extends DataJob {
                 });
             }
     
-            this.logger.log(`Using ${gameMode.name} query cutoff of ${dateCutoff}`);
+            this.logger.log(`Getting ${gameMode.name} prices after ${dateCutoff}`);
     
             const batchSize = this.maxQueryRows;
             let offset = 0;
