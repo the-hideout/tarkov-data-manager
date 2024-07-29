@@ -18,14 +18,14 @@ const defaultJobs = {
     'verify-wiki': '7 9 * * *',
     'update-trader-assorts': 'traderScanEnded',
     'update-trader-prices': 'jobComplete_update-trader-assorts',
-    'check-image-links': '16 0,6,12,18 * * *',
+    //'check-image-links': '16 0,6,12,18 * * *',
     'update-quest-images': '16 1,7,13,19 * * *',
     'update-historical-prices': '26 * * * *',
     'update-spt-data': '56 * * * *',
     'update-archived-prices': '38 0 * * *',
     'update-game-status': '*/15 * * * *',
     'start-trader-scan': '30 9,21 * * *',
-    'update-profile-index': '0, 0 * * *',
+    'update-profile-index': '0 0 * * *',
 };
 
 // these jobs only run on the given schedule when not in dev mode
