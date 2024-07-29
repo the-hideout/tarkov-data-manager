@@ -19,7 +19,7 @@ class UpdateProfileIndexJob extends DataJob {
             queryResult.results.forEach(r => {
                 profiles[r.id] = r.name;
             });
-            this.logger.log(`Retrieved ${offset + queryResult.results.length} records`);
+            this.logger.log(`Retrieved ${offset + queryResult.results.length} profile records`);
             if (queryResult.results.length !== batchSize) {
                 break;
             }
@@ -34,7 +34,8 @@ class UpdateProfileIndexJob extends DataJob {
         });
         this.logger.log('Uploaded index.json to S3');
         await cloudflare.purgeCache(url);
-        this.logger.log('Purged cache for index.json');
+        this.logger.log(`Purged cache for ${url}`);
+        this.logger.success('Updated profile index');
     }
 
     async cloudflareQuery(query, params) {

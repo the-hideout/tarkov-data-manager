@@ -42,7 +42,7 @@ export async function uploadFile(fileBuffer, filename, options) {
         Body: fileBuffer,
     };
     await s3.send(new PutObjectCommand(uploadParams));
-    return `https://${options.bucket}/${options.filename}`;
+    return `https://${options.bucket}/${filename}`;
 }
 
 export async function uploadAnyImage(image, filename, contentType) {
