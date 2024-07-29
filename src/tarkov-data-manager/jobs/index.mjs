@@ -33,7 +33,7 @@ const nonDevJobs = {};
 
 // these jobs run at startup
 const startupJobs = [
-    'check-image-links',
+    //'check-image-links',
     'update-tc-data',
     'update-spt-data',
 ];
