@@ -338,6 +338,8 @@ class DataJob {
         return queryPromise;
     }
 
+    d1Query = cloudflare.d1Query;
+
     getIdSuffix(id) {
         if (!this.idSuffixLength) {
             throw new Error('idSuffixLength must be set before calling getIdSuffix');

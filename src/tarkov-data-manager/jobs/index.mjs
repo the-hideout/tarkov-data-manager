@@ -9,7 +9,7 @@ import emitter from '../modules/emitter.mjs';
 const defaultJobs = {
     'update-item-cache': '*/5 * * * *',
     'game-data': '1-59/10 * * * *',
-    'update-barters': '2-59/10 * * * *',
+    'update-barters': 'jobComplete_update-trader-prices',
     'update-quests': '3-59/10 * * * *',
     'update-maps': '4-59/10 * * * *',
     'check-scanners': '6,36 * * * *',
@@ -18,13 +18,14 @@ const defaultJobs = {
     'verify-wiki': '7 9 * * *',
     'update-trader-assorts': 'traderScanEnded',
     'update-trader-prices': 'jobComplete_update-trader-assorts',
-    'check-image-links': '16 0,6,12,18 * * *',
+    //'check-image-links': '16 0,6,12,18 * * *',
     'update-quest-images': '16 1,7,13,19 * * *',
     'update-historical-prices': '26 * * * *',
     'update-spt-data': '56 * * * *',
     'update-archived-prices': '38 0 * * *',
     'update-game-status': '*/15 * * * *',
     'start-trader-scan': '30 9,21 * * *',
+    'update-profile-index': '0 0 * * *',
 };
 
 // these jobs only run on the given schedule when not in dev mode
@@ -32,7 +33,7 @@ const nonDevJobs = {};
 
 // these jobs run at startup
 const startupJobs = [
-    'check-image-links',
+    //'check-image-links',
     'update-tc-data',
     'update-spt-data',
 ];

@@ -30,6 +30,40 @@ const skipOffers = {
                 ],
             }
         ]
+    },
+    '54cb50c76803fa8b248b4571': { // prapor
+        4: [
+            {
+                reward: '5c1260dc86f7746b106e8748', // 9x39mm BP gs ammo pack (8 pcs)
+                requirements: [
+                    '5734770f24597738025ee254' // strike cigarettes
+                ]
+            }
+        ]
+    },
+    '5ac3b934156ae10c4430e83c': { // ragman
+        4: [
+            {
+                reward: '5f60c74e3b85f6263c145586', // Rys-T bulletproof helmet (Black)
+                requirements: [
+                    '5e2af4d286f7746d4159f07a', // Aramid
+                    '61bf83814088ec1a363d7097', // Sewing kit
+                    '62a0a098de7ac8199358053b', // awl
+                ]
+            }
+        ]
+    },
+    '54cb57776803fa99248b456e' : { // therapist
+        1: [
+            { // from A Key to Salvation
+                reward: '635267f063651329f75a4ee8', // 26x75mm flare cartridge (Acid Green)
+                requirements: [
+                    '59e361e886f774176c10a2a5', // hydrogen peroxide
+                    '62a0a043cf4a99369e2624a5', // multivitamins
+                    '5c052e6986f7746b207bc3c9', // defib
+                ]
+            }
+        ]
     }
 };
 

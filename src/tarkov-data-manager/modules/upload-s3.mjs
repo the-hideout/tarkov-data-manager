@@ -18,6 +18,33 @@ const s3 = new S3Client({
 
 sharp.cache( { files: 0 } );
 
+export async function uploadFile(fileBuffer, filename, options) {
+    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+        return Promise.reject(new Error('aws variables not configured; file upload disabled'));
+    }
+    if (typeof options !== 'object') {
+        options = {};
+    }
+    if (!options.contentType) {
+        return Promise.reject(new Error('Must specify content type'));
+    }
+    if (!options.contentEncoding) {
+        return Promise.reject(new Error('Must specify content encoding'));
+    }
+    if (!options.bucket) {
+        return Promise.reject(new Error('Must specify bucket'));
+    }
+    const uploadParams = {
+        Bucket: options.bucket,
+        Key: filename,
+        ContentType: options.contentType,
+        ContentEncoding: options.contentEncoding,
+        Body: fileBuffer,
+    };
+    await s3.send(new PutObjectCommand(uploadParams));
+    return `https://${options.bucket}/${filename}`;
+}
+
 export async function uploadAnyImage(image, filename, contentType) {
     if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
         return Promise.reject(new Error('aws variables not configured; image upload disabled'));
@@ -157,13 +184,22 @@ export const getBucketContents = async (continuationToken = false) => {
     const command = new ListObjectsV2Command(input);
     const response = await s3.send(command);
 
-    responseKeys = response.Contents.map(item => item.Key);
+    responseKeys = response.Contents.reduce((all, item) => {
+        if (!item.Key.startsWith('Applications/') && !item.Key.startsWith('maps/') && !item.Key.startsWith('profile/')) {
+            all.push(item.Key);
+        }
+        return all;
+    }, []);
 
-    if(response.NextContinuationToken){
+    if (response.NextContinuationToken) {
+        //console.log(`Retrieved ${responseKeys.length} files in bucket, continuing`);
         responseKeys = responseKeys.concat(await getBucketContents(response.NextContinuationToken));
     }
+    else {
+        fs.writeFileSync(path.join(import.meta.dirname, '..', 'cache', 's3-bucket-contents.json'), JSON.stringify(responseKeys, null, 4));
+    }
+    //console.log(`Retrieved ${responseKeys.length} files in bucket`);
 
-    fs.writeFileSync(path.join(import.meta.dirname, '..', 'cache', 's3-bucket-contents.json'), JSON.stringify(responseKeys, null, 4));
     return responseKeys;
 }
 
