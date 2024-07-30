@@ -9,7 +9,7 @@ import emitter from '../modules/emitter.mjs';
 const defaultJobs = {
     'update-item-cache': '*/5 * * * *',
     'game-data': '1-59/10 * * * *',
-    'update-barters': '2-59/10 * * * *',
+    'update-barters': 'jobComplete_update-trader-prices',
     'update-quests': '3-59/10 * * * *',
     'update-maps': '4-59/10 * * * *',
     'check-scanners': '6,36 * * * *',
