@@ -386,6 +386,28 @@ class UpdateMapsJob extends DataJob {
                             }
                         }
                     }
+                    for (const followerSpawn of map.BossLocationSpawn) {
+                        if (followerSpawn.TriggerName !== 'botEvent') {
+                            continue;
+                        }
+                        if (followerSpawn.BossChance === 0 || followerSpawn.BossEscortAmount === '0') {
+                            continue;
+                        }
+                        const bossNameLower = spawn.BossName.toLowerCase();
+                        if (followerSpawn.TriggerId.toLowerCase() !== `${bossNameLower}born`) {
+                            continue;
+                        }
+                        const enemyData = await this.getBossInfo(followerSpawn.BossName);
+                        const newMob = !enemySet.has(enemyData.id);
+                        enemySet.add(enemyData.id);
+                        bossData.escorts.push({
+                            id: enemyData.id,
+                            amount: getChances(followerSpawn.BossEscortAmount, 'count', true), 
+                        });
+                        if (newMob) {
+                            this.logger.log(` - ${this.getTranslation(enemyData.name)}`);
+                        }
+                    }
     
                     if (spawn.TriggerId && spawn.TriggerName === 'interactObject') {
                         const switchId = this.mapDetails[id].switches.reduce((found, current) => {
