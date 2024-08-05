@@ -58,7 +58,7 @@ $(document).ready( function () {
     ];
 
     table = $('table.main').DataTable({
-        pageLength: 25,
+        pageLength: 50,
         order: [[0, 'asc']],
         ajax: {
             url: '/crons/get',

@@ -195,7 +195,7 @@ export const getBucketContents = async (continuationToken = false) => {
         //console.log(`Retrieved ${responseKeys.length} files in bucket, continuing`);
         responseKeys = responseKeys.concat(await getBucketContents(response.NextContinuationToken));
     }
-    else {
+    if (!continuationToken) {
         fs.writeFileSync(path.join(import.meta.dirname, '..', 'cache', 's3-bucket-contents.json'), JSON.stringify(responseKeys, null, 4));
     }
     //console.log(`Retrieved ${responseKeys.length} files in bucket`);
