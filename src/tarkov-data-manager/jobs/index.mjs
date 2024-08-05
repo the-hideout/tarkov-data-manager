@@ -18,7 +18,7 @@ const defaultJobs = {
     'verify-wiki': '7 9 * * *',
     'update-trader-assorts': 'traderScanEnded',
     'update-trader-prices': 'jobComplete_update-trader-assorts',
-    //'check-image-links': '16 0,6,12,18 * * *',
+    'check-image-links': '16 0,6,12,18 * * *',
     'update-quest-images': '16 1,7,13,19 * * *',
     'update-historical-prices': '26 * * * *',
     'update-spt-data': '56 * * * *',
@@ -33,7 +33,7 @@ const nonDevJobs = {};
 
 // these jobs run at startup
 const startupJobs = [
-    //'check-image-links',
+    'check-image-links',
     'update-tc-data',
     'update-spt-data',
 ];
