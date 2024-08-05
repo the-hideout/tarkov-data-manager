@@ -199,6 +199,30 @@ const cloudflare = {
     //getOldKeys: getOldKeys,
     //delete: deleteValue,
     //deleteBulk: deleteValues
+    d1Query: async (query, params) => {
+        if (!process.env.CLOUDFLARE_TOKEN) {
+            return Promise.reject(new Error('Cannot query; CLOUDFLARE_TOKEN is not set'));
+        }
+        const response = await fetch(`${BASE_URL}accounts/424ad63426a1ae47d559873f929eb9fc/d1/database/6b25079c-ab80-41ba-bbe8-ed0f2913f87e/query`, {
+            method: 'POST',
+            headers: {
+                'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                params: params ?? [],
+                sql: query,
+            }),
+        });
+        if (!response.ok) {
+            return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+        }
+        const result = await response.json();
+        if (!result.success && result.errors) {
+            return Promise.reject(new Error(`${result.errors[0].message} (${result.errors[0].code})`));
+        }
+        return result.result[0];
+    },
 };
 
 export const { put } = cloudflare;

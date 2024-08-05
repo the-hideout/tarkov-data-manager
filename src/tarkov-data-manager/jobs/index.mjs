@@ -12,7 +12,7 @@ const scheduleSentry = Sentry.cron.instrumentNodeSchedule(schedule);
 const defaultJobs = {
     'update-item-cache': '*/5 * * * *',
     'game-data': '1-59/10 * * * *',
-    'update-barters': '2-59/10 * * * *',
+    'update-barters': 'jobComplete_update-trader-prices',
     'update-quests': '3-59/10 * * * *',
     'update-maps': '4-59/10 * * * *',
     'check-scanners': '6,36 * * * *',
@@ -28,6 +28,7 @@ const defaultJobs = {
     'update-archived-prices': '38 0 * * *',
     'update-game-status': '*/15 * * * *',
     'start-trader-scan': '30 9,21 * * *',
+    'update-profile-index': '0 0 * * *',
 };
 
 // these jobs only run on the given schedule when not in dev mode
@@ -80,7 +81,10 @@ for (const file of jobFiles) {
     //jobClasses[file.replace('.mjs', '')] = jobClass;
 }
 
-const scheduleJob = function (name, cronSchedule) {
+const scheduleJob = function(name, cronSchedule) {
+    if (!jobClasses[name]) {
+        console.log(`Can't schedule ${name}; not a valid job`);
+    }
     if (scheduledJobs[name]) {
         scheduledJobs[name].cancel();
     }
