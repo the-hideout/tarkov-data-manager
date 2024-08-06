@@ -66,6 +66,7 @@ class UpdateItemCacheJob extends DataJob {
             'high24hPrice',
             'changeLast48h',
             'changeLast48hPercent',
+            'last_offer_count',
         ];
         for (const [key, value] of this.itemMap.entries()) {
             if (value.types.includes('disabled') || value.types.includes('quest'))
@@ -499,7 +500,7 @@ class UpdateItemCacheJob extends DataJob {
                 };
                 const dbItem = this.itemMap.get(id);
                 for (const fieldName of priceFields) {
-                    modeData.Item[id][fieldName] = dbItem[`${fieldName}_${gameMode.name}`];
+                    modeData.Item[id][fieldName] = dbItem[`${gameMode.name}_${fieldName}`];
                 }
             }
             await this.cloudflarePut(modeData, `${this.kvName}_${gameMode.name}`);

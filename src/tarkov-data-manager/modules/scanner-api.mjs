@@ -11,6 +11,7 @@ import { uploadToS3 } from './upload-s3.mjs';
 import { createAndUploadFromSource } from './image-create.mjs';
 import presetData from './preset-data.mjs';
 import emitter from './emitter.mjs';
+import gameModes from './game-modes.mjs';
 
 const { imageSizes } = imgGen.imageFunctions;
 
@@ -614,14 +615,15 @@ const scannerApi = {
         let setLastScan = false;
         if (options.offersFrom === 1) {
             prefix = 'trader_'
-        } else if (options.sessionMode === 'pve') {
+        }
+        if (options.sessionMode === 'pve') {
             prefix = 'pve_' + prefix;
         }
     
         if (itemScanned && itemId && !skipInsert) {
             scanned = `, ${prefix}last_scan = now()`;
-            if (options.offerCount) {
-                scanned += `, last_offer_count = ?`;
+            if (options.offerCount && options.offersFrom !== 1) {
+                scanned += `, ${prefix}last_offer_count = ?`;
                 escapedValues.push(options.offerCount);
             }
             setLastScan = true;
@@ -694,7 +696,14 @@ const scannerApi = {
         const response = {errors: [], warnings: [], data: [0, 0]};
         const itemId = options.itemId;
         let itemPrices = options.itemPrices;
-        const pve = options.sessionMode === 'pve' ? 1 : 0;
+        let gameMode = 0;
+        for (const gm of gameModes) {
+            if (gm.name !== options.sessionMode) {
+                continue;
+            }
+            gameMode = gm.value;
+            break;
+        }
         if (!itemId) {
             response.errors.push('no item id specified');
         }
@@ -731,7 +740,7 @@ const scannerApi = {
             const values = [];
             for (let i = 0; i < playerPrices.length; i++) {
                 placeholders.push('(?, ?, ?, now(), ?)');
-                values.push(itemId, playerPrices[i].price, options.scanner.id, pve);
+                values.push(itemId, playerPrices[i].price, options.scanner.id, gameMode);
             }
             if (skipInsert) {
                 response.warnings.push(`Skipped insert of ${playerPrices.length} player prices`);
@@ -936,6 +945,14 @@ const scannerApi = {
             }
             return all;
         }, []);
+        let gameMode = 0;
+        for (const gm of gameModes) {
+            if (gm.name !== options.sessionMode) {
+                continue;
+            }
+            gameMode = gm.value;
+            break;
+        }
         for (const offer of options.offers) {
             const insertValues = {
                 id: offer.offerId,
@@ -944,6 +961,7 @@ const scannerApi = {
                 min_level: offer.minLevel,
                 buy_limit: offer.buyLimit,
                 restock_amount: offer.restockAmount,
+                game_mode: gameMode,
             };
             if (options.trustTraderUnlocks) {
                 insertValues.locked = offer.locked ? 1 : 0;
