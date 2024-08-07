@@ -151,7 +151,7 @@ const getArmorSlots = (item) => {
         ];
         if (slotInfo.locked) {
             const plateItem = job.bsgItems[slotInfo.Plate];
-            newSlot.name = job.addTranslation(plateItem._props.Name),
+            //newSlot.name = job.addTranslation(plateItem._props.Name),
             newSlot.bluntThroughput = plateItem._props.BluntThroughput,
             newSlot.class = parseInt(plateItem._props.armorClass),
             newSlot.durability = parseInt(plateItem._props.Durability),
