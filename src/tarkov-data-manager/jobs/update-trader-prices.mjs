@@ -64,6 +64,8 @@ class UpdateTraderPricesJob extends DataJob {
                 trader_offer_scan 
             WHERE 
                 ended IS NOT NULL 
+            AND
+                game_mode = 0
             ORDER BY 
                 id DESC LIMIT 1
         `).then(result => {
@@ -79,6 +81,8 @@ class UpdateTraderPricesJob extends DataJob {
                 trader_offers 
             WHERE 
                 last_scan >= ?
+            AND
+                game_mode = 0
         `, [lastOfferScan.started]);
         this.offerRequirements = await this.query(`SELECT * FROM trader_offer_requirements`);
         this.getCurrencyValues(offers);
