@@ -140,7 +140,7 @@ const scannerHttpApi = {
                 response = {
                     errors: [],
                     warnings: [],
-                    data: !!await scannerApi.currentTraderScan(),
+                    data: !!await scannerApi.currentTraderScan(options.sessionMode ?? 'regular'),
                 };
             }
             if (resource === 'offers') {

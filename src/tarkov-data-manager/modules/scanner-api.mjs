@@ -18,7 +18,7 @@ const { imageSizes } = imgGen.imageFunctions;
 const users = {};
 let usersUpdating = true;
 let presets = {};
-let activeTraderScan;
+const activeTraderScans = {};
 
 export const userFlags = {
     disabled: 0,
@@ -59,13 +59,12 @@ emitter.on('presetsUpdated', updatePresets);
 updatePresets(presetData.presets);
 
 const refreshTraderScanStatus = async () => {
-    const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
-    if (activeScan.length > 0) {
-        activeTraderScan = activeScan[0];
-    } else {
-        activeTraderScan = false;
+    const activeScans = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
+    for (const gameMode of gameModes) {
+        const gameModeTraderScan = activeScans.find(s => s.game_mode === gameMode.value);
+        activeTraderScans[gameMode.name] = gameModeTraderScan ?? false;
     }
-    return activeTraderScan;
+    return activeTraderScans;
 };
 
 const queryResultToBatchItem = item => {
@@ -106,26 +105,32 @@ const queryResultToBatchItem = item => {
     };
 };
 
-const endTraderScan = async () => {
-    const checkout = await query('SELECT COUNT(id) checkout_count FROM item_data WHERE trader_checkout_scanner_id IS NOT NULL');
+const endTraderScan = async (gameModeName) => {
+    let prefix = '';
+    if (gameModeName !== 'regular') {
+        prefix = `${gameModeName}_`;
+    }
+    const gameMode = gameModes.find(gm => gm.name === gameModeName) ?? gameModes.find(gm => gm.name === 'regular');
+
+    const checkout = await query(`SELECT COUNT(id) checkout_count FROM item_data WHERE ${prefix}trader_checkout_scanner_id IS NOT NULL`);
     if (checkout[0].checkount_count > 0) {
         return {
-            data: 'unable to end incomplete trader scan',
+            data: `unable to end incomplete ${gameMode.name} trader scan`,
         };
     }
-    const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
+    const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL AND game_mode = ?', [gameMode.value]);
     if (activeScan.length < 1) {
         return {
-            data: 'no active trader scan',
+            data: `no active ${gameMode.name} trader scan`,
         };
     }
     const stopResult = await query('UPDATE trader_offer_scan SET ended=now() WHERE id=?', [activeScan[0].id]);
     if (stopResult.affectedRows < 1) {
         return {
-            data: 'unable to update active trader scan',
+            data: `unable to update active ${gameMode.name} trader scan`,
         }
     }
-    activeTraderScan = false;
+    activeTraderScans[gameMode.name] = false;
     emitter.emit('traderScanEnded', activeScan);
     return {
         data: 'Trader scan ended',
@@ -371,24 +376,24 @@ const scannerApi = {
                 mergedOptions.offersFrom = 1;
             }
         }*/
-        if (typeof activeTraderScan === 'undefined') {
+        if (typeof activeTraderScans[mergedOptions.sessionMode] === 'undefined') {
             await refreshTraderScanStatus().catch(error => {
                 console.log('Error refreshing trader scan status:', error);
             });
         }
-        if (activeTraderScan && options.trustTraderUnlocks && !mergedOptions.limitItem && !mergedOptions.imageOnly) {
-            if (!activeTraderScan.scanner_name && mergedOptions.sessionMode === 'regular' && typeof options.offersFrom === 'undefined') {
-                await scannerApi.setTraderScanScanner(options.scannerName).catch(error => {
+        if (activeTraderScans[mergedOptions.sessionMode] && options.trustTraderUnlocks && !mergedOptions.limitItem && !mergedOptions.imageOnly) {
+            if (!activeTraderScans[mergedOptions.sessionMode].scanner_name && typeof options.offersFrom === 'undefined') {
+                await scannerApi.setTraderScanScanner(mergedOptions.sessionMode, options.scannerName).catch(error => {
                     console.log('Error setting trader scan scanner:', error);
                 });
-                activeTraderScan.scanner_name = options.scannerName;
+                activeTraderScans[mergedOptions.sessionMode].scanner_name = options.scannerName;
             }
-            if (activeTraderScan.scanner_name === options.scannerName) {
+            if (activeTraderScans[mergedOptions.sessionMode].scanner_name === options.scannerName) {
                 mergedOptions.offersFrom = 1;
             }
         }
         if (mergedOptions.offersFrom === 1 && typeof mergedOptions.traderScanSession === 'undefined') {
-            mergedOptions.traderScanSession = activeTraderScan;
+            mergedOptions.traderScanSession = activeTraderScans[mergedOptions.sessionMode];
         }
         return mergedOptions;
     },
@@ -578,7 +583,7 @@ const scannerApi = {
                 return items.filter(item => Boolean(item.name)).map(queryResultToBatchItem);
             });
             if (response.data.items.length === 0) {
-                await endTraderScan();
+                await endTraderScan(batchOptions.sessionMode);
                 if (options.fleaMarketAvailable || options.pveFleaMarketAvailable) {
                     return scannerApi.getItems(options);
                 }
@@ -1031,42 +1036,43 @@ const scannerApi = {
         response.data = await Promise.all(dataActions);
         return response;
     },
-    currentTraderScan: async () => {
-        /*const activeScan = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
-        if (activeScan.length === 0) {
-            return false;
-        }
-        return activeScan[0];*/
-        if (typeof activeTraderScan === 'undefined') {
+    currentTraderScans: async () => {
+        if (typeof activeTraderScans.regular === 'undefined') {
             await refreshTraderScanStatus().catch(error => {
                 console.log('Error refreshing trader scan status:', error);
             });
         }
-        return activeTraderScan;
+        return activeTraderScans;
     },
-    startTraderScan: async () => {
-        if (!activeTraderScan) {
-            await query('INSERT INTO trader_offer_scan VALUES ()');
+    currentTraderScan: async (gameModeName) => {
+        await scannerApi.currentTraderScans();
+        return activeTraderScans[gameModeName];
+    },
+    startTraderScan: async (gameModeName) => {
+        const gameMode = gameModes.find(gm => gm.name === gameModeName) ?? gameModes.find(gm => gm.name === 'regular');
+        if (!activeTraderScans[gameModeName]) {
+            await query('INSERT INTO trader_offer_scan (game_mode) VALUES (?)', [gameMode.value]);
             await refreshTraderScanStatus();
         }
-        if (!activeTraderScan) {
+        if (!activeTraderScans[gameModeName]) {
             return {
                 data: false,
             }
         }
         return {
             data: {
-                id: activeTraderScan.id,
-                started: activeTraderScan.started,
+                id: activeTraderScans[gameModeName].id,
+                started: activeTraderScans[gameModeName].started,
             }
         }
     },
-    setTraderScanScanner: async (scannerName) => {
-        if (!activeTraderScan) {
-            return Promise.reject(new Error('Cannot set trader scan scanner with no active trader scan'));
+    setTraderScanScanner: async (gameModeName, scannerName) => {
+        if (!activeTraderScans[gameModeName]) {
+            return Promise.reject(new Error(`Cannot set ${gameModeName} trader scan scanner with no active trader scan`));
         }
-        return query('UPDATE trader_offer_scan SET scanner_name = ? WHERE id = ?', [scannerName, activeTraderScan.id]).then(result => {
-            activeTraderScan.scanner_name = scannerName;
+        const gameMode = gameModes.find(gm => gm.name === gameModeName) ?? gameModes.find(gm => gm.name === 'regular');
+        return query('UPDATE trader_offer_scan SET scanner_name = ? WHERE id = ? AND game_mode = ?', [scannerName, activeTraderScans[gameModeName].id, gameMode.value]).then(result => {
+            activeTraderScans[gameModeName].scanner_name = scannerName;
             return result;
         });
     },
