@@ -245,7 +245,7 @@ const getArmorClass = (item) => {
 };
 
 const getArmorDurability = (item) => {
-    if (!item._props.Slots) {
+    if (!item._props.Slots?.length) {
         return item._props.Durability ?? 0;
     }
     return item._props.Slots.reduce((armorDurability, slot) => {
