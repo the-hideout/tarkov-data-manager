@@ -451,7 +451,7 @@ class UpdateQuestsJob extends DataJob {
             if (!this.locales.en[`${questId} name`]) {
                 continue;
             }
-            if (this.removedQuests[questId]) {
+            if (this.removedQuests[questId] || skipQuests.includes(questId)) {
                 //this.logger.warn(`Quest ${this.locales.en[`${questId} name`]} ${questId} has been removed`);
                 continue;
             }
