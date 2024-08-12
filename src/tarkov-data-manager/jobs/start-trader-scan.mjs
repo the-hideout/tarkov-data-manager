@@ -8,30 +8,37 @@ class StartTraderScanJob extends DataJob {
     }
 
     async run() {
-        this.logger.log('Starting trader scan...');
-        if (await scannerApi.currentTraderScan('regular')) {
-            this.logger.log('Trader scan already in progress');
-        } else {
-            await scannerApi.startTraderScan('regular');
-        }
-
-        const traderScan = await scannerApi.currentTraderScan('regular');
-        if (!traderScan.scanner_name) {
-            for (const scanner of webSocketServer.launchedScanners()) {
-                if (scanner.settings.scanStatus !== 'idle' || scanner.settings.scanMode !== 'auto') {
-                    continue;
-                }
-                this.logger.log(`Starting ${scanner.name}`);
-                await scannerApi.setTraderScanScanner('regular', scanner.name);
-                //await webSocketServer.sendCommand(scanner.name, 'changeSetting', {name: 'offersFrom', value: 1});
-                await webSocketServer.sendCommand(scanner.name, 'resume');
-                break;
+        const traderScanGameModes = ['regular', 'pve'];
+        for (const gameMode of this.gameModes) {
+            if (!traderScanGameModes.includes(gameMode.name)) {
+                continue;
             }
+            this.logger.log(`Starting ${gameMode.name} trader scan...`);
+    
+            if (await scannerApi.currentTraderScan(gameMode.name)) {
+                this.logger.log(`${gameMode.name} trader scan already in progress`);
+            } else {
+                await scannerApi.startTraderScan(gameMode.name);
+            }
+    
+            const traderScan = await scannerApi.currentTraderScan(gameMode.name);
             if (!traderScan.scanner_name) {
-                this.logger.log('Could not find an idle scanner to assign');
+                for (const scanner of webSocketServer.launchedScanners()) {
+                    if (scanner.settings.scanStatus !== 'idle' || scanner.settings.scanMode !== 'auto') {
+                        continue;
+                    }
+                    this.logger.log(`Starting ${scanner.name}`);
+                    await scannerApi.setTraderScanScanner(gameMode.name, scanner.name);
+                    //await webSocketServer.sendCommand(scanner.name, 'changeSetting', {name: 'offersFrom', value: 1});
+                    await webSocketServer.sendCommand(scanner.name, 'resume');
+                    break;
+                }
+                if (!traderScan.scanner_name) {
+                    this.logger.log(`Could not find an idle ${gameMode.name} scanner to assign`);
+                }
+            } else {
+                this.logger.log(`${traderScan.scanner_name} already assigned to ${gameMode.name} scan`);
             }
-        } else {
-            this.logger.log(`${traderScan.scanner_name} already assigned to scan`);
         }
     }
 }
