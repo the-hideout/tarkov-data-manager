@@ -9,20 +9,20 @@ class StartTraderScanJob extends DataJob {
 
     async run() {
         this.logger.log('Starting trader scan...');
-        if (await scannerApi.currentTraderScan()) {
+        if (await scannerApi.currentTraderScan('regular')) {
             this.logger.log('Trader scan already in progress');
         } else {
-            await scannerApi.startTraderScan();
+            await scannerApi.startTraderScan('regular');
         }
 
-        const traderScan = await scannerApi.currentTraderScan();
+        const traderScan = await scannerApi.currentTraderScan('regular');
         if (!traderScan.scanner_name) {
             for (const scanner of webSocketServer.launchedScanners()) {
                 if (scanner.settings.scanStatus !== 'idle' || scanner.settings.scanMode !== 'auto') {
                     continue;
                 }
                 this.logger.log(`Starting ${scanner.name}`);
-                await scannerApi.setTraderScanScanner(scanner.name);
+                await scannerApi.setTraderScanScanner('regular', scanner.name);
                 //await webSocketServer.sendCommand(scanner.name, 'changeSetting', {name: 'offersFrom', value: 1});
                 await webSocketServer.sendCommand(scanner.name, 'resume');
                 break;
