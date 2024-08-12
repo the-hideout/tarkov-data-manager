@@ -1,7 +1,7 @@
 {
     "5c51aac186f77432ea65c552": {
         "name": "Collector",
-        "taskRequirementsAdded": [
+        "__taskRequirementsAdded": [
             {
                 "task": "5c0bbaa886f7746941031d82",
                 "name": "Bullshit",
