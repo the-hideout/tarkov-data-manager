@@ -35,7 +35,7 @@ class UpdateItemCacheJob extends DataJob {
             tarkovData.handbook(),
             tarkovData.traders(),
         ]);
-        this.presets = await this.jobManager.jobOutput('update-presets', this, true);
+        this.presets = await this.jobManager.jobOutput('update-presets', this, 'regular', true);
         this.presetsLocale = this.presets.locale;
         this.presets = this.presets.presets;
         // make sure we don't include any disabled presets

@@ -51,7 +51,7 @@ class UpdateTraderPricesJob extends DataJob {
         [this.tasks, this.traders, this.traderAssorts, this.items, this.credits, this.en] = await Promise.all([
             this.jobManager.jobOutput('update-quests', this),
             tarkovData.traders(),
-            this.jobManager.jobOutput('update-trader-assorts', this, true),
+            this.jobManager.jobOutput('update-trader-assorts', this, 'regular', true),
             remoteData.get(),
             tarkovData.credits(),
             tarkovData.locale('en'),
@@ -169,7 +169,7 @@ class UpdateTraderPricesJob extends DataJob {
             if (gameMode.name !== 'regular') {
                 kvName += `_${gameMode.name}`;
             }
-            await this.cloudflarePut(this.kvData, kvName);
+            await this.cloudflarePut(this.kvData[gameMode.name], kvName);
         }
         return this.kvData;
     }

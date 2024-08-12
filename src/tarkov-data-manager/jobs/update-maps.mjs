@@ -24,7 +24,7 @@ class UpdateMapsJob extends DataJob {
             this.goonReports,
         ] = await Promise.all([
             remoteData.get(),
-            this.jobManager.jobOutput('update-presets', this, true),
+            this.jobManager.jobOutput('update-presets', this, 'regular', true),
             tarkovData.botsInfo(),
             tarkovData.mapDetails(),
             tarkovData.items(),

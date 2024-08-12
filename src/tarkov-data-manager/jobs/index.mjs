@@ -261,12 +261,16 @@ const jobManager = {
         }
         return jobs[jobName].start(options);
     },
-    jobOutput: async (jobName, parentJob, rawOutput = false) => {
+    jobOutput: async (jobName, parentJob, gameMode = 'regular', rawOutput = false) => {
         const job = jobs[jobName];
         if (!job) {
             return Promise.reject(new Error(`Job ${jobName} is not a valid job`));
         }
-        const outputFile = `./${job.writeFolder}/${job.kvName}.json`;
+        let suffix = '';
+        if (gameMode !== 'regular') {
+            suffix = `_${gameMode}`;
+        }
+        const outputFile = `./${job.writeFolder}/${job.kvName}${suffix}.json`;
         let logger = false;
         if (parentJob && parentJob.logger) {
             logger = parentJob.logger;
@@ -283,8 +287,14 @@ const jobManager = {
             }
         }
         return jobManager.runJob(jobName, {parent: parentJob}).then(result => {
-            if (!rawOutput) return result[Object.keys(result).find(key => key !== 'updated')];
-            return result;
+            let returnResult = result;
+            if (returnResult[gameMode]) {
+                returnResult = returnResult[gameMode];
+            }
+            if (!rawOutput) {
+                returnResult = returnResult[Object.keys(result).find(key => key !== 'updated')];
+            }
+            return returnResult;
         });
     },
 };

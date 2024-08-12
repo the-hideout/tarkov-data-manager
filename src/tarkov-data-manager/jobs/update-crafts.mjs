@@ -23,10 +23,10 @@ class UpdateCraftsJob extends DataJob {
             remoteData.get(),
             tarkovData.locale('en'),
         ]);
-        const areas = await this.jobManager.jobOutput('update-hideout', this);
-        const tasks = await this.jobManager.jobOutput('update-quests', this);
         const presets = await this.jobManager.jobOutput('update-presets', this);
         for (const gameMode of this.gameModes) {
+            const areas = await this.jobManager.jobOutput('update-hideout', this, gameMode.name);
+            const tasks = await this.jobManager.jobOutput('update-quests', this, gameMode.name);
             const json = await tarkovData.crafts({gameMode: gameMode.name});
             this.kvData[gameMode.name] = {
                 Craft: [],
