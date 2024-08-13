@@ -74,6 +74,7 @@ class CheckScansJob extends DataJob {
                 scanner.last_scan?.getTime() ?? 0,
                 scanner.trader_last_scan?.getTime() ?? 0,
                 scanner.pve_last_scan?.getTime() ?? 0,
+                scanner.pve_trader_last_scan?.getTime() ?? 0,
             );
             if ((!lastScanTimestamp) || scanner.disabled || userFlags.skipPriceInsert & scanner.user_flags) {
                 // ignore scanners that have never inserted a price
