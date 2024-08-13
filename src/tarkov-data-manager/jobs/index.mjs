@@ -16,7 +16,7 @@ const defaultJobs = {
     'update-td-data': '7-59/10 * * * *',
     'archive-prices': '38 0,12 * * *',
     'verify-wiki': '7 9 * * *',
-    'update-trader-assorts': 'traderScanEnded',
+    'update-trader-assorts': 'traderScansEnded',
     'update-trader-prices': 'jobComplete_update-trader-assorts',
     'check-image-links': '16 0,6,12,18 * * *',
     'update-quest-images': '16 1,7,13,19 * * *',

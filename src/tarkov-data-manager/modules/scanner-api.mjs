@@ -132,6 +132,10 @@ const endTraderScan = async (gameModeName) => {
     }
     activeTraderScans[gameMode.name] = false;
     emitter.emit('traderScanEnded', activeScan);
+    const anyScanActive = Object.values(activeTraderScans).some(scan => !!scan);
+    if (!anyScanActive) {
+        emitter.emit('traderScansEnded');
+    }
     return {
         data: 'Trader scan ended',
     }
