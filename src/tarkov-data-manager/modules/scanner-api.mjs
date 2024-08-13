@@ -331,6 +331,7 @@ const scannerApi = {
             sessionMode: 'regular',
             fleaMarketAvailable: false,
             pveFleaMarketAvailable: false,
+            pveModeAvailable: false,
         }
         const mergedOptions = {
             ...defaultOptions,
@@ -361,12 +362,15 @@ const scannerApi = {
             mergedOptions.offersFrom = mergedOptions.fleaMarketAvailable || mergedOptions.pveFleaMarketAvailable ? 2 : 1;
         }
         if (typeof options.sessionMode === 'undefined') {
-            // if sessionMode isn't specified, it depends on if PVE flea is available
-            mergedOptions.sessionMode = mergedOptions.pveFleaMarketAvailable ? 'pve' : 'regular';
-        }
-        if (mergedOptions.offersFrom === 1 && mergedOptions.sessionMode === 'pve') {
-            // don't scan PVE trader prices
-            mergedOptions.sessionMode === 'regular';
+            // if sessionMode isn't specified, it depends on if flea is available
+            // and if not, then if PVE is available
+            if (mergedOptions.pveFleaMarketAvailable) {
+                mergedOptions.sessionMode = 'pve';
+            } else if (mergedOptions.fleaMarketAvailable) {
+                mergedOptions.sessionMode = 'regular';
+            } else if (mergedOptions.pveModeAvailable) {
+                mergedOptions.sessionMode = 'pve'
+            }
         }
         /*if (mergedOptions.sessionMode === 'pve' && typeof options.offersFrom === 'undefined') {
             // if in PVE mode and there's a trader scan, switch to trader scanning
@@ -527,7 +531,7 @@ const scannerApi = {
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${nofleaCondition} 
-                    ORDER BY last_scan, id
+                    ORDER BY ${prefix}last_scan, id
                     LIMIT ?
                 `, [batchOptions.scanner.id, batchOptions.scanner.id, batchOptions.batchSize]);
         
@@ -540,14 +544,14 @@ const scannerApi = {
                 }
                 await query(`
                     UPDATE item_data
-                    SET trader_checkout_scanner_id = ?
+                    SET ${prefix}trader_checkout_scanner_id = ?
                     WHERE ((trader_checkout_scanner_id IS NULL OR trader_checkout_scanner_id = ?) AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'only-flea') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') AND
-                        (trader_last_scan <= ? OR trader_last_scan IS NULL) )
-                    ORDER BY trader_last_scan, id
+                        (${prefix}trader_last_scan <= ? OR ${prefix}trader_last_scan IS NULL) )
+                    ORDER BY ${prefix}trader_last_scan, id
                     LIMIT ?
                 `, [batchOptions.scanner.id, batchOptions.scanner.id, batchOptions.traderScanSession.started, batchOptions.batchSize]);
         
@@ -578,7 +582,7 @@ const scannerApi = {
                     types.item_id = item_data.id
                 ${where}
                 GROUP BY item_data.id
-                ORDER BY item_data.last_scan
+                ORDER BY item_data.${prefix}last_scan
             `, [batchOptions.scanner.id]).then(items => {
                 return items.filter(item => Boolean(item.name)).map(queryResultToBatchItem);
             });
