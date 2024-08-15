@@ -95,6 +95,8 @@ const methods = {
                     high24hPricePve: null,
                     changeLast48hPve: null,
                     changeLast48hPercentPve: null,
+                    lastOfferCount: result.last_offer_count,
+                    pve_lastOfferCount: result.pve_last_offer_count,
                 };
                 if (!preparedData.properties) preparedData.properties = {};
                 returnData.set(result.id, preparedData);
@@ -227,7 +229,7 @@ const methods = {
                     continue;
                 }
 
-                for (const gameMode of gameModes){
+                for (const gameMode of gameModes) {
                     const fieldPrefix = gameMode.name === 'regular' ? '' : `${gameMode.name}_`;
 
                     const lastLowData = lastLowPriceResults.find(row => row.item_id === itemId && row.game_mode === gameMode.value);
