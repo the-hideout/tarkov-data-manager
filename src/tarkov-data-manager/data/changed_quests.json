@@ -1,14 +1,30 @@
 {
     "5c51aac186f77432ea65c552": {
         "name": "Collector",
-        "__taskRequirementsAdded": [
+        "taskRequirementsAdded": [
             {
-                "task": "5c0bbaa886f7746941031d82",
-                "name": "Bullshit",
+                "task": "59674cd986f7744ab26e32f2",
+                "name": "Shootout Picnic",
                 "status": [
                     "complete"
                 ],
-                "notes": "Silent Caliber not required. Reported in tarkovmonitor discord by KDR."
+                "notes": "Per wiki 8/13/2024"
+            },
+            {
+                "task": "59675ea386f77414b32bded2",
+                "name": "Postman Pat - Part 1",
+                "status": [
+                    "complete"
+                ],
+                "notes": "Per wiki 8/15/2024"
+            },
+            {
+                "task": "596760e186f7741e11214d58",
+                "name": "Postman Pat - Part 2",
+                "status": [
+                    "complete"
+                ],
+                "notes": "Per wiki 8/15/2024"
             }
         ],
         "___taskRequirementsRemoved": [

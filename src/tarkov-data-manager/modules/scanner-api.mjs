@@ -132,6 +132,10 @@ const endTraderScan = async (gameModeName) => {
     }
     activeTraderScans[gameMode.name] = false;
     emitter.emit('traderScanEnded', activeScan);
+    const anyScanActive = Object.values(activeTraderScans).some(scan => !!scan);
+    if (!anyScanActive) {
+        emitter.emit('traderScansEnded');
+    }
     return {
         data: 'Trader scan ended',
     }
@@ -331,6 +335,7 @@ const scannerApi = {
             sessionMode: 'regular',
             fleaMarketAvailable: false,
             pveFleaMarketAvailable: false,
+            pveModeAvailable: false,
         }
         const mergedOptions = {
             ...defaultOptions,
@@ -361,12 +366,15 @@ const scannerApi = {
             mergedOptions.offersFrom = mergedOptions.fleaMarketAvailable || mergedOptions.pveFleaMarketAvailable ? 2 : 1;
         }
         if (typeof options.sessionMode === 'undefined') {
-            // if sessionMode isn't specified, it depends on if PVE flea is available
-            mergedOptions.sessionMode = mergedOptions.pveFleaMarketAvailable ? 'pve' : 'regular';
-        }
-        if (mergedOptions.offersFrom === 1 && mergedOptions.sessionMode === 'pve') {
-            // don't scan PVE trader prices
-            mergedOptions.sessionMode === 'regular';
+            // if sessionMode isn't specified, it depends on if flea is available
+            // and if not, then if PVE is available
+            if (mergedOptions.pveFleaMarketAvailable) {
+                mergedOptions.sessionMode = 'pve';
+            } else if (mergedOptions.fleaMarketAvailable) {
+                mergedOptions.sessionMode = 'regular';
+            } else if (mergedOptions.pveModeAvailable) {
+                mergedOptions.sessionMode = 'pve'
+            }
         }
         /*if (mergedOptions.sessionMode === 'pve' && typeof options.offersFrom === 'undefined') {
             // if in PVE mode and there's a trader scan, switch to trader scanning
@@ -504,12 +512,13 @@ const scannerApi = {
                 });
                 return response;
             }
-        
-            let conditions = [];
     
             let prefix = '';
             if (batchOptions.sessionMode === 'pve') {
                 prefix = 'pve_';
+            }
+            if (batchOptions.offersFrom === 1) {
+                prefix += 'trader_';
             }
             
             if (batchOptions.offersFrom === 2 || batchOptions.offersFrom === 0) {
@@ -523,15 +532,13 @@ const scannerApi = {
                 await query(`
                     UPDATE item_data
                     SET ${prefix}checkout_scanner_id = ?
-                    WHERE (checkout_scanner_id IS NULL OR checkout_scanner_id = ?) AND
+                    WHERE (${prefix}checkout_scanner_id IS NULL OR ${prefix}checkout_scanner_id = ?) AND
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${nofleaCondition} 
-                    ORDER BY last_scan, id
+                    ORDER BY ${prefix}last_scan, id
                     LIMIT ?
                 `, [batchOptions.scanner.id, batchOptions.scanner.id, batchOptions.batchSize]);
-        
-                conditions.push(`item_data.${prefix}checkout_scanner_id = ?`);
             } else {
                 // trader-only price checkout
                 if (!batchOptions.traderScanSession) {
@@ -540,23 +547,16 @@ const scannerApi = {
                 }
                 await query(`
                     UPDATE item_data
-                    SET trader_checkout_scanner_id = ?
-                    WHERE ((trader_checkout_scanner_id IS NULL OR trader_checkout_scanner_id = ?) AND 
+                    SET ${prefix}checkout_scanner_id = ?
+                    WHERE ((${prefix}checkout_scanner_id IS NULL OR ${prefix}checkout_scanner_id = ?) AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'only-flea') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') AND
-                        (trader_last_scan <= ? OR trader_last_scan IS NULL) )
-                    ORDER BY trader_last_scan, id
+                        (${prefix}last_scan <= ? OR ${prefix}last_scan IS NULL) )
+                    ORDER BY ${prefix}last_scan, id
                     LIMIT ?
                 `, [batchOptions.scanner.id, batchOptions.scanner.id, batchOptions.traderScanSession.started, batchOptions.batchSize]);
-        
-                conditions.push(`item_data.${prefix}trader_checkout_scanner_id = ?`);
-            }
-        
-            let where = '';
-            if (conditions.length > 0) {
-                where = `WHERE ${conditions.join(' AND ')}`;
             }
             response.data.items = await query(`
                 SELECT
@@ -576,9 +576,10 @@ const scannerApi = {
                     item_data
                 LEFT JOIN types ON
                     types.item_id = item_data.id
-                ${where}
+                WHERE
+                    item_data.${prefix}checkout_scanner_id = ?
                 GROUP BY item_data.id
-                ORDER BY item_data.last_scan
+                ORDER BY item_data.${prefix}last_scan
             `, [batchOptions.scanner.id]).then(items => {
                 return items.filter(item => Boolean(item.name)).map(queryResultToBatchItem);
             });
