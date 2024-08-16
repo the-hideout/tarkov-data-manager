@@ -512,12 +512,13 @@ const scannerApi = {
                 });
                 return response;
             }
-        
-            let conditions = [];
     
             let prefix = '';
             if (batchOptions.sessionMode === 'pve') {
                 prefix = 'pve_';
+            }
+            if (batchOptions.offersFrom === 1) {
+                prefix += 'trader_';
             }
             
             if (batchOptions.offersFrom === 2 || batchOptions.offersFrom === 0) {
@@ -538,8 +539,6 @@ const scannerApi = {
                     ORDER BY ${prefix}last_scan, id
                     LIMIT ?
                 `, [batchOptions.scanner.id, batchOptions.scanner.id, batchOptions.batchSize]);
-        
-                conditions.push(`item_data.${prefix}checkout_scanner_id = ?`);
             } else {
                 // trader-only price checkout
                 if (!batchOptions.traderScanSession) {
@@ -548,23 +547,16 @@ const scannerApi = {
                 }
                 await query(`
                     UPDATE item_data
-                    SET ${prefix}trader_checkout_scanner_id = ?
-                    WHERE ((${prefix}trader_checkout_scanner_id IS NULL OR ${prefix}trader_checkout_scanner_id = ?) AND 
+                    SET ${prefix}checkout_scanner_id = ?
+                    WHERE ((${prefix}checkout_scanner_id IS NULL OR ${prefix}checkout_scanner_id = ?) AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'only-flea') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') AND
-                        (${prefix}trader_last_scan <= ? OR ${prefix}trader_last_scan IS NULL) )
-                    ORDER BY ${prefix}trader_last_scan, id
+                        (${prefix}last_scan <= ? OR ${prefix}last_scan IS NULL) )
+                    ORDER BY ${prefix}last_scan, id
                     LIMIT ?
                 `, [batchOptions.scanner.id, batchOptions.scanner.id, batchOptions.traderScanSession.started, batchOptions.batchSize]);
-        
-                conditions.push(`item_data.${prefix}trader_checkout_scanner_id = ?`);
-            }
-        
-            let where = '';
-            if (conditions.length > 0) {
-                where = `WHERE ${conditions.join(' AND ')}`;
             }
             response.data.items = await query(`
                 SELECT
@@ -584,7 +576,8 @@ const scannerApi = {
                     item_data
                 LEFT JOIN types ON
                     types.item_id = item_data.id
-                ${where}
+                WHERE
+                    item_data.${prefix}checkout_scanner_id = ?
                 GROUP BY item_data.id
                 ORDER BY item_data.${prefix}last_scan
             `, [batchOptions.scanner.id]).then(items => {
