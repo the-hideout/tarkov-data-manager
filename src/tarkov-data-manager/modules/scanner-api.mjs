@@ -549,7 +549,7 @@ const scannerApi = {
                 await query(`
                     UPDATE item_data
                     SET ${prefix}trader_checkout_scanner_id = ?
-                    WHERE ((trader_checkout_scanner_id IS NULL OR trader_checkout_scanner_id = ?) AND 
+                    WHERE ((${prefix}trader_checkout_scanner_id IS NULL OR ${prefix}trader_checkout_scanner_id = ?) AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'only-flea') AND 
