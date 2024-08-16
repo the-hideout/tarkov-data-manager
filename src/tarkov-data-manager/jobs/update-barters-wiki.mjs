@@ -43,7 +43,7 @@ class UpdateBartersJob extends DataJob {
         this.oldNames = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, '..', 'old-names.json')));
         this.presets = await this.jobManager.jobOutput('update-presets', this);
         this.tasks = await this.jobManager.jobOutput('update-quests', this);
-        this.barterAssort = await this.jobManager.jobOutput('update-trader-assorts', this, true).then(assorts => {
+        this.barterAssort = await this.jobManager.jobOutput('update-trader-assorts', this, 'regular', true).then(assorts => {
             for (const traderId in assorts) {
                 assorts[traderId] = assorts[traderId].reduce((foundBarters, offer) => {
                     if (offer.barter) {

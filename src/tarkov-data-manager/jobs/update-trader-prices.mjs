@@ -51,113 +51,127 @@ class UpdateTraderPricesJob extends DataJob {
         [this.tasks, this.traders, this.traderAssorts, this.items, this.credits, this.en] = await Promise.all([
             this.jobManager.jobOutput('update-quests', this),
             tarkovData.traders(),
-            this.jobManager.jobOutput('update-trader-assorts', this, true),
+            this.jobManager.jobOutput('update-trader-assorts', this, 'regular', true),
             remoteData.get(),
             tarkovData.credits(),
             tarkovData.locale('en'),
         ]);
-        this.cashOffers = {};
-        const lastOfferScan = await this.query(`
-            SELECT 
-                * 
-            FROM 
-                trader_offer_scan 
-            WHERE 
-                ended IS NOT NULL 
-            ORDER BY 
-                id DESC LIMIT 1
-        `).then(result => {
-            if (result.length === 0) {
-                return Promise.reject('No completed trader scans');
-            }
-            return result[0];
-        });
-        const offers = await this.query(`
-            SELECT 
-                *
-            FROM 
-                trader_offers 
-            WHERE 
-                last_scan >= ?
-        `, [lastOfferScan.started]);
-        this.offerRequirements = await this.query(`SELECT * FROM trader_offer_requirements`);
-        this.getCurrencyValues(offers);
-        for (const offer of offers) {
-            if (!offer.price) {
-                continue;
-            }
-            if (this.skipOffer(offer)) {
-                continue;
-            }
-            if (!this.traders[offer.trader_id]) {
-                continue;
-            }
-            const item = this.items.get(offer.item_id);
-            if (item.types.includes('disabled')) {
-                this.logger.warn(`Skipping disabled item ${item.name} ${item.id}`);
-                continue;
-            }
-            let questUnlock = null;
-            try {
-                questUnlock = this.getQuestUnlock(offer);
-            } catch (error) {
-                if (error.code === 'UNKNOWN_QUEST_UNLOCK') {
-                    if (offer.min_level === 1) {
-                        this.logger.warn(`Unknown quest unlock for (excluded) trader offer ${offer.id}: ${error.trader} ${offer.min_level} ${error.item} ${offer.item_id}`);
-                        continue;
-                    } else {
-                        this.logger.warn(`Unknown quest unlock for trader offer ${offer.id}: ${error.trader} ${offer.min_level} ${error.item} ${offer.item_id}`);
-                    }
-                } else {
-                    this.logger.error(`Error checking quest unlock: ${error.message}`);
-                }
-            }
-            const assort = this.traderAssorts[offer.trader_id].find(assort => assort.id === offer.id);
-            const cashPrice = {
-                id: offer.item_id,
-                item_name: item.name,
-                vendor: {
-                    traderOfferId: offer.id,
-                    trader: offer.trader_id,
-                    trader_id: offer.trader_id,
-                    traderLevel: offer.min_level,
-                    minTraderLevel: offer.min_level,
-                    taskUnlock: questUnlock?.id,
-                    restockAmount: assort ? assort.stock : offer.restock_amount,
-                    buyLimit: offer.buy_limit,
-                },
-                source: this.normalizeName(this.en[`${offer.trader_id} Nickname`]),
-                price: Math.round(offer.price), // prices in API are Int; we should convert to float
-                priceRUB: Math.round(offer.price * this.currencyValues[offer.currency]),
-                updated: offer.updated,
-                quest_unlock: Boolean(questUnlock),
-                quest_unlock_id: questUnlock ? questUnlock.id : null,
-                currency: offer.currency,
-                currencyItem: this.currencyId[offer.currency],
-                requirements: [
-                    {
-                        type: 'loyaltyLevel',
-                        value: offer.min_level,
-                    }
-                ],
+        for (const gameMode of this.gameModes) {
+            this.kvData[gameMode.name] = {
+                TraderCashOffer: {},
             };
-            if (questUnlock) {
-                cashPrice.requirements.push({
-                    type: 'questCompleted',
-                    value: questUnlock.tarkovDataId,
-                    stringValue: questUnlock.id,
-                });
+            const cashOffers = this.kvData[gameMode.name].TraderCashOffer;
+            const lastOfferScan = await this.query(`
+                SELECT 
+                    * 
+                FROM 
+                    trader_offer_scan 
+                WHERE 
+                    ended IS NOT NULL 
+                AND
+                    game_mode = ?
+                ORDER BY 
+                    id DESC LIMIT 1
+            `, [gameMode.value]).then(result => {
+                if (result.length === 0) {
+                    return false;
+                }
+                return result[0];
+            });
+            if (!lastOfferScan) {
+                this.logger.warn(`No completed ${gameMode.name} trader scans`);
+                continue;
             }
-            if (!this.cashOffers[offer.item_id]) {
-                this.cashOffers[offer.item_id] = [];
+            const offers = await this.query(`
+                SELECT 
+                    *
+                FROM 
+                    trader_offers 
+                WHERE 
+                    last_scan >= ?
+                AND
+                    game_mode = ?
+            `, [lastOfferScan.started, gameMode.value]);
+            //this.offerRequirements = await this.query(`SELECT * FROM trader_offer_requirements`);
+            this.getCurrencyValues(offers);
+            for (const offer of offers) {
+                if (!offer.price) {
+                    continue;
+                }
+                if (this.skipOffer(offer)) {
+                    continue;
+                }
+                if (!this.traders[offer.trader_id]) {
+                    continue;
+                }
+                const item = this.items.get(offer.item_id);
+                if (item.types.includes('disabled')) {
+                    this.logger.warn(`Skipping disabled item ${item.name} ${item.id}`);
+                    continue;
+                }
+                let questUnlock = null;
+                try {
+                    questUnlock = this.getQuestUnlock(offer);
+                } catch (error) {
+                    if (error.code === 'UNKNOWN_QUEST_UNLOCK') {
+                        if (offer.min_level === 1) {
+                            this.logger.warn(`Unknown quest unlock for (excluded) trader offer ${offer.id}: ${error.trader} ${offer.min_level} ${error.item} ${offer.item_id}`);
+                            continue;
+                        } else {
+                            this.logger.warn(`Unknown quest unlock for trader offer ${offer.id}: ${error.trader} ${offer.min_level} ${error.item} ${offer.item_id}`);
+                        }
+                    } else {
+                        this.logger.error(`Error checking quest unlock: ${error.message}`);
+                    }
+                }
+                const assort = this.traderAssorts[offer.trader_id].find(assort => assort.id === offer.id);
+                const cashPrice = {
+                    id: offer.item_id,
+                    item_name: item.name,
+                    vendor: {
+                        traderOfferId: offer.id,
+                        trader: offer.trader_id,
+                        trader_id: offer.trader_id,
+                        traderLevel: offer.min_level,
+                        minTraderLevel: offer.min_level,
+                        taskUnlock: questUnlock?.id,
+                        restockAmount: assort ? assort.stock : offer.restock_amount,
+                        buyLimit: offer.buy_limit,
+                    },
+                    source: this.normalizeName(this.en[`${offer.trader_id} Nickname`]),
+                    price: Math.round(offer.price), // prices in API are Int; we should convert to float
+                    priceRUB: Math.round(offer.price * this.currencyValues[offer.currency]),
+                    updated: offer.updated,
+                    quest_unlock: Boolean(questUnlock),
+                    quest_unlock_id: questUnlock ? questUnlock.id : null,
+                    currency: offer.currency,
+                    currencyItem: this.currencyId[offer.currency],
+                    requirements: [
+                        {
+                            type: 'loyaltyLevel',
+                            value: offer.min_level,
+                        }
+                    ],
+                };
+                if (questUnlock) {
+                    cashPrice.requirements.push({
+                        type: 'questCompleted',
+                        value: questUnlock.tarkovDataId,
+                        stringValue: questUnlock.id,
+                    });
+                }
+                if (!cashOffers[offer.item_id]) {
+                    cashOffers[offer.item_id] = [];
+                }
+                cashOffers[offer.item_id].push(cashPrice);
             }
-            this.cashOffers[offer.item_id].push(cashPrice);
+            let kvName = this.kvName;
+            if (gameMode.name !== 'regular') {
+                kvName += `_${gameMode.name}`;
+            }
+            await this.cloudflarePut(this.kvData[gameMode.name], kvName);
         }
-        const priceData = {
-            TraderCashOffer: this.cashOffers,
-        };
-        await this.cloudflarePut(priceData);
-        return priceData;
+        return this.kvData;
     }
 
     getCurrencyValues = (offers) => {

@@ -11,17 +11,17 @@ class CheckScansJob extends DataJob {
     }
 
     async run() {
-        const [services, scanners, activeTraderScan] = await Promise.all([
+        const [services, scanners, activeTraderScans] = await Promise.all([
             tarkovDevData.status().then(status => status.services).catch(error => {
                 this.logger.error(`Error getting EFT services status: ${error.message}`);
                 return [];
             }),
             this.query(`
-                select scanner.id, name, last_scan, trader_last_scan, pve_last_scan, username, scanner.flags, scanner_user.flags as user_flags, disabled 
+                select scanner.id, name, last_scan, trader_last_scan, pve_last_scan, pve_trader_last_scan, username, scanner.flags, scanner_user.flags as user_flags, disabled 
                 from scanner 
                 left join scanner_user on scanner_user.id = scanner.scanner_user_id
             `),
-            scannerApi.currentTraderScan(),
+            scannerApi.currentTraderScans(),
         ]);
 
         const tradingService = services.find(s => s.name === 'Trading');
@@ -39,7 +39,7 @@ class CheckScansJob extends DataJob {
                     prefix = 'pve_';
                 }
                 if (scanner[`${prefix}last_scan`]?.getTime() ?? 0 < scanCutoff) {
-                    this.logger.log(`${scanner.name} hasn't scanned ${gameMode.name} player prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner.last_scan) })}; releasing any batches`);
+                    this.logger.log(`${scanner.name} hasn't scanned ${gameMode.name} player prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner[`${prefix}last_scan`]) })}; releasing any batches`);
                     this.query(`
                         UPDATE
                             item_data
@@ -48,24 +48,25 @@ class CheckScansJob extends DataJob {
                         WHERE
                             ${prefix}checkout_scanner_id = ?;
                     `, [scanner.id]).catch(error => {
-                        this.logger.error(`Error clearing player batches for ${scanner.name}: ${error.message}`);
+                        this.logger.error(`Error clearing  ${gameMode.name} player batches for ${scanner.name}: ${error.message}`);
                     });
                 }
-            }
-            if (scanner.trader_last_scan?.getTime() < scanCutoff) {
-                this.logger.log(`${scanner.name} hasn't scanned trader prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner.trader_last_scan) })}; releasing any batches`);
-                this.query(`
-                    UPDATE
-                        item_data
-                    SET
-                        trader_checkout_scanner_id = NULL
-                    WHERE
-                        trader_checkout_scanner_id = ?;
-                `, [scanner.id]).catch(error => {
-                    this.logger.error(`Error clearing trader batches for ${scanner.name}: ${error.message}`);
-                });
-                if (activeTraderScan?.scanner_id === scanner.id) {
-                    scannerApi.setTraderScanScanner(null);
+                if (scanner[`${prefix}_trader_last_scan`]?.getTime() < scanCutoff) {
+                    this.logger.log(`${scanner.name} hasn't scanned ${gameMode.name} trader prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner[`${prefix}_trader_last_scan`]) })}; releasing any batches`);
+                    this.query(`
+                        UPDATE
+                            item_data
+                        SET
+                            trader_checkout_scanner_id = NULL
+                        WHERE
+                            trader_checkout_scanner_id = ?;
+                    `, [scanner.id]).catch(error => {
+                        this.logger.error(`Error clearing ${gameMode.name} trader batches for ${scanner.name}: ${error.message}`);
+                    });
+                    const activeTraderScan = activeTraderScans.find(s => s.game_mode === gameMode.value);
+                    if (activeTraderScan?.scanner_id === scanner.id) {
+                        scannerApi.setTraderScanScanner(gameMode.name, null);
+                    }
                 }
             }
 
@@ -73,6 +74,7 @@ class CheckScansJob extends DataJob {
                 scanner.last_scan?.getTime() ?? 0,
                 scanner.trader_last_scan?.getTime() ?? 0,
                 scanner.pve_last_scan?.getTime() ?? 0,
+                scanner.pve_trader_last_scan?.getTime() ?? 0,
             );
             if ((!lastScanTimestamp) || scanner.disabled || userFlags.skipPriceInsert & scanner.user_flags) {
                 // ignore scanners that have never inserted a price

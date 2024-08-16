@@ -95,6 +95,8 @@ const methods = {
                     high24hPricePve: null,
                     changeLast48hPve: null,
                     changeLast48hPercentPve: null,
+                    lastOfferCount: result.last_offer_count,
+                    pve_lastOfferCount: result.pve_last_offer_count,
                 };
                 if (!preparedData.properties) preparedData.properties = {};
                 returnData.set(result.id, preparedData);
@@ -227,30 +229,30 @@ const methods = {
                     continue;
                 }
 
-                for (const gameMode of gameModes){
-                    const fieldSuffix = gameMode.name === 'regular' ? '' : `_${gameMode.name}`;
+                for (const gameMode of gameModes) {
+                    const fieldPrefix = gameMode.name === 'regular' ? '' : `${gameMode.name}_`;
 
                     const lastLowData = lastLowPriceResults.find(row => row.item_id === itemId && row.game_mode === gameMode.value);
                     if (lastLowData) {
-                        item[`lastLowPrice${fieldSuffix}`] = lastLowData.price;
+                        item[`${fieldPrefix}lastLowPrice`] = lastLowData.price;
                         if (gameMode.name === 'regular') {
                             item.updated = lastLowData.timestamp;
                         }
                     }
     
                     item24hPrices[gameMode.value][itemId]?.sort();
-                    item[`avg24hPrice${fieldSuffix}`] = getInterquartileMean(item24hPrices[gameMode.value][itemId] || []) || null;
-                    item[`low24hPrice${fieldSuffix}`] = item24hPrices[gameMode.value][itemId]?.at(0);
-                    item[`high24hPrice${fieldSuffix}`] = item24hPrices[gameMode.value][itemId]?.at(item24hPrices[gameMode.value][itemId]?.length - 1);
+                    item[`${fieldPrefix}avg24hPrice`] = getInterquartileMean(item24hPrices[gameMode.value][itemId] || []) || null;
+                    item[`${fieldPrefix}low24hPrice`] = item24hPrices[gameMode.value][itemId]?.at(0);
+                    item[`${fieldPrefix}high24hPrice`] = item24hPrices[gameMode.value][itemId]?.at(item24hPrices[gameMode.value][itemId]?.length - 1);
     
                     const itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === itemId && row.game_mode === gameMode.value);
-                    if (!itemPriceYesterday || item[`avg24hPrice${fieldSuffix}`] === 0) {
-                        item[`changeLast48h${fieldSuffix}`] = 0;
-                        item[`changeLast48hPercent${fieldSuffix}`] = 0;
+                    if (!itemPriceYesterday || item[`${fieldPrefix}avg24hPrice`] === 0) {
+                        item[`${fieldPrefix}changeLast48h`] = 0;
+                        item[`${fieldPrefix}changeLast48hPercent`] = 0;
                     } else {
-                        item[`changeLast48h${fieldSuffix}`] = Math.round(item[`avg24hPrice${fieldSuffix}`] - itemPriceYesterday.priceYesterday);
-                        const percentOfDayBefore = item[`avg24hPrice${fieldSuffix}`] / itemPriceYesterday.priceYesterday;
-                        item[`changeLast48hPercent${fieldSuffix}`] = Math.round((percentOfDayBefore - 1) * 100 * 100) / 100;
+                        item[`${fieldPrefix}changeLast48h`] = Math.round(item[`${fieldPrefix}avg24hPrice`] - itemPriceYesterday.priceYesterday);
+                        const percentOfDayBefore = item[`${fieldPrefix}avg24hPrice`] / itemPriceYesterday.priceYesterday;
+                        item[`${fieldPrefix}changeLast48hPercent`] = Math.round((percentOfDayBefore - 1) * 100 * 100) / 100;
                     }
                 }
             }

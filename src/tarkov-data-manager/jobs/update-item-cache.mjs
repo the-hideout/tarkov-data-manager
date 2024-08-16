@@ -35,7 +35,7 @@ class UpdateItemCacheJob extends DataJob {
             tarkovData.handbook(),
             tarkovData.traders(),
         ]);
-        this.presets = await this.jobManager.jobOutput('update-presets', this, true);
+        this.presets = await this.jobManager.jobOutput('update-presets', this, 'regular', true);
         this.presetsLocale = this.presets.locale;
         this.presets = this.presets.presets;
         // make sure we don't include any disabled presets
@@ -66,6 +66,7 @@ class UpdateItemCacheJob extends DataJob {
             'high24hPrice',
             'changeLast48h',
             'changeLast48hPercent',
+            'lastOfferCount',
         ];
         for (const [key, value] of this.itemMap.entries()) {
             if (value.types.includes('disabled') || value.types.includes('quest'))
@@ -325,14 +326,6 @@ class UpdateItemCacheJob extends DataJob {
             item.changeLast48h = baseItem.changeLast48h;
             item.changeLast48hPercent = baseItem.changeLast48hPercent;
             item.lastOfferCount = baseItem.lastOfferCount;
-
-            item.lastLowPricePve = baseItem.lastLowPricePve;
-            item.avg24hPricePve = baseItem.avg24hPricePve;
-            item.low24hPricePve = baseItem.low24hPricePve;
-            item.high24hPricePve = baseItem.high24hPricePve;
-            item.changeLast48hPve = baseItem.changeLast48hPve;
-            item.changeLast48hPercentPve = baseItem.changeLast48hPercentPve;
-            item.lastOfferCountPve = baseItem.lastOfferCountPve;
         }
 
         // populate child ids for tempalte categories
@@ -499,7 +492,25 @@ class UpdateItemCacheJob extends DataJob {
                 };
                 const dbItem = this.itemMap.get(id);
                 for (const fieldName of priceFields) {
-                    modeData.Item[id][fieldName] = dbItem[`${fieldName}_${gameMode.name}`];
+                    modeData.Item[id][fieldName] = dbItem[`${gameMode.name}_${fieldName}`];
+                }
+            }
+
+            // add base item prices to default presets
+            for (const item of Object.values(modeData.Item)) {
+                if (!item.types.includes('preset')) {
+                    continue;
+                }
+                const baseItem = modeData.Item[item.properties.base_item_id];
+                if (baseItem.properties?.defaultPreset !== item.id) {
+                    continue;
+                }
+                const dbItem = this.itemMap.get(item.id);
+                if (!dbItem) {
+                    continue;
+                }
+                for (const fieldName of priceFields) {
+                    item[fieldName] = dbItem[`${gameMode.name}_${fieldName}`];
                 }
             }
             await this.cloudflarePut(modeData, `${this.kvName}_${gameMode.name}`);

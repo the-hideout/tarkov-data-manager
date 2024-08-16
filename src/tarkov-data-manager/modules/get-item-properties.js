@@ -145,8 +145,13 @@ const getArmorSlots = (item) => {
             id: slotInfo._id,
             nameId: slotName,
         };
+        const zones = [
+            ...slotInfo.armorColliders.map(collider => `Collider Type ${collider}`),
+            ...slotInfo.armorPlateColliders.map(collider => `Armor Zone ${collider}`),
+        ];
         if (slotInfo.locked) {
             const plateItem = job.bsgItems[slotInfo.Plate];
+            //newSlot.name = job.addTranslation(plateItem._props.Name),
             newSlot.bluntThroughput = plateItem._props.BluntThroughput,
             newSlot.class = parseInt(plateItem._props.armorClass),
             newSlot.durability = parseInt(plateItem._props.Durability),
@@ -155,7 +160,7 @@ const getArmorSlots = (item) => {
             newSlot.turnPenalty = parseFloat(plateItem._props.mousePenalty) / 100,
             newSlot.ergoPenalty = parseFloat(plateItem._props.weaponErgonomicPenalty) / 100,
             newSlot.armor_material_id = plateItem._props.ArmorMaterial,
-            newSlot.zones = job.addTranslation(slotInfo.armorColliders.map(collider => `Collider Type ${collider}`)),
+            newSlot.zones = job.addTranslation(zones),
             newSlot.armorType = job.addTranslation(plateItem._props.ArmorType, (lang) => {
                 if (plateItem._props.ArmorType !== 'None') {
                     return lang[plateItem._props.ArmorType];
@@ -166,7 +171,7 @@ const getArmorSlots = (item) => {
             });
             newSlot.baseValue = job.credits[slotInfo.Plate];
         } else {
-            newSlot.zones = job.addTranslation(slotInfo.armorPlateColliders.map(collider => `Armor Zone ${collider}`));
+            newSlot.zones = job.addTranslation(zones);
             //newSlot.defaultPlate = slotInfo.Plate;
             newSlot.allowedPlates = slotInfo.Filter;
         }
@@ -240,8 +245,8 @@ const getArmorClass = (item) => {
 };
 
 const getArmorDurability = (item) => {
-    if (!item._props.Slots) {
-        return 0;
+    if (!item._props.Slots?.length) {
+        return item._props.Durability ?? 0;
     }
     return item._props.Slots.reduce((armorDurability, slot) => {
         const plateId = slot._props.filters[0].Plate;
