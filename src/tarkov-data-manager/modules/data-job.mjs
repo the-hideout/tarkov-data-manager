@@ -358,6 +358,19 @@ class DataJob {
         }
         return keys;
     }
+
+    jobOutput = (jobName, options = {}) => {
+        const defaultOptions = {
+            gameMode: 'regular',
+            rawOutput: false,
+        };
+        options = {
+            ...defaultOptions,
+            ...options,
+            parentJob: this,
+        };
+        return this.jobManager.jobOutput(jobName, options.parentJob, options.gameMode, options.rawOutput);
+    }
 }
 
 export default DataJob;

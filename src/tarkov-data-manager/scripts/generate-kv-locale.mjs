@@ -19,7 +19,7 @@ const localeJobs = [
     const locales = {};
     for (const job of localeJobs) {
         try {
-            const output = await jobOutput(job, false, true);
+            const output = await jobOutput(job, false, 'regular', true);
             for (const langCode in output.locale) {
                 if (!locales[langCode]) {
                     locales[langCode] = {};

@@ -18,10 +18,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.461.0",
-    "@aws-sdk/credential-providers": "^3.461.0",
     "@sentry/node": "^8.18.0",
     "@sentry/profiling-node": "^8.18.0",
+    "@aws-sdk/client-s3": "^3.623.0",
+    "@aws-sdk/credential-providers": "^3.623.0",
     "adm-zip": "^0.5.14",
     "body-parser": "^1.20.2",
     "chalk": "^4.1.2",
