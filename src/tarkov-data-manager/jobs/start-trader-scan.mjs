@@ -8,7 +8,7 @@ class StartTraderScanJob extends DataJob {
     }
 
     async run() {
-        const traderScanGameModes = []; // ['regular', 'pve'];
+        const traderScanGameModes = ['pve']; // ['regular', 'pve'];
         for (const gameMode of this.gameModes) {
             if (!traderScanGameModes.includes(gameMode.name)) {
                 continue;
