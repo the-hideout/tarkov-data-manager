@@ -26,7 +26,15 @@ class UpdateCraftsJob extends DataJob {
         for (const gameMode of this.gameModes) {
             const areas = await this.jobOutput('update-hideout', {gameMode: gameMode.name});
             const tasks = await this.jobOutput('update-quests', {gameMode: gameMode.name});
-            const json = await tarkovData.crafts({gameMode: gameMode.name});
+            const json = await tarkovData.crafts({gameMode: gameMode.name}).then(recipes => {
+                if (recipes.recipes) {
+                    return recipes.recipes.reduce((crafts, craft) => {
+                        crafts[craft._id] = craft;
+                        return crafts;
+                    }, {});
+                }
+                return recipes;
+            });
             this.kvData[gameMode.name] = {
                 Craft: [],
             };
