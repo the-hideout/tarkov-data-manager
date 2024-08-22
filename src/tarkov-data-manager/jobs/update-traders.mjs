@@ -21,6 +21,7 @@ class UpdateTradersJob extends DataJob {
         };
         this.kvData = {};
         const s3Images = s3.getLocalBucketContents();
+        const msHalfHour = 1000 * 60 * 30;
         for (const gameMode of this.gameModes) {
             this.logger.log(`Processing ${gameMode.name} traders...`);
             [this.tradersData, this.globals] = await Promise.all([
@@ -30,6 +31,7 @@ class UpdateTradersJob extends DataJob {
             this.kvData[gameMode.name] = {
                 Trader: []
             };
+            let staleTraderCount = 0;
             for (const traderId in this.tradersData) {
                 if (skipTraders[gameMode.name]?.includes(traderId)) {
                     continue;
@@ -130,8 +132,16 @@ class UpdateTradersJob extends DataJob {
                     traderData.tarkovDataId = this.tdTraders[traderData.name.toLowerCase()].id;
                 }
                 this.kvData[gameMode.name].Trader.push(traderData);
+                if (date < new Date() && new Date() - date > msHalfHour) {
+                    staleTraderCount++;
+                }
             }
             this.logger.log(`Processed ${this.kvData[gameMode.name].Trader.length} ${gameMode.name} traders`);
+
+            if (staleTraderCount > 0) {
+                this.logger.warn(`${staleTraderCount} stale traders`);
+                this.discordAlert({title: 'Stale traders', message: `Running update-traders found ${staleTraderCount} stale ${gameMode.name} traders`});
+            }
     
             let kvName = this.kvName;
             if (gameMode.name !== 'regular') {
