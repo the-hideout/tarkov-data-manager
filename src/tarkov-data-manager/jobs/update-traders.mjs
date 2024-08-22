@@ -21,7 +21,7 @@ class UpdateTradersJob extends DataJob {
         };
         this.kvData = {};
         const s3Images = s3.getLocalBucketContents();
-        const msHalfHour = 1000 * 60 * 30;
+        const staleTraderInterval = 1000 * 60 * 15;
         for (const gameMode of this.gameModes) {
             this.logger.log(`Processing ${gameMode.name} traders...`);
             [this.tradersData, this.globals] = await Promise.all([
@@ -132,7 +132,7 @@ class UpdateTradersJob extends DataJob {
                     traderData.tarkovDataId = this.tdTraders[traderData.name.toLowerCase()].id;
                 }
                 this.kvData[gameMode.name].Trader.push(traderData);
-                if (date < new Date() && new Date() - date > msHalfHour) {
+                if (date < new Date() && new Date() - date > staleTraderInterval) {
                     staleTraderCount++;
                 }
             }
