@@ -1717,7 +1717,7 @@ const skipQuests = [
     '6672ec2a2b6f3b71be794cc5', // A Key to Salvation
     '668bcccc167d507eb01a268b', // Import Control
     '66a78dada472ad7f845b71f7', // Supply and Demand
-    '66a75b44243a6548ff5e5ff9', // Gunsmith - Special Order
+    '66a74c628410476dd65543be', // Gunsmith - Special Order
     '66a75b44243a6548ff5e5ff9', // Gun Connoisseur
     '66a77394243a6548ff5e601d', // Customer Communication
 ];
