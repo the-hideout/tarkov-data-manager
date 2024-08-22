@@ -1054,7 +1054,7 @@ class UpdateQuestsJob extends DataJob {
         }
         await this.loadRewards(questData, 'finishRewards', quest.rewards.Success);
         await this.loadRewards(questData, 'startRewards', quest.rewards.Started);
-        this.loadRewards(questData, 'failureOutcome', quest.rewards.Fail);
+        await this.loadRewards(questData, 'failureOutcome', quest.rewards.Fail);
         if (factionMap[questData.id]) questData.factionName = factionMap[questData.id];
         //if (this.missingQuests[questData.id]) delete this.missingQuests[questData.id];
     
