@@ -154,6 +154,7 @@ class UpdateMapsJob extends DataJob {
                             conditions = transit.conditions;
                         }
                         return {
+                            id: `${transit.id}`,
                             description: this.addTranslation(`${transit.name}_DESC`),
                             map: transit.target,
                             conditions,
