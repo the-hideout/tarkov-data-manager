@@ -149,7 +149,7 @@ class UpdateTypesJob extends DataJob {
                 this.logger.warn(`${itemId} ${item.name} lacks item properties`);
                 continue;
             }
-            if (item.types.includes('no-flea') && this.bsgData[itemId]._props.CanSellOnRagfair && !this.bsgData[itemId]._parent === '6575ea719c7cad336508e418') {
+            if (item.types.includes('no-flea') && this.bsgData[itemId]._props.CanSellOnRagfair && this.bsgData[itemId]._parent !== '6575ea719c7cad336508e418') {
                 this.logger.warn(`You can sell ${itemId} ${item.name} on flea, but it is marked as noFlea`);
 
                 await remoteData.removeType(itemId, 'no-flea').then(results => {
