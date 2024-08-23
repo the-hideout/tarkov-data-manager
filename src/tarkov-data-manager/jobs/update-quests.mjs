@@ -1229,11 +1229,14 @@ class UpdateQuestsJob extends DataJob {
             zoneKeys: [],
             zoneNames: [],
         };
-        if (objective.conditionType === 'FindItem' || objective.conditionType === 'HandoverItem') {
+        if (objective.conditionType === 'FindItem' || objective.conditionType === 'HandoverItem' || objective.conditionType === 'SellItemToTrader') {
             const targetItem = this.items[objective.target[0]];
             let verb = 'give';
             if (objective.conditionType === 'FindItem' || (objective.conditionType === 'HandoverItem' && obj.optional)) {
                 verb = 'find';
+            }
+            if (objective.conditionType === 'SellItemToTrader') {
+                verb = 'sell';
             }
             obj.item_id = objective.target[0];
             obj.item_name = this.locales.en[`${objective.target[0]} Name`];
