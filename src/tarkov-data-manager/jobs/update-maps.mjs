@@ -151,7 +151,7 @@ class UpdateMapsJob extends DataJob {
                         }
                         let conditions;
                         if (this.locales.en[transit.conditions ?? '']?.trim()) {
-                            conditions = transit.conditions;
+                            conditions = this.addTranslation(transit.conditions);
                         }
                         return {
                             id: `${transit.id}`,
