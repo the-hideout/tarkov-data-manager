@@ -100,7 +100,10 @@ class UpdateTraderAssortsJob extends DataJob {
                         cost: assort.barter_scheme[offer._id][0].map(req => {
                             let reqId = req._tpl;
                             if (req.side) {
-                                reqId = dogTagSideMap[req.side];
+                                reqId = dogTagSideMap[req.side] ?? reqId;
+                                if (!dogTagSideMap[req.side]) {
+                                    console.log(`Invalid side ${req.side} for item ${reqId}`, req);
+                                }
                             }
                             return {
                                 item: reqId,
@@ -109,7 +112,7 @@ class UpdateTraderAssortsJob extends DataJob {
                                 dogTagLevel: req.level,
                                 dogTagSide: req.side,
                             };
-                        }),
+                        }).filter(Boolean),
                     };
                 });
             }));
