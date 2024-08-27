@@ -1333,5 +1333,95 @@
                 "zoneKeys": ["bunker1"]
             }
         }
+    },
+    "639872fc93ae507d5858c3a6": {
+        "name": "Gunsmith - Part 11",
+        "finishRewardsAdded": {
+        "offerUnlock": [
+                {
+                    "id": "66c46c37f7ca8a539f08613a1",
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "trader_name": "Ref",
+                    "level": 2,
+                    "item": "5dd800eae49222636663133b",
+                    "item_name": "M4A1 SAI",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "6179b3bdc7560e13d23eeb8d": {
+        "name": "Corporate Secrets",
+        "finishRewardsAdded": {
+        "offerUnlock": [
+                {
+                    "id": "66c1beadfa6e5a0c120f0c481",
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "trader_name": "Ref",
+                    "level": 2,
+                    "item": "618ab04934aa2e47480fba2b",
+                    "item_name": "AK-104 RPKT mod.1",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "6179b3a12153c15e937d52bc": {
+        "name": "Energy Crisis",
+        "finishRewardsAdded": {
+        "offerUnlock": [
+                {
+                    "id": "66c1beaffa6e5a0c120f0dff1",
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "trader_name": "Ref",
+                    "level": 3,
+                    "item": "619e61e70459e93c12392ba7",
+                    "item_name": "FN SCAR-L 5.56x45 assault rifle (FDE) Contract Wars",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "639872f9decada40426d3447": {
+        "name": "Gunsmith - Part 4",
+        "finishRewardsAdded": {
+        "offerUnlock": [
+                {
+                    "id": "66c1beb0fa6e5a0c120f0e461",
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "trader_name": "Ref",
+                    "level": 1,
+                    "item": "5a8ae65f86f774377a23ed55",
+                    "item_name": "PP-19-01 Vityaz 9x19 submachine gun Zenit",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "5b47891f86f7744d1b23c571": {
+        "name": "Living High Is Not a Crime - Part 1",
+        "finishRewardsAdded": {
+        "offerUnlock": [
+                {
+                    "id": "66c46c36f7ca8a539f08600d5",
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "trader_name": "Ref",
+                    "level": 4,
+                    "item": "65766582234b9f6e050a42c1",
+                    "item_name": "IOTV Gen4 body armor (High Mobility Kit, MultiCam) Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
     }
 }
