@@ -26,7 +26,15 @@ class UpdateCraftsJob extends DataJob {
         for (const gameMode of this.gameModes) {
             const areas = await this.jobOutput('update-hideout', {gameMode: gameMode.name});
             const tasks = await this.jobOutput('update-quests', {gameMode: gameMode.name});
-            const json = await tarkovData.crafts({gameMode: gameMode.name});
+            const json = await tarkovData.crafts({gameMode: gameMode.name}).then(recipes => {
+                if (recipes.recipes) {
+                    return recipes.recipes.reduce((crafts, craft) => {
+                        crafts[craft._id] = craft;
+                        return crafts;
+                    }, {});
+                }
+                return recipes;
+            });
             this.kvData[gameMode.name] = {
                 Craft: [],
             };
@@ -218,6 +226,9 @@ class UpdateCraftsJob extends DataJob {
                 this.logger.log(`❌ ${stationName}: ${inactiveStations[stationName]}`);
             }
             this.logger.log(`Processed ${this.kvData[gameMode.name].Craft.length} active ${gameMode.name} crafts`);
+            if (this.kvData[gameMode.name].Craft.length === 0) {
+                this.discordAlert({ title: 'update-crafts job warning', message: `Found 0 ${gameMode.name} crafts`});
+            }
     
             let kvName = this.kvName;
             if (gameMode.name !== 'regular') {

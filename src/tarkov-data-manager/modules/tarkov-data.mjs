@@ -95,6 +95,7 @@ const dataFunctions = {
     mapDetails: async () => {
         const emptyData = {
             extracts: [],
+            transits: [],
             doors: [],
             zones: [],
             hazards: [],

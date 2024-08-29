@@ -140,6 +140,27 @@ class UpdateMapsJob extends DataJob {
                             ...extract.location,
                         };
                     }),
+                    transits: map.transits.map(transit => {
+                        if (!transit.active) {
+                            return false;
+                        }
+                        const locationData = this.mapDetails[id].transits.find(t => t.id === transit.id);
+                        if (!locationData) {
+                            this.logger.warn(`Could not find location data for ${this.locales.en[transit.description]}`);
+                            return false;
+                        }
+                        let conditions;
+                        if (this.locales.en[transit.conditions ?? '']?.trim()) {
+                            conditions = this.addTranslation(transit.conditions);
+                        }
+                        return {
+                            id: `${transit.id}`,
+                            description: this.addTranslation(`${transit.name}_DESC`),
+                            map: transit.target,
+                            conditions,
+                            ...locationData.location,
+                        };
+                    }).filter(Boolean),
                     locks: this.mapDetails[id].locks.map(lock => {
                         const keyItem = this.items.get(lock.key);
                         if (!keyItem || keyItem.types.includes('disabled')) {

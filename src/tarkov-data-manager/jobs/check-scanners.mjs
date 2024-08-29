@@ -30,42 +30,41 @@ class CheckScansJob extends DataJob {
             return;
         }
 
+        const scanTypes = {
+            player: '',
+            trader: 'trader_',
+        };
+
         const scanCutoff = new Date() - (1000 * 60 * 15);
         const dateNow = DateTime.now();
         for (const scanner of scanners) {
             for (const gameMode of gameModes) {
-                let prefix = '';
-                if (gameMode.name !== 'regular') {
-                    prefix = 'pve_';
-                }
-                if (scanner[`${prefix}last_scan`]?.getTime() ?? 0 < scanCutoff) {
-                    this.logger.log(`${scanner.name} hasn't scanned ${gameMode.name} player prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner[`${prefix}last_scan`]) })}; releasing any batches`);
-                    this.query(`
-                        UPDATE
-                            item_data
-                        SET
-                            ${prefix}checkout_scanner_id = NULL
-                        WHERE
-                            ${prefix}checkout_scanner_id = ?;
-                    `, [scanner.id]).catch(error => {
-                        this.logger.error(`Error clearing  ${gameMode.name} player batches for ${scanner.name}: ${error.message}`);
-                    });
-                }
-                if (scanner[`${prefix}_trader_last_scan`]?.getTime() < scanCutoff) {
-                    this.logger.log(`${scanner.name} hasn't scanned ${gameMode.name} trader prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner[`${prefix}_trader_last_scan`]) })}; releasing any batches`);
-                    this.query(`
-                        UPDATE
-                            item_data
-                        SET
-                            trader_checkout_scanner_id = NULL
-                        WHERE
-                            trader_checkout_scanner_id = ?;
-                    `, [scanner.id]).catch(error => {
-                        this.logger.error(`Error clearing ${gameMode.name} trader batches for ${scanner.name}: ${error.message}`);
-                    });
-                    const activeTraderScan = activeTraderScans.find(s => s.game_mode === gameMode.value);
-                    if (activeTraderScan?.scanner_id === scanner.id) {
-                        scannerApi.setTraderScanScanner(gameMode.name, null);
+                for (const scanTypeName in scanTypes) {
+                    let prefix = '';
+                    if (gameMode.name !== 'regular') {
+                        prefix = 'pve_';
+                    }
+                    prefix += scanTypes[scanTypeName];
+                    if (scanner[`${prefix}last_scan`]?.getTime() < scanCutoff) {
+                        this.logger.log(`${scanner.name} hasn't scanned ${gameMode.name} ${scanTypeName} prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner[`${prefix}last_scan`]) })}; releasing any batches`);
+                        this.query(`
+                            UPDATE
+                                item_data
+                            SET
+                                ${prefix}checkout_scanner_id = NULL
+                            WHERE
+                                ${prefix}checkout_scanner_id = ?;
+                        `, [scanner.id]).catch(error => {
+                            this.logger.error(`Error clearing  ${gameMode.name} ${scanTypeName} batches for ${scanner.name}: ${error.message}`);
+                        });
+                        if (scanTypeName === 'trader') {
+                            const activeTraderScan = activeTraderScans[gameMode.name];
+                            if (activeTraderScan?.scanner_id === scanner.id) {
+                                scannerApi.setTraderScanScanner(gameMode.name, null);
+                            }
+                        }
+                    } else {
+                        this.logger.log(`${scanner.name} last scanned ${gameMode.name} ${scanTypeName} prices ${dateNow.toRelative({ base: DateTime.fromJSDate(scanner[`${prefix}last_scan`]) })}`);
                     }
                 }
             }

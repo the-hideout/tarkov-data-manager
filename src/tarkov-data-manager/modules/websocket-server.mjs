@@ -312,9 +312,9 @@ const webSocketServer = {
             await sleep(100);
         }
         if (process.env.TEST_JOB === 'true') {
-            while (webSocketServer.connectedScanners().length < 1) {
+            /*while (webSocketServer.connectedScanners().length < 1) {
                 await sleep(1000);
-            }
+            }*/
         }
         const clients = webSocketServer.launchedScanners();
         if (clients.length === 0) {
@@ -340,9 +340,9 @@ const webSocketServer = {
             await sleep(100);
         }
         if (process.env.TEST_JOB === 'true') {
-            while (webSocketServer.connectedScanners().length < 1) {
-                //await sleep(1000);
-            }
+            /*while (webSocketServer.connectedScanners().length < 1) {
+                await sleep(1000);
+            }*/
         }
         const clients = webSocketServer.launchedScanners();
         if (clients.length === 0) {

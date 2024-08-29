@@ -23,6 +23,7 @@ const sptLangs = {
     'ko': 'kr',
     'pl': 'pl',
     'pt': 'po',
+    'ro': 'ro',
     'ru': 'ru',
     'sk': 'sk',
     'tr': 'tu',
@@ -30,6 +31,7 @@ const sptLangs = {
 }
 
 const branches = [
+    '3.10.0-DEV',
     'master',
 ];
 

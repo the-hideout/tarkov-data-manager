@@ -1054,7 +1054,7 @@ class UpdateQuestsJob extends DataJob {
         }
         await this.loadRewards(questData, 'finishRewards', quest.rewards.Success);
         await this.loadRewards(questData, 'startRewards', quest.rewards.Started);
-        this.loadRewards(questData, 'failureOutcome', quest.rewards.Fail);
+        await this.loadRewards(questData, 'failureOutcome', quest.rewards.Fail);
         if (factionMap[questData.id]) questData.factionName = factionMap[questData.id];
         //if (this.missingQuests[questData.id]) delete this.missingQuests[questData.id];
     
@@ -1229,11 +1229,14 @@ class UpdateQuestsJob extends DataJob {
             zoneKeys: [],
             zoneNames: [],
         };
-        if (objective.conditionType === 'FindItem' || objective.conditionType === 'HandoverItem') {
+        if (objective.conditionType === 'FindItem' || objective.conditionType === 'HandoverItem' || objective.conditionType === 'SellItemToTrader') {
             const targetItem = this.items[objective.target[0]];
             let verb = 'give';
             if (objective.conditionType === 'FindItem' || (objective.conditionType === 'HandoverItem' && obj.optional)) {
                 verb = 'find';
+            }
+            if (objective.conditionType === 'SellItemToTrader') {
+                verb = 'sell';
             }
             obj.item_id = objective.target[0];
             obj.item_name = this.locales.en[`${objective.target[0]} Name`];
@@ -1248,7 +1251,7 @@ class UpdateQuestsJob extends DataJob {
             } else {
                 obj.type = `${verb}Item`;
                 obj.item = objective.target[0];
-                obj.items = objective.target.filter(id => this.itemResults.has(id) && !this.itemResults.get(id).types.includes('disabled'));
+                obj.items = objective.target.filter(id => this.itemResults.has(id) && !this.itemResults.get(id).types.includes('disabled') && !this.itemResults.get(id).types.includes('quest'));
                 obj.dogTagLevel = objective.dogtagLevel;
                 obj.maxDurability = objective.maxDurability;
                 obj.minDurability = objective.minDurability;
@@ -1715,6 +1718,11 @@ const skipQuests = [
     '6603fe74e773dcf3b0099f88', // The Tarkov Mystery
     '6658a15615cbb1b2c6014d5b', // Hustle 2024
     '6672ec2a2b6f3b71be794cc5', // A Key to Salvation
+    '668bcccc167d507eb01a268b', // Import Control
+    '66a78dada472ad7f845b71f7', // Supply and Demand
+    '66a74c628410476dd65543be', // Gunsmith - Special Order
+    '66a75b44243a6548ff5e5ff9', // Gun Connoisseur
+    '66a77394243a6548ff5e601d', // Customer Communication
 ];
 
 // Secure Folder 0013 appears on multiple maps
