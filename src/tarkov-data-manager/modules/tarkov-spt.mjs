@@ -4,7 +4,7 @@ import path from 'node:path';
 import got from 'got';
 
 import tarkovChanges from './tarkov-changes.mjs';
-import discordWebhook from './webhook.js';
+import discordWebhook from './webhook.mjs';
 import dataOptions from './data-options.mjs';
 
 const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/media/branch/{branch}/project/assets/';

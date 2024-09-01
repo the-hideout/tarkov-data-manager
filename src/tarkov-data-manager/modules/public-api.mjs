@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 
 import { jobOutput } from '../jobs/index.mjs';
 import { query } from './db-connection.mjs';
-import { alert } from './webhook.js';
+import { alert } from './webhook.mjs';
 
 const allMaps = { timestamp: DateTime.now().toFormat('yyyy-LL-dd HH:mm:ss'), maps: [] };
 
