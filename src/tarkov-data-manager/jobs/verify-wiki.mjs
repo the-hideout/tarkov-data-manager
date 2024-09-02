@@ -83,12 +83,12 @@ class VerifyWikiJob extends DataJob {
                 }
 
                 if (shouldRemoveCurrentLink && item.wiki_link){
-                    await this.postMessage(item, newWikiLink);
+                    this.addJobSummary(item.name, 'Broken Wiki Link');
                     remoteData.setProperty(item.id, 'wiki_link', '');
                 }
 
                 if (newWikiLink){
-                    await this.postMessage(item, newWikiLink);
+                    this.addJobSummary(item.name, 'Updated Wiki Link');
                     remoteData.setProperty(item.id, 'wiki_link', newWikiLink);
                 }
                 return resolve();
@@ -97,24 +97,6 @@ class VerifyWikiJob extends DataJob {
         await Promise.all(promises);
         // Possibility to POST to a Discord webhook here with cron status details
         this.logger.log(`${missingWikiLinkCount} items still missing a valid wiki link`);
-    }
-
-    postMessage = (item, foundNewLink) => {
-        const messageData = {
-            title: 'Broken wiki link',
-            message: item.name
-        };
-    
-        if (foundNewLink) {
-            this.logger.succeed(`${item.name} (${item.id}): wiki link updated`);
-    
-            messageData.title = 'Updated wiki link';
-            messageData.message = item.name;
-        } else {
-            this.logger.fail(`${item.name} (${item.id}): wiki link removed`);
-        }
-    
-        return this.discordAlert(messageData);
     }
 }
 
