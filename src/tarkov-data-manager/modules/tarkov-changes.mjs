@@ -43,7 +43,7 @@ const availableFiles = {
     achievements: {
         requestName: 'achievements_list',
     },
-    achievement_stats: {
+    achievementStats: {
         requestName: 'achievements_statistics',
     },
     crafts: {},
@@ -90,7 +90,7 @@ const tarkovChanges = {
         return tarkovChanges.get('achievements', merge(options));
     },
     achievementStats: (options = defaultOptions) => {
-        return tarkovChanges.get('achievement_stats', merge(options));
+        return tarkovChanges.get('achievementStats', merge(options));
     },
     items: async (options = defaultOptions) => {
         return tarkovChanges.get('items', merge(options));
@@ -121,7 +121,7 @@ const tarkovChanges = {
         const skip = {
             pve: [
                 'achievements',
-                'achievement_stats',
+                'achievementStats',
                 'items',
                 'credits',
                 'locale_en',
