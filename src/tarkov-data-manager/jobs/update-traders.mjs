@@ -140,7 +140,7 @@ class UpdateTradersJob extends DataJob {
 
             if (staleTraderCount > 0) {
                 this.logger.warn(`${staleTraderCount} stale traders`);
-                this.discordAlert({title: 'Stale traders', message: `Running update-traders found ${staleTraderCount} stale ${gameMode.name} traders`});
+                this.addJobSummary(`${staleTraderCount} stale ${gameMode.name} traders`);
             }
     
             let kvName = this.kvName;

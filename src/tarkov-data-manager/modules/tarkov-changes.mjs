@@ -40,6 +40,12 @@ const jsonRequest = async (filename, options) => {
 };
 
 const availableFiles = {
+    achievements: {
+        requestName: 'achievements_list',
+    },
+    achievementStats: {
+        requestName: 'achievements_statistics',
+    },
     crafts: {},
     credits: {},
     items: {},
@@ -64,7 +70,10 @@ const tarkovChanges = {
         const requestFileName = (availableFiles[file].requestName ?? file) + '.json';
         const saveFileName = file + (gameMode === 'regular' ? '' : `_${gameMode}`) + '.json';
         if (download) {
-            const returnValue = await jsonRequest(requestFileName, options);
+            let returnValue = await jsonRequest(requestFileName, options);
+            if (returnValue.elements) {
+                returnValue = returnValue.elements;
+            }
             fs.writeFileSync(cachePath(saveFileName), JSON.stringify(returnValue, null, 4));
             return returnValue;
         }
@@ -76,6 +85,12 @@ const tarkovChanges = {
             }
             return Promise.reject(error);
         }
+    },
+    achievements: (options = defaultOptions) => {
+        return tarkovChanges.get('achievements', merge(options));
+    },
+    achievementStats: (options = defaultOptions) => {
+        return tarkovChanges.get('achievementStats', merge(options));
     },
     items: async (options = defaultOptions) => {
         return tarkovChanges.get('items', merge(options));
@@ -105,6 +120,8 @@ const tarkovChanges = {
         options = {...merge(options), download: true};
         const skip = {
             pve: [
+                'achievements',
+                'achievementStats',
                 'items',
                 'credits',
                 'locale_en',

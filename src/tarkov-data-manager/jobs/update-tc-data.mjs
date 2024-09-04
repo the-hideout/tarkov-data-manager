@@ -12,23 +12,19 @@ class UpdateTcDataJob extends DataJob {
         this.logger.time('tc-download');
         const returnValue = {};
         for (const gameMode of gameModes) {
+            this.logger.log(`Downloading ${gameMode.name} data...`);
             returnValue[gameMode.name] = await tarkovChanges.downloadAll({returnPartial: true, gameMode: gameMode.name}).then(results => {
-                if (Object.keys(results) > 1) {
-                    this.logger.log(`Downloaded ${Object.keys(results).filter(key => key !== 'errors').join(', ')} ${gameMode.name} files`);
-                }
-                if (results.errors.length === 0) {
-                    this.logger.success(`Successfully downloaded ${gameMode.name} data from Tarkov Changes`);
+                if (Object.keys(results).length > 1) {
+                    this.logger.success(`Downloaded: ${Object.keys(results).filter(key => key !== 'errors').join(', ')}`);
                 }
                 if (results.errors.length > 0) {
-                    this.logger.warn(`Error downloading some${gameMode.name} data from Tarkov Changes: ${results.errors.join(', ')}`);
+                    this.logger.warn(`Error downloading some ${gameMode.name} data: ${results.errors.join(', ')}`);
                 }
                 if (Object.keys(results) === 1) {
-                    this.logger.error(`Error downloading ${gameMode.name} data from Tarkov Changes: ${results.errors.join(', ')}`);
-                    this.discordAlert({
-                        title: `Error(s) updating TC ${gameMode.name} data`,
-                        message: results.errors.join(', '),
-                    })
+                    this.logger.error(`Error(s) downloading ${gameMode.name} data: ${results.errors.join(', ')}`);
+                    results.errors.forEach(errMessage => this.addJobSummary(errMessage, `Error(s) updating TC ${gameMode.name} data`));
                 }
+                return results;
             });
         }
         this.logger.timeEnd('tc-download');
