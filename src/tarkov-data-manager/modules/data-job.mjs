@@ -1,12 +1,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import  { EmbedBuilder } from 'discord.js';
+
 import cloudflare from './cloudflare.mjs';
 import stellate from './stellate.mjs';
 import TranslationHelper from './translation-helper.mjs';
 import { query, jobComplete, maxQueryRows } from'./db-connection.mjs';
 import JobLogger from './job-logger.mjs';
-import { alert } from './webhook.js';
+import { alert, send as sendWebhook } from './webhook.mjs';
 import webSocketServer from './websocket-server.mjs';
 import tarkovData from'./tarkov-data.mjs';
 import normalizeName from './normalize-name.js';
@@ -78,6 +80,9 @@ class DataJob {
     async start(options) {
         this.startDate = new Date();
         this.kvData = {};
+        this.jobSummary = {
+            general: [],
+        };
         if (this.loadLocales) {
             this.locales = await tarkovData.locales();
             this.translationHelper = new TranslationHelper({
@@ -142,6 +147,38 @@ class DataJob {
                     message: error.stack
                 });
             }
+        }
+        if (this.jobSummary.general.length > 0 || Object.keys(this.jobSummary).length > 1) {
+            const embeds = [];
+            for (const messageType in this.jobSummary) {
+                let embed = new EmbedBuilder();
+                embeds.push(embed);
+                if (messageType === 'general') {
+                    embed.setTitle(`${this.name} job`);
+                } else {
+                    embed.setTitle(messageType);
+                }
+                let embedMessage = '';
+                if (this.jobSummary[messageType].length > 0) {
+                    for (let message of this.jobSummary[messageType]) {
+                        if (message.length > 4096) {
+                            message = message.substring(0, 4092)+'...';
+                        }
+                        if (embedMessage.length + message.length > 4096) {
+                            embed.setDescription(embedMessage.trim());
+                            embed = new EmbedBuilder();
+                            embeds.push(embed);
+                            embed.setTitle('(cont)');
+                            embedMessage = message;
+                            continue;
+                        }
+                        embedMessage += '\n' + message;
+                    }
+                    embed.setDescription(embedMessage.trim());
+                }
+            }
+            embeds[embeds.length - 1].setFooter({text: new Date().toLocaleString()});
+            this.discordAlertQueue.push(sendWebhook({embeds}, this.logger));
         }
         const webhookResults = await Promise.allSettled(this.discordAlertQueue);
         for (const messageResult of webhookResults) {
@@ -370,6 +407,13 @@ class DataJob {
             parentJob: this,
         };
         return this.jobManager.jobOutput(jobName, options.parentJob, options.gameMode, options.rawOutput);
+    }
+
+    addJobSummary = (text, category = 'general') => {
+        if (!this.jobSummary[category]) {
+            this.jobSummary[category] = [];
+        }
+        this.jobSummary[category].push(text);
     }
 }
 

@@ -1290,42 +1290,6 @@
             ]
         }
     },
-    "_63967028c4a91c5cb76abd81": {
-        "name": "Trouble in the Big City",
-        "finishRewardsChanged": {
-            "traderStanding": [
-                {
-                    "trader_id": "638f541a29ffd1183d187f57",
-                    "name": "Lightkeeper",
-                    "standing": 0.05
-                }
-            ],
-            "offerUnlock": [
-                {
-                    "id": "63a2359ef194393ecf632fa2",
-                    "trader_id": "5a7c2eca46aef81a7ca2145d",
-                    "trader_name": "Mechanic",
-                    "level": 4,
-                    "item": "6389c85357baa773a825b356",
-                    "item_name": "Advanced current converter",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "id": "012345678901234567890123",
-                    "trader_id": "5935c25fb3acc3127c3d8cd9",
-                    "trader_name": "Peacekeeper",
-                    "level": 4,
-                    "item": "657eb3773271d8578610fe28",
-                    "item_name": "SIG MCX SPEAR 6.8x51 assault rifle Default",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
     "59675d6c86f7740a842fc482": {
         "name": "Ice Cream Cones",
         "objectivePropertiesChanged": {
@@ -1409,7 +1373,7 @@
     "5b47891f86f7744d1b23c571": {
         "name": "Living High Is Not a Crime - Part 1",
         "finishRewardsAdded": {
-        "offerUnlock": [
+            "offerUnlock": [
                 {
                     "id": "66c46c36f7ca8a539f08600d5",
                     "trader_id": "6617beeaa9cfa777ca915b7c",
@@ -1417,6 +1381,71 @@
                     "level": 4,
                     "item": "65766582234b9f6e050a42c1",
                     "item_name": "IOTV Gen4 body armor (High Mobility Kit, MultiCam) Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "63966fd9ea19ac7ed845db30": {
+        "name": "Payback",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "66c46c3ef7ca8a539f0866055",
+                    "trader_id": "5ac3b934156ae10c4430e83c",
+                    "trader_name": "Ragman",
+                    "level": 4,
+                    "item": "5b4329f05acfc47a86086aa1",
+                    "item_name": "DevTac Ronin Respirator",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "63967028c4a91c5cb76abd81": {
+        "name": "Trouble in the Big City",
+        "finishRewardsAdded": {
+            "offerUnlock": [
+                {
+                    "id": "66c46c7af7ca8a539f0881693",
+                    "trader_id": "5935c25fb3acc3127c3d8cd9",
+                    "trader_name": "Peacekeeper",
+                    "level": 4,
+                    "item": "65293c7a17e14363030ad308",
+                    "item_name": "AR-10 7.62x51 Lancer L7AWM 25-round magazine",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "id": "66c46c7df7ca8a539f0882ab2",
+                    "trader_id": "5935c25fb3acc3127c3d8cd9",
+                    "trader_name": "Peacekeeper",
+                    "level": 4,
+                    "item": "6529243824cbe3c74a05e5c1",
+                    "item_name": "6.8x51mm SIG Hybrid",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "63966fccac6f8f3c677b9d89": {
+        "name": "Snatch",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "66c46c3ef7ca8a539f0865fb5",
+                    "trader_id": "5ac3b934156ae10c4430e83c",
+                    "trader_name": "Ragman",
+                    "level": 4,
+                    "item": "657089638db3adca1009f4ca",
+                    "item_name": "Atomic Defense CQCM ballistic mask (Black)",
                     "count": 1,
                     "contains": [],
                     "attributes": []

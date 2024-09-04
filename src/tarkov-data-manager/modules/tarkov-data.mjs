@@ -37,10 +37,10 @@ const defaultOptions = dataOptions.default;
 
 const dataFunctions = {
     achievements: async (options = defaultOptions) => {
-        return tarkovDevData.achievements(options);
+        return tarkovChanges.achievements(options);
     },
     achievementStats: (options = defaultOptions) => {
-        return tarkovDevData.achievementStats(options);
+        return tarkovChanges.achievementStats(options);
     },
     areas: (options = defaultOptions) => {
         return tarkovChanges.areas(options);

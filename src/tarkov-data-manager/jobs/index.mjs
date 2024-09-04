@@ -13,7 +13,7 @@ const defaultJobs = {
     'update-quests': '3-59/10 * * * *',
     'update-maps': '4-59/10 * * * *',
     'check-scanners': '6,36 * * * *',
-    'update-td-data': '7-59/10 * * * *',
+    //'update-td-data': '7-59/10 * * * *',
     'archive-prices': '38 0,12 * * *',
     'verify-wiki': '7 9 * * *',
     'update-trader-assorts': 'traderScansEnded',
