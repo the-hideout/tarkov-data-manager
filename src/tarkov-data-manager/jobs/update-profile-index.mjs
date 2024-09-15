@@ -27,7 +27,7 @@ class UpdateProfileIndexJob extends DataJob {
                         updatedField += `_${gameMode.name}`;
                     }
                     if (r[updatedField]) {
-                        profiles.regular[r.id] = r.name;
+                        profiles[gameMode.name][r.id] = r.name;
                     }
                 }
             });
@@ -40,7 +40,7 @@ class UpdateProfileIndexJob extends DataJob {
         
         const indexFilename = 'index.json';
         for (const gameMode of gameModes) {
-            this.logger.log(`Updating ${gameMode.name} profile index...`);
+            this.logger.log(`Updating ${gameMode.name} profile index of ${Object.keys(profiles[gameMode.name]).length} profiles...`);
             let indexPath = 'profile/';
             if (gameMode.name !== 'regular') {
                 indexPath = gameMode.name + '/';
