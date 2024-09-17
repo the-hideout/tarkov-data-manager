@@ -1723,6 +1723,8 @@ const skipQuests = [
     '66a74c628410476dd65543be', // Gunsmith - Special Order
     '66a75b44243a6548ff5e5ff9', // Gun Connoisseur
     '66a77394243a6548ff5e601d', // Customer Communication
+    '668bccf963acb16d63707043', // What's Your Evidence?
+    '668bcd1b194be70f18427a00', // Caught Red-Handed
 ];
 
 // Secure Folder 0013 appears on multiple maps
