@@ -42,11 +42,30 @@ const startupJobs = [
 // these jobs run at startup when not in dev mode
 const nonDevStartupJobs = [];
 
+const jobClasses = {};
+const jobFiles = fs.readdirSync('./jobs').filter(file => file.endsWith('.mjs'));
+for (const file of jobFiles) {
+    if (file === 'index.mjs') {
+        continue;
+    }
+    await import(`./${file}`).then(jobClass => {
+        jobClasses[file.replace('.mjs', '')] = jobClass.default;
+    });
+    //const jobClass = require(`./${file}`);
+    //jobClasses[file.replace('.mjs', '')] = jobClass;
+}
+
 let allJobs = {
     ...defaultJobs
 };
 try {
     const customJobs = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, '..', 'settings', 'crons.json')));
+    for (const jobName of Object.keys(customJobs)) {
+        if (!jobClasses[jobName]) {
+            console.warn(`${jobName} is not a valid job; excluding from custom schedule`);
+            customJobs[jobName] = undefined;
+        }
+    }
     allJobs = {
         ...defaultJobs,
         ...customJobs
@@ -62,22 +81,8 @@ if (process.env.NODE_ENV !== 'dev') {
 }
 
 const jobs = {};
-const jobClasses = {};
 const scheduledJobs = {};
 const eventJobs = {};
-
-const jobFiles = fs.readdirSync('./jobs').filter(file => file.endsWith('.mjs'));
-
-for (const file of jobFiles) {
-    if (file === 'index.mjs') {
-        continue;
-    }
-    await import(`./${file}`).then(jobClass => {
-        jobClasses[file.replace('.mjs', '')] = jobClass.default;
-    });
-    //const jobClass = require(`./${file}`);
-    //jobClasses[file.replace('.mjs', '')] = jobClass;
-}
 
 const scheduleJob = function(name, cronSchedule) {
     if (!jobClasses[name]) {
