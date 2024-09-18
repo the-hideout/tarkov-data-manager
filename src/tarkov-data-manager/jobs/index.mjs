@@ -5,6 +5,7 @@ import schedule from 'node-schedule';
 import cron from 'cron-validator';
 
 import emitter from '../modules/emitter.mjs';
+import discord from '../modules/webhook.mjs';
 
 const defaultJobs = {
     'update-item-cache': '*/5 * * * *',
@@ -105,6 +106,10 @@ const scheduleJob = function(name, cronSchedule) {
             await jobManager.runJob(name, false, false);
         } catch (error) {
             console.log(`Error running ${name} job: ${error}`);
+            discord.alert({
+                title: `Error running job ${name}: ${error.message}`,
+                message: error.stack,
+            });
         }
         console.timeEnd(name);
     };
@@ -155,6 +160,10 @@ const jobManager = {
                 await jobManager.runJob(jobName);
             } catch (error) {
                 console.log(`Error running ${jobName}: ${error}`);
+                discord.alert({
+                    title: `Error running job ${name}: ${error.message}`,
+                    message: error.stack,
+                });
             }
         }
         let buildPresets = false;
