@@ -57,6 +57,8 @@ class DataJob {
             'gameModes',
             'lastCompletion',
             'loadLocales',
+            'cronTrigger',
+            'eventTrigger',
             ...options.saveFields,
         ];
         this.writeFolder = 'dumps';
@@ -90,22 +92,23 @@ class DataJob {
                 logger: this.logger,
             });
         }
-        if (options && options.parent) {
+        if (options?.parent) {
             this.logger.parentLogger = options.parent.logger;
         }
         if (this.running) {
-            if (options && options.parent) {
+            if (options?.parent) {
                 for (let parent = options.parent; parent; parent = parent.parent) {
                     if (parent.name === this.name) {
                         return Promise.reject(new Error(`Job ${this.name} is a parent of ${options.parent.name}, so ${options.parent.name} cannot run it`));
                     }
                 }
                 this.parent = options.parent;
+                this.logger.log(`${this.name} is already running; waiting for completion`);
+                return this.running;
             }
-            this.logger.log(`${this.name} is already running; waiting for completion`);
-            return this.running;
+            return Promise.reject(new Error(`Job ${this.name} already running since ${this.startDate}`));
         }
-        if (options && options.parent) {
+        if (options?.parent) {
             this.parent = options.parent;
         }
         this.discordAlertQueue = [];

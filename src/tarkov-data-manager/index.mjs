@@ -1235,6 +1235,18 @@ app.delete('/webhooks/:id', async (req, res) => {
 });
 
 app.get('/crons', async (req, res) => {
+    const runningJobs = jobs.schedules().filter(j => j.running);
+    let runningJobsDiv = '';
+    if (runningJobs.length > 0) {
+        runningJobsDiv = `
+            <div>
+                <div>Jobs currently running:</div>
+                <div>
+                    ${runningJobs.map(j => `<div>${j.name}: Started ${j.startDate}</div>`)}
+                </div>
+            </div>
+        `;
+    }
     res.send(`${getHeader(req, {include: 'datatables'})}
         <script src="/ansi_up.js"></script>
         <script src="/crons.js"></script>
@@ -1244,6 +1256,7 @@ app.get('/crons', async (req, res) => {
                 <div>
                     Note: Jobs are scheduled in UTC. Your local time is <span class="timeoffset"></span> hours UTC.
                 </div>
+                ${runningJobsDiv}
                 <table class="highlight main">
                     <thead>
                         <tr>
