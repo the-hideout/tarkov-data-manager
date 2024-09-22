@@ -8,6 +8,7 @@ import session from 'cookie-session';
 import chalk from 'chalk';
 import formidable from 'formidable';
 import AdmZip from 'adm-zip';
+import { DateTime } from 'luxon';
 
 import './modules/configure-env.mjs';
 import remoteData from './modules/remote-data.mjs';
@@ -1242,7 +1243,7 @@ app.get('/crons', async (req, res) => {
             <div>
                 <div>Jobs currently running:</div>
                 <div>
-                    ${runningJobs.map(j => `<div>${j.name}: Started ${j.startDate}</div>`)}
+                    ${runningJobs.map(j => `<div>${j.name}: Started ${DateTime.fromJSDate(j.startDate).toRelative()}</div>`).join('\n')}
                 </div>
             </div>
         `;
