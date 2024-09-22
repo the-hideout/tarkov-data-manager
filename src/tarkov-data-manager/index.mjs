@@ -1242,9 +1242,9 @@ app.get('/crons', async (req, res) => {
         runningJobsDiv = `
             <div>
                 <div>Jobs currently running:</div>
-                <div>
-                    ${runningJobs.map(j => `<div>${j.name}: Started ${DateTime.fromJSDate(j.startDate).toRelative()}</div>`).join('\n')}
-                </div>
+                <ul>
+                    ${runningJobs.map(j => `<li>${j.name}: Started ${DateTime.fromJSDate(j.startDate).toRelative()}</li`).join('\n')}
+                </ul>
             </div>
         `;
     }
