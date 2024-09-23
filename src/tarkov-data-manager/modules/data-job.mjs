@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import  { EmbedBuilder } from 'discord.js';
+import { DateTime } from 'luxon';
 
 import cloudflare from './cloudflare.mjs';
 import stellate from './stellate.mjs';
@@ -106,7 +107,7 @@ class DataJob {
                 this.logger.log(`${this.name} is already running; waiting for completion`);
                 return this.running;
             }
-            return Promise.reject(new Error(`Job ${this.name} already running since ${this.startDate}`));
+            return Promise.reject(new Error(`Job already running; started ${DateTime.fromJSDate(this.startDate).toRelative()}`));
         }
         if (options?.parent) {
             this.parent = options.parent;
