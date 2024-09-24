@@ -81,6 +81,26 @@ class DataJob {
     }
 
     async start(options) {
+        if (this.running) {
+            if (options?.parent) {
+                for (let parent = options.parent; parent; parent = parent.parent) {
+                    if (parent.name === this.name) {
+                        return Promise.reject(new Error(`Job ${this.name} is a parent of ${options.parent.name}, so ${options.parent.name} cannot run it`));
+                    }
+                }
+                if (!this.parent) {
+                    this.parent = options.parent;
+                } else {
+                    options.parent.logger.log(`${this.name} is already has parent job ${options.parent.name}`);
+                }
+                options.parent.logger.log(`${this.name} is already running; waiting for completion`);
+                return this.running;
+            }
+            return Promise.reject(new Error(`Job already running; started ${DateTime.fromJSDate(this.startDate).toRelative()}`));
+        }
+        if (options?.parent) {
+            this.logger.parentLogger = options.parent.logger;
+        }
         this.startDate = new Date();
         this.kvData = {};
         this.jobSummary = {
@@ -92,22 +112,6 @@ class DataJob {
                 locales: this.locales,
                 logger: this.logger,
             });
-        }
-        if (options?.parent) {
-            this.logger.parentLogger = options.parent.logger;
-        }
-        if (this.running) {
-            if (options?.parent) {
-                for (let parent = options.parent; parent; parent = parent.parent) {
-                    if (parent.name === this.name) {
-                        return Promise.reject(new Error(`Job ${this.name} is a parent of ${options.parent.name}, so ${options.parent.name} cannot run it`));
-                    }
-                }
-                this.parent = options.parent;
-                this.logger.log(`${this.name} is already running; waiting for completion`);
-                return this.running;
-            }
-            return Promise.reject(new Error(`Job already running; started ${DateTime.fromJSDate(this.startDate).toRelative()}`));
         }
         if (options?.parent) {
             this.parent = options.parent;

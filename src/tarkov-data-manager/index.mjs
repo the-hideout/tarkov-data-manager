@@ -14,7 +14,7 @@ import './modules/configure-env.mjs';
 import remoteData from './modules/remote-data.mjs';
 import tarkovData from './modules/tarkov-data.mjs';
 import jobs from './jobs/index.mjs';
-import {connection, query, format} from './modules/db-connection.mjs';
+import { connection, query, connectionsInUse } from './modules/db-connection.mjs';
 import timer from './modules/console-timer.js';
 import { userFlags, scannerFlags, refreshScannerUsers } from './modules/scanner-api.mjs';
 import scannerHttpApi from './modules/scanner-http-api.mjs';
@@ -948,7 +948,7 @@ app.post('/scanners/add-user', urlencodedParser, async (req, res) => {
         return;
     }
     try {
-        const userCheck = await query(format('SELECT * from scanner_user WHERE username=?', [req.body.username]));
+        const userCheck = await query('SELECT * from scanner_user WHERE username=?', [req.body.username]);
         if (userCheck.length > 0) {
             response.errors.push(`User ${req.body.username} already exists`);
             res.send(response);
@@ -962,7 +962,7 @@ app.post('/scanners/add-user', urlencodedParser, async (req, res) => {
     try {
         const user_disabled = req.body.user_disabled ? 1 : 0;
         console.log('inserting user');
-        await query(format('INSERT INTO scanner_user (username, password, disabled) VALUES (?, ?, ?)', [req.body.username, req.body.password, user_disabled]))
+        await query('INSERT INTO scanner_user (username, password, disabled) VALUES (?, ?, ?)', [req.body.username, req.body.password, user_disabled])
         refreshScannerUsers();
         response.message = `Created user ${req.body.username}`;
     } catch (error) {
@@ -976,7 +976,7 @@ app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
         let id = req.body.user_id;
-        let userCheck = await query(format('SELECT * from scanner_user WHERE id=?', [id]));
+        let userCheck = await query('SELECT * from scanner_user WHERE id=?', [id]);
         if (userCheck.length == 0) {
             response.errors.push(`User not found`);
             res.send(response);
@@ -1001,9 +1001,9 @@ app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
             updateValues.push(updates[field]);
         }
         if (updateFields.length > 0) {
-            await query(format(`UPDATE scanner_user SET ${updateFields.map(field => {
+            await query(`UPDATE scanner_user SET ${updateFields.map(field => {
                 return `${field} = ?`;
-            }).join(', ')} WHERE id='${userCheck.id}'`, updateValues));
+            }).join(', ')} WHERE id='${userCheck.id}'`, updateValues);
             refreshScannerUsers();
             response.message = `Updated ${updateFields.join(', ')}`;
         }
@@ -1016,7 +1016,7 @@ app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
 app.post('/scanners/delete-user', urlencodedParser, async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        let deleteResult = await query(format('DELETE FROM scanner_user WHERE username=?', [req.body.username]));
+        let deleteResult = await query('DELETE FROM scanner_user WHERE username=?', [req.body.username]);
         if (deleteResult.affectedRows > 0) {
             response.message = `User ${req.body.username} deleted`;
             refreshScannerUsers();
@@ -1032,7 +1032,7 @@ app.post('/scanners/delete-user', urlencodedParser, async (req, res) => {
 app.post('/scanners/user-flags', urlencodedParser, async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        await query(format('UPDATE scanner_user SET flags=? WHERE id=?', [req.body.flags, req.body.id]));
+        await query('UPDATE scanner_user SET flags=? WHERE id=?', [req.body.flags, req.body.id]);
         response.message = `Set flags to ${req.body.flags}`;
         refreshScannerUsers();
     } catch (error) {
@@ -1044,7 +1044,7 @@ app.post('/scanners/user-flags', urlencodedParser, async (req, res) => {
 app.post('/scanners/scanner-flags', urlencodedParser, async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        await query(format('UPDATE scanner SET flags=? WHERE id=?', [req.body.flags, req.body.id]));
+        await query('UPDATE scanner SET flags=? WHERE id=?', [req.body.flags, req.body.id]);
         response.message = `Set flags to ${req.body.flags}`;
         //refreshScannerUsers();
     } catch (error) {
@@ -1163,7 +1163,7 @@ app.put('/webhooks/:id', async (req, res) => {
     //edit
     const response = {message: 'No changes made.', errors: []};
     try {
-        let hookCheck = await query(format('SELECT * from webhooks WHERE id=?', [req.params.id]));
+        let hookCheck = await query('SELECT * from webhooks WHERE id=?', [req.params.id]);
         if (hookCheck.length == 0) {
             response.errors.push(`Webhook not found`);
             res.json(response);
@@ -1205,9 +1205,9 @@ app.put('/webhooks/:id', async (req, res) => {
             updateValues.push(updates[field]);
         }
         if (updateFields.length > 0) {
-            await query(format(`UPDATE webhooks SET ${updateFields.map(field => {
+            await query(`UPDATE webhooks SET ${updateFields.map(field => {
                 return `${field} = ?`;
-            }).join(', ')} WHERE id='${req.params.id}'`, updateValues));
+            }).join(', ')} WHERE id='${req.params.id}'`, updateValues);
             webhookApi.refresh();
             response.message = `Updated ${updateFields.join(', ')}`;
             console.log(`Edited webhook ${req.params.id}: ${updateFields.join(', ')}`)
@@ -1221,7 +1221,7 @@ app.put('/webhooks/:id', async (req, res) => {
 app.delete('/webhooks/:id', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        let deleteResult = await query(format('DELETE FROM webhooks WHERE id=?', [req.params.id]));
+        let deleteResult = await query('DELETE FROM webhooks WHERE id=?', [req.params.id]);
         if (deleteResult.affectedRows > 0) {
             console.log(`Deleted webhook ${req.params.id}`);
             response.message = `Webhook deleted`;
@@ -1248,6 +1248,13 @@ app.get('/crons', async (req, res) => {
             </div>
         `;
     }
+    let connectionsDiv = '';
+    const usedConnections = connectionsInUse();
+    if (usedConnections > 0) {
+        connectionsDiv = `
+            <div>DB connections in use: ${usedConnections}</div>
+        `;
+    }
     res.send(`${getHeader(req, {include: 'datatables'})}
         <script src="/ansi_up.js"></script>
         <script src="/crons.js"></script>
@@ -1258,6 +1265,7 @@ app.get('/crons', async (req, res) => {
                     Note: Jobs are scheduled in UTC. Your local time is <span class="timeoffset"></span> hours UTC.
                 </div>
                 ${runningJobsDiv}
+                ${connectionsDiv}
                 <table class="highlight main">
                     <thead>
                         <tr>

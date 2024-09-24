@@ -15,10 +15,17 @@ const pool = mysql.createPool({
 });
 
 let connectedCount = 0;
+let acquiredConnections = 0;
 
 pool.on('acquire', function (connection) {
     //console.log('Connection %d acquired', connection.threadId);
     connectedCount++;
+    acquiredConnections++;
+    connection.timeout = setTimeout(() => {
+        //console.log('Destroying %d', connection.threadId);
+        connection.destroy();
+        acquiredConnections--;
+    }, 240000);
 });
 
 /*pool.on('connection', function (connection) {
@@ -27,11 +34,13 @@ pool.on('acquire', function (connection) {
 
 pool.on('enqueue', function () {
     console.log('Waiting for available connection slot');
-});
+});*/
 
 pool.on('release', function (connection) {
-    console.log('Connection %d released', connection.threadId);
-});*/
+    clearTimeout(connection.timeout);
+    //console.log('Connection %d released', connection.threadId);
+    acquiredConnections--;
+});
 
 const waitForConnections = () => {
     if (connectedCount >= 5) {
@@ -85,8 +94,11 @@ const dbConnection = {
         });
     },
     maxQueryRows: 100000,
+    connectionsInUse: () => {
+        return acquiredConnections;
+    },
 };
 
-export const { connection, jobComplete, maxQueryRows, format } = dbConnection;
+export const { connection, jobComplete, maxQueryRows, format, connectionsInUse } = dbConnection;
 
 export default dbConnection;
