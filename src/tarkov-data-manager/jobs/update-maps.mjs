@@ -478,7 +478,7 @@ class UpdateMapsJob extends DataJob {
                                     y: height,
                                     z: gridY,
                                 },
-                                outline: [
+                                /*outline: [
                                     {
                                         x: zone.Center.x - (gridX / 2),
                                         y: zone.Center.y,
@@ -499,7 +499,8 @@ class UpdateMapsJob extends DataJob {
                                         y: zone.Center.y,
                                         z: zone.Center.z - (gridY / 2),
                                     },
-                                ],
+                                ],*/
+                                outline: this.getArtilleryZoneOutline(zone),
                                 top: zone.Center.y + (height / 2),
                                 botom: zone.Center.y - (height / 2),
                                 radius: zone.PointRadius,
@@ -827,6 +828,40 @@ class UpdateMapsJob extends DataJob {
         }
         const shasum = crypto.createHash('sha1');
         return shasum.update(hashString).digest('hex');
+    }
+
+    getArtilleryZoneOutline(zone) {
+        function rotate(cx, cy, x, y, angle) {
+            var radians = (Math.PI / 180) * angle,
+                cos = Math.cos(radians),
+                sin = Math.sin(radians),
+                nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
+                ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
+            return {x: nx, y: ny};
+        }
+
+        
+        const gridX = ((zone.Points.x-1)*zone.GridStep.x)+zone.PointRadius * 2;
+        const gridY = ((zone.Points.y-1)*zone.GridStep.y)+zone.PointRadius * 2;
+
+        const points = [];
+        const directions = [1, -1];
+        for (const dirY of directions) {
+            for (const dirX of directions) {
+                let x = zone.Center.x + ((gridX*dirX) / 2);
+                let y = zone.Center.z + ((gridY*dirY) / 2);
+                if (zone.Rotate) {
+                    const rotated = rotate(zone.Center.x, zone.Center.y, x, y, zone.Rotate);
+                    x = rotated.x;
+                    y = rotated.y;
+                }
+                points.push({
+                    x,
+                    y: zone.Center.y,
+                    z: y,
+                });
+            }
+        }
     }
 }
 
