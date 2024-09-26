@@ -21,6 +21,7 @@ class UpdateMapsJob extends DataJob {
             this.botInfo,
             this.mapDetails,
             this.eftItems,
+            this.globals,
             this.goonReports,
         ] = await Promise.all([
             remoteData.get(),
@@ -28,6 +29,7 @@ class UpdateMapsJob extends DataJob {
             tarkovData.botsInfo(),
             tarkovData.mapDetails(),
             tarkovData.items(),
+            tarkovData.globals(),
             this.query('SELECT * FROM goon_reports WHERE timestamp >= now() - INTERVAL 1 DAY'),
         ]);
         this.mapRotationData = JSON.parse(fs.readFileSync('./data/map_coordinates.json'));
@@ -456,6 +458,23 @@ class UpdateMapsJob extends DataJob {
                     mapData.bosses.push(bossData);
                 }
                 mapData.enemies = [...enemySet].map(enemy => this.addMobTranslation(enemy));
+
+                const artillerySettings = this.globals.config.ArtilleryShelling?.ArtilleryMapsConfigs?.[mapData.nameId];
+                if (artillerySettings) {
+                    mapData.artillery = {
+                        zones: artillerySettings.ShellingZones.map(zone => {
+                            if (!zone.IsActive) {
+                                return false;
+                            }
+                            return {
+                                id: `${zone.ID}`,
+                                position: zone.Center,
+                                radius: zone.PointRadius,
+
+                            }
+                        }).filter(Boolean),
+                    };
+                }
     
                 this.kvData[gameMode.name].Map.push(mapData);
             }
