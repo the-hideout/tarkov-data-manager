@@ -26,6 +26,9 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
                 return 500;
             }
         },
+        timeout: {
+            request: 20000,
+        },
     };
 
     if(extraHeaders){

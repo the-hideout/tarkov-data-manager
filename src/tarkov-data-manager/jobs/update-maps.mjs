@@ -862,6 +862,7 @@ class UpdateMapsJob extends DataJob {
                 });
             }
         }
+        return points;
     }
 }
 
