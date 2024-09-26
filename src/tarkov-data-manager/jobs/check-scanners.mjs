@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 
 import scannerApi, { scannerFlags, userFlags } from '../modules/scanner-api.mjs';
-import tarkovDevData from '../modules/tarkov-dev-data.mjs';
+import tarkovData from '../modules/tarkov-data.mjs';
 import DataJob from '../modules/data-job.mjs';
 import gameModes from '../modules/game-modes.mjs';
 
@@ -12,7 +12,7 @@ class CheckScansJob extends DataJob {
 
     async run() {
         const [services, scanners, activeTraderScans] = await Promise.all([
-            tarkovDevData.status().then(status => status.services).catch(error => {
+            tarkovData.status().then(status => status.services).catch(error => {
                 this.logger.error(`Error getting EFT services status: ${error.message}`);
                 return [];
             }),
