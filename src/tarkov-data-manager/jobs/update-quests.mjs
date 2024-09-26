@@ -939,7 +939,7 @@ class UpdateQuestsJob extends DataJob {
         }*/
         let locationName = 'any';
         let locationId = null;
-        if (quest.location !== 'any') {
+        if (quest.location !== 'any' && quest.location !== 'marathon') {
             locationName = this.locales.en[`${quest.location} Name`];
             locationId = quest.location;
         }
