@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import path from 'node:path';
 import fs from 'node:fs';
 
@@ -5,6 +6,8 @@ import schedule from 'node-schedule';
 import cron from 'cron-validator';
 
 import emitter from '../modules/emitter.mjs';
+
+const scheduleSentry = Sentry.cron.instrumentNodeSchedule(schedule);
 
 const defaultJobs = {
     'update-item-cache': '*/5 * * * *',
@@ -109,7 +112,7 @@ const scheduleJob = function(name, cronSchedule) {
         console.timeEnd(name);
     };
     if (isCron) {
-        const job = schedule.scheduleJob(cronSchedule, jobFunction);
+        const job = scheduleSentry.scheduleJob(name, cronSchedule, jobFunction);
         jobs[name].cronSchedule = cronSchedule;
 
         scheduledJobs[name] = job;
@@ -128,7 +131,7 @@ const jobManager = {
         /*if(process.env.NODE_ENV !== 'production'){
             return true;
         }*/
-    
+
         for (const jobName in allJobs) {
             try {
                 scheduleJob(jobName, allJobs[jobName]);
@@ -136,7 +139,7 @@ const jobManager = {
                 console.log(`Error setting up ${jobName} job`, error);
             }
         }
-    
+
         let allStartupJobs = [...startupJobs];
         if (process.env.NODE_ENV !== 'dev') {
             allStartupJobs = [
@@ -178,7 +181,7 @@ const jobManager = {
         console.log('Startup jobs complete');
     },
     stop: () => {
-        return schedule.gracefulShutdown();
+        return scheduleSentry.gracefulShutdown();
     },
     lastRun: (jobName) => {
         try {
@@ -244,7 +247,8 @@ const jobManager = {
         if (scheduledJobs[jobName]) {
             const scheduledJob = scheduledJobs[jobName];
             const nextInvocation = scheduledJob.nextInvocation();
-            if (scheduledJob && bumpSchedule && nextInvocation) {const nextRunMinusFive = nextInvocation.toDate();
+            if (scheduledJob && bumpSchedule && nextInvocation) {
+                const nextRunMinusFive = nextInvocation.toDate();
                 nextRunMinusFive.setMinutes(nextRunMinusFive.getMinutes() - 5);
                 if (new Date() > nextRunMinusFive) {
                     scheduledJob.cancelNext(true);
@@ -300,7 +304,7 @@ const jobManager = {
 };
 
 for (const jobClassName in jobClasses) {
-    jobs[jobClassName] = new jobClasses[jobClassName]({jobManager});
+    jobs[jobClassName] = new jobClasses[jobClassName]({ jobManager });
     jobs[jobClassName].jobManager = jobManager;
 }
 
