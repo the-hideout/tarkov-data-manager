@@ -467,11 +467,42 @@ class UpdateMapsJob extends DataJob {
                             if (!zone.IsActive) {
                                 return false;
                             }
+                            const gridX = ((zone.Points.x-1)*zone.GridStep.x)+zone.PointRadius * 2;
+                            const gridY = ((zone.Points.y-1)*zone.GridStep.y)+zone.PointRadius * 2;
+                            const height = 10;
                             return {
                                 id: `${zone.ID}`,
                                 position: zone.Center,
+                                size: {
+                                    x: gridX,
+                                    y: height,
+                                    z: gridY,
+                                },
+                                outline: [
+                                    {
+                                        x: zone.Center.x - (gridX / 2),
+                                        y: zone.Center.y,
+                                        z: zone.Center.z + (gridY / 2),
+                                    },
+                                    {
+                                        x: zone.Center.x + (gridX / 2),
+                                        y: zone.Center.y,
+                                        z: zone.Center.z + (gridY / 2),
+                                    },
+                                    {
+                                        x: zone.Center.x + (gridX / 2),
+                                        y: zone.Center.y,
+                                        z: zone.Center.z - (gridY / 2),
+                                    },
+                                    {
+                                        x: zone.Center.x - (gridX / 2),
+                                        y: zone.Center.y,
+                                        z: zone.Center.z - (gridY / 2),
+                                    },
+                                ],
+                                top: zone.Center.y + (height / 2),
+                                botom: zone.Center.y - (height / 2),
                                 radius: zone.PointRadius,
-
                             }
                         }).filter(Boolean),
                     };

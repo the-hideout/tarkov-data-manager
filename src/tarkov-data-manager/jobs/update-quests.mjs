@@ -1341,6 +1341,7 @@ class UpdateQuestsJob extends DataJob {
                         const ignoreRoles = [
                             'assault',
                             'cursedAssault',
+                            'followerStormtrooper',
                         ];
                         const allowedRoles = cond.savageRole.filter(role => !ignoreRoles.includes(role)).reduce((roles, role) => {
                             const key = this.getMobKey(role);
