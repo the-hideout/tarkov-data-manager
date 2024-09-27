@@ -465,7 +465,7 @@ class UpdateMapsJob extends DataJob {
                     mapData.artillery = {
                         zones: artillerySettings.ShellingZones.map(zone => {
                             if (!zone.IsActive) {
-                                //return false;
+                                return false;
                             }
                             const gridX = ((zone.Points.x-1)*zone.GridStep.x)+zone.PointRadius * 2;
                             const gridY = ((zone.Points.y-1)*zone.GridStep.y)+zone.PointRadius * 2;
