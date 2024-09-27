@@ -14,6 +14,7 @@ class UpdateItemCacheJob extends DataJob {
     }
 
     run = async () => {
+        this.logger.log('Loading price and other data...');
         this.logger.time('items-with-prices');
         [
             this.bsgItems, 
@@ -35,6 +36,7 @@ class UpdateItemCacheJob extends DataJob {
             tarkovData.handbook(),
             tarkovData.traders(),
         ]);
+        this.logger.log('Getting presets...');
         this.presets = await this.jobManager.jobOutput('update-presets', this, 'regular', true);
         this.presetsLocale = this.presets.locale;
         this.presets = this.presets.presets;
@@ -68,6 +70,7 @@ class UpdateItemCacheJob extends DataJob {
             'changeLast48hPercent',
             'lastOfferCount',
         ];
+        this.logger.log('Processing items...');
         for (const [key, value] of this.itemMap.entries()) {
             if (value.types.includes('disabled') || value.types.includes('quest'))
                 continue;
@@ -276,9 +279,11 @@ class UpdateItemCacheJob extends DataJob {
             });
         }
 
+        this.logger.log('Merging translations...');
         // merge preset translations
         this.mergeTranslations(this.presetsLocale);
 
+        this.logger.log('Adding trader prices...');
         // Add trader prices
         for (const id in itemData) {
             if (itemData[id].types.includes('preset') && id !== 'customdogtags12345678910') {
@@ -480,6 +485,7 @@ class UpdateItemCacheJob extends DataJob {
             if (gameMode.name === 'regular') {
                 continue;
             }
+            this.logger.log(`Preparing ${gameMode.name} mode items data...`);
             const modeData = {
                 ...this.kvData,
             };

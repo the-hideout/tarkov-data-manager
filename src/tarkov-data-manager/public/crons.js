@@ -13,7 +13,7 @@ $(document).ready( function () {
                         <div><b>${data}</b></div>
                         <div>
                             <a href="#" class="waves-effect waves-light btn-small edit-cron tooltipped" data-tooltip="Edit" data-job="${data}" data-schedule="${cron.schedule}"><i class="material-icons">edit</i></a>
-                            <a href="#" class="waves-effect waves-light btn-small run-cron tooltipped" data-tooltip="Run" data-job="${data}"><i class="material-icons">play_arrow</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small run-cron tooltipped${cron.running ? ' disabled' : ''}" data-tooltip="Run" data-job="${data}"><i class="material-icons">play_arrow</i></a>
                         </div>
                     `;
                 }
@@ -39,7 +39,11 @@ $(document).ready( function () {
                 if (type === 'display') {
                     if (!data) return 'N/A';
                     const date = new Date(data);
-                    return `<a href="#" class="view-cron-log" data-cron="${cron.name}">${date.toLocaleDateString()} ${date.toLocaleTimeString()}</a>`;
+                    let runningLog = '';
+                    if (cron.running) {
+                        runningLog = `<div><a href="#" class="waves-effect waves-light btn-small view-current-log tooltipped" data-tooltip="View current log" data-job="${cron.name}"><i class="material-icons">text_snippet</i></a></div>`;
+                    }
+                    return `<a href="#" class="view-cron-log" data-cron="${cron.name}">${date.toLocaleDateString()} ${date.toLocaleTimeString()}</a>${runningLog}`;
                 }
                 return data;
             }
@@ -102,6 +106,27 @@ $(document).ready( function () {
                     }
                     target.removeClass('disabled');
                     table.ajax.reload();
+                });
+            });
+
+            $('.view-current-log').off('click');
+            $('.view-current-log').click(function (event) {
+                let target = $(event.target);
+                if (target[0].nodeName === 'I') target = target.parent();
+                $('#modal-view-cron-log .log-messages').empty().html('Loading...');
+                $('#modal-view-cron-log h4').text(target.data('job'));
+                M.Modal.getInstance(document.getElementById('modal-view-cron-log')).open();
+                $.ajax({
+                    //method: ,
+                    dataType: "json",
+                    url: '/crons/get-current/'+target.data('job')
+                }).done(function (data) {
+                    const ansi_up = new AnsiUp;
+                    const logMessages = [];
+                    for (let i = 0; i < data.length; i++) {
+                        logMessages.push(ansi_up.ansi_to_html(data[i]));
+                    }
+                    $('#modal-view-cron-log .log-messages').html(logMessages.join('<br>'));
                 });
             });
 

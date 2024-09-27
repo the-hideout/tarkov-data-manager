@@ -23,6 +23,7 @@ import publicApi from './modules/public-api.mjs';
 import { uploadToS3, getImages, getLocalBucketContents, addFileToBucket, deleteFromBucket, renameFile, copyFile } from './modules/upload-s3.mjs';
 import { createAndUploadFromSource, regenerateFromExisting } from './modules/image-create.mjs';
 import webSocketServer from './modules/websocket-server.mjs';
+import jobManager from './jobs/index.mjs';
 
 vm.runInThisContext(fs.readFileSync(import.meta.dirname + '/public/common.js'))
 
@@ -1336,6 +1337,21 @@ app.get('/crons/get', async (req, res) => {
 app.get('/crons/get/:name', async (req, res) => {
     try {
         const logMessages = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'logs', req.params.name+'.log'), {encoding: 'utf8'}));
+        res.json(logMessages);
+        return;
+    } catch (error) {
+        console.log(chalk.red(`Error retrieving ${req.params.name} job log`), error);
+    }
+    res.json([]);
+});
+
+app.get('/crons/get-current/:name', async (req, res) => {
+    try {
+        let logMessages = jobManager.currentLog(req.params.name);
+        if (logMessages) {
+            return res.json(logMessages);
+        }
+        logMessages = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'logs', req.params.name+'.log'), {encoding: 'utf8'}));
         res.json(logMessages);
         return;
     } catch (error) {

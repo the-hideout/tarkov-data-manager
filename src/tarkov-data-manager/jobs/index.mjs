@@ -302,6 +302,18 @@ const jobManager = {
             return returnResult;
         });
     },
+    currentLog: (jobName) => {
+        const job = jobs[jobName];
+        if (!job) {
+            return Promise.reject(new Error(`Job ${jobName} is not a valid job`));
+        }
+        if (!job.running) {
+            return undefined;
+        }
+        const logger = job.parentLogger || job.logger;
+        
+        return logger.messages;
+    },
 };
 
 for (const jobClassName in jobClasses) {
