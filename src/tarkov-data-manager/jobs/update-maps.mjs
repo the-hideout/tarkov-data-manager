@@ -846,9 +846,12 @@ class UpdateMapsJob extends DataJob {
 
         const points = [];
         const directions = [1, -1];
-        for (const dirY of directions) {
-            for (let dirXIndex = directions.length-1; dirXIndex >= 0; dirXIndex--) {
-                const dirX = directions[dirXIndex];
+        const directionsX = [-1, 1, 1, -1]
+        let dirXIndex = 0;
+        for (let dirYIndex = 0; dirYIndex < directions.length; dirYIndex ++) {
+            const dirY = directions[dirYIndex];
+            for (dirXIndex = dirYIndex ? 2: 0; dirXIndex < directionsX.length - (dirYIndex ? 0 : 2); dirXIndex++) {
+                const dirX = directionsX[dirXIndex];
                 let x = zone.Center.x + ((gridX*dirX) / 2);
                 let y = zone.Center.z + ((gridY*dirY) / 2);
                 if (zone.Rotate) {
