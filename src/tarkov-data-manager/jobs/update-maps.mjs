@@ -831,16 +831,6 @@ class UpdateMapsJob extends DataJob {
     }
 
     getArtilleryZoneOutline(zone) {
-        function rotate(cx, cy, x, y, angle) {
-            var radians = (Math.PI / 180) * angle,
-                cos = Math.cos(radians),
-                sin = Math.sin(radians),
-                nx = (cos * (x - cx)) + (sin * (y - cy)) + cx,
-                ny = (cos * (y - cy)) - (sin * (x - cx)) + cy;
-            return {x: nx, y: ny};
-        }
-
-        
         const gridX = ((zone.Points.x-1)*zone.GridStep.x)+zone.PointRadius * 2;
         const gridY = ((zone.Points.y-1)*zone.GridStep.y)+zone.PointRadius * 2;
 
@@ -854,17 +844,37 @@ class UpdateMapsJob extends DataJob {
                 const dirX = directionsX[dirXIndex];
                 let x = zone.Center.x + ((gridX*dirX) / 2);
                 let y = zone.Center.z + ((gridY*dirY) / 2);
-                if (zone.Rotate) {
-                    const rotated = rotate(zone.Center.x, zone.Center.y, x, y, zone.Rotate);
-                    x = rotated.x;
-                    y = rotated.y;
-                }
                 points.push({
                     x,
                     y: zone.Center.y,
                     z: y,
                 });
             }
+        }
+        if (zone.Rotate) {
+            const angleRadians = (zone.Rotate * -1 * Math.PI) / 180;
+
+            // Calculate the center of the rectangle
+            const centerX = (points[0].x + points[1].x + points[2].x + points[3].x) / 4;
+            const centerY = (points[0].z + points[1].z + points[2].z + points[3].z) / 4;
+
+            // Function to rotate a single point
+            const rotatePoint = (x, y, z) => {
+                const translatedX = x - centerX;
+                const translatedY = z - centerY;
+                
+                const rotatedX = translatedX * Math.cos(angleRadians) - translatedY * Math.sin(angleRadians);
+                const rotatedY = translatedX * Math.sin(angleRadians) + translatedY * Math.cos(angleRadians);
+                
+                return {
+                x: rotatedX + centerX,
+                y,
+                z: rotatedY + centerY,
+                };
+            };
+
+            // Rotate each point
+            return points.map(point => rotatePoint(point.x, point.y, point.z));
         }
         return points;
     }
