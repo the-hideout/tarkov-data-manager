@@ -66,15 +66,6 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
     });
 };
 
-const putValue = async (key, value) => {
-    const encoding = 'base64';
-    if (typeof value === 'object'){
-        value = JSON.stringify(value);
-    } 
-    //return doRequest('PUT', 'values', key, zlib.gzipSync(value).toString(encoding), false, {compression: 'gzip', encoding: encoding}).then(response => {
-    return doRequest('PUT', 'values', key, value, false, {});
-};
-
 export const getKeys = async () => {
     return doRequest('GET', 'keys');
 };
@@ -196,7 +187,14 @@ export const purgeCache = async (urls) => {
 };
 
 const cloudflare = {
-    put: putValue,
+    put: (key, value) => {
+        const encoding = 'base64';
+        if (typeof value === 'object'){
+            value = JSON.stringify(value);
+        } 
+        //return doRequest('PUT', 'values', key, zlib.gzipSync(value).toString(encoding), false, {compression: 'gzip', encoding: encoding}).then(response => {
+        return doRequest('PUT', 'values', key, value, false, {});
+    },
     getKeys: getKeys,
     purgeCache: purgeCache,
     //getOldKeys: getOldKeys,

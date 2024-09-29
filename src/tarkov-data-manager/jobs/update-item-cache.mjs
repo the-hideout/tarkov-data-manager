@@ -279,11 +279,12 @@ class UpdateItemCacheJob extends DataJob {
             });
         }
 
-        this.logger.log('Merging translations...');
+        this.logger.time('Merge preset translations');
         // merge preset translations
         this.mergeTranslations(this.presetsLocale);
+        this.logger.timeEnd('Merge preset translations');
 
-        this.logger.log('Adding trader prices...');
+        this.logger.time('Add trader prices');
         // Add trader prices
         for (const id in itemData) {
             if (itemData[id].types.includes('preset') && id !== 'customdogtags12345678910') {
@@ -313,6 +314,7 @@ class UpdateItemCacheJob extends DataJob {
                 //this.logger.warn(`No trader sell prices mapped for ${this.locales.en[itemData[id].name]} (${id}) with category id ${itemData[id].bsgCategoryId}`);
             }
         }
+        this.logger.timeEnd('Add trader prices');
 
         //add flea prices from base items to default presets
         for (const item of Object.values(itemData)) {
@@ -469,6 +471,7 @@ class UpdateItemCacheJob extends DataJob {
         this.kvData.ArmorMaterial = armorData;
         this.kvData.PlayerLevel = levelData;
         this.kvData.LanguageCode = Object.keys(this.locales).sort();
+        this.logger.log('Uploading items data to cloudflare...');
         await this.cloudflarePut();
 
         const schemaData = {
@@ -479,6 +482,7 @@ class UpdateItemCacheJob extends DataJob {
             LanguageCode: Object.keys(this.locales).sort().join('\n '),
             //TraderName: [],
         };
+        this.logger.log('Uploading schema data to cloudflare...');
         await this.cloudflarePut(schemaData, 'schema_data');
 
         for (const gameMode of this.gameModes) {
@@ -519,6 +523,7 @@ class UpdateItemCacheJob extends DataJob {
                     item[fieldName] = dbItem[`${gameMode.name}_${fieldName}`];
                 }
             }
+            this.logger.log(`Uploading ${gameMode.name} items data to cloudflare...`);
             await this.cloudflarePut(modeData, `${this.kvName}_${gameMode.name}`);
         }
 
