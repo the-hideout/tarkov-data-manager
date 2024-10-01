@@ -7,7 +7,7 @@ import { DateTime } from 'luxon';
 import cloudflare from './cloudflare.mjs';
 import stellate from './stellate.mjs';
 import TranslationHelper from './translation-helper.mjs';
-import { query, jobComplete, maxQueryRows } from'./db-connection.mjs';
+import { query, batchQuery, jobComplete, maxQueryRows } from'./db-connection.mjs';
 import JobLogger from './job-logger.mjs';
 import { alert, send as sendWebhook } from './webhook.mjs';
 import webSocketServer from './websocket-server.mjs';
@@ -256,16 +256,9 @@ class DataJob {
             this.logger.success(`Successful Cloudflare put of ${kvName} in ${uploadTime} ms`);
             //stellate.purge(kvName, this.logger);
         } else {
-            const errorMessages = [];
-            for (let i = 0; i < response.errors.length; i++) {
-                this.logger.error(response.errors[i]);
-                errorMessages.push(response.errors[i]);
-            }
-            for (let i = 0; i < response.messages.length; i++) {
-                this.logger.error(response.messages[i]);
-            }
-            if (errorMessages.length > 0) {
-                return Promise.reject(new Error(`Error uploading kv data: ${errorMessages.join(', ')}`));
+            response.messages?.forEach(message => this.logger.error(message));
+            if (response.errors.length > 0) {
+                return Promise.reject(new Error(`Error uploading kv data: ${response.errors.join(', ')}`));
             }
         }
     }
@@ -377,8 +370,14 @@ class DataJob {
         return this.translationHelper.hasTranslation(key, langCode);
     }
 
-    query = async (sql, params) => {
-        const queryPromise = query(sql, params);;
+    query = (sql, params) => {
+        const queryPromise = query(sql, params);
+        this.queries.push(queryPromise);
+        return queryPromise;
+    }
+
+    batchQuery = (sql, params, batchCallback) => {
+        const queryPromise = batchQuery(sql, params, batchCallback);
         this.queries.push(queryPromise);
         return queryPromise;
     }

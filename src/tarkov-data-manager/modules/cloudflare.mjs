@@ -21,13 +21,11 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
         responseType: 'json',
         resolveBodyOnly: true,
         retry: {
-            limit: 20,
-            calculateDelay: () => {
-                return 500;
-            }
+            limit: 3,
+            methods: ['GET', 'PUT', 'POST', 'DELETE'],
         },
         timeout: {
-            request: 20000,
+            response: 20000,
         },
     };
 
