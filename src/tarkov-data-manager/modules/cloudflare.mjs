@@ -4,12 +4,19 @@ import got from 'got';
 
 const BASE_URL = 'https://api.cloudflare.com/client/v4/';
 
-const doRequest = async (method = 'GET', operation, key, value, extraHeaders, metadata) => {
+const doRequest = async (options = {}) => {
+    if (!options.path) {
+        return Promise.reject(new Error('Must specify path for cloudflare request'));
+    }
+    const method = options.method ?? 'GET';
+    const path = options.path;
+    const body = options.body;
+
     if (!process.env.CLOUDFLARE_TOKEN) {
         return {
            result: null,
            success: false,
-           errors: [`Cloudflare token not set; skipping ${method} ${key}`],
+           errors: [`Cloudflare token not set; skipping ${method} ${path}`],
            messages: []
         };
     }
@@ -17,6 +24,7 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
         method: method,
         headers: {
             'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
+            ...options.headers,
         },
         responseType: 'json',
         resolveBodyOnly: true,
@@ -27,31 +35,22 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
         timeout: {
             response: 20000,
         },
+        signal: options.signal,
     };
-
-    if(extraHeaders){
-        requestOptions.headers = {
-            ...requestOptions.headers,
-            ...extraHeaders,
-        };
-    }
 
     let namespace = process.env.NODE_ENV === 'production' ? '2e6feba88a9e4097b6d2209191ed4ae5' : '17fd725f04984e408d4a70b37c817171';
     //namespace = '2e6feba88a9e4097b6d2209191ed4ae5'; // force production
 
-    let keyPath = '';
-    if (key) keyPath = `/${key}`;
+    const fullCloudflarePath = `accounts/424ad63426a1ae47d559873f929eb9fc/storage/kv/namespaces/${namespace}/${path}`;
 
-    const fullCloudflarePath = `accounts/424ad63426a1ae47d559873f929eb9fc/storage/kv/namespaces/${namespace}/${operation}${keyPath}`;
-
-    if(value){
-        if (metadata) {
+    if (body){
+        if (options.metadata) {
             const form = new FormData();
-            form.append('value', value);
-            form.append('metadata', JSON.stringify(metadata));
+            form.append('value', body);
+            form.append('metadata', JSON.stringify(options.metadata));
             requestOptions.body = form;
         } else {
-            requestOptions.body = value;
+            requestOptions.body = body;
         }
     }
 
@@ -65,7 +64,7 @@ const doRequest = async (method = 'GET', operation, key, value, extraHeaders, me
 };
 
 export const getKeys = async () => {
-    return doRequest('GET', 'keys');
+    return doRequest({path: 'keys'});
 };
 
 const getOldKeys = async () => {
@@ -185,13 +184,13 @@ export const purgeCache = async (urls) => {
 };
 
 const cloudflare = {
-    put: (key, value) => {
+    put: (key, value, options = {}) => {
         const encoding = 'base64';
         if (typeof value === 'object'){
             value = JSON.stringify(value);
         } 
         //return doRequest('PUT', 'values', key, zlib.gzipSync(value).toString(encoding), false, {compression: 'gzip', encoding: encoding}).then(response => {
-        return doRequest('PUT', 'values', key, value, false, {});
+        return doRequest({method: 'PUT', path: `values/${key}`, body: value, ...options});
     },
     getKeys: getKeys,
     purgeCache: purgeCache,

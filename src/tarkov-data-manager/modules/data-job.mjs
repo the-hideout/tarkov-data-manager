@@ -101,6 +101,7 @@ class DataJob {
         if (options?.parent) {
             this.logger.parentLogger = options.parent.logger;
         }
+        this.abortController = new AbortController();
         this.startDate = new Date();
         this.kvData = {};
         this.jobSummary = {
@@ -265,7 +266,7 @@ class DataJob {
 
     cloudflareUpload = async (kvName, data, gameMode) => {
         if (!this.idSuffixLength) {
-            return cloudflare.put(kvName, data).catch(error => {
+            return cloudflare.put(kvName, data, {signal: this.abortController.signal}).catch(error => {
                 this.logger.error(error);
                 return {success: false, errors: [], messages: []};
             });
@@ -287,7 +288,7 @@ class DataJob {
                 idKey += `_${gameMode}`;
             }
             this.writeDump(partData, idKey);
-            uploads.push(cloudflare.put(idKey, partData).catch(error => {
+            uploads.push(cloudflare.put(idKey, partData, {signal: this.abortController.signal}).catch(error => {
                 this.logger.error(error);
                 return {success: false, errors: [], messages: []};
             }));

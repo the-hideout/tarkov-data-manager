@@ -21,11 +21,11 @@ pool.on('acquire', function (connection) {
     //console.log('Connection %d acquired', connection.threadId);
     connectedCount++;
     acquiredConnections++;
-    connection.timeout = setTimeout(() => {
+    /*connection.timeout = setTimeout(() => {
         //console.log('Destroying %d', connection.threadId);
         connection.destroy();
         acquiredConnections--;
-    }, 240000);
+    }, 240000);*/
 });
 
 /*pool.on('connection', function (connection) {
@@ -37,7 +37,7 @@ pool.on('enqueue', function () {
 });*/
 
 pool.on('release', function (connection) {
-    clearTimeout(connection.timeout);
+    //clearTimeout(connection.timeout);
     //console.log('Connection %d released', connection.threadId);
     acquiredConnections--;
 });

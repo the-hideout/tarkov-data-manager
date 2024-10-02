@@ -29,9 +29,8 @@ class UpdateItemCacheJob extends DataJob {
             tarkovData.credits(),
             tarkovData.locales(),
             tarkovData.globals(),
-            remoteData.getWithPrices(true).then(results => {
+            remoteData.getWithPrices(true, this.logger).finally(() => {
                 this.logger.timeEnd('items-with-prices');
-                return results;
             }),
             tarkovData.handbook(),
             tarkovData.traders(),

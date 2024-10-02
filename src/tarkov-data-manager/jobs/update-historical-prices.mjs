@@ -46,34 +46,24 @@ class UpdateHistoricalPricesJob extends DataJob {
     
             this.logger.log(`Getting ${gameMode.name} prices after ${dateCutoff}`);
     
-            const batchSize = this.maxQueryRows;
-            let offset = 0;
-            const historicalPriceData = [];
             this.logger.time('historical-prices-query');
-            while (true) {
-                const queryResults = await this.query(`
-                    SELECT
-                        item_id, timestamp, MIN(price) AS price_min, AVG(price) AS price_avg
-                    FROM
-                        price_data
-                    WHERE
-                        timestamp > ? AND
-                        game_mode = ?
-                    GROUP BY item_id, timestamp
-                    ORDER BY timestamp, item_id
-                    LIMIT ?, ?
-                `, [dateCutoff, gameMode.value, offset, batchSize]);
-                queryResults.forEach(r => historicalPriceData.push(r));
-                if (queryResults.length > 0) {
-                    this.logger.log(`Retrieved ${offset + queryResults.length} ${gameMode.name} prices through ${queryResults[queryResults.length-1].timestamp}${queryResults.length === batchSize ? '...' : ''}`);
-                } else {
+            const historicalPriceData = await this.batchQuery(`
+                SELECT
+                    item_id, timestamp, MIN(price) AS price_min, AVG(price) AS price_avg
+                FROM
+                    price_data
+                WHERE
+                    timestamp > ? AND
+                    game_mode = ?
+                GROUP BY item_id, timestamp
+                ORDER BY timestamp, item_id
+            `, [dateCutoff, gameMode.value], (batchResult, offset) => {
+                if (batchResult.length === 0 && offset === 0) {
                     this.logger.log(`Retrieved no ${gameMode.name} prices`);
+                } else {
+                    this.logger.log(`Retrieved ${offset + batchResult.length} ${gameMode.name} prices through ${batchResult[batchResult.length-1].timestamp}${batchResult.length === this.maxQueryRows ? '...' : ''}`);
                 }
-                if (queryResults.length !== batchSize) {
-                    break;
-                }
-                offset += batchSize;
-            }
+            });
             this.logger.timeEnd('historical-prices-query');
     
             for (const row of historicalPriceData) {
