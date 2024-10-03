@@ -71,7 +71,11 @@ $(document).ready( function () {
         columns: columns,
         autoWidth: false,
         drawCallback: (settings) => {
-            M.AutoInit();
+            try {
+                M.AutoInit();
+            } catch (error) {
+                console.error('Error initializing materializecss', error);
+            }
 
             $('.edit-cron').off('click');
             $('.edit-cron').click(function (event) {

@@ -1,5 +1,7 @@
 let table = false;
 
+let gamePresets = [];
+
 const existingImageElement = (itemId, imageType, url) => {
     const tooltipId = `${itemId}-${imageType}-tooltip-content`;
     return `
@@ -16,6 +18,14 @@ $(document).ready( function () {
     //$('.modal').modal();
     M.AutoInit();
 
+    $.ajax({
+        method: 'get',
+        dataType: 'json',
+        url: '/presets/get/game',
+    }).done(function (data) {
+        gamePresets = data;
+    });
+
     const columns = [
         {
             data: 'id',
@@ -25,6 +35,7 @@ $(document).ready( function () {
                         <div><b>${data}</b></div>
                         <div>
                             <a href="#" class="waves-effect waves-light btn-small edit-preset tooltipped" data-tooltip="Edit" data-id="${preset.id}"><i class="material-icons">edit</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small merge-preset tooltipped" data-tooltip="Merge" data-id="${preset.id}"><i class="material-icons">merge</i></a>
                             <a href="#" class="waves-effect waves-light btn-small delete-preset tooltipped" data-tooltip="Delete" data-id="${preset.id}" data-name="${preset.name}"><i class="material-icons">delete</i></a>
                         </div>
                     `;
@@ -34,7 +45,7 @@ $(document).ready( function () {
         },
         {
             data: 'name',
-            render: (data, type, wipe) => {
+            render: (data, type, preset) => {
                 return data;
             }
         },
@@ -69,6 +80,15 @@ $(document).ready( function () {
             className: 'image-column',
             width: '10%',
         },
+        {
+            data: 'last_used',
+            render: (data, type, preset) => {
+                if (type === 'display') {
+                    return new Date(data).toLocaleString();
+                }
+                return data;
+            }
+        },
     ];
 
     table = $('table.main').DataTable({
@@ -81,7 +101,11 @@ $(document).ready( function () {
         columns: columns,
         autoWidth: false,
         drawCallback: (settings) => {
-            M.AutoInit();
+            try {
+                M.AutoInit($('table.main.dataTable tbody')[0]);
+            } catch (error) {
+                console.error('Error initializing materializecss', error);
+            }
 
             $('.edit-preset').off('click');
             $('.edit-preset').click(function (event) {
@@ -117,8 +141,48 @@ $(document).ready( function () {
                 //$('#modal-edit-preset .version').val(target.data('version'));
                 const form = $('#modal-edit-preset').find('form').first();
                 form.attr('action', `/presets/${target.data('id')}`);
-                form.attr('method', 'PUT');
+                form.attr('method', 'PATCH');
                 M.Modal.getInstance(document.getElementById('modal-edit-preset')).open();
+                //M.updateTextFields();
+                //$('#modal-edit-preset .start_date').focus();
+            });
+
+            $('.merge-preset').off('click');
+            $('.merge-preset').click(function (event) {
+                let target = $(event.target);
+                if (target[0].nodeName === 'I') target = target.parent();
+                const preset = table.rows().data().toArray().find(p => p.id === target.data('id'));
+                const baseItemId = preset.items[0]._tpl;
+                const select = $('#merge-target')[0];
+                select.innerHTML = '';
+                const allPresets = [...table.rows().data().toArray(), ...gamePresets];
+                allPresets.forEach(p => {
+                    if (p.items[0]._tpl !== baseItemId) {
+                        return;
+                    }
+                    if (p.id === preset.id) {
+                        return;
+                    }
+                    const option = document.createElement('option');
+                    option.value = p.id;
+                    option.innerText = `${p.id} ${p.shortName}`;
+                    select.appendChild(option);
+                });
+                M.FormSelect.init(document.querySelectorAll('#merge-target'));
+                $('#modal-merge-preset h5').text(preset.shortName);
+                $('#modal-merge-preset h6').text(preset.id);
+                $('#modal-merge-preset .append_name').val(preset.append_name);
+                const image = document.createElement('img');
+                image.src = preset.image_512_link;
+                image.style = 'max-height: 100px; max-width: 500px';
+                $('#merge-source-image').empty();
+                $('#merge-source-image').append(image);
+                $('#merge-target-image').empty();
+                select.dispatchEvent(new Event('change'));
+                const form = $('#modal-merge-preset').find('form').first();
+                form.attr('action', `/presets/${preset.id}`);
+                form.attr('method', 'PUT');
+                M.Modal.getInstance(document.getElementById('modal-merge-preset')).open();
                 //M.updateTextFields();
                 //$('#modal-edit-preset .start_date').focus();
             });
@@ -219,6 +283,39 @@ $(document).ready( function () {
             M.Modal.getInstance(document.getElementById('modal-edit-preset')).close();
             table.ajax.reload();
         });
+    });
+
+    $('#modal-merge-preset .merge-preset-save').click(function(event) {
+        const form = $('#modal-merge-preset').find('form').first();
+        const targetId = $('#modal-merge-preset').find('select').first().val();
+        $.ajax({
+            method: form.attr('method'),
+            url: form.attr('action'),
+            data: {id: targetId},
+            dataType: 'json'
+        }).done(function (data) {
+            M.toast({text: data.message});
+            if (data.errors.length > 0) {
+                for (let i = 0; i < data.errors.length; i++) {
+                    M.toast({text: data.errors[i]});
+                }
+                return;
+            }
+            M.Modal.getInstance(document.getElementById('modal-merge-preset')).close();
+            table.ajax.reload();
+        });
+    });
+
+    document.getElementById('merge-target').addEventListener('change', function(e) {
+        const preset = table.rows().data().toArray().find(p => p.id === this.value) ?? gamePresets.find(p => p.id === this.value);
+        if (!preset) {
+            return;
+        }
+        const image = document.createElement('img');
+        image.src = preset.image_512_link;
+        image.style = 'max-height: 100px; max-width: 250px';
+        $('#merge-target-image').empty();
+        $('#merge-target-image').append(image);
     });
 
     /*$('.btn.add-preset').click(function(event) {

@@ -24,6 +24,7 @@ import { uploadToS3, getImages, getLocalBucketContents, addFileToBucket, deleteF
 import { createAndUploadFromSource, regenerateFromExisting } from './modules/image-create.mjs';
 import webSocketServer from './modules/websocket-server.mjs';
 import jobManager from './jobs/index.mjs';
+import presetData from './modules/preset-data.mjs';
 
 vm.runInThisContext(fs.readFileSync(import.meta.dirname + '/public/common.js'))
 
@@ -1914,6 +1915,9 @@ app.get('/presets', async (req, res) => {
                             <th>
                                 images
                             </th>
+                            <th>
+                                last used
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1927,7 +1931,7 @@ app.get('/presets', async (req, res) => {
                 <h5></h5>
                 <h6></h6>
                 <div class="row">
-                    <form class="col s12 post-url" method="put" action="/presets">
+                    <form class="col s12 post-url" method="patch" action="/presets">
                         <div class="row">
                             <div class="input-field s12">
                                 <input value="" id="append_name" type="text" class="validate append_name" name="append_name" placeholder=" ">
@@ -1940,6 +1944,34 @@ app.get('/presets', async (req, res) => {
             </div>
             <div class="modal-footer">
                 <a href="#!" class="waves-effect waves-green btn edit-preset-save">Save</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+            </div>
+        </div>
+        <div id="modal-merge-preset" class="modal modal-fixed-footer">
+            <div class="modal-content">
+                <div class="row">
+                    <div class="col s4">
+                        <h4>Merge Preset</h4>
+                        <h5></h5>
+                        <h6></h6>
+                    </div>
+                    <div id="merge-source-image" class="col s8"></div>
+                </div>
+                <div class="row">
+                    <form class="col s12 post-url" method="patch" action="/presets">
+                        <div class="row">
+                            <div class="input-field s12">
+                                <select id="merge-target" name="merge-target"></select>
+                                <label for="merge-target">Merge Into</label>
+                            </div>
+                        </div>
+                        <div class="row short-name-buttons"></div>
+                    </form>
+                </div>
+                <div id="merge-target-image" class="row"></div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="waves-effect waves-green btn merge-preset-save">Merge</a>
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
             </div>
         </div>
@@ -1984,7 +2016,43 @@ app.get('/presets/get', async (req, res) => {
     res.json(presets);
 });
 
-app.put('/presets/:id', async (req, res) => {
+app.get('/presets/get/game', async (req, res) => {
+    const [gamePresets, en, items] = await Promise.all([
+        presetData.getGamePresets(),
+        tarkovData.locale('en'),
+        remoteData.get(),
+    ]);
+    const presets = [];
+    for (const presetId in presetData.presets.presets) {
+        if (!gamePresets[presetId]) {
+            continue;
+        }
+        const p = presetData.presets.presets[presetId];
+        const preset = {
+            id: p.id,
+            name: presetData.presets.locale.en[p.name],
+            shortName: presetData.presets.locale.en[p.shortName],
+            items: p.items,
+            itemNames: p.items.map(item => {
+                return {
+                    id: item._tpl,
+                    name: en[`${item._tpl} Name`],
+                    shortName: en[`${item._tpl} ShortName`],
+                };
+            }),
+            image_8x_link: items.get(p.id)?.image_8x_link,
+            image_512_link: items.get(p.id)?.image_512_link,
+            image_link: items.get(p.id)?.image_link,
+            base_image_link: items.get(p.id)?.base_image_link,
+            grid_image_link: items.get(p.id)?.grid_image_link,
+            icon_link: items.get(p.id)?.icon_link,
+        };
+        presets.push(preset);
+    }
+    res.json(presets);
+});
+
+app.patch('/presets/:id', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
         const preset = await query('SELECT * FROM manual_preset WHERE id = ?', [req.params.id]).then(results => results[0]);
@@ -2008,6 +2076,28 @@ app.put('/presets/:id', async (req, res) => {
                 }
             }
         }
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.send(response);
+});
+
+app.put('/presets/:id', async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        await presetData.mergePreset(req.params.id, req.body.id);
+        response.message = `Preset ${req.params.id} merged into ${req.body.id}`;
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.send(response);
+});
+
+app.delete('/presets/:id', async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        await presetData.deletePreset(req.params.id);
+        response.message = `Preset ${req.params.id} deleted`;
     } catch (error) {
         response.errors.push(error.message);
     }

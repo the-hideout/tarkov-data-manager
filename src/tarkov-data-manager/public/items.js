@@ -176,7 +176,11 @@ $(document).ready( async function () {
         columns: columns,
         autoWidth: false,
         drawCallback: (settings) => {
-            M.AutoInit();
+            try {
+                M.AutoInit();
+            } catch (error) {
+                console.error('Error initializing materializecss', error);
+            }
             //M.Tooltip.init($('.tooltipped'));
             $('.edit-item').off('click');
             $('.edit-item').click(showEditItemModal);
