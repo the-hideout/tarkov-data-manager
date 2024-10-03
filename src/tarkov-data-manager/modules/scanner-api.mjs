@@ -40,15 +40,15 @@ export const scannerFlags = {
 const updatePresets = (newPresets) => {
     try {
         presets = {
-            ...newPresets
+            ...newPresets,
+            byBase: Object.values(newPresets.presets).reduce((all, p) => {
+                if (!all[p.baseId]) {
+                    all[p.baseId] = [];
+                }
+                all[p.baseId].push(p);
+                return all;
+            }, {}),
         };
-        presets.byBase = Object.values(presets.presets).reduce((all, p) => {
-            if (!all[p.baseId]) {
-                all[p.baseId] = [];
-            }
-            all[p.baseId].push(p);
-            return all;
-        }, {});
     } catch (error) {
         console.log('ScannerAPI error updating presets:', error.message);
     }

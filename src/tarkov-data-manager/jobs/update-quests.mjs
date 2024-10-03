@@ -758,7 +758,7 @@ class UpdateQuestsJob extends DataJob {
             '5448e54d4bdc2dcc718b4568',
             '5448e5284bdc2dcb718b4567',
         ];
-        if (armorTypes.includes(this.items[rewardData.item]._parent)) {
+        if (armorTypes.includes(this.items[rewardData.item]?._parent)) {
             // all armors are default presets
             const matchedPreset = Object.values(this.presets).find(preset => {
                 return preset.baseId === rewardData.item && preset.default;
