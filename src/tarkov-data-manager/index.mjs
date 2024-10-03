@@ -2096,7 +2096,7 @@ app.patch('/presets/:id', async (req, res) => {
 app.put('/presets/:id', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        //await presetData.mergePreset(req.params.id, req.body.id);
+        await presetData.mergePreset(req.params.id, req.body.id);
         response.message = `Preset ${req.params.id} merged into ${req.body.id}`;
     } catch (error) {
         response.errors.push(error.message);
