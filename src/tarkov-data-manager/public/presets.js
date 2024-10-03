@@ -286,6 +286,15 @@ $(document).ready( function () {
     });
 
     $('#modal-merge-preset .merge-preset-save').click(function(event) {
+        M.Modal.getInstance(document.getElementById('modal-merge-preset')).close();
+        const sourceId = $('#modal-merge-preset h6').first().text();
+        const targetId = $('#modal-merge-preset').find('select').first().val();
+        $('#modal-merge-confirm .modal-merge-confirm-source').text(sourceId);
+        $('#modal-merge-confirm .modal-merge-confirm-target').text(targetId);
+        M.Modal.getInstance(document.getElementById('modal-merge-confirm')).open();
+    });
+
+    $('.merge-confirm').click(function (event) {
         const form = $('#modal-merge-preset').find('form').first();
         const targetId = $('#modal-merge-preset').find('select').first().val();
         $.ajax({
@@ -301,7 +310,7 @@ $(document).ready( function () {
                 }
                 return;
             }
-            M.Modal.getInstance(document.getElementById('modal-merge-preset')).close();
+            M.Modal.getInstance(document.getElementById('modal-merge-confirm')).close();
             table.ajax.reload();
         });
     });

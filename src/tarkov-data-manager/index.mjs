@@ -1957,6 +1957,7 @@ app.get('/presets', async (req, res) => {
                     </div>
                     <div id="merge-source-image" class="col s8"></div>
                 </div>
+                <div class="row"><div class="col s12"><p>This action will merge the above preset (source) into the selected preset (target). All prices for the source will be moved to the target and the source will be deleted.</p></div></div>
                 <div class="row">
                     <form class="col s12 post-url" method="patch" action="/presets">
                         <div class="row">
@@ -1973,6 +1974,16 @@ app.get('/presets', async (req, res) => {
             <div class="modal-footer">
                 <a href="#!" class="waves-effect waves-green btn merge-preset-save">Merge</a>
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+            </div>
+        </div>
+        <div id="modal-merge-confirm" class="modal">
+            <div class="modal-content">
+                <h4>Confirm Merge</h4>
+                <div>Are you sure you want to merge <span class="modal-merge-confirm-source"></span> into <span class="modal-merge-confirm-target"></span>? This cannot be undone.</div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat merge-confirm">Yes</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat merge-cancel">No</a>
             </div>
         </div>
         <div id="modal-delete-confirm" class="modal">
@@ -2085,7 +2096,7 @@ app.patch('/presets/:id', async (req, res) => {
 app.put('/presets/:id', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        await presetData.mergePreset(req.params.id, req.body.id);
+        //await presetData.mergePreset(req.params.id, req.body.id);
         response.message = `Preset ${req.params.id} merged into ${req.body.id}`;
     } catch (error) {
         response.errors.push(error.message);
