@@ -518,8 +518,8 @@ const presetData = {
         emitter.emit('presetsUpdated', presets);
         return Promise.all([
             query(`UPDATE price_data SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
-            query(`UPDATE price_archive SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
-            query(`UPDATE trader_offers SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
+            query(`UPDATE IGNORE price_archive SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
+            query(`UPDATE IGNORE trader_offers SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
             query(`DELETE FROM manual_preset WHERE id = ?`, [sourceId]),
         ]);
     },
