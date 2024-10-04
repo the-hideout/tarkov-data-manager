@@ -758,7 +758,7 @@ class UpdateQuestsJob extends DataJob {
             '5448e54d4bdc2dcc718b4568',
             '5448e5284bdc2dcb718b4567',
         ];
-        if (armorTypes.includes(this.items[rewardData.item]._parent)) {
+        if (armorTypes.includes(this.items[rewardData.item]?._parent)) {
             // all armors are default presets
             const matchedPreset = Object.values(this.presets).find(preset => {
                 return preset.baseId === rewardData.item && preset.default;
@@ -939,7 +939,7 @@ class UpdateQuestsJob extends DataJob {
         }*/
         let locationName = 'any';
         let locationId = null;
-        if (quest.location !== 'any') {
+        if (quest.location !== 'any' && quest.location !== 'marathon') {
             locationName = this.locales.en[`${quest.location} Name`];
             locationId = quest.location;
         }
@@ -1341,6 +1341,7 @@ class UpdateQuestsJob extends DataJob {
                         const ignoreRoles = [
                             'assault',
                             'cursedAssault',
+                            'followerStormtrooper',
                         ];
                         const allowedRoles = cond.savageRole.filter(role => !ignoreRoles.includes(role)).reduce((roles, role) => {
                             const key = this.getMobKey(role);

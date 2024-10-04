@@ -41,7 +41,10 @@ class UpdateMapsJob extends DataJob {
             this.kvData[gameMode.name] = {
                 Map: [],
             };
-            const locations = await tarkovData.locations({gameMode: gameMode.name});
+            const [locations, globals] = await Promise.all([
+                tarkovData.locations({gameMode: gameMode.name}),
+                tarkovData.globals({gameMode: gameMode.name}),
+            ]);
             this.logger.log(`Processing ${gameMode.name} maps...`);
             for (const id in locations.locations) {
                 const map = locations.locations[id];
@@ -456,6 +459,55 @@ class UpdateMapsJob extends DataJob {
                     mapData.bosses.push(bossData);
                 }
                 mapData.enemies = [...enemySet].map(enemy => this.addMobTranslation(enemy));
+
+                const artillerySettings = globals.config.ArtilleryShelling?.ArtilleryMapsConfigs?.[mapData.nameId];
+                if (artillerySettings) {
+                    mapData.artillery = {
+                        zones: artillerySettings.ShellingZones.map(zone => {
+                            if (!zone.IsActive) {
+                                return false;
+                            }
+                            const gridX = ((zone.Points.x-1)*zone.GridStep.x)+zone.PointRadius * 2;
+                            const gridY = ((zone.Points.y-1)*zone.GridStep.y)+zone.PointRadius * 2;
+                            const height = 10;
+                            return {
+                                id: `${zone.ID}`,
+                                position: zone.Center,
+                                size: {
+                                    x: gridX,
+                                    y: height,
+                                    z: gridY,
+                                },
+                                /*outline: [
+                                    {
+                                        x: zone.Center.x - (gridX / 2),
+                                        y: zone.Center.y,
+                                        z: zone.Center.z + (gridY / 2),
+                                    },
+                                    {
+                                        x: zone.Center.x + (gridX / 2),
+                                        y: zone.Center.y,
+                                        z: zone.Center.z + (gridY / 2),
+                                    },
+                                    {
+                                        x: zone.Center.x + (gridX / 2),
+                                        y: zone.Center.y,
+                                        z: zone.Center.z - (gridY / 2),
+                                    },
+                                    {
+                                        x: zone.Center.x - (gridX / 2),
+                                        y: zone.Center.y,
+                                        z: zone.Center.z - (gridY / 2),
+                                    },
+                                ],*/
+                                outline: this.getArtilleryZoneOutline(zone),
+                                top: zone.Center.y + (height / 2),
+                                botom: zone.Center.y - (height / 2),
+                                radius: zone.PointRadius,
+                            }
+                        }).filter(Boolean),
+                    };
+                }
     
                 this.kvData[gameMode.name].Map.push(mapData);
             }
@@ -776,6 +828,55 @@ class UpdateMapsJob extends DataJob {
         }
         const shasum = crypto.createHash('sha1');
         return shasum.update(hashString).digest('hex');
+    }
+
+    getArtilleryZoneOutline(zone) {
+        const gridX = ((zone.Points.x-1)*zone.GridStep.x)+zone.PointRadius * 2;
+        const gridY = ((zone.Points.y-1)*zone.GridStep.y)+zone.PointRadius * 2;
+
+        const points = [];
+        const directions = [1, -1];
+        const directionsX = [-1, 1, 1, -1]
+        let dirXIndex = 0;
+        for (let dirYIndex = 0; dirYIndex < directions.length; dirYIndex ++) {
+            const dirY = directions[dirYIndex];
+            for (dirXIndex = dirYIndex ? 2: 0; dirXIndex < directionsX.length - (dirYIndex ? 0 : 2); dirXIndex++) {
+                const dirX = directionsX[dirXIndex];
+                let x = zone.Center.x + ((gridX*dirX) / 2);
+                let y = zone.Center.z + ((gridY*dirY) / 2);
+                points.push({
+                    x,
+                    y: zone.Center.y,
+                    z: y,
+                });
+            }
+        }
+        if (zone.Rotate) {
+            const angleRadians = (zone.Rotate * -1 * Math.PI) / 180;
+
+            // Calculate the center of the rectangle
+            const centerX = (points[0].x + points[1].x + points[2].x + points[3].x) / 4;
+            const centerY = (points[0].z + points[1].z + points[2].z + points[3].z) / 4;
+
+            // Function to rotate a single point
+            const rotatePoint = (x, y, z) => {
+                const translatedX = x - centerX;
+                const translatedY = z - centerY;
+                
+                const rotatedX = translatedX * Math.cos(angleRadians) - translatedY * Math.sin(angleRadians);
+                const rotatedY = translatedX * Math.sin(angleRadians) + translatedY * Math.cos(angleRadians);
+                
+                return {
+                x: rotatedX + centerX,
+                y,
+                z: rotatedY + centerY,
+                };
+            };
+
+            // Rotate each point
+            return points.map(point => rotatePoint(point.x, point.y, point.z));
+        }
+        return points;
     }
 }
 

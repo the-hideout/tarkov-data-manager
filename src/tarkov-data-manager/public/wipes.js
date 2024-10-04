@@ -40,7 +40,11 @@ $(document).ready( function () {
         columns: columns,
         autoWidth: false,
         drawCallback: (settings) => {
-            M.AutoInit();
+            try {
+                M.AutoInit();
+            } catch (error) {
+                console.error('Error initializing materializecss', error);
+            }
 
             $('.edit-wipe').off('click');
             $('.edit-wipe').click(function (event) {

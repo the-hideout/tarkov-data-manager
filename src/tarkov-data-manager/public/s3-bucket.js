@@ -46,7 +46,11 @@ $(document).ready( function () {
         columns: columns,
         autoWidth: false,
         drawCallback: (settings) => {
-            M.AutoInit();
+            try {
+                M.AutoInit();
+            } catch (error) {
+                console.error('Error initializing materializecss', error);
+            }
 
             $('.delete-file').off('click');
             $('.delete-file').click(function (event) {

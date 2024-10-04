@@ -52,7 +52,11 @@ $(document).ready( function () {
         columns: columns,
         autoWidth: false,
         drawCallback: (settings) => {
-            M.AutoInit();
+            try {
+                M.AutoInit();
+            } catch (error) {
+                console.error('Error initializing materializecss', error);
+            }
             $('.delete-json').off('click');
             $('.delete-json').click(function (event) {
                 let target = $(event.target);

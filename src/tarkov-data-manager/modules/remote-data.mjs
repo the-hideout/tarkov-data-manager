@@ -2,7 +2,7 @@ import midmean from 'compute-midmean';
 
 import normalizeName from './normalize-name.js';
 import timer from './console-timer.js';
-import { query, maxQueryRows } from './db-connection.mjs';
+import { query, batchQuery } from './db-connection.mjs';
 import gameModes from './game-modes.mjs';
 import emitter from './emitter.mjs';
 
@@ -56,7 +56,7 @@ const methods = {
         return myData;
     },
     refresh: async () => {
-        console.log('Loading item data');
+        //console.log('Loading item data');
 
         try {
             const allDataTimer = timer('item-data-query');
@@ -110,44 +110,27 @@ const methods = {
             return Promise.reject(error);
         }
     },
-    getWithPrices: async (refreshItems = false) => {
-        console.log('Loading price data');
+    getWithPrices: async (refreshItems = false, logger = console) => {
+        logger.log('Loading price data');
 
         try {
             const itemsPromise = methods.get(refreshItems);
             
-            const price24hTimer = timer('item-24h-price-query');
-            const price24hPromise = new Promise(async (resolve, reject) => {
-                const batchSize = maxQueryRows;
-                let offset = 0;
-                try {
-                    const priceResults = [];
-                    while (true) {
-                        const moreData = await query(`
-                            SELECT
-                                price,
-                                item_id,
-                                game_mode
-                            FROM
-                                price_data
-                            WHERE
-                                timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)
-                            LIMIT ?, ?
-                        `, [offset, batchSize]);
-                        moreData.forEach(r => priceResults.push(r));
-                        if (moreData.length < batchSize) {
-                            break;
-                        }
-                        offset += batchSize;
-                    }
-                    price24hTimer.end();
-                    resolve(priceResults);
-                } catch (error) {
-                    reject(error);
-                }
+            logger.time('item-24h-price-query');
+            const price24hPromise = batchQuery(`
+                SELECT
+                    price,
+                    item_id,
+                    game_mode
+                FROM
+                    price_data
+                WHERE
+                    timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)
+            `).finally(() => {
+                logger.timeEnd('item-24h-price-query');
             });
 
-            const lastLowPriceTimer = timer('item-last-low-price-query');
+            logger.time('item-last-low-price-query');
             const lastLowPricePromise = query(`
                 SELECT
                     a.item_id,
@@ -170,12 +153,11 @@ const methods = {
                     a.item_id = b.item_id AND a.timestamp = b.max_timestamp AND a.game_mode = b.game_mode
                 GROUP BY
                     a.item_id, a.timestamp, a.game_mode;
-            `).then(results => {
-                lastLowPriceTimer.end();
-                return results;
+            `).finally(() => {
+                logger.timeEnd('item-last-low-price-query');
             });
 
-            const priceYesterdayTimer = timer('price-yesterday-query');
+            logger.time('price-yesterday-query');
             const avgPriceYesterdayPromise = query(`
                 SELECT
                     avg(price) AS priceYesterday,
@@ -189,9 +171,8 @@ const methods = {
                     timestamp < DATE_SUB(NOW(), INTERVAL 1 DAY)
                 GROUP BY
                     item_id, game_mode
-            `).then(results => {
-                priceYesterdayTimer.end();
-                return results;
+            `).finally(() => {
+                logger.timeEnd('price-yesterday-query');
             });
 
             const [

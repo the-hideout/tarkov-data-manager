@@ -14,6 +14,7 @@ class UpdateItemCacheJob extends DataJob {
     }
 
     run = async () => {
+        this.logger.log('Loading price and other data...');
         this.logger.time('items-with-prices');
         [
             this.bsgItems, 
@@ -28,13 +29,13 @@ class UpdateItemCacheJob extends DataJob {
             tarkovData.credits(),
             tarkovData.locales(),
             tarkovData.globals(),
-            remoteData.getWithPrices(true).then(results => {
+            remoteData.getWithPrices(true, this.logger).finally(() => {
                 this.logger.timeEnd('items-with-prices');
-                return results;
             }),
             tarkovData.handbook(),
             tarkovData.traders(),
         ]);
+        this.logger.log('Getting presets...');
         this.presets = await this.jobManager.jobOutput('update-presets', this, 'regular', true);
         this.presetsLocale = this.presets.locale;
         this.presets = this.presets.presets;
@@ -68,6 +69,7 @@ class UpdateItemCacheJob extends DataJob {
             'changeLast48hPercent',
             'lastOfferCount',
         ];
+        this.logger.log('Processing items...');
         for (const [key, value] of this.itemMap.entries()) {
             if (value.types.includes('disabled') || value.types.includes('quest'))
                 continue;
@@ -276,9 +278,12 @@ class UpdateItemCacheJob extends DataJob {
             });
         }
 
+        this.logger.time('Merge preset translations');
         // merge preset translations
         this.mergeTranslations(this.presetsLocale);
+        this.logger.timeEnd('Merge preset translations');
 
+        this.logger.time('Add trader prices');
         // Add trader prices
         for (const id in itemData) {
             if (itemData[id].types.includes('preset') && id !== 'customdogtags12345678910') {
@@ -308,6 +313,7 @@ class UpdateItemCacheJob extends DataJob {
                 //this.logger.warn(`No trader sell prices mapped for ${this.locales.en[itemData[id].name]} (${id}) with category id ${itemData[id].bsgCategoryId}`);
             }
         }
+        this.logger.timeEnd('Add trader prices');
 
         //add flea prices from base items to default presets
         for (const item of Object.values(itemData)) {
@@ -464,6 +470,7 @@ class UpdateItemCacheJob extends DataJob {
         this.kvData.ArmorMaterial = armorData;
         this.kvData.PlayerLevel = levelData;
         this.kvData.LanguageCode = Object.keys(this.locales).sort();
+        this.logger.log('Uploading items data to cloudflare...');
         await this.cloudflarePut();
 
         const schemaData = {
@@ -474,12 +481,14 @@ class UpdateItemCacheJob extends DataJob {
             LanguageCode: Object.keys(this.locales).sort().join('\n '),
             //TraderName: [],
         };
+        this.logger.log('Uploading schema data to cloudflare...');
         await this.cloudflarePut(schemaData, 'schema_data');
 
         for (const gameMode of this.gameModes) {
             if (gameMode.name === 'regular') {
                 continue;
             }
+            this.logger.log(`Preparing ${gameMode.name} mode items data...`);
             const modeData = {
                 ...this.kvData,
             };
@@ -513,6 +522,7 @@ class UpdateItemCacheJob extends DataJob {
                     item[fieldName] = dbItem[`${gameMode.name}_${fieldName}`];
                 }
             }
+            this.logger.log(`Uploading ${gameMode.name} items data to cloudflare...`);
             await this.cloudflarePut(modeData, `${this.kvName}_${gameMode.name}`);
         }
 

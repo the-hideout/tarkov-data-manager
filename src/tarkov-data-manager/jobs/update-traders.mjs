@@ -11,11 +11,19 @@ class UpdateTradersJob extends DataJob {
     }
 
     async run() {
-        this.logger.log('Loading TarkovData traders.json...');
-        this.tdTraders = await got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
-            responseType: 'json',
-            resolveBodyOnly: true,
-        });
+        this.logger.log('Loading TarkovData traders.json and services status...');
+        [this.tdTraders, this.services] = await Promise.all([
+            got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
+                responseType: 'json',
+                resolveBodyOnly: true,
+            }),
+            tarkovData.status().then(status => status.services).catch(error => {
+                this.logger.error(`Error getting EFT services status: ${error.message}`);
+                return [];
+            })
+        ]);
+        const tradingService = this.services.find(s => s.name === 'Trading');
+        const gameUpdating = tradingService?.status === 1;
         const skipTraders = {
             pve: ['6617beeaa9cfa777ca915b7c'] // Ref
         };
@@ -138,7 +146,7 @@ class UpdateTradersJob extends DataJob {
             }
             this.logger.log(`Processed ${this.kvData[gameMode.name].Trader.length} ${gameMode.name} traders`);
 
-            if (staleTraderCount > 0) {
+            if (staleTraderCount > 0 && !gameUpdating) {
                 this.logger.warn(`${staleTraderCount} stale traders`);
                 this.addJobSummary(`${staleTraderCount} stale ${gameMode.name} traders`);
             }

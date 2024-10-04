@@ -8,12 +8,13 @@ import session from 'cookie-session';
 import chalk from 'chalk';
 import formidable from 'formidable';
 import AdmZip from 'adm-zip';
+import { DateTime } from 'luxon';
 
 import './modules/configure-env.mjs';
 import remoteData from './modules/remote-data.mjs';
 import tarkovData from './modules/tarkov-data.mjs';
 import jobs from './jobs/index.mjs';
-import {connection, query, format} from './modules/db-connection.mjs';
+import { connection, query, connectionsInUse } from './modules/db-connection.mjs';
 import timer from './modules/console-timer.js';
 import { userFlags, scannerFlags, refreshScannerUsers } from './modules/scanner-api.mjs';
 import scannerHttpApi from './modules/scanner-http-api.mjs';
@@ -22,6 +23,8 @@ import publicApi from './modules/public-api.mjs';
 import { uploadToS3, getImages, getLocalBucketContents, addFileToBucket, deleteFromBucket, renameFile, copyFile } from './modules/upload-s3.mjs';
 import { createAndUploadFromSource, regenerateFromExisting } from './modules/image-create.mjs';
 import webSocketServer from './modules/websocket-server.mjs';
+import jobManager from './jobs/index.mjs';
+import presetData from './modules/preset-data.mjs';
 
 vm.runInThisContext(fs.readFileSync(import.meta.dirname + '/public/common.js'))
 
@@ -947,7 +950,7 @@ app.post('/scanners/add-user', urlencodedParser, async (req, res) => {
         return;
     }
     try {
-        const userCheck = await query(format('SELECT * from scanner_user WHERE username=?', [req.body.username]));
+        const userCheck = await query('SELECT * from scanner_user WHERE username=?', [req.body.username]);
         if (userCheck.length > 0) {
             response.errors.push(`User ${req.body.username} already exists`);
             res.send(response);
@@ -961,7 +964,7 @@ app.post('/scanners/add-user', urlencodedParser, async (req, res) => {
     try {
         const user_disabled = req.body.user_disabled ? 1 : 0;
         console.log('inserting user');
-        await query(format('INSERT INTO scanner_user (username, password, disabled) VALUES (?, ?, ?)', [req.body.username, req.body.password, user_disabled]))
+        await query('INSERT INTO scanner_user (username, password, disabled) VALUES (?, ?, ?)', [req.body.username, req.body.password, user_disabled])
         refreshScannerUsers();
         response.message = `Created user ${req.body.username}`;
     } catch (error) {
@@ -975,7 +978,7 @@ app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
         let id = req.body.user_id;
-        let userCheck = await query(format('SELECT * from scanner_user WHERE id=?', [id]));
+        let userCheck = await query('SELECT * from scanner_user WHERE id=?', [id]);
         if (userCheck.length == 0) {
             response.errors.push(`User not found`);
             res.send(response);
@@ -1000,9 +1003,9 @@ app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
             updateValues.push(updates[field]);
         }
         if (updateFields.length > 0) {
-            await query(format(`UPDATE scanner_user SET ${updateFields.map(field => {
+            await query(`UPDATE scanner_user SET ${updateFields.map(field => {
                 return `${field} = ?`;
-            }).join(', ')} WHERE id='${userCheck.id}'`, updateValues));
+            }).join(', ')} WHERE id='${userCheck.id}'`, updateValues);
             refreshScannerUsers();
             response.message = `Updated ${updateFields.join(', ')}`;
         }
@@ -1015,7 +1018,7 @@ app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
 app.post('/scanners/delete-user', urlencodedParser, async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        let deleteResult = await query(format('DELETE FROM scanner_user WHERE username=?', [req.body.username]));
+        let deleteResult = await query('DELETE FROM scanner_user WHERE username=?', [req.body.username]);
         if (deleteResult.affectedRows > 0) {
             response.message = `User ${req.body.username} deleted`;
             refreshScannerUsers();
@@ -1031,7 +1034,7 @@ app.post('/scanners/delete-user', urlencodedParser, async (req, res) => {
 app.post('/scanners/user-flags', urlencodedParser, async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        await query(format('UPDATE scanner_user SET flags=? WHERE id=?', [req.body.flags, req.body.id]));
+        await query('UPDATE scanner_user SET flags=? WHERE id=?', [req.body.flags, req.body.id]);
         response.message = `Set flags to ${req.body.flags}`;
         refreshScannerUsers();
     } catch (error) {
@@ -1043,7 +1046,7 @@ app.post('/scanners/user-flags', urlencodedParser, async (req, res) => {
 app.post('/scanners/scanner-flags', urlencodedParser, async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        await query(format('UPDATE scanner SET flags=? WHERE id=?', [req.body.flags, req.body.id]));
+        await query('UPDATE scanner SET flags=? WHERE id=?', [req.body.flags, req.body.id]);
         response.message = `Set flags to ${req.body.flags}`;
         //refreshScannerUsers();
     } catch (error) {
@@ -1162,7 +1165,7 @@ app.put('/webhooks/:id', async (req, res) => {
     //edit
     const response = {message: 'No changes made.', errors: []};
     try {
-        let hookCheck = await query(format('SELECT * from webhooks WHERE id=?', [req.params.id]));
+        let hookCheck = await query('SELECT * from webhooks WHERE id=?', [req.params.id]);
         if (hookCheck.length == 0) {
             response.errors.push(`Webhook not found`);
             res.json(response);
@@ -1204,9 +1207,9 @@ app.put('/webhooks/:id', async (req, res) => {
             updateValues.push(updates[field]);
         }
         if (updateFields.length > 0) {
-            await query(format(`UPDATE webhooks SET ${updateFields.map(field => {
+            await query(`UPDATE webhooks SET ${updateFields.map(field => {
                 return `${field} = ?`;
-            }).join(', ')} WHERE id='${req.params.id}'`, updateValues));
+            }).join(', ')} WHERE id='${req.params.id}'`, updateValues);
             webhookApi.refresh();
             response.message = `Updated ${updateFields.join(', ')}`;
             console.log(`Edited webhook ${req.params.id}: ${updateFields.join(', ')}`)
@@ -1220,7 +1223,7 @@ app.put('/webhooks/:id', async (req, res) => {
 app.delete('/webhooks/:id', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        let deleteResult = await query(format('DELETE FROM webhooks WHERE id=?', [req.params.id]));
+        let deleteResult = await query('DELETE FROM webhooks WHERE id=?', [req.params.id]);
         if (deleteResult.affectedRows > 0) {
             console.log(`Deleted webhook ${req.params.id}`);
             response.message = `Webhook deleted`;
@@ -1235,6 +1238,25 @@ app.delete('/webhooks/:id', async (req, res) => {
 });
 
 app.get('/crons', async (req, res) => {
+    const runningJobs = jobs.schedules().filter(j => j.running);
+    let runningJobsDiv = '';
+    if (runningJobs.length > 0) {
+        runningJobsDiv = `
+            <div>
+                <div>Jobs currently running:</div>
+                <ul>
+                    ${runningJobs.map(j => `<li>${j.name}: Started ${DateTime.fromJSDate(j.startDate).toRelative()}</li>`).join('\n')}
+                </ul>
+            </div>
+        `;
+    }
+    let connectionsDiv = '';
+    const usedConnections = connectionsInUse();
+    if (usedConnections > 0) {
+        connectionsDiv = `
+            <div>DB connections in use: ${usedConnections}</div>
+        `;
+    }
     res.send(`${getHeader(req, {include: 'datatables'})}
         <script src="/ansi_up.js"></script>
         <script src="/crons.js"></script>
@@ -1244,6 +1266,8 @@ app.get('/crons', async (req, res) => {
                 <div>
                     Note: Jobs are scheduled in UTC. Your local time is <span class="timeoffset"></span> hours UTC.
                 </div>
+                ${runningJobsDiv}
+                ${connectionsDiv}
                 <table class="highlight main">
                     <thead>
                         <tr>
@@ -1314,6 +1338,21 @@ app.get('/crons/get', async (req, res) => {
 app.get('/crons/get/:name', async (req, res) => {
     try {
         const logMessages = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'logs', req.params.name+'.log'), {encoding: 'utf8'}));
+        res.json(logMessages);
+        return;
+    } catch (error) {
+        console.log(chalk.red(`Error retrieving ${req.params.name} job log`), error);
+    }
+    res.json([]);
+});
+
+app.get('/crons/get-current/:name', async (req, res) => {
+    try {
+        let logMessages = jobManager.currentLog(req.params.name);
+        if (logMessages) {
+            return res.json(logMessages);
+        }
+        logMessages = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'logs', req.params.name+'.log'), {encoding: 'utf8'}));
         res.json(logMessages);
         return;
     } catch (error) {
@@ -1876,6 +1915,9 @@ app.get('/presets', async (req, res) => {
                             <th>
                                 images
                             </th>
+                            <th>
+                                last used
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1889,7 +1931,7 @@ app.get('/presets', async (req, res) => {
                 <h5></h5>
                 <h6></h6>
                 <div class="row">
-                    <form class="col s12 post-url" method="put" action="/presets">
+                    <form class="col s12 post-url" method="patch" action="/presets">
                         <div class="row">
                             <div class="input-field s12">
                                 <input value="" id="append_name" type="text" class="validate append_name" name="append_name" placeholder=" ">
@@ -1903,6 +1945,45 @@ app.get('/presets', async (req, res) => {
             <div class="modal-footer">
                 <a href="#!" class="waves-effect waves-green btn edit-preset-save">Save</a>
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+            </div>
+        </div>
+        <div id="modal-merge-preset" class="modal modal-fixed-footer">
+            <div class="modal-content">
+                <div class="row">
+                    <div class="col s4">
+                        <h4>Merge Preset</h4>
+                        <h5></h5>
+                        <h6></h6>
+                    </div>
+                    <div id="merge-source-image" class="col s8"></div>
+                </div>
+                <div class="row"><div class="col s12"><p>This action will merge the above preset (source) into the selected preset (target). All prices for the source will be moved to the target and the source will be deleted.</p></div></div>
+                <div class="row">
+                    <form class="col s12 post-url" method="patch" action="/presets">
+                        <div class="row">
+                            <div class="input-field s12">
+                                <select id="merge-target" name="merge-target"></select>
+                                <label for="merge-target">Merge Into</label>
+                            </div>
+                        </div>
+                        <div class="row short-name-buttons"></div>
+                    </form>
+                </div>
+                <div id="merge-target-image" class="row"></div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="waves-effect waves-green btn merge-preset-save">Merge</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+            </div>
+        </div>
+        <div id="modal-merge-confirm" class="modal">
+            <div class="modal-content">
+                <h4>Confirm Merge</h4>
+                <div>Are you sure you want to merge <span class="modal-merge-confirm-source"></span> into <span class="modal-merge-confirm-target"></span>? This cannot be undone.</div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat merge-confirm">Yes</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat merge-cancel">No</a>
             </div>
         </div>
         <div id="modal-delete-confirm" class="modal">
@@ -1946,7 +2027,43 @@ app.get('/presets/get', async (req, res) => {
     res.json(presets);
 });
 
-app.put('/presets/:id', async (req, res) => {
+app.get('/presets/get/game', async (req, res) => {
+    const [gamePresets, en, items] = await Promise.all([
+        presetData.getGamePresets(),
+        tarkovData.locale('en'),
+        remoteData.get(),
+    ]);
+    const presets = [];
+    for (const presetId in presetData.presets.presets) {
+        if (!gamePresets[presetId]) {
+            continue;
+        }
+        const p = presetData.presets.presets[presetId];
+        const preset = {
+            id: p.id,
+            name: presetData.presets.locale.en[p.name],
+            shortName: presetData.presets.locale.en[p.shortName],
+            items: p.items,
+            itemNames: p.items.map(item => {
+                return {
+                    id: item._tpl,
+                    name: en[`${item._tpl} Name`],
+                    shortName: en[`${item._tpl} ShortName`],
+                };
+            }),
+            image_8x_link: items.get(p.id)?.image_8x_link,
+            image_512_link: items.get(p.id)?.image_512_link,
+            image_link: items.get(p.id)?.image_link,
+            base_image_link: items.get(p.id)?.base_image_link,
+            grid_image_link: items.get(p.id)?.grid_image_link,
+            icon_link: items.get(p.id)?.icon_link,
+        };
+        presets.push(preset);
+    }
+    res.json(presets);
+});
+
+app.patch('/presets/:id', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
         const preset = await query('SELECT * FROM manual_preset WHERE id = ?', [req.params.id]).then(results => results[0]);
@@ -1970,6 +2087,28 @@ app.put('/presets/:id', async (req, res) => {
                 }
             }
         }
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.send(response);
+});
+
+app.put('/presets/:id', async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        await presetData.mergePreset(req.params.id, req.body.id);
+        response.message = `Preset ${req.params.id} merged into ${req.body.id}`;
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.send(response);
+});
+
+app.delete('/presets/:id', async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        await presetData.deletePreset(req.params.id);
+        response.message = `Preset ${req.params.id} deleted`;
     } catch (error) {
         response.errors.push(error.message);
     }

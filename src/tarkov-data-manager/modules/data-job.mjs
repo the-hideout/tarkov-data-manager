@@ -2,11 +2,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import  { EmbedBuilder } from 'discord.js';
+import { DateTime } from 'luxon';
 
 import cloudflare from './cloudflare.mjs';
 import stellate from './stellate.mjs';
 import TranslationHelper from './translation-helper.mjs';
-import { query, jobComplete, maxQueryRows } from'./db-connection.mjs';
+import { query, batchQuery, jobComplete, maxQueryRows } from'./db-connection.mjs';
 import JobLogger from './job-logger.mjs';
 import { alert, send as sendWebhook } from './webhook.mjs';
 import webSocketServer from './websocket-server.mjs';
@@ -57,6 +58,8 @@ class DataJob {
             'gameModes',
             'lastCompletion',
             'loadLocales',
+            'cronTrigger',
+            'eventTrigger',
             ...options.saveFields,
         ];
         this.writeFolder = 'dumps';
@@ -78,6 +81,27 @@ class DataJob {
     }
 
     async start(options) {
+        if (this.running) {
+            if (options?.parent) {
+                for (let parent = options.parent; parent; parent = parent.parent) {
+                    if (parent.name === this.name) {
+                        return Promise.reject(new Error(`Job ${this.name} is a parent of ${options.parent.name}, so ${options.parent.name} cannot run it`));
+                    }
+                }
+                if (!this.parent) {
+                    this.parent = options.parent;
+                } else {
+                    options.parent.logger.log(`${this.name} is already has parent job ${options.parent.name}`);
+                }
+                options.parent.logger.log(`${this.name} is already running; waiting for completion`);
+                return this.running;
+            }
+            return Promise.reject(new Error(`Job already running; started ${DateTime.fromJSDate(this.startDate).toRelative()}`));
+        }
+        if (options?.parent) {
+            this.logger.parentLogger = options.parent.logger;
+        }
+        this.abortController = new AbortController();
         this.startDate = new Date();
         this.kvData = {};
         this.jobSummary = {
@@ -90,22 +114,7 @@ class DataJob {
                 logger: this.logger,
             });
         }
-        if (options && options.parent) {
-            this.logger.parentLogger = options.parent.logger;
-        }
-        if (this.running) {
-            if (options && options.parent) {
-                for (let parent = options.parent; parent; parent = parent.parent) {
-                    if (parent.name === this.name) {
-                        return Promise.reject(new Error(`Job ${this.name} is a parent of ${options.parent.name}, so ${options.parent.name} cannot run it`));
-                    }
-                }
-                this.parent = options.parent;
-            }
-            this.logger.log(`${this.name} is already running; waiting for completion`);
-            return this.running;
-        }
-        if (options && options.parent) {
+        if (options?.parent) {
             this.parent = options.parent;
         }
         this.discordAlertQueue = [];
@@ -248,23 +257,16 @@ class DataJob {
             this.logger.success(`Successful Cloudflare put of ${kvName} in ${uploadTime} ms`);
             //stellate.purge(kvName, this.logger);
         } else {
-            const errorMessages = [];
-            for (let i = 0; i < response.errors.length; i++) {
-                this.logger.error(response.errors[i]);
-                errorMessages.push(response.errors[i]);
-            }
-            for (let i = 0; i < response.messages.length; i++) {
-                this.logger.error(response.messages[i]);
-            }
-            if (errorMessages.length > 0) {
-                return Promise.reject(new Error(`Error uploading kv data: ${errorMessages.join(', ')}`));
+            response.messages?.forEach(message => this.logger.error(message));
+            if (response.errors.length > 0) {
+                return Promise.reject(new Error(`Error uploading kv data: ${response.errors.join(', ')}`));
             }
         }
     }
 
     cloudflareUpload = async (kvName, data, gameMode) => {
         if (!this.idSuffixLength) {
-            return cloudflare.put(kvName, data).catch(error => {
+            return cloudflare.put(kvName, data, {signal: this.abortController.signal}).catch(error => {
                 this.logger.error(error);
                 return {success: false, errors: [], messages: []};
             });
@@ -286,7 +288,7 @@ class DataJob {
                 idKey += `_${gameMode}`;
             }
             this.writeDump(partData, idKey);
-            uploads.push(cloudflare.put(idKey, partData).catch(error => {
+            uploads.push(cloudflare.put(idKey, partData, {signal: this.abortController.signal}).catch(error => {
                 this.logger.error(error);
                 return {success: false, errors: [], messages: []};
             }));
@@ -369,8 +371,14 @@ class DataJob {
         return this.translationHelper.hasTranslation(key, langCode);
     }
 
-    query = async (sql, params) => {
-        const queryPromise = query(sql, params);;
+    query = (sql, params) => {
+        const queryPromise = query(sql, params);
+        this.queries.push(queryPromise);
+        return queryPromise;
+    }
+
+    batchQuery = (sql, params, batchCallback) => {
+        const queryPromise = batchQuery(sql, params, batchCallback);
         this.queries.push(queryPromise);
         return queryPromise;
     }
