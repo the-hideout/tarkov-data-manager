@@ -40,15 +40,15 @@ export const scannerFlags = {
 const updatePresets = (newPresets) => {
     try {
         presets = {
-            ...newPresets
+            ...newPresets,
+            byBase: Object.values(newPresets.presets).reduce((all, p) => {
+                if (!all[p.baseId]) {
+                    all[p.baseId] = [];
+                }
+                all[p.baseId].push(p);
+                return all;
+            }, {}),
         };
-        presets.byBase = Object.values(presets.presets).reduce((all, p) => {
-            if (!all[p.baseId]) {
-                all[p.baseId] = [];
-            }
-            all[p.baseId].push(p);
-            return all;
-        }, {});
     } catch (error) {
         console.log('ScannerAPI error updating presets:', error.message);
     }
@@ -68,10 +68,23 @@ const refreshTraderScanStatus = async () => {
 };
 
 const queryResultToBatchItem = item => {
-    let contains = [];
-    let itemPresets = [];
-    if (presets.byBase[item.id]) {
-        itemPresets = presets.byBase[item.id].map(preset => {
+    return {
+        id: item.id,
+        name: String(item.name),
+        shortName: String(item.short_name),
+        types: item.types?.split(',').map(dashCase => dashToCamelCase(dashCase)) ?? [],
+        backgroundColor: item.properties?.backgroundColor ?? 'default',
+        width: item.width ? item.width : 1,
+        height: item.height ? item.height : 1,
+        items: [],
+        matchIndex: item.match_index,
+        needsBaseImage: !!item.needs_base_image,
+        needsImage: !!item.needs_image,
+        needsGridImage: !!item.needs_grid_image,
+        needsIconImage: !!item.needs_icon_image,
+        needs512pxImage: !!item.needs_512px_image,
+        needs8xImage: !!item.needs_8x_image,
+        presets: presets.byBase[item.id]?.map(preset => {
             return {
                 id: preset.id,
                 name: presets.locale.en[preset.name],
@@ -83,25 +96,7 @@ const queryResultToBatchItem = item => {
                 default: preset.default,
                 items: preset.items,
             }
-        });
-    }
-    return {
-        id: item.id,
-        name: String(item.name),
-        shortName: String(item.short_name),
-        types: item.types ? item.types.split(',').map(dashCase => {return dashToCamelCase(dashCase);}) : [],
-        backgroundColor: item.properties?.backgroundColor ? item.properties.backgroundColor : 'default',
-        width: item.width ? item.width : 1,
-        height: item.height ? item.height : 1,
-        items: contains,
-        matchIndex: item.match_index,
-        needsBaseImage: item.needs_base_image ? true : false,
-        needsImage: item.needs_image ? true : false,
-        needsGridImage: item.needs_grid_image ? true : false,
-        needsIconImage: item.needs_icon_image ? true : false,
-        needs512pxImage: item.needs_512px_image ? true : false,
-        needs8xImage: item.needs_8x_image ? true : false,
-        presets: itemPresets,
+        }) ?? [],
     };
 };
 

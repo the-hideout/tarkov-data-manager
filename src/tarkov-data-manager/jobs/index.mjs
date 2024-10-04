@@ -5,8 +5,9 @@ import schedule from 'node-schedule';
 import cron from 'cron-validator';
 
 import emitter from '../modules/emitter.mjs';
+import discord from '../modules/webhook.mjs';
 
-const defaultJobs = {
+const defaultJobTriggers = {
     'update-item-cache': '*/5 * * * *',
     'game-data': '1-59/10 * * * *',
     'update-barters': 'jobComplete_update-trader-prices',
@@ -29,7 +30,7 @@ const defaultJobs = {
 };
 
 // these jobs only run on the given schedule when not in dev mode
-const nonDevJobs = {};
+const nonDevJobTriggers = {};
 
 // these jobs run at startup
 const startupJobs = [
@@ -41,32 +42,8 @@ const startupJobs = [
 // these jobs run at startup when not in dev mode
 const nonDevStartupJobs = [];
 
-let allJobs = {
-    ...defaultJobs
-};
-try {
-    const customJobs = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, '..', 'settings', 'crons.json')));
-    allJobs = {
-        ...defaultJobs,
-        ...customJobs
-    };
-} catch (error) {
-    if (error.code !== 'ENOENT') console.log(`Error parsing custom cron jobs`, error);
-}
-if (process.env.NODE_ENV !== 'dev') {
-    allJobs = {
-        ...allJobs,
-        ...nonDevJobs
-    };
-}
-
-const jobs = {};
 const jobClasses = {};
-const scheduledJobs = {};
-const eventJobs = {};
-
 const jobFiles = fs.readdirSync('./jobs').filter(file => file.endsWith('.mjs'));
-
 for (const file of jobFiles) {
     if (file === 'index.mjs') {
         continue;
@@ -74,19 +51,42 @@ for (const file of jobFiles) {
     await import(`./${file}`).then(jobClass => {
         jobClasses[file.replace('.mjs', '')] = jobClass.default;
     });
-    //const jobClass = require(`./${file}`);
-    //jobClasses[file.replace('.mjs', '')] = jobClass;
 }
 
+let jobTriggers = {
+    ...defaultJobTriggers
+};
+try {
+    const customJobs = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, '..', 'settings', 'crons.json')));
+    for (const jobName of Object.keys(customJobs)) {
+        if (!jobClasses[jobName]) {
+            console.warn(`${jobName} is not a valid job; excluding from custom schedule`);
+            customJobs[jobName] = undefined;
+            continue;
+        }
+        jobTriggers[jobName] = customJobs[jobName];
+    }
+} catch (error) {
+    if (error.code !== 'ENOENT') console.log(`Error parsing custom cron jobs`, error);
+}
+if (process.env.NODE_ENV !== 'dev') {
+    jobTriggers = {
+        ...jobTriggers,
+        ...nonDevJobTriggers
+    };
+}
+
+const jobs = {};
+
 const scheduleJob = function(name, cronSchedule) {
-    if (!jobClasses[name]) {
-        console.log(`Can't schedule ${name}; not a valid job`);
+    if (!jobs[name]) {
+        throw new Error(`Can't schedule ${name}; not a valid job`);
     }
-    if (scheduledJobs[name]) {
-        scheduledJobs[name].cancel();
+    if (jobs[name].cronTrigger) {
+        jobs[name].cronTrigger.cancel();
     }
-    if (eventJobs[name]) {
-        emitter.off(eventJobs[name].event, eventJobs[name].listener);
+    if (jobs[name].eventTrigger) {
+        emitter.off(jobs[name].eventTrigger.name, jobs[name].eventTrigger.listener);
     }
     if (!cronSchedule) {
         return;
@@ -105,18 +105,19 @@ const scheduleJob = function(name, cronSchedule) {
             await jobManager.runJob(name, false, false);
         } catch (error) {
             console.log(`Error running ${name} job: ${error}`);
+            discord.alert({
+                title: `Error running job ${name}: ${error.message}`,
+                message: error.stack,
+            });
         }
         console.timeEnd(name);
     };
     if (isCron) {
-        const job = schedule.scheduleJob(cronSchedule, jobFunction);
-        jobs[name].cronSchedule = cronSchedule;
-
-        scheduledJobs[name] = job;
+        jobs[name].cronTrigger = schedule.scheduleJob(cronSchedule, jobFunction);
     } else {
         emitter.on(cronSchedule, jobFunction);
-        eventJobs[name] = {
-            event: cronSchedule,
+        jobs[name].eventTrigger = {
+            name: cronSchedule,
             listener: jobFunction,
         };
     }
@@ -129,9 +130,9 @@ const jobManager = {
             return true;
         }*/
     
-        for (const jobName in allJobs) {
+        for (const jobName in jobTriggers) {
             try {
-                scheduleJob(jobName, allJobs[jobName]);
+                scheduleJob(jobName, jobTriggers[jobName]);
             } catch (error) {
                 console.log(`Error setting up ${jobName} job`, error);
             }
@@ -155,6 +156,10 @@ const jobManager = {
                 await jobManager.runJob(jobName);
             } catch (error) {
                 console.log(`Error running ${jobName}: ${error}`);
+                discord.alert({
+                    title: `Error running job ${name}: ${error.message}`,
+                    message: error.stack,
+                });
             }
         }
         let buildPresets = false;
@@ -202,37 +207,37 @@ const jobManager = {
             if (ignoreJobs.includes(jobName)) {
                 continue;
             }
-            const jobResult = {
+            jobResults.push({
                 name: jobName,
-                schedule: allJobs[jobName] || '',
+                schedule: jobTriggers[jobName] ?? '',
                 lastRun: jobManager.lastRun(jobName),
-                nextRun: false,
+                nextRun: jobs[jobName].cronTrigger?.nextInvocation() ?? false,
                 running: jobs[jobName]?.running,
-            };
-            if (scheduledJobs[jobName]) {
-                jobResult.nextRun = scheduledJobs[jobName].nextInvocation();
-            }
-            jobResults.push(jobResult);
+                startDate: jobs[jobName].startDate,
+            });
         }
         return jobResults;
     },
-    setSchedule: (jobName, cronSchedule) => {
-        if (!cronSchedule) {
-            cronSchedule = undefined;
+    setSchedule: (jobName, jobSchedule) => {
+        if (!jobSchedule) {
+            jobSchedule = undefined;
         }
-        if (cronSchedule === 'default') {
-            if (!defaultJobs[jobName]) {
-                cronSchedule = undefined;
+        if (jobSchedule === 'default') {
+            if (!defaultJobTriggers[jobName]) {
+                jobSchedule = undefined;
             } else {
-                cronSchedule = defaultJobs[jobName];
+                jobSchedule = defaultJobTriggers[jobName];
             }
         }
-        scheduleJob(jobName, cronSchedule);
-        allJobs[jobName] = cronSchedule;
+        scheduleJob(jobName, jobSchedule);
+        jobTriggers[jobName] = jobSchedule;
         const customJobs = {};
-        for (const job in allJobs) {
-            if (allJobs[job] !== defaultJobs[job]) {
-                customJobs[job] = allJobs[job];
+        for (const jobName in jobTriggers) {
+            if (!jobs[jobName]) {
+                continue;
+            }
+            if (jobTriggers[jobName] !== defaultJobTriggers[jobName]) {
+                customJobs[jobName] = jobTriggers[jobName];
             }
         }
         fs.writeFileSync(path.join(import.meta.dirname, '..', 'settings', 'crons.json'), JSON.stringify(customJobs, null, 4));
@@ -241,8 +246,8 @@ const jobManager = {
         if (!jobs[jobName]) {
             return Promise.reject(new Error(`${jobName} is not a valid job`));
         }
-        if (scheduledJobs[jobName]) {
-            const scheduledJob = scheduledJobs[jobName];
+        if (jobs[jobName].cronTrigger) {
+            const scheduledJob = jobs[jobName].cronTrigger;
             const nextInvocation = scheduledJob.nextInvocation();
             if (scheduledJob && bumpSchedule && nextInvocation) {const nextRunMinusFive = nextInvocation.toDate();
                 nextRunMinusFive.setMinutes(nextRunMinusFive.getMinutes() - 5);
@@ -251,7 +256,7 @@ const jobManager = {
                 }
             }
             jobs[jobName].nextInvocation = nextInvocation?.toDate();
-        } else if (eventJobs[jobName]) {
+        } else if (jobs[jobName].eventTrigger) {
             if (jobs[jobName].lastCompletion) {
                 const elapsed = new Date().getTime() - jobs[jobName].lastCompletion.getTime();
                 jobs[jobName].nextInvocation = new Date(new Date().getTime() + elapsed);
@@ -296,6 +301,18 @@ const jobManager = {
             }
             return returnResult;
         });
+    },
+    currentLog: (jobName) => {
+        const job = jobs[jobName];
+        if (!job) {
+            return Promise.reject(new Error(`Job ${jobName} is not a valid job`));
+        }
+        if (!job.running) {
+            return undefined;
+        }
+        const logger = job.parentLogger || job.logger;
+        
+        return logger.messages;
     },
 };
 

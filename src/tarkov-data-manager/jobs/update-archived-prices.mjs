@@ -43,33 +43,23 @@ class UpdateArchivedPricesJob extends DataJob {
     
             this.logger.log(`Using ${gameMode.name} query cutoff of ${dateCutoff}`);
     
-            const batchSize = this.maxQueryRows;
-            let offset = 0;
-            const archivedPriceData = [];
             this.logger.time('archived-prices-query');
-            while (true) {
-                const queryResults = await this.query(`
-                    SELECT
-                        item_id, price_date, price_min, price_avg
-                    FROM
-                        price_archive
-                    WHERE
-                        price_date > ? AND
-                        game_mode = ?
-                    ORDER BY price_date, item_id
-                    LIMIT ?, ?
-                `, [dateCutoff, gameMode.value, offset, batchSize]);
-                queryResults.forEach(r => archivedPriceData.push(r));
-                if (queryResults.length > 0) {
-                    this.logger.log(`Retrieved ${offset + queryResults.length} ${gameMode.name} prices through ${queryResults[queryResults.length-1].price_date}${queryResults.length === batchSize ? '...' : ''}`);
-                } else {
+            const archivedPriceData = await this.batchQuery(`
+                SELECT
+                    item_id, price_date, price_min, price_avg
+                FROM
+                    price_archive
+                WHERE
+                    price_date > ? AND
+                    game_mode = ?
+                ORDER BY price_date, item_id
+            `, [dateCutoff, gameMode.value], (batchResults, offset) => {
+                if (batchResults.length === 0 && offset === 0) {
                     this.logger.log(`Retrieved no ${gameMode.name} prices`);
+                } else {
+                    this.logger.log(`Retrieved ${offset + batchResults.length} ${gameMode.name} prices through ${batchResults[batchResults.length-1].price_date}${batchResults.length === this.maxQueryRows ? '...' : ''}`);
                 }
-                if (queryResults.length !== batchSize) {
-                    break;
-                }
-                offset += batchSize;
-            }
+            });
             this.logger.timeEnd('archived-prices-query');
     
             for (const row of archivedPriceData) {

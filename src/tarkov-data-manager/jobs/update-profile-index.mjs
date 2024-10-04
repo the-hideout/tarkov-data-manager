@@ -58,31 +58,6 @@ class UpdateProfileIndexJob extends DataJob {
         }
         this.logger.success('Updated profile indices');
     }
-
-    async cloudflareQuery(query, params) {
-        if (!process.env.CLOUDFLARE_TOKEN) {
-            return Promise.reject(new Error('CLOUDFLARE_TOKEN not set, skipping purge'));
-        }
-        const response = await fetch(`${BASE_URL}accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`, {
-            method: 'POST',
-            headers: {
-                'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                params: params ?? [],
-                sql: query,
-            }),
-        });
-        if (!response.ok) {
-            return Promise.reject(new Error(`${response.status} ${response.statusText}`));
-        }
-        const result = await response.json();
-        if (!result.success && result.errors) {
-            return Promise.reject(new Error(`${result.errors[0].message} (${result.errors[0].code})`));
-        }
-        return result.result[0];
-    }
 }
 
 export default UpdateProfileIndexJob;

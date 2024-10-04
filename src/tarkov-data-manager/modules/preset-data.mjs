@@ -487,6 +487,44 @@ const presetData = {
         return result.affectedRows > 0;
     },
     presets,
+    deletePreset: async (id) => {
+        if (!presets.presets[id]) {
+            return Promise.reject(new Error(`No preset found with id ${id}`));
+        }
+        const gamePresets = await presetData.getGamePresets();
+        if (gamePresets[id]) {
+            return Promise.reject(new Error(`Cannot delete game preset ${id}`));
+        }
+        delete presets.presets[id];
+        emitter.emit('presetsUpdated', presets);
+        return Promise.all([
+            query(`DELETE FROM manual_preset WHERE id = ?`, [id]),
+            query(`DELETE FROM price_data WHERE item_id = ?`, [id]),
+            query(`DELETE FROM price_archive WHERE item_id = ?`, [id]),
+            remoteData.removeItem(id),
+        ]);
+    },
+    mergePreset: async (sourceId, targetId) => {
+        if (!presets.presets[sourceId]) {
+            return Promise.reject(new Error(`No preset found with id ${sourceId}`));
+        }
+        if (!presets.presets[targetId]) {
+            return Promise.reject(new Error(`No preset found with id ${targetId}`));
+        }
+        const gamePresets = await presetData.getGamePresets();
+        if (gamePresets[sourceId]) {
+            return Promise.reject(new Error(`Cannot merge game preset ${sourceId}`));
+        }
+        delete presets.presets[sourceId];
+        emitter.emit('presetsUpdated', presets);
+        return Promise.all([
+            query(`UPDATE price_data SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
+            query(`UPDATE IGNORE price_archive SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
+            query(`UPDATE IGNORE trader_offers SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
+            query(`DELETE FROM manual_preset WHERE id = ?`, [sourceId]),
+            remoteData.removeItem(id),
+        ]);
+    },
 };
 
 export const { getPresetProperties, init: initPresetData, addJsonPreset } = presetData;
