@@ -13,9 +13,9 @@ $(document).ready( function () {
                     return `
                         <div><b>${data}</b></div>
                         <div>
-                            <a href="#" class="waves-effect waves-light btn-small delete-file tooltipped" data-tooltip="Delete" data-file="${data}"><i class="material-icons">delete</i></a>
-                            <a href="#" class="waves-effect waves-light btn-small rename-file tooltipped" data-tooltip="Rename" data-file="${data}"><i class="material-icons">text_fields</i></a>
-                            <a href="#" class="waves-effect waves-light btn-small copy-file tooltipped" data-tooltip="Copy" data-file="${data}"><i class="material-icons">file_copy</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small tonal delete-file tooltipped" data-tooltip="Delete" data-file="${data}"><i class="material-icons">delete</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small tonal rename-file tooltipped" data-tooltip="Rename" data-file="${data}"><i class="material-icons">text_fields</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small tonal copy-file tooltipped" data-tooltip="Copy" data-file="${data}"><i class="material-icons">file_copy</i></a>
                         </div>
                     `;
                 }

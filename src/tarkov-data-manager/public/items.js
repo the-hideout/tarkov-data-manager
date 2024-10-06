@@ -61,8 +61,6 @@ $(document).ready( async function () {
             render: (data, type, item) => {
                 if (type === 'display') {
                     return `
-                        <div class="row">
-                        <div class="col s1">
                         <div>
                             ${data}
                         </div>
@@ -74,9 +72,7 @@ $(document).ready( async function () {
                             |
                             <a href="https://tarkov.dev/item/${item.normalized_name}">Tarkov.dev</a>
                             <br>
-                            <a class="waves-effect waves-light btn-small edit-item" data-item="${encodeURIComponent(JSON.stringify(item))}"><i class="material-icons">edit</i></a>
-                        </div>
-                        </div>
+                            <a class="waves-effect waves-light btn-small filled edit-item" data-item="${encodeURIComponent(JSON.stringify(item))}"><i class="material-icons">edit</i></a>
                         </div>
                     `;
                 }
@@ -85,7 +81,7 @@ $(document).ready( async function () {
                 }
                 return data;
             },
-            width: '10px',
+            width: '10%',
         },
         {
             data: 'image_link',
@@ -96,10 +92,8 @@ $(document).ready( async function () {
                         imageLink = item.base_image_link || item.grid_image_link || item.icon_link;
                     }
                     return `
-                        <div class="row">
-                            ${imageLink ? `<div class="col s12"><img src="${imageLink}" loading="lazy" style="max-height: 200px" /></div>`: ''}
-                        </div>
-                        <div class="">
+                        ${imageLink ? `<div><img src="${imageLink}" loading="lazy" style="max-height: 200px" /></div>`: ''}
+                        <div>
                             ${item.image_8x_link ? existingImageElement(item.id, '8x', item.image_8x_link): missingImageElement('8x')}
                             ${item.image_512_link ? existingImageElement(item.id, '512', item.image_512_link): missingImageElement('512')}
                             ${data ? existingImageElement(item.id, 'inspect', data): missingImageElement('inspect')}
@@ -107,35 +101,17 @@ $(document).ready( async function () {
                             ${item.grid_image_link ? existingImageElement(item.id, 'grid', item.grid_image_link): missingImageElement('grid')}
                             ${item.icon_link ? existingImageElement(item.id, 'icon', item.icon_link) : missingImageElement('icon')}
                         </div>
-                        <div class="row">
-                            ${item.image_8x_link || item.base_image_link ? `<a class="waves-effect waves-light regenerate btn-small tooltipped" data-id="${item.id}" data-tooltip="Regenerate images from source"><i class="material-icons">refresh</i></a>` : ''}
-                            <a class="waves-effect waves-light refresh-images btn-small tooltipped" data-id="${item.id}" data-tooltip="Refresh images from game"><i class="material-icons">sync</i></a>
+                        <div>
+                            ${item.image_8x_link || item.base_image_link ? `<a class="waves-effect waves-light regenerate btn-small tonal tooltipped" data-id="${item.id}" data-tooltip="Regenerate images from source"><i class="material-icons">refresh</i></a>` : ''}
+                            <a class="waves-effect waves-light refresh-images btn-small tonal tooltipped" data-id="${item.id}" data-tooltip="Refresh images from game"><i class="material-icons">sync</i></a>
                         </div>
                     `;
                 }
                 return data;
             },
             className: 'image-column',
-            width: '10%',
+            width: '15%',
         },
-        /*{
-            data: 'grid_image_link',
-            render: (data, type, item) => {
-                if (type === 'display') {
-                    return `${data ? `<img src="${data}" loading="lazy" />`: ''}`;
-                }
-                return data;
-            }
-        },
-        {
-            data: 'icon_link',
-            render: (data, type, item) => {
-                if (type === 'display') {
-                    return `${data ? `<img src="${data}" loading="lazy" />`: ''}`;
-                }
-                return data;
-            }
-        },*/
         {
             data: 'types',
             render: (data, type, item) => {
@@ -144,7 +120,7 @@ $(document).ready( async function () {
                     for(const type of AVAILABLE_TYPES){
                         markupString = `${markupString}
                         <div class="col s12 m6 l3 xl2">
-                            <label for="${item.id}-${type}">
+                            <label for="${item.id}-${type}" class="no-wrap">
                                 <input type="checkbox" class="item-type" id="${item.id}-${type}" value="${type}" data-item-id="${item.id}" ${data.includes(type) ? 'checked' : ''} />
                                 <span>${type}</span>
                             </label>
@@ -155,15 +131,6 @@ $(document).ready( async function () {
                 return data.join(',');
             }
         },
-        /*{
-            data: 'avg24hPrice',
-            render: (data, type, item) => {
-                if (type === 'display') {
-                    return formatPrice(data)
-                }
-                return data;
-            }
-        }*/
     ];
 
     table = $('table.main').DataTable({

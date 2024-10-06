@@ -12,8 +12,8 @@ $(document).ready( function () {
                     return `
                         <div><b>${data}</b></div>
                         <div>
-                            <a href="#" class="waves-effect waves-light btn-small edit-cron tooltipped" data-tooltip="Edit" data-job="${data}" data-schedule="${cron.schedule}"><i class="material-icons">edit</i></a>
-                            <a href="#" class="waves-effect waves-light btn-small run-cron tooltipped${cron.running ? ' disabled' : ''}" data-tooltip="Run" data-job="${data}"><i class="material-icons">play_arrow</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small tonal edit-cron tooltipped" data-tooltip="Edit" data-job="${data}" data-schedule="${cron.schedule}"><i class="material-icons">edit</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small tonal run-cron tooltipped${cron.running ? ' disabled' : ''}" data-tooltip="Run" data-job="${data}"><i class="material-icons">play_arrow</i></a>
                         </div>
                     `;
                 }
@@ -41,7 +41,7 @@ $(document).ready( function () {
                     const date = new Date(data);
                     let runningLog = '';
                     if (cron.running) {
-                        runningLog = `<div><a href="#" class="waves-effect waves-light btn-small view-current-log tooltipped" data-tooltip="View current log" data-job="${cron.name}"><i class="material-icons">text_snippet</i></a></div>`;
+                        runningLog = `<div><a href="#" class="waves-effect waves-light btn-small tonal view-current-log tooltipped" data-tooltip="View current log" data-job="${cron.name}"><i class="material-icons">text_snippet</i></a></div>`;
                     }
                     return `<a href="#" class="view-cron-log" data-cron="${cron.name}">${date.toLocaleDateString()} ${date.toLocaleTimeString()}</a>${runningLog}`;
                 }

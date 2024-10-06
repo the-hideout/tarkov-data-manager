@@ -14,8 +14,8 @@ $(document).ready( function () {
                     return `
                         <div><b>${data}</b></div>
                         <div>
-                            <a href="#" class="waves-effect waves-light btn-small edit-wipe tooltipped" data-tooltip="Edit" data-id="${wipe.id}" data-start-date="${data}" data-version="${wipe.version}"><i class="material-icons">edit</i></a>
-                            <a href="#" class="waves-effect waves-light btn-small delete-wipe tooltipped" data-tooltip="Delete" data-id="${wipe.id}"><i class="material-icons">delete</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small filled edit-wipe tooltipped" data-tooltip="Edit" data-id="${wipe.id}" data-start-date="${data}" data-version="${wipe.version}"><i class="material-icons">edit</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small tonal delete-wipe tooltipped" data-tooltip="Delete" data-id="${wipe.id}"><i class="material-icons">delete</i></a>
                         </div>
                     `;
                 }

@@ -47,7 +47,7 @@ const addScanner = (sessionId, settings) => {
 
     const menuButton = document.createElement('a');
     header.append(menuButton);
-    menuButton.classList.add('dropdown-trigger', 'btn', 'scanner-dropdown');
+    menuButton.classList.add('dropdown-trigger', 'btn', 'scanner-dropdown', 'filled');
     menuButton.setAttribute('href', '#');
     menuButton.dataset.target = `dropdown-${sessionId}`;
     menuButton.innerHTML = `<i class="material-icons left">arrow_drop_down</i>${sessionId}`;
@@ -240,6 +240,7 @@ function setupClient() {
         if (message.type === 'fullStatus') {
             updateStatus(message.sessionId, message.data.settings);
             addLogMessages(message.sessionId, message.data.log);
+            M.Collapsible.init($(`#scanner-element-${message.sessionId} .collapsible`));
         }
         if (message.type === 'settingsChanged') {
             updateStatus(message.sessionId, message.data);
@@ -408,8 +409,8 @@ $(document).ready(function () {
                     return `
                         <div>${data}</div>
                         <div>
-                            <a href="#" class="waves-effect waves-light btn-small edit-user tooltipped" data-tooltip="Edit" data-username="${data}" data-password="${user.password}" data-id="${user.id}" data-max_scanners="${user.max_scanners}"><i class="material-icons">edit</i></a>
-                            <a href="#" class="waves-effect waves-light btn-small delete-user tooltipped" data-tooltip="Delete" data-username="${data}"><i class="material-icons">delete</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small tonal edit-user tooltipped" data-tooltip="Edit" data-username="${data}" data-password="${user.password}" data-id="${user.id}" data-max_scanners="${user.max_scanners}"><i class="material-icons">edit</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small tonal delete-user tooltipped" data-tooltip="Delete" data-username="${data}"><i class="material-icons">delete</i></a>
                         </div>
                     `;
                 }
@@ -424,8 +425,8 @@ $(document).ready(function () {
                         <div>
                             <div class="password-holder hidden">${data.replace(/./g, '*')}</div>
                             <div>
-                                <a href="#" class="waves-effect waves-light btn-small show-password tooltipped" data-tooltip="Show" data-password="${data}"><i class="material-icons">remove_red_eye</i></a>
-                                <a href="#" class="waves-effect waves-light btn-small copy-password tooltipped" data-tooltip="Copy" data-password="${data}"><i class="material-icons">content_copy</i></a>
+                                <a href="#" class="waves-effect waves-light btn-small tonal show-password tooltipped" data-tooltip="Show" data-password="${data}"><i class="material-icons">remove_red_eye</i></a>
+                                <a href="#" class="waves-effect waves-light btn-small tonal copy-password tooltipped" data-tooltip="Copy" data-password="${data}"><i class="material-icons">content_copy</i></a>
                             </div>
                         </div>
                     `;
