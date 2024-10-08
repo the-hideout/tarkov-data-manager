@@ -50,7 +50,13 @@ const skipOffers = {
                     '61bf83814088ec1a363d7097', // Sewing kit
                     '62a0a098de7ac8199358053b', // awl
                 ]
-            }
+            },
+            {
+                reward: '65766910303700411c0242da', // IOTV Gen4 body armor (Full Protection Kit, MultiCam) Default
+                requirements: [
+                    '59e3647686f774176a362507', // Wooden clock
+                ]
+            },
         ]
     },
     '54cb57776803fa99248b456e' : { // therapist
