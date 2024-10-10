@@ -28,25 +28,20 @@ $(document).ready( function () {
 
     const columns = [
         {
-            data: 'id',
+            data: 'name',
             render: (data, type, preset) => {
                 if (type === 'display') {
                     return `
                         <div><b>${data}</b></div>
+                        <div>${preset.id}</div>
                         <div>
-                            <a href="#" class="waves-effect waves-light btn-small edit-preset tooltipped" data-tooltip="Edit" data-id="${preset.id}"><i class="material-icons">edit</i></a>
-                            <a href="#" class="waves-effect waves-light btn-small merge-preset tooltipped" data-tooltip="Merge" data-id="${preset.id}"><i class="material-icons">merge</i></a>
-                            <a href="#" class="waves-effect waves-light btn-small delete-preset tooltipped" data-tooltip="Delete" data-id="${preset.id}" data-name="${preset.name}"><i class="material-icons">delete</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small tonal edit-preset tooltipped" data-tooltip="Edit" data-id="${preset.id}"><i class="material-icons">edit</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small tonal merge-preset tooltipped" data-tooltip="Merge" data-id="${preset.id}"><i class="material-icons">merge</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small tonal delete-preset tooltipped" data-tooltip="Delete" data-id="${preset.id}" data-name="${preset.name}"><i class="material-icons">delete</i></a>
                         </div>
                     `;
                 }
-                return data;
-            }
-        },
-        {
-            data: 'name',
-            render: (data, type, preset) => {
-                return data;
+                return data+preset.id;
             }
         },
         {
@@ -70,8 +65,8 @@ $(document).ready( function () {
                             ${item.icon_link ? existingImageElement(item.id, 'icon', item.icon_link) : missingImageElement('icon')}
                         </div>
                         <div class="row">
-                            ${item.image_8x_link || item.base_image_link ? `<a class="waves-effect waves-light regenerate btn-small tooltipped" data-id="${item.id}" data-tooltip="Regenerate images from source"><i class="material-icons">refresh</i></a>` : ''}
-                            <a class="waves-effect waves-light refresh-images btn-small tooltipped" data-id="${item.id}" data-tooltip="Refresh images from game"><i class="material-icons">sync</i></a>
+                            ${item.image_8x_link || item.base_image_link ? `<a class="waves-effect waves-light regenerate btn-small tonal tooltipped" data-id="${item.id}" data-tooltip="Regenerate images from source"><i class="material-icons">refresh</i></a>` : ''}
+                            <a class="waves-effect waves-light refresh-images btn-small tonal tooltipped" data-id="${item.id}" data-tooltip="Refresh images from game"><i class="material-icons">sync</i></a>
                         </div>
                     `;
                 }
@@ -326,6 +321,8 @@ $(document).ready( function () {
         $('#merge-target-image').empty();
         $('#merge-target-image').append(image);
     });
+
+    M.FormSelect.init($('select'));
 
     /*$('.btn.add-preset').click(function(event) {
         //$('#modal-edit-preset .start_date').val('');

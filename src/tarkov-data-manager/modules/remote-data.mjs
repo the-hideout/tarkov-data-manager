@@ -59,7 +59,7 @@ const methods = {
         //console.log('Loading item data');
 
         try {
-            const allDataTimer = timer('item-data-query');
+            //const allDataTimer = timer('item-data-query');
             const results = await query(`
                 SELECT
                     item_data.*,
@@ -71,7 +71,7 @@ const methods = {
                 GROUP BY
                     item_data.id
             `).then(rows => {
-                allDataTimer.end();
+                //allDataTimer.end();
                 return rows;
             });
 

@@ -13,8 +13,8 @@ $(document).ready( function () {
                     return `
                         <div><b>${data}</b></div>
                         <div>
-                            <a href="/json/${$('input[name="json-dir"]:checked').val()}/${data}" class="waves-effect waves-light btn-small download-json tooltipped" data-tooltip="Download" data-file="${data}"><i class="material-icons">file_download</i></a>
-                            <a href="#" class="waves-effect waves-light btn-small delete-json tooltipped" data-tooltip="Delete" data-file="${data}"><i class="material-icons">delete</i></a>
+                            <a href="/json/${$('input[name="json-dir"]:checked').val()}/${data}" class="waves-effect waves-light btn-small filled download-json tooltipped" data-tooltip="Download" data-file="${data}"><i class="material-icons">file_download</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small tonal delete-json tooltipped" data-tooltip="Delete" data-file="${data}"><i class="material-icons">delete</i></a>
                         </div>
                     `;
                 }

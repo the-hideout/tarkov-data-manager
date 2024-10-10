@@ -13,10 +13,6 @@ pre {
     width: 100px;
 }
 
-tr:hover {
-    background-color: #ccc;
-}
-
 .log-messages {
     color: #fff;
     background-color: #000;
@@ -38,4 +34,8 @@ tr:hover {
 .preset-name-button {
     margin-top: 2px;
     margin-bottom: 2px;
+}
+
+.no-wrap {
+    white-space: pre;
 }

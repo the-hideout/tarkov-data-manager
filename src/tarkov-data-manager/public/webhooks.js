@@ -18,8 +18,8 @@ $(document).ready( function () {
                     return `
                         <div><b>${data}</b></div>
                         <div>
-                            <a href="#" class="waves-effect waves-light btn-small edit-webhook tooltipped" data-tooltip="Edit" data-id="${webhook.id}" data-name="${data}" data-url="${webhook.url}"><i class="material-icons">edit</i></a>
-                            <a href="#" class="waves-effect waves-light btn-small delete-webhook tooltipped" data-tooltip="Delete" data-id="${webhook.id}"><i class="material-icons">delete</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small filled edit-webhook tooltipped" data-tooltip="Edit" data-id="${webhook.id}" data-name="${data}" data-url="${webhook.url}"><i class="material-icons">edit</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small tonal delete-webhook tooltipped" data-tooltip="Delete" data-id="${webhook.id}"><i class="material-icons">delete</i></a>
                         </div>
                     `;
                 }
@@ -32,7 +32,7 @@ $(document).ready( function () {
                 if (type === 'display') {
                     const linkButtons = [];
                     for (let i = 0; i < webhookTypes.length; i++) {
-                        linkButtons.push(`<a href="#" class="waves-effect waves-light btn-small copy-link ${webhookTypes[i]} tooltipped" data-tooltip="Copy ${webhookTypes[i]} webhook url" data-url="${webhook.url}"><i class="material-icons left">link</i>${webhookTypes[i]}</a>`);
+                        linkButtons.push(`<a href="#" class="waves-effect waves-light btn-small tonal copy-link ${webhookTypes[i]} tooltipped" data-tooltip="Copy ${webhookTypes[i]} webhook url" data-url="${webhook.url}"><i class="material-icons left">link</i>${webhookTypes[i]}</a>`);
                     }
                     return `
                         <div><a href="https://discord.com/api/webhooks/${data}" target="_blank">${data}</a></div>

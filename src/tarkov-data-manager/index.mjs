@@ -201,10 +201,10 @@ app.post('/auth', async (req, res) => {
 
 const getHeader = (req, options) => {
     const jsLibrary = {
-        datatables: 'https://cdn.datatables.net/1.10.23/js/jquery.dataTables.min.js'
+        datatables: 'https://cdn.datatables.net/2.1.8/js/dataTables.js',
     };
     const cssLibrary = {
-        datatables: 'https://cdn.datatables.net/1.10.23/css/jquery.dataTables.min.css'
+        datatables: 'https://cdn.datatables.net/2.1.8/css/dataTables.dataTables.css',
     };
     let includeJs = '';
     let includeCss = '';
@@ -226,7 +226,7 @@ const getHeader = (req, options) => {
         <head>
             <title>Tarkov Data Manager</title>
             <!-- Compiled and minified CSS -->
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-beta/dist/css/materialize.min.css">${includeCss}
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.1.1/dist/css/materialize.min.css">${includeCss}
 
             <!-- Compiled and minified JavaScript -->
             <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
@@ -242,7 +242,7 @@ const getHeader = (req, options) => {
         </head>
         <body>
             <nav>
-                <div class="nav-wrapper">
+                <div class="nav-wrapper blue">
                     <a href="/" class="brand-logo right"><i class="material-icons">query_stats</i>Tarkov Data Manager</a>
                     <a href="#" data-target="mobile-menu" class="sidenav-trigger"><i class="material-icons">menu</i></a>
                     <ul id="nav-main" class="hide-on-med-and-down">
@@ -282,7 +282,7 @@ const getFooter = (req) => {
     return `
             </div>
             <footer class="page-footer"></footer>
-            <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.0.3-beta/dist/js/materialize.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/@materializecss/materialize@2.1.1/dist/js/materialize.min.js"></script>
             <script>
                 $(document).ready(function(){
                     //$('.sidenav').sidenav();
@@ -334,14 +334,14 @@ app.get('/', async (req, res) => {
     res.send(`${getHeader(req)}
         <div class="row">
             <div class="section col s12">
-                <h5><a href="/scanners" class="waves-effect waves-light btn"><i class="material-icons left">scanner</i>Scanners</a></h5>
+                <a href="/scanners" class="waves-effect waves-light btn filled"><i class="material-icons left">scanner</i>Scanners</a>
                 <ul class="browser-default">
                     <li>Active: ${activeScanners.length}</li>
                 </ul>
             </div>
             <div class="divider col s12"></div>
             <div class="section col s12">
-                <h5><a href="/items" class="waves-effect waves-light btn"><i class="material-icons left">search</i>Items</a></h5>
+                <a href="/items" class="waves-effect waves-light btn filled"><i class="material-icons left">search</i>Items</a>
                 <ul class="browser-default">
                     <li>Total: ${itemCount}</li>
                     ${untagged.length > 0 ? `<li>Untagged: ${untagged.length}</li>` : ''}
@@ -538,7 +538,7 @@ app.get('/items', async (req, res) => {
     for(const type of AVAILABLE_TYPES){
         typeFilters = `${typeFilters}
         <div class="col s4 m3 l2">
-            <label for="type-${type}">
+            <label for="type-${type}" class="no-wrap">
                 <input type="checkbox" class="filled-in filter-type" id="type-${type}" value="${type}" ${type === 'disabled' ? 'checked' : ''} />
                 <span>${type}</span>
             </label>
@@ -556,42 +556,40 @@ app.get('/items', async (req, res) => {
     }
     res.send(`${getHeader(req, {include: 'datatables'})}
         <script src="/items.js"></script>
-        <div class="row">
-            <div class="col s12">
-                <ul class="collapsible">
-                    <li>
-                        <div class="collapsible-header"><i class="material-icons left">filter_list</i>Item Filters</div>
-                        <div class="collapsible-body">
-                            <div>Item Types</div>
-                            <div>
-                                <a class="waves-effect waves-light btn filter-types-all"><i class="material-icons left">all_inclusive</i>All</a>
-                                <a class="waves-effect waves-light btn filter-types-none"><i class="material-icons left">not_interested</i>None</a>
-                            </div>
-                            <div>
-                                <label>
-                                    <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="any">
-                                    <span>Require any</span>
-                                </label>
-                                <label>
-                                    <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="all">
-                                    <span>Require all</span>
-                                </label>
-                                <label>
-                                    <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="none" checked>
-                                    <span>Exclude</span>
-                                </label>
-                            </div>
-                            <div class="row">${typeFilters}</div>
-                            <div>Special Filters</div>
-                            <div>
-                                <a class="waves-effect waves-light btn filter-special-all"><i class="material-icons left">all_inclusive</i>All</a>
-                                <a class="waves-effect waves-light btn filter-special-none"><i class="material-icons left">not_interested</i>None</a>
-                            </div>
-                            <div class="row">${specFilters}</div>
+        <div>
+            <ul class="collapsible">
+                <li>
+                    <div class="collapsible-header"><i class="material-icons">filter_list</i>Item&nbsp;Filters</div>
+                    <div class="collapsible-body">
+                        <div>Item Types</div>
+                        <div>
+                            <a class="waves-effect waves-light btn tonal filter-types-all"><i class="material-icons left">all_inclusive</i>All</a>
+                            <a class="waves-effect waves-light btn tonal filter-types-none"><i class="material-icons left">not_interested</i>None</a>
                         </div>
-                    </li>
-                </ul>
-            </div>
+                        <div>
+                            <label>
+                                <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="any">
+                                <span>Require any</span>
+                            </label>
+                            <label>
+                                <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="all">
+                                <span>Require all</span>
+                            </label>
+                            <label>
+                                <input class="filter-types-require-selected" name="type-filter-function" type="radio" value="none" checked>
+                                <span>Exclude</span>
+                            </label>
+                        </div>
+                        <div class="row">${typeFilters}</div>
+                        <div>Special Filters</div>
+                        <div>
+                            <a class="waves-effect waves-light btn tonal filter-special-all"><i class="material-icons left">all_inclusive</i>All</a>
+                            <a class="waves-effect waves-light btn tonal filter-special-none"><i class="material-icons left">not_interested</i>None</a>
+                        </div>
+                        <div class="row">${specFilters}</div>
+                    </div>
+                </li>
+            </ul>
         </div>
         <div class="row">
             <div class="col s12">
@@ -703,7 +701,7 @@ app.get('/items', async (req, res) => {
 });
 
 app.get('/items/get', async (req, res) => {
-    const t = timer('getting-items');
+    //const t = timer('getting-items');
     const myData = await remoteData.get();
     const items = [];
     const attributes = [
@@ -731,7 +729,7 @@ app.get('/items/get', async (req, res) => {
         }
         items.push(newItem);
     }
-    t.end();
+    //t.end();
     res.json(items);
 });
 
@@ -772,7 +770,7 @@ app.get('/scanners', async (req, res) => {
             </div>
             <div id="scannerusers" class="col s12">
                 <div class="scanner-userss-wrapper">
-                    <a href="#" class="waves-effect waves-light btn add-user tooltipped" data-tooltip="Add API user"><i class="material-icons">person_add</i></a>
+                    <a href="#" class="waves-effect waves-light btn filled add-user tooltipped" data-tooltip="Add API user"><i class="material-icons">person_add</i></a>
                     <table class="highlight main">
                         <thead>
                             <tr>
@@ -1060,7 +1058,7 @@ app.get('/webhooks', async (req, res) => {
         <script src="/webhooks.js"></script>
         <div class="row">
             <div class="col s12">
-                <a href="#" class="waves-effect waves-light btn add-webhook tooltipped" data-tooltip="Add webhook"><i class="material-icons">add</i></a>
+                <a href="#" class="waves-effect waves-light btn filled add-webhook tooltipped" data-tooltip="Add webhook"><i class="material-icons">add</i></a>
                 <table class="highlight main">
                     <thead>
                         <tr>
@@ -1406,7 +1404,7 @@ app.get('/json', async (req, res) => {
                 <div>
                     <form class="col s12 post-url json-upload id" data-attribute="action" method="post" action="">
                         <span>Upload: </span><input id="json-upload" class="single-upload" type="file" name="file" />
-                        <a href="#" class="waves-effect waves-light btn json-upload tooltipped" data-tooltip="Upload"><i class="material-icons">file_upload</i></a>
+                        <a href="#" class="waves-effect waves-light btn filled json-upload tooltipped" data-tooltip="Upload"><i class="material-icons">file_upload</i></a>
                     </form>
                 </div>
                 <div>
@@ -1579,7 +1577,7 @@ app.get('/s3-bucket', async (req, res) => {
                     <form class="col s12 post-url file-upload id" data-attribute="action" method="post" action="">
                         <span>Path: </span><input id="file-path" class="validate path" type="text" name="path" value="" style="width: auto;"/>
                         <span>Upload: </span><input id="file-upload" class="single-upload" type="file" name="file" multiple="multiple"/>
-                        <a href="#" class="waves-effect waves-light btn file-upload tooltipped" data-tooltip="Upload"><i class="material-icons">file_upload</i></a>
+                        <a href="#" class="waves-effect waves-light btn filled file-upload tooltipped" data-tooltip="Upload"><i class="material-icons">file_upload</i></a>
                     </form>
                 </div>
                 <table class="highlight main">
@@ -1769,7 +1767,7 @@ app.get('/wipes', async (req, res) => {
         <script src="/wipes.js"></script>
         <div class="row">
             <div class="col s12">
-                <a href="#" class="waves-effect waves-light btn add-wipe tooltipped" data-tooltip="Add wipe"><i class="material-icons">add</i></a>
+                <a href="#" class="waves-effect waves-light btn filled add-wipe tooltipped" data-tooltip="Add wipe"><i class="material-icons">add</i></a>
                 <table class="highlight main">
                     <thead>
                         <tr>
@@ -1902,13 +1900,10 @@ app.get('/presets', async (req, res) => {
         <script src="/presets.js"></script>
         <div class="row">
             <div class="col s12">
-                <!--a href="#" class="waves-effect waves-light btn add-preset tooltipped" data-tooltip="Add preset"><i class="material-icons">add</i></a-->
+                <!--a href="#" class="waves-effect waves-light btn filled add-preset tooltipped" data-tooltip="Add preset"><i class="material-icons">add</i></a-->
                 <table class="highlight main">
                     <thead>
                         <tr>
-                            <th>
-                                id
-                            </th>
                             <th>
                                 name
                             </th>

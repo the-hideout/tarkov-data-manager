@@ -1726,6 +1726,12 @@ const skipQuests = [
     '66a77394243a6548ff5e601d', // Customer Communication
     '668bccf963acb16d63707043', // What's Your Evidence?
     '668bcd1b194be70f18427a00', // Caught Red-Handed
+    '66e01aca214f88109006a4b5', // Into the Inferno
+    '66e01ad15a8890455a0d9eea', // In and Out
+    '66e01ad6835f78499f049180', // Ours by Right
+    '66e01adbd3d014f3ae061c12', // Provide Cover
+    '66e01ae0c391e4c94903d220', // Cream of the Crop
+    '66e01c4c475acf7e0102d296', // Before the Rain
 ];
 
 // Secure Folder 0013 appears on multiple maps
