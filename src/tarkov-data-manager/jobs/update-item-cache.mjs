@@ -62,12 +62,14 @@ class UpdateItemCacheJob extends DataJob {
             
         const priceFields = [
             'lastLowPrice',
+            'lastLowAvgPrice',
             'avg24hPrice',
             'low24hPrice',
             'high24hPrice',
             'changeLast48h',
             'changeLast48hPercent',
             'lastOfferCount',
+            'updated',
         ];
         this.logger.log('Processing items...');
         for (const [key, value] of this.itemMap.entries()) {

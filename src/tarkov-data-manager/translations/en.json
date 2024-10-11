@@ -113,6 +113,9 @@
     "quest_zone_keeper6_kiba_kill": "Around Kiba Arms store",
     "quest_zone_last_flare": "Armored Convoy",
     "quest_zone_prod_flare": "Pinewood Hotel Courtyard",
+    "sectantOni": "Oni",
+    "sectantPredvestnik": "Harbinger",
+    "sectantPrizrak": "Ghost",
     "SOPMOD II Flash": "SOPMOD II Flash",
     "ShturmanStash": "Shturman's Stash",
     "SPR": "SPR",
@@ -201,5 +204,7 @@
     "ZoneStartVillage": "Village",
     "ZoneSubCommand": "Command Bunker",
     "ZoneSubStorage": "Storage Bunker",
+    "ZoneSW00": "Zmejskij Alley Block",
+    "ZoneSW01": "Zmejskij Alley Block",
     "ZoneWoodCutter": "Lumber Mill"
 }
