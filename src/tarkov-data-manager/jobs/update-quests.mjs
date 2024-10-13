@@ -34,6 +34,7 @@ class UpdateQuestsJob extends DataJob {
             this.changedQuests,
             this.removedQuests,
             this.neededKeys,
+            this.questDelays,
             this.questConfig,
             this.s3Images,
         ] = await Promise.all([
@@ -61,6 +62,7 @@ class UpdateQuestsJob extends DataJob {
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'changed_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'removed_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'needed_keys.json')).then(json => JSON.parse(json)),
+            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'quest_delays.json')).then(json => JSON.parse(json)),
             tarkovData.questConfig(),
             getLocalBucketContents(),
         ]);
@@ -264,6 +266,11 @@ class UpdateQuestsJob extends DataJob {
         const missingImages = [];
         for (const quest of quests.Task) {
             quest.normalizedName = this.normalizeName(this.locales.en[quest.name])+(quest.factionName !== 'Any' ? `-${this.normalizeName(quest.factionName)}` : '');
+
+            if (this.questDelays[quest.id]) {
+                quest.availableDelaySecondsMin = this.questDelays[quest.id].min;
+                quest.availableDelaySecondsMax = this.questDelays[quest.id].max;
+            }
 
             const removeReqs = [];
             for (const req of quest.taskRequirements) {
