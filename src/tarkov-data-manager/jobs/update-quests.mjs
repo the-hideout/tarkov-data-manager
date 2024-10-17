@@ -133,7 +133,6 @@ class UpdateQuestsJob extends DataJob {
             try {
                 this.logger.warn(`Adding missing quest ${quest.name} ${quest.id}...`);
                 quest.name = this.addTranslation(`${questId} name`);
-                quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.locales.en[`${questId} name`].replaceAll(' ', '_'))}`;
                 for (const obj of quest.objectives) {
                     obj.description = this.addTranslation(obj.id);
                     if (obj.type.endsWith('QuestItem')) {
@@ -285,11 +284,13 @@ class UpdateQuestsJob extends DataJob {
 
             quest.minPlayerLevel = getQuestMinLevel(quest.id);
 
-            const trader = this.traders.find(t => t.name === quest.name);
+            const trader = this.traders.find(t => t.normalizedName === quest.normalizedName);
             const map = this.maps.find(m => m.normalizedName === quest.normalizedName);
+            let wikiLinkSuffix = '';
             if (trader || map) {
-                quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.getTranslation(quest.name).replaceAll(' ', '_'))}_(quest)`;
+                wikiLinkSuffix = '_(quest)';
             }
+            quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.getTranslation(quest.name).replaceAll(' ', '_'))}${wikiLinkSuffix}`;
 
             quest.kappaRequired = false;
             quest.lightkeeperRequired = false;
@@ -957,7 +958,7 @@ class UpdateQuestsJob extends DataJob {
             traderName: this.locales.en[`${quest.traderId} Nickname`],
             location_id: locationId,
             locationName: locationName,
-            wikiLink: `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.locales.en[`${questId} name`].replaceAll(' ', '_'))}`,
+            wikiLink: ``,
             minPlayerLevel: 0,
             taskRequirements: [],
             traderLevelRequirements: [],
