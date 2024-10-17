@@ -286,9 +286,9 @@ class UpdateQuestsJob extends DataJob {
             quest.minPlayerLevel = getQuestMinLevel(quest.id);
 
             const trader = this.traders.find(t => t.name === quest.name);
-            const map = this.maps.find(m => m.name === quest.name);
+            const map = this.maps.find(m => m.normalizedName === quest.normalizedName);
             if (trader || map) {
-                quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(quest.name.replaceAll(' ', '_'))}_(quest)`;
+                quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.getTranslation(quest.name).replaceAll(' ', '_'))}_(quest)`;
             }
 
             quest.kappaRequired = false;
