@@ -34,6 +34,7 @@ class UpdateQuestsJob extends DataJob {
             this.changedQuests,
             this.removedQuests,
             this.neededKeys,
+            this.questDelays,
             this.questConfig,
             this.s3Images,
         ] = await Promise.all([
@@ -61,6 +62,7 @@ class UpdateQuestsJob extends DataJob {
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'changed_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'removed_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'needed_keys.json')).then(json => JSON.parse(json)),
+            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'quest_delays.json')).then(json => JSON.parse(json)),
             tarkovData.questConfig(),
             getLocalBucketContents(),
         ]);
@@ -131,7 +133,6 @@ class UpdateQuestsJob extends DataJob {
             try {
                 this.logger.warn(`Adding missing quest ${quest.name} ${quest.id}...`);
                 quest.name = this.addTranslation(`${questId} name`);
-                quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.locales.en[`${questId} name`].replaceAll(' ', '_'))}`;
                 for (const obj of quest.objectives) {
                     obj.description = this.addTranslation(obj.id);
                     if (obj.type.endsWith('QuestItem')) {
@@ -265,6 +266,11 @@ class UpdateQuestsJob extends DataJob {
         for (const quest of quests.Task) {
             quest.normalizedName = this.normalizeName(this.locales.en[quest.name])+(quest.factionName !== 'Any' ? `-${this.normalizeName(quest.factionName)}` : '');
 
+            if (this.questDelays[quest.id]) {
+                quest.availableDelaySecondsMin = this.questDelays[quest.id].min;
+                quest.availableDelaySecondsMax = this.questDelays[quest.id].max;
+            }
+
             const removeReqs = [];
             for (const req of quest.taskRequirements) {
                 const questIncluded = quests.Task.some(q => q.id === req.task);
@@ -278,11 +284,13 @@ class UpdateQuestsJob extends DataJob {
 
             quest.minPlayerLevel = getQuestMinLevel(quest.id);
 
-            const trader = this.traders.find(t => t.name === quest.name);
-            const map = this.maps.find(m => m.name === quest.name);
+            const trader = this.traders.find(t => t.normalizedName === quest.normalizedName);
+            const map = this.maps.find(m => m.normalizedName === quest.normalizedName);
+            let wikiLinkSuffix = '';
             if (trader || map) {
-                quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(quest.name.replaceAll(' ', '_'))}_(quest)`;
+                wikiLinkSuffix = '_(quest)';
             }
+            quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.getTranslation(quest.name).replaceAll(' ', '_'))}${wikiLinkSuffix}`;
 
             quest.kappaRequired = false;
             quest.lightkeeperRequired = false;
@@ -950,7 +958,7 @@ class UpdateQuestsJob extends DataJob {
             traderName: this.locales.en[`${quest.traderId} Nickname`],
             location_id: locationId,
             locationName: locationName,
-            wikiLink: `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.locales.en[`${questId} name`].replaceAll(' ', '_'))}`,
+            wikiLink: ``,
             minPlayerLevel: 0,
             taskRequirements: [],
             traderLevelRequirements: [],

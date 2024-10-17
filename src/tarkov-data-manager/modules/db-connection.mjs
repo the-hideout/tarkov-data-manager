@@ -59,30 +59,58 @@ const waitForConnections = () => {
 const dbConnection = {
     connection: pool,
     pool,
-    query: (sql, params) => {
+    query: async (sql, values, options = {}) => {
+        if (typeof values === 'object' && !Array.isArray(values)) {
+            options = values;
+            values = undefined;
+        }
+        let abortListener;
         return new Promise((resolve, reject) => {
+            abortListener = () => {
+                reject(new Error('Query aborted'));
+            };
+            options?.signal?.addEventListener('abort', abortListener, { once: true });
             try {
-                pool.query(sql, params, (error, results) => {
+                pool.query({sql, values, timeout: options?.timeout}, (error, results) => {
                     if (error) {
-                        reject(error);
-                        return;
+                        return reject(error);
                     }
-        
                     resolve(results);
                 });
             } catch (error) {
                 reject(error);
             }
+        }).finally(() => {
+            options.signal?.removeEventListener('abort', abortListener);
         });
     },
-    batchQuery: async (sql, params = [], batchCallback) => {
+    batchQuery: async (sql, values = [], batchCallback, options = {}) => {
         const batchSize = dbConnection.maxQueryRows;
         let offset = 0;
         const results = [];
+        const queryStart = new Date();
+        if (values && !Array.isArray(values)) {
+            batchCallback = values;
+            values = [];
+        }
+        if (!options && typeof batchCallback !== 'function') {
+            options = batchCallback;
+            batchCallback = undefined;
+        }
+        let timeout = options.timeout;
         while (true) {
-            const batchParams = [...params, offset, batchSize]
-            const batchResults = await dbConnection.query(`${sql} LIMIT ?, ?
-            `, batchParams);
+            const batchValues = [...values, offset, batchSize];
+            let batchTimeout;
+            if (timeout) {
+                batchTimeout = timeout - (new Date() - queryStart);
+                if (batchTimeout <= 0) {
+                    return Promise.reject(new Error('Query inactivity timeout'));
+                }
+            }
+            if (options.signal?.aborted) {
+                return Promise.reject(new Error('Query aborted'));
+            }
+            const batchResults = await dbConnection.query(`${sql} LIMIT ?, ?`, batchValues, {timeout: batchTimeout, signal: options.signal});
             batchResults.forEach(r => results.push(r));
             if (batchCallback) {
                 batchCallback(batchResults, offset);

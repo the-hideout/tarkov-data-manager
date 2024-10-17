@@ -182,6 +182,18 @@ const jobManager = {
         await Promise.allSettled([promise]);
         console.log('Startup jobs complete');
     },
+    abortJob: async (jobName) => {
+        if (!jobs[jobName]) {
+            return  Promise.reject(new Error(`${jobName} is not a valid job`));
+        }
+        if (!jobs[jobName].running) {
+            return Promise.reject (new Error(`${jobName} is not running`));
+        }
+        return new Promise((resolve) => {
+            emitter.once(`jobComplete_${jobName}`, resolve);
+            jobs[jobName].abortController.abort();
+        });
+    },
     stop: () => {
         return schedule.gracefulShutdown();
     },
