@@ -1740,6 +1740,9 @@ const skipQuests = [
     '66e01adbd3d014f3ae061c12', // Provide Cover
     '66e01ae0c391e4c94903d220', // Cream of the Crop
     '66e01c4c475acf7e0102d296', // Before the Rain
+    '66e3e2ee2136472d220bcb36', // Night of the Cult
+    '66e3e2fcb26de0e0790d3fe6', // The Graven Image
+    '66e3e3027804a21d860755d6', // Until Dawn
 ];
 
 // Secure Folder 0013 appears on multiple maps
