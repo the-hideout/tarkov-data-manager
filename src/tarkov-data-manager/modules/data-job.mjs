@@ -371,14 +371,26 @@ class DataJob {
         return this.translationHelper.hasTranslation(key, langCode);
     }
 
-    query = (sql, params) => {
-        const queryPromise = query(sql, params);
+    query = (sql, values, options) => {
+        if (typeof values === 'object' && !Array.isArray(values)) {
+            options = values;
+            values = undefined;
+        }
+        const queryPromise = query(sql, values, {signal: this.abortController.signal, ...options});
         this.queries.push(queryPromise);
         return queryPromise;
     }
 
-    batchQuery = (sql, params, batchCallback) => {
-        const queryPromise = batchQuery(sql, params, batchCallback);
+    batchQuery = (sql, values, batchCallback, options) => {
+        if (values && !Array.isArray(values)) {
+            batchCallback = values;
+            values = [];
+        }
+        if (!options && typeof batchCallback !== 'function') {
+            options = batchCallback;
+            batchCallback = undefined;
+        }
+        const queryPromise = batchQuery(sql, values, batchCallback, {signal: this.abortController.signal, ...options});
         this.queries.push(queryPromise);
         return queryPromise;
     }

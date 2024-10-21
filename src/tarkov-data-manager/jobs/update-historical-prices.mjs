@@ -3,7 +3,7 @@ import  path from 'node:path';
 
 import DataJob from '../modules/data-job.mjs';
 
-const historicalPriceDays = 7;
+const historicalPriceDays = 30;
 
 class UpdateHistoricalPricesJob extends DataJob {
     constructor(options) {

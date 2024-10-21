@@ -279,7 +279,7 @@ const scannerApi = {
                 const oldScanners = users[user.username]?.scanners || [];
                 user.scanners = oldScanners;
                 users[user.username] = user;
-                scannerQueries.push(query('SELECT * from scanner WHERE scanner_user_id = ?', user.id).then(scanners => {
+                scannerQueries.push(query('SELECT * from scanner WHERE scanner_user_id = ?', [user.id]).then(scanners => {
                     users[user.username].scanners = scanners;
                 }));
             }
