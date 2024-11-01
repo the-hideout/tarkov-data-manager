@@ -728,6 +728,16 @@ class UpdateQuestsJob extends DataJob {
     }
 
     getRewardItems = async (reward) => {
+        if (reward.value > 1) {
+            reward.items = reward.items.reduce((rewardItems, current, currentIndex) => {
+                if (currentIndex === 0) {
+                    rewardItems.push(current);
+                } else if (current.parentId && rewardItems.some(r => r._id === current.parentId)) {
+                    rewardItems.push(current);
+                }
+                return rewardItems;
+            }, []);
+        }
         const rewardData = {
             item: reward.items[0]._tpl,
             item_name: this.locales.en[`${reward.items[0]._tpl} Name`],
@@ -735,11 +745,15 @@ class UpdateQuestsJob extends DataJob {
             contains: [],
             attributes: []
         };
-        if (reward.items[0].upd && reward.items[0].upd.StackObjectsCount) {
+        if (reward.items[0].upd?.StackObjectsCount) {
             rewardData.count = reward.items[0].upd.StackObjectsCount;
         }
         for (let i = 1; i < reward.items.length; i++) {
             const item = reward.items[i];
+            if (this.items[rewardData.item]._parent === '543be5cb4bdc2deb348b4568') {
+                // skip ammo pack contents
+                break;
+            }
             if (this.items[item._tpl]._parent === '65649eb40bf0ed77b8044453') {
                 // skip built-in armor inserts
                 continue;
