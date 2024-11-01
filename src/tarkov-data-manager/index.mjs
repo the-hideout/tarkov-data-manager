@@ -2014,7 +2014,7 @@ app.get('/presets/get', async (req, res) => {
         });
         preset.image_8x_link = items.get(preset.id)?.image_8x_link;
         preset.image_512_link = items.get(preset.id)?.image_512_link;
-        preset.image_link = items.get(preset.id)?.image_link;
+        preset.image_link = items.get(preset.id)?.image_link ?? null;
         preset.base_image_link = items.get(preset.id)?.base_image_link;
         preset.grid_image_link = items.get(preset.id)?.grid_image_link;
         preset.icon_link = items.get(preset.id)?.icon_link;

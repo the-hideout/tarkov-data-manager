@@ -13,6 +13,10 @@ const existingImageElement = (itemId, imageType, url) => {
     `;
 };
 
+const missingImageElement = (imageType) => {
+    return `<span class="tooltipped" style="cursor: default" data-tooltip="${imageType} image">🚫</span>`;
+};
+
 $(document).ready( function () {
     //$('.tooltipped').tooltip();
     //$('.modal').modal();
@@ -22,7 +26,7 @@ $(document).ready( function () {
         method: 'get',
         dataType: 'json',
         url: '/presets/get/game',
-    }).done(function (data) {
+    }).done((data) => {
         gamePresets = data;
     });
 
