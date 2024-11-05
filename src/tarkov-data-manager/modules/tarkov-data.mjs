@@ -24,8 +24,8 @@ async function addManualTranslations(lang, langCode) {
         return lang;
     }
     return {
-        ...manualTranslations[langCode],
         ...lang,
+        ...manualTranslations[langCode],
     };
 }
 
