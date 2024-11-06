@@ -133,7 +133,7 @@ app.use(maybe((req, res, next) => {
                         dataType: "json"
                     }).done(function (data) {
                         if (!data.success) {
-                            M.toast({text: data.message});
+                            new M.Toast({text: data.message});
                         } else {
                             location.reload();
                         }
@@ -277,7 +277,7 @@ const getHeader = (req, options) => {
 const getFooter = (req) => {
     let toastJs = '';
     if (req.query.toast) {
-        toastJs = `M.toast({text: '${decodeToast(req.query.toast)}'});`;
+        toastJs = `new M.Toast({text: '${decodeToast(req.query.toast)}'});`;
     }
     return `
             </div>

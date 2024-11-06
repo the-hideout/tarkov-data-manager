@@ -81,10 +81,10 @@ $(document).ready( function () {
                     url: `/webhooks/${target.data('id')}`,
                     dataType: "json"
                 }).done(function (data) {
-                    M.toast({text: data.message});
+                    new M.Toast({text: data.message});
                     if (data.errors.length > 0) {
                         for (let i = 0; i < data.errors.length; i++) {
-                            M.toast({text: data.errors[i]});
+                            new M.Toast({text: data.errors[i]});
                         }
                         return;
                     }
@@ -99,7 +99,7 @@ $(document).ready( function () {
                     let target = $(event.target);
                     if (target[0].nodeName === 'I') target = target.parent();
                     navigator.clipboard.writeText(`https://${window.location.hostname}/api/webhooks/${hookType}/${target.data('url')}`);
-                    M.toast({text:`${hookType} API URL copied to clipboard.`});
+                    new M.Toast({text:`${hookType} API URL copied to clipboard.`});
                 });
             }
         }
@@ -114,10 +114,10 @@ $(document).ready( function () {
             data: formData,
             dataType: "json"
         }).done(function (data) {
-            M.toast({text: data.message});
+            new M.Toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({text: data.errors[i]});
+                    new M.Toast({text: data.errors[i]});
                 }
                 return;
             }

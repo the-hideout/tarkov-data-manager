@@ -84,10 +84,10 @@ $(document).ready( function () {
             dataType: "json",
             url: `/json/${dir}/${fileName}`
         }).done(function (data) {
-            M.toast({text: data.message});
+            new M.Toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({text: data.errors[i]});
+                    new M.Toast({text: data.errors[i]});
                 }
                 return;
             }
@@ -110,17 +110,17 @@ $(document).ready( function () {
         const form = $('form.json-upload').first();
         const formData = new FormData(form[0]);
         if (!formData.has('file') || formData.get('file').size === 0) {
-            M.toast({text: 'You must select a json file to upload'});
+            new M.Toast({text: 'You must select a json file to upload'});
             return;
         }
         fetch('/json/'+$('input[name="json-dir"]:checked').val(), {
             method: 'POST',
             body: formData
         }).then(response => response.json()).then(data => {
-            M.toast({text: data.message});
+            new M.Toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({text: data.errors[i]});
+                    new M.Toast({text: data.errors[i]});
                 }
             }
             $('#json-upload').val('');

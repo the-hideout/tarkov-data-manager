@@ -95,16 +95,16 @@ $(document).ready( function () {
                 let target = $(event.target);
                 if (target[0].nodeName === 'I') target = target.parent();
                 target.addClass('disabled');
-                M.toast({text: `Starting ${target.data('job')} job...`});
+                new M.Toast({text: `Starting ${target.data('job')} job...`});
                 $.ajax({
                     //method: ,
                     dataType: "json",
                     url: '/crons/run/'+target.data('job')
                 }).done(function (data) {
-                    M.toast({text: data.message});
+                    new M.Toast({text: data.message});
                     if (data.errors.length > 0) {
                         for (let i = 0; i < data.errors.length; i++) {
-                            M.toast({text: data.errors[i]});
+                            new M.Toast({text: data.errors[i]});
                         }
                         return;
                     }
@@ -177,10 +177,10 @@ $(document).ready( function () {
             data: formData,
             dataType: 'json'
         }).done(function (data) {
-            M.toast({text: data.message});
+            new M.Toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({text: data.errors[i]});
+                    new M.Toast({text: data.errors[i]});
                 }
                 return;
             }
