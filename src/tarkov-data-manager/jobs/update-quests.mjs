@@ -1771,7 +1771,7 @@ const skipQuests = [
     //'67190f9c7b0991dc22064766', // Watch the Watcher
     //'67040cae4ac6d9c18c0ade2c', // Radical Treatment
     //'67040ccdcc1f3752720376ef', // Forgotten Oaths
-    //'', // Clear Conscience
+    //'6707e6614e617ec94f0e63dc', // Clear Conscience
 ];
 
 // Secure Folder 0013 appears on multiple maps
