@@ -1757,6 +1757,21 @@ const skipQuests = [
     '66e3e2ee2136472d220bcb36', // Night of the Cult
     '66e3e2fcb26de0e0790d3fe6', // The Graven Image
     '66e3e3027804a21d860755d6', // Until Dawn
+    //'670404a2ea1caa8f2e0be106', // Don't Believe Your Eyes
+    //'67040b3d10b18d153a08f636', // Dirty Blood
+    //'67040b6c45eaf70db10dbec6', // Burn it Down
+    //'67040ba4578a46e44a05c0a8', // The Root Cause
+    //'67040c22cc1f3752720376e9', // Matter of Technique
+    //'67040c43ce929d6ee506c7c7', // Find the Source
+    //'67040c5b4ac6d9c18c0ade26', // Gloves Off
+    //'67040c78bf4be8a4ef041a65', // Sample IV - A New Hope
+    //'67040c92bf4be8a4ef041a6c', // Darkest Hour Is Just Before Dawn
+    //'6727ef2c6015b7cc540ea754', // Contagious Beast
+    //'67190f6c1b3f4964d90d71e9', // Global Threat
+    //'67190f9c7b0991dc22064766', // Watch the Watcher
+    //'67040cae4ac6d9c18c0ade2c', // Radical Treatment
+    //'67040ccdcc1f3752720376ef', // Forgotten Oaths
+    //'', // Clear Conscience
 ];
 
 // Secure Folder 0013 appears on multiple maps
