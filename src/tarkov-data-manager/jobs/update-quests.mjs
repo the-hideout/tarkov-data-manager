@@ -1774,14 +1774,18 @@ const questStatusMap = {
 };
 
 const factionMap = {
-    '5e381b0286f77420e3417a74': 'USEC',
-    '5e4d4ac186f774264f758336': 'USEC',
-    '6179b5eabca27a099552e052': 'USEC',
-    '639282134ed9512be67647ed': 'USEC',
-    '5e383a6386f77465910ce1f3': 'BEAR',
-    '5e4d515e86f77438b2195244': 'BEAR',
-    '6179b5b06e9dd54ac275e409': 'BEAR',
-    '639136d68ba6894d155e77cf': 'BEAR',
+    '5e381b0286f77420e3417a74': 'USEC', // Textile - Part 1
+    '5e4d4ac186f774264f758336': 'USEC', // Textile - Part 2
+    '6179b5eabca27a099552e052': 'USEC', // Counteraction
+    '639282134ed9512be67647ed': 'USEC', // Road Closed
+    '5e383a6386f77465910ce1f3': 'BEAR', // Textile - Part 1
+    '5e4d515e86f77438b2195244': 'BEAR', // Textile - Part 2
+    '6179b5b06e9dd54ac275e409': 'BEAR', // Our Own Land
+    '639136d68ba6894d155e77cf': 'BEAR', // Green Corridor
+    '6613f3007f6666d56807c929': 'BEAR', // Drip-Out - Part 1
+    '66151401efb0539ae10875ae': 'USEC', // Drip-Out - Part 1
+    '6613f307fca4f2f386029409': 'BEAR', // Drip-Out - Part 2
+    '6615141bfda04449120269a7': 'USEC', // Drip-Out - Part 2
 };
 
 export default UpdateQuestsJob;
