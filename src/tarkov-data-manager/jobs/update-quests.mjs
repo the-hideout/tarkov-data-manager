@@ -1757,7 +1757,6 @@ const skipQuests = [
     '66e3e2ee2136472d220bcb36', // Night of the Cult
     '66e3e2fcb26de0e0790d3fe6', // The Graven Image
     '66e3e3027804a21d860755d6', // Until Dawn
-    /* Halloween 2024 tasks:
     '670404a2ea1caa8f2e0be106', // Don't Believe Your Eyes
     '67040b3d10b18d153a08f636', // Dirty Blood
     '67040b6c45eaf70db10dbec6', // Burn it Down
@@ -1780,7 +1779,7 @@ const skipQuests = [
     '671911bbcee3738f8502d401', // Reduce the Distance
     '6719101deddf081d340d4c60', // Spread the Damage
     '67190f157b0991dc22064755', // Foreign Support
-    */
+    '67165d59a9c06627040a9094', // Forces Measure
 ];
 
 // Secure Folder 0013 appears on multiple maps
