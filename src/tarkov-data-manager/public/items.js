@@ -188,9 +188,9 @@ $(document).ready( async function () {
                 $(target).addClass('disabled');
                 fetch(`/items/regenerate-images/${$(target).data('id')}`, {method: 'POST'}).then(response => response.json()).then(data => {
                     $(target).removeClass('disabled');
-                    M.toast({text: data.message});
+                    new M.Toast({text: data.message});
                     for (const error of data.errors) {
-                        M.toast({text: error});
+                        new M.Toast({text: error});
                     }
                 });
             });
@@ -205,9 +205,9 @@ $(document).ready( async function () {
                 $(target).addClass('disabled');
                 fetch(`/items/refresh-images/${$(target).data('id')}`, {method: 'POST'}).then(response => response.json()).then(data => {
                     $(target).removeClass('disabled');
-                    M.toast({text: data.message});
+                    new M.Toast({text: data.message});
                     for (const error of data.errors) {
-                        M.toast({text: error});
+                        new M.Toast({text: error});
                     }
                 });
             });
@@ -232,10 +232,10 @@ $(document).ready( async function () {
             method: 'POST',
             body: formData
         }).then(response => response.json()).then(data => {
-            M.toast({text: data.message});
+            new M.Toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({text: data.errors[i]});
+                    new M.Toast({text: data.errors[i]});
                 }
             }
         });

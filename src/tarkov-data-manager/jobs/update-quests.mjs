@@ -728,6 +728,16 @@ class UpdateQuestsJob extends DataJob {
     }
 
     getRewardItems = async (reward) => {
+        if (reward.value > 1) {
+            reward.items = reward.items.reduce((rewardItems, current, currentIndex) => {
+                if (currentIndex === 0) {
+                    rewardItems.push(current);
+                } else if (current.parentId && rewardItems.some(r => r._id === current.parentId)) {
+                    rewardItems.push(current);
+                }
+                return rewardItems;
+            }, []);
+        }
         const rewardData = {
             item: reward.items[0]._tpl,
             item_name: this.locales.en[`${reward.items[0]._tpl} Name`],
@@ -735,11 +745,15 @@ class UpdateQuestsJob extends DataJob {
             contains: [],
             attributes: []
         };
-        if (reward.items[0].upd && reward.items[0].upd.StackObjectsCount) {
+        if (reward.items[0].upd?.StackObjectsCount) {
             rewardData.count = reward.items[0].upd.StackObjectsCount;
         }
         for (let i = 1; i < reward.items.length; i++) {
             const item = reward.items[i];
+            if (this.items[rewardData.item]._parent === '543be5cb4bdc2deb348b4568') {
+                // skip ammo pack contents
+                break;
+            }
             if (this.items[item._tpl]._parent === '65649eb40bf0ed77b8044453') {
                 // skip built-in armor inserts
                 continue;
@@ -1743,6 +1757,29 @@ const skipQuests = [
     '66e3e2ee2136472d220bcb36', // Night of the Cult
     '66e3e2fcb26de0e0790d3fe6', // The Graven Image
     '66e3e3027804a21d860755d6', // Until Dawn
+    '670404a2ea1caa8f2e0be106', // Don't Believe Your Eyes
+    '67040b3d10b18d153a08f636', // Dirty Blood
+    '67040b6c45eaf70db10dbec6', // Burn it Down
+    '67040ba4578a46e44a05c0a8', // The Root Cause
+    '67040c22cc1f3752720376e9', // Matter of Technique
+    '67040c43ce929d6ee506c7c7', // Find the Source
+    '67040c5b4ac6d9c18c0ade26', // Gloves Off
+    '67040c78bf4be8a4ef041a65', // Sample IV - A New Hope
+    '67040c92bf4be8a4ef041a6c', // Darkest Hour Is Just Before Dawn
+    '6727ef2c6015b7cc540ea754', // Contagious Beast
+    '67190f6c1b3f4964d90d71e9', // Global Threat
+    '67190f9c7b0991dc22064766', // Watch the Watcher
+    '67040cae4ac6d9c18c0ade2c', // Radical Treatment
+    '67040ccdcc1f3752720376ef', // Forgotten Oaths
+    '6707e6614e617ec94f0e63dc', // Clear Conscience
+    '67190febcce4a5fdf605d4f8', // Not a Step Back!
+    '671910d5dbd4354ac10e9784', // Conservation Area
+    '6719116460f6f081570d05f7', // Every Man for Himself
+    '67191048eddf081d340d4c6e', // Pressured by Circumstances
+    '671911bbcee3738f8502d401', // Reduce the Distance
+    '6719101deddf081d340d4c60', // Spread the Damage
+    '67190f157b0991dc22064755', // Foreign Support
+    '67165d59a9c06627040a9094', // Forces Measure
 ];
 
 // Secure Folder 0013 appears on multiple maps
@@ -1760,14 +1797,18 @@ const questStatusMap = {
 };
 
 const factionMap = {
-    '5e381b0286f77420e3417a74': 'USEC',
-    '5e4d4ac186f774264f758336': 'USEC',
-    '6179b5eabca27a099552e052': 'USEC',
-    '639282134ed9512be67647ed': 'USEC',
-    '5e383a6386f77465910ce1f3': 'BEAR',
-    '5e4d515e86f77438b2195244': 'BEAR',
-    '6179b5b06e9dd54ac275e409': 'BEAR',
-    '639136d68ba6894d155e77cf': 'BEAR',
+    '5e381b0286f77420e3417a74': 'USEC', // Textile - Part 1
+    '5e4d4ac186f774264f758336': 'USEC', // Textile - Part 2
+    '6179b5eabca27a099552e052': 'USEC', // Counteraction
+    '639282134ed9512be67647ed': 'USEC', // Road Closed
+    '5e383a6386f77465910ce1f3': 'BEAR', // Textile - Part 1
+    '5e4d515e86f77438b2195244': 'BEAR', // Textile - Part 2
+    '6179b5b06e9dd54ac275e409': 'BEAR', // Our Own Land
+    '639136d68ba6894d155e77cf': 'BEAR', // Green Corridor
+    '6613f3007f6666d56807c929': 'BEAR', // Drip-Out - Part 1
+    '66151401efb0539ae10875ae': 'USEC', // Drip-Out - Part 1
+    '6613f307fca4f2f386029409': 'BEAR', // Drip-Out - Part 2
+    '6615141bfda04449120269a7': 'USEC', // Drip-Out - Part 2
 };
 
 export default UpdateQuestsJob;

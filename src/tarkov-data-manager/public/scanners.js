@@ -391,10 +391,10 @@ $(document).ready(function () {
             data: formData,
             dataType: "json"
           }).done(function (data) {
-            M.toast({text: data.message});
+            new M.Toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({text: data.errors[i]});
+                    new M.Toast({text: data.errors[i]});
                 }
             }
           });
@@ -528,7 +528,7 @@ $(document).ready(function () {
                 postData('/scanners/delete-user', {username: target.data('username')}).then(data => {
                     if (data.errors.length > 0) {
                         for (let i = 0; i < data.errors.length; i++) {
-                            M.toast({text: data.errors[i]});
+                            new M.Toast({text: data.errors[i]});
                         }
                         return;
                     }
@@ -550,7 +550,7 @@ $(document).ready(function () {
                 postData('/scanners/edit-user', dataUpdate).then(data => {
                     if (data.errors.length > 0) {
                         for (let i = 0; i < data.errors.length; i++) {
-                            M.toast({text: data.errors[i]});
+                            new M.Toast({text: data.errors[i]});
                         }
                         return;
                     }
@@ -610,7 +610,7 @@ $(document).ready(function () {
                     postData('/scanners/scanner-flags', dataUpdate).then(data => {
                         if (data.errors.length > 0) {
                             for (let i = 0; i < data.errors.length; i++) {
-                                M.toast({text: data.errors[i]});
+                                new M.Toast({text: data.errors[i]});
                             }
                         }
                     });
@@ -639,7 +639,7 @@ $(document).ready(function () {
                 postData('/scanners/user-flags', dataUpdate).then(data => {
                     if (data.errors.length > 0) {
                         for (let i = 0; i < data.errors.length; i++) {
-                            M.toast({text: data.errors[i]});
+                            new M.Toast({text: data.errors[i]});
                         }
                     }
                 });
@@ -656,10 +656,10 @@ $(document).ready(function () {
             data: formData,
             dataType: "json"
         }).done(function (data) {
-            M.toast({text: data.message});
+            new M.Toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({text: data.errors[i]});
+                    new M.Toast({text: data.errors[i]});
                 }
             } else {
                 M.Modal.getInstance(document.getElementById('modal-edit-user')).close();

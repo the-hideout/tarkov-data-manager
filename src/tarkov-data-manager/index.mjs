@@ -133,7 +133,7 @@ app.use(maybe((req, res, next) => {
                         dataType: "json"
                     }).done(function (data) {
                         if (!data.success) {
-                            M.toast({text: data.message});
+                            new M.Toast({text: data.message});
                         } else {
                             location.reload();
                         }
@@ -277,7 +277,7 @@ const getHeader = (req, options) => {
 const getFooter = (req) => {
     let toastJs = '';
     if (req.query.toast) {
-        toastJs = `M.toast({text: '${decodeToast(req.query.toast)}'});`;
+        toastJs = `new M.Toast({text: '${decodeToast(req.query.toast)}'});`;
     }
     return `
             </div>
@@ -2014,7 +2014,7 @@ app.get('/presets/get', async (req, res) => {
         });
         preset.image_8x_link = items.get(preset.id)?.image_8x_link;
         preset.image_512_link = items.get(preset.id)?.image_512_link;
-        preset.image_link = items.get(preset.id)?.image_link;
+        preset.image_link = items.get(preset.id)?.image_link ?? null;
         preset.base_image_link = items.get(preset.id)?.base_image_link;
         preset.grid_image_link = items.get(preset.id)?.grid_image_link;
         preset.icon_link = items.get(preset.id)?.icon_link;

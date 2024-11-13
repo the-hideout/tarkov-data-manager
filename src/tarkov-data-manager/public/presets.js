@@ -13,6 +13,10 @@ const existingImageElement = (itemId, imageType, url) => {
     `;
 };
 
+const missingImageElement = (imageType) => {
+    return `<span class="tooltipped" style="cursor: default" data-tooltip="${imageType} image">🚫</span>`;
+};
+
 $(document).ready( function () {
     //$('.tooltipped').tooltip();
     //$('.modal').modal();
@@ -22,7 +26,7 @@ $(document).ready( function () {
         method: 'get',
         dataType: 'json',
         url: '/presets/get/game',
-    }).done(function (data) {
+    }).done((data) => {
         gamePresets = data;
     });
 
@@ -202,9 +206,9 @@ $(document).ready( function () {
                 $(target).addClass('disabled');
                 fetch(`/items/regenerate-images/${$(target).data('id')}`, {method: 'POST'}).then(response => response.json()).then(data => {
                     $(target).removeClass('disabled');
-                    M.toast({text: data.message});
+                    new M.Toast({text: data.message});
                     for (const error of data.errors) {
-                        M.toast({text: error});
+                        new M.Toast({text: error});
                     }
                 });
             });
@@ -218,9 +222,9 @@ $(document).ready( function () {
                 $(target).addClass('disabled');
                 fetch(`/items/refresh-images/${$(target).data('id')}`, {method: 'POST'}).then(response => response.json()).then(data => {
                     $(target).removeClass('disabled');
-                    M.toast({text: data.message});
+                    new M.Toast({text: data.message});
                     for (const error of data.errors) {
-                        M.toast({text: error});
+                        new M.Toast({text: error});
                     }
                 });
             });
@@ -234,7 +238,7 @@ $(document).ready( function () {
             dataType: 'json',
             url: `/presets/${presetId}`
         }).done(function (data) {
-            M.toast({text: data.message});
+            new M.Toast({text: data.message});
             $('.delete-preset').each((index, el) => {
                 if (el.dataset.id === presetId) {
                     $(el).removeClass('disabled');
@@ -242,7 +246,7 @@ $(document).ready( function () {
             });
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({text: data.errors[i]});
+                    new M.Toast({text: data.errors[i]});
                 }
                 return;
             }
@@ -268,10 +272,10 @@ $(document).ready( function () {
             data: formData,
             dataType: 'json'
         }).done(function (data) {
-            M.toast({text: data.message});
+            new M.Toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({text: data.errors[i]});
+                    new M.Toast({text: data.errors[i]});
                 }
                 return;
             }
@@ -298,10 +302,10 @@ $(document).ready( function () {
             data: {id: targetId},
             dataType: 'json'
         }).done(function (data) {
-            M.toast({text: data.message});
+            new M.Toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({text: data.errors[i]});
+                    new M.Toast({text: data.errors[i]});
                 }
                 return;
             }

@@ -175,7 +175,7 @@ export const getBucketContents = async (continuationToken = false) => {
         Bucket: process.env.S3_BUCKET,
     };
 
-    if(continuationToken){
+    if (continuationToken) {
         input.ContinuationToken = continuationToken;
     }
 
@@ -185,9 +185,17 @@ export const getBucketContents = async (continuationToken = false) => {
     const response = await s3.send(command);
 
     responseKeys = response.Contents.reduce((all, item) => {
-        if (!item.Key.startsWith('Applications/') && !item.Key.startsWith('maps/') && !item.Key.startsWith('profile/')) {
-            all.push(item.Key);
+        if (item.Key.startsWith('Applications/')) {
+            return all;
         }
+        if (item.Key.startsWith('maps/') && !item.Key.startsWith('maps/svg/')) {
+            return all;
+        }
+        if (item.Key.startsWith('profile/')) {
+            return all;
+        }
+            
+        all.push(item.Key);
         return all;
     }, []);
 

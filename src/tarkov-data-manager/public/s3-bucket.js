@@ -100,7 +100,7 @@ $(document).ready( function () {
             dataType: "json",
             url: `/s3-bucket/${fileName}`
         }).done(function (data) {
-            M.toast({text: data.message});
+            new M.Toast({text: data.message});
             $('.delete-file').each((index, el) => {
                 if (el.dataset.file === fileName) {
                     $(el).removeClass('disabled');
@@ -108,7 +108,7 @@ $(document).ready( function () {
             });
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({text: data.errors[i]});
+                    new M.Toast({text: data.errors[i]});
                 }
                 return;
             }
@@ -135,7 +135,7 @@ $(document).ready( function () {
             url: `/s3-bucket/${fileName}`,
             data: formData,
         }).done(function (data) {
-            M.toast({text: data.message});
+            new M.Toast({text: data.message});
             $('.rename-file').each((index, el) => {
                 if (el.dataset.file === fileName) {
                     $(el).removeClass('disabled');
@@ -143,7 +143,7 @@ $(document).ready( function () {
             });
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({text: data.errors[i]});
+                    new M.Toast({text: data.errors[i]});
                 }
                 return;
             }
@@ -170,7 +170,7 @@ $(document).ready( function () {
             url: `/s3-bucket/${fileName}`,
             data: formData,
         }).done(function (data) {
-            M.toast({text: data.message});
+            new M.Toast({text: data.message});
             $('.copy-file').each((index, el) => {
                 if (el.dataset.file === fileName) {
                     $(el).removeClass('disabled');
@@ -178,7 +178,7 @@ $(document).ready( function () {
             });
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({text: data.errors[i]});
+                    new M.Toast({text: data.errors[i]});
                 }
                 return;
             }
@@ -199,23 +199,23 @@ $(document).ready( function () {
         const form = $('form.file-upload').first();
         const formData = new FormData(form[0]);
         if (!formData.has('file') || formData.get('file').size === 0) {
-            M.toast({text: 'You must select a file to upload'});
+            new M.Toast({text: 'You must select a file to upload'});
             return;
         }
         fetch('/s3-bucket', {
             method: 'POST',
             body: formData
         }).then(response => response.json()).then(data => {
-            M.toast({text: data.message});
+            new M.Toast({text: data.message});
             if (data.errors.length > 0) {
                 for (let i = 0; i < data.errors.length; i++) {
-                    M.toast({text: data.errors[i]});
+                    new M.Toast({text: data.errors[i]});
                 }
             }
             $('#file-upload').val('');
             table.ajax.reload();
         }).catch(error => {
-            M.toast({text: error});
+            new M.Toast({text: error});
         });
     });
 } );
