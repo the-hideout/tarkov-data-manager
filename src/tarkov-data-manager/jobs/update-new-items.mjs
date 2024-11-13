@@ -83,6 +83,11 @@ class UpdateNewItemsJob extends DataJob {
                 return false;
             }
 
+            // Removes USP45T dev item (999 capacity magazine)
+            if (bsgObject._id === '671d8b8c0959c721a50ca838') {
+                return false;
+            }
+
             return true;
         });
 
