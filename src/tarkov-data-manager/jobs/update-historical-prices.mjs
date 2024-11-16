@@ -15,13 +15,13 @@ class UpdateHistoricalPricesJob extends DataJob {
 
     async run() {
         this.kvData = {};
+        const priceWindow = new Date(new Date().setDate(new Date().getDate() - historicalPriceDays));
         for (const gameMode of this.gameModes) {
             this.kvData[gameMode.name] = {};
             let kvName = this.kvName;
             if (gameMode.name !== 'regular') {
                 kvName += `_${gameMode.name}`;
             }
-            const priceWindow = new Date(new Date().setDate(new Date().getDate() - historicalPriceDays));
             const itemPriceData = await fs.readFile(path.join(import.meta.dirname, '..', 'dumps', `${kvName}.json`)).then(buffer => {
                 return JSON.parse(buffer)[this.apiType];
             }).catch(error => {
@@ -35,6 +35,7 @@ class UpdateHistoricalPricesJob extends DataJob {
             // filter previously-processed prices to be within the window
             // also change the cutoff for new prices to be after the oldest price we already have
             let dateCutoff = priceWindow;
+            let totalExistingPrices = 0;
             for (const itemId in itemPriceData) {
                 itemPriceData[itemId] = itemPriceData[itemId].filter(oldPrice => {
                     if (oldPrice.timestamp > dateCutoff.getTime()) {
@@ -42,8 +43,11 @@ class UpdateHistoricalPricesJob extends DataJob {
                     }
                     return oldPrice.timestamp > priceWindow.getTime();
                 });
+                totalExistingPrices += itemPriceData[itemId].length;
             }
-    
+            if (totalExistingPrices > 0) {
+                this.logger.log(`Found ${totalExistingPrices.toLocaleString()} ${gameMode.name} prices from ${priceWindow} to ${dateCutoff}`);
+            }
             this.logger.log(`Getting ${gameMode.name} prices after ${dateCutoff}`);
     
             this.logger.time('historical-prices-query');
