@@ -7,6 +7,7 @@ const skipCrafts = [
     '660c2dbaa2a92e70cc074863', // from event quest Decryption Hurdles - Part 3 6604233fe73f456f6a07466b
     '6617cdb6b24b0ea24505f618', // from event quest Radio Club 6605a079ab236c96120c92c1
     '661e6c26750e453380391f55', // from event quest Getting to the Core 66042b8bab236c96120c929f
+    '670932d7b564327a0e023fcb', // event flash drive craft
     '67092bbfc45f0546bf097a7e', // from Halloween 2024 quest line
     '67093210d514d26f8408612b', // from Halloween 2024 quest line
 ];
@@ -194,13 +195,10 @@ class UpdateCraftsJob extends DataJob {
                                 return false;
                             }
                             for (const unlock of craftUnlocks) {
-                                if (unlock.items.some(i => i.id !== endProduct.id)) {
+                                if (!unlock.items.some(i => i.id === endProduct.id)) {
                                     continue;
                                 }
                                 if (unlock.station_id !== craftData.station_id) {
-                                    continue;
-                                }
-                                if (unlock.level != level) {
                                     continue;
                                 }
                                 return true;
