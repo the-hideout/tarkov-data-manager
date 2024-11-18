@@ -7,6 +7,8 @@ const skipCrafts = [
     '660c2dbaa2a92e70cc074863', // from event quest Decryption Hurdles - Part 3 6604233fe73f456f6a07466b
     '6617cdb6b24b0ea24505f618', // from event quest Radio Club 6605a079ab236c96120c92c1
     '661e6c26750e453380391f55', // from event quest Getting to the Core 66042b8bab236c96120c929f
+    '67092bbfc45f0546bf097a7e', // from Halloween 2024 quest line
+    '67093210d514d26f8408612b', // from Halloween 2024 quest line
 ];
 
 class UpdateCraftsJob extends DataJob {
@@ -187,9 +189,27 @@ class UpdateCraftsJob extends DataJob {
                             }]
                         });
                     } else if (req.type === 'QuestComplete') {
-                        const task = tasks.find(q => q.id === req.questId);
+                        const rewardMatchesCraft = (craftUnlocks) => {
+                            if (!craftUnlocks) {
+                                return false;
+                            }
+                            for (const unlock of craftUnlocks) {
+                                if (unlock.items.some(i => i.id !== endProduct.id)) {
+                                    continue;
+                                }
+                                if (unlock.station_id !== craftData.station_id) {
+                                    continue;
+                                }
+                                if (unlock.level != level) {
+                                    continue;
+                                }
+                                return true;
+                            }
+                            return false;
+                        };
+                        const task = tasks.find(q => rewardMatchesCraft(q.finishRewards.craftUnlock) || rewardMatchesCraft(q.startRewards.craftUnlock));
                         if (!task) {
-                            this.logger.warn(`${id}: Unknown quest unlock ${en[`${req.questId} name`]} ${req.questId}`);
+                            this.logger.warn(`${id}: Unknown quest unlock for ${endProduct.name} ${endProduct.id}`);
                             continue;
                         }
                         craftData.requirements.push({
