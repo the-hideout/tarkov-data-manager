@@ -904,8 +904,17 @@ class UpdateQuestsJob extends DataJob {
                     this.logger.warn(`Unrecognized hideout area type "${reward.traderId}" for ${rewardsType} reward ${reward.id} of ${questData.name}`);
                     continue;
                 }
+                const rewardItems = reward.items.reduce((combined, current) => {
+                    const existingItem = combined.find(i => i._tpl === current._tpl);
+                    if (existingItem) {
+                        existingItem.upd.StackObjectsCount += current.upd.StackObjectsCount;
+                    } else {
+                        combined.push(current);
+                    }
+                    return combined;
+                }, []);
                 questData[rewardsType].craftUnlock.push({
-                    items: reward.items.map(item => {
+                    items: rewardItems.map(item => {
                         return {
                             id: item._tpl,
                             name: this.locales.en[`${item._tpl} Name`],
