@@ -756,7 +756,7 @@ const scannerApi = {
                         return summary;
                     }, {count: playerPrices.length, total: 0, min: Number.MAX_SAFE_INTEGER});
                     summaryData.avg = Math.round(summaryData.total / summaryData.count);
-                    return query('INSERT INTO price_historical (item_id, price_min, price_avg, offer_count, timestamp, game_mode) VALUES ?, ?, ?, ?, ?, ?',[itemId, summaryData.min, summaryData.avg, options.offerCount, insertDate, gameMode]).then(() => insertResult);
+                    return query('INSERT INTO price_historical (item_id, price_min, price_avg, offer_count, timestamp, game_mode) VALUES (?, ?, ?, ?, ?, ?)',[itemId, summaryData.min, summaryData.avg, options.offerCount, insertDate, gameMode]).then(() => insertResult);
                 });
             }
         } else if (playerPrices.length > 0) {
