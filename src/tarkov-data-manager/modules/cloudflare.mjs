@@ -197,7 +197,7 @@ const cloudflare = {
     //getOldKeys: getOldKeys,
     //delete: deleteValue,
     //deleteBulk: deleteValues
-    d1Query: async (query, params) => {
+    d1Query: async (query, params, options = {}) => {
         if (!process.env.CLOUDFLARE_TOKEN) {
             return Promise.reject(new Error('Cannot query; CLOUDFLARE_TOKEN is not set'));
         }
@@ -213,6 +213,15 @@ const cloudflare = {
             }),
         });
         if (!response.ok) {
+            if (options.maxRetries) {
+                if (!options.attempt) {
+                    options.attempt = 1;
+                }
+                if (options.maxRetries <= options.attempt) {
+                    options.attempt++;
+                    return cloudflare.d1Query(query, params, options);
+                }
+            }
             return Promise.reject(new Error(`${response.status} ${response.statusText}`));
         }
         const result = await response.json();

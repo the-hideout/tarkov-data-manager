@@ -19,7 +19,7 @@ class UpdateProfileIndexJob extends DataJob {
         const batchSize = 1000000;
         let offset = 0;
         while (true) {
-            const queryResult = await this.d1Query('SELECT id, name, updated, updated_pve FROM eft_accounts LIMIT ?, ?', [offset, batchSize]);
+            const queryResult = await this.d1Query('SELECT id, name, updated, updated_pve FROM eft_accounts LIMIT ?, ?', [offset, batchSize], {maxRetries: 10});
             queryResult.results.forEach(r => {
                 for (const gameMode of gameModes) {
                     let updatedField = 'updated';
