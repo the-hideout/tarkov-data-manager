@@ -501,6 +501,7 @@ const presetData = {
             query(`DELETE FROM manual_preset WHERE id = ?`, [id]),
             query(`DELETE FROM price_data WHERE item_id = ?`, [id]),
             query(`DELETE FROM price_archive WHERE item_id = ?`, [id]),
+            query('DELETE FROM price_historical WHERE item_id = ?', [id]),
             remoteData.removeItem(id),
         ]);
     },
@@ -520,6 +521,7 @@ const presetData = {
         return Promise.all([
             query(`UPDATE price_data SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
             query(`UPDATE IGNORE price_archive SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
+            query(`UPDATE IGNORE price_historical SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
             query(`UPDATE IGNORE trader_offers SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
             query(`DELETE FROM manual_preset WHERE id = ?`, [sourceId]),
             remoteData.removeItem(id),
