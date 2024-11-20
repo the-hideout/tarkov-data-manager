@@ -725,28 +725,39 @@ const scannerApi = {
         }
         const playerPrices = [];
         const traderPrices = [];
-        for (let i = 0; i < itemPrices.length; i++) {
+        for (const itemPrice of itemPrices) {
             // player prices are only rubles
-            if (itemPrices[i].seller == 'Player' && itemPrices[i].currency == 'RUB') {
-                playerPrices.push(itemPrices[i]);
-            } else if (itemPrices[i].seller != 'Player') {
-                traderPrices.push(itemPrices[i]);
+            if (itemPrice.seller === 'Player' && itemPrice.currency === 'RUB') {
+                playerPrices.push(itemPrice);
+            } else if (itemPrice.seller !== 'Player') {
+                traderPrices.push(itemPrice);
             }
         }
         let playerInsert = Promise.resolve({affectedRows: 0});
         let traderInsert = Promise.resolve({affectedRows: 0});
+        const insertDate = new Date();
         if (playerPrices.length > 0 && userFlags.insertPlayerPrices & user.flags) {
             // player prices
             const placeholders = [];
             const values = [];
-            for (let i = 0; i < playerPrices.length; i++) {
-                placeholders.push('(?, ?, ?, now(), ?)');
-                values.push(itemId, playerPrices[i].price, options.scanner.id, gameMode);
+            for (const playerPrice of playerPrices) {
+                placeholders.push('(?, ?, ?, ?, ?)');
+                values.push(itemId, playerPrice.price, options.scanner.id, insertDate, gameMode);
             }
             if (skipInsert) {
                 response.warnings.push(`Skipped insert of ${playerPrices.length} player prices`);
             } else {
-                playerInsert = query(`INSERT INTO price_data (item_id, price, scanner_id, timestamp, game_mode) VALUES ${placeholders.join(', ')}`, values);
+                playerInsert = query(`INSERT INTO price_data (item_id, price, scanner_id, timestamp, game_mode) VALUES ${placeholders.join(', ')}`, values).then(insertResult => {
+                    const summaryData = playerPrices.reduce((summary, current) => {
+                        summary.total += current.price;
+                        if (current.price < summary.min) {
+                            summary.min = current.price;
+                        }
+                        return summary;
+                    }, {count: playerPrices.length, total: 0, min: Number.MAX_SAFE_INTEGER});
+                    summaryData.avg = Math.round(summaryData.total / summaryData.count);
+                    return query('INSERT INTO price_historical (item_id, price_min, price_avg, offer_count, timestamp, game_mode) VALUES (?, ?, ?, ?, ?, ?)',[itemId, summaryData.min, summaryData.avg, options.offerCount, insertDate, gameMode]).then(() => insertResult);
+                });
             }
         } else if (playerPrices.length > 0) {
             playerInsert = Promise.reject(new Error('User not authorized to insert player prices'));

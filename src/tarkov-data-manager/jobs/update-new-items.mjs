@@ -27,10 +27,6 @@ class UpdateNewItemsJob extends DataJob {
                 return false;
             }
 
-            if (secureContainers.includes(bsgObject._id)) {
-                return true;
-            }
-
             if (ignoreMap.includes(bsgObject._id)) {
                 return false;
             }
@@ -40,10 +36,10 @@ class UpdateNewItemsJob extends DataJob {
                 return false;
             }
 
-            // Parent is MobContainer
-            // Removes all secure containers, which is why we do the above check first
+            // Parent is MobContainer (secure containers)
             if (bsgObject._parent === '5448bf274bdc2dfc2f8b456a') {
-                return false;
+                // skip secure containers that are too big
+                return !bsgObject._props.Grids.some(grid => grid._props.cellsH >= 10 || grid._props.cellsV >= 10);
             }
 
             // Parent is Stash
@@ -81,6 +77,11 @@ class UpdateNewItemsJob extends DataJob {
             // Removes shrapnel etc
             if (bsgObject._props.StackMinRandom === 0) {
                 return false;
+            }
+
+            // skip 999-round zombie magazines
+            if (bsgObject._parent === '5448bc234bdc2d3c308b4569' || bsgObject._parent === '610720f290b75a49ff2e5e25') {
+                return !bsgObject._props.Cartridges.some(cart => cart._max_count === 999);
             }
 
             return true;
@@ -168,16 +169,6 @@ const ignoreMap = [
     '5675838d4bdc2d95058b456e', // Drawer
     '602543c13fee350cd564d032', // Sorting table
     '5751961824597720a31c09ac', // (off)black keycard
-];
-
-const secureContainers = [
-    '544a11ac4bdc2d470e8b456a', // alpha
-    '5857a8b324597729ab0a0e7d', // beta
-    '59db794186f77448bc595262', // epsilon
-    '5857a8bc2459772bad15db29', // gamma
-    '5c093ca986f7740a1867ab12', // kappa
-    '5732ee6a24597719ae0c0281', // waist pouch
-    '664a55d84a90fc2c8a6305c9', // theta
 ];
 
 export default UpdateNewItemsJob;
