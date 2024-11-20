@@ -222,7 +222,7 @@ const cloudflare = {
                 if (!options.retryDelay) {
                     options.retryDelay = 1000;
                 }
-                if (options.maxRetries <= options.attempt) {
+                if (options.attempt <= options.maxRetries) {
                     options.attempt++;
                     await sleep(options.retryDelay);
                     return cloudflare.d1Query(query, params, options);
