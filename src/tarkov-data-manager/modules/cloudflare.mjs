@@ -2,6 +2,8 @@
 
 import got from 'got';
 
+import sleep from './sleep';
+
 const BASE_URL = 'https://api.cloudflare.com/client/v4/';
 
 const doRequest = async (options = {}) => {
@@ -217,8 +219,12 @@ const cloudflare = {
                 if (!options.attempt) {
                     options.attempt = 1;
                 }
+                if (!options.retryDelay) {
+                    options.retryDelay = 1000;
+                }
                 if (options.maxRetries <= options.attempt) {
                     options.attempt++;
+                    await sleep(options.retryDelay);
                     return cloudflare.d1Query(query, params, options);
                 }
             }
