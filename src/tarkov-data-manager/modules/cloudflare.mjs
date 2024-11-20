@@ -217,14 +217,17 @@ const cloudflare = {
         if (!response.ok) {
             if (options.maxRetries) {
                 if (!options.attempt) {
-                    options.attempt = 1;
+                    options.attempt = 0;
                 }
                 if (!options.retryDelay) {
                     options.retryDelay = 1000;
                 }
                 if (options.attempt <= options.maxRetries) {
                     options.attempt++;
-                    await sleep(options.retryDelay);
+                    if (options.logger) {
+                        options.logger.warn(`D1 Query returned ${response.status} ${response.statusText} on attempt ${options.attempt} of ${options.maxRetries + 1}; retrying in ${options.retryDelay}ms`);
+                    }
+                    await sleep(options.retryDelay, options.signal);
                     return cloudflare.d1Query(query, params, options);
                 }
             }
