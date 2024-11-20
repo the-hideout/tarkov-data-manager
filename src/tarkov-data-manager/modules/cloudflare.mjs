@@ -2,7 +2,7 @@
 
 import got from 'got';
 
-import sleep from './sleep';
+import sleep from './sleep.js';
 
 const BASE_URL = 'https://api.cloudflare.com/client/v4/';
 
