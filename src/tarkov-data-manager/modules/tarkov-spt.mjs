@@ -7,7 +7,7 @@ import tarkovChanges from './tarkov-changes.mjs';
 import discordWebhook from './webhook.mjs';
 import dataOptions from './data-options.mjs';
 
-const sptPath = 'https://dev.sp-tarkov.com/SPT-AKI/Server/media/branch/{branch}/project/assets/';
+const sptPath = 'https://github.com/sp-tarkov/server/raw/refs/heads/{branch}/project/assets/';
 const sptDataPath = `${sptPath}database/`;
 const sptConfigPath = `${sptPath}configs/`;
 
@@ -102,11 +102,11 @@ const apiRequest = async (request, searchParams) => {
         await setBranch();
     }
     searchParams = {
-        access_token: process.env.SPT_TOKEN,
+        //access_token: process.env.SPT_TOKEN,
         ref: branch,
         ...searchParams
     };
-    const url = `https://dev.sp-tarkov.com/api/v1/repos/SPT-AKI/Server/${request}`;
+    const url = `https://api.github.com/repos/sp-tarkov/server/${request}`;
     return got(url, {
         responseType: 'json',
         resolveBodyOnly: true,
@@ -160,25 +160,27 @@ const tarkovSpt = {
         const { download } = merge(options);
         const mapLoot = {};
         const locations = await tarkovChanges.locations();
+        const mapLootPromises = [];
         for (const id in locations.locations) {
             const map = locations.locations[id];
-            try {
-                mapLoot[id] = await downloadJson(`${map.Id.toLowerCase()}_loot.json`, `${sptDataPath}locations/${locations.locations[id].Id.toLowerCase()}/looseLoot.json`, download, true);
-            } catch (error) {
+            mapLootPromises.push(downloadJson(`${map.Id.toLowerCase()}_loot.json`, `${sptDataPath}locations/${locations.locations[id].Id.toLowerCase()}/looseLoot.json`, download, true).then(lootJson => {
+                mapLoot[id] = lootJson;
+            }).catch(error => {
                 if (error.code === 'ERR_NON_2XX_3XX_RESPONSE') {
                     mapLoot[id] = [];
-                    continue;
+                    return;
                 }
                 return Promise.reject(error);
-            }
+            }));
         }
+        await Promise.all(mapLootPromises);
         return mapLoot;
     },
     botInfo: async (botKey, options = defaultOptions) => {
         const { download } = merge(options, {download: true});
         botKey = botKey.toLowerCase();
         //return downloadJson(`${botKey}.json`, `${sptDataPath}bots/types/${botKey}.json`, download);
-        return await module.exports.botsInfo(download)[botKey.toLowerCase()];
+        return await tarkovSpt.botsInfo(download)[botKey.toLowerCase()];
     },
     botsInfo: async (options = defaultOptions) => {
         const { download } = merge(options, {download: true});
