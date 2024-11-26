@@ -160,18 +160,20 @@ const tarkovSpt = {
         const { download } = merge(options);
         const mapLoot = {};
         const locations = await tarkovChanges.locations();
+        const mapLootPromises = [];
         for (const id in locations.locations) {
             const map = locations.locations[id];
-            try {
-                mapLoot[id] = await downloadJson(`${map.Id.toLowerCase()}_loot.json`, `${sptDataPath}locations/${locations.locations[id].Id.toLowerCase()}/looseLoot.json`, download, true);
-            } catch (error) {
+            mapLootPromises.push(downloadJson(`${map.Id.toLowerCase()}_loot.json`, `${sptDataPath}locations/${locations.locations[id].Id.toLowerCase()}/looseLoot.json`, download, true).then(lootJson => {
+                mapLoot[id] = lootJson;
+            }).catch(error => {
                 if (error.code === 'ERR_NON_2XX_3XX_RESPONSE') {
                     mapLoot[id] = [];
-                    continue;
+                    return;
                 }
                 return Promise.reject(error);
-            }
+            }));
         }
+        await Promise.all(mapLootPromises);
         return mapLoot;
     },
     botInfo: async (botKey, options = defaultOptions) => {
