@@ -207,6 +207,9 @@ const tarkovSpt = {
         const locales = {};
         for (const sptLocale in localeData) {
             const isoLocale = sptLangs[sptLocale];
+            if (!isoLocale) {
+                continue;
+            }
             locales[isoLocale] = localeData[sptLocale];
         }
         return locales;
