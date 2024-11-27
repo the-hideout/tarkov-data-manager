@@ -14,24 +14,23 @@ const sptConfigPath = `${sptPath}configs/`;
 const sptLangs = {
     //'en': 'en',
     'es': 'es',
-    'de': 'ge',
+    'ge': 'de',
     'fr': 'fr',
-    'cs': 'cz',
+    'cz': 'cs',
     'hu': 'hu',
     'it': 'it',
-    'ja': 'jp',
-    'ko': 'kr',
+    'jp': 'ja',
+    'kr': 'ko',
     'pl': 'pl',
-    'pt': 'po',
+    'po': 'pt',
     'ro': 'ro',
     'ru': 'ru',
     'sk': 'sk',
-    'tr': 'tu',
-    'zh': 'ch',
+    'tu': 'tr',
+    'ch': 'zh',
 }
 
 const branches = [
-    '3.10.0-DEV',
     'master',
 ];
 
@@ -114,6 +113,78 @@ const apiRequest = async (request, searchParams) => {
     });
 };
 
+const getFolderIndex = async (options) => {
+    const {
+        download,
+        folderLabel,
+    } = merge(options, {download: true});
+    if (!folderLabel) {
+        return Promise.reject('getFolderData requires folderLabel in options');
+    }
+    if (!options.folderPath) {
+        return Promise.reject('getFolderData requires folderPath in options');
+    }
+    if (!download) {
+        try {
+            return JSON.parse(fs.readFileSync(cachePath(`spt_${folderLabel}_index.json`)));
+        } catch (error) {
+            if (error.code !== 'ENOENT') {
+                return Promise.reject(error);
+            }
+        }
+    }
+    let folderIndex = {};
+    const folderFiles = await apiRequest(options.folderPath, options.searchParams);
+    for (const fileData of folderFiles) {
+        if (options.exclude?.some(ex => `${ex}.json` === fileData.name)) {
+            continue;
+        }
+        folderIndex[fileData.name] = fileData;
+    }
+    fs.writeFileSync(cachePath(`spt_${folderLabel}_index.json`), JSON.stringify(folderIndex, null, 4));
+    return folderIndex;
+};
+
+const getFolderData = async (options) => {
+    const {
+        download,
+        folderLabel,
+    } = merge(options, {download: true});
+    if (!folderLabel) {
+        return Promise.reject('getFolderData requires folderLabel in options');
+    }
+    if (!options.folderPath) {
+        return Promise.reject('getFolderData requires folderPath in options');
+    }
+    let oldFolderIndex;
+    try {
+        oldFolderIndex = JSON.parse(fs.readFileSync(cachePath(`spt_${folderLabel}_index.json`)));
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            return Promise.reject(error);
+        }
+    }
+    let folderIndex;
+    if (!download && oldFolderIndex) {
+        folderIndex = oldFolderIndex;
+    } else {
+        folderIndex = await getFolderIndex(options);
+    }
+    const folderData = {};
+    for (const filename in folderIndex) {
+        const fileIsNew = oldFolderIndex[filename]?.sha !== folderIndex[filename]?.sha || !oldFolderIndex[filename];
+        let prefix = '';
+        if (options.filePrefix) {
+            prefix = `${options.filePrefix}_`;
+        }
+        folderData[filename.replace('.json', '')] = downloadJson(`${prefix}${filename}`, folderIndex[filename].download_url, download && fileIsNew);
+    }
+    for (const fileKey in folderData) {
+        folderData[fileKey] = await folderData[fileKey];
+    }
+    return folderData;
+};
+
 const tarkovSpt = {
     achievements: (options = defaultOptions) => {
         const { download } = merge(options);
@@ -124,27 +195,19 @@ const tarkovSpt = {
         return downloadJson('handbook.json', `${sptDataPath}templates/handbook.json`, download);
     },
     locale: async (locale, options = defaultOptions) => {
-        const { download } = merge(options);
-        if (sptLangs[locale]) {
-            locale = sptLangs[locale];
-        }
-        return downloadJson(`locale_${locale}.json`, `${sptDataPath}locales/global/${locale}.json`, download);
+        return tarkovSpt.locales(options).then(locales => locales[locale]);
     },
     locales: async (options = defaultOptions) => {
-        const langCodes = Object.keys(sptLangs);
-        const localePromises = [];
-        for (const locale of langCodes) {
-            localePromises.push(tarkovSpt.locale(locale, options).then(localeData => {
-                return {
-                    locale: locale,
-                    data: localeData
-                }
-            }));
-        }
-        const translations = await Promise.all(localePromises);
+        const localeData = await getFolderData({
+            ...options,
+            folderLabel: 'locales',
+            folderPath: 'contents/project/assets/database/locales/global',
+            filePrefix: 'locale',
+        });
         const locales = {};
-        for (const localeData of translations) {
-            locales[localeData.locale] = localeData.data;
+        for (const sptLocale in localeData) {
+            const isoLocale = sptLangs[sptLocale];
+            locales[isoLocale] = localeData[sptLocale];
         }
         return locales;
     },
@@ -161,9 +224,30 @@ const tarkovSpt = {
         const mapLoot = {};
         const locations = await tarkovChanges.locations();
         const mapLootPromises = [];
+        const sptMaps = await apiRequest(`contents/project/assets/database/locations`, options.searchParams);
         for (const id in locations.locations) {
             const map = locations.locations[id];
-            mapLootPromises.push(downloadJson(`${map.Id.toLowerCase()}_loot.json`, `${sptDataPath}locations/${locations.locations[id].Id.toLowerCase()}/looseLoot.json`, download, true).then(lootJson => {
+            if (!sptMaps.some(m => m.name === map.Id.toLowerCase())) {
+                continue;
+            }
+            let locationIndex, oldLocationIndex;
+            try {
+                oldLocationIndex = JSON.parse(fs.readFileSync(cachePath(`spt_location_${id}_index.json`)));
+            } catch (error) {
+                if (error.code !== 'ENOENT') {
+                    return Promise.reject(error);
+                }
+            }
+            if (!download && oldLocationIndex) {
+                locationIndex = oldLocationIndex;
+            } else {
+                locationIndex = await apiRequest(`contents/project/assets/database/locations/${map.Id.toLowerCase()}`, options.searchParams);
+                fs.writeFileSync(cachePath(`spt_location_${id}_index.json`), JSON.stringify(locationIndex, null, 4));
+            }
+            const looseLootInfo = locationIndex?.find(f => f.name === 'looseLoot.json');
+            const oldLooseLootInfo = oldLocationIndex?.find(f => f.name === 'looseLoot.json');
+            const fileIsNew = !oldLooseLootInfo || looseLootInfo?.sha !== oldLooseLootInfo.sha;
+            mapLootPromises.push(downloadJson(`${map.Id.toLowerCase()}_loot.json`, `${sptDataPath}locations/${locations.locations[id].Id.toLowerCase()}/looseLoot.json`, download && fileIsNew, true).then(lootJson => {
                 mapLoot[id] = lootJson;
             }).catch(error => {
                 if (error.code === 'ERR_NON_2XX_3XX_RESPONSE') {
@@ -183,33 +267,11 @@ const tarkovSpt = {
         return await tarkovSpt.botsInfo(download)[botKey.toLowerCase()];
     },
     botsInfo: async (options = defaultOptions) => {
-        const { download } = merge(options, {download: true});
-        let botIndex = {};
-        const botData = {};
-        if (!fs.existsSync(cachePath('bots_index.json')) || download) {
-            const botFiles = await apiRequest('contents/project/assets/database/bots/types');
-            const exclude = [
-                'bear',
-                'test',
-                'usec',
-            ];
-            for (const fileData of botFiles) {
-                if (exclude.some(ex => `${ex}.json` === fileData.name)) {
-                    continue;
-                }
-                botIndex[fileData.name] = fileData.download_url;
-            }
-            fs.writeFileSync(cachePath('bots_index.json'), JSON.stringify(botIndex, null, 4));
-        } else {
-            botIndex = JSON.parse(fs.readFileSync(cachePath('bots_index.json')));
-        }
-        for (const filename in botIndex) {
-            botData[filename.replace('.json', '')] = downloadJson(filename, botIndex[filename], download);
-        }
-        for (const botKey in botData) {
-            botData[botKey] = await botData[botKey];
-        }
-        return botData;
+        return getFolderData({
+            ...options,
+            folderLabel: 'bots',
+            folderPath: 'contents/project/assets/database/bots/types',
+        });
     },
     traderAssorts: async (traderId, options = defaultOptions) => {
         const { download } = merge(options);
