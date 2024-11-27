@@ -11,6 +11,8 @@ const sptPath = 'https://github.com/sp-tarkov/server/raw/refs/heads/{branch}/pro
 const sptDataPath = `${sptPath}database/`;
 const sptConfigPath = `${sptPath}configs/`;
 
+const sptApiPath = 'https://api.github.com/repos/sp-tarkov/server/';
+
 const sptLangs = {
     //'en': 'en',
     'es': 'es',
@@ -46,14 +48,14 @@ const cachePath = (filename) => {
 
 const setBranch = async () => {
     if (!process.env.SPT_TOKEN) {
-        return Promise.reject(new Error('SPT_TOKEN not set'));
+        //return Promise.reject(new Error('SPT_TOKEN not set'));
     }
-    const url = `https://dev.sp-tarkov.com/api/v1/repos/SPT-AKI/Server/branches`;
+    const url = `${sptApiPath}branches`;
     const response = await got(url, {
         responseType: 'json',
         resolveBodyOnly: true,
         searchParams: {
-            access_token: process.env.SPT_TOKEN,
+            //access_token: process.env.SPT_TOKEN,
         },
     });
     for (const b of branches) {    
@@ -61,7 +63,7 @@ const setBranch = async () => {
             branch = b;
             break;
         } else {
-            await discordWebhook({title: 'SPT repo branch not found', message: b});
+            await discordWebhook.alert({title: 'SPT repo branch not found', message: b});
         }
     }
 };
@@ -106,7 +108,7 @@ const apiRequest = async (request, searchParams) => {
         ref: branch,
         ...searchParams
     };
-    const url = `https://api.github.com/repos/sp-tarkov/server/${request}`;
+    const url = `${sptApiPath}${request}`;
     return got(url, {
         responseType: 'json',
         resolveBodyOnly: true,
@@ -178,6 +180,9 @@ const getFolderData = async (options) => {
         if (options.filePrefix) {
             prefix = `${options.filePrefix}_`;
         }
+        if (options.targetFile && options.targetFile !== filename.replace('.json', '')) {
+            continue;
+        }
         folderData[filename.replace('.json', '')] = downloadJson(`${prefix}${filename}`, folderIndex[filename].download_url, download && fileIsNew);
     }
     for (const fileKey in folderData) {
@@ -196,7 +201,14 @@ const tarkovSpt = {
         return downloadJson('handbook.json', `${sptDataPath}templates/handbook.json`, download);
     },
     locale: async (locale, options = defaultOptions) => {
-        return tarkovSpt.locales(options).then(locales => locales[locale]);
+        let localeFilename = locale;
+        for (const sptLocale in sptLangs) {
+            if (sptLangs[sptLocale] === locale) {
+                localeFilename = sptLocale;
+                break;
+            }
+        }
+        return tarkovSpt.locales({...options, targetFile: localeFilename}).then(locales => locales[locale]);
     },
     locales: async (options = defaultOptions) => {
         const localeData = await getFolderData({
@@ -265,10 +277,9 @@ const tarkovSpt = {
         return mapLoot;
     },
     botInfo: async (botKey, options = defaultOptions) => {
-        const { download } = merge(options, {download: true});
         botKey = botKey.toLowerCase();
         //return downloadJson(`${botKey}.json`, `${sptDataPath}bots/types/${botKey}.json`, download);
-        return await tarkovSpt.botsInfo(download)[botKey.toLowerCase()];
+        return await tarkovSpt.botsInfo({...options, targetFile: botKey})[botKey.toLowerCase()];
     },
     botsInfo: async (options = defaultOptions) => {
         return getFolderData({
