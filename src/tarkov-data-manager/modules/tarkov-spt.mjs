@@ -31,6 +31,7 @@ const sptLangs = {
 }
 
 const branches = [
+    '3.10.1-dev',
     'master',
 ];
 
@@ -136,7 +137,7 @@ const getFolderIndex = async (options) => {
     let folderIndex = {};
     const folderFiles = await apiRequest(options.folderPath, options.searchParams);
     for (const fileData of folderFiles) {
-        if (options.exclude?.some(ex => `${ex}.json` === fileData.name)) {
+        if (options.excludeFiles?.some(ex => `${ex}.json` === fileData.name)) {
             continue;
         }
         folderIndex[fileData.name] = fileData;
