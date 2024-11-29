@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import got from 'got';
-import sevenBin from '7zip-bin'
+import sevenBin from '7zip-bin';
 import Seven from 'node-7z';
 
 import tarkovChanges from './tarkov-changes.mjs';
