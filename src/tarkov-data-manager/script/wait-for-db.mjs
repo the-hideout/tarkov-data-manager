@@ -3,6 +3,7 @@ import { exec } from 'child_process';
 import sevenBin from '7zip-bin'
 
 import {query} from '../modules/db-connection.mjs';
+import discord from '../modules/webhook.mjs';
 
 async function waitForDb() {
     const maxAttempts = 300;
@@ -14,11 +15,16 @@ async function waitForDb() {
             if (data) {
               console.log(data);
               console.log('Database is ready');
-              /*if (!sevenBin.path7za.endsWith('.exe')) {
+              if (!sevenBin.path7za.endsWith('.exe')) {
                 await new Promise((resolve, reject) => {
                   exec(`chmod +x ${sevenBin.path7za}`, (error, stdout, stderr) => {
                     if (error) {
+                      discord.alert({
+                        title: 'Error setting 7z executable mode',
+                        message: error.stack,
+                      });
                       console.error(`exec error: ${error}`);
+                      resolve();
                       return;
                     }
                     console.log(`stdout: ${stdout}`);
@@ -26,7 +32,7 @@ async function waitForDb() {
                     resolve();
                   });
                 });
-              }*/
+              }
               process.exit(0);
             } else {
               console.log('Database not ready yet, retrying in 1 second');

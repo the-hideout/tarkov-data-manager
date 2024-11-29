@@ -18,7 +18,7 @@ COPY --chown=node:node . .
 
 RUN npm install
 
-RUN chmod +x ./node_modules/7zip-bin/linux/x64/7za
+# RUN chmod +x ./node_modules/7zip-bin/linux/x64/7za
 
 USER node
 
