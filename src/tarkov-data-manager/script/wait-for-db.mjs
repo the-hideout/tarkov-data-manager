@@ -14,7 +14,7 @@ async function waitForDb() {
             if (data) {
               console.log(data);
               console.log('Database is ready');
-              if (!sevenBin.path7za.endsWith('.exe')) {
+              /*if (!sevenBin.path7za.endsWith('.exe')) {
                 await new Promise((resolve, reject) => {
                   exec(`chmod +x ${sevenBin.path7za}`, (error, stdout, stderr) => {
                     if (error) {
@@ -26,7 +26,7 @@ async function waitForDb() {
                     resolve();
                   });
                 });
-              }
+              }*/
               process.exit(0);
             } else {
               console.log('Database not ready yet, retrying in 1 second');
