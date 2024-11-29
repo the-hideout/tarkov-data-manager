@@ -15,13 +15,16 @@ async function waitForDb() {
               console.log(data);
               console.log('Database is ready');
               if (!sevenBin.path7za.endsWith('.exe')) {
-                exec(`chmod +x ${sevenBin.path7za}`, (error, stdout, stderr) => {
-                  if (error) {
-                    console.error(`exec error: ${error}`);
-                    return;
-                  }
-                  console.log(`stdout: ${stdout}`);
-                  console.error(`stderr: ${stderr}`);
+                await new Promise((resolve, reject) => {
+                  exec(`chmod +x ${sevenBin.path7za}`, (error, stdout, stderr) => {
+                    if (error) {
+                      console.error(`exec error: ${error}`);
+                      return;
+                    }
+                    console.log(`stdout: ${stdout}`);
+                    console.error(`stderr: ${stderr}`);
+                    resolve();
+                  });
                 });
               }
               process.exit(0);
