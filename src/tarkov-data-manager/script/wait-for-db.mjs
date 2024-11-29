@@ -19,12 +19,11 @@ async function waitForDb() {
                 await new Promise((resolve, reject) => {
                   exec(`chmod +x ${sevenBin.path7za}`, (error, stdout, stderr) => {
                     if (error) {
-                      discord.alert({
+                      console.error(`exec error: ${error}`);
+                      resolve(discord.alert({
                         title: 'Error setting 7z executable mode',
                         message: error.stack,
-                      });
-                      console.error(`exec error: ${error}`);
-                      resolve();
+                      }));
                       return;
                     }
                     console.log(`stdout: ${stdout}`);
