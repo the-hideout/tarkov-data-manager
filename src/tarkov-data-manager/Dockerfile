@@ -18,6 +18,8 @@ COPY --chown=node:node . .
 
 RUN npm install
 
+RUN chmod +x ./node_modules/7zip-bin/linux/x64/7za
+
 USER node
 
 CMD ./script/wait-for-it.sh database:3306 -- node script/wait-for-db.mjs && npm run start
