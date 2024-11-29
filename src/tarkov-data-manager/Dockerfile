@@ -20,6 +20,8 @@ RUN npm install
 
 # RUN chmod +x ./node_modules/7zip-bin/linux/x64/7za
 
+RUN node script/7z-chmod.mjs
+
 USER node
 
 CMD ./script/wait-for-it.sh database:3306 -- node script/wait-for-db.mjs && npm run start
