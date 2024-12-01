@@ -35,7 +35,7 @@ const sptLangs = {
 }
 
 const branches = [
-    '3.10.1-dev',
+    '3.10.2-dev',
     'master',
 ];
 
@@ -63,11 +63,12 @@ const setBranch = async () => {
     for (const b of branches) {    
         if (response.some(remoteBranch => remoteBranch.name === b)) {
             branch = b;
-            break;
+            return;
         } else {
             await discordWebhook.alert({title: 'SPT repo branch not found', message: b});
         }
     }
+    return Promise.reject(new Error('Could not find a valid SPT repo branch'));
 };
 
 const downloadJson = async (fileName, path, download = false, writeFile = true, saveElement = false) => {
@@ -79,6 +80,15 @@ const downloadJson = async (fileName, path, download = false, writeFile = true, 
         let returnValue = await got(path, {
             responseType: 'json',
             resolveBodyOnly: true,
+        }).catch(async error => {
+            if (error.code === 'ERR_NON_2XX_3XX_RESPONSE') {
+                const oldBranch = branch;
+                await setBranch();
+                if (oldBranch !== branch) {
+                    return downloadJson(fileName, path, download, writeFile, saveElement);
+                }
+            }
+            return Promise.reject(error);
         });
         if (saveElement) {
             returnValue = returnValue[saveElement];
@@ -115,6 +125,15 @@ const apiRequest = async (request, searchParams) => {
         responseType: 'json',
         resolveBodyOnly: true,
         searchParams: searchParams,
+    }).catch(async error => {
+        if (error.code === 'ERR_NON_2XX_3XX_RESPONSE') {
+            const oldBranch = branch;
+            await setBranch();
+            if (oldBranch !== branch) {
+                return apiRequest(request, searchParams);
+            }
+        }
+        return Promise.reject(error);
     });
 };
 
