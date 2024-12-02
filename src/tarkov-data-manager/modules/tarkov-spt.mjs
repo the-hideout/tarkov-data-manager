@@ -2,6 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import got from 'got';
+import sevenBin from '7zip-bin';
+import Seven from 'node-7z';
 
 import tarkovChanges from './tarkov-changes.mjs';
 import discordWebhook from './webhook.mjs';
@@ -11,27 +13,29 @@ const sptPath = 'https://github.com/sp-tarkov/server/raw/refs/heads/{branch}/pro
 const sptDataPath = `${sptPath}database/`;
 const sptConfigPath = `${sptPath}configs/`;
 
+const sptApiPath = 'https://api.github.com/repos/sp-tarkov/server/';
+
 const sptLangs = {
     //'en': 'en',
     'es': 'es',
-    'de': 'ge',
+    'ge': 'de',
     'fr': 'fr',
-    'cs': 'cz',
+    'cz': 'cs',
     'hu': 'hu',
     'it': 'it',
-    'ja': 'jp',
-    'ko': 'kr',
+    'jp': 'ja',
+    'kr': 'ko',
     'pl': 'pl',
-    'pt': 'po',
+    'po': 'pt',
     'ro': 'ro',
     'ru': 'ru',
     'sk': 'sk',
-    'tr': 'tu',
-    'zh': 'ch',
+    'tu': 'tr',
+    'ch': 'zh',
 }
 
 const branches = [
-    '3.10.0-DEV',
+    '3.10.2-dev',
     'master',
 ];
 
@@ -46,24 +50,25 @@ const cachePath = (filename) => {
 
 const setBranch = async () => {
     if (!process.env.SPT_TOKEN) {
-        return Promise.reject(new Error('SPT_TOKEN not set'));
+        //return Promise.reject(new Error('SPT_TOKEN not set'));
     }
-    const url = `https://dev.sp-tarkov.com/api/v1/repos/SPT-AKI/Server/branches`;
+    const url = `${sptApiPath}branches`;
     const response = await got(url, {
         responseType: 'json',
         resolveBodyOnly: true,
         searchParams: {
-            access_token: process.env.SPT_TOKEN,
+            //access_token: process.env.SPT_TOKEN,
         },
     });
     for (const b of branches) {    
         if (response.some(remoteBranch => remoteBranch.name === b)) {
             branch = b;
-            break;
+            return;
         } else {
-            await discordWebhook({title: 'SPT repo branch not found', message: b});
+            await discordWebhook.alert({title: 'SPT repo branch not found', message: b});
         }
     }
+    return Promise.reject(new Error('Could not find a valid SPT repo branch'));
 };
 
 const downloadJson = async (fileName, path, download = false, writeFile = true, saveElement = false) => {
@@ -75,6 +80,15 @@ const downloadJson = async (fileName, path, download = false, writeFile = true, 
         let returnValue = await got(path, {
             responseType: 'json',
             resolveBodyOnly: true,
+        }).catch(async error => {
+            if (error.code === 'ERR_NON_2XX_3XX_RESPONSE') {
+                const oldBranch = branch;
+                await setBranch();
+                if (oldBranch !== branch) {
+                    return downloadJson(fileName, path, download, writeFile, saveElement);
+                }
+            }
+            return Promise.reject(error);
         });
         if (saveElement) {
             returnValue = returnValue[saveElement];
@@ -106,12 +120,96 @@ const apiRequest = async (request, searchParams) => {
         ref: branch,
         ...searchParams
     };
-    const url = `https://api.github.com/repos/sp-tarkov/server/${request}`;
+    const url = `${sptApiPath}${request}`;
     return got(url, {
         responseType: 'json',
         resolveBodyOnly: true,
         searchParams: searchParams,
+    }).catch(async error => {
+        if (error.code === 'ERR_NON_2XX_3XX_RESPONSE') {
+            const oldBranch = branch;
+            await setBranch();
+            if (oldBranch !== branch) {
+                return apiRequest(request, searchParams);
+            }
+        }
+        return Promise.reject(error);
     });
+};
+
+const getFolderIndex = async (options) => {
+    const {
+        download,
+        folderLabel,
+    } = merge(options, {download: true});
+    if (!folderLabel) {
+        return Promise.reject('getFolderData requires folderLabel in options');
+    }
+    if (!options.folderPath) {
+        return Promise.reject('getFolderData requires folderPath in options');
+    }
+    if (!download) {
+        try {
+            return JSON.parse(fs.readFileSync(cachePath(`spt_${folderLabel}_index.json`)));
+        } catch (error) {
+            if (error.code !== 'ENOENT') {
+                return Promise.reject(error);
+            }
+        }
+    }
+    let folderIndex = {};
+    const folderFiles = await apiRequest(options.folderPath, options.searchParams);
+    for (const fileData of folderFiles) {
+        if (options.excludeFiles?.some(ex => `${ex}.json` === fileData.name)) {
+            continue;
+        }
+        folderIndex[fileData.name] = fileData;
+    }
+    fs.writeFileSync(cachePath(`spt_${folderLabel}_index.json`), JSON.stringify(folderIndex, null, 4));
+    return folderIndex;
+};
+
+const getFolderData = async (options) => {
+    const {
+        download,
+        folderLabel,
+    } = merge(options, {download: true});
+    if (!folderLabel) {
+        return Promise.reject('getFolderData requires folderLabel in options');
+    }
+    if (!options.folderPath) {
+        return Promise.reject('getFolderData requires folderPath in options');
+    }
+    let oldFolderIndex;
+    try {
+        oldFolderIndex = JSON.parse(fs.readFileSync(cachePath(`spt_${folderLabel}_index.json`)));
+    } catch (error) {
+        if (error.code !== 'ENOENT') {
+            return Promise.reject(error);
+        }
+    }
+    let folderIndex;
+    if (!download && oldFolderIndex) {
+        folderIndex = oldFolderIndex;
+    } else {
+        folderIndex = await getFolderIndex(options);
+    }
+    const folderData = {};
+    for (const filename in folderIndex) {
+        const fileIsNew = oldFolderIndex[filename]?.sha !== folderIndex[filename]?.sha || !oldFolderIndex[filename];
+        let prefix = '';
+        if (options.filePrefix) {
+            prefix = `${options.filePrefix}_`;
+        }
+        if (options.targetFile && options.targetFile !== filename.replace('.json', '')) {
+            continue;
+        }
+        folderData[filename.replace('.json', '')] = downloadJson(`${prefix}${filename}`, folderIndex[filename].download_url, download && fileIsNew);
+    }
+    for (const fileKey in folderData) {
+        folderData[fileKey] = await folderData[fileKey];
+    }
+    return folderData;
 };
 
 const tarkovSpt = {
@@ -124,27 +222,29 @@ const tarkovSpt = {
         return downloadJson('handbook.json', `${sptDataPath}templates/handbook.json`, download);
     },
     locale: async (locale, options = defaultOptions) => {
-        const { download } = merge(options);
-        if (sptLangs[locale]) {
-            locale = sptLangs[locale];
+        let localeFilename = locale;
+        for (const sptLocale in sptLangs) {
+            if (sptLangs[sptLocale] === locale) {
+                localeFilename = sptLocale;
+                break;
+            }
         }
-        return downloadJson(`locale_${locale}.json`, `${sptDataPath}locales/global/${locale}.json`, download);
+        return tarkovSpt.locales({...options, targetFile: localeFilename}).then(locales => locales[locale]);
     },
     locales: async (options = defaultOptions) => {
-        const langCodes = Object.keys(sptLangs);
-        const localePromises = [];
-        for (const locale of langCodes) {
-            localePromises.push(tarkovSpt.locale(locale, options).then(localeData => {
-                return {
-                    locale: locale,
-                    data: localeData
-                }
-            }));
-        }
-        const translations = await Promise.all(localePromises);
+        const localeData = await getFolderData({
+            ...options,
+            folderLabel: 'locales',
+            folderPath: 'contents/project/assets/database/locales/global',
+            filePrefix: 'locale',
+        });
         const locales = {};
-        for (const localeData of translations) {
-            locales[localeData.locale] = localeData.data;
+        for (const sptLocale in localeData) {
+            const isoLocale = sptLangs[sptLocale];
+            if (!isoLocale) {
+                continue;
+            }
+            locales[isoLocale] = localeData[sptLocale];
         }
         return locales;
     },
@@ -160,56 +260,85 @@ const tarkovSpt = {
         const { download } = merge(options);
         const mapLoot = {};
         const locations = await tarkovChanges.locations();
-        const mapLootPromises = [];
+        let oldFolderIndex;
+        const compressedLabel = 'compressed_database';
+        try {
+            oldFolderIndex = JSON.parse(fs.readFileSync(cachePath(`spt_${compressedLabel}_index.json`)));
+        } catch (error) {
+            if (error.code !== 'ENOENT') {
+                return Promise.reject(error);
+            }
+        }
+        let folderIndex;
+        if (!download && oldFolderIndex) {
+            folderIndex = oldFolderIndex;
+        } else {
+            folderIndex = await getFolderIndex({
+                ...options,
+                folderLabel: compressedLabel,
+                folderPath: 'contents/project/assets/compressed/database',
+            });
+        }
+        const oldLocationsInfo = oldFolderIndex?.['locations.7z'];
+        const locationsInfo = folderIndex['locations.7z'];
+        if (!locationsInfo) {
+            return Promise.reject(new Error('locations.7z not found'));
+        }
+        const fileIsNew = !oldLocationsInfo || locationsInfo?.sha !== oldLocationsInfo.sha;
+        if (fileIsNew) {
+            const actualInfo = await got(locationsInfo.url, {
+                responseType: 'json',
+                resolveBodyOnly: true,
+                searchParams:  {
+                    ref: branch,
+                },
+            });
+            const zipPath = cachePath(locationsInfo.name);
+            await new Promise((resolve, reject) => {
+                const downloadStream = got.stream(actualInfo.download_url);
+                const fileWriterStream = fs.createWriteStream(zipPath);
+                downloadStream.on("error", reject);
+
+                fileWriterStream
+                    .on("error", reject)
+                    .on("finish", resolve);
+                
+                downloadStream.pipe(fileWriterStream);
+            });
+            await new Promise((resolve, reject) => {
+                const myStream = Seven.extractFull(zipPath, cachePath('locations'), {
+                    $bin: sevenBin.path7za,
+                    $overwrite: true,
+                });
+                myStream.on('end', resolve);
+                myStream.on('error', reject);
+            });
+        }
+
         for (const id in locations.locations) {
             const map = locations.locations[id];
-            mapLootPromises.push(downloadJson(`${map.Id.toLowerCase()}_loot.json`, `${sptDataPath}locations/${locations.locations[id].Id.toLowerCase()}/looseLoot.json`, download, true).then(lootJson => {
-                mapLoot[id] = lootJson;
-            }).catch(error => {
-                if (error.code === 'ERR_NON_2XX_3XX_RESPONSE') {
-                    mapLoot[id] = [];
-                    return;
+            try {
+                mapLoot[id] = JSON.parse(fs.readFileSync(cachePath(`locations/${map.Id.toLowerCase()}/looseLoot.json`)));
+            } catch (error) {
+                if (error.code !== 'ENOENT') {
+                    return Promise.reject(error);
                 }
-                return Promise.reject(error);
-            }));
+                mapLoot[id] = [];
+            }
         }
-        await Promise.all(mapLootPromises);
         return mapLoot;
     },
     botInfo: async (botKey, options = defaultOptions) => {
-        const { download } = merge(options, {download: true});
         botKey = botKey.toLowerCase();
         //return downloadJson(`${botKey}.json`, `${sptDataPath}bots/types/${botKey}.json`, download);
-        return await tarkovSpt.botsInfo(download)[botKey.toLowerCase()];
+        return await tarkovSpt.botsInfo({...options, targetFile: botKey})[botKey.toLowerCase()];
     },
     botsInfo: async (options = defaultOptions) => {
-        const { download } = merge(options, {download: true});
-        let botIndex = {};
-        const botData = {};
-        if (!fs.existsSync(cachePath('bots_index.json')) || download) {
-            const botFiles = await apiRequest('contents/project/assets/database/bots/types');
-            const exclude = [
-                'bear',
-                'test',
-                'usec',
-            ];
-            for (const fileData of botFiles) {
-                if (exclude.some(ex => `${ex}.json` === fileData.name)) {
-                    continue;
-                }
-                botIndex[fileData.name] = fileData.download_url;
-            }
-            fs.writeFileSync(cachePath('bots_index.json'), JSON.stringify(botIndex, null, 4));
-        } else {
-            botIndex = JSON.parse(fs.readFileSync(cachePath('bots_index.json')));
-        }
-        for (const filename in botIndex) {
-            botData[filename.replace('.json', '')] = downloadJson(filename, botIndex[filename], download);
-        }
-        for (const botKey in botData) {
-            botData[botKey] = await botData[botKey];
-        }
-        return botData;
+        return getFolderData({
+            ...options,
+            folderLabel: 'bots',
+            folderPath: 'contents/project/assets/database/bots/types',
+        });
     },
     traderAssorts: async (traderId, options = defaultOptions) => {
         const { download } = merge(options);
