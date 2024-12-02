@@ -34,7 +34,7 @@
     "formidable": "^3.5.1",
     "got": "^14.3.0",
     "luxon": "^3.5.0",
-    "mysql2": "^3.11.3",
+    "mysql2": "^3.11.5",
     "node-7z": "^3.0.0",
     "node-schedule": "^2.1.1",
     "nodemon": "^3.1.7",
