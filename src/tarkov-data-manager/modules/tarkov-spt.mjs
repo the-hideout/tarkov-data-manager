@@ -2,8 +2,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import got from 'got';
-import sevenBin from '7zip-bin';
-import Seven from 'node-7z';
 
 import tarkovChanges from './tarkov-changes.mjs';
 import discordWebhook from './webhook.mjs';
@@ -260,72 +258,41 @@ const tarkovSpt = {
         const { download } = merge(options);
         const mapLoot = {};
         const locations = await tarkovChanges.locations();
-        let oldFolderIndex;
-        const compressedLabel = 'compressed_database';
-        try {
-            oldFolderIndex = JSON.parse(fs.readFileSync(cachePath(`spt_${compressedLabel}_index.json`)));
-        } catch (error) {
-            if (error.code !== 'ENOENT') {
-                return Promise.reject(error);
-            }
-        }
-        let folderIndex;
-        if (!download && oldFolderIndex) {
-            folderIndex = oldFolderIndex;
-        } else {
-            folderIndex = await getFolderIndex({
-                ...options,
-                folderLabel: compressedLabel,
-                folderPath: 'contents/project/assets/compressed/database',
-            });
-        }
-        const oldLocationsInfo = oldFolderIndex?.['locations.7z'];
-        const locationsInfo = folderIndex['locations.7z'];
-        if (!locationsInfo) {
-            return Promise.reject(new Error('locations.7z not found'));
-        }
-        const fileIsNew = !oldLocationsInfo || locationsInfo?.sha !== oldLocationsInfo.sha;
-        if (fileIsNew) {
-            const actualInfo = await got(locationsInfo.url, {
-                responseType: 'json',
-                resolveBodyOnly: true,
-                searchParams:  {
-                    ref: branch,
-                },
-            });
-            const zipPath = cachePath(locationsInfo.name);
-            await new Promise((resolve, reject) => {
-                const downloadStream = got.stream(actualInfo.download_url);
-                const fileWriterStream = fs.createWriteStream(zipPath);
-                downloadStream.on("error", reject);
-
-                fileWriterStream
-                    .on("error", reject)
-                    .on("finish", resolve);
-                
-                downloadStream.pipe(fileWriterStream);
-            });
-            await new Promise((resolve, reject) => {
-                const myStream = Seven.extractFull(zipPath, cachePath('locations'), {
-                    $bin: sevenBin.path7za,
-                    $overwrite: true,
-                });
-                myStream.on('end', resolve);
-                myStream.on('error', reject);
-            });
-        }
-
+        const mapLootPromises = [];
+        const sptMaps = await apiRequest(`contents/project/assets/database/locations`, options.searchParams);
         for (const id in locations.locations) {
             const map = locations.locations[id];
+            if (!sptMaps.some(m => m.name === map.Id.toLowerCase())) {
+                continue;
+            }
+            let locationIndex, oldLocationIndex;
             try {
-                mapLoot[id] = JSON.parse(fs.readFileSync(cachePath(`locations/${map.Id.toLowerCase()}/looseLoot.json`)));
+                oldLocationIndex = JSON.parse(fs.readFileSync(cachePath(`spt_location_${id}_index.json`)));
             } catch (error) {
                 if (error.code !== 'ENOENT') {
                     return Promise.reject(error);
                 }
-                mapLoot[id] = [];
             }
+            if (!download && oldLocationIndex) {
+                locationIndex = oldLocationIndex;
+            } else {
+                locationIndex = await apiRequest(`contents/project/assets/database/locations/${map.Id.toLowerCase()}`, options.searchParams);
+                fs.writeFileSync(cachePath(`spt_location_${id}_index.json`), JSON.stringify(locationIndex, null, 4));
+            }
+            const looseLootInfo = locationIndex?.find(f => f.name === 'looseLoot.json');
+            const oldLooseLootInfo = oldLocationIndex?.find(f => f.name === 'looseLoot.json');
+            const fileIsNew = !oldLooseLootInfo || looseLootInfo?.sha !== oldLooseLootInfo.sha;
+            mapLootPromises.push(downloadJson(`${map.Id.toLowerCase()}_loot.json`, `${sptDataPath}locations/${locations.locations[id].Id.toLowerCase()}/looseLoot.json`, download && fileIsNew, true).then(lootJson => {
+                mapLoot[id] = lootJson;
+            }).catch(error => {
+                if (error.code === 'ERR_NON_2XX_3XX_RESPONSE') {
+                    mapLoot[id] = [];
+                    return;
+                }
+                return Promise.reject(error);
+            }));
         }
+        await Promise.all(mapLootPromises);
         return mapLoot;
     },
     botInfo: async (botKey, options = defaultOptions) => {
