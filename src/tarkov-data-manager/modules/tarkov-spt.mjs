@@ -33,7 +33,7 @@ const sptLangs = {
 }
 
 const branches = [
-    '3.10.2-dev',
+    '3.10.3-DEV',
     'master',
 ];
 
@@ -74,27 +74,29 @@ const downloadJson = async (fileName, path, download = false, writeFile = true, 
         if (!branch) {
             await setBranch();
         }
-        path = path.replace('{branch}', branch);
-        let returnValue = await got(path, {
-            responseType: 'json',
-            resolveBodyOnly: true,
-        }).catch(async error => {
-            if (error.code === 'ERR_NON_2XX_3XX_RESPONSE') {
-                const oldBranch = branch;
-                await setBranch();
-                if (oldBranch !== branch) {
-                    return downloadJson(fileName, path, download, writeFile, saveElement);
-                }
-            }
-            return Promise.reject(error);
+        const response = await got(path.replace('{branch}', branch), {
+            //responseType: 'json',
         });
-        if (saveElement) {
-            returnValue = returnValue[saveElement];
+        if (response.ok) {
+            let returnValue = JSON.parse(response.body);
+            if (saveElement) {
+                returnValue = returnValue[saveElement];
+            }
+            if (writeFile) {
+                fs.writeFileSync(cachePath(fileName), JSON.stringify(returnValue, null, 4));
+            }
+            return returnValue;
         }
-        if (writeFile) {
-            fs.writeFileSync(cachePath(fileName), JSON.stringify(returnValue, null, 4));
+        if (response.statusCode === 404) {
+            const oldBranch = branch;
+            await setBranch();
+            if (oldBranch !== branch) {
+                return downloadJson(fileName, path, download, writeFile, saveElement);
+            }
         }
-        return returnValue;
+        const error = new Error(`Response code ${response.statusCode} (${response.statusMessage})`);
+        error.code = response.statusCode;
+        return Promise.reject(error);
     }
     try {
         return JSON.parse(fs.readFileSync(cachePath(fileName)));
@@ -108,31 +110,34 @@ const downloadJson = async (fileName, path, download = false, writeFile = true, 
 
 const apiRequest = async (request, searchParams) => {
     if (!process.env.SPT_TOKEN) {
-        return Promise.reject(new Error('SPT_TOKEN not set'));
+        //return Promise.reject(new Error('SPT_TOKEN not set'));
     }
     if (!branch) {
         await setBranch();
     }
     searchParams = {
         //access_token: process.env.SPT_TOKEN,
+        ...searchParams,
         ref: branch,
-        ...searchParams
     };
     const url = `${sptApiPath}${request}`;
-    return got(url, {
-        responseType: 'json',
-        resolveBodyOnly: true,
+    const response = await got(url, {
+        //responseType: 'json',
         searchParams: searchParams,
-    }).catch(async error => {
-        if (error.code === 'ERR_NON_2XX_3XX_RESPONSE') {
-            const oldBranch = branch;
-            await setBranch();
-            if (oldBranch !== branch) {
-                return apiRequest(request, searchParams);
-            }
-        }
-        return Promise.reject(error);
     });
+    if (response.ok) {
+        return JSON.parse(response.body);
+    }
+    if (response.statusCode === 404) {
+        const oldBranch = branch;
+        await setBranch();
+        if (oldBranch !== branch) {
+            return apiRequest(request, searchParams);
+        }
+    }
+    const error = new Error(`Response code ${response.statusCode} (${response.statusMessage})`);
+    error.code = response.statusCode;
+    return Promise.reject(error);
 };
 
 const getFolderIndex = async (options) => {
@@ -280,6 +285,9 @@ const tarkovSpt = {
                 fs.writeFileSync(cachePath(`spt_location_${id}_index.json`), JSON.stringify(locationIndex, null, 4));
             }
             const looseLootInfo = locationIndex?.find(f => f.name === 'looseLoot.json');
+            if (!looseLootInfo) {
+                continue;
+            }
             const oldLooseLootInfo = oldLocationIndex?.find(f => f.name === 'looseLoot.json');
             const fileIsNew = !oldLooseLootInfo || looseLootInfo?.sha !== oldLooseLootInfo.sha;
             mapLootPromises.push(downloadJson(`${map.Id.toLowerCase()}_loot.json`, `${sptDataPath}locations/${locations.locations[id].Id.toLowerCase()}/looseLoot.json`, download && fileIsNew, true).then(lootJson => {
