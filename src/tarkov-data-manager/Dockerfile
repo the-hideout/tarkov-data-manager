@@ -18,9 +18,7 @@ COPY --chown=node:node . .
 
 RUN npm install
 
-# RUN chmod +x ./node_modules/7zip-bin/linux/x64/7za
-
-RUN node script/7z-chmod.mjs
+# RUN node script/7z-chmod.mjs
 
 USER node
 
