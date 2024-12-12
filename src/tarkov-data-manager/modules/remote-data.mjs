@@ -134,18 +134,18 @@ const methods = {
             const lastPricePromise = query(`
                 SELECT
                     a.item_id,
-                    a.price,
+                    a.price_min as price,
                     timestamp,
                     a.game_mode
                 FROM
-                    price_data a
+                    price_historical a
                 INNER JOIN (
                     SELECT
                         MAX(timestamp) AS max_timestamp,
                         item_id,
                         game_mode
                     FROM 
-                        price_data
+                        price_historical
                     GROUP BY
                         item_id, game_mode
                 ) b
@@ -185,31 +185,24 @@ const methods = {
                 avgPriceYesterdayPromise,
             ]);
 
-            const item24hPrices = {
-                0: {},
-                1: {},
-            };
+            const item24hPrices = price24hResults.reduce((all, resultRow) => {
+                if (!all[resultRow.game_mode]) {
+                    all[resultRow.game_mode] = {};
+                }
+                if (!all[resultRow.game_mode][resultRow.item_id]) {
+                    all[resultRow.game_mode][resultRow.item_id] = [];
+                }
+                all[resultRow.game_mode][resultRow.item_id].push(resultRow.price);
+                return all;
+            }, {});
 
             const itemLastPrices = lastPriceResults.reduce((all, current) => {
                 if (!all[current.game_mode]) {
                     all[current.game_mode] = {};
                 }
-                if (!all[current.game_mode][current.item_id]) {
-                    all[current.game_mode][current.item_id] = {
-                        timestamp: current.timestamp,
-                        prices: [],
-                    };
-                }
-                all[current.game_mode][current.item_id].prices.push(current.price);
+                all[current.game_mode][current.item_id] = current;
                 return all;
             }, {});
-
-            price24hResults.forEach((resultRow) => {
-                if (!item24hPrices[resultRow.game_mode][resultRow.item_id]) {
-                    item24hPrices[resultRow.game_mode][resultRow.item_id] = [];
-                }
-                item24hPrices[resultRow.game_mode][resultRow.item_id].push(resultRow.price);
-            });
 
             for (const [itemId, item] of items) {
                 item.updated = item.last_update;
@@ -223,11 +216,7 @@ const methods = {
                     //const lastLowData = lastLowPriceResults.find(row => row.item_id === itemId && row.game_mode === gameMode.value);
                     const lastData = itemLastPrices[gameMode.value]?.[itemId];
                     if (lastData) {
-                        item[`${fieldPrefix}lastLowPrice`] = lastData.prices[0];
-                        const lastLowAvgPrices = lastData.prices.slice(0, 3);
-                        item[`${fieldPrefix}lastLowAvgPrice`] = Math.round(lastLowAvgPrices.reduce((total, price) => {
-                            return total + price;
-                        }, 0) / lastLowAvgPrices.length);
+                        item[`${fieldPrefix}lastLowPrice`] = lastData.price;
                         const updatedField = `${fieldPrefix}updated`;
                         item[updatedField] = lastData.timestamp;
                     }

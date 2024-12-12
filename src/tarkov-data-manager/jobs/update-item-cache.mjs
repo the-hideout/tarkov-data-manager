@@ -62,7 +62,6 @@ class UpdateItemCacheJob extends DataJob {
             
         const priceFields = [
             'lastLowPrice',
-            'lastLowAvgPrice',
             'avg24hPrice',
             'low24hPrice',
             'high24hPrice',
