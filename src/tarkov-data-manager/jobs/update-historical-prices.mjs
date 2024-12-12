@@ -57,13 +57,12 @@ class UpdateHistoricalPricesJob extends DataJob {
             this.logger.time('historical-prices-query');
             const historicalPriceData = await this.batchQuery(`
                 SELECT
-                    item_id, timestamp, MIN(price) AS price_min, AVG(price) AS price_avg
+                    item_id, timestamp, price_min, price_avg, offer_count
                 FROM
-                    price_data
+                    price_historical
                 WHERE
                     timestamp > ? AND
                     game_mode = ?
-                GROUP BY item_id, timestamp
                 ORDER BY timestamp, item_id
             `, [dateCutoff, gameMode.value], (batchResult, offset) => {
                 if (batchResult.length === 0 && offset === 0) {
@@ -81,6 +80,7 @@ class UpdateHistoricalPricesJob extends DataJob {
                 itemPriceData[row.item_id].push({
                     priceMin: row.price_min,
                     price: Math.round(row.price_avg),
+                    offerCount: row.offer_count,
                     timestamp: row.timestamp.getTime(),
                 });
             }

@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { setMaxListeners } from 'node:events';
 
 import  { EmbedBuilder } from 'discord.js';
 import { DateTime } from 'luxon';
@@ -102,6 +103,7 @@ class DataJob {
             this.logger.parentLogger = options.parent.logger;
         }
         this.abortController = new AbortController();
+        setMaxListeners(17, this.abortController.signal);
         this.startDate = new Date();
         this.kvData = {};
         this.jobSummary = {
