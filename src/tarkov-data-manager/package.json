@@ -20,7 +20,6 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.623.0",
     "@aws-sdk/credential-providers": "^3.623.0",
-    "7zip-bin": "^5.2.0",
     "adm-zip": "^0.5.16",
     "body-parser": "^1.20.2",
     "chalk": "^4.1.2",
@@ -35,7 +34,6 @@
     "got": "^14.3.0",
     "luxon": "^3.5.0",
     "mysql2": "^3.11.5",
-    "node-7z": "^3.0.0",
     "node-schedule": "^2.1.1",
     "nodemon": "^3.1.7",
     "sharp": "0.32.6",
