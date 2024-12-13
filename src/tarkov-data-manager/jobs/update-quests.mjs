@@ -1789,6 +1789,7 @@ const skipQuests = [
     '6719101deddf081d340d4c60', // Spread the Damage
     '67190f157b0991dc22064755', // Foreign Support
     '67165d59a9c06627040a9094', // Forces Measure
+    '674647f38466ebb03408b291', // That's a Great Plan, Walter
 ];
 
 // Secure Folder 0013 appears on multiple maps
