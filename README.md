@@ -15,8 +15,8 @@ It is a web application that allows you to do the following:
 
 This repo contains two main components:
 
-- The **Tarkov Data Manager** - Web application for managing Tarkov game data and scanners
-- The **Caddy Reverse Proxy** - Reverse proxy for the Tarkov Data Manager, handles TLS
+- The **Tarkov Data Manager** - Web application for managing Tarkov game data and scanners.
+- The **Caddy Reverse Proxy** - Reverse proxy for the Tarkov Data Manager, handles TLS.
 
 ### Tarkov Data Manager
 
