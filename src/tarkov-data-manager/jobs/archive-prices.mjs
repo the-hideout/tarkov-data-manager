@@ -69,7 +69,7 @@ class ArchivePricesJob extends DataJob {
                 const insertStart = new Date();
                 await this.query(`
                     INSERT INTO price_archive
-                        (item_id, price_date, price_min, price_avg, offer_count_min, offer_count_avg game_mode)
+                        (item_id, price_date, price_min, price_avg, offer_count_min, offer_count_avg, game_mode)
                     VALUES
                         ${Object.keys(itemPrices).map(() => '(?, ?, ?, ?, ?, ?, ?)').join(', ')}
                     ON DUPLICATE KEY UPDATE
