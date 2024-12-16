@@ -118,6 +118,7 @@ const apiRequest = async (request, searchParams) => {
     }
     const url = `${sptApiPath}${request}`;
     const response = await got(url, {
+        throwHttpErrors: false,
         //responseType: 'json',
         searchParams: {
             //access_token: process.env.SPT_TOKEN,
