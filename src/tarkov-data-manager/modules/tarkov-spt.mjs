@@ -76,6 +76,7 @@ const downloadJson = async (fileName, path, download = false, writeFile = true, 
             await setBranch();
         }
         const response = await got(path.replace('{branch}', branch), {
+            throwHttpErrors: false,
             //responseType: 'json',
         });
         if (response.ok) {
