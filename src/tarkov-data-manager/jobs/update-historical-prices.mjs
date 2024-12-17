@@ -16,10 +16,6 @@ class UpdateHistoricalPricesJob extends DataJob {
     async run() {
         this.kvData = {};
         const priceWindow = new Date(new Date().setDate(new Date().getDate() - historicalPriceDays));
-        const deleteResult = await this.query('DELETE FROM price_historical WHERE timestamp < ?', [priceWindow]);
-        if (deleteResult.affectedRows) {
-            this.logger.log(`Deleted ${deleteResult.affectedRows} historical prices before ${priceWindow}`);
-        }
         for (const gameMode of this.gameModes) {
             this.kvData[gameMode.name] = {};
             let kvName = this.kvName;
