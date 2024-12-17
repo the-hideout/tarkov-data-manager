@@ -33,7 +33,7 @@ const sptLangs = {
 }
 
 const branches = [
-    '3.10.3-DEV',
+    '3.10.4-DEV',
     'master',
 ];
 
@@ -61,6 +61,7 @@ const setBranch = async () => {
     for (const b of branches) {    
         if (response.some(remoteBranch => remoteBranch.name === b)) {
             branch = b;
+            console.log('branch', branch);
             return;
         } else {
             await discordWebhook.alert({title: 'SPT repo branch not found', message: b});
@@ -75,6 +76,7 @@ const downloadJson = async (fileName, path, download = false, writeFile = true, 
             await setBranch();
         }
         const response = await got(path.replace('{branch}', branch), {
+            throwHttpErrors: false,
             //responseType: 'json',
         });
         if (response.ok) {
@@ -115,15 +117,15 @@ const apiRequest = async (request, searchParams) => {
     if (!branch) {
         await setBranch();
     }
-    searchParams = {
-        //access_token: process.env.SPT_TOKEN,
-        ...searchParams,
-        ref: branch,
-    };
     const url = `${sptApiPath}${request}`;
     const response = await got(url, {
+        throwHttpErrors: false,
         //responseType: 'json',
-        searchParams: searchParams,
+        searchParams: {
+            //access_token: process.env.SPT_TOKEN,
+            ...searchParams,
+            ref: branch,
+        },
     });
     if (response.ok) {
         return JSON.parse(response.body);

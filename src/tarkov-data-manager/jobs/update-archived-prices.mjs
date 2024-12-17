@@ -46,7 +46,7 @@ class UpdateArchivedPricesJob extends DataJob {
             this.logger.time('archived-prices-query');
             const archivedPriceData = await this.batchQuery(`
                 SELECT
-                    item_id, price_date, price_min, price_avg
+                    item_id, price_date, price_min, price_avg, offer_count_min, offer_count_avg
                 FROM
                     price_archive
                 WHERE
@@ -69,6 +69,8 @@ class UpdateArchivedPricesJob extends DataJob {
                 archivedPrices[row.item_id].push({
                     priceMin: row.price_min,
                     price: row.price_avg,
+                    offerCountMin: row.offer_count_min ?? undefined,
+                    offerCount: row.offer_count_avg ?? undefined,
                     timestamp: row.price_date.getTime(),
                 });
             }

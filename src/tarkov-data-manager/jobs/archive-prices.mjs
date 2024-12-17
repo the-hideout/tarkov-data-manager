@@ -14,8 +14,9 @@ class ArchivePricesJob extends DataJob {
         cutoff.setUTCHours(0, 0, 0, 0);
 
         // archive max_days_per_run number of days
-        for (let i = 0; i < max_days_per_run; i++) {
-            for (const gameMode of this.gameModes) {
+       for (const gameMode of this.gameModes) {
+            let foundPrices = true;
+            for (let i = 0; i < max_days_per_run && foundPrices; i++) {
                 // get the price with the oldest timestamp
                 const oldestPrice = await this.query(`
                     SELECT * FROM price_data 
@@ -27,6 +28,7 @@ class ArchivePricesJob extends DataJob {
                     // we don't have any prices before the cutoff
                     // this means archiving is current, so nothing to do
                     this.logger.success(`No ${gameMode.name} prices found before ${cutoff}`);
+                    foundPrices = false;
                     continue;
                 }
                 // convert oldest price date to YYYY-MM-dd
@@ -42,20 +44,34 @@ class ArchivePricesJob extends DataJob {
                     WHERE timestamp >= ? AND timestamp < ? + INTERVAL 1 DAY AND game_mode = ?
                     GROUP BY item_id
                 `, [archiveDate, archiveDate, gameMode.value]);
+
+                // get offer counts for day
+                const itemOfferCounts = await this.query(`
+                    SELECT item_id, MIN(offer_count) as offer_count_min, ROUND(AVG(offer_count)) as offer_count_avg
+                    FROM price_historical
+                    WHERE timestamp >= ? AND timestamp < ? + interval 1 DAY AND game_mode = ?
+                    GROUP BY item_id
+                `, [archiveDate, archiveDate, gameMode.value]);
     
                 // add min and average prices to price archive insert
                 const insertValues = [];
                 for (const itemPrice of itemPrices) {
-                    insertValues.push(itemPrice.item_id, archiveDate, itemPrice.min_price, Math.round(itemPrice.avg_price), gameMode.value);
+                    let offerCountMin, offerCountAvg;
+                    const itemOfferCount = itemOfferCounts.find(oc => oc.item_id === itemPrice.item_id);
+                    if (itemOfferCount) {
+                        offerCountMin = itemOfferCount.offer_count_min;
+                        offerCountAvg = itemOfferCount.offer_count_avg;
+                    }
+                    insertValues.push(itemPrice.item_id, archiveDate, itemPrice.min_price, Math.round(itemPrice.avg_price), offerCountMin, offerCountAvg, gameMode.value);
                 }
     
                 // insert archived prices
                 const insertStart = new Date();
                 await this.query(`
                     INSERT INTO price_archive
-                        (item_id, price_date, price_min, price_avg, game_mode)
+                        (item_id, price_date, price_min, price_avg, offer_count_min, offer_count_avg, game_mode)
                     VALUES
-                        ${Object.keys(itemPrices).map(() => '(?, ?, ?, ?, ?)').join(', ')}
+                        ${Object.keys(itemPrices).map(() => '(?, ?, ?, ?, ?, ?, ?)').join(', ')}
                     ON DUPLICATE KEY UPDATE
                         price_min=VALUES(price_min), price_avg=VALUES(price_avg)
                 `, insertValues);
@@ -78,6 +94,14 @@ class ArchivePricesJob extends DataJob {
                     }
                 }
                 this.logger.log(`Deleted ${deletedCount} individual ${gameMode.name} prices in ${new Date() - deleteStart}ms`);
+
+                const historicalDeleteStart = new Date();
+                const historicalDeleteResult = await this.query(`
+                    DELETE FROM price_historical 
+                    WHERE timestamp < ? + INTERVAL 1 DAY AND game_mode = ?
+                `, [archiveDate, gameMode.value]);
+                const historicalDeleteCount = historicalDeleteResult.affectedRows;
+                this.logger.log(`Deleted ${historicalDeleteCount} historical ${gameMode.name} prices in ${new Date() - historicalDeleteStart}ms`);
             }
         }
     }
