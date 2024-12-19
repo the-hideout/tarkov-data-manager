@@ -26,14 +26,14 @@ class UpdateItemCacheJob extends DataJob {
             this.traders,
         ] = await Promise.all([
             tarkovData.items(), 
-            tarkovData.credits(),
+            tarkovData.credits({gameMode: 'regular'}),
             tarkovData.locales(),
             tarkovData.globals(),
             remoteData.getWithPrices(true, this.logger).finally(() => {
                 this.logger.timeEnd('items-with-prices');
             }),
             tarkovData.handbook(),
-            tarkovData.traders(),
+            tarkovData.traders({gameMode: 'regular'}),
         ]);
         this.logger.log('Getting presets...');
         this.presets = await this.jobManager.jobOutput('update-presets', this, 'regular', true);
@@ -133,26 +133,7 @@ class UpdateItemCacheJob extends DataJob {
             Reflect.deleteProperty(itemData[key], 'disabled');
             Reflect.deleteProperty(itemData[key], 'properties');
 
-            const ignoreMissingBaseValueCategories = [
-                '62f109593b54472778797866', // RandomLootContainer
-            ];
-            // add base value
-            if (this.presets[key]) {
-                itemData[key].basePrice = this.presets[key].baseValue;
-            } else if (this.credits[key]) {
-                itemData[key].basePrice = this.credits[key];
-                // add base value for built-in armor pieces
-                this.bsgItems[key]._props.Slots?.forEach(slot => {
-                    slot._props?.filters?.forEach(filter => {
-                        if (!filter.Plate || !filter.locked) {
-                            return;
-                        }
-                        itemData[key].basePrice += this.credits[filter.Plate];
-                    });
-                });
-            }  else if (this.bsgItems[key] && !ignoreMissingBaseValueCategories.includes(this.bsgItems[key]?._parent)) {
-                this.logger.warn(`Unknown base value for ${this.getTranslation(itemData[key].name)} ${key}`);
-            }
+            this.setBaseValue(itemData[key]);
 
             // add item properties
             if (this.bsgItems[key]) {
@@ -284,37 +265,7 @@ class UpdateItemCacheJob extends DataJob {
         this.mergeTranslations(this.presetsLocale);
         this.logger.timeEnd('Merge preset translations');
 
-        this.logger.time('Add trader prices');
-        // Add trader prices
-        for (const id in itemData) {
-            if (itemData[id].types.includes('preset') && id !== 'customdogtags12345678910') {
-                itemData[id].traderPrices = itemData[id].containsItems.reduce((traderPrices, part) => {
-                    const partPrices = this.getTraderPrices(itemData[part.item]);
-                    for (const partPrice of partPrices) {
-                        const totalPrice = traderPrices.find(price => price.trader === partPrice.trader);
-                        if (totalPrice) {
-                            totalPrice.price += (partPrice.price * part.count);
-                            totalPrice.priceRUB += (partPrice.priceRUB * part.count);
-                            continue;
-                        }
-                        traderPrices.push(partPrice);
-                    }
-                    return traderPrices;
-                }, []);
-            } else {
-                itemData[id].traderPrices = this.getTraderPrices(itemData[id]);
-            }
-            
-            const ignoreCategories = [
-                '543be5dd4bdc2deb348b4569', // currency
-                '5448bf274bdc2dfc2f8b456a', // secure container
-                '62f109593b54472778797866', // random loot container
-            ];
-            if (itemData[id].traderPrices.length === 0 && !ignoreCategories.includes(itemData[id].bsgCategoryId)) {
-                //this.logger.warn(`No trader sell prices mapped for ${this.locales.en[itemData[id].name]} (${id}) with category id ${itemData[id].bsgCategoryId}`);
-            }
-        }
-        this.logger.timeEnd('Add trader prices');
+        this.setTraderPrices(itemData);
 
         //add flea prices from base items to default presets
         for (const item of Object.values(itemData)) {
@@ -489,6 +440,13 @@ class UpdateItemCacheJob extends DataJob {
             if (gameMode.name === 'regular') {
                 continue;
             }
+            [
+                this.credits,
+                this.traders,
+            ] = await Promise.all([
+                tarkovData.credits({gameMode: gameMode.name}),
+                tarkovData.traders({gameMode: gameMode.name}),
+            ]);
             this.logger.log(`Preparing ${gameMode.name} mode items data...`);
             const modeData = {
                 ...this.kvData,
@@ -496,9 +454,10 @@ class UpdateItemCacheJob extends DataJob {
             modeData.Item = {};
             for (const id in this.kvData.Item) {
                 const item = this.kvData.Item[id];
+                this.setBaseValue(item);
                 modeData.Item[id] = {
                     ...item,
-                    traderPrices: item.traderPrices.filter(tp => tp.trader !== '6617beeaa9cfa777ca915b7c'),
+                    //traderPrices: item.traderPrices.filter(tp => tp.trader !== '6617beeaa9cfa777ca915b7c'),
                 };
                 const dbItem = this.itemMap.get(id);
                 for (const fieldName of priceFields) {
@@ -523,6 +482,7 @@ class UpdateItemCacheJob extends DataJob {
                     item[fieldName] = dbItem[`${gameMode.name}_${fieldName}`];
                 }
             }
+            this.setTraderPrices(modeData.Item, gameMode.name);
             this.logger.log(`Uploading ${gameMode.name} items data to cloudflare...`);
             await this.cloudflarePut(modeData, `${this.kvName}_${gameMode.name}`);
         }
@@ -543,7 +503,7 @@ class UpdateItemCacheJob extends DataJob {
                     return lang[`${id} Name`];
                 } else {
                     if (langCode === 'en') {
-                        this.logger.warn(`${id} ${this.bsgItems[id]._name} category mising translation`);
+                        this.logger.warn(`${id} ${this.bsgItems[id]._name} category missing translation`);
                     }
                     if (langCode !== 'en' && this.hasTranslation(`${id} Name`)) {
                         return this.locales.en[`${id} Name`];
@@ -619,7 +579,72 @@ class UpdateItemCacheJob extends DataJob {
         }
     }
 
-    getTraderPrices(item) {
+    setBaseValue(item) {
+        const ignoreMissingBaseValueCategories = [
+            '62f109593b54472778797866', // RandomLootContainer
+        ];
+        const ignoreMissingBaseValue = (i) => {
+            if (ignoreMissingBaseValueCategories.includes(this.bsgItems[i.id]?._parent)) {
+                return true;
+            }
+            const restrictions = this.globals.config.RestrictionsInRaid.find(r => r.TemplateId === i.id);
+            if (restrictions?.MaxInLobby === 0 && restrictions?.MaxInRaid === 0) {
+                return true;
+            }
+            return false;
+        };
+        if (this.presets[item.id]) {
+            item.basePrice = this.presets[item.id].baseValue;
+        } else if (this.credits[item.id] !== undefined) {
+            item.basePrice = this.credits[item.id];
+            // add base value for built-in armor pieces
+            this.bsgItems[item.id]._props.Slots?.forEach(slot => {
+                slot._props?.filters?.forEach(filter => {
+                    if (!filter.Plate || !filter.locked) {
+                        return;
+                    }
+                    item.basePrice += this.credits[filter.Plate];
+                });
+            });
+        }  else if (this.bsgItems[item.id] && !ignoreMissingBaseValue(item)) {
+            this.logger.warn(`Unknown base value for ${this.getTranslation(item.name)} ${item.id} ${this.credits[item.id]}`);
+        }
+    }
+
+    setTraderPrices(itemData, gameMode) {
+        this.logger.time('Add trader prices');
+        for (const id in itemData) {
+            if (itemData[id].types.includes('preset') && id !== 'customdogtags12345678910') {
+                itemData[id].traderPrices = itemData[id].containsItems.reduce((traderPrices, part) => {
+                    const partPrices = this.getTraderPrices(itemData[part.item], gameMode);
+                    for (const partPrice of partPrices) {
+                        const totalPrice = traderPrices.find(price => price.trader === partPrice.trader);
+                        if (totalPrice) {
+                            totalPrice.price += (partPrice.price * part.count);
+                            totalPrice.priceRUB += (partPrice.priceRUB * part.count);
+                            continue;
+                        }
+                        traderPrices.push(partPrice);
+                    }
+                    return traderPrices;
+                }, []);
+            } else {
+                itemData[id].traderPrices = this.getTraderPrices(itemData[id], gameMode);
+            }
+            
+            const ignoreCategories = [
+                '543be5dd4bdc2deb348b4569', // currency
+                '5448bf274bdc2dfc2f8b456a', // secure container
+                '62f109593b54472778797866', // random loot container
+            ];
+            if (itemData[id].traderPrices.length === 0 && !ignoreCategories.includes(itemData[id].bsgCategoryId)) {
+                //this.logger.warn(`No trader sell prices mapped for ${this.locales.en[itemData[id].name]} (${id}) with category id ${itemData[id].bsgCategoryId}`);
+            }
+        }
+        this.logger.timeEnd('Add trader prices');
+    }
+
+    getTraderPrices(item, gameMode = 'regular') {
         const traderPrices = [];
         if (!item) {
             return traderPrices;
