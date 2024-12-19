@@ -172,10 +172,7 @@ class UpdateQuestsJob extends DataJob {
                 quests.Task.push(quest);
             } catch (error) {
                 this.logger.error(error);
-                this.discordAlert({
-                    title: `Error running ${this.name} job`,
-                    message: `Error adding missing quest ${quest.name} ${questId}\n${error.stack}`
-                });
+                this.addJobSummary(`${quest.name} ${questId}\n${error.stack}`, 'Error Adding Missing Quest');
             }
         }
 
