@@ -17,10 +17,10 @@ class UpdateItemCacheJob extends DataJob {
         this.logger.log('Loading price and other data...');
         this.logger.time('items-with-prices');
         [
-            this.bsgItems, 
-            this.credits, 
-            this.locales, 
-            this.globals, 
+            this.bsgItems,
+            this.credits,
+            this.locales,
+            this.globals,
             this.itemMap,
             this.handbook,
             this.traders,
@@ -344,33 +344,6 @@ class UpdateItemCacheJob extends DataJob {
             });
         }
 
-        const fleaData = {
-            name: this.addTranslation('FleaMarket', (lang) => {
-                return lang['RAG FAIR'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
-                    return substr.toLowerCase();
-                });
-            }),
-            normalizedName: 'flea-market',
-            minPlayerLevel: this.globals.config.RagFair.minUserLevel,
-            enabled: this.globals.config.RagFair.enabled,
-            sellOfferFeeRate: (this.globals.config.RagFair.communityItemTax / 100),
-            sellRequirementFeeRate: (this.globals.config.RagFair.communityRequirementTax / 100),
-            foundInRaidRequired: this.globals.config.RagFair.isOnlyFoundInRaidAllowed,
-            reputationLevels: this.globals.config.RagFair.maxActiveOfferCount.reduce((levels, offerCount) => {
-                if (levels.length > 0 && levels[levels.length-1].offers === offerCount.count) {
-                    levels[levels.length-1].maxRep = offerCount.to;
-                    return levels;
-                }
-                levels.push({
-                    offers: offerCount.count,
-                    offersSpecialEditions: offerCount.countForSpecialEditions,
-                    minRep: offerCount.from,
-                    maxRep: offerCount.to
-                });
-                return levels;
-            }, []),
-        };
-
         const armorData = {};
         for (const armorTypeId in this.globals.config.ArmorMaterials) {
             const armorType = this.globals.config.ArmorMaterials[armorTypeId];
@@ -418,7 +391,7 @@ class UpdateItemCacheJob extends DataJob {
         });
 
         this.kvData.ItemType = ['any', ...itemTypesSet].sort();
-        this.kvData.FleaMarket = fleaData;
+        this.kvData.FleaMarket = this.getFleaMarketSettings();
         this.kvData.ArmorMaterial = armorData;
         this.kvData.PlayerLevel = levelData;
         this.kvData.LanguageCode = Object.keys(this.locales).sort();
@@ -443,9 +416,11 @@ class UpdateItemCacheJob extends DataJob {
             [
                 this.credits,
                 this.traders,
+                this.globals,
             ] = await Promise.all([
                 tarkovData.credits({gameMode: gameMode.name}),
                 tarkovData.traders({gameMode: gameMode.name}),
+                tarkovData.globals({gameMode: gameMode.name}),
             ]);
             this.logger.log(`Preparing ${gameMode.name} mode items data...`);
             const modeData = {
@@ -483,6 +458,7 @@ class UpdateItemCacheJob extends DataJob {
                 }
             }
             this.setTraderPrices(modeData.Item, gameMode.name);
+            modeData.FleaMarket = this.getFleaMarketSettings();
             this.logger.log(`Uploading ${gameMode.name} items data to cloudflare...`);
             await this.cloudflarePut(modeData, `${this.kvName}_${gameMode.name}`);
         }
@@ -694,6 +670,35 @@ class UpdateItemCacheJob extends DataJob {
             });
         }
         return traderPrices;
+    }
+
+    getFleaMarketSettings() {
+        return {
+            name: this.addTranslation('FleaMarket', (lang) => {
+                return lang['RAG FAIR'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
+                    return substr.toLowerCase();
+                });
+            }),
+            normalizedName: 'flea-market',
+            minPlayerLevel: this.globals.config.RagFair.minUserLevel,
+            enabled: this.globals.config.RagFair.enabled && new Date().getTime() > (this.globals.config.RagFair.RagfairTurnOnTimestamp * 1000),
+            sellOfferFeeRate: (this.globals.config.RagFair.communityItemTax / 100),
+            sellRequirementFeeRate: (this.globals.config.RagFair.communityRequirementTax / 100),
+            foundInRaidRequired: this.globals.config.RagFair.isOnlyFoundInRaidAllowed,
+            reputationLevels: this.globals.config.RagFair.maxActiveOfferCount.reduce((levels, offerCount) => {
+                if (levels.length > 0 && levels[levels.length-1].offers === offerCount.count) {
+                    levels[levels.length-1].maxRep = offerCount.to;
+                    return levels;
+                }
+                levels.push({
+                    offers: offerCount.count,
+                    offersSpecialEditions: offerCount.countForSpecialEditions,
+                    minRep: offerCount.from,
+                    maxRep: offerCount.to
+                });
+                return levels;
+            }, []),
+        };
     }
 }
 
