@@ -908,6 +908,7 @@ const exfilFactions = {
     SharedExfiltrationPoint: 'shared',
     ExfiltrationPoint: 'pmc',
     ScavExfiltrationPoint: 'scav',
+    SecretExfiltrationPoint: 'pmc',
 };
 
 const hazardMap = {
