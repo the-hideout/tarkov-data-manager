@@ -33,6 +33,7 @@ const sptLangs = {
 }
 
 const branches = [
+    'bun',
     '3.10.5-DEV',
     'master',
 ];
