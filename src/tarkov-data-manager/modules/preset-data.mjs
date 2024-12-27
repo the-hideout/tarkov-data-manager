@@ -524,7 +524,7 @@ const presetData = {
             query(`UPDATE IGNORE price_historical SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
             query(`UPDATE IGNORE trader_offers SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
             query(`DELETE FROM manual_preset WHERE id = ?`, [sourceId]),
-            remoteData.removeItem(id),
+            remoteData.removeItem(sourceId),
         ]);
     },
 };
