@@ -5,7 +5,7 @@ import tarkovData from '../modules/tarkov-data.mjs';
 import s3 from '../modules/upload-s3.mjs';
 
 const skipAreas = {
-    '5df8a81f8f77747fcf5f5702': true, // christmas tree
+    '5df8a81f8f77747fcf5f5702': false, // christmas tree
 };
 
 class UpdateHideoutJob extends DataJob {
