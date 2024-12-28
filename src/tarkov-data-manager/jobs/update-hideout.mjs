@@ -111,6 +111,10 @@ class UpdateHideoutJob extends DataJob {
                                 item: req.templateId,
                                 name: this.getTranslation(`${req.templateId} Name`),
                                 count: req.count || 1,
+                                attributes: [{
+                                    type: 'foundInRaid',
+                                    value: String(req.isSpawnedInSession)
+                                }],
                                 //functional: req.isFunctional
                             });
                         } else if (req.type === 'Skill') {
