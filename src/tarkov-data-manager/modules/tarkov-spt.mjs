@@ -13,6 +13,9 @@ const sptConfigPath = `${sptPath}configs/`;
 
 const sptApiPath = 'https://api.github.com/repos/sp-tarkov/server/';
 
+const lfsPath = 'https://lfs.sp-tarkov.com/sp-tarkov/server/';
+const lfsPointerRegEx = /version https:\/\/git-lfs\.github\.com\/spec\/v[0-9]\Woid sha256:(?<oid>[a-z0-9]+)\Wsize (?<size>[0-9]+)/;
+
 const sptLangs = {
     //'en': 'en',
     'es': 'es',
@@ -33,8 +36,7 @@ const sptLangs = {
 }
 
 const branches = [
-    'bun',
-    '3.10.5-DEV',
+    '4.0.0-DEV',
     'master',
 ];
 
@@ -81,7 +83,12 @@ const downloadJson = async (fileName, path, download = false, writeFile = true, 
             //responseType: 'json',
         });
         if (response.ok) {
-            let returnValue = JSON.parse(response.body);
+            let responseBody = response.body;
+            const lfsMatch = responseBody.match(lfsPointerRegEx);
+            if (lfsMatch) {
+                responseBody = await lfsDownload(lfsMatch.groups.oid, lfsMatch.groups.size);
+            }
+            let returnValue = JSON.parse(responseBody);
             if (saveElement) {
                 returnValue = returnValue[saveElement];
             }
@@ -216,6 +223,21 @@ const getFolderData = async (options) => {
         folderData[fileKey] = await folderData[fileKey];
     }
     return folderData;
+};
+
+const lfsDownload = async (oid, size) => {
+    const lfsInfo = await got(`${lfsPath}objects/batch`, {
+        method: 'POST',
+        json: {
+            operation: 'download',
+            objects: [{
+                oid,
+                size
+            }]
+        },
+    }).json();
+    const response = await got(lfsInfo.objects[0].actions.download.href);
+    return response.body;
 };
 
 const tarkovSpt = {
