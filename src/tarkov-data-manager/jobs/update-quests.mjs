@@ -1257,6 +1257,9 @@ class UpdateQuestsJob extends DataJob {
             zoneKeys: [],
             zoneNames: [],
         };
+        if (obj.count === 9999999999) {
+            obj.count = 1;
+        }
         if (objective.conditionType === 'FindItem' || objective.conditionType === 'HandoverItem' || objective.conditionType === 'SellItemToTrader') {
             const targetItem = this.items[objective.target[0]];
             let verb = 'give';
