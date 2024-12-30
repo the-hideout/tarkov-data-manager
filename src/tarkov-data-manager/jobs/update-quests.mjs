@@ -462,7 +462,7 @@ class UpdateQuestsJob extends DataJob {
             }
             noQuestData.push(`${this.locales.en[`${questId} name`]} ${questId}`);
         }
-        if (noQuestData.length > 0) {
+        if (false && noQuestData.length > 0) {
             this.logger.warn(`No quest data found for:`);
             for (const noData of noQuestData) {
                 this.logger.log(noData);
