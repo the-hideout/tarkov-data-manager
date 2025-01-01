@@ -237,7 +237,6 @@ class UpdatePresetsJob extends DataJob {
         }
 
         this.logger.log('Updating presets in DB...');
-        const newPresets = [];
         for (const presetId in this.presetsData) {
             const presetIsNewItem = !this.dbItems.has(presetId);
             const p = this.presetsData[presetId];
@@ -252,7 +251,7 @@ class UpdatePresetsJob extends DataJob {
             }).then(() => {
                 if (presetIsNewItem) {
                     this.logger.log(`${p.name} added`);
-                    newPresets.push(`${p.name} ${presetId}`);
+                    this.addJobSummary(`${p.name} ${presetId}`, 'Added Presets(s)');
                 }    
                 if (p.armorOnly) {
                     // this preset consists of only armor items
@@ -303,12 +302,6 @@ class UpdatePresetsJob extends DataJob {
                 }));
             }
         }
-        if (newPresets.length > 0) {
-            this.discordAlert({
-                title: 'Added preset(s)',
-                message: newPresets.join('\n'),
-            })
-        }
         if (regnerateImages.length > 0) {
             this.logger.log(`Regenerating ${regnerateImages.length} preset images`);
             for (const item of regnerateImages) {
@@ -320,12 +313,9 @@ class UpdatePresetsJob extends DataJob {
                         this.logger.error(`Error regenerating images for ${item.id}: ${errors.message}`);
                     }
                 });
+                this.addJobSummary(`${this.getTranslation(item.name)} ${item.id}`, 'Regenerated Images');
             }
             this.logger.succeed('Finished regenerating images');
-            this.discordAlert({
-                title: 'Regenerated images for preset(s) after name/size/background color change',
-                message: regnerateImages.map(item => `${this.getTranslation(item.name)} ${item.id}`).join('\n'),
-            });
         }
 
         // make sure we don't include any disabled presets

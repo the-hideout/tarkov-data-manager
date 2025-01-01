@@ -27,6 +27,9 @@ class StartTraderScanJob extends DataJob {
                     if (scanner.settings.scanStatus !== 'idle' || scanner.settings.scanMode !== 'auto') {
                         continue;
                     }
+                    if (scanner.settings.sessionMode !== gameMode.name) {
+                        return;
+                    }
                     this.logger.log(`Starting ${scanner.name}`);
                     await scannerApi.setTraderScanScanner(gameMode.name, scanner.name);
                     //await webSocketServer.sendCommand(scanner.name, 'changeSetting', {name: 'offersFrom', value: 1});

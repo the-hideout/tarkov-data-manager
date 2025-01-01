@@ -172,10 +172,7 @@ class UpdateQuestsJob extends DataJob {
                 quests.Task.push(quest);
             } catch (error) {
                 this.logger.error(error);
-                this.discordAlert({
-                    title: `Error running ${this.name} job`,
-                    message: `Error adding missing quest ${quest.name} ${questId}\n${error.stack}`
-                });
+                this.addJobSummary(`${quest.name} ${questId}\n${error.stack}`, 'Error Adding Missing Quest');
             }
         }
 
@@ -465,7 +462,7 @@ class UpdateQuestsJob extends DataJob {
             }
             noQuestData.push(`${this.locales.en[`${questId} name`]} ${questId}`);
         }
-        if (noQuestData.length > 0) {
+        if (false && noQuestData.length > 0) {
             this.logger.warn(`No quest data found for:`);
             for (const noData of noQuestData) {
                 this.logger.log(noData);
@@ -1260,6 +1257,9 @@ class UpdateQuestsJob extends DataJob {
             zoneKeys: [],
             zoneNames: [],
         };
+        if (obj.count === 9999999999) {
+            obj.count = 1;
+        }
         if (objective.conditionType === 'FindItem' || objective.conditionType === 'HandoverItem' || objective.conditionType === 'SellItemToTrader') {
             const targetItem = this.items[objective.target[0]];
             let verb = 'give';

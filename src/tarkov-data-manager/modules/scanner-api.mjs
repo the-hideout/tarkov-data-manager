@@ -367,6 +367,8 @@ const scannerApi = {
                 mergedOptions.sessionMode = 'pve';
             } else if (mergedOptions.fleaMarketAvailable) {
                 mergedOptions.sessionMode = 'regular';
+            } else if (options.currentSessionMode) {
+                mergedOptions.sessionMode = options.currentSessionMode;
             } else if (mergedOptions.pveModeAvailable) {
                 mergedOptions.sessionMode = 'pve'
             }

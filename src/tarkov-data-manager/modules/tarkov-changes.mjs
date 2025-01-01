@@ -123,7 +123,6 @@ const tarkovChanges = {
                 'achievements',
                 'achievementStats',
                 'items',
-                'credits',
                 'locale_en',
             ],
         };

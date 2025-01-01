@@ -221,10 +221,10 @@ const methods = {
                         item[updatedField] = lastData.timestamp;
                     }
     
-                    item24hPrices[gameMode.value][itemId]?.sort();
-                    item[`${fieldPrefix}avg24hPrice`] = getInterquartileMean(item24hPrices[gameMode.value][itemId] || []) || null;
-                    item[`${fieldPrefix}low24hPrice`] = item24hPrices[gameMode.value][itemId]?.at(0);
-                    item[`${fieldPrefix}high24hPrice`] = item24hPrices[gameMode.value][itemId]?.at(item24hPrices[gameMode.value][itemId]?.length - 1);
+                    item24hPrices[gameMode.value]?.[itemId]?.sort();
+                    item[`${fieldPrefix}avg24hPrice`] = getInterquartileMean(item24hPrices[gameMode.value]?.[itemId] || []) || null;
+                    item[`${fieldPrefix}low24hPrice`] = item24hPrices[gameMode.value]?.[itemId]?.at(0);
+                    item[`${fieldPrefix}high24hPrice`] = item24hPrices[gameMode.value]?.[itemId]?.at(item24hPrices[gameMode.value]?.[itemId]?.length - 1);
     
                     const itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === itemId && row.game_mode === gameMode.value);
                     if (!itemPriceYesterday || item[`${fieldPrefix}avg24hPrice`] === 0) {

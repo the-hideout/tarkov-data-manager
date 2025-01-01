@@ -6,34 +6,36 @@ import { dashToCamelCase, camelCaseToTitleCase } from '../modules/string-functio
 import { setItemPropertiesOptions, getSpecialItemProperties } from '../modules/get-item-properties.js';
 import webSocketServer from '../modules/websocket-server.mjs';
 import { createAndUploadFromSource } from '../modules/image-create.mjs';
+import TranslationHelper from '../modules/translation-helper.mjs';
 
 class UpdateItemCacheJob extends DataJob {
     constructor(options) {
         super({...options, name: 'update-item-cache', loadLocales: true});
         this.kvName = 'item_data';
+        this.loadLocales = false;
     }
 
     run = async () => {
         this.logger.log('Loading price and other data...');
         this.logger.time('items-with-prices');
         [
-            this.bsgItems, 
-            this.credits, 
-            this.locales, 
-            this.globals, 
+            this.bsgItems,
+            this.credits,
+            this.locales,
+            this.globals,
             this.itemMap,
             this.handbook,
             this.traders,
         ] = await Promise.all([
             tarkovData.items(), 
-            tarkovData.credits(),
+            tarkovData.credits({gameMode: 'regular'}),
             tarkovData.locales(),
             tarkovData.globals(),
             remoteData.getWithPrices(true, this.logger).finally(() => {
                 this.logger.timeEnd('items-with-prices');
             }),
             tarkovData.handbook(),
-            tarkovData.traders(),
+            tarkovData.traders({gameMode: 'regular'}),
         ]);
         this.logger.log('Getting presets...');
         this.presets = await this.jobManager.jobOutput('update-presets', this, 'regular', true);
@@ -52,9 +54,19 @@ class UpdateItemCacheJob extends DataJob {
         this.handbookCategories = {};
         this.kvData = {
             Item: itemData,
-            ItemCategory: this.bsgCategories,
-            HandbookCategory: this.handbookCategories
+            locale: {},
+            //ItemCategory: this.bsgCategories,
+            //HandbookCategory: this.handbookCategories
         }
+        this.translationHelper = new TranslationHelper({
+            locales: this.locales,
+            logger: this.logger,
+            target: this.kvData.locale,
+        });
+        this.handbookTranslationHelper = new TranslationHelper({
+            locales: this.locales,
+            logger: this.logger,
+        });
 
         await setItemPropertiesOptions({
             job: this,
@@ -133,26 +145,7 @@ class UpdateItemCacheJob extends DataJob {
             Reflect.deleteProperty(itemData[key], 'disabled');
             Reflect.deleteProperty(itemData[key], 'properties');
 
-            const ignoreMissingBaseValueCategories = [
-                '62f109593b54472778797866', // RandomLootContainer
-            ];
-            // add base value
-            if (this.presets[key]) {
-                itemData[key].basePrice = this.presets[key].baseValue;
-            } else if (this.credits[key]) {
-                itemData[key].basePrice = this.credits[key];
-                // add base value for built-in armor pieces
-                this.bsgItems[key]._props.Slots?.forEach(slot => {
-                    slot._props?.filters?.forEach(filter => {
-                        if (!filter.Plate || !filter.locked) {
-                            return;
-                        }
-                        itemData[key].basePrice += this.credits[filter.Plate];
-                    });
-                });
-            }  else if (this.bsgItems[key] && !ignoreMissingBaseValueCategories.includes(this.bsgItems[key]?._parent)) {
-                this.logger.warn(`Unknown base value for ${this.getTranslation(itemData[key].name)} ${key}`);
-            }
+            this.setBaseValue(itemData[key]);
 
             // add item properties
             if (this.bsgItems[key]) {
@@ -284,37 +277,7 @@ class UpdateItemCacheJob extends DataJob {
         this.mergeTranslations(this.presetsLocale);
         this.logger.timeEnd('Merge preset translations');
 
-        this.logger.time('Add trader prices');
-        // Add trader prices
-        for (const id in itemData) {
-            if (itemData[id].types.includes('preset') && id !== 'customdogtags12345678910') {
-                itemData[id].traderPrices = itemData[id].containsItems.reduce((traderPrices, part) => {
-                    const partPrices = this.getTraderPrices(itemData[part.item]);
-                    for (const partPrice of partPrices) {
-                        const totalPrice = traderPrices.find(price => price.trader === partPrice.trader);
-                        if (totalPrice) {
-                            totalPrice.price += (partPrice.price * part.count);
-                            totalPrice.priceRUB += (partPrice.priceRUB * part.count);
-                            continue;
-                        }
-                        traderPrices.push(partPrice);
-                    }
-                    return traderPrices;
-                }, []);
-            } else {
-                itemData[id].traderPrices = this.getTraderPrices(itemData[id]);
-            }
-            
-            const ignoreCategories = [
-                '543be5dd4bdc2deb348b4569', // currency
-                '5448bf274bdc2dfc2f8b456a', // secure container
-                '62f109593b54472778797866', // random loot container
-            ];
-            if (itemData[id].traderPrices.length === 0 && !ignoreCategories.includes(itemData[id].bsgCategoryId)) {
-                //this.logger.warn(`No trader sell prices mapped for ${this.locales.en[itemData[id].name]} (${id}) with category id ${itemData[id].bsgCategoryId}`);
-            }
-        }
-        this.logger.timeEnd('Add trader prices');
+        this.setTraderPrices(itemData);
 
         //add flea prices from base items to default presets
         for (const item of Object.values(itemData)) {
@@ -393,34 +356,7 @@ class UpdateItemCacheJob extends DataJob {
             });
         }
 
-        const fleaData = {
-            name: this.addTranslation('FleaMarket', (lang) => {
-                return lang['RAG FAIR'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
-                    return substr.toLowerCase();
-                });
-            }),
-            normalizedName: 'flea-market',
-            minPlayerLevel: this.globals.config.RagFair.minUserLevel,
-            enabled: this.globals.config.RagFair.enabled,
-            sellOfferFeeRate: (this.globals.config.RagFair.communityItemTax / 100),
-            sellRequirementFeeRate: (this.globals.config.RagFair.communityRequirementTax / 100),
-            foundInRaidRequired: this.globals.config.RagFair.isOnlyFoundInRaidAllowed,
-            reputationLevels: this.globals.config.RagFair.maxActiveOfferCount.reduce((levels, offerCount) => {
-                if (levels.length > 0 && levels[levels.length-1].offers === offerCount.count) {
-                    levels[levels.length-1].maxRep = offerCount.to;
-                    return levels;
-                }
-                levels.push({
-                    offers: offerCount.count,
-                    offersSpecialEditions: offerCount.countForSpecialEditions,
-                    minRep: offerCount.from,
-                    maxRep: offerCount.to
-                });
-                return levels;
-            }, []),
-        };
-
-        const armorData = {};
+        /*const armorData = {};
         for (const armorTypeId in this.globals.config.ArmorMaterials) {
             const armorType = this.globals.config.ArmorMaterials[armorTypeId];
             armorData[armorTypeId] = {
@@ -467,12 +403,62 @@ class UpdateItemCacheJob extends DataJob {
         });
 
         this.kvData.ItemType = ['any', ...itemTypesSet].sort();
-        this.kvData.FleaMarket = fleaData;
         this.kvData.ArmorMaterial = armorData;
-        this.kvData.PlayerLevel = levelData;
-        this.kvData.LanguageCode = Object.keys(this.locales).sort();
+        this.kvData.PlayerLevel = levelData;*/
+        //this.kvData.LanguageCode = Object.keys(this.locales).sort();
+        this.kvData.FleaMarket = this.getFleaMarketSettings();
         this.logger.log('Uploading items data to cloudflare...');
+        await this.fillTranslations(this.kvData.locale);
         await this.cloudflarePut();
+
+        const handbookData = {
+            ItemCategory: this.bsgCategories,
+            HandbookCategory: this.handbookCategories,
+            //FleaMarket: this.getFleaMarketSettings(),
+            ArmorMaterial: Object.keys(this.globals.config.ArmorMaterials).map(armorTypeId => {
+                const armorType = this.globals.config.ArmorMaterials[armorTypeId];
+                const armorInfo = {
+                    id: armorTypeId,
+                    name: this.handbookTranslationHelper.addTranslation('Mat'+armorTypeId),
+                };
+                for (const key in armorType) {
+                    armorInfo[key.charAt(0).toLocaleLowerCase()+key.slice(1)] = armorType[key];
+                }
+                return armorInfo;
+            }),
+            PlayerLevel: this.globals.config.exp.level.exp_table.map((level, index) => {
+                return {
+                    level: index + 1,
+                    exp: level.exp
+                };
+            }),
+            Mastering: this.globals.config.Mastering.map(m => {
+                return {
+                    id: m.Name,
+                    weapons: m.Templates.filter(id => !!itemData[id]),
+                    level2: m.Level2,
+                    level3: m.Level3,
+                };
+            }),
+            Skill: Object.keys(this.globals.config.SkillsSettings).reduce((allSkills, skillKey) => {
+                const skillData = this.globals.config.SkillsSettings[skillKey];
+                if (typeof skillData !== 'object') {
+                    return allSkills;
+                }
+                if (!this.handbookTranslationHelper.hasTranslation(skillKey, true)) {
+                    return allSkills;
+                }
+                allSkills.push({
+                    id: skillKey,
+                    name: this.handbookTranslationHelper.addTranslation(skillKey),
+                });
+                return allSkills;
+            }, []),
+        };
+
+        this.logger.log('Uploading handbook data to cloudflare...');
+        handbookData.locale = await this.handbookTranslationHelper.fillTranslations();
+        await this.cloudflarePut(handbookData, 'handbook_data');
 
         const schemaData = {
             ItemType: ['any', ...itemTypesSet].sort().join('\n '),
@@ -489,6 +475,15 @@ class UpdateItemCacheJob extends DataJob {
             if (gameMode.name === 'regular') {
                 continue;
             }
+            [
+                this.credits,
+                this.traders,
+                this.globals,
+            ] = await Promise.all([
+                tarkovData.credits({gameMode: gameMode.name}),
+                tarkovData.traders({gameMode: gameMode.name}),
+                tarkovData.globals({gameMode: gameMode.name}),
+            ]);
             this.logger.log(`Preparing ${gameMode.name} mode items data...`);
             const modeData = {
                 ...this.kvData,
@@ -496,9 +491,10 @@ class UpdateItemCacheJob extends DataJob {
             modeData.Item = {};
             for (const id in this.kvData.Item) {
                 const item = this.kvData.Item[id];
+                this.setBaseValue(item);
                 modeData.Item[id] = {
                     ...item,
-                    traderPrices: item.traderPrices.filter(tp => tp.trader !== '6617beeaa9cfa777ca915b7c'),
+                    //traderPrices: item.traderPrices.filter(tp => tp.trader !== '6617beeaa9cfa777ca915b7c'),
                 };
                 const dbItem = this.itemMap.get(id);
                 for (const fieldName of priceFields) {
@@ -523,6 +519,8 @@ class UpdateItemCacheJob extends DataJob {
                     item[fieldName] = dbItem[`${gameMode.name}_${fieldName}`];
                 }
             }
+            this.setTraderPrices(modeData.Item, gameMode.name);
+            modeData.FleaMarket = this.getFleaMarketSettings();
             this.logger.log(`Uploading ${gameMode.name} items data to cloudflare...`);
             await this.cloudflarePut(modeData, `${this.kvName}_${gameMode.name}`);
         }
@@ -538,12 +536,12 @@ class UpdateItemCacheJob extends DataJob {
             id: id,
             parent_id: this.bsgItems[id]._parent,
             child_ids: [],
-            name: this.addTranslation(`${id} Name`, (lang, langCode) => {
+            name: this.handbookTranslationHelper.addTranslation(`${id} Name`, (lang, langCode) => {
                 if (lang[`${id} Name`]) {
                     return lang[`${id} Name`];
                 } else {
                     if (langCode === 'en') {
-                        this.logger.warn(`${id} ${this.bsgItems[id]._name} category mising translation`);
+                        this.logger.warn(`${id} ${this.bsgItems[id]._name} category missing translation`);
                     }
                     if (langCode !== 'en' && this.hasTranslation(`${id} Name`)) {
                         return this.locales.en[`${id} Name`];
@@ -553,7 +551,7 @@ class UpdateItemCacheJob extends DataJob {
             }),
         };
         this.bsgCategories[id].normalizedName = this.normalizeName(this.getTranslation(this.bsgCategories[id].name));
-        this.bsgCategories[id].enumName = catNameToEnum(this.getTranslation(this.bsgCategories[id].name));
+        this.bsgCategories[id].enumName = catNameToEnum(this.handbookTranslationHelper.getTranslation(this.bsgCategories[id].name));
     
         this.addCategory(this.bsgCategories[id].parent_id);
     }
@@ -564,7 +562,7 @@ class UpdateItemCacheJob extends DataJob {
         }
         this.handbookCategories[id] = {
             id: id,
-            name: this.addTranslation(id),
+            name: this.handbookTranslationHelper.addTranslation(id),
             normalizedName: this.normalizeName(this.locales.en[id]),
             enumName: catNameToEnum(this.locales.en[id]),
             parent_id: null,
@@ -619,7 +617,72 @@ class UpdateItemCacheJob extends DataJob {
         }
     }
 
-    getTraderPrices(item) {
+    setBaseValue(item) {
+        const ignoreMissingBaseValueCategories = [
+            '62f109593b54472778797866', // RandomLootContainer
+        ];
+        const ignoreMissingBaseValue = (i) => {
+            if (ignoreMissingBaseValueCategories.includes(this.bsgItems[i.id]?._parent)) {
+                return true;
+            }
+            const restrictions = this.globals.config.RestrictionsInRaid.find(r => r.TemplateId === i.id);
+            if (restrictions?.MaxInLobby === 0 && restrictions?.MaxInRaid === 0) {
+                return true;
+            }
+            return false;
+        };
+        if (this.presets[item.id]) {
+            item.basePrice = this.presets[item.id].baseValue;
+        } else if (this.credits[item.id] !== undefined) {
+            item.basePrice = this.credits[item.id];
+            // add base value for built-in armor pieces
+            this.bsgItems[item.id]._props.Slots?.forEach(slot => {
+                slot._props?.filters?.forEach(filter => {
+                    if (!filter.Plate || !filter.locked) {
+                        return;
+                    }
+                    item.basePrice += this.credits[filter.Plate];
+                });
+            });
+        }  else if (this.bsgItems[item.id] && !ignoreMissingBaseValue(item)) {
+            this.logger.warn(`Unknown base value for ${this.getTranslation(item.name)} ${item.id} ${this.credits[item.id]}`);
+        }
+    }
+
+    setTraderPrices(itemData, gameMode) {
+        this.logger.time('Add trader prices');
+        for (const id in itemData) {
+            if (itemData[id].types.includes('preset') && id !== 'customdogtags12345678910') {
+                itemData[id].traderPrices = itemData[id].containsItems.reduce((traderPrices, part) => {
+                    const partPrices = this.getTraderPrices(itemData[part.item], gameMode);
+                    for (const partPrice of partPrices) {
+                        const totalPrice = traderPrices.find(price => price.trader === partPrice.trader);
+                        if (totalPrice) {
+                            totalPrice.price += (partPrice.price * part.count);
+                            totalPrice.priceRUB += (partPrice.priceRUB * part.count);
+                            continue;
+                        }
+                        traderPrices.push(partPrice);
+                    }
+                    return traderPrices;
+                }, []);
+            } else {
+                itemData[id].traderPrices = this.getTraderPrices(itemData[id], gameMode);
+            }
+            
+            const ignoreCategories = [
+                '543be5dd4bdc2deb348b4569', // currency
+                '5448bf274bdc2dfc2f8b456a', // secure container
+                '62f109593b54472778797866', // random loot container
+            ];
+            if (itemData[id].traderPrices.length === 0 && !ignoreCategories.includes(itemData[id].bsgCategoryId)) {
+                //this.logger.warn(`No trader sell prices mapped for ${this.locales.en[itemData[id].name]} (${id}) with category id ${itemData[id].bsgCategoryId}`);
+            }
+        }
+        this.logger.timeEnd('Add trader prices');
+    }
+
+    getTraderPrices(item, gameMode = 'regular') {
         const traderPrices = [];
         if (!item) {
             return traderPrices;
@@ -669,6 +732,35 @@ class UpdateItemCacheJob extends DataJob {
             });
         }
         return traderPrices;
+    }
+
+    getFleaMarketSettings() {
+        return {
+            name: this.addTranslation('FleaMarket', (lang) => {
+                return lang['RAG FAIR'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
+                    return substr.toLowerCase();
+                });
+            }),
+            normalizedName: 'flea-market',
+            minPlayerLevel: this.globals.config.RagFair.minUserLevel,
+            enabled: this.globals.config.RagFair.enabled && new Date().getTime() > (this.globals.config.RagFair.RagfairTurnOnTimestamp * 1000),
+            sellOfferFeeRate: (this.globals.config.RagFair.communityItemTax / 100),
+            sellRequirementFeeRate: (this.globals.config.RagFair.communityRequirementTax / 100),
+            foundInRaidRequired: this.globals.config.RagFair.isOnlyFoundInRaidAllowed,
+            reputationLevels: this.globals.config.RagFair.maxActiveOfferCount.reduce((levels, offerCount) => {
+                if (levels.length > 0 && levels[levels.length-1].offers === offerCount.count) {
+                    levels[levels.length-1].maxRep = offerCount.to;
+                    return levels;
+                }
+                levels.push({
+                    offers: offerCount.count,
+                    offersSpecialEditions: offerCount.countForSpecialEditions,
+                    minRep: offerCount.from,
+                    maxRep: offerCount.to
+                });
+                return levels;
+            }, []),
+        };
     }
 }
 
