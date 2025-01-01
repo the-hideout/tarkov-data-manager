@@ -256,7 +256,7 @@ class DataJob {
         const uploadTime = new Date() - uploadStart;
         if (response.success) {
             this.writeDump(data, kvName);
-            this.logger.success(`Successful Cloudflare put of ${kvName} in ${uploadTime} ms`);
+            this.logger.success(`Successful Cloudflare put of ${kvName} in ${uploadTime} ms (${JSON.stringify(data).length.toLocaleString()} bytes)`);
             //stellate.purge(kvName, this.logger);
         } else {
             response.messages?.forEach(message => this.logger.error(message));
