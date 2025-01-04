@@ -1,10 +1,19 @@
 //import zlib from 'zlib';
 
+import Cloudflare from 'cloudflare';
 import got from 'got';
 
 import sleep from './sleep.js';
 
 const BASE_URL = 'https://api.cloudflare.com/client/v4/';
+
+const client = new Cloudflare({
+    apiToken: process.env.CLOUDFLARE_TOKEN,
+});
+
+const namespace = process.env.NODE_ENV === 'production' ? '2e6feba88a9e4097b6d2209191ed4ae5' : '17fd725f04984e408d4a70b37c817171';
+const accountId = '424ad63426a1ae47d559873f929eb9fc';
+//namespace = '2e6feba88a9e4097b6d2209191ed4ae5'; // force production
 
 const doRequest = async (options = {}) => {
     if (!options.path) {
@@ -40,7 +49,7 @@ const doRequest = async (options = {}) => {
         signal: options.signal,
     };
 
-    let namespace = process.env.NODE_ENV === 'production' ? '2e6feba88a9e4097b6d2209191ed4ae5' : '17fd725f04984e408d4a70b37c817171';
+    //let namespace = process.env.NODE_ENV === 'production' ? '2e6feba88a9e4097b6d2209191ed4ae5' : '17fd725f04984e408d4a70b37c817171';
     //namespace = '2e6feba88a9e4097b6d2209191ed4ae5'; // force production
 
     const fullCloudflarePath = `accounts/424ad63426a1ae47d559873f929eb9fc/storage/kv/namespaces/${namespace}/${path}`;
@@ -186,13 +195,50 @@ export const purgeCache = async (urls) => {
 };
 
 const cloudflare = {
-    put: (key, value, options = {}) => {
+    put: async (key, value, options = {}) => {
         const encoding = 'base64';
-        if (typeof value === 'object'){
+        if (typeof value === 'object') {
             value = JSON.stringify(value);
         } 
         //return doRequest('PUT', 'values', key, zlib.gzipSync(value).toString(encoding), false, {compression: 'gzip', encoding: encoding}).then(response => {
-        return doRequest({method: 'PUT', path: `values/${key}`, body: value, ...options});
+        //return doRequest({method: 'PUT', path: `values/${key}`, body: value, ...options});
+        return client.kv.namespaces.bulk.update(namespace, {
+            account_id: accountId,
+            body: [{
+                key,
+                value,
+            }],
+        }).then(response => {
+            const result = {
+                result: {},
+                success: true,
+                errors: [],
+                messages: [],
+            };
+            if (response.successful_key_count !== 1) {
+                result.success = false;
+                result.errors.push({
+                    message: 'Unsucessful put of '+key,
+                });
+            }
+            return result;
+        }).catch(error => {
+            return error.error;
+        });
+    },
+    putBulk: (kvPairs, options = {}) => {
+        let requestBody = kvPairs;
+        if (Array.isArray(requestBody)) {
+            requestBody = JSON.stringify(requestBody);
+        } else if (typeof requestBody === 'object') {
+            requestBody = JSON.stringify(Object.keys(kvPairs).map(key => {
+                return {
+                    key,
+                    value: kvPairs[key],
+                };
+            }));
+        }
+        return doRequest({method: 'PUT', path: 'bulk', body: requestBody, ...options});
     },
     getKeys: getKeys,
     purgeCache: purgeCache,
@@ -203,7 +249,12 @@ const cloudflare = {
         if (!process.env.CLOUDFLARE_TOKEN) {
             return Promise.reject(new Error('Cannot query; CLOUDFLARE_TOKEN is not set'));
         }
-        const response = await fetch(`${BASE_URL}accounts/424ad63426a1ae47d559873f929eb9fc/d1/database/6b25079c-ab80-41ba-bbe8-ed0f2913f87e/query`, {
+        const response = await client.d1.database.query('6b25079c-ab80-41ba-bbe8-ed0f2913f87e', {
+            account_id: accountId,
+            sql: query,
+            params,
+        }).then((res) => Array.isArray(res) ? res[0] : res);
+        /*const response = await fetch(`${BASE_URL}accounts/424ad63426a1ae47d559873f929eb9fc/d1/database/6b25079c-ab80-41ba-bbe8-ed0f2913f87e/query`, {
             method: 'POST',
             headers: {
                 'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
@@ -213,8 +264,8 @@ const cloudflare = {
                 params: params ?? [],
                 sql: query,
             }),
-        });
-        if (!response.ok) {
+        });*/
+        if (!response.success) {
             if (options.maxRetries) {
                 if (!options.attempt) {
                     options.attempt = 0;
@@ -225,7 +276,7 @@ const cloudflare = {
                 if (options.attempt <= options.maxRetries) {
                     options.attempt++;
                     if (options.logger) {
-                        options.logger.warn(`D1 Query returned ${response.status} ${response.statusText} on attempt ${options.attempt} of ${options.maxRetries + 1}; retrying in ${options.retryDelay}ms`);
+                        options.logger.warn(`D1 Query returned ${response.errors?.map(err => err.message).joint(', ') ?? 'error'} on attempt ${options.attempt} of ${options.maxRetries + 1}; retrying in ${options.retryDelay}ms`);
                     }
                     await sleep(options.retryDelay, options.signal);
                     return cloudflare.d1Query(query, params, options);
@@ -233,11 +284,11 @@ const cloudflare = {
             }
             return Promise.reject(new Error(`${response.status} ${response.statusText}`));
         }
-        const result = await response.json();
+        /*const result = await response.json();
         if (!result.success && result.errors) {
             return Promise.reject(new Error(`${result.errors[0].message} (${result.errors[0].code})`));
-        }
-        return result.result[0];
+        }*/
+        return response;
     },
 };
 

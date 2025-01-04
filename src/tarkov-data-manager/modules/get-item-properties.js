@@ -26,11 +26,9 @@ const setAll = async (options) => {
         }
     }
     if (options.translationHelper) {
-        console.log('using custom translation helper');
         translationHelper = options.translationHelper;
     }
     if (!translationHelper && job) {
-        console.log('using default translation helper');
         translationHelper = job.translationHelper;
     }
 };
