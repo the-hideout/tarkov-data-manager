@@ -229,6 +229,9 @@ class UpdateMapsJob extends DataJob {
                             return false;
                         }
                         const switchId = `${sw.id}_${sw.name}`.replace(/^(?:switch_)?/i, 'switch_');
+                        if (switchId.startsWith('switch_custom_Light')) {
+                            return false;
+                        }
                         return {
                             id: this.getId(id, sw),
                             object_id: sw.id,

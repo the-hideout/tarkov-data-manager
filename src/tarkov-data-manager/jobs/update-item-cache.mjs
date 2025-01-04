@@ -67,9 +67,11 @@ class UpdateItemCacheJob extends DataJob {
             locales: this.locales,
             logger: this.logger,
         });
+        const itemProperties = {};
 
         await setItemPropertiesOptions({
             job: this,
+            translationHelper: this.handbookTranslationHelper,
         });
             
         const priceFields = [
@@ -153,9 +155,9 @@ class UpdateItemCacheJob extends DataJob {
                 itemData[key].bsgCategoryId = this.bsgItems[key]._parent;
                 itemData[key].discardLimit = this.bsgItems[key]._props.DiscardLimit;
                 itemData[key].backgroundColor = this.bsgItems[key]._props.BackgroundColor;
-                itemData[key].properties = await getSpecialItemProperties(this.bsgItems[key]);
+                itemProperties[key] = await getSpecialItemProperties(this.bsgItems[key]);
                 if (value.types.includes('gun')) {
-                    itemData[key].properties.presets = Object.values(this.presets).filter(preset => preset.baseId === key).map(preset => preset.id);
+                    itemProperties[key].presets = Object.values(this.presets).filter(preset => preset.baseId === key).map(preset => preset.id);
 
                     const preset = Object.values(this.presets).find(preset => preset.default && preset.baseId === key);
                     if (preset) {
@@ -171,12 +173,12 @@ class UpdateItemCacheJob extends DataJob {
                         }, []);
                     }
 
-                    itemData[key].properties.defaultWidth = preset?.width ?? null;
-                    itemData[key].properties.defaultHeight = preset?.height ?? null;
-                    itemData[key].properties.defaultErgonomics = preset?.ergonomics ?? null;
-                    itemData[key].properties.defaultRecoilVertical = preset?.verticalRecoil ?? null;
-                    itemData[key].properties.defaultRecoilHorizontal = preset?.horizontalRecoil ?? null;
-                    itemData[key].properties.defaultWeight = preset?.weight ?? null;
+                    itemProperties[key].defaultWidth = preset?.width ?? null;
+                    itemProperties[key].defaultHeight = preset?.height ?? null;
+                    itemProperties[key].defaultErgonomics = preset?.ergonomics ?? null;
+                    itemProperties[key].defaultRecoilVertical = preset?.verticalRecoil ?? null;
+                    itemProperties[key].defaultRecoilHorizontal = preset?.horizontalRecoil ?? null;
+                    itemProperties[key].defaultWeight = preset?.weight ?? null;
                 }
                 // add ammo box contents
                 if (itemData[key].bsgCategoryId === '543be5cb4bdc2deb348b4568') {
@@ -196,7 +198,7 @@ class UpdateItemCacheJob extends DataJob {
                 itemData[key].weight = preset.weight;
                 itemData[key].bsgCategoryId = preset.bsgCategoryId;
                 itemData[key].backgroundColor = preset.backgroundColor;
-                itemData[key].properties = {
+                itemProperties[key] = {
                     propertiesType: 'ItemPropertiesPreset',
                     base_item_id: preset.baseId,
                     ergonomics: preset.ergonomics,
@@ -220,9 +222,9 @@ class UpdateItemCacheJob extends DataJob {
                 delete itemData[key];
                 continue;
             }
-            if (itemData[key].properties && !itemData[key].properties.propertiesType) {
+            if (itemProperties[key] && !itemProperties[key].propertiesType) {
                 this.logger.warn(`${this.getTranslation(itemData[key].name)} ${key} lacks propertiesType`);
-                itemData[key].properties = null;
+                itemProperties[key] = null;
             }
 
             // translations
@@ -254,7 +256,7 @@ class UpdateItemCacheJob extends DataJob {
             }
 
             // add handbook categories
-            const handbookItemId = itemData[key].types.includes('preset') ? itemData[key].properties.base_item_id : key;
+            const handbookItemId = itemData[key].types.includes('preset') ? itemProperties[key].base_item_id : key;
             const handbookItem = this.handbook.Items.find(hbi => hbi.Id === handbookItemId);
             if (!handbookItem) {
                 //this.logger.warn(`Item ${this.locales.en[itemData[key].name] || this.kvData.locale.en[itemData[key].name]} ${key} has no handbook entry`);
@@ -284,8 +286,8 @@ class UpdateItemCacheJob extends DataJob {
             if (!item.types.includes('preset')) {
                 continue;
             }
-            const baseItem = itemData[item.properties.base_item_id];
-            if (baseItem.properties?.defaultPreset !== item.id) {
+            const baseItem = itemData[itemProperties[item.id].base_item_id];
+            if (itemProperties[baseItem.id]?.defaultPreset !== item.id) {
                 continue;
             }
             item.updated = baseItem.updated;
@@ -412,6 +414,7 @@ class UpdateItemCacheJob extends DataJob {
         await this.cloudflarePut();
 
         const handbookData = {
+            ItemProperties: itemProperties,
             ItemCategory: this.bsgCategories,
             HandbookCategory: this.handbookCategories,
             //FleaMarket: this.getFleaMarketSettings(),
@@ -507,8 +510,8 @@ class UpdateItemCacheJob extends DataJob {
                 if (!item.types.includes('preset')) {
                     continue;
                 }
-                const baseItem = modeData.Item[item.properties.base_item_id];
-                if (baseItem.properties?.defaultPreset !== item.id) {
+                const baseItem = modeData.Item[itemProperties[item.id].base_item_id];
+                if (itemProperties[baseItem.id]?.defaultPreset !== item.id) {
                     continue;
                 }
                 const dbItem = this.itemMap.get(item.id);
