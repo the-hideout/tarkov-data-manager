@@ -5,7 +5,7 @@ import tarkovData from '../modules/tarkov-data.mjs';
 import s3 from '../modules/upload-s3.mjs';
 
 const skipAreas = {
-    '5df8a81f8f77747fcf5f5702': false, // christmas tree
+    '5df8a81f8f77747fcf5f5702': new Date('2025-01-15T09:00Z'), // christmas tree
 };
 
 class UpdateHideoutJob extends DataJob {
@@ -51,7 +51,8 @@ class UpdateHideoutJob extends DataJob {
                 if (s3Images.includes(fileName)) {
                     stationData.imageLink = `https://${process.env.S3_BUCKET}/${fileName}`;
                 }
-                if (!station.enabled || skipAreas[stationId]) {
+                let skipArea = new Date() >= skipAreas[stationId];
+                if (!station.enabled || skipArea) {
                     this.logger.log(`❌ ${this.getTranslation(stationData.name)}`);
                     continue;
                 }
