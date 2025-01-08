@@ -418,17 +418,17 @@ class UpdateItemCacheJob extends DataJob {
             ItemCategory: this.bsgCategories,
             HandbookCategory: this.handbookCategories,
             //FleaMarket: this.getFleaMarketSettings(),
-            ArmorMaterial: Object.keys(this.globals.config.ArmorMaterials).map(armorTypeId => {
+            ArmorMaterial: Object.keys(this.globals.config.ArmorMaterials).reduce((allArmor, armorTypeId) => {
                 const armorType = this.globals.config.ArmorMaterials[armorTypeId];
-                const armorInfo = {
+                allArmor[armorTypeId] = {
                     id: armorTypeId,
                     name: this.handbookTranslationHelper.addTranslation('Mat'+armorTypeId),
                 };
                 for (const key in armorType) {
-                    armorInfo[key.charAt(0).toLocaleLowerCase()+key.slice(1)] = armorType[key];
+                    allArmor[armorTypeId][key.charAt(0).toLocaleLowerCase()+key.slice(1)] = armorType[key];
                 }
-                return armorInfo;
-            }),
+                return allArmor;
+            }, {}),
             PlayerLevel: this.globals.config.exp.level.exp_table.map((level, index) => {
                 return {
                     level: index + 1,

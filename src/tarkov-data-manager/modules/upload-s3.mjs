@@ -97,17 +97,12 @@ async function upload(image, imageType, id) {
     await s3.send(new PutObjectCommand(uploadParams));
     console.log(`${id} ${imageType} saved to s3`);
     const imageLink = `https://${uploadParams.Bucket}/${uploadParams.Key}`;
-    let purgeNeeded = false;
     if (typeInfo.field) {
-        purgeNeeded = !Boolean(await remoteData.setProperty(id, typeInfo.field, imageLink));
+        await remoteData.setProperty(id, typeInfo.field, imageLink)
     }
-    if (purgeNeeded) {
-        await cloudflare.purgeCache(imageLink);
-        return true;
-    } else {
-        addToLocalBucket(uploadParams.Key);
-    }
-    return false;
+    await cloudflare.purgeCache(imageLink);
+    addToLocalBucket(uploadParams.Key);
+    return true;
 }
 
 async function downloadFromId(item) {

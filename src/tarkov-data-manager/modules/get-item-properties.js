@@ -170,10 +170,12 @@ const getArmorSlots = (item) => {
                 });
             });
             newSlot.baseValue = job.credits[slotInfo.Plate];
+            newSlot.name = translationHelper.addTranslation(`${slotInfo.Plate} Name`);
         } else {
             newSlot.zones = translationHelper.addTranslation(zones);
             //newSlot.defaultPlate = slotInfo.Plate;
             newSlot.allowedPlates = slotInfo.Filter;
+            newSlot.name = translationHelper.addTranslation(slotName);
         }
         return newSlot;
     }).filter(Boolean);
