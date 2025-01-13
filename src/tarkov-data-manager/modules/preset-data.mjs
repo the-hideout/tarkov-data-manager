@@ -63,7 +63,7 @@ const presetData = {
     
         let weight = baseItem._props.Weight;
         let baseValue = credits[baseItem._id];
-        let ergo = baseItem._props.Ergonomics;
+        let ergo = baseItem._props.Ergonomics ?? 0;
         const baseVerticalRecoil = baseItem._props.RecoilForceUp;
         const baseHorizontalRecoil = baseItem._props.RecoilForceBack;
         let vRecoil = baseVerticalRecoil;
@@ -100,7 +100,7 @@ const presetData = {
             } else {
                 if (logger) logger.warn(`Could not find base value for part ${partId} of preset ${item.id}`);
             }
-            ergo += part._props.Ergonomics;
+            ergo += part._props.Ergonomics ?? 0;
             vRecoil += (baseVerticalRecoil * (part._props.Recoil / 100));
             hRecoil += (baseHorizontalRecoil * (part._props.Recoil / 100));
             if (part._props.DeviationMax) {
