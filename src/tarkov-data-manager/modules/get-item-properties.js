@@ -611,7 +611,7 @@ const getItemProperties = async (item) => {
             compressorAttack: item._props.CompressorAttack,
             compressorGain: item._props.CompressorGain,
             compressorRelease: item._props.CompressorRelease,
-            compressorThreshold: item._props.CompressorTreshold,
+            compressorThreshold: item._props.CompressorThreshold,
             compressorVolume: item._props.CompressorVolume,
             cutoffFrequency: item._props.CutoffFreq,
             distanceModifier: item._props.RolloffMultiplier,
