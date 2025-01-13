@@ -64,8 +64,8 @@ const presetData = {
         let weight = baseItem._props.Weight;
         let baseValue = credits[baseItem._id];
         let ergo = baseItem._props.Ergonomics ?? 0;
-        const baseVerticalRecoil = baseItem._props.RecoilForceUp;
-        const baseHorizontalRecoil = baseItem._props.RecoilForceBack;
+        const baseVerticalRecoil = baseItem._props.RecoilForceUp ?? 0;
+        const baseHorizontalRecoil = baseItem._props.RecoilForceBack ?? 0;
         let vRecoil = baseVerticalRecoil;
         let hRecoil = baseHorizontalRecoil;
         let centerOfImpact = baseItem._props.CenterOfImpact;
@@ -101,8 +101,8 @@ const presetData = {
                 if (logger) logger.warn(`Could not find base value for part ${partId} of preset ${item.id}`);
             }
             ergo += part._props.Ergonomics ?? 0;
-            vRecoil += (baseVerticalRecoil * (part._props.Recoil / 100));
-            hRecoil += (baseHorizontalRecoil * (part._props.Recoil / 100));
+            vRecoil += (baseVerticalRecoil * ((part._props.Recoil ?? 0) / 100));
+            hRecoil += (baseHorizontalRecoil * ((part._props.Recoil ?? 0) / 100));
             if (part._props.DeviationMax) {
                 barrelDeviationMax = part._props.DeviationMax;
             }
