@@ -106,6 +106,7 @@ const dataFunctions = {
             switches: [],
             quest_items: [],
             spawns: [],
+            path_destinations: [],
         };
         const excludedExtracts = {
             Shoreline: [
@@ -216,6 +217,7 @@ const dataFunctions = {
                     }
                     return all;
                 }, []) || [];
+                details[id].path_destinations = details[id].path_destinations || [];
             } catch (error) {
                 if (error.code === 'ENOENT') {
                     details[id] = emptyData;
