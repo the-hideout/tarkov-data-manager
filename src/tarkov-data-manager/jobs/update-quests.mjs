@@ -1790,7 +1790,7 @@ const skipQuests = [
     '67190f157b0991dc22064755', // Foreign Support
     '67165d59a9c06627040a9094', // Forces Measure
     '674647f38466ebb03408b291', // That's a Great Plan, Walter
-    /*'675031d3884e1da4a90b3bc9', // Chilly
+    '675031d3884e1da4a90b3bc9', // Chilly
     '67503219527c9a38e80496ae', // Illegal Logging
     '675031e1f300496cc4104450', // Hide in Plain Sight
     '67503260899713ccad00060e', // Enough Drinks for that One
@@ -1799,7 +1799,7 @@ const skipQuests = [
     '676c243fb16f4b14b905e7f4', // This Is My Party
     '676c243577f0257dd50239e6', // The Price of Celebration
     '675031f57775aada6b0f96a1', // Cheer Up
-    '67503247622398376d0b57cd', // Khorovod*/
+    '67503247622398376d0b57cd', // Khorovod
 ];
 
 // Secure Folder 0013 appears on multiple maps
