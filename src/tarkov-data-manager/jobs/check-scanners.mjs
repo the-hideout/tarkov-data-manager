@@ -97,13 +97,7 @@ class CheckScansJob extends DataJob {
                 continue;
             }           
 
-            const messageData = {
-                title: `Missing scans from ${encodeURIComponent(scanner.name)} (${scanner.username})`,
-                message: `Last scanned ${DateTime.fromJSDate(lastScan).toRelative()}`
-            };
-
-            this.logger.log('Sending alert');
-            this.discordAlert(messageData);
+            this.addJobSummary(`${encodeURIComponent(scanner.name)} (${scanner.username}) - Last scanned ${DateTime.fromJSDate(lastScan).toRelative()}`, 'Missing Scans');
         }
 
         // Possibility to POST to a Discord webhook here with cron status details

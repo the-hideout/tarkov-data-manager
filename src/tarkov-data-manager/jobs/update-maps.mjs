@@ -195,6 +195,9 @@ class UpdateMapsJob extends DataJob {
                         if (!container.lootParameters.Enabled) {
                             return false;
                         }
+                        if (container.template === '67614e3a6a90e4f10b0b140d') {
+                            return false; // skip festive air drops
+                        }
                         return {
                             lootContainer: this.getLootContainer(container),
                             position: container.location.position,
@@ -229,6 +232,9 @@ class UpdateMapsJob extends DataJob {
                             return false;
                         }
                         const switchId = `${sw.id}_${sw.name}`.replace(/^(?:switch_)?/i, 'switch_');
+                        if (switchId.startsWith('switch_custom_Light')) {
+                            return false;
+                        }
                         return {
                             id: this.getId(id, sw),
                             object_id: sw.id,
@@ -288,6 +294,7 @@ class UpdateMapsJob extends DataJob {
                             position: sw.location.position,
                         }
                     }),
+                    btrRoutes: [],
                     minPlayerLevel: map.RequiredPlayerLevelMin,
                     maxPlayerLevel: map.RequiredPlayerLevelMax,
                     accessKeys: map.AccessKeys,
@@ -507,6 +514,25 @@ class UpdateMapsJob extends DataJob {
                             }
                         }).filter(Boolean),
                     };
+                }
+
+                const getWaypoint = (waypointId) => {
+                    return this.mapDetails[id].path_destinations.find(pd => pd.id === waypointId)?.location.position;
+                };
+
+                if (globals.config.BTRSettings.MapsConfigs[map.Id] && this.mapDetails[id]) {
+                    for (const pathConfig of globals.config.BTRSettings.MapsConfigs[map.Id].pathsConfigurations) {
+                        if (!pathConfig.active) {
+                            continue;
+                        }
+                        mapData.btrRoutes.push({
+                            waypoints: [
+                                //getWaypoint(pathConfig.enterPoint),
+                                ...pathConfig.pathPoints.map(waypoint => getWaypoint(waypoint)),
+                                //getWaypoint(pathConfig.exitPoint),
+                            ].filter(Boolean),
+                        });
+                    }
                 }
     
                 this.kvData[gameMode.name].Map.push(mapData);
@@ -908,6 +934,7 @@ const exfilFactions = {
     SharedExfiltrationPoint: 'shared',
     ExfiltrationPoint: 'pmc',
     ScavExfiltrationPoint: 'scav',
+    SecretExfiltrationPoint: 'pmc',
 };
 
 const hazardMap = {

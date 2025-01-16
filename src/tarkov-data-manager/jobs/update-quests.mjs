@@ -106,7 +106,7 @@ class UpdateQuestsJob extends DataJob {
                 continue;
             }
             const eventQuestConfig = this.questConfig.eventQuests[questId];
-            if (eventQuestConfig?.endTimestamp) {
+            if (new Date() >= eventQuestConfig?.endTimestamp) {
                 this.logger.warn(`Skipping event quest ${this.locales.en[`${questId} name`]} ${questId}`);
                 continue;
             }
@@ -172,10 +172,7 @@ class UpdateQuestsJob extends DataJob {
                 quests.Task.push(quest);
             } catch (error) {
                 this.logger.error(error);
-                this.discordAlert({
-                    title: `Error running ${this.name} job`,
-                    message: `Error adding missing quest ${quest.name} ${questId}\n${error.stack}`
-                });
+                this.addJobSummary(`${quest.name} ${questId}\n${error.stack}`, 'Error Adding Missing Quest');
             }
         }
 
@@ -465,7 +462,7 @@ class UpdateQuestsJob extends DataJob {
             }
             noQuestData.push(`${this.locales.en[`${questId} name`]} ${questId}`);
         }
-        if (noQuestData.length > 0) {
+        if (false && noQuestData.length > 0) {
             this.logger.warn(`No quest data found for:`);
             for (const noData of noQuestData) {
                 this.logger.log(noData);
@@ -1260,6 +1257,9 @@ class UpdateQuestsJob extends DataJob {
             zoneKeys: [],
             zoneNames: [],
         };
+        if (obj.count === 9999999999) {
+            obj.count = 1;
+        }
         if (objective.conditionType === 'FindItem' || objective.conditionType === 'HandoverItem' || objective.conditionType === 'SellItemToTrader') {
             const targetItem = this.items[objective.target[0]];
             let verb = 'give';
@@ -1790,6 +1790,16 @@ const skipQuests = [
     '67190f157b0991dc22064755', // Foreign Support
     '67165d59a9c06627040a9094', // Forces Measure
     '674647f38466ebb03408b291', // That's a Great Plan, Walter
+    '675031d3884e1da4a90b3bc9', // Chilly
+    '67503219527c9a38e80496ae', // Illegal Logging
+    '675031e1f300496cc4104450', // Hide in Plain Sight
+    '67503260899713ccad00060e', // Enough Drinks for that One
+    '675031be899713ccad00060c', // Christmas Dinner
+    '6750320e23fc8fd9cc087d14', // Holiday Beyonds the Means
+    '676c243fb16f4b14b905e7f4', // This Is My Party
+    '676c243577f0257dd50239e6', // The Price of Celebration
+    '675031f57775aada6b0f96a1', // Cheer Up
+    '67503247622398376d0b57cd', // Khorovod
 ];
 
 // Secure Folder 0013 appears on multiple maps

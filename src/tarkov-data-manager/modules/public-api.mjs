@@ -73,7 +73,7 @@ const validateQueue = async (req, res) => {
     } catch (error) {
         alert({
             title: `Error during public-api queue validation`,
-            message: error.toString()
+            message: error.toString(),
         });
         res.status(500).send('validation on your request body failed')
         return false;
@@ -95,19 +95,24 @@ const validateGoons = async (req, res) => {
             timestamp = new Date(req.body.timestamp);
         }
 
-        let reporterId;
-        if (req.body.accountId === undefined || req.body.accountId === null || req.body.accountId === '') {
-            res.status(400).send("value 'accountId' is required");
+        let accountId, discordId;
+
+        if (req.body.accountId) {
+            accountId = req.body.accountId
+        }
+        if (req.body.discordId) {
+            discordId = req.body.discordId;
+        }
+        if (!accountId && !discordId) {
+            res.status(400).send("value 'accountId' or 'discordId' is required");
             return false;
-        } else {
-            reporterId = req.body.accountId;
         }
 
-        return { map, timestamp, reporterId, gameMode: req.body.gameMode };
+        return { map, timestamp, accountId, discordId, gameMode: req.body.gameMode };
     } catch (error) {
         alert({
             title: `Error during public-api goons validation`,
-            message: error.toString()
+            message: error.toString(),
         });
         res.status(500).send('validation on your request body failed')
         return false;
@@ -127,12 +132,12 @@ const publicApi = {
         try {
             // Insert the data into the database
             await query(`INSERT INTO queue_data (map, time, type) VALUES (?, ?, ?)`, [data.map, data.time, data.type]);
-            res.json({ status: "success" });
+            res.json({ status: 'success' });
             return;
         } catch (error) {
             alert({
-                title: `Error during queue-api execution`,
-                message: error.toString()
+                title: `Error during queue-api insert`,
+                message: error.toString(),
             });
             res.status(500).json({status: 'failure'});
             return;
@@ -149,14 +154,24 @@ const publicApi = {
 
         try {
             const ipAddress = req.headers['cf-connecting-ip'] || req.ip;
+            let report_id_field = 'account_id';
+            let report_id_value;
+            if (data.accountId) {
+                report_id_field = 'account_id';
+                report_id_value = data.accountId;
+            } else if (data.discordId) {
+                report_id_field = 'discord_id';
+                report_id_value = String(data.discordId);
+            }
+
             // Insert the data into the database
-            await query(`INSERT INTO goon_reports (map, game_mode, timestamp, reporter_id, reporter_ip) VALUES (?, ?, ?, ?, ?)`, [data.map, data.gameMode, data.timestamp, data.reporterId, ipAddress]);
-            res.json({ status: "success" });
+            await query(`INSERT INTO goon_reports (map, game_mode, timestamp, ${report_id_field}, reporter_ip) VALUES (?, ?, ?, ?, ?)`, [data.map, data.gameMode, data.timestamp, report_id_value, ipAddress]);
+            res.json({ status: 'success' });
             return;
         } catch (error) {
             alert({
-                title: `Error during queue-api execution`,
-                message: error.toString()
+                title: `Error during public-api goons insert`,
+                message: error.toString(),
             });
             res.status(500).json({status: 'failure'});
             return;

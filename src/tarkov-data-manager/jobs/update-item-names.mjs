@@ -34,8 +34,6 @@ class UpdateItemNamesJob extends DataJob {
             quest: {},
         };
         const doNotUse = /DO[ _]NOT[ _]USE|translation_pending/;
-        const enabledItems = [];
-        const changedItems = [];
         let i = 0;
         for (const [itemId, localItem] of localItems.entries()) {
             i++;
@@ -64,10 +62,7 @@ class UpdateItemNamesJob extends DataJob {
 
             if (!en[`${itemId} Name`]) {
                 if (!localItem.types.includes('disabled')) {
-                    this.discordAlert({
-                        title: 'Disabling Item',
-                        message: `Disabling item ${name} ${itemId} for not having a current translation`,
-                    });
+                    this.addJobSummary(`${name} ${itemId}`, 'Disabled for not having a current translation');
                     await remoteData.addType(itemId, 'disabled');
                 }
                 this.logger.log(`No en translation found for ${itemId} ${item._name}`);
@@ -109,7 +104,7 @@ class UpdateItemNamesJob extends DataJob {
                 height !== localItem.height) {
                 if (localItem.name.match(doNotUse) && !name.match(doNotUse)) {
                     remoteData.removeType(itemId, 'disabled');
-                    enabledItems.push(`${name} ${itemId} (was ${localItem.name})`);
+                    this.addJobSummary(`${name} ${itemId} (was ${localItem.name})`, 'Enabled after rename');
                 }
                 try {
                     await remoteData.setProperties(itemId, {
@@ -121,7 +116,7 @@ class UpdateItemNamesJob extends DataJob {
                         properties: {backgroundColor: bgColor},
                     });
                     this.logger.succeed(`Updated ${i}/${localItems.size} ${itemId} ${shortname || name}`);            
-                    changedItems.push(`${name} ${itemId}`);
+                    this.addJobSummary(`${name} ${itemId}`, 'Changed name, shortName, background color, or size');
                 } catch (error) {
                     this.logger.error(`Error updating item names for ${itemId} ${name}`);
                     this.logger.error(error);
@@ -143,19 +138,6 @@ class UpdateItemNamesJob extends DataJob {
                     this.logger.error(redirectInsertError);
                 }
             }
-        }
-
-        if (enabledItems.length > 0) {
-            this.discordAlert({
-                title: 'Enabled item(s) after rename',
-                message: enabledItems.join('\n'),
-            });
-        }
-        if (changedItems.length > 0) {
-            this.discordAlert({
-                title: 'Changed item(s) name, shortName, background color, or size',
-                message: changedItems.join('\n'),
-            });
         }
 
         this.logger.log('Checking redirects');
@@ -214,12 +196,9 @@ class UpdateItemNamesJob extends DataJob {
                         this.logger.error(`Error regenerating images for ${item.id}: ${errors.message}`);
                     }
                 });
+                this.addJobSummary(`${item.name} ${item.id}`, 'Regenerated images after name/size/background color change');
             }
             this.logger.succeed('Finished regenerating images');
-            this.discordAlert({
-                title: 'Regenerated images for item(s) after name/size/background color change',
-                message: regnerateImages.map(item => `${item.name} ${item.id}`).join('\n'),
-            });
         }
     }
 }

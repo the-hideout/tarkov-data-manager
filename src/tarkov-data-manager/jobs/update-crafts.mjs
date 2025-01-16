@@ -245,7 +245,7 @@ class UpdateCraftsJob extends DataJob {
             }
             this.logger.log(`Processed ${this.kvData[gameMode.name].Craft.length} active ${gameMode.name} crafts`);
             if (this.kvData[gameMode.name].Craft.length === 0) {
-                this.discordAlert({ title: 'update-crafts job warning', message: `Found 0 ${gameMode.name} crafts`});
+                this.addJobSummary(`${gameMode.name}`, 'Found No Crafts');
             }
     
             let kvName = this.kvName;
