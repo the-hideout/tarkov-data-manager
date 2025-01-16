@@ -21,7 +21,7 @@ const defaultJobTriggers = {
     'update-trader-prices': 'jobComplete_update-trader-assorts',
     'check-image-links': '16 0,6,12,18 * * *',
     'update-quest-images': '16 1,7,13,19 * * *',
-    'update-historical-prices': '26 * * * *',
+    'update-historical-prices': '26 */2 * * *',
     'update-spt-data': '56 * * * *',
     'update-archived-prices': '38 0 * * *',
     'update-game-status': '*/15 * * * *',

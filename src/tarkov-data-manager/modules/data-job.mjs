@@ -256,14 +256,21 @@ class DataJob {
         const uploadTime = new Date() - uploadStart;
         if (response.success) {
             this.writeDump(data, kvName);
-            this.logger.success(`Successful Cloudflare put of ${kvName} in ${uploadTime} ms`);
+            this.logger.success(`Successful Cloudflare put of ${kvName} in ${uploadTime} ms (${JSON.stringify(data).length.toLocaleString()} bytes)`);
             //stellate.purge(kvName, this.logger);
         } else {
             response.messages?.forEach(message => this.logger.error(message));
             if (response.errors.length > 0) {
-                return Promise.reject(new Error(`Error uploading kv data: ${response.errors.join(', ')}`));
+                return Promise.reject(new Error(`Error uploading kv data: ${response.errors.map(error => error.message).join(', ')}`));
             }
         }
+    }
+
+    cloudflareUploadBulk = async (kvArray, gameMode) => {
+        return cloudflare.putBulk(kvArray, {signal: this.abortController.signal}).catch(error => {
+            this.logger.error(error);
+            return {success: false, errors: [], messages: []};
+        });
     }
 
     cloudflareUpload = async (kvName, data, gameMode) => {

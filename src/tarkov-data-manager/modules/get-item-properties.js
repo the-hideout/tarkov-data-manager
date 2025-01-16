@@ -1,6 +1,7 @@
 let itemIds = false;
 let disabledItemIds = false;
 let job = false;
+let translationHelper = false;
 
 const topCategories = [
     '54009119af1c881c07000029', // Item
@@ -10,26 +11,25 @@ const topCategories = [
 ];
 
 const setAll = async (options) => {
-    const optionMap = {
-        itemIds: ids => {
-            itemIds = ids;
-        },
-        disabledItemIds: ids => {
-            disabledItemIds = ids;
-        },
-        job: j => {
-            job = j;
-            if (j.itemMap) {
-                itemIds = [...j.itemMap.keys()];
-                disabledItemIds = [...j.itemMap.values()].filter(item => item.types.includes('disabled')).map(item => item.id);
+    if (options.itemIds) {
+        itemIds = options.itemIds;
+    }
+    if (options.disabledItemIds) {
+        disabledItemIds = options.disabledItemIds;
+    }
+    if (options.job) {
+        job = options.job;
+        if (job.itemMap) {
+            itemIds = [...job.itemMap.keys()];
+            disabledItemIds = [...job.itemMap.values()].filter(item => item.types.includes('disabled')).map(item => item.id);
 
-            }
-        },
-    };
-    for (const key in options) {
-        if (optionMap[key]) {
-            await optionMap[key](options[key]);
-        } 
+        }
+    }
+    if (options.translationHelper) {
+        translationHelper = options.translationHelper;
+    }
+    if (!translationHelper && job) {
+        translationHelper = job.translationHelper;
     }
 };
 
@@ -116,7 +116,7 @@ const getSlots = (item) => {
             nameId: slot._name,
             required: slot._required,
             filters: getFilterConstraints(item, slot),
-            name: job.addTranslation(nameKey, (lang, code) => {
+            name: translationHelper.addTranslation(nameKey, (lang, code) => {
                 if (lang[nameKey]) {
                     return lang[nameKey].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
                         return substr.toLowerCase();
@@ -160,8 +160,8 @@ const getArmorSlots = (item) => {
             newSlot.turnPenalty = parseFloat(plateItem._props.mousePenalty) / 100,
             newSlot.ergoPenalty = parseFloat(plateItem._props.weaponErgonomicPenalty) / 100,
             newSlot.armor_material_id = plateItem._props.ArmorMaterial,
-            newSlot.zones = job.addTranslation(zones),
-            newSlot.armorType = job.addTranslation(plateItem._props.ArmorType, (lang) => {
+            newSlot.zones = translationHelper.addTranslation(zones),
+            newSlot.armorType = translationHelper.addTranslation(plateItem._props.ArmorType, (lang) => {
                 if (plateItem._props.ArmorType !== 'None') {
                     return lang[plateItem._props.ArmorType];
                 }
@@ -170,10 +170,12 @@ const getArmorSlots = (item) => {
                 });
             });
             newSlot.baseValue = job.credits[slotInfo.Plate];
+            newSlot.name = translationHelper.addTranslation(`${slotInfo.Plate} Name`);
         } else {
-            newSlot.zones = job.addTranslation(zones);
+            newSlot.zones = translationHelper.addTranslation(zones);
             //newSlot.defaultPlate = slotInfo.Plate;
             newSlot.allowedPlates = slotInfo.Filter;
+            newSlot.name = translationHelper.addTranslation(slotName);
         }
         return newSlot;
     }).filter(Boolean);
@@ -195,8 +197,8 @@ const getStimEffects = (item) => {
                 duration: buff.Duration,
                 value: buff.Value,
                 percent: !buff.AbsoluteValue,
-                type: buff.SkillName ? job.addTranslation('Skill') : job.addTranslation(effectKey),
-                skillName: buff.SkillName ? job.addTranslation(buff.SkillName) : undefined
+                type: buff.SkillName ? translationHelper.addTranslation('Skill') : job.addTranslation(effectKey),
+                skillName: buff.SkillName ? translationHelper.addTranslation(buff.SkillName) : undefined
             };
             stimEffects.push(effect);
         }
@@ -334,8 +336,8 @@ const getItemProperties = async (item) => {
                 durability: getArmorDurability(item),
                 repairCost: parseInt(item._props.RepairCost),
                 armor_material_id: item._props.ArmorMaterial,
-                zones: job.addTranslation(getArmorZones(item)),
-                armorType: job.addTranslation(item._props.ArmorType, (lang) => {
+                zones: translationHelper.addTranslation(getArmorZones(item)),
+                armorType: translationHelper.addTranslation(item._props.ArmorType, (lang) => {
                     if (item._props.ArmorType !== 'None') {
                         return lang[item._props.ArmorType];
                     }
@@ -411,8 +413,8 @@ const getItemProperties = async (item) => {
                 ricochetY: item._props.RicochetParams.y,
                 ricochetZ: item._props.RicochetParams.z,
                 armor_material_id: item._props.ArmorMaterial,
-                headZones: job.addTranslation(getArmorZones(item)),
-                armorType: job.addTranslation(item._props.ArmorType, (lang) => {
+                headZones: translationHelper.addTranslation(getArmorZones(item)),
+                armorType: translationHelper.addTranslation(item._props.ArmorType, (lang) => {
                     if (item._props.ArmorType !== 'None') {
                         return lang[item._props.ArmorType];
                     }
@@ -479,7 +481,7 @@ const getItemProperties = async (item) => {
             }).reduce((previousValue, currentValue) => {
                 return currentValue.id;
             }, null),
-            fireModes: job.addTranslation(item._props.weapFireType),
+            fireModes: translationHelper.addTranslation(item._props.weapFireType),
         };
     } else if (item._parent === '5a2c3a9486f774688b05e574') {
         // night vision
@@ -609,7 +611,7 @@ const getItemProperties = async (item) => {
             compressorAttack: item._props.CompressorAttack,
             compressorGain: item._props.CompressorGain,
             compressorRelease: item._props.CompressorRelease,
-            compressorThreshold: item._props.CompressorTreshold,
+            compressorThreshold: item._props.CompressorThreshold,
             compressorVolume: item._props.CompressorVolume,
             cutoffFrequency: item._props.CutoffFreq,
             distanceModifier: item._props.RolloffMultiplier,
