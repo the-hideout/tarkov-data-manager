@@ -29,25 +29,7 @@ class UpdatePresetsJob extends DataJob {
 
         presetsHelper.init(this.items, this.credits, this.locales);
 
-        const jsonPresets = presetsHelper.getJsonPresets();
         const dbPresets = await presetsHelper.getDatabasePresets();
-
-        // make sure we have all legacy manual json presets in the DB
-        for (const id in jsonPresets) {
-            this.presets[id] = jsonPresets[id];
-            if (dbPresets[id]) {
-                continue;
-            }
-            const jsonPreset = jsonPresets[id];
-            this.logger.warn(`Adding json preset ${id} to database`);
-            await this.query(`
-                INSERT INTO manual_preset 
-                    (id, append_name, items)
-                VALUES
-                    (?, ?, ?)
-                ON DUPLICATE KEY UPDATE append_name = ?, items = ?
-            `, [id, jsonPreset.appendName, JSON.stringify(jsonPreset._items), jsonPreset.appendName, JSON.stringify(jsonPreset._items)]);
-        }
 
         for (const p of Object.values(dbPresets)) {
             this.presets[p._id] = p;
