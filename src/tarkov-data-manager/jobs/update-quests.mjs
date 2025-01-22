@@ -34,7 +34,6 @@ class UpdateQuestsJob extends DataJob {
             this.changedQuests,
             this.removedQuests,
             this.neededKeys,
-            this.questDelays,
             this.questConfig,
             this.s3Images,
         ] = await Promise.all([
@@ -62,7 +61,6 @@ class UpdateQuestsJob extends DataJob {
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'changed_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'removed_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'needed_keys.json')).then(json => JSON.parse(json)),
-            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'quest_delays.json')).then(json => JSON.parse(json)),
             tarkovData.questConfig(),
             getLocalBucketContents(),
         ]);
@@ -262,11 +260,6 @@ class UpdateQuestsJob extends DataJob {
         const missingImages = [];
         for (const quest of quests.Task) {
             quest.normalizedName = this.normalizeName(this.locales.en[quest.name])+(quest.factionName !== 'Any' ? `-${this.normalizeName(quest.factionName)}` : '');
-
-            if (this.questDelays[quest.id]) {
-                quest.availableDelaySecondsMin = this.questDelays[quest.id].min;
-                quest.availableDelaySecondsMax = this.questDelays[quest.id].max;
-            }
 
             const removeReqs = [];
             for (const req of quest.taskRequirements) {
@@ -1031,6 +1024,8 @@ class UpdateQuestsJob extends DataJob {
             tarkovDataId: undefined,
             factionName: 'Any',
             neededKeys: [],
+            availableDelaySecondsMin: 0,
+            availableDelaySecondsMax: 0,
         };
         for (const objective of quest.conditions.AvailableForFinish) {
             const obj = this.formatObjective(questData.id, objective);
@@ -1062,6 +1057,14 @@ class UpdateQuestsJob extends DataJob {
                     questReq.status.push(questStatusMap[statusCode]);
                 }
                 questData.taskRequirements.push(questReq);
+                if (req.availableAfter && req.availableAfter !== 15) {
+                    if (!questData.availableDelaySecondsMin || req.availableAfter < questData.availableDelaySecondsMin) {
+                        questData.availableDelaySecondsMin = req.availableAfter;
+                    }
+                    if (req.availableAfter + req.dispersion > questData.availableDelaySecondsMax) {
+                        questData.availableDelaySecondsMax = req.availableAfter + req.dispersion;
+                    }
+                }
             } else if (req.conditionType === 'TraderLoyalty' || req.conditionType === 'TraderStanding') {
                 const requirementTypes = {
                     TraderLoyalty: 'level',

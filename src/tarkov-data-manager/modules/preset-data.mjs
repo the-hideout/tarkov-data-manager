@@ -304,7 +304,7 @@ const presetData = {
 
         const idPrefix = '707265736574';
         const dbPresets = await presetData.getDatabasePresets();
-        let presetNum = Object.keys(dbPresets).length + 1;
+        let presetNum = 0;
         let id;
         while (true) {
             id = `${idPrefix}${presetNum.toString(16).padStart(12, '0')}`;
