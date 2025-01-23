@@ -258,8 +258,17 @@ class UpdateQuestsJob extends DataJob {
 
         const filteredPrerequisiteTasks = {};
         const missingImages = [];
+        const normalizedNames = {};
         for (const quest of quests.Task) {
             quest.normalizedName = this.normalizeName(this.locales.en[quest.name])+(quest.factionName !== 'Any' ? `-${this.normalizeName(quest.factionName)}` : '');
+            if (!normalizedNames[quest.normalizedName]) {
+                normalizedNames[quest.normalizedName] = 1;
+            } else {
+                normalizedNames[quest.normalizedName]++;
+            }
+            if (normalizedNames[quest.normalizedName] > 1) {
+                quest.normalizedName = `${quest.normalizedName}-${normalizedNames[quest.normalizedName]}`;
+            }
 
             const removeReqs = [];
             for (const req of quest.taskRequirements) {
