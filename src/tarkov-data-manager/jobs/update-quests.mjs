@@ -139,7 +139,7 @@ class UpdateQuestsJob extends DataJob {
                         };
                     }
                     if (obj.type === 'extract') {
-                        obj.exitStatus = this.addTranslation(obj.exitStatus.map(stat => `ExpBonus${stat}`));
+                        obj.exitStatus = this.addTranslation(obj.exitStatus.map(this.getExtractStatus));
                     }
                     if (obj.type === 'shoot') {
                         obj.target = this.addMobTranslation(obj.target);
@@ -1421,7 +1421,7 @@ class UpdateQuestsJob extends DataJob {
                         }
                     }
                 } else if (cond.conditionType === 'ExitStatus') {
-                    obj.exitStatus = this.addTranslation(cond.status.map(stat => `ExpBonus${stat}`));
+                    obj.exitStatus = this.addTranslation(cond.status.map(this.getExtractStatus));
                 } else if (cond.conditionType === 'ExitName') {
                     obj.exitName = this.addTranslation(cond.exitName)
                     if (cond.exitName && obj.map_ids.length === 0) {
@@ -1751,6 +1751,13 @@ class UpdateQuestsJob extends DataJob {
             return s3ImageLink;
         }
         return null;
+    }
+
+    getExtractStatus(stat) {
+        if (stat === 'Transit') {
+            return 'marathon Name';
+        }
+        return `ExpBonus${stat}`;
     }
 }
 
