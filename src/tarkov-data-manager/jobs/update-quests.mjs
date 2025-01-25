@@ -1193,6 +1193,9 @@ class UpdateQuestsJob extends DataJob {
         if (!objective.id) {
             return false;
         }
+        if (objective.zoneId && this.rawQuestData[questId].conditions.Fail?.some(f => f.zoneId === objective.zoneId)) {
+            return false;
+        }
         let objectiveId = objective.id;
         const changedIds = this.changedQuests[questId]?.objectiveIdsChanged;
         if (changedIds && changedIds[objectiveId]) {
