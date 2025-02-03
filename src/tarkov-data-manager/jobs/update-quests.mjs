@@ -309,6 +309,9 @@ class UpdateQuestsJob extends DataJob {
                 });
             }
             for (const reqId of requiredIds) {
+                if (quest.keepAllTaskRequirements) {
+                    break;
+                }
                 if (earlierTasks.has(reqId)) {
                     //const requiredTask = quests.Task.find(q => q.id === reqId);
                     //this.logger.warn(`${this.locales.en[quest.name]} ${quest.id} required task ${this.locales.en[requiredTask.name]} ${requiredTask.id} is a precursor to another required task`);
@@ -319,6 +322,7 @@ class UpdateQuestsJob extends DataJob {
                     filteredPrerequisiteTasks[quest.id]++;
                 }
             }
+            delete quest.keepAllTaskRequirements;
 
             // add locations for zones and quest items
             for (const obj of quest.objectives) {

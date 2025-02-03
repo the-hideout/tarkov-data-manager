@@ -1523,6 +1523,12 @@
             ]
         }
     },
+    "6740a15566e6a521aa051b15": {
+        "name": "Forge a Friendship",
+        "propertiesChanged": {
+            "keepAllTaskRequirements": true
+        }
+    },
     "6744a728352b4da8e003eda9": {
         "name": "Battery Change (Prapor)",
         "propertiesChanged" : {
@@ -1582,7 +1588,8 @@
                         "complete"
                     ]
                 }
-            ]
+            ],
+            "keepAllTaskRequirements": true
         }
     },
     "6745cbee909d2013670a4a55": {
