@@ -1472,7 +1472,7 @@
         "propertiesChanged" : {
             "failConditions": [
                 {
-                    "id": "6745fcded0fbbc74ca0f721d0001",
+                    "id": "6745fcded0fbbc74ca0f7226",
                     "description": "6745fcded0fbbc74ca0f7226",
                     "type": "taskStatus",
                     "count": null,
@@ -1488,7 +1488,10 @@
                     "zones": []
                 }
             ]
-        }
+        },
+        "translationKeys": [
+            "6745fcded0fbbc74ca0f7226"
+        ]
     },
     "673f629c5b555b53460cf827": {
         "name": "Building Foundations",
@@ -1525,7 +1528,7 @@
         "propertiesChanged" : {
             "failConditions": [
                 {
-                    "id": "6744a728352b4da8e003eda90001",
+                    "id": "6744a951d9ac62db4b79b618",
                     "description": "6744a951d9ac62db4b79b618",
                     "type": "taskStatus",
                     "count": null,
@@ -1541,7 +1544,10 @@
                     "zones": []
                 }
             ]
-        }
+        },
+        "translationKeys": [
+            "6744a951d9ac62db4b79b618"
+        ]
     },
     "6744ab1def61d56e020b5c56": {
         "name": "Protect the Sky",
