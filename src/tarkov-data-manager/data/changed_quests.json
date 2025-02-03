@@ -1473,6 +1473,7 @@
             "failConditions": [
                 {
                     "id": "6745fcded0fbbc74ca0f721d0001",
+                    "description": "6745fcded0fbbc74ca0f7226",
                     "type": "taskStatus",
                     "count": null,
                     "optional": false,
@@ -1525,6 +1526,7 @@
             "failConditions": [
                 {
                     "id": "6744a728352b4da8e003eda90001",
+                    "description": "6744a951d9ac62db4b79b618",
                     "type": "taskStatus",
                     "count": null,
                     "optional": false,
