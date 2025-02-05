@@ -13,8 +13,10 @@ class UpdateProfileIndexJob extends DataJob {
     async run() {
         this.logger.log('Downloading all profiles...');
         const profiles = {};
+        const updated = {};
         for (const gameMode of gameModes) {
             profiles[gameMode.name] = {};
+            updated[gameMode.name] = {};
         }
         const batchSize = 1000000;
         let offset = 0;
@@ -36,6 +38,7 @@ class UpdateProfileIndexJob extends DataJob {
                     }
                     if (r[updatedField]) {
                         profiles[gameMode.name][r.id] = r.name;
+                        updated[gameMode.name][r.id] = r[updatedField];
                     }
                 }
             });
@@ -46,21 +49,30 @@ class UpdateProfileIndexJob extends DataJob {
             offset += batchSize;
         }
         
-        const indexFilename = 'index.json';
         for (const gameMode of gameModes) {
-            this.logger.log(`Updating ${gameMode.name} profile index of ${Object.keys(profiles[gameMode.name]).length} profiles...`);
+            this.logger.log(`Updating ${gameMode.name} profile indices of ${Object.keys(profiles[gameMode.name]).length} profiles...`);
             let indexPath = 'profile/';
             if (gameMode.name !== 'regular') {
                 indexPath = gameMode.name + '/';
             }
-            const gzipBuffer = zlib.gzipSync(JSON.stringify(profiles[gameMode.name]));
+            let gzipBuffer = zlib.gzipSync(JSON.stringify(profiles[gameMode.name]));
             this.logger.log('Completed gzip of profile data');
-            const url = await uploadFile(gzipBuffer, indexPath + indexFilename, {
+            let url = await uploadFile(gzipBuffer, indexPath + 'index.json', {
                 bucket: 'players.tarkov.dev',
                 contentType: 'application/json',
                 contentEncoding: 'gzip'
             });
             this.logger.log('Uploaded index.json to S3');
+            await cloudflare.purgeCache(url);
+            this.logger.log(`Purged cache for ${url}`);
+            gzipBuffer = zlib.gzipSync(JSON.stringify(updated[gameMode.name]));
+            this.logger.log('Completed gzip of profile updated data');
+            url = await uploadFile(gzipBuffer, indexPath + 'updated.json', {
+                bucket: 'players.tarkov.dev',
+                contentType: 'application/json',
+                contentEncoding: 'gzip'
+            });
+            this.logger.log('Uploaded updated.json to S3');
             await cloudflare.purgeCache(url);
             this.logger.log(`Purged cache for ${url}`);
         }

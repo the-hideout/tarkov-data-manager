@@ -34,7 +34,6 @@ class UpdateQuestsJob extends DataJob {
             this.changedQuests,
             this.removedQuests,
             this.neededKeys,
-            this.questDelays,
             this.questConfig,
             this.s3Images,
         ] = await Promise.all([
@@ -62,7 +61,6 @@ class UpdateQuestsJob extends DataJob {
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'changed_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'removed_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'needed_keys.json')).then(json => JSON.parse(json)),
-            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'quest_delays.json')).then(json => JSON.parse(json)),
             tarkovData.questConfig(),
             getLocalBucketContents(),
         ]);
@@ -141,7 +139,7 @@ class UpdateQuestsJob extends DataJob {
                         };
                     }
                     if (obj.type === 'extract') {
-                        obj.exitStatus = this.addTranslation(obj.exitStatus.map(stat => `ExpBonus${stat}`));
+                        obj.exitStatus = this.addTranslation(obj.exitStatus.map(this.getExtractStatus));
                     }
                     if (obj.type === 'shoot') {
                         obj.target = this.addMobTranslation(obj.target);
@@ -260,12 +258,16 @@ class UpdateQuestsJob extends DataJob {
 
         const filteredPrerequisiteTasks = {};
         const missingImages = [];
+        const normalizedNames = {};
         for (const quest of quests.Task) {
             quest.normalizedName = this.normalizeName(this.locales.en[quest.name])+(quest.factionName !== 'Any' ? `-${this.normalizeName(quest.factionName)}` : '');
-
-            if (this.questDelays[quest.id]) {
-                quest.availableDelaySecondsMin = this.questDelays[quest.id].min;
-                quest.availableDelaySecondsMax = this.questDelays[quest.id].max;
+            if (!normalizedNames[quest.normalizedName]) {
+                normalizedNames[quest.normalizedName] = 1;
+            } else {
+                normalizedNames[quest.normalizedName]++;
+            }
+            if (normalizedNames[quest.normalizedName] > 1) {
+                quest.normalizedName = `${quest.normalizedName}-${normalizedNames[quest.normalizedName]}`;
             }
 
             const removeReqs = [];
@@ -307,6 +309,9 @@ class UpdateQuestsJob extends DataJob {
                 });
             }
             for (const reqId of requiredIds) {
+                if (quest.keepAllTaskRequirements) {
+                    break;
+                }
                 if (earlierTasks.has(reqId)) {
                     //const requiredTask = quests.Task.find(q => q.id === reqId);
                     //this.logger.warn(`${this.locales.en[quest.name]} ${quest.id} required task ${this.locales.en[requiredTask.name]} ${requiredTask.id} is a precursor to another required task`);
@@ -317,70 +322,14 @@ class UpdateQuestsJob extends DataJob {
                     filteredPrerequisiteTasks[quest.id]++;
                 }
             }
+            delete quest.keepAllTaskRequirements;
 
             // add locations for zones and quest items
             for (const obj of quest.objectives) {
-                obj.zones = [];
-                obj.zoneKeys?.forEach((zoneId) => {
-                    for (const mapId in this.mapDetails) {
-                        for (const trigger of this.mapDetails[mapId].zones) {
-                            if (trigger.id === zoneId) {
-                                obj.zones.push({
-                                    id: trigger.id,
-                                    map: mapId,
-                                    ...trigger.location,
-                                });        
-                                if (!obj.map_ids.includes(mapId)) {
-                                    obj.map_ids.push(mapId);
-                                } 
-                            }
-                        }
-                    }
-                    if (obj.zones.length === 0) {
-                        this.logger.warn(`Zone key ${zoneId} is not associated with a map`);
-                    }
-                });
-                // add objective map from zone
-                if (obj.map_ids.length === 0 && obj.zones?.length) {
-                    obj.map_ids = obj.zones.reduce((maps, zone) => {
-                        if (!maps.includes(zone.map)) {
-                            maps.push(zone.map);
-                        }
-                        return maps;
-                    }, []);
-                }
-                // add objective map from targets
-                if (obj.map_ids.length === 0 && obj.targetLocations?.length) {
-                    obj.map_ids = obj.targetLocations;
-                }
-                delete obj.targetLocations;
-                
-                if (obj.type !== 'findQuestItem') {
-                    continue;
-                }
-
-                // add objective map from quest item
-                const itemInfo = this.getQuestItemLocations(obj.item_id, obj.id);
-                if (itemInfo.length > 0) {
-                    if (!obj.possibleLocations) {
-                        obj.possibleLocations = [];
-                    }
-                    for (const spawn of itemInfo) {
-                        obj.possibleLocations.push(spawn);
-                        if (!obj.map_ids.includes(spawn.map)) {
-                            obj.map_ids.push(spawn.map);
-                        }
-                    }
-                } else if (questItemLocations[obj.item_id]) {    
-                    // quest item location is manually set   
-                    const mapId = questItemLocations[obj.item_id];
-                    if (!obj.map_ids.includes(mapId)) {
-                        obj.map_ids.push(mapId);
-                    }
-                    this.logger.warn(`${this.getTranslation(quest.name)} ${quest.id} objective ${obj.id} item ${obj.item_name} ${obj.item_id} has no known coordinates`);
-                } else {
-                    this.logger.warn(`${this.getTranslation(quest.name)} ${quest.id} objective ${obj.id} item ${obj.item_name} ${obj.item_id} has no known spawn`);
-                }
+                this.getObjectiveZones(obj);
+            }
+            for (const obj of quest.failConditions) {
+                this.getObjectiveZones(obj);
             }
 
             // add objective maps from extracts
@@ -780,7 +729,7 @@ class UpdateQuestsJob extends DataJob {
         if (armorTypes.includes(this.items[rewardData.item]?._parent)) {
             // all armors are default presets
             const matchedPreset = Object.values(this.presets).find(preset => {
-                return preset.baseId === rewardData.item && preset.default;
+                return preset?.baseId === rewardData.item && preset?.default;
             });
             if (matchedPreset) {
                 rewardData.item = matchedPreset.id;
@@ -1031,6 +980,8 @@ class UpdateQuestsJob extends DataJob {
             tarkovDataId: undefined,
             factionName: 'Any',
             neededKeys: [],
+            availableDelaySecondsMin: 0,
+            availableDelaySecondsMax: 0,
         };
         for (const objective of quest.conditions.AvailableForFinish) {
             const obj = this.formatObjective(questData.id, objective);
@@ -1062,6 +1013,14 @@ class UpdateQuestsJob extends DataJob {
                     questReq.status.push(questStatusMap[statusCode]);
                 }
                 questData.taskRequirements.push(questReq);
+                if (req.availableAfter && req.availableAfter !== 15) {
+                    if (!questData.availableDelaySecondsMin || req.availableAfter < questData.availableDelaySecondsMin) {
+                        questData.availableDelaySecondsMin = req.availableAfter;
+                    }
+                    if (req.availableAfter + req.dispersion > questData.availableDelaySecondsMax) {
+                        questData.availableDelaySecondsMax = req.availableAfter + req.dispersion;
+                    }
+                }
             } else if (req.conditionType === 'TraderLoyalty' || req.conditionType === 'TraderStanding') {
                 const requirementTypes = {
                     TraderLoyalty: 'level',
@@ -1238,6 +1197,9 @@ class UpdateQuestsJob extends DataJob {
         if (!objective.id) {
             return false;
         }
+        if (!failConditions && objective.zoneId && this.rawQuestData[questId].conditions.Fail?.some(f => f.zoneId === objective.zoneId)) {
+            return false;
+        }
         let objectiveId = objective.id;
         const changedIds = this.changedQuests[questId]?.objectiveIdsChanged;
         if (changedIds && changedIds[objectiveId]) {
@@ -1409,7 +1371,7 @@ class UpdateQuestsJob extends DataJob {
                         }
                     }
                 } else if (cond.conditionType === 'ExitStatus') {
-                    obj.exitStatus = this.addTranslation(cond.status.map(stat => `ExpBonus${stat}`));
+                    obj.exitStatus = this.addTranslation(cond.status.map(this.getExtractStatus));
                 } else if (cond.conditionType === 'ExitName') {
                     obj.exitName = this.addTranslation(cond.exitName)
                     if (cond.exitName && obj.map_ids.length === 0) {
@@ -1740,6 +1702,77 @@ class UpdateQuestsJob extends DataJob {
         }
         return null;
     }
+
+    getExtractStatus(stat) {
+        if (stat === 'Transit') {
+            return 'marathon Name';
+        }
+        return `ExpBonus${stat}`;
+    }
+
+    getObjectiveZones(obj) {
+        obj.zones = [];
+        obj.zoneKeys?.forEach((zoneId) => {
+            for (const mapId in this.mapDetails) {
+                for (const trigger of this.mapDetails[mapId].zones) {
+                    if (trigger.id === zoneId) {
+                        obj.zones.push({
+                            id: trigger.id,
+                            map: mapId,
+                            ...trigger.location,
+                        });        
+                        if (!obj.map_ids.includes(mapId)) {
+                            obj.map_ids.push(mapId);
+                        } 
+                    }
+                }
+            }
+            if (obj.zones.length === 0) {
+                this.logger.warn(`Zone key ${zoneId} is not associated with a map`);
+            }
+        });
+        // add objective map from zone
+        if (obj.map_ids.length === 0 && obj.zones?.length) {
+            obj.map_ids = obj.zones.reduce((maps, zone) => {
+                if (!maps.includes(zone.map)) {
+                    maps.push(zone.map);
+                }
+                return maps;
+            }, []);
+        }
+        // add objective map from targets
+        if (obj.map_ids.length === 0 && obj.targetLocations?.length) {
+            obj.map_ids = obj.targetLocations;
+        }
+        delete obj.targetLocations;
+        
+        if (obj.type !== 'findQuestItem') {
+            return;
+        }
+
+        // add objective map from quest item
+        const itemInfo = this.getQuestItemLocations(obj.item_id, obj.id);
+        if (itemInfo.length > 0) {
+            if (!obj.possibleLocations) {
+                obj.possibleLocations = [];
+            }
+            for (const spawn of itemInfo) {
+                obj.possibleLocations.push(spawn);
+                if (!obj.map_ids.includes(spawn.map)) {
+                    obj.map_ids.push(spawn.map);
+                }
+            }
+        } else if (questItemLocations[obj.item_id]) {    
+            // quest item location is manually set   
+            const mapId = questItemLocations[obj.item_id];
+            if (!obj.map_ids.includes(mapId)) {
+                obj.map_ids.push(mapId);
+            }
+            this.logger.warn(`${this.getTranslation(quest.name)} ${quest.id} objective ${obj.id} item ${obj.item_name} ${obj.item_id} has no known coordinates`);
+        } else {
+            this.logger.warn(`${this.getTranslation(quest.name)} ${quest.id} objective ${obj.id} item ${obj.item_name} ${obj.item_id} has no known spawn`);
+        }
+    }
 }
 
 const questItemLocations = {};
@@ -1811,9 +1844,16 @@ const forceObjectiveMap = {
 };
 
 const questStatusMap = {
+    0: 'locked',
+    1: 'availableForStart',
     2: 'active',
+    3: 'availableForFinish',
     4: 'complete',
-    5: 'failed'
+    5: 'failed',
+    6: 'failedRestartable',
+    7: 'markedFailed',
+    8: 'expired',
+    9: 'availableAfter',
 };
 
 const factionMap = {
@@ -1821,14 +1861,14 @@ const factionMap = {
     '5e4d4ac186f774264f758336': 'USEC', // Textile - Part 2
     '6179b5eabca27a099552e052': 'USEC', // Counteraction
     '639282134ed9512be67647ed': 'USEC', // Road Closed
+    '66151401efb0539ae10875ae': 'USEC', // Drip-Out - Part 1
+    '6615141bfda04449120269a7': 'USEC', // Drip-Out - Part 2
     '5e383a6386f77465910ce1f3': 'BEAR', // Textile - Part 1
     '5e4d515e86f77438b2195244': 'BEAR', // Textile - Part 2
     '6179b5b06e9dd54ac275e409': 'BEAR', // Our Own Land
     '639136d68ba6894d155e77cf': 'BEAR', // Green Corridor
     '6613f3007f6666d56807c929': 'BEAR', // Drip-Out - Part 1
-    '66151401efb0539ae10875ae': 'USEC', // Drip-Out - Part 1
     '6613f307fca4f2f386029409': 'BEAR', // Drip-Out - Part 2
-    '6615141bfda04449120269a7': 'USEC', // Drip-Out - Part 2
 };
 
 export default UpdateQuestsJob;

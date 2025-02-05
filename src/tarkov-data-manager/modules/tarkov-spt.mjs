@@ -40,7 +40,7 @@ const branches = [
     'master',
 ];
 
-let branch;
+let branch, branchSetPromise;
 
 const defaultOptions = dataOptions.default;
 const merge = dataOptions.merge;
@@ -50,27 +50,36 @@ const cachePath = (filename) => {
 }
 
 const setBranch = async () => {
-    if (!process.env.SPT_TOKEN) {
-        //return Promise.reject(new Error('SPT_TOKEN not set'));
+    if (branchSetPromise) {
+        return branchSetPromise;
     }
-    const url = `${sptApiPath}branches`;
-    const response = await got(url, {
-        responseType: 'json',
-        resolveBodyOnly: true,
-        searchParams: {
-            //access_token: process.env.SPT_TOKEN,
-        },
-    });
-    for (const b of branches) {    
-        if (response.some(remoteBranch => remoteBranch.name === b)) {
-            branch = b;
-            console.log('branch', branch);
-            return;
-        } else {
-            await discordWebhook.alert({title: 'SPT repo branch not found', message: b});
+    branchSetPromise = new Promise(async (resolve, reject) => {
+        try {
+            const url = `${sptApiPath}branches`;
+            const response = await got(url, {
+                responseType: 'json',
+                resolveBodyOnly: true,
+                searchParams: {
+                    //access_token: process.env.SPT_TOKEN,
+                },
+            });
+            for (const b of branches) {    
+                if (response.some(remoteBranch => remoteBranch.name === b)) {
+                    branch = b;
+                    console.log('branch', branch);
+                    return resolve();
+                } else {
+                    await discordWebhook.alert({title: 'SPT repo branch not found', message: b});
+                }
+            }
+            throw new Error('Could not find a valid SPT repo branch');
+        } catch (error) {
+            reject(error);
         }
-    }
-    return Promise.reject(new Error('Could not find a valid SPT repo branch'));
+    }).finally(() => {
+        branchSetPromise = false;
+    });
+    return branchSetPromise;
 };
 
 const downloadJson = async (fileName, path, download = false, writeFile = true, saveElement = false) => {

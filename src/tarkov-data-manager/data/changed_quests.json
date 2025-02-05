@@ -1452,5 +1452,165 @@
                 }
             ]
         }
+    },
+    "673f4e956f1b89c7bc0f56ef": {
+        "name": "Hot Wheels",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "673f2cd5d3346c2167020484",
+                    "name": "Shipping Delay - Part 2",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "6745fcded0fbbc74ca0f721d": {
+        "name": "Swift Retribution",
+        "propertiesChanged" : {
+            "failConditions": [
+                {
+                    "id": "6745fcded0fbbc74ca0f7226",
+                    "description": "6745fcded0fbbc74ca0f7226",
+                    "type": "taskStatus",
+                    "count": null,
+                    "optional": false,
+                    "locationNames": [],
+                    "map_ids": [],
+                    "zoneNames": [],
+                    "task": "673f6027352b4da8e00322d2",
+                    "quest_name": "Inevitable Response",
+                    "status": [
+                        "complete"
+                    ],
+                    "zones": []
+                }
+            ]
+        },
+        "translationKeys": [
+            "6745fcded0fbbc74ca0f7226"
+        ]
+    },
+    "673f629c5b555b53460cf827": {
+        "name": "Building Foundations",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "6745fcded0fbbc74ca0f721d",
+                    "name": "Swift Retribution",
+                    "status": [
+                        "complete",
+                        "failed"
+                    ]
+                }
+            ]
+        }
+    },
+    "6745fae369a58fceba10343d": {
+        "name": "The Higher They Fly",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "673f629c5b555b53460cf827",
+                    "name": "Building Foundations",
+                    "status": [
+                        "active",
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "6740a15566e6a521aa051b15": {
+        "name": "Forge a Friendship",
+        "propertiesChanged": {
+            "keepAllTaskRequirements": true
+        }
+    },
+    "6744a728352b4da8e003eda9": {
+        "name": "Battery Change (Prapor)",
+        "propertiesChanged" : {
+            "failConditions": [
+                {
+                    "id": "6744a951d9ac62db4b79b618",
+                    "description": "6744a951d9ac62db4b79b618",
+                    "type": "taskStatus",
+                    "count": null,
+                    "optional": false,
+                    "locationNames": [],
+                    "map_ids": [],
+                    "zoneNames": [],
+                    "task": "6744a9dfef61d56e020b5c4a",
+                    "quest_name": "Battery Change (Ragman",
+                    "status": [
+                        "complete"
+                    ],
+                    "zones": []
+                }
+            ]
+        },
+        "translationKeys": [
+            "6744a951d9ac62db4b79b618"
+        ]
+    },
+    "6744ab1def61d56e020b5c56": {
+        "name": "Protect the Sky",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "6744a728352b4da8e003eda9",
+                    "name": "Battery Change",
+                    "status": [
+                        "complete",
+                        "failed"
+                    ]
+                }
+            ]
+        }
+    },
+    "6744af0969a58fceba101fed": {
+        "name": "The Price of Independence (Prapor)",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "6744a728352b4da8e003eda9",
+                    "name": "Battery Change (Prapor)",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "6744aca8d3346c216702c583",
+                    "name": "Discombobulate",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ],
+            "keepAllTaskRequirements": true
+        }
+    },
+    "6745cbee909d2013670a4a55": {
+        "name": "The Price of Independence (Ragman)",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "6744a9dfef61d56e020b5c4a",
+                    "name": "Battery Change (Ragman)",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "6744aca8d3346c216702c583",
+                    "name": "Discombobulate",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
     }
 }
