@@ -97,6 +97,7 @@ class UpdateBartersJob extends DataJob {
                 this.jobOutput('update-quests', {gameMode: gameMode.name}),
                 tarkovData.traders({gameMode: gameMode.name}),
             ]);
+            this.questsUsedForUnlocks = {};
             this.kvData[gameMode.name] = { Barter: [] };
             const barters = this.kvData[gameMode.name].Barter;
             const lastOfferScan = await this.query(`
@@ -252,7 +253,14 @@ class UpdateBartersJob extends DataJob {
         const itemId = offer.item_id;
         for (const quest of this.tasks) {
             const match = unlockMatches(itemId, quest.startRewards, offer.trader_id) || unlockMatches(itemId, quest.finishRewards, offer.trader_id);
+            if (this.questsUsedForUnlocks[offer.trader_id]?.[match.level]?.[itemId]?.includes(quest.id)) {
+                continue;
+            }
             if (match) {
+                this.questsUsedForUnlocks[offer.trader_id] ??= {};
+                this.questsUsedForUnlocks[offer.trader_id][match.level] ??= {};
+                this.questsUsedForUnlocks[offer.trader_id][match.level][itemId] ??= [];
+                this.questsUsedForUnlocks[offer.trader_id][match.level][itemId].push(quest.id);
                 return {
                     id: quest.id,
                     tarkovDataId: quest.tarkovDataId,

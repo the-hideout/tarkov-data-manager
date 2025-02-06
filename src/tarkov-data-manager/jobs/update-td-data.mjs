@@ -1,6 +1,7 @@
 import DataJob from '../modules/data-job.mjs';
 import tarkovDevData from '../modules/tarkov-dev-data.mjs';
 import webSocketServer from '../modules/websocket-server.mjs';
+import gameModes from '../modules/game-modes.mjs';
 
 class UpdateTdDataJob extends DataJob {
     constructor(options) {
@@ -19,27 +20,27 @@ class UpdateTdDataJob extends DataJob {
             return;
         }
 
-        this.logger.log('Downloading data from...');
+        const returnValue = {};
         this.logger.time('td-download');
-        const results = await tarkovDevData.downloadAll('regular');
-        if (Object.keys(results).length > 1) {
-            this.logger.log(`Downloaded ${Object.keys(results).filter(key => key !== 'errors').join(', ')}`);
-        }
-        if (Object.keys(results.errors).length === 0) {
-            this.logger.success('Successfully downloaded data');
-        } else {
-            const errors = [];
-            for (const jsonName in results.errors) {
-                this.logger.warn(`Error downloading ${jsonName}: ${results.errors[jsonName]}`);
-                errors.push(`${jsonName} - ${results.errors[jsonName]}`);
-            }
-            this.discordAlert({
-                title: 'Error(s) updating TD data',
-                message: errors.join('\n'),
+        for (const gameMode of gameModes) {
+            this.logger.log(`Downloading ${gameMode.name} data...`);
+            
+            returnValue[gameMode.name] = await tarkovDevData.downloadAll({returnPartial: true, gameMode: gameMode.name}).then(results => {
+                if (Object.keys(results).length > 1) {
+                    this.logger.success(`Downloaded: ${Object.keys(results).filter(key => key !== 'errors').join(', ')}`);
+                }
+                if (results.errors.length > 0) {
+                    this.logger.warn(`Error downloading some ${gameMode.name} data: ${results.errors.join(', ')}`);
+                }
+                if (Object.keys(results) === 1) {
+                    this.logger.error(`Error(s) downloading ${gameMode.name} data: ${results.errors.join(', ')}`);
+                    results.errors.forEach(errMessage => this.addJobSummary(errMessage, `Error(s) updating TD ${gameMode.name} data`));
+                }
+                return results;
             });
         }
         this.logger.timeEnd('td-download');
-        return results;
+        return returnValue;
     }
 }
 

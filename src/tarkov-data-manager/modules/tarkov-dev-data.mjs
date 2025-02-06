@@ -92,20 +92,38 @@ const tarkovDevData = {
         return tarkovDevData.get('status', options);
     },
     downloadAll: async(options = defaultOptions) => {
-        const results = {
-            errors: {},
+        options = {...merge(options), download: true};
+        const skip = {
+            pve: [
+                'achievements',
+                'achievementStats',
+                'items',
+                'locale_en',
+            ],
         };
         const promises = [];
-        for (const jsonName of availableFiles) {
-            promises.push(tarkovDevData.get(jsonName, {...merge(options), download: true}).then(data => {
-                results[jsonName] = data;
-                return data;
-            }).catch(error => {
-                results.errors[jsonName] = error;
-            }));
+        for (const file in availableFiles) {
+            if (skip[options.gameMode]?.includes(file)) continue;
+            promises.push(tarkovDevData[file](options).then(data => {return {name: file, data: data}}));
         }
-        await Promise.allSettled(promises);
-        return results;
+        const results = await Promise.allSettled(promises);
+        const errors = [];
+        const values = {};
+        for (let i = 0; i < results.length; i++) {
+            if (results[i].status === 'fulfilled') {
+                values[results[i].value.name] = results[i].value.data;
+            } else {
+                errors.push(results[i].reason.message);
+            }
+        }
+        if (options.returnPartial && Object.values(values).length > 0) {
+            values.errors = errors;
+            return values;
+        }
+        if (errors.length > 0) {
+            return Promise.reject(new Error(errors.join('; ')));
+        }
+        return values;
     },
 }
 
