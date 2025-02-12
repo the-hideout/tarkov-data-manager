@@ -36,7 +36,7 @@ const sptLangs = {
 }
 
 const branches = [
-    '4.0.0-DEV',
+    '3.11.0-dev',
     'master',
 ];
 
