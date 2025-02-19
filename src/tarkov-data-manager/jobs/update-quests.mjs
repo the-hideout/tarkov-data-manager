@@ -675,10 +675,8 @@ class UpdateQuestsJob extends DataJob {
 
     getRewardItems = async (reward) => {
         if (reward.value > 1) {
-            reward.items = reward.items.reduce((rewardItems, current, currentIndex) => {
-                if (currentIndex === 0) {
-                    rewardItems.push(current);
-                } else if (current.parentId && rewardItems.some(r => r._id === current.parentId)) {
+            reward.items = reward.items.reduce((rewardItems, current) => {
+                if (!current.parentId || rewardItems.some(r => r._id === current.parentId)) {
                     rewardItems.push(current);
                 }
                 return rewardItems;
@@ -687,21 +685,22 @@ class UpdateQuestsJob extends DataJob {
         const rewardData = {
             item: reward.items[0]._tpl,
             item_name: this.locales.en[`${reward.items[0]._tpl} Name`],
-            count: 1,
+            count: reward.items[0].upd?.StackObjectsCount ?? 1,
             contains: [],
             attributes: []
         };
-        if (reward.items[0].upd?.StackObjectsCount) {
-            rewardData.count = reward.items[0].upd.StackObjectsCount;
-        }
         for (let i = 1; i < reward.items.length; i++) {
             const item = reward.items[i];
-            if (this.items[rewardData.item]._parent === '543be5cb4bdc2deb348b4568') {
+            if (item.parentId && this.items[reward.items.find(it => it._id === item.parentId)?._tpl]?._parent === '543be5cb4bdc2deb348b4568') {
                 // skip ammo pack contents
-                break;
+                continue;
             }
             if (this.items[item._tpl]._parent === '65649eb40bf0ed77b8044453') {
                 // skip built-in armor inserts
+                continue;
+            }
+            if (item._tpl === rewardData.item) {
+                rewardData.count++;
                 continue;
             }
             const containedItem = {
