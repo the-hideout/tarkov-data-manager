@@ -295,5 +295,49 @@
         "63a7dbefee7b4d0d5507baf8": [
             ["63a39fc0af870e651d58e6ae"]
         ]
+    },
+    "63966fbeea19ac7ed845db2e": {
+        "name": "Missing Informant",
+        "63a7cee004d3dc28a52a20f8": [
+            ["6398fd8ad3de3849057f5128"]
+        ],
+        "63990a1ddcdd126fef1771c1": [
+            ["6398fd8ad3de3849057f5128"]
+        ]
+
+    },
+    "63966fccac6f8f3c677b9d89": {
+        "name": "Snatch",
+        "6399c929d65735732c6ba766": [
+            ["5d9f1fa686f774726974a992"]
+        ],
+        "6399ca5fe101160ce05706ac": [
+            ["5d9f1fa686f774726974a992"]
+        ]
+    },
+    "63966ff54c3ef01b6f3ffad8": {
+        "name": "Provocation",
+        "639a77b97cb1a8023d49f683": [
+            ["5ad5d7d286f77450166e0a89"],
+            ["5addaffe86f77470b455f900"]
+        ]
+    },
+    "639670029113f06a7c3b2377": {
+        "name": "Following the Bread Crumbs",
+        "63a7cf9f04d3dc28a52a20fa": [
+            ["5c1e2d1f86f77431e9280bee"]
+        ],
+        "63a7cfe104d3dc28a52a20fc": [
+            ["5c1d0f4986f7744bb01837fa"]
+        ]
+    },
+    "6396700fea19ac7ed845db32": {
+        "name": "Spotter",
+        "63a7d315f32fa1316250c3d2": [
+            ["63a39e1d234195315d4020bd"]
+        ],
+        "639c39807c1532d85b0162a9": [
+            ["63a39e1d234195315d4020bd"]
+        ]
     }
 }
