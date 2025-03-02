@@ -1832,6 +1832,7 @@ const skipQuests = [
     '676c243577f0257dd50239e6', // The Price of Celebration
     '675031f57775aada6b0f96a1', // Cheer Up
     '67503247622398376d0b57cd', // Khorovod
+    '5dc53acb86f77469c740c893', // The Stylish One
 ];
 
 // Secure Folder 0013 appears on multiple maps
