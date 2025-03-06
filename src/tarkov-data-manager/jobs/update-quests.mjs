@@ -1833,6 +1833,8 @@ const skipQuests = [
     '675031f57775aada6b0f96a1', // Cheer Up
     '67503247622398376d0b57cd', // Khorovod
     '5dc53acb86f77469c740c893', // The Stylish One
+    '64f1cc571a5f313cb144bf90', // Overseas Trust - Part 1
+    '64f1d6e732bed22c3e0c7423', // Overseas Trust - Part 2
 ];
 
 // Secure Folder 0013 appears on multiple maps
