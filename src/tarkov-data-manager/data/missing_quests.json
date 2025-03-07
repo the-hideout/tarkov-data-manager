@@ -294,7 +294,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "_626148334149f1149b5b12ca": {
+    "626148334149f1149b5b12ca": {
         "id": "626148334149f1149b5b12ca",
         "name": "Make Amends - Security",
         "trader": "5a7c2eca46aef81a7ca2145d",
@@ -302,15 +302,26 @@
         "locationName": "Lighthouse",
         "minPlayerLevel": 0,
         "taskRequirements": [
+                {
+                    "task": "625d700cc48e6c62a440fab5",
+                    "name": "Getting Acquainted",
+                    "status": [
+                        "complete",
+                        "failed"
+                    ]
+                }
+            ],
+        "traderRequirements": [
             {
-                "task": "6261482fa4eb80027c4f2e11",
-                "name": "Make Amends - Equipment",
-                "status": [
-                    "complete"
-                ]
+                "id": "63c909122a5ab7dd5d057ff1",
+                "trader_id": "638f541a29ffd1183d187f57",
+                "name": "Lightkeeper",
+                "requirementType": "reputation",
+                "compareMethod": "<=",
+                "value": 0,
+                "level": 0
             }
         ],
-        "traderRequirements": [],
         "objectives": [
             {
                 "id": "62668b98ddc94657c21a1628",
@@ -321,6 +332,9 @@
                 ],
                 "map_ids": [
                     "5704e4dad2720bb55b8b4567"
+                ],
+                "zoneKeys": [
+                    "meh_53_wificamera_area_mark_1"
                 ],
                 "item": "5b4391a586f7745321235ab2",
                 "item_name": "WI-FI Camera",
@@ -340,6 +354,9 @@
                 "map_ids": [
                     "5704e4dad2720bb55b8b4567"
                 ],
+                "zoneKeys": [
+                    "meh_53_wificamera_area_mark_2"
+                ],
                 "item": "5b4391a586f7745321235ab2",
                 "item_name": "WI-FI Camera",
                 "count": 1,
@@ -358,6 +375,9 @@
                 "map_ids": [
                     "5704e4dad2720bb55b8b4567"
                 ],
+                "zoneKeys": [
+                    "meh_53_wificamera_area_mark_3"
+                ],
                 "item": "5b4391a586f7745321235ab2",
                 "item_name": "WI-FI Camera",
                 "count": 1,
@@ -375,6 +395,9 @@
                 ],
                 "map_ids": [
                     "5704e4dad2720bb55b8b4567"
+                ],
+                "zoneKeys": [
+                    "meh_53_wificamera_area_mark_4"
                 ],
                 "item": "5b4391a586f7745321235ab2",
                 "item_name": "WI-FI Camera",
@@ -418,7 +441,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "_62614836f7308432be1d44cc": {
+    "62614836f7308432be1d44cc": {
         "id": "62614836f7308432be1d44cc",
         "name": "Make Amends - Sweep Up",
         "trader": "5a7c2eca46aef81a7ca2145d",
@@ -493,8 +516,8 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "_6391d90f4ed9512be67647df": {
-        "id": "6391d90f4ed9512be67647df",
+    "6391d912f8e5dd32bf4e3ab2": {
+        "id": "6391d912f8e5dd32bf4e3ab2",
         "name": "Make Amends",
         "trader": "5a7c2eca46aef81a7ca2145d",
         "location_id": null,
@@ -504,6 +527,271 @@
             {
                 "task": "62614836f7308432be1d44cc",
                 "name": "Make Amends - Sweep Up",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "6391d9ba4b15ca31f76bc325",
+                "type": "findQuestItem",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "item_id": "6331bb0d1aa9f42b804997a6",
+                "item_name": "Secure Flash drive V3",
+                "count": 1
+            },
+            {
+                "id": "6391d9e7ee79ee703e3012e5",
+                "type": "findItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "62e910aaf957f2915e0a5e36",
+                "item_name": "Digital secure DSP radio transmitter",
+                "count": 1,
+                "item": "62e910aaf957f2915e0a5e36",
+                "dogTagLevel": 0,
+                "maxDurability": "100",
+                "minDurability": "0",
+                "foundInRaid": false
+            },
+            {
+                "id": "6391d9fd8ba6894d155e77db",
+                "type": "giveQuestItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "6331bb0d1aa9f42b804997a6",
+                "item_name": "Secure Flash drive V3",
+                "count": 1
+            },
+            {
+                "id": "63ab6a89e842787ad2135719",
+                "type": "visit",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ]
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "638f541a29ffd1183d187f57",
+                    "name": "Lightkeeper",
+                    "standing": 0.01
+                },
+                {
+                    "trader_id": "5a7c2eca46aef81a7ca2145d",
+                    "name": "Mechanic",
+                    "standing": 0.01
+                }
+            ],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "6261483ac48e6c62a440fab7": {
+        "id": "6261483ac48e6c62a440fab7",
+        "name": "Make Amends - Software",
+        "trader": "5a7c2eca46aef81a7ca2145d",
+        "location_id": null,
+        "locationName": "any",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+                {
+                    "task": "625d700cc48e6c62a440fab5",
+                    "name": "Getting Acquainted",
+                    "status": [
+                        "complete",
+                        "failed"
+                    ]
+                }
+            ],
+        "traderRequirements": [
+            {
+                "id": "63c909122a5ab7dd5d057ff1",
+                "trader_id": "638f541a29ffd1183d187f57",
+                "name": "Lightkeeper",
+                "requirementType": "reputation",
+                "compareMethod": "<=",
+                "value": 0,
+                "level": 0
+            }
+        ],
+        "objectives": [
+            {
+                "id": "626676e1c48e6c62a440faba",
+                "description": "626676e1c48e6c62a440faba",
+                "type": "giveItem",
+                "count": 15,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "item_id": "590c621186f774138d11ea29",
+                "item_name": "Secure Flash Drive",
+                "item": "590c621186f774138d11ea29",
+                "items": [
+                    "590c621186f774138d11ea29"
+                ],
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true,
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "638f541a29ffd1183d187f57",
+                    "name": "Lightkeeper",
+                    "standing": 0.01
+                }
+            ],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "6261483dc4874104f230c0cd": {
+        "id": "6261483dc4874104f230c0cd",
+        "name": "Make Amends - Quarantine",
+        "trader": "5a7c2eca46aef81a7ca2145d",
+        "location_id": "5b0fc42d86f7744a585f9105",
+        "locationName": "The Lab",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+                {
+                    "task": "625d700cc48e6c62a440fab5",
+                    "name": "Getting Acquainted",
+                    "status": [
+                        "complete",
+                        "failed"
+                    ]
+                }
+            ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "62692a8a161ea75b3470d90e",
+                "type": "plantItem",
+                "optional": false,
+                "locationNames": [
+                    "The Lab"
+                ],
+                "map_ids": [
+                    "5b0fc42d86f7744a585f9105"
+                ],
+                "zoneKeys": [
+                    "meh_56_wifi_area_mark_1"
+                ],
+                "item": "5b4391a586f7745321235ab2",
+                "item_name": "WI-FI Camera",
+                "count": 1,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "638f541a29ffd1183d187f57",
+                    "name": "Lightkeeper",
+                    "standing": 0.01
+                }
+            ],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "6391d9144b15ca31f76bc323": {
+        "id": "6391d9144b15ca31f76bc323",
+        "name": "Make Amends",
+        "trader": "5a7c2eca46aef81a7ca2145d",
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "6261483dc4874104f230c0cd",
+                "name": "Make Amends - Quarantine",
                 "status": [
                     "complete"
                 ]
