@@ -714,11 +714,10 @@
         "minPlayerLevel": 0,
         "taskRequirements": [
                 {
-                    "task": "625d700cc48e6c62a440fab5",
-                    "name": "Getting Acquainted",
+                    "task": "6261483ac48e6c62a440fab7",
+                    "name": "Make AMends - Software",
                     "status": [
-                        "complete",
-                        "failed"
+                        "complete"
                     ]
                 }
             ],
