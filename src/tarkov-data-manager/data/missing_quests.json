@@ -302,15 +302,14 @@
         "locationName": "Lighthouse",
         "minPlayerLevel": 0,
         "taskRequirements": [
-                {
-                    "task": "625d700cc48e6c62a440fab5",
-                    "name": "Getting Acquainted",
-                    "status": [
-                        "complete",
-                        "failed"
-                    ]
-                }
-            ],
+            {
+                "task": "6391d90f4ed9512be67647df",
+                "name": "Make Amends",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
         "traderRequirements": [
             {
                 "id": "63c909122a5ab7dd5d057ff1",
@@ -631,15 +630,14 @@
         "locationName": "any",
         "minPlayerLevel": 0,
         "taskRequirements": [
-                {
-                    "task": "625d700cc48e6c62a440fab5",
-                    "name": "Getting Acquainted",
-                    "status": [
-                        "complete",
-                        "failed"
-                    ]
-                }
-            ],
+            {
+                "task": "6391d912f8e5dd32bf4e3ab2",
+                "name": "Make Amends",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
         "traderRequirements": [
             {
                 "id": "63c909122a5ab7dd5d057ff1",
