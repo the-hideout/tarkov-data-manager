@@ -20,14 +20,18 @@ class UpdateMapsJob extends DataJob {
             this.presets,
             this.botInfo,
             this.mapDetails,
+            this.mapLoot,
             this.eftItems,
+            this.hideout,
             this.goonReports,
         ] = await Promise.all([
             remoteData.get(),
             this.jobManager.jobOutput('update-presets', this, 'regular', true),
             tarkovData.botsInfo(),
             tarkovData.mapDetails(),
+            tarkovData.mapLoot(),
             tarkovData.items(),
+            tarkovData.areas(),
             this.query('SELECT * FROM goon_reports WHERE timestamp >= now() - INTERVAL 1 DAY'),
         ]);
         this.mapRotationData = JSON.parse(fs.readFileSync('./data/map_coordinates.json'));
@@ -37,6 +41,73 @@ class UpdateMapsJob extends DataJob {
         this.stationaryWeapons = {};
         this.s3Images = s3.getLocalBucketContents();
         this.kvData = {};
+
+        // prepare loose loot data per map
+        this.mapLooseLoot = {};
+        this.foundNeededForHideout = [];
+        this.notFoundNeededForHideout = [];
+        for (const mapId in this.mapLoot) {
+            // collapse items contained within items down to a a single item
+            this.mapLooseLoot[mapId] = [
+                ...this.mapLoot[mapId].spawnpoints.map(sp => this.processLootSpawnPointItems(sp)),
+                ...(this.mapLoot[mapId].spawnpointsForced?.map(sp => this.processLootSpawnPointItems(sp)) ?? []),
+            ];
+            this.mapLooseLoot[mapId] = this.mapLooseLoot[mapId].filter(sp => sp.template.Items.length > 0);
+            const nearPositions = (pos, positions) => {
+                const axes = ['x', 'y', 'z'];
+                positionLoop: for (const pos2 of positions) {
+                    for (const axis of axes) {
+                        if (Math.abs(pos[axis] - pos2[axis]) > 1.5) {
+                            continue positionLoop;
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            };
+            // group clustered loose loot spawns together
+            this.mapLooseLoot[mapId] = this.mapLooseLoot[mapId].reduce((lootPoints, lootPoint, currentIndex, spawnpoints) => {
+                if (lootPoint.grouped) {
+                    return lootPoints;
+                }
+                lootPoint.positions = [lootPoint.template.Position];
+                spawnpoints.slice(currentIndex).filter((sp) => {
+                    if (sp === lootPoint) {
+                        return false;
+                    }
+                    if (sp.grouped) {
+                        return false;
+                    }
+                    return nearPositions(sp.template.Position, lootPoint.positions);
+                }).forEach(sp => {
+                    sp.grouped = true;
+                    sp.template.Items.forEach(i => {
+                        if (lootPoint.template.Items.some(i2 => i._tpl === i2._tpl)) {
+                            return;
+                        }
+                        lootPoint.template.Items.push(i);
+                    });
+                    lootPoint.positions.push(sp.template.Position);
+                });
+                lootPoints.push(lootPoint);
+                return lootPoints;
+            }, []);
+            this.mapLooseLoot[mapId].forEach((lootPoint) => {
+                const totals = lootPoint.positions.reduce((sum, pos) => {
+                    return {
+                        x: sum.x + pos.x,
+                        y: sum.y + pos.y,
+                        z: sum.z + pos.z,
+                    };
+                }, {x: 0, y: 0, z: 0});
+                lootPoint.position = {
+                    x: totals.x / lootPoint.positions.length,
+                    y: totals.y / lootPoint.positions.length,
+                    z: totals.z / lootPoint.positions.length,
+                };
+            });
+        }
+        
         for (const gameMode of this.gameModes) {
             this.kvData[gameMode.name] = {
                 Map: [],
@@ -203,6 +274,16 @@ class UpdateMapsJob extends DataJob {
                             position: container.location.position,
                         };
                     }).filter(Boolean),
+                    lootLoose: this.mapLooseLoot[id]?.map(point => {
+                        const itemIds = point.template.Items.map(i => i._tpl).filter(id => this.items.has(id) && !this.items.get(id).types.includes('disabled') && !this.items.get(id).types.includes('quest'));
+                        if (itemIds.length === 0) {
+                            return false;
+                        }
+                        return {
+                            position: point.position,
+                            items: itemIds,
+                        };
+                    }).filter(Boolean) ?? [],
                     /*lootPoints: this.mapDetails[id].loot_points.reduce((allLoot, rawLoot) => {
                         const duplicateLootPoint = allLoot.find(l => l.position.x === rawLoot.lootParameters.Position.x && l.position.y === rawLoot.lootParameters.Position.y && l.position.z === rawLoot.lootParameters.Position.z);
                         if (duplicateLootPoint) {
@@ -301,6 +382,7 @@ class UpdateMapsJob extends DataJob {
                     accessKeysMinPlayerLevel: map.MinPlayerLvlAccessKeys,
                 };
                 this.logger.log(`✔️ ${this.getTranslation(mapData.name)} ${id}`);
+                console.log(mapData.lootLoose.length);
                 mapData.normalizedName = this.normalizeName(this.getTranslation(mapData.name));
     
                 if (this.mapRotationData[id]) {
@@ -904,6 +986,66 @@ class UpdateMapsJob extends DataJob {
         }
         return points;
     }
+
+    processLootSpawnPointItems(sp) {
+        const spawnPointItems = sp.template.Items.reduce((allItems, current) => {
+            if (looseLootBlacklistItems.includes(current._tpl)) {
+                return allItems;
+            }
+            if (!looseLootWhitelistCategories.includes(this.eftItems[current._tpl]?._parent) &&
+                //!this.looseLootNeededForHideout(current._tpl) && 
+                !looseLootWhitelistItems.includes(current._tpl)
+            ) {
+                return allItems;
+            }
+            if (current.parentId) {
+                const parent = allItems.find(i => i._id === current.parentId);
+                if (parent) {
+                    if (!parent.items) {
+                        parent.items = [];
+                    }
+                    parent.items.push(current);
+                }
+            } else if (this.items.get(current._tpl)) {
+                allItems.push(current);
+            }
+            return allItems;
+        }, []);
+        return {
+            ...sp,
+            template: {
+                ...sp.template,
+                Items: spawnPointItems,
+            }
+        };
+    }
+
+    looseLootNeededForHideout(id) {
+        if (this.foundNeededForHideout.includes(id)) {
+            return true;
+        }
+        if (this.notFoundNeededForHideout.includes(id)) {
+            return false;
+        }
+        for (const stationId in this.hideout) {
+            const station = this.hideout[stationId];
+            for (const stageId in station.stages) {
+                const stage = station.stages[stageId];
+                for (const req of stage.requirements) {
+                    if (req.type !== 'Item') {
+                        continue;
+                    }
+                    if (req.templateId !== id) {
+                        continue;
+                    }
+                    this.foundNeededForHideout.push(id);
+                    return true;
+                }
+            }
+        }
+        this.notFoundNeededForHideout.push(id);
+        return false;
+    };
 }
 
 const mapNames = {
@@ -965,6 +1107,55 @@ const getChances = (input, nameLabel = 'name', labelInt = false) => {
         chances.push(chance);
     }
     return chances;
-}
+};
+
+const looseLootWhitelistCategories = [
+    '57864a3d24597754843f8721', // Jewelry
+    '5c99f98d86f7745c314214b3', // Mechanical Key
+    '5c164d2286f774194c5e69fa', // Keycard
+    '5795f317245977243854e041', // Simple Container
+    //'57864a66245977548f04a81f', // Electronics
+    '5448f3a64bdc2d60728b456a', // Stims
+    '5d650c3e815116009f6201d2', // Fuel
+    '5448ecbe4bdc2d60728b4568', // Info Items
+    '6759673c76e93d8eb20b2080', // Posters
+];
+
+const looseLootWhitelistItems = [
+    '5c0530ee86f774697952d952', // LEDX
+    '5af0534a86f7743b6f354284', // Ophthalmoscope
+    '591094e086f7747caa7bb2ef', // Body Armor Repair Kit
+    '5910968f86f77425cf569c32', // Weapon Repair Kit
+    '57347ca924597744596b4e71', // Graphics Card
+    '5c052f6886f7746b1e3db148', // COFDM
+    '5c05308086f7746b2101e90b', // Virtex
+    '5c052fb986f7746b2101e909', // RFID
+    '6389c85357baa773a825b356', // Advanced Current Converter
+    '6389c7f115805221fb410466', // Far-forward GPS Signal Amplifier Unit
+    '6389c7750ef44505c87f5996', // Microcontroller board
+    '5d0378d486f77420421a5ff4', // Military power filter
+    '5d03784a86f774203e7e0c4d', // Military gyrotachometer
+    '5d0377ce86f774186372f689', // Iridium military thermal vision module
+    '5d03775b86f774203e7e0c4b', // Phased array element
+    '5d0376a486f7747d8050965c', // Military circuit board
+    '5d0375ff86f774186372f685', // Military cable
+    '5c12620d86f7743f8b198b72', // Tetriz portable game console
+    '5c05300686f7746dce784e5d', // VPX Flash Storage Module
+    '5e2aee0a86f774755a234b62', // Cyclon rechargeable battery
+    '5e2aedd986f7746d404f3aa4', // GreenBat lithium battery
+    '5af0561e86f7745f5f3ad6ac', // Portable Powerbank
+    '5c052e6986f7746b207bc3c9', // Portable defibrillator
+    '5c12688486f77426843c7d32', // Paracord
+    '5d1b385e86f774252167b98a', // Water filter
+    '5d1b376e86f774252519444e', // Moonshine
+];
+
+const looseLootBlacklistItems = [
+    '5df8a6a186f77412640e2e80', // Red Ornament
+    '5df8a72c86f77412640e2e83', // White Ornament
+    '5df8a77486f77412672a1e3f', // Purpose Ornament
+    '5c10c8fd86f7743d7d706df3', // Adrenaline
+    '573474f924597738002c6174', // Chainlet
+];
 
 export default UpdateMapsJob;
