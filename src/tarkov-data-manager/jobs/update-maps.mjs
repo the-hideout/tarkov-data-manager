@@ -1118,6 +1118,7 @@ const looseLootWhitelistCategories = [
     '5448f3a64bdc2d60728b456a', // Stims
     '5d650c3e815116009f6201d2', // Fuel
     '5448ecbe4bdc2d60728b4568', // Info Items
+    '6759673c76e93d8eb20b2080', // Posters
 ];
 
 const looseLootWhitelistItems = [
