@@ -53,6 +53,16 @@ class UpdateMapsJob extends DataJob {
                 ...(this.mapLoot[mapId].spawnpointsForced?.map(sp => this.processLootSpawnPointItems(sp)) ?? []),
             ];
             this.mapLooseLoot[mapId] = this.mapLooseLoot[mapId].filter(sp => sp.template.Items.length > 0);
+            // remove standalone powerbank spawns
+            this.mapLooseLoot[mapId] = this.mapLooseLoot[mapId].filter(sp => {
+                if (sp.template.Items.length > 1) {
+                    return true;
+                }
+                if (sp.template.Items[0]._tpl !== '5af0561e86f7745f5f3ad6ac') {
+                    return true;
+                }
+                return false;
+            });
             const nearPositions = (pos, positions) => {
                 const axes = ['x', 'y', 'z'];
                 positionLoop: for (const pos2 of positions) {
