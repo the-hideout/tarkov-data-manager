@@ -276,13 +276,15 @@ const cloudflare = {
                 if (options.attempt <= options.maxRetries) {
                     options.attempt++;
                     if (options.logger) {
-                        options.logger.warn(`D1 Query returned ${response.errors?.map(err => err.message).joint(', ') ?? 'error'} on attempt ${options.attempt} of ${options.maxRetries + 1}; retrying in ${options.retryDelay}ms`);
+                        //options.logger.warn(`D1 Query returned ${response.errors?.map(err => err.message).joint(', ') ?? 'error'} on attempt ${options.attempt} of ${options.maxRetries + 1}; retrying in ${options.retryDelay}ms`);
+                        options.logger.warn(`D1 Query returned ${JSON.stringify(response)} on attempt ${options.attempt} of ${options.maxRetries + 1}; retrying in ${options.retryDelay}ms`);
                     }
                     await sleep(options.retryDelay, options.signal);
                     return cloudflare.d1Query(query, params, options);
                 }
             }
-            return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+            //return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+            return Promise.reject(new Error(`${JSON.stringify(response)}`));
         }
         /*const result = await response.json();
         if (!result.success && result.errors) {
