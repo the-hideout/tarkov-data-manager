@@ -392,7 +392,7 @@ class UpdateMapsJob extends DataJob {
                     accessKeysMinPlayerLevel: map.MinPlayerLvlAccessKeys,
                 };
                 this.logger.log(`✔️ ${this.getTranslation(mapData.name)} ${id}`);
-                console.log(mapData.lootLoose.length);
+                //console.log(mapData.lootLoose.length);
                 mapData.normalizedName = this.normalizeName(this.getTranslation(mapData.name));
     
                 if (this.mapRotationData[id]) {

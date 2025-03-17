@@ -275,7 +275,7 @@ const webSocketServer = {
         }
         const connectedJson = ['status'];
         const fleaMarketJson = ['credits'];
-        const anySessionMode = ['status', 'achievements'];
+        const anySessionMode = ['status'];
         let clients = connectedJson.includes(jsonName) ? webSocketServer.connectedScanners() : webSocketServer.launchedScanners();
         if (!anySessionMode.includes(jsonName)) {
             clients = clients.filter(c => c.settings.sessionMode === sessionMode);
