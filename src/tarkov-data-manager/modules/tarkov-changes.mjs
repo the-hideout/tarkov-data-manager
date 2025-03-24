@@ -34,6 +34,7 @@ const jsonRequest = async (filename, options) => {
                 return 500;
             }
         },
+        signal: options.signal,
     });
     if (!response) return Promise.reject(new Error(`Tarkov Changes returned null result for ${path}`));
     return response;
