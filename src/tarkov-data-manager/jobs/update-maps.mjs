@@ -7,6 +7,11 @@ import tarkovData from '../modules/tarkov-data.mjs';
 //import mapQueueTimes from '../modules/map-queue-times';
 import s3 from '../modules/upload-s3.mjs';
 
+const enableMaps = [
+    '59fc81d786f774390775787e', // night factory
+    '6733700029c367a3d40b02af', // Labyrinth
+];
+
 class UpdateMapsJob extends DataJob {
     constructor(options) {
         super({...options, name: 'update-maps', loadLocales: true});
@@ -129,7 +134,7 @@ class UpdateMapsJob extends DataJob {
             this.logger.log(`Processing ${gameMode.name} maps...`);
             for (const id in locations.locations) {
                 const map = locations.locations[id];
-                if (id !== '59fc81d786f774390775787e' && (!map.Enabled || map.Locked)) {
+                if (!enableMaps.includes(id) && (!map.Enabled || map.Locked)) {
                     this.logger.log(`❌ ${this.locales.en[`${id} Name`] || ''} ${id}`);
                     continue;
                 }
@@ -162,7 +167,7 @@ class UpdateMapsJob extends DataJob {
                     raidDuration: map.EscapeTimeLimit,
                     players: map.MinPlayers+'-'+map.MaxPlayers,
                     bosses: [],
-                    coordinateToCardinalRotation: this.mapDetails[id].north_rotation || 180,
+                    coordinateToCardinalRotation: this.mapDetails[id]?.north_rotation ?? 180,
                     spawns: map.SpawnPointParams.map(spawn => {
                         if (spawn.Sides.includes('Usec') && spawn.Sides.includes('Bear')) {
                             spawn.Sides = spawn.Sides.filter(side => !['Usec', 'Bear', 'Pmc'].includes(side));
@@ -177,7 +182,7 @@ class UpdateMapsJob extends DataJob {
                             categories.push('sniper');
                         }
                         let zoneName = spawn.BotZoneName;
-                        if (!zoneName) {
+                        if (!zoneName && this.mapDetails[id]) {
                             for (const zone of this.mapDetails[id].spawns) {
                                 if (zone.spawnPoints.some(p => p.id === spawn.Id)) {
                                     zoneName = zone.name;
@@ -200,7 +205,7 @@ class UpdateMapsJob extends DataJob {
                             zoneName,
                         };
                     }).filter(Boolean),
-                    extracts: this.mapDetails[id].extracts.map(extract => {
+                    extracts: this.mapDetails[id]?.extracts.map(extract => {
                         return {
                             id: this.getId(id, extract),
                             name: this.addTranslation(extract.settings.Name),
@@ -223,12 +228,12 @@ class UpdateMapsJob extends DataJob {
                             }).filter(Boolean),
                             ...extract.location,
                         };
-                    }),
+                    }) ?? [],
                     transits: map.transits.map(transit => {
                         if (!transit.active) {
                             return false;
                         }
-                        const locationData = this.mapDetails[id].transits.find(t => t.id === transit.id);
+                        const locationData = this.mapDetails[id]?.transits.find(t => t.id === transit.id);
                         if (!locationData) {
                             this.logger.warn(`Could not find location data for ${this.locales.en[transit.description]}`);
                             return false;
@@ -245,7 +250,7 @@ class UpdateMapsJob extends DataJob {
                             ...locationData.location,
                         };
                     }).filter(Boolean),
-                    locks: this.mapDetails[id].locks.map(lock => {
+                    locks: this.mapDetails[id]?.locks.map(lock => {
                         const keyItem = this.items.get(lock.key);
                         if (!keyItem || keyItem.types.includes('disabled')) {
                             this.logger.warn(`Skipping lock for key ${lock.key}`)
@@ -258,8 +263,8 @@ class UpdateMapsJob extends DataJob {
                             needsPower: lock.needsPower || false,
                             ...lock.location,
                         }
-                    }).filter(Boolean),
-                    hazards: this.mapDetails[id].hazards.map(hazard => {
+                    }).filter(Boolean) ?? [],
+                    hazards: this.mapDetails[id]?.hazards.map(hazard => {
                         if (!hazardMap[hazard.hazardType]) {
                             this.logger.warn(`Unknown hazard type: ${hazard.hazardType}`);
                         }
@@ -271,8 +276,8 @@ class UpdateMapsJob extends DataJob {
                             name: this.addTranslation(hazardName),
                             ...hazard.location,
                         };
-                    }),
-                    lootContainers: this.mapDetails[id].loot_containers.map(container => {
+                    }) ?? [],
+                    lootContainers: this.mapDetails[id]?.loot_containers.map(container => {
                         if (!container.lootParameters.Enabled) {
                             return false;
                         }
@@ -283,7 +288,7 @@ class UpdateMapsJob extends DataJob {
                             lootContainer: this.getLootContainer(container),
                             position: container.location.position,
                         };
-                    }).filter(Boolean),
+                    }).filter(Boolean) ?? [],
                     lootLoose: this.mapLooseLoot[id]?.map(point => {
                         const itemIds = point.template.Items.map(i => i._tpl).filter(id => this.items.has(id) && !this.items.get(id).types.includes('disabled') && !this.items.get(id).types.includes('quest'));
                         if (itemIds.length === 0) {
@@ -318,7 +323,7 @@ class UpdateMapsJob extends DataJob {
                         });
                         return allLoot;
                     }, []),*/
-                    switches: this.mapDetails[id].switches.map(sw => {
+                    switches: this.mapDetails[id]?.switches.map(sw => {
                         if (!sw.hasCollider) {
                             return false;
                         }
@@ -378,13 +383,13 @@ class UpdateMapsJob extends DataJob {
                             ].filter(Boolean),
                             ...sw.location,
                         };
-                    }).filter(Boolean),
-                    stationaryWeapons: this.mapDetails[id].stationary_weapons.map(sw => {
+                    }).filter(Boolean) ?? [],
+                    stationaryWeapons: this.mapDetails[id]?.stationary_weapons.map(sw => {
                         return {
                             stationaryWeapon: this.getStationaryWeapon(sw.weaponItemId),
                             position: sw.location.position,
                         }
-                    }),
+                    }) ?? [],
                     btrRoutes: [],
                     minPlayerLevel: map.RequiredPlayerLevelMin,
                     maxPlayerLevel: map.RequiredPlayerLevelMax,
