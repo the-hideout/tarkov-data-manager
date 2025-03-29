@@ -13,7 +13,7 @@ class UpdateTcDataJob extends DataJob {
         const returnValue = {};
         for (const gameMode of gameModes) {
             this.logger.log(`Downloading ${gameMode.name} data...`);
-            returnValue[gameMode.name] = await tarkovChanges.downloadAll({returnPartial: true, gameMode: gameMode.name}).then(results => {
+            returnValue[gameMode.name] = await tarkovChanges.downloadAll({returnPartial: true, gameMode: gameMode.name, signal: this.abortController.signal}).then(results => {
                 if (Object.keys(results).length > 1) {
                     this.logger.success(`Downloaded: ${Object.keys(results).filter(key => key !== 'errors').join(', ')}`);
                 }
