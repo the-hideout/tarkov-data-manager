@@ -1102,7 +1102,11 @@ const hazardMap = {
     Minefield: {
         id: 'minefield',
         name: 'DamageType_Landmine',
-    }
+    },
+    Hazard: {
+        id: 'hazard',
+        name: ''
+    },
 };
 
 const getChances = (input, nameLabel = 'name', labelInt = false) => {
