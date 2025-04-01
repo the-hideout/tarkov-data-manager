@@ -61,11 +61,15 @@ class DataJob {
             'loadLocales',
             'cronTrigger',
             'eventTrigger',
+            'terminateIfRunning',
+            'alreadyRunningCount',
             ...options.saveFields,
         ];
         this.writeFolder = 'dumps';
         this.maxQueryRows = maxQueryRows;
         this.gameModes = gameModes;
+        this.terminateIfRunning = 1;
+        this.alreadyRunningCount = 0;
         this.loadLocales = !!options.loadLocales;
     }
 
@@ -97,11 +101,18 @@ class DataJob {
                 options.parent.logger.log(`${this.name} is already running; waiting for completion`);
                 return this.running;
             }
-            return Promise.reject(new Error(`Job already running; started ${DateTime.fromJSDate(this.startDate).toRelative()}`));
+            this.alreadyRunningCount++;
+            if (this.alreadyRunningCount >= this.terminateIfRunning) {
+                this.abortController.abort();
+                return Promise.reject(new Error(`Aborted job already running; started ${DateTime.fromJSDate(this.startDate).toRelative()}`));
+            } else {
+                return Promise.reject(new Error(`Job already running; started ${DateTime.fromJSDate(this.startDate).toRelative()}`));
+            }
         }
         if (options?.parent) {
             this.logger.parentLogger = options.parent.logger;
         }
+        this.alreadyRunningCount = 0;
         this.abortController = new AbortController();
         setMaxListeners(17, this.abortController.signal);
         this.startDate = new Date();
