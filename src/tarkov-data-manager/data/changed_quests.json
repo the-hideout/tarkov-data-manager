@@ -1612,5 +1612,110 @@
                 }
             ]
         }
+    },
+    "67a09761e720611a6a01f288": {
+        "name": "Keeper's Word",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "67a09636b8725511260bc421",
+                    "name": "Shady Contractor",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "67a0964e972c11a3f507731b",
+                    "name": "Needle in a Haystack",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "67a096577e86e067eb045733",
+                    "name": "Hidden Layer",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "67a0967c003a9986cb0f5ac1",
+                    "name": "Sensory Analysis - Part 1",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "67a096ed77dd677f600804ba",
+                    "name": "Sensory Analysis - Part 2",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "67a096f605d1611ed90be75a",
+                    "name": "Hot Zone",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "67a0966817e34930e500754c",
+                    "name": "Forced Alliance",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "67a09673972c11a3f507731d",
+                    "name": "The Tarkov Butcher",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "67a0970744893b9f3f0d9b68",
+                    "name": "Offensive Reconnaissance",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "67a0970f05d1611ed90be75d",
+                    "name": "Hypothesis Testing",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "67d03be712fb5f8fd2096332",
+                    "name": "Vacate the Premises",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "67a09724972c11a3f5077324",
+                    "name": "Confidential Info",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "67a097379f2068e74603c6ac",
+                    "name": "Indisputable Authority",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "67a0972e77dd677f600804bd",
+                    "name": "This Tape Sucks",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
     }
 }
