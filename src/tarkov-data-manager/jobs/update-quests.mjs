@@ -682,6 +682,16 @@ class UpdateQuestsJob extends DataJob {
                 return rewardItems;
             }, []);
         }
+        reward.items = reward.items.filter(rewardItem => {
+            if (this.itemResults.get(rewardItem._tpl)?.types.includes('quest')) {
+                this.logger.warn(`Reward item ${rewardItem._tpl} is a quest item`);
+                return false;
+            }
+            return true;
+        });
+        if (reward.items.length === 0) {
+            return null;
+        }
         const rewardData = {
             item: reward.items[0]._tpl,
             item_name: this.locales.en[`${reward.items[0]._tpl} Name`],
@@ -802,7 +812,11 @@ class UpdateQuestsJob extends DataJob {
                     standing: parseFloat(reward.value)
                 });
             } else if (reward.type === 'Item') {
-                questData[rewardsType].items.push(await this.getRewardItems(reward));
+                const rewardItems = await this.getRewardItems(reward);
+                if (!rewardItems) {
+                    continue;
+                }
+                questData[rewardsType].items.push(rewardItems);
             } else if (reward.type === 'AssortmentUnlock') {
                 if (!this.locales.en[`${reward.items[0]._tpl} Name`]) {
                     this.logger.warn(`No name found for unlock item "${reward.items[0]._tpl}" for completion reward ${reward.id} of ${questData.name}`);
@@ -825,9 +839,13 @@ class UpdateQuestsJob extends DataJob {
                         slot: item.slotId
                     });
                 }*/
+               const rewardItems = await this.getRewardItems(reward);
+               if (!rewardItems) {
+                continue;
+               }
                 unlock = {
                     ...unlock,
-                    ...await this.getRewardItems(reward)
+                    ...rewardItems,
                 };
                 questData[rewardsType].offerUnlock.push(unlock);
             } else if (reward.type === 'Skill') {

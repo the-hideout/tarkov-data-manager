@@ -142,9 +142,9 @@ const dataFunctions = {
         const en = await dataFunctions.locale('en');
         for (const id in locations.locations) {
             const map = locations.locations[id];
-            if (id !== '59fc81d786f774390775787e' && (!map.Enabled || map.Locked)) {
+            /*if (id !== '59fc81d786f774390775787e' && (!map.Enabled || map.Locked)) {
                 continue;
-            }
+            }*/
             if (!en[`${id} Name`]) {
                 continue;
             }
@@ -219,7 +219,7 @@ const dataFunctions = {
                 }, []) || [];
                 details[id].path_destinations = details[id].path_destinations || [];
             } catch (error) {
-                if (error.code === 'ENOENT') {
+                if (error.code === 'ENOENT' && (!map.Enabled || map.Locked)) {
                     details[id] = emptyData;
                     continue;
                 }
