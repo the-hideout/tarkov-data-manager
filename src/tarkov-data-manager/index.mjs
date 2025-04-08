@@ -1660,7 +1660,7 @@ app.get('/s3-bucket/get', async (req, res) => {
     res.json(response);
 });
 
-app.delete('/s3-bucket/?*/:file', async (req, res) => {
+app.delete('/s3-bucket{/*splat}/:file', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
         const fullPath = req.params[0] || ''; // Captures the entire path
@@ -1673,7 +1673,7 @@ app.delete('/s3-bucket/?*/:file', async (req, res) => {
     res.json(response);
 });
 
-app.post('/s3-bucket/?*/:file', async (req, res) => {
+app.post('/s3-bucket{/*splat}/:file', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
         const fullPath = req.params[0] || ''; // Captures the entire path
@@ -1686,7 +1686,7 @@ app.post('/s3-bucket/?*/:file', async (req, res) => {
     res.json(response);
 });
 
-app.put('/s3-bucket/?*/:file', async (req, res) => {
+app.put('/s3-bucket{/*splat}/:file', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
         const fullPath = req.params[0] || ''; // Captures the entire path
