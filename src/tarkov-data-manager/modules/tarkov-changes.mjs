@@ -152,6 +152,20 @@ const tarkovChanges = {
             return Promise.reject(new Error(errors.join('; ')));
         }
         return values;
+    },
+    restart: async (options = defaultOptions) => {
+        if (!process.env.TC_RESTART_URL) {
+            return Promise.reject(new Error('Credentials not set'));
+        }
+        return got(process.env.TC_RESTART_URL, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'CF-Access-Client-Id': process.env.TC_RESTART_CLIENT_ID,
+                'CF-Access-Client-Secret': process.env.TC_RESTART_CLIENT_SECRET,
+            },
+            signal: options.signal,
+        });
     }
 }
 
