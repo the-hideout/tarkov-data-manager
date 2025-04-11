@@ -3,6 +3,7 @@ import got from 'got';
 import DataJob from '../modules/data-job.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import s3 from '../modules/upload-s3.mjs';
+import tarkovChanges from '../modules/tarkov-changes.mjs';
 
 class UpdateTradersJob extends DataJob {
     constructor(options) {
@@ -147,8 +148,11 @@ class UpdateTradersJob extends DataJob {
             this.logger.log(`Processed ${this.kvData[gameMode.name].Trader.length} ${gameMode.name} traders`);
 
             if (staleTraderCount > 0 && !gameUpdating) {
-                this.logger.warn(`${staleTraderCount} stale traders`);
+                this.logger.warn(`${staleTraderCount} stale traders; triggering restart`);
                 this.addJobSummary(`${staleTraderCount} stale ${gameMode.name} traders`);
+                await tarkovChanges.restart().catch(error => {
+                    this.logger.warn(`Error triggering TC restart: ${error.message}`);
+                });
             }
     
             let kvName = this.kvName;
