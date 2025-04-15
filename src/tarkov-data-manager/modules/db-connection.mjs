@@ -73,7 +73,7 @@ const dbConnection = {
         keepPoolConnectionAlive = keepConnectionAlive;
     },
     end: () => {
-        if (!pool) {
+        if (!pool || pool._closed) {
             return Promise.resolve();
         }
         return new Promise((resolve, reject) => {
@@ -156,19 +156,8 @@ const dbConnection = {
         if (keepPoolConnectionAlive) {
             return Promise.resolve();
         }
-        if (!pool || pool._closed) {
-            return Promise.resolve();
-        }
         //await waitForConnections();
-        return new Promise((resolve, reject) => {
-            pool.end(error => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve();
-            });
-        });
+        return dbConnection.end();
     },
     maxQueryRows: 1000000,
     connectionsInUse: () => {
