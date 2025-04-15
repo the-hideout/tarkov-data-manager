@@ -15,7 +15,7 @@ import gameModes from './game-modes.mjs';
 
 const { imageSizes } = imgGen.imageFunctions;
 
-const users = {};
+let users;
 let usersUpdating = true;
 let presets = {};
 const activeTraderScans = {};
@@ -251,16 +251,74 @@ const scannerApi = {
         }
         return scannerApi.createScanner(options.user, options.scannerName);
     },
+    setScannerFlags: async (id, flags) => {
+        await query('UPDATE scanner SET flags=? WHERE id=?', [flags, id]);
+    },
     getUsers: async () => {
         if (usersUpdating) {
             await new Promise(resolve => {
                 emitter.once('usersUpdated', resolve);
             });
         }
+        if (!users) {
+            await scannerApi.refreshUsers();
+        }
         return users;
     },
+    getUser: async (id) => {
+        const userCheck = await query('SELECT * from scanner_user WHERE id=?', [id]);
+        if (userCheck.length === 0) {
+            return;
+        }
+        return userCheck[0];
+    },
+    getUserByName: async (username) => {
+        const userCheck = await query('SELECT * from scanner_user WHERE username=?', [username]);
+        if (userCheck.length === 0) {
+            return;
+        }
+        return userCheck[0];
+    },
+    addUser: async (username, password, disabled = 0) => {
+        disabled = disabled ? 1 : 0;
+        console.log('inserting user', username);
+        await query('INSERT INTO scanner_user (username, password, disabled) VALUES (?, ?, ?)', [username, password, disabled])
+        await scannerApi.refreshUsers();
+    },
+    editUser: async (userId, updates) => {
+        const updateFields = [];
+        const updateValues = [];
+        for (const field in updates) {
+            updateFields.push(field);
+            updateValues.push(updates[field]);
+        }
+        if (updateFields.length > 0) {
+            await query(`UPDATE scanner_user SET ${updateFields.map(field => {
+                return `${field} = ?`;
+            }).join(', ')} WHERE id='${userId}'`, updateValues);
+            await scannerApi.refreshUsers();
+        }
+    },
+    deleteUser: async (username) => {
+        const deleteResult = await query('DELETE FROM scanner_user WHERE username=?', [username]);
+        if (deleteResult.affectedRows === 0) {
+            return false;
+        }
+        await scannerApi.refreshUsers();
+        return true;
+    },
+    setUserFlags: async (id, flags) => {
+        await query('UPDATE scanner_user SET flags=? WHERE id=?', [flags, id]);
+        await scannerApi.refreshUsers();
+    },
     refreshUsers: async () => {
+        if (usersUpdating) {
+            return new Promise(resolve => {
+                emitter.once('usersUpdated', resolve);
+            });
+        }
         usersUpdating = true;
+        users ??= {};
         try {
             const results = await query('SELECT * from scanner_user WHERE disabled=0');
             const scannerQueries = [];
@@ -1214,8 +1272,6 @@ const scannerApi = {
         return emitter.once(event, listener);
     },
 };
-
-scannerApi.refreshUsers();
 
 export const getUsers = scannerApi.getUsers;
 
