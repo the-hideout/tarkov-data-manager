@@ -281,8 +281,9 @@ const scannerApi = {
     },
     addUser: async (username, password, disabled = 0) => {
         disabled = disabled ? 1 : 0;
-        console.log('inserting user', username);
-        await query('INSERT INTO scanner_user (username, password, disabled) VALUES (?, ?, ?)', [username, password, disabled])
+        const sanitizedUsername = username.replace(/\n|\r/g, "");
+        console.log('inserting user', sanitizedUsername);
+        await query('INSERT INTO scanner_user (username, password, disabled) VALUES (?, ?, ?)', [sanitizedUsername, password, disabled])
         await scannerApi.refreshUsers();
     },
     editUser: async (userId, updates) => {
