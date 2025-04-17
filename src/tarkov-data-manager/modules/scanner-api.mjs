@@ -16,7 +16,7 @@ import gameModes from './game-modes.mjs';
 const { imageSizes } = imgGen.imageFunctions;
 
 let users;
-let usersUpdating = true;
+let usersUpdating = false;
 let presets = {};
 const activeTraderScans = {};
 
