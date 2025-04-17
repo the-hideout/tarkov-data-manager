@@ -1,3 +1,6 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
 import DataJob from '../modules/data-job.mjs';
 import dataMaps from '../modules/data-map.js';
 import remoteData from '../modules/remote-data.mjs';
@@ -26,6 +29,7 @@ class UpdateItemCacheJob extends DataJob {
             this.itemMap,
             this.handbook,
             this.traders,
+            this.playerLevelGroups,
         ] = await Promise.all([
             tarkovData.items(), 
             tarkovData.credits({gameMode: 'regular'}),
@@ -36,6 +40,7 @@ class UpdateItemCacheJob extends DataJob {
             }),
             tarkovData.handbook(),
             tarkovData.traders({gameMode: 'regular'}),
+            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'player-level-groups.json')).then(json => JSON.parse(json)),
         ]);
         this.logger.log('Getting presets...');
         this.presets = await this.jobManager.jobOutput('update-presets', this, 'regular', true);
@@ -430,9 +435,20 @@ class UpdateItemCacheJob extends DataJob {
                 return allArmor;
             }, {}),
             PlayerLevel: this.globals.config.exp.level.exp_table.map((level, index) => {
+                let levelGroup = '1';
+                const playerLevel = index + 1;
+                for (const levelGroupNum in this.playerLevelGroups) {
+                    const levelBounds = this.playerLevelGroups[levelGroupNum];
+                    if (playerLevel < levelBounds[0] || playerLevel > levelBounds[1]) {
+                        continue;
+                    }
+                    levelGroup = levelGroupNum;
+                    break;
+                }
                 return {
-                    level: index + 1,
-                    exp: level.exp
+                    level: playerLevel,
+                    exp: level.exp,
+                    levelBadgeImageLink: `https://assets.tarkov.dev/player-level-group-${levelGroup}.png`,
                 };
             }),
             Mastering: this.globals.config.Mastering.map(m => {
