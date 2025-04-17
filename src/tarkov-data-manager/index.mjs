@@ -752,7 +752,7 @@ app.get('/scanners', async (req, res) => {
     res.send(`${getHeader(req, {include: 'datatables'})}
         <script>
             const WS_PASSWORD = '${process.env.WS_PASSWORD}';
-            const userFlags = ${JSON.stringify(scanner.userFlags)};
+            const userFlags = ${JSON.stringify(scannerApi.userFlags)};
         </script>
         <script src="/ansi_up.js"></script>
         <script src="/scanners.js"></script>
