@@ -150,9 +150,11 @@ class UpdateTradersJob extends DataJob {
             if (staleTraderCount > 0 && !gameUpdating) {
                 this.logger.warn(`${staleTraderCount} stale traders; triggering restart`);
                 this.addJobSummary(`${staleTraderCount} stale ${gameMode.name} traders`);
-                await tarkovChanges.restart().catch(error => {
-                    this.logger.warn(`Error triggering TC restart: ${error.message}`);
-                });
+                if (process.env.TEST_JOB !== 'true') {
+                    await tarkovChanges.restart().catch(error => {
+                        this.logger.warn(`Error triggering TC restart: ${error.message}`);
+                    });
+                }
             }
     
             let kvName = this.kvName;

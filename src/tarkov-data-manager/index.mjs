@@ -14,9 +14,8 @@ import './modules/configure-env.mjs';
 import remoteData from './modules/remote-data.mjs';
 import tarkovData from './modules/tarkov-data.mjs';
 import jobs from './jobs/index.mjs';
-import { connection, query, connectionsInUse } from './modules/db-connection.mjs';
-import timer from './modules/console-timer.js';
-import { userFlags, scannerFlags, refreshScannerUsers } from './modules/scanner-api.mjs';
+import { query, connectionsInUse, endConnection, keepAlive } from './modules/db-connection.mjs';
+import scannerApi from './modules/scanner-api.mjs';
 import scannerHttpApi from './modules/scanner-http-api.mjs';
 import webhookApi from './modules/webhook-api.mjs';
 import publicApi from './modules/public-api.mjs';
@@ -26,7 +25,7 @@ import webSocketServer from './modules/websocket-server.mjs';
 import jobManager from './jobs/index.mjs';
 import presetData from './modules/preset-data.mjs';
 
-vm.runInThisContext(fs.readFileSync(import.meta.dirname + '/public/common.js'))
+vm.runInThisContext(fs.readFileSync(import.meta.dirname + '/public/common.js'));
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -735,8 +734,8 @@ app.get('/items/get', async (req, res) => {
 
 app.get('/scanners', async (req, res) => {
     let scannerFlagsString = '';
-    for (const flagName in scannerFlags) {
-        const flagValue = scannerFlags[flagName];
+    for (const flagName in scannerApi.scannerFlags) {
+        const flagValue = scannerApi.scannerFlags[flagName];
         if (!flagValue) continue;
         const flagLabel = flagName.replace(/[A-Z]/g, capLetter => {
             return ' '+capLetter.toLowerCase();
@@ -753,7 +752,7 @@ app.get('/scanners', async (req, res) => {
     res.send(`${getHeader(req, {include: 'datatables'})}
         <script>
             const WS_PASSWORD = '${process.env.WS_PASSWORD}';
-            const userFlags = ${JSON.stringify(userFlags)};
+            const userFlags = ${JSON.stringify(scannerApi.userFlags)};
         </script>
         <script src="/ansi_up.js"></script>
         <script src="/scanners.js"></script>
@@ -948,8 +947,8 @@ app.post('/scanners/add-user', urlencodedParser, async (req, res) => {
         return;
     }
     try {
-        const userCheck = await query('SELECT * from scanner_user WHERE username=?', [req.body.username]);
-        if (userCheck.length > 0) {
+        const userCheck = await scannerApi.getUserByName(req.body.username);
+        if (userCheck) {
             response.errors.push(`User ${req.body.username} already exists`);
             res.send(response);
             return;
@@ -961,9 +960,7 @@ app.post('/scanners/add-user', urlencodedParser, async (req, res) => {
     }
     try {
         const user_disabled = req.body.user_disabled ? 1 : 0;
-        console.log('inserting user');
-        await query('INSERT INTO scanner_user (username, password, disabled) VALUES (?, ?, ?)', [req.body.username, req.body.password, user_disabled])
-        refreshScannerUsers();
+        await scannerApi.addUser(req.body.username, req.body.password, user_disabled);
         response.message = `Created user ${req.body.username}`;
     } catch (error) {
         response.errors.push(error.message);
@@ -975,14 +972,13 @@ app.post('/scanners/add-user', urlencodedParser, async (req, res) => {
 app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        let id = req.body.user_id;
-        let userCheck = await query('SELECT * from scanner_user WHERE id=?', [id]);
-        if (userCheck.length == 0) {
+        const id = req.body.user_id;
+        const userCheck = await scannerApi.getUser(id);
+        if (!userCheck) {
             response.errors.push(`User not found`);
             res.send(response);
             return;
         }
-        userCheck = userCheck[0];
         const updates = {};
         if (req.body.username && req.body.username !== userCheck.username) {
             updates.username = req.body.username;
@@ -994,19 +990,7 @@ app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
         if (disabled != userCheck.disabled) {
             updates.disabled = disabled;
         }
-        const updateFields = [];
-        const updateValues = [];
-        for (const field in updates) {
-            updateFields.push(field);
-            updateValues.push(updates[field]);
-        }
-        if (updateFields.length > 0) {
-            await query(`UPDATE scanner_user SET ${updateFields.map(field => {
-                return `${field} = ?`;
-            }).join(', ')} WHERE id='${userCheck.id}'`, updateValues);
-            refreshScannerUsers();
-            response.message = `Updated ${updateFields.join(', ')}`;
-        }
+        await scannerApi.editUser(userCheck.id, updates);
     } catch (error) {
         response.errors.push(error.message);
     }
@@ -1016,10 +1000,9 @@ app.post('/scanners/edit-user', urlencodedParser, async (req, res) => {
 app.post('/scanners/delete-user', urlencodedParser, async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        let deleteResult = await query('DELETE FROM scanner_user WHERE username=?', [req.body.username]);
-        if (deleteResult.affectedRows > 0) {
+        let deleted = await scannerApi.deleteUser(req.body.username);
+        if (deleted) {
             response.message = `User ${req.body.username} deleted`;
-            refreshScannerUsers();
         } else {
             response.errors.push(`User ${req.body.username} not found`);
         }
@@ -1032,9 +1015,8 @@ app.post('/scanners/delete-user', urlencodedParser, async (req, res) => {
 app.post('/scanners/user-flags', urlencodedParser, async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        await query('UPDATE scanner_user SET flags=? WHERE id=?', [req.body.flags, req.body.id]);
+        await scannerApi.setUserFlags(req.body.id, req.body.flags);
         response.message = `Set flags to ${req.body.flags}`;
-        refreshScannerUsers();
     } catch (error) {
         response.errors.push(error.message);
     }
@@ -1044,9 +1026,8 @@ app.post('/scanners/user-flags', urlencodedParser, async (req, res) => {
 app.post('/scanners/scanner-flags', urlencodedParser, async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        await query('UPDATE scanner SET flags=? WHERE id=?', [req.body.flags, req.body.id]);
+        await scannerApi.setScannerFlags(req.body.id, req.body.flags);
         response.message = `Set flags to ${req.body.flags}`;
-        //refreshScannerUsers();
     } catch (error) {
         response.errors.push(error.message);
     }
@@ -2131,7 +2112,7 @@ const server = app.listen(port, () => {
 });
 
 (async () => {
-    connection.keepAlive = true;
+    keepAlive(true);
     jobs.start();
 
     const triggerShutdown = async () => {
@@ -2149,14 +2130,9 @@ const server = app.listen(port, () => {
                 console.log('error stopping scheduled jobs');
                 console.log(error);
             });
-            await new Promise(resolve => {
-                connection.end(error => {
-                    if (error) {
-                        console.log('error closing database connection pool');
-                        console.log(error);
-                    }
-                    resolve();
-                });
+            await endConnection().catch(error => {
+                console.log('error closing database connection pool');
+                console.log(error);
             });
             await webSocketServer.close();
         } catch (error) {

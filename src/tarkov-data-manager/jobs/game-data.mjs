@@ -1,4 +1,4 @@
-import { connection } from '../modules/db-connection.mjs';
+import { keepAlive } from '../modules/db-connection.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import DataJob from '../modules/data-job.mjs';
 
@@ -8,8 +8,8 @@ class GameDataJob extends DataJob {
     }
 
     async run() {
-        const keepAlive = connection.keepAlive;
-        connection.keepAlive = true;
+        const keepConnAlive = keepAlive();
+        keepAlive(true);
         
         await this.jobManager.runJob('update-tc-data', {parent: this});
 
@@ -35,7 +35,7 @@ class GameDataJob extends DataJob {
             });
         }
 
-        connection.keepAlive = keepAlive;
+        keepAlive(keepConnAlive);
     }
 }
 
