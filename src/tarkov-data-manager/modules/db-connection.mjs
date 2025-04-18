@@ -5,8 +5,6 @@ let pool;
 let connectedCount = 0;
 let acquiredConnections = 0;
 
-let keepPoolConnectionAlive = false;
-
 const createPool = () => {
     if (pool) {
         return;
