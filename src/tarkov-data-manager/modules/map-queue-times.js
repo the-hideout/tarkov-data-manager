@@ -2,7 +2,6 @@ const dbConnection = require('./db-connection.mjs');
 const JobLogger = require('./job-logger.mjs');
 const { alert } = require('../modules/webhook');
 const {jobOutput} = require('../jobs/index.mjs');
-const dbConnection = require('../../backup/modules/db-connection');
 
 // function to get map queue times
 module.exports = async (allMaps, logger = false) => {

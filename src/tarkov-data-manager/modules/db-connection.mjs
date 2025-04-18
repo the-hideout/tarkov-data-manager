@@ -150,6 +150,6 @@ const dbConnection = {
     },
 };
 
-export const { maxQueryRows, format, connectionsInUse, query, batchQuery, end: endConnection } = dbConnection;
+export const { maxQueryRows, connectionsInUse, query, batchQuery, end: endConnection } = dbConnection;
 
 export default dbConnection;

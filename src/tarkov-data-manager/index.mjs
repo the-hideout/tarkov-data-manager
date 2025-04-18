@@ -14,7 +14,7 @@ import './modules/configure-env.mjs';
 import remoteData from './modules/remote-data.mjs';
 import tarkovData from './modules/tarkov-data.mjs';
 import jobs from './jobs/index.mjs';
-import { query, connectionsInUse, endConnection } from './modules/db-connection.mjs';
+import dbConnection from './modules/db-connection.mjs';
 import scannerApi from './modules/scanner-api.mjs';
 import scannerHttpApi from './modules/scanner-http-api.mjs';
 import webhookApi from './modules/webhook-api.mjs';
@@ -920,7 +920,7 @@ app.get('/scanners', async (req, res) => {
 });
 
 app.get('/scanners/get-users', async (req, res) => {
-    const results = await Promise.all([query(`SELECT * FROM scanner_user`), query(`SELECT * FROM scanner`)]);
+    const results = await Promise.all([dbConnection.query(`SELECT * FROM scanner_user`), dbConnection.query(`SELECT * FROM scanner`)]);
     const users = results[0].map(user => {
         const scanners = [];
         for (const scanner of results[1]) {
@@ -1084,7 +1084,7 @@ app.get('/webhooks', async (req, res) => {
 });
 
 app.get('/webhooks/get', async (req, res) => {
-    const webhooks = await query('SELECT * FROM webhooks');
+    const webhooks = await dbConnection.query('SELECT * FROM webhooks');
     res.json(webhooks);
 });
 
@@ -1110,7 +1110,7 @@ app.post('/webhooks', async (req, res) => {
         return;
     }
     try {
-        const hookCheck = await query('SELECT * FROM webhooks WHERE name=? OR url=?', [req.body.name, webhookUrl]);
+        const hookCheck = await dbConnection.query('SELECT * FROM webhooks WHERE name=? OR url=?', [req.body.name, webhookUrl]);
         for (let i = 0; i < hookCheck.length; i++) {
             if (hookCheck[i].name === req.body.name) {
                 response.errors.push(`Webhook with name ${req.body.name} already exists`);
@@ -1130,7 +1130,7 @@ app.post('/webhooks', async (req, res) => {
     }
     try {
         console.log(`creating webhook: ${req.body.name} ${webhookUrl}`);
-        await query('INSERT INTO webhooks (name, url) VALUES (?, ?)', [req.body.name, webhookUrl]);
+        await dbConnection.query('INSERT INTO webhooks (name, url) VALUES (?, ?)', [req.body.name, webhookUrl]);
         webhookApi.refresh();
         response.message = `Created webhook ${req.body.name}`;
     } catch (error) {
@@ -1144,7 +1144,7 @@ app.put('/webhooks/:id', async (req, res) => {
     //edit
     const response = {message: 'No changes made.', errors: []};
     try {
-        let hookCheck = await query('SELECT * from webhooks WHERE id=?', [req.params.id]);
+        let hookCheck = await dbConnection.query('SELECT * from webhooks WHERE id=?', [req.params.id]);
         if (hookCheck.length == 0) {
             response.errors.push(`Webhook not found`);
             res.json(response);
@@ -1159,7 +1159,7 @@ app.put('/webhooks/:id', async (req, res) => {
             return;
         }
         const oldValues = hookCheck[0];
-        hookCheck = await query('SELECT * from webhooks WHERE id<>? AND (name=? OR url=?)', [req.params.id, req.body.name, webhookUrl]);
+        hookCheck = await dbConnection.query('SELECT * from webhooks WHERE id<>? AND (name=? OR url=?)', [req.params.id, req.body.name, webhookUrl]);
         for (let i = 0; i < hookCheck.length; i++) {
             if (hookCheck[i].name === req.body.name) {
                 response.errors.push(`Webhook with name ${req.body.name} already exists`);
@@ -1186,7 +1186,7 @@ app.put('/webhooks/:id', async (req, res) => {
             updateValues.push(updates[field]);
         }
         if (updateFields.length > 0) {
-            await query(`UPDATE webhooks SET ${updateFields.map(field => {
+            await dbConnection.query(`UPDATE webhooks SET ${updateFields.map(field => {
                 return `${field} = ?`;
             }).join(', ')} WHERE id='${req.params.id}'`, updateValues);
             webhookApi.refresh();
@@ -1202,7 +1202,7 @@ app.put('/webhooks/:id', async (req, res) => {
 app.delete('/webhooks/:id', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        let deleteResult = await query('DELETE FROM webhooks WHERE id=?', [req.params.id]);
+        let deleteResult = await dbConnection.query('DELETE FROM webhooks WHERE id=?', [req.params.id]);
         if (deleteResult.affectedRows > 0) {
             console.log(`Deleted webhook ${req.params.id}`);
             response.message = `Webhook deleted`;
@@ -1230,7 +1230,7 @@ app.get('/crons', async (req, res) => {
         `;
     }
     let connectionsDiv = '';
-    const usedConnections = connectionsInUse();
+    const usedConnections = dbConnection.connectionsInUse();
     if (usedConnections > 0) {
         connectionsDiv = `
             <div>DB connections in use: ${usedConnections}</div>
@@ -1797,7 +1797,7 @@ app.get('/wipes', async (req, res) => {
 });
 
 app.get('/wipes/get', async (req, res) => {
-    const wipes = await query('SELECT * FROM wipe');
+    const wipes = await dbConnection.query('SELECT * FROM wipe');
     res.json(wipes);
 });
 
@@ -1815,7 +1815,7 @@ app.post('/wipes', async (req, res) => {
         return;
     }
     try {
-        const wipeCheck = await query('SELECT * FROM wipe WHERE start_date=? OR version=?', [req.body.start_date, req.body.version]);
+        const wipeCheck = await dbConnection.query('SELECT * FROM wipe WHERE start_date=? OR version=?', [req.body.start_date, req.body.version]);
         for (const wipe of wipeCheck) {
             if (wipe.start_date === req.body.start_date) {
                 response.errors.push(`Wipe with start date ${req.body.start_date} already exists`);
@@ -1835,13 +1835,13 @@ app.post('/wipes', async (req, res) => {
     }
     try {
         console.log(`creating wipe: ${req.body.start_date} ${req.body.version}`);
-        const result = await query('INSERT INTO wipe (start_date, version) VALUES (?, ?)', [req.body.start_date, req.body.version]);
+        const result = await dbConnection.query('INSERT INTO wipe (start_date, version) VALUES (?, ?)', [req.body.start_date, req.body.version]);
         let lastPriceId = 0;
-        const lastPrice = await query('SELECT id FROM price_data WHERE game_mode = 0 ORDER BY id DESC LIMIT 1');
+        const lastPrice = await dbConnection.query('SELECT id FROM price_data WHERE game_mode = 0 ORDER BY id DESC LIMIT 1');
         if (lastPrice.length > 0) {
             lastPriceId = lastPrice[0].id;
         }
-        await query('UPDATE wipe SET cuttoff_price_id=? WHERE id=?', [lastPriceId, result.insertId]);
+        await dbConnection.query('UPDATE wipe SET cuttoff_price_id=? WHERE id=?', [lastPriceId, result.insertId]);
         response.message = `Created wipe ${req.body.start_date} ${req.body.version}`;
     } catch (error) {
         response.errors.push(error.message);
@@ -1852,7 +1852,7 @@ app.post('/wipes', async (req, res) => {
 app.put('/wipes/:id', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        await query('UPDATE wipe SET start_date=?, version=? WHERE id=?', [req.body.start_date, req.body.version, req.params.id]);
+        await dbConnection.query('UPDATE wipe SET start_date=?, version=? WHERE id=?', [req.body.start_date, req.body.version, req.params.id]);
         response.message = `Wipe updated to ${req.body.start_date} (${req.body.version})`;
     } catch (error) {
         response.errors.push(error.message);
@@ -1863,7 +1863,7 @@ app.put('/wipes/:id', async (req, res) => {
 app.delete('/wipes/:id', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        let deleteResult = await query('DELETE FROM wipe WHERE id=?', [req.params.id]);
+        let deleteResult = await dbConnection.query('DELETE FROM wipe WHERE id=?', [req.params.id]);
         if (deleteResult.affectedRows > 0) {
             console.log(`Deleted wipe ${req.params.id}`);
             response.message = `Wipe deleted`;
@@ -1977,7 +1977,7 @@ app.get('/presets', async (req, res) => {
 
 app.get('/presets/get', async (req, res) => {
     const [presets, en, items] = await Promise.all([
-        query('SELECT * FROM manual_preset'),
+        dbConnection.query('SELECT * FROM manual_preset'),
         tarkovData.locale('en'),
         remoteData.get(),
     ]);
@@ -2042,9 +2042,9 @@ app.get('/presets/get/game', async (req, res) => {
 app.patch('/presets/:id', async (req, res) => {
     const response = {message: 'No changes made.', errors: []};
     try {
-        const preset = await query('SELECT * FROM manual_preset WHERE id = ?', [req.params.id]).then(results => results[0]);
+        const preset = await dbConnection.query('SELECT * FROM manual_preset WHERE id = ?', [req.params.id]).then(results => results[0]);
         if (preset.append_name !== req.body.append_name) {
-            await query('UPDATE manual_preset SET append_name = ? WHERE id = ?', [req.body.append_name, req.params.id]);
+            await dbConnection.query('UPDATE manual_preset SET append_name = ? WHERE id = ?', [req.body.append_name, req.params.id]);
             const [en, items] = await Promise.all([tarkovData.locale('en'), remoteData.get()]);
             const baseItem = items.get(preset.items[0]._tpl);
             await remoteData.setProperties(req.params.id, {
@@ -2129,7 +2129,7 @@ const server = app.listen(port, () => {
                 console.log('error stopping scheduled jobs');
                 console.log(error);
             });
-            await endConnection().catch(error => {
+            await dbConnection.endConnection().catch(error => {
                 console.log('error closing database connection pool');
                 console.log(error);
             });

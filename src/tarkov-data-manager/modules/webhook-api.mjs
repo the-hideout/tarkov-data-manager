@@ -1,6 +1,6 @@
 import discord from 'discord.js';
 
-import { query } from './db-connection.mjs';
+import db from './db-connection.mjs';
 
 const { WebhookClient, MessageEmbed } = discord;
 
@@ -64,7 +64,7 @@ const processTestWebhook = async (res, payload, client) => {
 };
 
 const refreshWebhooks = async () => {
-    const results = await query('SELECT * from webhooks');
+    const results = await db.query('SELECT * from webhooks');
     users = {};
     for (let i = 0; i < results.length; i++) {
         users[results[i].username] = results[i].password;

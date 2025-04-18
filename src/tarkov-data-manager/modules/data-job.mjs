@@ -8,7 +8,7 @@ import { DateTime } from 'luxon';
 import cloudflare from './cloudflare.mjs';
 import stellate from './stellate.mjs';
 import TranslationHelper from './translation-helper.mjs';
-import { query, batchQuery, maxQueryRows } from'./db-connection.mjs';
+import dbConnection from'./db-connection.mjs';
 import JobLogger from './job-logger.mjs';
 import { alert, send as sendWebhook } from './webhook.mjs';
 import webSocketServer from './websocket-server.mjs';
@@ -66,7 +66,7 @@ class DataJob {
             ...options.saveFields,
         ];
         this.writeFolder = 'dumps';
-        this.maxQueryRows = maxQueryRows;
+        this.maxQueryRows = dbConnection.maxQueryRows;
         this.gameModes = gameModes;
         this.terminateIfRunning = 1;
         this.alreadyRunningCount = 0;
@@ -395,7 +395,7 @@ class DataJob {
             options = values;
             values = undefined;
         }
-        const queryPromise = query(sql, values, {signal: this.abortController.signal, ...options});
+        const queryPromise = dbConnection.query(sql, values, {signal: this.abortController.signal, ...options});
         this.queries.push(queryPromise);
         return queryPromise;
     }
@@ -409,7 +409,7 @@ class DataJob {
             options = batchCallback;
             batchCallback = undefined;
         }
-        const queryPromise = batchQuery(sql, values, batchCallback, {signal: this.abortController.signal, ...options});
+        const queryPromise = dbConnection.batchQuery(sql, values, batchCallback, {signal: this.abortController.signal, ...options});
         this.queries.push(queryPromise);
         return queryPromise;
     }
