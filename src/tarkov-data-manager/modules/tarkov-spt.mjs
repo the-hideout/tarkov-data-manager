@@ -36,6 +36,7 @@ const sptLangs = {
 }
 
 const branches = [
+    'develop',
     'main',
 ];
 
