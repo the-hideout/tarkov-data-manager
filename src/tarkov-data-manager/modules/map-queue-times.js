@@ -1,7 +1,8 @@
-const { query, jobComplete } = require('./db-connection.mjs');
+const dbConnection = require('./db-connection.mjs');
 const JobLogger = require('./job-logger.mjs');
 const { alert } = require('../modules/webhook');
 const {jobOutput} = require('../jobs/index.mjs');
+const dbConnection = require('../../backup/modules/db-connection');
 
 // function to get map queue times
 module.exports = async (allMaps, logger = false) => {
@@ -34,7 +35,7 @@ console.log(timestamps.map(ts => new Date(ts)));
         }
 
         // Query all queue times from the longest possible time window
-        const queueTimeResults = await query(`
+        const queueTimeResults = await dbConnection.query(`
             SELECT
                 *
             FROM
@@ -80,7 +81,6 @@ console.log(timestamps.map(ts => new Date(ts)));
 
         console.log(JSON.stringify(queueTimeData, null, 4));
 
-        await jobComplete()
         if (closeLogger) {
             logger.end();
             logger = false;
@@ -93,10 +93,11 @@ console.log(timestamps.map(ts => new Date(ts)));
             title: `Error running ${logger.jobName} job`,
             message: error.toString()
         });
-        await jobComplete()
         if (closeLogger) {
             logger.end();
             logger = false;
         }
+    } finally {
+        dbConnection.end();
     }
 };

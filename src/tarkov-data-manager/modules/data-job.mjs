@@ -8,7 +8,7 @@ import { DateTime } from 'luxon';
 import cloudflare from './cloudflare.mjs';
 import stellate from './stellate.mjs';
 import TranslationHelper from './translation-helper.mjs';
-import { query, batchQuery, jobComplete, maxQueryRows } from'./db-connection.mjs';
+import { query, batchQuery, maxQueryRows } from'./db-connection.mjs';
 import JobLogger from './job-logger.mjs';
 import { alert, send as sendWebhook } from './webhook.mjs';
 import webSocketServer from './websocket-server.mjs';
@@ -219,7 +219,6 @@ class DataJob {
             emitter.emit(`jobComplete_${this.name}`);
         }
         if (!options?.parent) {
-            await jobComplete();
             if (process.env.TEST_JOB === 'true') {
                 webSocketServer.close();
             }

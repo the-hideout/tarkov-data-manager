@@ -1,5 +1,5 @@
 import './modules/configure-env.mjs'
-import { keepAlive, jobComplete } from './modules/db-connection.mjs';
+import dbConnection from './modules/db-connection.mjs';
 import {runJob} from './jobs/index.mjs';
 
 process.env.VERBOSE_LOGS = 'true';
@@ -17,7 +17,6 @@ const kvJobs = [
 ];
 
 (async () => {
-    keepAlive(true);
     for (const job of kvJobs) {
         try {
             await runJob(job);
@@ -25,6 +24,5 @@ const kvJobs = [
             console.log(`Error running ${job} job`, error);
         }
     }
-    keepAlive(false);
-    jobComplete();
+    dbConnection.end();
 })();

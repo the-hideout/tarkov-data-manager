@@ -69,19 +69,4 @@ module.exports = {
     pool: pool,
     query: query,
     format: mysql.format,
-    jobComplete: async () => {
-        if (pool.keepAlive) {
-            return Promise.resolve(false);
-        }
-        await waitForConnections();
-        return new Promise((resolve, reject) => {
-            pool.end(error => {
-                if (error) {
-                    reject(error);
-                    return;
-                }
-                resolve(true);
-            });
-        });
-    }
 };

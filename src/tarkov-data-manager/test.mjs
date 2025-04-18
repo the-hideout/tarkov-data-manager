@@ -4,7 +4,7 @@ import './modules/configure-env.mjs'
 import remoteData from './modules/remote-data';
 import cloudflare from './modules/cloudflare';
 import s3 from './modules/upload-s3';
-import {jobComplete, query} from './modules/db-connection';
+import dbConnection from './modules/db-connection';
 
 process.env.VERBOSE_LOGS = 'true';
 
@@ -21,5 +21,5 @@ process.env.VERBOSE_LOGS = 'true';
     } catch (error) {
         console.log(error);
     }
-    jobComplete();
+    dbConnection.end();
 })();

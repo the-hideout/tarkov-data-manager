@@ -14,7 +14,7 @@ import './modules/configure-env.mjs';
 import remoteData from './modules/remote-data.mjs';
 import tarkovData from './modules/tarkov-data.mjs';
 import jobs from './jobs/index.mjs';
-import { query, connectionsInUse, endConnection, keepAlive } from './modules/db-connection.mjs';
+import { query, connectionsInUse, endConnection } from './modules/db-connection.mjs';
 import scannerApi from './modules/scanner-api.mjs';
 import scannerHttpApi from './modules/scanner-http-api.mjs';
 import webhookApi from './modules/webhook-api.mjs';
@@ -2112,7 +2112,6 @@ const server = app.listen(port, () => {
 });
 
 (async () => {
-    keepAlive(true);
     jobs.start();
 
     const triggerShutdown = async () => {
