@@ -1059,7 +1059,13 @@ class UpdateQuestsJob extends DataJob {
         await this.loadRewards(questData, 'finishRewards', quest.rewards.Success);
         await this.loadRewards(questData, 'startRewards', quest.rewards.Started);
         await this.loadRewards(questData, 'failureOutcome', quest.rewards.Fail);
-        if (factionMap[questData.id]) questData.factionName = factionMap[questData.id];
+        if (this.questConfig.usecOnlyQuests.includes(questData.id)) {
+            questData.factionName = 'USEC';
+        } else if (this.questConfig.bearOnlyQuests.includes(questData.id)) {
+            questData.factionName = 'BEAR';
+        } else if (factionMap[questData.id]) {
+            questData.factionName = factionMap[questData.id];
+        }
         //if (this.missingQuests[questData.id]) delete this.missingQuests[questData.id];
     
         if (this.changedQuests[questData.id]) {
@@ -1853,6 +1859,21 @@ const skipQuests = [
     '5dc53acb86f77469c740c893', // The Stylish One
     '64f1cc571a5f313cb144bf90', // Overseas Trust - Part 1
     '64f1d6e732bed22c3e0c7423', // Overseas Trust - Part 2
+    /*'67a09636b8725511260bc421', // Shady Contractor
+    '67a0964e972c11a3f507731b', // Needle in a Haystack
+    '67a096577e86e067eb045733', // Hidden Layer
+    '67a0966817e34930e500754c', // Forced Alliance
+    '67a0967c003a9986cb0f5ac1', // Sensory Analysis - Part 1
+    '67a096ed77dd677f600804ba', // Sensory Analysis - Part 2
+    '67a096f605d1611ed90be75a', // Hot Zone
+    '67a0970744893b9f3f0d9b68', // Offensive Reconnaissance
+    '67a09673972c11a3f507731d', // The Tarkov Butcher
+    '67d03be712fb5f8fd2096332', // Vacate the Premises
+    '67a0970f05d1611ed90be75d', // Hypothesis Testing
+    '67a09724972c11a3f5077324', // Confidential Info
+    '67a097379f2068e74603c6ac', // Indisputable Authority
+    '67a0972e77dd677f600804bd', // This Tape Sucks
+    '67a09761e720611a6a01f288', // Keeper's Word*/
 ];
 
 // Secure Folder 0013 appears on multiple maps
@@ -1877,14 +1898,14 @@ const questStatusMap = {
 };
 
 const factionMap = {
-    '5e381b0286f77420e3417a74': 'USEC', // Textile - Part 1
-    '5e4d4ac186f774264f758336': 'USEC', // Textile - Part 2
+    '5e381b0286f77420e3417a74': 'BEAR', // Textile - Part 1
+    '5e4d4ac186f774264f758336': 'BEAR', // Textile - Part 2
     '6179b5eabca27a099552e052': 'USEC', // Counteraction
     '639282134ed9512be67647ed': 'USEC', // Road Closed
     '66151401efb0539ae10875ae': 'USEC', // Drip-Out - Part 1
     '6615141bfda04449120269a7': 'USEC', // Drip-Out - Part 2
-    '5e383a6386f77465910ce1f3': 'BEAR', // Textile - Part 1
-    '5e4d515e86f77438b2195244': 'BEAR', // Textile - Part 2
+    '5e383a6386f77465910ce1f3': 'USEC', // Textile - Part 1
+    '5e4d515e86f77438b2195244': 'USEC', // Textile - Part 2
     '6179b5b06e9dd54ac275e409': 'BEAR', // Our Own Land
     '639136d68ba6894d155e77cf': 'BEAR', // Green Corridor
     '6613f3007f6666d56807c929': 'BEAR', // Drip-Out - Part 1
