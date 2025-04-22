@@ -1858,8 +1858,8 @@ const skipQuests = [
 // Secure Folder 0013 appears on multiple maps
 // this restricts a particular objective to being found on one map
 const forceObjectiveMap = {
-    //'5a2819c886f77460ba564f38': '5704e554d2720bac5b8b456e', // Cargo X - Part 2
-    //'5979fc2686f77426d702a0f2': '56f40101d2720b2a4d8b45d6', // Chemical - Part 1
+    '5a2819c886f77460ba564f38': '5704e554d2720bac5b8b456e', // Cargo X - Part 2
+    '5979fc2686f77426d702a0f2': '56f40101d2720b2a4d8b45d6', // Chemical - Part 1
     '5a3fbe3a86f77414422e0d9b': '5704e3c2d2720bac5b8b4567', // Ice Cream Cones
 };
 
