@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 
+import sharp from 'sharp';
+
 import DataJob from '../modules/data-job.mjs';
 import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
@@ -415,6 +417,10 @@ class UpdateMapsJob extends DataJob {
                     }
                 }
                 for (const spawn of map.BossLocationSpawn) {
+                    if (spawn.BossName === 'tagillaHelperAgro') {
+                        enemySet.add('scavs');
+                        continue;
+                    }
                     const bossData = {
                         id: spawn.BossName,
                         spawnChance: parseFloat(spawn.BossChance) / 100,
@@ -805,6 +811,7 @@ class UpdateMapsJob extends DataJob {
             equipment: [],
             items: [],
         };
+        const bossExtraData = this.botInfo[bossKey.toLowerCase()];
         const extensions = [
             'webp',
             'png',
@@ -812,15 +819,117 @@ class UpdateMapsJob extends DataJob {
         ];
         const imageSizes = ['Portrait', 'Poster'];
         for (const imageSize of imageSizes) {
+            let found = false;
             for (const ext of extensions) {
                 const fileName = `${bossInfo.normalizedName}-${imageSize.toLowerCase()}.${ext}`;
                 if (this.s3Images.includes(fileName)) {
                     bossInfo[`image${imageSize}Link`] = `https://${process.env.S3_BUCKET}/${fileName}`;
+                    found = true;
                     break;
                 }
             }
+            if (found || imageSize === 'Portrait' || !bossExtraData) {
+                continue;
+            }
+            const requestData = {
+                aid: 1234567890,
+                customization: {},
+                equipment: {
+                    Id: "000000000000000000000000",
+                    Items: [
+                        {
+                            _id: "000000000000000000000000",
+                            _tpl: "55d7217a4bdc2d86028b456d"
+                        }
+                    ],
+                },
+            };
+            const bodyParts = [
+                'head',
+                'body',
+                'hands',
+                'feet',
+            ];
+            for (const bodyPart of bodyParts) {
+                let bodyPartChosen;
+                for (const bpid in bossExtraData.appearance[bodyPart]) {
+                    const weight = bossExtraData.appearance[bodyPart][bpid];
+                    if (!bodyPartChosen || weight > bodyPartChosen.weight) {
+                        bodyPartChosen = {
+                            id: bpid,
+                            weight,
+                        };
+                    }
+                }
+                if (bodyPartChosen) {
+                    requestData.customization[bodyPart] = bodyPartChosen.id;
+                }
+            }
+            const equipmentSlots = [
+                'Headwear',
+                'Earpiece',
+                'FaceCover',
+                'ArmorVest',
+                'Eyewear',
+                'TacticalVest',
+                'Backpack',
+            ];
+            let itemIndex = 1;
+            for (const slot of equipmentSlots) {
+                let itemChosen;
+                for (const itemId in bossExtraData.inventory.equipment[slot]) {
+                    const weight = bossExtraData.inventory.equipment[slot][itemId];
+                    if (!itemChosen || weight > itemChosen.weight) {
+                        itemChosen = {
+                            id: itemId,
+                            weight,
+                        };
+                    }
+                }
+                if (!itemChosen) {
+                    continue;
+                }
+                const equipmentItemId = itemIndex.toString(16).padStart(24, '0');
+                requestData.equipment.Items.push({
+                    _id: equipmentItemId,
+                    _tpl: itemChosen.id,
+                    parentId: requestData.equipment.Id,
+                    slotId: slot,
+                });
+                itemIndex++;
+                if (!bossExtraData.inventory.mods[itemChosen.id]) {
+                    continue;
+                }
+                for (const modSlot in bossExtraData.inventory.mods[itemChosen.id]) {
+                    requestData.equipment.Items.push({
+                        _id: itemIndex.toString(16).padStart(24, '0'),
+                        _tpl: bossExtraData.inventory.mods[itemChosen.id][modSlot][0],
+                        parentId: equipmentItemId,
+                        slotId: modSlot,
+                    });
+                    itemIndex++;
+                }
+            }
+            const url = new URL(`https://imagemagic.tarkov.dev/player/${requestData.aid}.webp`);
+            url.searchParams.append('data', JSON.stringify(requestData));
+            const imageResponse = await fetch(url);
+            if (!imageResponse.ok) {
+                this.logger.warn(`Error retrieving ${bossInfo.normalizedName} image: ${imageResponse.status} ${imageResponse.statusText}`);
+                continue;
+            }
+            const image = sharp(await imageResponse.arrayBuffer());
+            const metadata = await image.metadata();
+            if (metadata.width <= 1 || metadata.height <= 1) {
+                continue;
+            }
+            const posterFilename = `${bossInfo.normalizedName}-${imageSize.toLowerCase()}.webp`;
+            await s3.uploadAnyImage(image, posterFilename, 'image/webp');
+            this.s3Images.push(posterFilename);
+            console.log(posterFilename);
+            const portraitFilename = `${bossInfo.normalizedName}-portrait.webp`;
+            await s3.uploadAnyImage(image.resize(128, 128), portraitFilename, 'image/webp');
+            this.s3Images.push(portraitFilename);
         }
-        const bossExtraData = this.botInfo[bossKey.toLowerCase()];
         if (!bossExtraData) {
             this.processedBosses[bossKey] = bossInfo;
             return bossInfo;

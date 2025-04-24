@@ -57,12 +57,13 @@ export async function uploadAnyImage(image, filename, contentType) {
         Body: await image.toBuffer()
     };
     await s3.send(new PutObjectCommand(uploadParams));
+    let purged = false;
     if (fileExistsInS3(filename)) {
         await cloudflare.purgeCache(`https://${uploadParams.Bucket}/${uploadParams.Key}`);
-        return true;
+        purged = true;
     }
     addToLocalBucket(filename);
-    return false;
+    return purged;
 }
 
 async function upload(image, imageType, id) {
@@ -218,6 +219,7 @@ export const addToLocalBucket = filename => {
     const contents = getLocalBucketContents();
     if (!contents.includes(filename)) {
         contents.push(filename);
+        console.log('adding', filename, 'to s3 bucket contents');
         fs.writeFileSync(path.join(import.meta.dirname, '..', 'cache', 's3-bucket-contents.json'), JSON.stringify(contents, null, 4));
     }
 };
