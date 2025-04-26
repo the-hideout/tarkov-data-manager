@@ -874,6 +874,26 @@ class UpdateMapsJob extends DataJob {
                 'TacticalVest',
                 'Backpack',
             ];
+            const addModsForItem = (itemId, parentId) => {
+                for (const modSlot in bossExtraData.inventory.mods[itemId]) {
+                    const modItem = {
+                        _id: itemIndex.toString(16).padStart(24, '0'),
+                        _tpl: bossExtraData.inventory.mods[itemId][modSlot][0],
+                        parentId,
+                        slotId: modSlot,
+                    };
+                    itemIndex++;
+                    if (this.eftItems[modItem._tpl]?._props?.FaceShieldComponent && this.eftItems[modItem._tpl]?._props?.HasHinge) {
+                        modItem.upd = {
+                            Togglable: {
+                                On: true,
+                            },
+                        };
+                    }
+                    requestData.equipment.Items.push(modItem);
+                    addModsForItem(modItem._tpl, modItem._id);
+                };
+            };
             let itemIndex = 1;
             for (const slot of equipmentSlots) {
                 let itemChosen;
@@ -900,15 +920,7 @@ class UpdateMapsJob extends DataJob {
                 if (!bossExtraData.inventory.mods[itemChosen.id]) {
                     continue;
                 }
-                for (const modSlot in bossExtraData.inventory.mods[itemChosen.id]) {
-                    requestData.equipment.Items.push({
-                        _id: itemIndex.toString(16).padStart(24, '0'),
-                        _tpl: bossExtraData.inventory.mods[itemChosen.id][modSlot][0],
-                        parentId: equipmentItemId,
-                        slotId: modSlot,
-                    });
-                    itemIndex++;
-                }
+                addModsForItem(itemChosen.id, equipmentItemId);
             }
             const url = new URL(`https://imagemagic.tarkov.dev/player/${requestData.aid}.webp`);
             url.searchParams.append('data', JSON.stringify(requestData));

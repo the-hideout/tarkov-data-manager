@@ -219,7 +219,6 @@ export const addToLocalBucket = filename => {
     const contents = getLocalBucketContents();
     if (!contents.includes(filename)) {
         contents.push(filename);
-        console.log('adding', filename, 'to s3 bucket contents');
         fs.writeFileSync(path.join(import.meta.dirname, '..', 'cache', 's3-bucket-contents.json'), JSON.stringify(contents, null, 4));
     }
 };
