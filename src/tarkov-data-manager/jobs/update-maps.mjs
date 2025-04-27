@@ -421,6 +421,26 @@ class UpdateMapsJob extends DataJob {
                         enemySet.add('scavs');
                         continue;
                     }
+                    if (spawn.BossName === 'bossKillaAgro') {
+                        const tagillaSpawn = mapData.bosses.find(s => s.id === 'bossTagillaAgro');
+                        if (!tagillaSpawn) {
+                            continue;
+                        }
+                        const enemyData = await this.getBossInfo(spawn.BossName);
+                        const newMob = !enemySet.has(enemyData.id);
+                        enemySet.add(enemyData.id);
+                        tagillaSpawn.escorts.push({
+                            id: enemyData.id,
+                            amount: {
+                                chance: parseFloat(spawn.BossChance) / 100,
+                                count: 1,
+                            }, 
+                        });
+                        if (newMob) {
+                            this.logger.log(` - ${this.getTranslation(enemyData.name)}`);
+                        }
+                        continue;
+                    }
                     const bossData = {
                         id: spawn.BossName,
                         spawnChance: parseFloat(spawn.BossChance) / 100,
