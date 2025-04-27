@@ -431,10 +431,10 @@ class UpdateMapsJob extends DataJob {
                         enemySet.add(enemyData.id);
                         tagillaSpawn.escorts.push({
                             id: enemyData.id,
-                            amount: {
+                            amount: [{
                                 chance: parseFloat(spawn.BossChance) / 100,
                                 count: 1,
-                            }, 
+                            }], 
                         });
                         if (newMob) {
                             this.logger.log(` - ${this.getTranslation(enemyData.name)}`);
