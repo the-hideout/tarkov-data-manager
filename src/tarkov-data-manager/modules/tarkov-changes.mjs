@@ -157,7 +157,7 @@ const tarkovChanges = {
         if (!process.env.TC_RESTART_URL) {
             return Promise.reject(new Error('Credentials not set'));
         }
-        return got(process.env.TC_RESTART_URL, {
+        const response = await got(process.env.TC_RESTART_URL, {
             method: 'GET',
             headers: {
                 'Accept': 'application/json',
@@ -166,6 +166,10 @@ const tarkovChanges = {
             },
             signal: options.signal,
         });
+        if (!response.ok) {
+            return Promise.reject(new Error(`${response.statusCode} ${response.statusMessage}`));
+        }
+        return response.body;
     }
 }
 
