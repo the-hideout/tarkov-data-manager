@@ -5,8 +5,6 @@ let pool;
 let connectedCount = 0;
 let acquiredConnections = 0;
 
-let keepPoolConnectionAlive = false;
-
 const createPool = () => {
     if (pool) {
         return;
@@ -66,12 +64,6 @@ const waitForConnections = () => {
 };
 
 const dbConnection = {
-    keepAlive: (keepConnectionAlive) => {
-        if (typeof keepConnectionAlive !== 'boolean') {
-            return keepPoolConnectionAlive;
-        }
-        keepPoolConnectionAlive = keepConnectionAlive;
-    },
     end: () => {
         if (!pool || pool._closed) {
             return Promise.resolve();
@@ -152,19 +144,12 @@ const dbConnection = {
         }
         return results;
     },
-    jobComplete: async () => {
-        if (keepPoolConnectionAlive) {
-            return Promise.resolve();
-        }
-        //await waitForConnections();
-        return dbConnection.end();
-    },
     maxQueryRows: 1000000,
     connectionsInUse: () => {
         return acquiredConnections;
     },
 };
 
-export const { jobComplete, maxQueryRows, format, connectionsInUse, query, batchQuery, end: endConnection, keepAlive } = dbConnection;
+export const { maxQueryRows, connectionsInUse, query, batchQuery, end: endConnection } = dbConnection;
 
 export default dbConnection;

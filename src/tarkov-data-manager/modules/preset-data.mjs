@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import tarkovData from './tarkov-data.mjs';
 import TranslationHelper from './translation-helper.mjs';
-import { query } from './db-connection.mjs';
+import dbConnection from './db-connection.mjs';
 import remoteData from './remote-data.mjs';
 import normalizeName from './normalize-name.js';
 import emitter from './emitter.mjs';
@@ -336,7 +336,7 @@ const presetData = {
                 }
             }
         }
-        await query(`
+        await dbConnection.query(`
             INSERT INTO manual_preset 
                 (id, append_name, items)
             VALUES
@@ -364,7 +364,7 @@ const presetData = {
         return processedPreset;
     },
     getDatabasePresets: async () => {
-        const results = await query('SELECT * from manual_preset');
+        const results = await dbConnection.query('SELECT * from manual_preset');
         const dbPresets = {};
         results.forEach(p => {
             dbPresets[p.id] =  {
@@ -483,7 +483,7 @@ const presetData = {
         return false;
     },
     presetUsed: async (id) => {
-        const result = await query(`UPDATE manual_preset SET last_used = CURRENT_TIMESTAMP WHERE id = ?`, [id]);
+        const result = await dbConnection.query(`UPDATE manual_preset SET last_used = CURRENT_TIMESTAMP WHERE id = ?`, [id]);
         return result.affectedRows > 0;
     },
     presets,
@@ -498,10 +498,10 @@ const presetData = {
         delete presets.presets[id];
         emitter.emit('presetsUpdated', presets);
         return Promise.all([
-            query(`DELETE FROM manual_preset WHERE id = ?`, [id]),
-            query(`DELETE FROM price_data WHERE item_id = ?`, [id]),
-            query(`DELETE FROM price_archive WHERE item_id = ?`, [id]),
-            query('DELETE FROM price_historical WHERE item_id = ?', [id]),
+            dbConnection.query(`DELETE FROM manual_preset WHERE id = ?`, [id]),
+            dbConnection.query(`DELETE FROM price_data WHERE item_id = ?`, [id]),
+            dbConnection.query(`DELETE FROM price_archive WHERE item_id = ?`, [id]),
+            dbConnection.query('DELETE FROM price_historical WHERE item_id = ?', [id]),
             remoteData.removeItem(id),
         ]);
     },
@@ -519,11 +519,11 @@ const presetData = {
         delete presets.presets[sourceId];
         emitter.emit('presetsUpdated', presets);
         return Promise.all([
-            query(`UPDATE price_data SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
-            query(`UPDATE IGNORE price_archive SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
-            query(`UPDATE IGNORE price_historical SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
-            query(`UPDATE IGNORE trader_offers SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
-            query(`DELETE FROM manual_preset WHERE id = ?`, [sourceId]),
+            dbConnection.query(`UPDATE price_data SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
+            dbConnection.query(`UPDATE IGNORE price_archive SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
+            dbConnection.query(`UPDATE IGNORE price_historical SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
+            dbConnection.query(`UPDATE IGNORE trader_offers SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
+            dbConnection.query(`DELETE FROM manual_preset WHERE id = ?`, [sourceId]),
             remoteData.removeItem(sourceId),
         ]);
     },

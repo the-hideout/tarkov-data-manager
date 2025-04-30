@@ -430,9 +430,12 @@ class UpdateItemCacheJob extends DataJob {
                 return allArmor;
             }, {}),
             PlayerLevel: this.globals.config.exp.level.exp_table.map((level, index) => {
+                const playerLevel = index + 1;
+                const levelGroup = Math.trunc(playerLevel / 5) + 1;
                 return {
-                    level: index + 1,
-                    exp: level.exp
+                    level: playerLevel,
+                    exp: level.exp,
+                    levelBadgeImageLink: `https://assets.tarkov.dev/player-level-group-${levelGroup}.png`,
                 };
             }),
             Mastering: this.globals.config.Mastering.map(m => {

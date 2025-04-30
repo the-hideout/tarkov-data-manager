@@ -57,12 +57,13 @@ export async function uploadAnyImage(image, filename, contentType) {
         Body: await image.toBuffer()
     };
     await s3.send(new PutObjectCommand(uploadParams));
+    let purged = false;
     if (fileExistsInS3(filename)) {
         await cloudflare.purgeCache(`https://${uploadParams.Bucket}/${uploadParams.Key}`);
-        return true;
+        purged = true;
     }
     addToLocalBucket(filename);
-    return false;
+    return purged;
 }
 
 async function upload(image, imageType, id) {

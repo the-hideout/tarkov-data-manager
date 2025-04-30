@@ -1,4 +1,3 @@
-import { keepAlive } from '../modules/db-connection.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import DataJob from '../modules/data-job.mjs';
 
@@ -8,8 +7,6 @@ class GameDataJob extends DataJob {
     }
 
     async run() {
-        const keepConnAlive = keepAlive();
-        keepAlive(true);
         
         await this.jobManager.runJob('update-tc-data', {parent: this});
 
@@ -34,8 +31,6 @@ class GameDataJob extends DataJob {
                 this.logger.error(`Error running ${jobName}: ${error.message}`);
             });
         }
-
-        keepAlive(keepConnAlive);
     }
 }
 

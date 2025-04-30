@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 
 import { jobOutput } from '../jobs/index.mjs';
-import { query } from './db-connection.mjs';
+import dbConnection from './db-connection.mjs';
 import { alert } from './webhook.mjs';
 
 const allMaps = { timestamp: DateTime.now().toFormat('yyyy-LL-dd HH:mm:ss'), maps: [] };
@@ -131,7 +131,7 @@ const publicApi = {
 
         try {
             // Insert the data into the database
-            await query(`INSERT INTO queue_data (map, time, type) VALUES (?, ?, ?)`, [data.map, data.time, data.type]);
+            await dbConnection.query(`INSERT INTO queue_data (map, time, type) VALUES (?, ?, ?)`, [data.map, data.time, data.type]);
             res.json({ status: 'success' });
             return;
         } catch (error) {
@@ -165,7 +165,7 @@ const publicApi = {
             }
 
             // Insert the data into the database
-            await query(`INSERT INTO goon_reports (map, game_mode, timestamp, ${report_id_field}, reporter_ip) VALUES (?, ?, ?, ?, ?)`, [data.map, data.gameMode, data.timestamp, report_id_value, ipAddress]);
+            await dbConnection.query(`INSERT INTO goon_reports (map, game_mode, timestamp, ${report_id_field}, reporter_ip) VALUES (?, ?, ?, ?, ?)`, [data.map, data.gameMode, data.timestamp, report_id_value, ipAddress]);
             res.json({ status: 'success' });
             return;
         } catch (error) {

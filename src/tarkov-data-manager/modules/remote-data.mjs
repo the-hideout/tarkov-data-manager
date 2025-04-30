@@ -1,8 +1,7 @@
 import midmean from 'compute-midmean';
 
 import normalizeName from './normalize-name.js';
-import timer from './console-timer.js';
-import { query, batchQuery } from './db-connection.mjs';
+import db from './db-connection.mjs';
 import gameModes from './game-modes.mjs';
 import emitter from './emitter.mjs';
 
@@ -59,8 +58,7 @@ const methods = {
         //console.log('Loading item data');
 
         try {
-            //const allDataTimer = timer('item-data-query');
-            const results = await query(`
+            const results = await db.query(`
                 SELECT
                     item_data.*,
                     GROUP_CONCAT(DISTINCT types.type SEPARATOR ',') AS types
@@ -71,7 +69,6 @@ const methods = {
                 GROUP BY
                     item_data.id
             `).then(rows => {
-                //allDataTimer.end();
                 return rows;
             });
 
@@ -117,7 +114,7 @@ const methods = {
             const itemsPromise = methods.get(refreshItems);
             
             logger.time('item-24h-price-query');
-            const price24hPromise = batchQuery(`
+            const price24hPromise = db.batchQuery(`
                 SELECT
                     price,
                     item_id,
@@ -131,7 +128,7 @@ const methods = {
             });
 
             logger.time('item-last-price-query');
-            const lastPricePromise = query(`
+            const lastPricePromise = db.query(`
                 SELECT
                     a.item_id,
                     a.price_min as price,
@@ -156,7 +153,7 @@ const methods = {
             });
 
             logger.time('price-yesterday-query');
-            const avgPriceYesterdayPromise = query(`
+            const avgPriceYesterdayPromise = db.query(`
                 SELECT
                     avg(price) AS priceYesterday,
                     item_id,
@@ -266,7 +263,7 @@ const methods = {
         //console.log(`Adding ${type} for ${id}`);
         const [itemData, insertResult] = await Promise.all([
             methods.get(),
-            query(`INSERT IGNORE INTO types (item_id, type) VALUES (?, ?)`, [id, type]),
+            db.query(`INSERT IGNORE INTO types (item_id, type) VALUES (?, ?)`, [id, type]),
         ]);
         const item = myData.get(id);
         if (item && !item.types.includes(type)) {
@@ -278,7 +275,7 @@ const methods = {
         //console.log(`Removing ${type} for ${id}`);
         const [itemData, deleteResult] = await Promise.all([
             methods.get(),
-            query(`DELETE FROM types WHERE item_id = ? AND type= ?`, [id, type])
+            db.query(`DELETE FROM types WHERE item_id = ? AND type= ?`, [id, type])
         ]);
         const item = myData.get(id);
         if (item) {
@@ -293,7 +290,7 @@ const methods = {
         }
         console.log(`Setting ${property} to ${value} for ${id}`);
         currentItemData[property] = value;
-        return query(`UPDATE item_data SET ${property} = ? WHERE id = ?`, [value, id]);
+        return db.query(`UPDATE item_data SET ${property} = ? WHERE id = ?`, [value, id]);
     },
     setProperties: async (id, properties) => {
         const currentItemData = myData.get(id);
@@ -330,7 +327,7 @@ const methods = {
             placeHolderValues.push(changeValues[property])
         }
         placeHolderValues.push(id);
-        return query(`UPDATE item_data SET ${fieldNames.join(', ')} WHERE id = ?`, placeHolderValues).then(result => {
+        return db.query(`UPDATE item_data SET ${fieldNames.join(', ')} WHERE id = ?`, placeHolderValues).then(result => {
             for (const property in changeValues) {
                 if (property === 'properties') {
                     currentItemData[property] = properties[property];
@@ -365,7 +362,7 @@ const methods = {
                 updateValues.push(value);
             }
         }
-        return query(`
+        return db.query(`
             INSERT INTO 
                 item_data (${insertFields.join(', ')})
             VALUES (
@@ -394,20 +391,20 @@ const methods = {
         if (!myData.has(id)) {
             return Promise.reject(new Error(`Item ${id} not found`));
         }
-        const result = await query('DELETE FROM item_data WHERE id = ?', [id]);
+        const result = await db.query('DELETE FROM item_data WHERE id = ?', [id]);
         myData.delete(id);
         return result;
     },
     hasPrices: async (id) => {
-        const fleaPrice = await query('select count(id) as num from price_data where item_id = ?', [id]);
+        const fleaPrice = await db.query('select count(id) as num from price_data where item_id = ?', [id]);
         if (fleaPrice[0].num !== 0) {
             return true;
         }
-        const priceArchive = await query('select count(item_id) as num from price_archive where item_id = ?', [id]);
+        const priceArchive = await db.query('select count(item_id) as num from price_archive where item_id = ?', [id]);
         if (priceArchive[0].num !== 0) {
             return true;
         }
-        const traderOffer = await query('select count(id) as num from trader_offers where item_id = ?', [id]);
+        const traderOffer = await db.query('select count(id) as num from trader_offers where item_id = ?', [id]);
         return traderOffer[0].num !== 0;
     },
     on: (event, listener) => {
