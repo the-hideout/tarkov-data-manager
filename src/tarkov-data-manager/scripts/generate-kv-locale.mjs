@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
 import '../modules/configure-env.mjs'
-import { keepAlive, jobComplete } from '../modules/db-connection.mjs';
+import dbConnection from '../modules/db-connection.mjs';
 import { jobOutput } from '../jobs/index.mjs';
 
 process.env.VERBOSE_LOGS = 'true';
@@ -15,7 +15,6 @@ const localeJobs = [
 ];
 
 (async () => {
-    keepAlive(true);
     const locales = {};
     for (const job of localeJobs) {
         try {
@@ -33,6 +32,5 @@ const localeJobs = [
         }
     }
     fs.writeFileSync('./dumps/kv_locale_en.json', JSON.stringify(locales.en, null, 4));
-    keepAlive(false);
-    jobComplete();
+    dbConnection.end();
 })();

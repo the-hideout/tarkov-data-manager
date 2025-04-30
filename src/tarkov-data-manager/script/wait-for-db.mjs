@@ -1,10 +1,10 @@
-import {query} from '../modules/db-connection.mjs';
+import db from '../modules/db-connection.mjs';
 
 async function waitForDb() {
     const maxAttempts = 300;
     for (let i = 0; i < maxAttempts; i++) {
         try {
-            const data = await query('SELECT count(*) FROM wipe');
+            const data = await db.query('SELECT count(*) FROM wipe');
 
             // if data is not empty, the query was successful
             if (data) {
