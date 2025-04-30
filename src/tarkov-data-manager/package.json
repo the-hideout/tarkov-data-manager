@@ -31,7 +31,7 @@
     "discord.js": "^14.18.0",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
-    "formidable": "^3.5.1",
+    "formidable": "^3.5.4",
     "got": "^14.3.0",
     "luxon": "^3.6.1",
     "mysql2": "^3.14.0",
