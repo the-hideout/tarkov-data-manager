@@ -838,9 +838,13 @@ class UpdateMapsJob extends DataJob {
             'jpg',
         ];
         const imageSizes = ['Portrait', 'Poster'];
+        const forceImageUpdate = [];
         for (const imageSize of imageSizes) {
             let found = false;
             for (const ext of extensions) {
+                if (forceImageUpdate.includes('all') || forceImageUpdate.includes(bossKey)) {
+                    break;
+                }
                 const fileName = `${bossInfo.normalizedName}-${imageSize.toLowerCase()}.${ext}`;
                 if (this.s3Images.includes(fileName)) {
                     bossInfo[`image${imageSize}Link`] = `https://${process.env.S3_BUCKET}/${fileName}`;
@@ -851,113 +855,15 @@ class UpdateMapsJob extends DataJob {
             if (found || imageSize === 'Portrait' || !bossExtraData) {
                 continue;
             }
-            const requestData = {
-                aid: 1234567890,
-                customization: {},
-                equipment: {
-                    Id: "000000000000000000000000",
-                    Items: [
-                        {
-                            _id: "000000000000000000000000",
-                            _tpl: "55d7217a4bdc2d86028b456d"
-                        }
-                    ],
-                },
-            };
-            const bodyParts = [
-                'head',
-                'body',
-                'hands',
-                'feet',
-            ];
-            for (const bodyPart of bodyParts) {
-                let bodyPartChosen;
-                for (const bpid in bossExtraData.appearance[bodyPart]) {
-                    const weight = bossExtraData.appearance[bodyPart][bpid];
-                    if (!bodyPartChosen || weight > bodyPartChosen.weight) {
-                        bodyPartChosen = {
-                            id: bpid,
-                            weight,
-                        };
-                    }
-                }
-                if (bodyPartChosen) {
-                    requestData.customization[bodyPart] = bodyPartChosen.id;
-                }
-            }
-            const equipmentSlots = [
-                'Headwear',
-                'Earpiece',
-                'FaceCover',
-                'ArmorVest',
-                'Eyewear',
-                'TacticalVest',
-                'Backpack',
-            ];
-            const addModsForItem = (itemId, parentId) => {
-                for (const modSlot in bossExtraData.inventory.mods[itemId]) {
-                    const modItem = {
-                        _id: itemIndex.toString(16).padStart(24, '0'),
-                        _tpl: bossExtraData.inventory.mods[itemId][modSlot][0],
-                        parentId,
-                        slotId: modSlot,
-                    };
-                    itemIndex++;
-                    if (this.eftItems[modItem._tpl]?._props?.FaceShieldComponent && this.eftItems[modItem._tpl]?._props?.HasHinge) {
-                        modItem.upd = {
-                            Togglable: {
-                                On: true,
-                            },
-                        };
-                    }
-                    requestData.equipment.Items.push(modItem);
-                    addModsForItem(modItem._tpl, modItem._id);
-                };
-            };
-            let itemIndex = 1;
-            for (const slot of equipmentSlots) {
-                let itemChosen;
-                for (const itemId in bossExtraData.inventory.equipment[slot]) {
-                    const weight = bossExtraData.inventory.equipment[slot][itemId];
-                    if (!itemChosen || weight > itemChosen.weight) {
-                        itemChosen = {
-                            id: itemId,
-                            weight,
-                        };
-                    }
-                }
-                if (!itemChosen) {
-                    continue;
-                }
-                const equipmentItemId = itemIndex.toString(16).padStart(24, '0');
-                requestData.equipment.Items.push({
-                    _id: equipmentItemId,
-                    _tpl: itemChosen.id,
-                    parentId: requestData.equipment.Id,
-                    slotId: slot,
-                });
-                itemIndex++;
-                if (!bossExtraData.inventory.mods[itemChosen.id]) {
-                    continue;
-                }
-                addModsForItem(itemChosen.id, equipmentItemId);
-            }
-            const url = new URL(`https://imagemagic.tarkov.dev/player/${requestData.aid}.webp`);
-            url.searchParams.append('data', JSON.stringify(requestData));
-            const imageResponse = await fetch(url);
-            if (!imageResponse.ok) {
-                this.logger.warn(`Error retrieving ${bossInfo.normalizedName} image: ${imageResponse.status} ${imageResponse.statusText}`);
-                continue;
-            }
-            const image = sharp(await imageResponse.arrayBuffer());
-            const metadata = await image.metadata();
-            if (metadata.width <= 1 || metadata.height <= 1) {
+            const image = await this.getMobImage(bossExtraData).catch(error => {
+                this.logger.warn(`Error getting ${bossKey} image: ${error.message}`);
+            });
+            if (!image) {
                 continue;
             }
             const posterFilename = `${bossInfo.normalizedName}-${imageSize.toLowerCase()}.webp`;
             await s3.uploadAnyImage(image, posterFilename, 'image/webp');
             this.s3Images.push(posterFilename);
-            console.log(posterFilename);
             const portraitFilename = `${bossInfo.normalizedName}-portrait.webp`;
             await s3.uploadAnyImage(image.resize(128, 128), portraitFilename, 'image/webp');
             this.s3Images.push(portraitFilename);
@@ -1036,6 +942,158 @@ class UpdateMapsJob extends DataJob {
         }
         this.processedBosses[bossKey] = bossInfo;
         return bossInfo;
+    }
+
+    async getMobImage(bossExtraData) {
+        const requestData = {
+            aid: 1234567890,
+            customization: {},
+            equipment: {
+                Id: "000000000000000000000000",
+                Items: [
+                    {
+                        _id: "000000000000000000000000",
+                        _tpl: "55d7217a4bdc2d86028b456d"
+                    }
+                ],
+            },
+        };
+        const bodyParts = [
+            'head',
+            'body',
+            'hands',
+            'feet',
+        ];
+        for (const bodyPart of bodyParts) {
+            let bodyPartChosen;
+            for (const bpid in bossExtraData.appearance[bodyPart]) {
+                const weight = bossExtraData.appearance[bodyPart][bpid];
+                if (!bodyPartChosen || weight > bodyPartChosen.weight) {
+                    bodyPartChosen = {
+                        id: bpid,
+                        weight,
+                    };
+                }
+            }
+            if (bodyPartChosen) {
+                requestData.customization[bodyPart] = bodyPartChosen.id;
+            }
+        }
+        const equipmentSlots = [
+            'Headwear',
+            'FaceCover',
+            'ArmorVest',
+            'Eyewear',
+            'TacticalVest',
+            'Backpack',
+            'Earpiece',
+        ];
+        const blacklistItems = [
+            '5c066ef40db834001966a595' // Armasight NVG head strap
+        ];
+        let itemIndex = 1;
+        // recursive function to add attachments to a given item
+        const addModsForItem = (baseSlot, itemId, parentId) => {
+            for (const modSlot in bossExtraData.inventory.mods[itemId]) {
+                const modItemId = bossExtraData.inventory.mods[itemId][modSlot][0];
+                if (blacklistItems.includes(modItemId)) {
+                    continue;
+                }
+                if (conflictsWithItems(baseSlot, modItemId)) {
+                    continue;
+                }
+                const modItem = {
+                    _id: itemIndex.toString(16).padStart(24, '0'),
+                    _tpl: modItemId,
+                    parentId,
+                    slotId: modSlot,
+                };
+                itemIndex++;
+                if (this.eftItems[modItem._tpl]?._props?.FaceShieldComponent && this.eftItems[modItem._tpl]?._props?.HasHinge) {
+                    modItem.upd = {
+                        Togglable: {
+                            On: true,
+                        },
+                    };
+                }
+                requestData.equipment.Items.push(modItem);
+                addModsForItem(baseSlot, modItem._tpl, modItem._id);
+            };
+        };
+        const conflictsWithItems = (slotId, itemId) => {
+            const item = this.eftItems[itemId];
+            return requestData.equipment.Items.some(loadoutItem => {
+                const otherId = loadoutItem._tpl;
+                const otherItem = this.eftItems[otherId];
+                const itemConflict = item?._props.ConflictingItems.includes(otherId) ||
+                    otherItem?._props.ConflictingItems.includes(itemId);
+                if (itemConflict) {
+                    return true;
+                }
+                const blockSlots = [
+                    'Earpiece',
+                    'Eyewear',
+                    'FaceCover',
+                    'Headwear',
+                ];
+                if (!blockSlots.includes(slotId)) {
+                    return false;
+                }
+                return requestData.equipment.Items.some(loadoutItem => {
+                    const otherId = loadoutItem._tpl;
+                    const otherItem = this.eftItems[otherId];
+                    return otherItem?._props[`Blocks${slotId}`] ||
+                        item?._props[`Blocks${loadoutItem.slotId}`];
+                });
+            });
+        };
+        for (const slot of equipmentSlots) {
+            let itemChosen;
+            for (const itemId in bossExtraData.inventory.equipment[slot]) {
+                if (blacklistItems.includes(itemId)) {
+                    continue;
+                }
+                if (conflictsWithItems(slot, itemId)) {
+                    continue;
+                }
+                const weight = bossExtraData.inventory.equipment[slot][itemId];
+                if (!itemChosen || weight > itemChosen.weight) {
+                    itemChosen = {
+                        id: itemId,
+                        weight,
+                    };
+                }
+            }
+            if (!itemChosen) {
+                // no item for this slot
+                continue;
+            }
+            const equipmentItemId = itemIndex.toString(16).padStart(24, '0');
+            requestData.equipment.Items.push({
+                _id: equipmentItemId,
+                _tpl: itemChosen.id,
+                parentId: requestData.equipment.Id,
+                slotId: slot,
+            });
+            itemIndex++;
+            if (!bossExtraData.inventory.mods[itemChosen.id]) {
+                continue;
+            }
+            addModsForItem(slot, itemChosen.id, equipmentItemId);
+        }
+        const url = new URL(`https://imagemagic.tarkov.dev/player/${requestData.aid}.webp`);
+        url.searchParams.append('data', JSON.stringify(requestData));
+        const imageResponse = await fetch(url);
+        if (!imageResponse.ok) {
+            this.logger.warn(`Error retrieving ${bossInfo.normalizedName} image: ${imageResponse.status} ${imageResponse.statusText}`);
+            return;
+        }
+        const image = sharp(await imageResponse.arrayBuffer());
+        const metadata = await image.metadata();
+        if (metadata.width <= 1 || metadata.height <= 1) {
+            return;
+        }
+        return image;
     }
 
     getLootContainer(c) {
