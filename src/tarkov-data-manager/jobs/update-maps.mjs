@@ -330,7 +330,7 @@ class UpdateMapsJob extends DataJob {
                             return false;
                         }
                         const switchId = `${sw.id}_${sw.name}`.replace(/^(?:switch_)?/i, 'switch_');
-                        if (switchId.startsWith('switch_custom_Light')) {
+                        if (switchId.startsWith('switch_custom_Light') || switchId.startsWith('switch_develop_00000')) {
                             return false;
                         }
                         return {
