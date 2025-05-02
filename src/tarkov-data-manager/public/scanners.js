@@ -296,8 +296,8 @@ const updateStatus = (scannerName, settings) => {
     if (status === 'loading' || status === 'stopping' || status === 'closed') {
         $(`#dropdown-${scannerName} li.pause-scanner`).css('display', 'none');
         $(`#dropdown-${scannerName} li.resume-scanner`).css('display', 'none');
-        $(`#dropdown-${scannerName} li.restart-scanner`).css('display', 'none');
-        $(`#dropdown-${scannerName} li.shutdown-scanner`).css('display', 'none');
+        $(`#dropdown-${scannerName} li.restart-scanner`).css('display', '');
+        $(`#dropdown-${scannerName} li.shutdown-scanner`).css('display', '');
         $(`#dropdown-${scannerName} li.generate-images-scanner`).css('display', 'none');
     }
 };
