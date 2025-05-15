@@ -160,7 +160,6 @@ const tarkovChanges = {
         const response = await got(process.env.TC_RESTART_URL, {
             method: 'GET',
             headers: {
-                'Accept': 'application/json',
                 'CF-Access-Client-Id': process.env.TC_RESTART_CLIENT_ID,
                 'CF-Access-Client-Secret': process.env.TC_RESTART_CLIENT_SECRET,
             },
@@ -168,6 +167,9 @@ const tarkovChanges = {
         });
         if (!response.ok) {
             return Promise.reject(new Error(`${response.statusCode} ${response.statusMessage}`));
+        }
+        if (response.body.includes('Sign in')) {
+            return Promise.reject(new Error('Login required'));
         }
         return response.body;
     }

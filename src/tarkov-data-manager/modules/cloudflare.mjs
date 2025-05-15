@@ -253,7 +253,12 @@ const cloudflare = {
             account_id: accountId,
             sql: query,
             params,
-        }).then((res) => Array.isArray(res.result) ? res.result[0] : res.result);
+        }).then((res) => Array.isArray(res.result) ? res.result[0] : res.result).catch(error => {
+            if (error instanceof Cloudflare.APIError && error.status === 504) {
+                return error;
+            }
+            return Promise.reject(error);
+        });
         /*const response = await fetch(`${BASE_URL}accounts/424ad63426a1ae47d559873f929eb9fc/d1/database/6b25079c-ab80-41ba-bbe8-ed0f2913f87e/query`, {
             method: 'POST',
             headers: {
