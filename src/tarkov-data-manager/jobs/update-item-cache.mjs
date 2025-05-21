@@ -123,7 +123,7 @@ class UpdateItemCacheJob extends DataJob {
                 link: `https://tarkov.dev/item/${value.normalized_name}`,
                 iconLink: value.icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg',
                 gridImageLink: value.grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg',
-                baseImageLink: value.base_image_link || 'https://assets.tarkov.dev/unknown-item-base-image.png',
+                baseImageLink: value.base_image_link || 'https://assets.tarkov.dev/unknown-item-base-image.webp',
                 inspectImageLink: value.image_link || 'https://assets.tarkov.dev/unknown-item-inspect.webp',
                 image512pxLink: value.image_512_link || 'https://assets.tarkov.dev/unknown-item-512.webp',
                 image8xLink: value.image_8x_link || 'https://assets.tarkov.dev/unknown-item-512.webp',

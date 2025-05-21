@@ -2761,5 +2761,660 @@
         "experience": 10000,
         "tarkovDataId": null,
         "factionName": "Any"
+    },
+    "67af4c17f4f1fb58a907f8f6": {
+        "id": "67af4c17f4f1fb58a907f8f6",
+        "name": "Never Too Late to Learn",
+        "trader": "58330581ace78e27b8b10cee",
+        "location_id": null,
+        "locationName": "any",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "67af4c169d95ad16e004fd86",
+                "name": "Safety Guarantee",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "67af7037f7937389517f0569",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5bb2475ed4351e00853264e3",
+                "item_name": "HK 416A5 5.56x45 assault rifle",
+                "count": 15,
+                "item": "5bb2475ed4351e00853264e3",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "67af7055a7ffd02753b8c5bd",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "60194943740c5d77f6705eea",
+                "item_name": "5.56x45mm MK 318 Mod 0 (SOST)",
+                "count": 4500,
+                "item": "60194943740c5d77f6705eea",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "67af70650fa4c937ca034063",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "601948682627df266209af05",
+                "item_name": "UVSR Taiga-1 survival machete",
+                "count": 8,
+                "item": "601948682627df266209af05",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [
+                {
+                    "name": "Troubleshooting",
+                    "level": 1
+                },
+                {
+                    "name": "MagDrills",
+                    "level": 1
+                },
+                {
+                    "name": "Crafting",
+                    "level": 1
+                },
+                {
+                    "name": "HideoutManagement",
+                    "level": 1
+                }
+            ],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "67af4c1991ee75c6d7060a16": {
+        "id": "67af4c1991ee75c6d7060a16",
+        "name": "Get a Foothold",
+        "trader": "58330581ace78e27b8b10cee",
+        "location_id": null,
+        "locationName": "any",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "67af4c17f4f1fb58a907f8f6",
+                "name": "Never Too Late to Learn",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "67af70d60ef31f2d26f1a4d5",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5c0e531d86f7747fa23f4d42",
+                "item_name": "SJ6 TGLabs combat stimulant injector",
+                "count": 30,
+                "item": "5c0e531d86f7747fa23f4d42",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "67af70e894e1096f325b8050",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "637b60c3b7afa97bfc3d7001",
+                "item_name": "Obdolbos 2 cocktail injector",
+                "count": 30,
+                "item": "637b60c3b7afa97bfc3d7001",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "67af70f3cfdf90b749b5eb36",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5c0e530286f7747fa1419862",
+                "item_name": "Propital regenerative stimulant injector",
+                "count": 30,
+                "item": "5c0e530286f7747fa1419862",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "67af70fe8c503a010078afd0",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5ed51652f6c34d2cc26336a1",
+                "item_name": "M.U.L.E. stimulant injector",
+                "count": 30,
+                "item": "5ed51652f6c34d2cc26336a1",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "67af710c5662b533d9f5b9ca",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5c0e534186f7747fa1419867",
+                "item_name": "eTG-change regenerative stimulant injector",
+                "count": 30,
+                "item": "5c0e534186f7747fa1419867",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "67af7117f8c948d02b632085",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5fca13ca637ee0341a484f46",
+                "item_name": "SJ9 TGLabs combat stimulant injector",
+                "count": 30,
+                "item": "5fca13ca637ee0341a484f46",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "67af7121aeed86a73d8653be",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "",
+                "item_name": "SJ12 TGLabs combat stimulant injector",
+                "count": 30,
+                "item": "",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "67af712cf5f86ab56db8f198",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "637b612fb7afa97bfc3d7005",
+                "item_name": "Meldonin injector",
+                "count": 30,
+                "item": "637b612fb7afa97bfc3d7005",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [
+                {
+                    "name": "StressResistance",
+                    "level": 1
+                },
+                {
+                    "name": "Vitality",
+                    "level": 1
+                },
+                {
+                    "name": "Surgery",
+                    "level": 1
+                },
+                {
+                    "name": "Health",
+                    "level": 1
+                },
+                {
+                    "name": "Immunity",
+                    "level": 1
+                }
+            ],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "67af4c1a6c3ebfd8e6034916": {
+        "id": "67af4c1a6c3ebfd8e6034916",
+        "name": "Profit Retention",
+        "trader": "58330581ace78e27b8b10cee",
+        "location_id": null,
+        "locationName": "any",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "67af4c1991ee75c6d7060a16",
+                "name": "Get a Foothold",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "67af7168fab0681948d9ed8b",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "57347ca924597744596b4e71",
+                "item_name": "Graphics card",
+                "count": 30,
+                "item": "57347ca924597744596b4e71",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "67af7178ea4fed9c667abb17",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "59faff1d86f7746c51718c9c",
+                "item_name": "Physical Bitcoin",
+                "count": 15,
+                "item": "59faff1d86f7746c51718c9c",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [
+                {
+                    "name": "Crafting",
+                    "level": 1
+                },
+                {
+                    "name": "HideoutManagement",
+                    "level": 1
+                },
+                {
+                    "name": "Perception",
+                    "level": 1
+                },
+                {
+                    "name": "Attention",
+                    "level": 1
+                },
+                {
+                    "name": "Search",
+                    "level": 1
+                }
+            ],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "67af4c1cc0e59d55e2010b97": {
+        "id": "67af4c1cc0e59d55e2010b97",
+        "name": "A Life Lesson",
+        "trader": "58330581ace78e27b8b10cee",
+        "location_id": null,
+        "locationName": "any",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "67af4c1a6c3ebfd8e6034916",
+                "name": "Profit Retention",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "67af71c90036a462a17a72d3",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5d40407c86f774318526545a",
+                "item_name": "Bottle of Tarkovskaya vodka",
+                "count": 8,
+                "item": "5d40407c86f774318526545a",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "67af71d6a6e77337205f5bfe",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5d403f9186f7743cac3f229b",
+                "item_name": "Bottle of Dan Jackiel whiskey",
+                "count": 15,
+                "item": "5d403f9186f7743cac3f229b",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "67af71f19ce81d8ebb21530f",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5d1b376e86f774252519444e",
+                "item_name": "Bottle of Fierce Hatchling moonshine",
+                "count": 15,
+                "item": "5d1b376e86f774252519444e",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [
+                {
+                    "name": "Endurance",
+                    "level": 1
+                },
+                {
+                    "name": "Strength",
+                    "level": 1
+                },
+                {
+                    "name": "Metabolism",
+                    "level": 1
+                },
+                {
+                    "name": "Charisma",
+                    "level": 1
+                },
+                {
+                    "name": "Intellect",
+                    "level": 1
+                }
+            ],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "67af4c1d8c9482eca103e477": {
+        "id": "67af4c1d8c9482eca103e477",
+        "name": "Consolation Prize",
+        "trader": "58330581ace78e27b8b10cee",
+        "location_id": "5b0fc42d86f7744a585f9105",
+        "locationName": "The Lab",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "67af4c1cc0e59d55e2010b97",
+                "name": "A Life Lesson",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "67af727750e1b6f21d9f5511",
+                "type": "extract",
+                "count": 15,
+                "optional": false,
+                "locationNames": [
+                    "The Lab"
+                ],
+                "map_ids": [
+                    "5b0fc42d86f7744a585f9105"
+                ],
+                "zoneNames": [],
+                "exitStatus": [
+                    "ExpBonusSurvived"
+                ],
+                "zones": []
+            },
+            {
+                "id": "67af730c69887224a61084ac",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [
+                    "The Lab"
+                ],
+                "map_ids": [
+                    "5b0fc42d86f7744a585f9105"
+                ],
+                "target": "PmcBot",
+                "count": 100,
+                "shotType": "kill",
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [
+                {
+                    "name": "AimDrills",
+                    "level": 1
+                },
+                {
+                    "name": "AssaultRifle",
+                    "level": 1
+                },
+                {
+                    "name": "Sniping",
+                    "level": 1
+                },
+                {
+                    "name": "WeaponTreatment",
+                    "level": 1
+                },
+                {
+                    "name": "Troubleshooting",
+                    "level": 1
+                },
+                {
+                    "name": "DMR",
+                    "level": 1
+                },
+                {
+                    "name": "HMG",
+                    "level": 1
+                },
+                {
+                    "name": "LMG",
+                    "level": 1
+                },
+                {
+                    "name": "Melee",
+                    "level": 1
+                },
+                {
+                    "name": "Pistol",
+                    "level": 1
+                },
+                {
+                    "name": "Revolver",
+                    "level": 1
+                },
+                {
+                    "name": "Launcher",
+                    "level": 1
+                },
+                {
+                    "name": "Shotgun",
+                    "level": 1
+                },
+                {
+                    "name": "SMG",
+                    "level": 1
+                },
+                {
+                    "name": "Throwing",
+                    "level": 1
+                },
+                {
+                    "name": "AttachedLauncher",
+                    "level": 1
+                }
+            ],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
     }
 }

@@ -1710,5 +1710,12 @@
                 }
             ]
         }
+    },
+    "66aa58245ab22944110db6e9": {
+        "name": "New Day, New Paths",
+        "objectivesRemoved": [
+            "66b0e57eddc25d8d17e3e3c0",
+            "66aa5c8ba8c36eaef492ef92"
+        ]
     }
 }
