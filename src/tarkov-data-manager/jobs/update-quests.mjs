@@ -167,6 +167,9 @@ class UpdateQuestsJob extends DataJob {
                     }
                     this.addMapFromDescription(obj);
                 }
+                for (const skillReward of quest.finishRewards.skillLevelReward) {
+                    this.addTranslation(skillReward.name);
+                }
                 quests.Task.push(quest);
             } catch (error) {
                 this.logger.error(error);

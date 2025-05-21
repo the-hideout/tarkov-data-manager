@@ -1188,7 +1188,7 @@
                 ],
                 "zoneNames": [],
                 "exitStatus": [
-                    "ExpBonusSurvived"
+                    "Survived"
                 ],
                 "zones": []
             }
@@ -1307,7 +1307,7 @@
                 ],
                 "zoneNames": [],
                 "exitStatus": [
-                    "ExpBonusSurvived"
+                    "Survived"
                 ],
                 "zones": []
             }
@@ -1559,7 +1559,7 @@
                 ],
                 "zoneNames": [],
                 "exitStatus": [
-                    "ExpBonusSurvived"
+                    "Survived"
                 ],
                 "zones": []
             }
@@ -3297,7 +3297,7 @@
                 ],
                 "zoneNames": [],
                 "exitStatus": [
-                    "ExpBonusSurvived"
+                    "Survived"
                 ],
                 "zones": []
             },
