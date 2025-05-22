@@ -151,7 +151,7 @@ const getArmorSlots = (item) => {
         ];
         if (slotInfo.locked) {
             const plateItem = job.bsgItems[slotInfo.Plate];
-            //newSlot.name = job.addTranslation(plateItem._props.Name),
+            //newSlot.name = translationHelper.addTranslation(plateItem._props.Name),
             newSlot.bluntThroughput = plateItem._props.BluntThroughput,
             newSlot.class = parseInt(plateItem._props.armorClass),
             newSlot.durability = parseInt(plateItem._props.Durability),
@@ -200,7 +200,7 @@ const getStimEffects = (item) => {
                 duration: buff.Duration,
                 value: buff.Value,
                 percent: !buff.AbsoluteValue,
-                type: buff.SkillName ? translationHelper.addTranslation('Skill') : job.addTranslation(effectKey),
+                type: buff.SkillName ? translationHelper.addTranslation('Skill') : translationHelper.addTranslation(effectKey),
                 skillName: buff.SkillName ? translationHelper.addTranslation(buff.SkillName) : undefined
             };
             stimEffects.push(effect);
