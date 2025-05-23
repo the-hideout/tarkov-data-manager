@@ -167,6 +167,9 @@ class UpdateQuestsJob extends DataJob {
                     }
                     this.addMapFromDescription(obj);
                 }
+                for (const skillReward of quest.finishRewards.skillLevelReward) {
+                    this.addTranslation(skillReward.name);
+                }
                 quests.Task.push(quest);
             } catch (error) {
                 this.logger.error(error);
@@ -1791,9 +1794,9 @@ class UpdateQuestsJob extends DataJob {
             if (!obj.map_ids.includes(mapId)) {
                 obj.map_ids.push(mapId);
             }
-            this.logger.warn(`${this.getTranslation(quest.name)} ${quest.id} objective ${obj.id} item ${obj.item_name} ${obj.item_id} has no known coordinates`);
+            this.logger.warn(`objective ${obj.id} item ${obj.item_name} ${obj.item_id} has no known coordinates`);
         } else {
-            this.logger.warn(`${this.getTranslation(quest.name)} ${quest.id} objective ${obj.id} item ${obj.item_name} ${obj.item_id} has no known spawn`);
+            this.logger.warn(`objective ${obj.id} item ${obj.item_name} ${obj.item_id} has no known spawn`);
         }
     }
 }

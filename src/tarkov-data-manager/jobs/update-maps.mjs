@@ -8,6 +8,7 @@ import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 //import mapQueueTimes from '../modules/map-queue-times';
 import s3 from '../modules/upload-s3.mjs';
+import npcImageMaker from '../modules/npc-image-maker.mjs';
 
 const enableMaps = [
     '59fc81d786f774390775787e', // night factory
@@ -826,8 +827,8 @@ class UpdateMapsJob extends DataJob {
             id: bossKey,
             name: this.addMobTranslation(bossKey),
             normalizedName: this.normalizeName(this.getTranslation(bossKey, 'en')),
-            imagePortraitLink: `https://${process.env.S3_BUCKET}/unknown-mob-portrait.webp`,
-            imagePosterLink: `https://${process.env.S3_BUCKET}/unknown-mob-poster.webp`,
+            imagePortraitLink: `https://${process.env.S3_BUCKET}/unknown-npc-portrait.webp`,
+            imagePosterLink: `https://${process.env.S3_BUCKET}/unknown-npc-poster.webp`,
             equipment: [],
             items: [],
         };
@@ -852,12 +853,34 @@ class UpdateMapsJob extends DataJob {
                     break;
                 }
             }
-            if (found || imageSize === 'Portrait' || !bossExtraData) {
+            if (found || imageSize === 'Portrait') {
                 continue;
             }
-            const image = await this.getMobImage(bossExtraData).catch(error => {
+            let imageData;
+            if (npcImageMaker.hasCustomData(bossKey)) {
+                try {    
+                    imageData = npcImageMaker.getCustomData(bossKey);
+                } catch (error) {
+                    this.logger.warn(`Error getting ${bossKey} custom image data: ${error.message}`);
+                }
+                
+            }
+            if (!imageData && bossExtraData) {
+                try {    
+                    imageData = this.bossDataToImageData(bossExtraData);
+                } catch (error) {
+                    this.logger.warn(`Error getting ${bossKey} spt image data: ${error.message}`);
+                }
+            }
+            if (!imageData) {
+                continue;
+            }
+            let image;
+            try {    
+                image = await npcImageMaker.requestImage(imageData);
+            } catch (error) {
                 this.logger.warn(`Error getting ${bossKey} image: ${error.message}`);
-            });
+            }
             if (!image) {
                 continue;
             }
@@ -944,20 +967,8 @@ class UpdateMapsJob extends DataJob {
         return bossInfo;
     }
 
-    async getMobImage(bossExtraData) {
-        const requestData = {
-            aid: 1234567890,
-            customization: {},
-            equipment: {
-                Id: "000000000000000000000000",
-                Items: [
-                    {
-                        _id: "000000000000000000000000",
-                        _tpl: "55d7217a4bdc2d86028b456d"
-                    }
-                ],
-            },
-        };
+    bossDataToImageData(bossExtraData) {
+        const requestData = npcImageMaker.defaultData();
         const bodyParts = [
             'head',
             'body',
@@ -1081,19 +1092,7 @@ class UpdateMapsJob extends DataJob {
             }
             addModsForItem(slot, itemChosen.id, equipmentItemId);
         }
-        const url = new URL(`https://imagemagic.tarkov.dev/player/${requestData.aid}.webp`);
-        url.searchParams.append('data', JSON.stringify(requestData));
-        const imageResponse = await fetch(url);
-        if (!imageResponse.ok) {
-            this.logger.warn(`Error retrieving ${bossInfo.normalizedName} image: ${imageResponse.status} ${imageResponse.statusText}`);
-            return;
-        }
-        const image = sharp(await imageResponse.arrayBuffer());
-        const metadata = await image.metadata();
-        if (metadata.width <= 1 || metadata.height <= 1) {
-            return;
-        }
-        return image;
+        return requestData;
     }
 
     getLootContainer(c) {
