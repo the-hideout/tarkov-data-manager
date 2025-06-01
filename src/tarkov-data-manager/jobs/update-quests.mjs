@@ -1741,15 +1741,16 @@ class UpdateQuestsJob extends DataJob {
         obj.zoneKeys?.forEach((zoneId) => {
             for (const mapId in this.mapDetails) {
                 for (const trigger of this.mapDetails[mapId].zones) {
-                    if (trigger.id === zoneId) {
-                        obj.zones.push({
-                            id: trigger.id,
-                            map: mapId,
-                            ...trigger.location,
-                        });        
-                        if (!obj.map_ids.includes(mapId)) {
-                            obj.map_ids.push(mapId);
-                        } 
+                    if (trigger.id !== zoneId) {
+                        continue;
+                    }
+                    obj.zones.push({
+                        id: trigger.id,
+                        map: mapId,
+                        ...trigger.location,
+                    });        
+                    if (!obj.map_ids.includes(mapId)) {
+                        obj.map_ids.push(mapId);
                     }
                 }
             }

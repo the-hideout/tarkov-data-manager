@@ -1720,19 +1720,15 @@
     },
     "66058cbd9f59e625462acc8e": {
         "name": "Create a Distraction - Part 1",
+        "propertiesChanged": {
+            "location_id": null,
+            "locationName": "any"
+        },
         "objectivesRemoved": [
             "660a9dcf070cb9c8cc1715c7"
         ],
         "objectivesChanged": {
             "660a9dc64c0927ead4fcfeef": {
-                "locationNames": [
-                    "Ground Zero",
-                    "Ground Zero 21+"
-                ],
-                "map_ids": [
-                    "653e6760052c01c1c805532f",
-                    "65b8d6f5cdde2479cb2a3125"
-                ],
                 "zoneKeys": [
                     "nt2024_5_throtil_epicentr"
                 ]
