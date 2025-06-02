@@ -1717,5 +1717,22 @@
             "66b0e57eddc25d8d17e3e3c0",
             "66aa5c8ba8c36eaef492ef92"
         ]
+    },
+    "66058cbd9f59e625462acc8e": {
+        "name": "Create a Distraction - Part 1",
+        "propertiesChanged": {
+            "location_id": null,
+            "locationName": "any"
+        },
+        "objectivesRemoved": [
+            "660a9dcf070cb9c8cc1715c7"
+        ],
+        "objectivesChanged": {
+            "660a9dc64c0927ead4fcfeef": {
+                "zoneKeys": [
+                    "nt2024_5_throtil_epicentr"
+                ]
+            }
+        }
     }
 }
