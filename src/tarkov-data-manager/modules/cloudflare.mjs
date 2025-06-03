@@ -223,7 +223,7 @@ const cloudflare = {
             }
             return result;
         }).catch(error => {
-            return error.error;
+            return Promise.reject(error.error);
         });
     },
     putBulk: (kvPairs, options = {}) => {
