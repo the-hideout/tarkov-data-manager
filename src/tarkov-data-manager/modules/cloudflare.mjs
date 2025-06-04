@@ -202,7 +202,7 @@ const cloudflare = {
         } 
         //return doRequest('PUT', 'values', key, zlib.gzipSync(value).toString(encoding), false, {compression: 'gzip', encoding: encoding}).then(response => {
         //return doRequest({method: 'PUT', path: `values/${key}`, body: value, ...options});
-        return client.kv.namespaces.bulkUpdate(namespace, {
+        return client.kv.namespaces.keys.bulkUpdate(namespace, {
             account_id: accountId,
             body: [{
                 key,
@@ -223,7 +223,7 @@ const cloudflare = {
             }
             return result;
         }).catch(error => {
-            return error.error;
+            return Promise.reject(error.error);
         });
     },
     putBulk: (kvPairs, options = {}) => {

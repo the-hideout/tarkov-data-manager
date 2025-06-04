@@ -37,13 +37,23 @@
     "mysql2": "^3.14.1",
     "node-schedule": "^2.1.1",
     "nodemon": "^3.1.10",
-    "sharp": "0.32.6",
-    "tarkov-dev-image-generator": "^2.2.3",
+    "sharp": "^0.34.2",
+    "tarkov-dev-image-generator": "^2.2.4",
     "unidecode": "^1.1.0",
     "ws": "^8.18.2"
   },
   "nodemonConfig": {
-    "ignore": ["package.json", "dumps", "cache", "data", "logs", "node-logs", "public", "script", "scripts"],
+    "ignore": [
+      "package.json",
+      "dumps",
+      "cache",
+      "data",
+      "logs",
+      "node-logs",
+      "public",
+      "script",
+      "scripts"
+    ],
     "delay": 2500
   }
 }
