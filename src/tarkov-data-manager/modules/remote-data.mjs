@@ -94,6 +94,8 @@ const methods = {
                     changeLast48hPercentPve: null,
                     lastOfferCount: result.last_offer_count,
                     pve_lastOfferCount: result.pve_last_offer_count,
+                    lastScan: result.last_scan,
+                    pve_lastScan: result.pve_last_scan,
                 };
                 if (!preparedData.properties) preparedData.properties = {};
                 returnData.set(result.id, preparedData);
