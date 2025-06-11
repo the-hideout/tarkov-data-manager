@@ -114,6 +114,9 @@ class DataJob {
         }
         this.alreadyRunningCount = 0;
         this.abortController = new AbortController();
+        if (options?.parent) {
+            options.parent.abortController.signal.addEventListener('abort', this.abort, { once: true });
+        }
         setMaxListeners(17, this.abortController.signal);
         this.startDate = new Date();
         this.kvData = {};
@@ -211,6 +214,9 @@ class DataJob {
         }
         await Promise.allSettled(this.queries);
         this.cleanup();
+        if (options?.parent) {
+            options.parent.abortController.signal.removeEventListener('abort', this.abort);
+        }
         this.logger.end();
         if (this.name && this.jobManager) {
             this.lastCompletion = this.jobManager.lastRun(this.name);
@@ -453,6 +459,10 @@ class DataJob {
             this.jobSummary[category] = [];
         }
         this.jobSummary[category].push(text);
+    }
+
+    abort = (reason) => {
+        this.abortController.abort(reason);
     }
 }
 
