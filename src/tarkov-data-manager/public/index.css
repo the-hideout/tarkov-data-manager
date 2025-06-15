@@ -39,3 +39,7 @@ pre {
 .no-wrap {
     white-space: pre;
 }
+
+.displayNone {
+    display: none;
+}

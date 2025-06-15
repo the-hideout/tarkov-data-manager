@@ -138,6 +138,10 @@ class UpdateItemCacheJob extends DataJob {
                 itemData[key][fieldName] = value[fieldName];
             }
 
+            if (itemData[key].updated < value.last_scan) {
+                itemData[key].updated = value.last_scan;
+            }
+
             // clean up unused fields
             for (const fieldName in itemData[key]) {
                 if (fieldName.includes('_')) {
@@ -505,6 +509,10 @@ class UpdateItemCacheJob extends DataJob {
                 const dbItem = this.itemMap.get(id);
                 for (const fieldName of priceFields) {
                     modeData.Item[id][fieldName] = dbItem[`${gameMode.name}_${fieldName}`];
+                }
+                modeData.Item[id].updated = dbItem.updated;
+                if (modeData.Item[id].updated < dbItem[`${gameMode.name}_last_scan`]) {
+                    modeData.Item[id].updated = dbItem[`${gameMode.name}_last_scan`];
                 }
             }
 

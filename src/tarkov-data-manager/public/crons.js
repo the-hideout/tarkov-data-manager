@@ -14,6 +14,7 @@ $(document).ready( function () {
                         <div>
                             <a href="#" class="waves-effect waves-light btn-small tonal edit-cron tooltipped" data-tooltip="Edit" data-job="${data}" data-schedule="${cron.schedule}"><i class="material-icons">edit</i></a>
                             <a href="#" class="waves-effect waves-light btn-small tonal run-cron tooltipped${cron.running ? ' disabled' : ''}" data-tooltip="Run" data-job="${data}"><i class="material-icons">play_arrow</i></a>
+                            <a href="#" class="waves-effect waves-light btn-small tonal stop-cron tooltipped${cron.running ? '' : ' displayNone'}" data-tooltip="Stop" data-job="${data}"><i class="material-icons">stop</i></a>
                         </div>
                     `;
                 }
@@ -100,6 +101,29 @@ $(document).ready( function () {
                     //method: ,
                     dataType: "json",
                     url: '/crons/run/'+target.data('job')
+                }).done(function (data) {
+                    new M.Toast({text: data.message});
+                    if (data.errors.length > 0) {
+                        for (let i = 0; i < data.errors.length; i++) {
+                            new M.Toast({text: data.errors[i]});
+                        }
+                        return;
+                    }
+                    target.removeClass('disabled');
+                    table.ajax.reload();
+                });
+            });
+
+            $('.stop-cron').off('click');
+            $('.stop-cron').click(function (event) {
+                let target = $(event.target);
+                if (target[0].nodeName === 'I') target = target.parent();
+                target.addClass('disabled');
+                new M.Toast({text: `Stopping ${target.data('job')} job...`});
+                $.ajax({
+                    //method: ,
+                    dataType: "json",
+                    url: '/crons/stop/'+target.data('job')
                 }).done(function (data) {
                     new M.Toast({text: data.message});
                     if (data.errors.length > 0) {
