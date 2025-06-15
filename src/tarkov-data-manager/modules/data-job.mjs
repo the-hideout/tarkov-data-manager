@@ -314,7 +314,7 @@ class DataJob {
             }
             this.writeDump(partData, idKey);
             uploads.push(cloudflare.put(idKey, partData, {signal: this.abortController.signal}).catch(error => {
-                this.logger.error(error);
+                this.logger.error(JSON.stringify(error));
                 return {success: false, errors: [], messages: []};
             }));
         }
