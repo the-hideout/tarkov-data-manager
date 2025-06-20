@@ -30,9 +30,15 @@ const jsonRequest = async (filename, options) => {
         resolveBodyOnly: true,
         retry: {
             limit: 10,
-            calculateDelay: () => {
-                return 500;
+            calculateDelay: (retryInfo) => {
+                if (retryInfo.attemptCount > retryInfo.retryOptions.limit) {
+                    return 0;
+                }
+                return 1000;
             }
+        },
+        timeout: {
+            request: 10000,
         },
         signal: options.signal,
     });
