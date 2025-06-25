@@ -4,6 +4,7 @@ import DataJob from '../modules/data-job.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import s3 from '../modules/upload-s3.mjs';
 
+// skips the station id if the current date is after the given date
 const skipAreas = {
     '5df8a81f8f77747fcf5f5702': new Date('2025-01-15T09:00Z'), // christmas tree
 };

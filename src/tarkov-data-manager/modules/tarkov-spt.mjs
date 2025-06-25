@@ -7,9 +7,12 @@ import tarkovChanges from './tarkov-changes.mjs';
 import discordWebhook from './webhook.mjs';
 import dataOptions from './data-options.mjs';
 
-const sptPath = 'https://github.com/sp-tarkov/server-csharp/raw/refs/heads/{branch}/Libraries/SPTarkov.Server.Assets/Assets/';
-const sptDataPath = `${sptPath}database/`;
-const sptConfigPath = `${sptPath}configs/`;
+const sptPath = 'https://github.com/sp-tarkov/server-csharp/raw/refs/heads/{branch}/';
+const sptAssetsPathStub = 'Libraries/SPTarkov.Server.Assets/SPT_Data/';
+const sptDataPathStub = `${sptAssetsPathStub}database/`;
+const sptConfigPathStub = `${sptAssetsPathStub}configs/`;
+const sptDataPath = `${sptPath}${sptDataPathStub}`;
+const sptConfigPath = `${sptPath}${sptConfigPathStub}`;
 
 const sptApiPath = 'https://api.github.com/repos/sp-tarkov/server-csharp/';
 
@@ -272,7 +275,7 @@ const tarkovSpt = {
         const localeData = await getFolderData({
             ...options,
             folderLabel: 'locales',
-            folderPath: 'contents/Libraries/SPTarkov.Server.Assets/Assets/database/locales/global',
+            folderPath: `contents/${sptDataPathStub}locales/global`,
             filePrefix: 'locale',
         });
         const locales = {};
@@ -298,7 +301,7 @@ const tarkovSpt = {
         const mapLoot = {};
         const locations = await tarkovChanges.locations();
         const mapLootPromises = [];
-        const sptMaps = await apiRequest(`contents/Libraries/SPTarkov.Server.Assets/Assets/database/locations`, options.searchParams);
+        const sptMaps = await apiRequest(`contents/${sptDataPathStub}locations`, options.searchParams);
         for (const id in locations.locations) {
             const map = locations.locations[id];
             if (!sptMaps.some(m => m.name === map.Id.toLowerCase())) {
@@ -315,7 +318,7 @@ const tarkovSpt = {
             if (!download && oldLocationIndex) {
                 locationIndex = oldLocationIndex;
             } else {
-                locationIndex = await apiRequest(`contents/Libraries/SPTarkov.Server.Assets/Assets/database/locations/${map.Id.toLowerCase()}`, options.searchParams);
+                locationIndex = await apiRequest(`contents/${sptDataPathStub}locations/${map.Id.toLowerCase()}`, options.searchParams);
                 fs.writeFileSync(cachePath(`spt_location_${id}_index.json`), JSON.stringify(locationIndex, null, 4));
             }
             const looseLootInfo = locationIndex?.find(f => f.name === 'looseLoot.json');
@@ -346,7 +349,7 @@ const tarkovSpt = {
         return getFolderData({
             ...options,
             folderLabel: 'bots',
-            folderPath: 'contents/Libraries/SPTarkov.Server.Assets/Assets/database/bots/types',
+            folderPath: `contents/${sptDataPathStub}bots/types`,
         });
     },
     traderAssorts: async (traderId, options = defaultOptions) => {

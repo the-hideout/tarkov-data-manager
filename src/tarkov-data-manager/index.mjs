@@ -1376,6 +1376,25 @@ app.get('/crons/run/:name', async (req, res) => {
     res.json(response);
 });
 
+app.get('/crons/stop/:name', async (req, res) => {
+    const response = {
+        success: true,
+        message: `${req.params.name} job stopped`,
+        errors: []
+    };
+    try {
+        const startDate = new Date();
+        await jobs.abortJob(req.params.name);
+        response.message = `${req.params.name} job stopped after ${new Date - startDate} ms`;
+    } catch (error) {
+        console.log(chalk.red(`Error stopping ${req.params.name} job`), error);
+        response.success = false;
+        response.message = `Error stopping ${req.params.name} job`;
+        response.errors.push(error.toString());
+    }
+    res.json(response);
+});
+
 app.get('/json', async (req, res) => {
     res.send(`${getHeader(req, {include: 'datatables'})}
         <script src="/ansi_up.js"></script>
@@ -2129,7 +2148,7 @@ const server = app.listen(port, () => {
                 console.log('error stopping scheduled jobs');
                 console.log(error);
             });
-            await dbConnection.endConnection().catch(error => {
+            await dbConnection.end().catch(error => {
                 console.log('error closing database connection pool');
                 console.log(error);
             });
