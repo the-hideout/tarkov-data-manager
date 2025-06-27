@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import got from 'got';
+import sharp from 'sharp';
 
 import tarkovChanges from './tarkov-changes.mjs';
 import discordWebhook from './webhook.mjs';
@@ -373,6 +374,30 @@ const tarkovSpt = {
             }
             return {};
         });
+    },
+    getImage: async (path) => {
+        if (path.startsWith('/files/')) {
+            path = path.replace('/files/', '/');
+        }
+        const fileInfo = await apiRequest(`contents/Libraries/SPTarkov.Server.Assets/SPT_Data/images${path}`).catch(error => {
+            if (error.code === 404 || error.code === 403) {
+                return null;
+            }
+            return Promise.reject(error);
+        });
+        if (!fileInfo?.download_url) {
+            return null;
+        }
+        const response = await fetch(fileInfo.download_url);
+        if (!response.ok) {
+            return null;
+        }
+        const image = sharp(await response.arrayBuffer()).webp({lossless: true});
+        const metadata = await image.metadata();
+        if (metadata.width <= 1 || metadata.height <= 1) {
+            return null;
+        }
+        return image;
     },
 };
 

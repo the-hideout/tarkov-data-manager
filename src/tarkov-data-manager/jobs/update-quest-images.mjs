@@ -5,6 +5,7 @@ import sharp from 'sharp';
 
 import DataJob from '../modules/data-job.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
+import tarkovSpt from '../modules/tarkov-spt.mjs';
 import { getLocalBucketContents, uploadAnyImage } from '../modules/upload-s3.mjs';
 
 class UpdateQuestImagesJob extends DataJob {
@@ -31,7 +32,7 @@ class UpdateQuestImagesJob extends DataJob {
 
         this.logger.log(`${this.missingImages.length} quests are missing images`);
 
-        questLoop: for (const id of this.missingImages) {
+        for (const id of this.missingImages) {
             const s3FileName = `${id}.webp`;
             if (this.s3Images.includes(s3FileName)) {
                 this.logger.warn(`Image already exists for ${this.localeEn[`${id} name`]} ${id}`);
@@ -39,65 +40,84 @@ class UpdateQuestImagesJob extends DataJob {
             }
             const task = this.quests.find(t => t.id === id);
             if (!task) {
-                this.logger.error(`Task ${this.localeEen[`${id} name`]} ${id} was not found`);
+                this.logger.error(`Task ${this.localeEn[`${id} name`]} ${id} was not found`);
                 continue;
             }
-            let imagePath = false;
             const questData = this.eftQuests[id];
-            if (questData) {
-                imagePath = questData.image;
+            let image = await this.getFromEFT(questData);
+            if (!image) {
+                image = await this.getFromSPT(questData);
             }
-            if (imagePath) {
-                const imageId = imagePath.replace('/files/quest/icon/', '').split('.')[0];
-                const extensions = ['.png', '.jpg'];
-                for (const ext of extensions) {
-                    try {
-                        const response = await fetch(`https://dev.sp-tarkov.com/SPT-AKI/Server/raw/branch/master/project/assets/images/quests/${imageId}${ext}`);
-                        if (!response.ok) {
-                            continue;
-                        }
-                        const image = sharp(await response.arrayBuffer()).webp({lossless: true});
-                        const metadata = await image.metadata();
-                        if (metadata.width <= 1 || metadata.height <= 1) {
-                            continue;
-                        }
-                        await uploadAnyImage(image, s3FileName, 'image/webp');
-                        this.logger.log(`Retrieved ${this.localeEn[`${id} name`]} ${id} image from SPT`);
-                        continue questLoop;
-                    } catch (error) {
-                        this.logger.error(`Error fetching ${imageId}.${ext} from SPT: ${error.stack}`);
-                    }
-                }
+            if (!image) {
+                image = await this.getFromWiki(task);
             }
-            if (!task.wikiLink) {
+            
+            if (!image) {
                 continue;
             }
-            const pageResponse = await fetch(task.wikiLink).catch(error => {
-                this.logger.error(`Error fetching wiki page for ${this.localeEn[`${task.id} name`]} ${this.task.id}: ${error}`);
-                return {
-                    ok: false,
-                };
-            });//.then(response => cheerio.load(response.body));
-            if (!pageResponse.ok) {
-                continue;
-            }
-            const $ = cheerio.load(await pageResponse.text());
-            const imageUrl = $('.va-infobox-mainimage-image img').first().attr('src');
-            if (!imageUrl) {
-                continue;
-            }
-            const imageResponse = await fetch(imageUrl);
-            if (!imageResponse.ok) {
-                continue;
-            }
-            const image = sharp(await imageResponse.arrayBuffer()).webp({lossless: true});
-            const metadata = await image.metadata();
-            if (metadata.width <= 1 || metadata.height <= 1) {
-                continue;
-            }
+            
             await uploadAnyImage(image, s3FileName, 'image/webp');
-            this.logger.log(`Retrieved ${this.localeEn[`${task.id} name`]} ${task.id} image from wiki`);
         }
+    }
+
+    async getFromEFT(questData) {
+        if (!questData?.image) {
+            return;
+        }
+        const imageResponse = await fetch(`https://prod.escapefromtarkov.com${questData.image}`);
+        if (!imageResponse.ok) {
+            return;
+        }
+        const image = sharp(await imageResponse.arrayBuffer()).webp({lossless: true});
+        const metadata = await image.metadata();
+        if (metadata.width <= 1 || metadata.height <= 1) {
+            return;
+        }
+        this.logger.log(`Retrieved ${this.localeEn[`${questData._id} name`]} ${questData._id} image from EFT`);
+        return image;
+    }
+
+    async getFromSPT(questData) {
+        if (!questData?.image) {
+            return;
+        }
+        const image = await tarkovSpt.getImage(questData.image);
+        if (!image) {
+            return false;
+        }
+        this.logger.log(`Retrieved ${this.localeEn[`${questData._id} name`]} ${questData._id} image from SPT`);
+        return image;
+    }
+
+    async getFromWiki(task) {
+        if (!task?.wikiLink) {
+            return;
+        }
+        const pageResponse = await fetch(task.wikiLink).catch(error => {
+            this.logger.error(`Error fetching wiki page for ${this.localeEn[`${task.id} name`]} ${this.task.id}: ${error}`);
+            return {
+                ok: false,
+            };
+        });
+        if (!pageResponse.ok) {
+            return;
+        }
+        const $ = cheerio.load(await pageResponse.text());
+        const imageUrl = $('.va-infobox-mainimage-image img').first().attr('src');
+        if (!imageUrl) {
+            return;
+        }
+        const imageResponse = await fetch(imageUrl);
+        if (!imageResponse.ok) {
+            return;
+        }
+        const image = sharp(await imageResponse.arrayBuffer()).webp({lossless: true});
+        const metadata = await image.metadata();
+        if (metadata.width <= 1 || metadata.height <= 1) {
+            return;
+        }
+        this.logger.log(`Retrieved ${this.localeEn[`${task.id} name`]} ${task.id} image from wiki`);
+        return image;
     }
 }
 
