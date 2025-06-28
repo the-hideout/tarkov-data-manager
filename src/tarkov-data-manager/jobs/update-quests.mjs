@@ -1901,6 +1901,12 @@ const skipQuests = [
     '67a097379f2068e74603c6ac', // Indisputable Authority
     '67a0972e77dd677f600804bd', // This Tape Sucks
     '67a09761e720611a6a01f288', // Keeper's Word*/
+    '67f3ea581cd4c15d3d040305', // Fight Back
+    '67f3ea78c54fde6cc2004855', // Secret Benefactor
+    '67f3ea873daf3aaf3e0e7ff5', // An Alternative
+    '67f3eaa3a7799274d50a8b66', // Preemptive Strive
+    '67f3eab9a33cd296b20ee695', // Staff Shortage
+    '67f3eacef649e7bceb0bb455', // Fearless Beast
 ];
 
 // Secure Folder 0013 appears on multiple maps
