@@ -2,11 +2,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import got from 'got';
+import sharp from 'sharp';
 
 import DataJob from '../modules/data-job.mjs';
 import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
-import { getLocalBucketContents } from '../modules/upload-s3.mjs';
+import { getLocalBucketContents, uploadAnyImage } from '../modules/upload-s3.mjs';
 import presetData from '../modules/preset-data.mjs';
 import webSocketServer from '../modules/websocket-server.mjs';
 import { createAndUploadFromSource } from '../modules/image-create.mjs';
@@ -527,7 +528,7 @@ class UpdateQuestsJob extends DataJob {
 
         quests.Quest = await this.jobManager.runJob('update-quests-legacy', {data: this.tdQuests, parent: this});
 
-        quests.Achievement = this.achievements.map(a => this.processAchievement(a));
+        quests.Achievement = await Promise.all(this.achievements.map(a => this.processAchievement(a)));
 
         quests.locale = this.kvData.locale;
 
@@ -1666,7 +1667,7 @@ class UpdateQuestsJob extends DataJob {
         return obj;
     }
 
-    processAchievement(ach) {
+    async processAchievement(ach) {
         return {
             id: ach.id,
             name: this.addTranslation(`${ach.id} name`),
@@ -1680,6 +1681,7 @@ class UpdateQuestsJob extends DataJob {
             //conditions: ach.conditions.availableForFinish.map(c => this.formatObjective(ach.id, c, true)),
             playersCompletedPercent: this.achievementStats[ach.id] || 0,
             adjustedPlayersCompletedPercent: parseFloat((((this.achievementStats[ach.id] || 0) / this.achievementStats['65141c30ec10ff011f17cc3b']) * 100).toFixed(2)),
+            imageLink: await this.getAchievementImageLink(ach),
         };
     }
 
@@ -1727,6 +1729,27 @@ class UpdateQuestsJob extends DataJob {
             return s3ImageLink;
         }
         return null;
+    }
+
+    async getAchievementImageLink(ach) {
+        const s3FileName = `achievement-${ach.id}-icon.webp`;
+        const s3ImageLink = `https://${process.env.S3_BUCKET}/${s3FileName}`;
+        if (this.s3Images.includes(s3FileName)) {
+            return s3ImageLink;
+        } 
+        const imageUrl = `https://prod.escapefromtarkov.com${ach.imageUrl}`;
+        const response = await fetch(imageUrl);
+        if (!response.ok) {
+            return null;
+        }
+        const image = sharp(await response.arrayBuffer()).webp({lossless: true});
+        const metadata = await image.metadata();
+        if (metadata.width <= 1 || metadata.height <= 1) {
+            return null;
+        }
+        console.log(`Downloaded ${ach.id} achievement image`);
+        await uploadAnyImage(image, s3FileName, 'image/webp');
+        return s3ImageLink;
     }
 
     getExtractStatus(stat) {
