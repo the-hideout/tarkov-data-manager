@@ -385,6 +385,8 @@ class UpdateQuestsJob extends DataJob {
             }
         }
 
+        quests.Task = this.filterOutQuestsWithMissingPrecursor(quests.Task);
+
         const ignoreMissingQuests = [
             '613708a7f8333a5d15594368',
         ];
@@ -542,6 +544,19 @@ class UpdateQuestsJob extends DataJob {
             if (nonPveTraders.includes(task.trader)) {
                 return validTasks;
             }
+            const invalidReqTask = task.taskRequirements.some(req => {
+                const reqTask = quests.Task.find(t => t.id === req.task);
+                if (!reqTask) {
+                    return true;
+                }
+                if (nonPveTraders.includes(reqTask.trader)) {
+                    return true;
+                }
+                return false;
+            });
+            if (invalidReqTask) {
+                return validTasks;
+            }
             if (task.finishRewards.traderUnlock.some(unlock => nonPveTraders.includes(unlock.trader_id))) {
                 return validTasks;
             }
@@ -569,6 +584,7 @@ class UpdateQuestsJob extends DataJob {
             validTasks.push(pveTask);
             return validTasks;
         }, []);
+        pveQuests.Task = this.filterOutQuestsWithMissingPrecursor(pveQuests.Task);
         await this.cloudflarePut(pveQuests, `${this.kvName}_pve`);
 
         this.logger.success(`Finished processing ${quests.Task.length} quests`);
@@ -1823,6 +1839,22 @@ class UpdateQuestsJob extends DataJob {
             this.logger.warn(`objective ${obj.id} item ${obj.item_name} ${obj.item_id} has no known spawn`);
         }
     }
+
+    filterOutQuestsWithMissingPrecursor(quests) {
+        for (let i = 0; i < quests.length; i++) {
+            const quest = quests[i];
+            const precursorsMissing = quest.taskRequirements.filter(req => {
+                const reqQuest = quests.find(q => q.id === req.task);
+                return !reqQuest;
+            });
+            if (precursorsMissing.length > 0) {
+                this.logger.warn(`Quest ${this.locales.en[`${quest.id} name`]} ${quest.id} is missing precursor quest(s) ${precursorsMissing.map(req => `${req.name} ${req.task}`).join(', ')}; removing`);
+                quests = quests.filter(q => q.id !== quest.id);
+                i = 0;
+            }
+        }
+        return quests;
+    }
 }
 
 const questItemLocations = {};
@@ -1901,6 +1933,12 @@ const skipQuests = [
     '67a097379f2068e74603c6ac', // Indisputable Authority
     '67a0972e77dd677f600804bd', // This Tape Sucks
     '67a09761e720611a6a01f288', // Keeper's Word*/
+    '67f3ea581cd4c15d3d040305', // Fight Back
+    '67f3ea78c54fde6cc2004855', // Secret Benefactor
+    '67f3ea873daf3aaf3e0e7ff5', // An Alternative
+    '67f3eaa3a7799274d50a8b66', // Preemptive Strive
+    '67f3eab9a33cd296b20ee695', // Staff Shortage
+    '67f3eacef649e7bceb0bb455', // Fearless Beast
 ];
 
 // Secure Folder 0013 appears on multiple maps
