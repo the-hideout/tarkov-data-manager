@@ -103,7 +103,7 @@ class UpdateQuestImagesJob extends DataJob {
             return;
         }
         const $ = cheerio.load(await pageResponse.text());
-        const imageUrl = $('.va-infobox-mainimage-image img').first().attr('src');
+        const imageUrl = $('.va-infobox-mainimage-image img').first().data('src');
         if (!imageUrl) {
             return;
         }
