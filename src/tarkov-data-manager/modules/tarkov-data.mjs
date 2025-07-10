@@ -7,6 +7,8 @@ import spt from './tarkov-spt.mjs';
 import tarkovDevData from './tarkov-dev-data.mjs';
 import dataOptions from './data-options.mjs';
 
+const mainDataSource = tarkovDevData;
+
 let manualTranslations = {};
 try {
     const langFiles = fs.readdirSync('./translations').filter(file => file.endsWith('.json'));
@@ -37,13 +39,13 @@ const defaultOptions = dataOptions.default;
 
 const dataFunctions = {
     achievements: async (options = defaultOptions) => {
-        return tarkovChanges.achievements(options);
+        return mainDataSource.achievements(options);
     },
     achievementStats: (options = defaultOptions) => {
-        return tarkovChanges.achievementStats(options);
+        return mainDataSource.achievementStats(options);
     },
     areas: (options = defaultOptions) => {
-        return tarkovChanges.areas(options);
+        return mainDataSource.areas(options);
     },
     botInfo: (botKey, options = defaultOptions) => {
         return spt.botInfo(botKey, options);
@@ -52,28 +54,28 @@ const dataFunctions = {
         return spt.botsInfo(options);
     },
     crafts: (options = defaultOptions) => {
-        return tarkovChanges.crafts(options);
+        return mainDataSource.crafts(options);
     },
     credits: (options = defaultOptions) => {
-        return tarkovChanges.credits(options);
+        return mainDataSource.credits(options);
     },
     globals: (options = defaultOptions) => {
-        return tarkovChanges.globals(options);
+        return mainDataSource.globals(options);
     },
     handbook: (options = defaultOptions) => {
         return spt.handbook(options);
     },
     items: (options = defaultOptions) => {
-        return tarkovChanges.items(options);
+        return mainDataSource.items(options);
     },
     locale: (lang = 'en', options = defaultOptions) => {
-        if (lang === 'en') return addManualTranslations(tarkovChanges.locale_en(options), lang);
+        if (lang === 'en') return addManualTranslations(mainDataSource.locale_en(options), lang);
         //if (lang == 'ru') return tarkovBot.locale('ru', options);
         return addManualTranslations(spt.locale(lang, options), lang);
     },
     locales: async (options = defaultOptions) => {
         const [en, others] = await Promise.all([
-            addManualTranslations(tarkovChanges.locale_en(options), 'en'),
+            addManualTranslations(mainDataSource.locale_en(options), 'en'),
             //addManualTranslations(tarkovBot.locale('ru', options), 'ru'),
             spt.locales(options).then(async langs => {
                 const mergedLangs = {};
@@ -90,7 +92,7 @@ const dataFunctions = {
         }
     },
     locations: (options = defaultOptions) => {
-        return tarkovChanges.locations(options);
+        return mainDataSource.locations(options);
     },
     mapDetails: async () => {
         const emptyData = {
@@ -281,7 +283,7 @@ const dataFunctions = {
         return tarkovDevData.status(options);
     },
     traders: (options = defaultOptions) => {
-        return tarkovChanges.traders(options);
+        return mainDataSource.traders(options);
     },
     traderAssorts: async (traderId, options = defaultOptions) => {
         return spt.traderAssorts(traderId, options);
