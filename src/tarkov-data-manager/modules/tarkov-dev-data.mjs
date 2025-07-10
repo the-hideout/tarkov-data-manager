@@ -7,14 +7,14 @@ import dataOptions from './data-options.mjs';
 const availableFiles = [
     'achievements',
     'achievement_stats',
-    /*'areas',
+    'areas',
     'crafts',
     'credits',
     'items',
     'globals',
     'locale_en',
     'locations',
-    'traders',*/
+    'traders',
     //'status',
 ];
 
@@ -97,7 +97,6 @@ const tarkovDevData = {
             pve: [
                 'achievements',
                 'achievementStats',
-                'items',
                 'locale_en',
             ],
         };
