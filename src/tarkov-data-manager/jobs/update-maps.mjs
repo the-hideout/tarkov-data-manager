@@ -1,8 +1,6 @@
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 
-import sharp from 'sharp';
-
 import DataJob from '../modules/data-job.mjs';
 import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
@@ -13,6 +11,13 @@ import npcImageMaker from '../modules/npc-image-maker.mjs';
 const enableMaps = [
     '59fc81d786f774390775787e', // night factory
     '6733700029c367a3d40b02af', // Labyrinth
+    '5714dbc024597771384a510d', // Interchange
+    '5704e4dad2720bb55b8b4567', // Lighthouse
+    '5704e5fad2720bc05b8b4567', // Reserve
+    '5704e554d2720bac5b8b456e', // Shoreline
+    '5714dc692459777137212e12', // Streets of Tarkov
+    '5704e3c2d2720bac5b8b4567', // Woods
+    '5b0fc42d86f7744a585f9105', // Labs
 ];
 
 class UpdateMapsJob extends DataJob {
