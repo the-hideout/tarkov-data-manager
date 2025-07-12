@@ -1,22 +1,26 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import got from 'got';
+
 import webSocketServer from './websocket-server.mjs';
 import dataOptions from './data-options.mjs';
 
-const availableFiles = [
-    'achievements',
-    'achievement_stats',
-    'areas',
-    'crafts',
-    'credits',
-    'items',
-    'globals',
-    'locale_en',
-    'locations',
-    'traders',
+const availableFiles = {
+    'achievements': {},
+    'achievementStats': {
+        requestName: 'achievements_stats',
+    },
+    'areas': {},
+    'crafts': {},
+    'credits': {},
+    'items': {},
+    'globals': {},
+    'locale_en': {},
+    'locations': {},
+    'traders': {},
     //'status',
-];
+};
 
 const arrayToDictionary = [
     'areas',
@@ -30,6 +34,44 @@ const merge = dataOptions.merge;
 const cachePath = (filename) => {
     return path.join(import.meta.dirname, '..', 'cache', filename);   
 }
+
+const getFromFence = async (jsonName, options) => {
+    if (!process.env.FENCE_BASIC_AUTH) {
+        return Promise.reject(new Error('FENCE_BASIC_AUTH not set'));
+    }
+    let jsonRequest = jsonName;
+    if (availableFiles[jsonName]?.requestName) {
+        jsonRequest = availableFiles[jsonName].requestName;
+    }
+    const requestURL = new URL(`https://fence.tarkov.dev/json/${jsonRequest}`);
+    requestURL.searchParams.set('m', options.gameMode ?? 'regular');
+    const response = await got(requestURL, {
+        method: options.method ?? 'GET',
+        responseType: 'json',
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+        },
+        retry: {
+            limit: 10,
+            calculateDelay: (retryInfo) => {
+                //console.log(jsonName, retryInfo);
+                if (retryInfo.attemptCount > retryInfo.retryOptions.limit) {
+                    return 0;
+                }
+                return 1000;
+            }
+        },
+        timeout: {
+            request: 10000,
+        },
+        signal: options.signal,
+    });
+    if (!response.ok) {
+        return Promise.reject(new Error(`${response.statusCode} ${response.statusMessage}`));
+    }
+    return response.body;
+};
 
 const tarkovDevData = {
     get: async (jsonName, options = defaultOptions) => {
@@ -45,7 +87,7 @@ const tarkovDevData = {
                 }
             }
         }
-        let newJson = await webSocketServer.getJson(jsonName, gameMode);
+        /*let newJson = await webSocketServer.getJson(jsonName, gameMode);
         if (newJson.elements) {
             newJson = newJson.elements;
         }
@@ -54,7 +96,8 @@ const tarkovDevData = {
                 all[current.id ?? current._id] = current;
                 return all;
             }, {});
-        }
+        }*/
+        const newJson = await getFromFence(jsonName, {gameMode});
         fs.writeFileSync(cachePath(filename), JSON.stringify(newJson, null, 4));
         return newJson;
     },
