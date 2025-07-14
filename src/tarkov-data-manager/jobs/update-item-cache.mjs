@@ -489,10 +489,12 @@ class UpdateItemCacheJob extends DataJob {
                 this.credits,
                 this.traders,
                 this.globals,
+                this.bsgItems,
             ] = await Promise.all([
                 tarkovData.credits({gameMode: gameMode.name}),
                 tarkovData.traders({gameMode: gameMode.name}),
                 tarkovData.globals({gameMode: gameMode.name}),
+                tarkovData.items({gameMode: gameMode.name}),
             ]);
             this.logger.log(`Preparing ${gameMode.name} mode items data...`);
             const modeData = {
@@ -513,6 +515,9 @@ class UpdateItemCacheJob extends DataJob {
                 modeData.Item[id].updated = dbItem.updated;
                 if (modeData.Item[id].updated < dbItem[`${gameMode.name}_last_scan`]) {
                     modeData.Item[id].updated = dbItem[`${gameMode.name}_last_scan`];
+                }
+                if (this.bsgItems[id]) {
+                    itemProperties[id] = await getSpecialItemProperties(this.bsgItems[id]);
                 }
             }
 
@@ -537,6 +542,10 @@ class UpdateItemCacheJob extends DataJob {
             modeData.FleaMarket = this.getFleaMarketSettings();
             this.logger.log(`Uploading ${gameMode.name} items data to cloudflare...`);
             await this.cloudflarePut(modeData, `${this.kvName}_${gameMode.name}`);
+
+            this.logger.log(`Uploading ${gameMode.name} handbook data to cloudflare...`);
+            handbookData.locale = await this.handbookTranslationHelper.fillTranslations();
+            await this.cloudflarePut(handbookData, `handbook_data_${gameMode.name}`);
         }
 
         return this.kvData;
