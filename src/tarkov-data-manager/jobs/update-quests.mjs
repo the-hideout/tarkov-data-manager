@@ -1752,13 +1752,21 @@ class UpdateQuestsJob extends DataJob {
         const s3ImageLink = `https://${process.env.S3_BUCKET}/${s3FileName}`;
         if (this.s3Images.includes(s3FileName)) {
             return s3ImageLink;
-        } 
+        }
         const imageUrl = `https://prod.escapefromtarkov.com${ach.imageUrl}`;
-        const response = await fetch(imageUrl);
-        if (!response.ok) {
+        let imageResponse = await fetch(imageUrl);
+        if (!imageResponse.ok) {
+            imageResponse = await fetch(`https://fence.tarkov.dev/achievement-image/${id}`, {
+                headers: {
+                    'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+                },
+                signal: options?.signal,
+            });
+        }
+        if (!imageResponse.ok) {
             return null;
         }
-        const image = sharp(await response.arrayBuffer()).webp({lossless: true});
+        const image = sharp(await imageResponse.arrayBuffer()).webp({lossless: true});
         const metadata = await image.metadata();
         if (metadata.width <= 1 || metadata.height <= 1) {
             return null;

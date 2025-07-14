@@ -97,7 +97,7 @@ const tarkovDevData = {
                 return all;
             }, {});
         }*/
-        const newJson = await getFromFence(jsonName, {gameMode});
+        const newJson = await getFromFence(jsonName, options);
         fs.writeFileSync(cachePath(filename), JSON.stringify(newJson, null, 4));
         return newJson;
     },
