@@ -84,7 +84,7 @@ class UpdateQuestImagesJob extends DataJob {
         if (!process.env.FENCE_BASIC_AUTH) {
             return;
         }
-        const imageResponse = await fetch(`https://fence.tarkov.dev/achievement-image/${id}`, {
+        const imageResponse = await fetch(`https://fence.tarkov.dev/task-image/${id}`, {
             headers: {
                 'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
             },
