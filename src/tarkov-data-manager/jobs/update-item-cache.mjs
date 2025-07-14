@@ -771,7 +771,11 @@ class UpdateItemCacheJob extends DataJob {
             }),
             normalizedName: 'flea-market',
             minPlayerLevel: this.globals.config.RagFair.minUserLevel,
-            enabled: this.globals.config.RagFair.enabled && new Date().getTime() > (this.globals.config.RagFair.RagfairTurnOnTimestamp * 1000),
+            enabled: (
+                this.globals.config.RagFair.enabled && 
+                this.globals.config.RagFair.minUserLevel < 80 && 
+                new Date().getTime() > (this.globals.config.RagFair.RagfairTurnOnTimestamp * 1000)
+            ),
             sellOfferFeeRate: (this.globals.config.RagFair.communityItemTax / 100),
             sellRequirementFeeRate: (this.globals.config.RagFair.communityRequirementTax / 100),
             foundInRaidRequired: this.globals.config.RagFair.isOnlyFoundInRaidAllowed,
