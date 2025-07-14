@@ -46,7 +46,7 @@ class UpdateQuestImagesJob extends DataJob {
             const questData = this.eftQuests[id];
             let image = await this.getFromEFT(questData);
             if (!image) {
-                image = await this.getFromFence(id);
+                image = await this.getFromFence(questData);
             }
             if (!image) {
                 image = await this.getFromSPT(questData);
@@ -80,12 +80,17 @@ class UpdateQuestImagesJob extends DataJob {
         return image;
     }
 
-    async getFromFence(id) {
+    async getFromFence(questData) {
         if (!process.env.FENCE_BASIC_AUTH) {
             return;
         }
-        const imageResponse = await fetch(`https://fence.tarkov.dev/task-image/${id}`, {
+        const imageResponse = await fetch(`https://fence.tarkov.dev/passthrough-request`, {
+            method: 'POST',
+            body: JSON.stringify({
+                url: `https://prod.escapefromtarkov.com${questData.image}`
+            }),
             headers: {
+                'Content-Type': 'application/json',
                 'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
             },
         });
@@ -97,7 +102,7 @@ class UpdateQuestImagesJob extends DataJob {
         if (metadata.width <= 1 || metadata.height <= 1) {
             return;
         }
-        this.logger.log(`Retrieved ${this.localeEn[`${id} name`]} ${id} image from Fence`);
+        this.logger.log(`Retrieved ${this.localeEn[`${questData._id} name`]} ${questData._id} image from Fence`);
         return image;
     }
 

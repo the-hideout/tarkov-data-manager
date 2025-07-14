@@ -1695,11 +1695,11 @@ class UpdateQuestsJob extends DataJob {
         if (this.s3Images.includes(s3FileName)) {
             return s3ImageLink;
         }
-        const imageResponse = await fetch(`https://fence.tarkov.dev/achievement-image/${id}`, {
+        const imageResponse = await fetch(`https://fence.tarkov.dev/achievement-image/${ach.id}?url=${ach.imageUrl}&rarity=${ach.rarity.toLowerCase()}`, {
             headers: {
                 'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
             },
-            signal: options?.signal,
+            signal: this.abortController.signal,
         });
         if (!imageResponse.ok) {
             return null;
