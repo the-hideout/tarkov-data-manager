@@ -140,13 +140,13 @@ class UpdateQuestsJob extends DataJob {
                 if (questId.startsWith('_')) {
                     continue;
                 }
-                const quest = this.missingQuests[questId];
+                const quest = {...this.missingQuests[questId]};
                 if (quests.Task.some(q => q.id === questId)) {
                     this.logger.warn(`Missing quest ${quest.name} ${questId} already exists...`);
                     continue;
                 }
                 try {
-                    this.logger.warn(`Adding missing quest ${quest.name} ${quest.id}...`);
+                    this.logger.warn(`Adding missing quest ${this.getTranslation(quest.name)} ${quest.id}...`);
                     quest.name = this.addTranslation(`${questId} name`);
                     for (const obj of quest.objectives) {
                         obj.description = this.addTranslation(obj.id);
