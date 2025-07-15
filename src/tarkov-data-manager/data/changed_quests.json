@@ -1294,7 +1294,7 @@
     "639872fc93ae507d5858c3a6": {
         "name": "Gunsmith - Part 11",
         "finishRewardsAdded": {
-        "offerUnlock": [
+            "offerUnlock": [
                 {
                     "id": "66c46c37f7ca8a539f08613a1",
                     "trader_id": "6617beeaa9cfa777ca915b7c",
@@ -1312,7 +1312,7 @@
     "6179b3bdc7560e13d23eeb8d": {
         "name": "Corporate Secrets",
         "finishRewardsAdded": {
-        "offerUnlock": [
+            "offerUnlock": [
                 {
                     "id": "66c1beadfa6e5a0c120f0c481",
                     "trader_id": "6617beeaa9cfa777ca915b7c",
@@ -1330,7 +1330,7 @@
     "6179b3a12153c15e937d52bc": {
         "name": "Energy Crisis",
         "finishRewardsAdded": {
-        "offerUnlock": [
+            "offerUnlock": [
                 {
                     "id": "66c1beaffa6e5a0c120f0dff1",
                     "trader_id": "6617beeaa9cfa777ca915b7c",
@@ -1348,7 +1348,7 @@
     "639872f9decada40426d3447": {
         "name": "Gunsmith - Part 4",
         "finishRewardsAdded": {
-        "offerUnlock": [
+            "offerUnlock": [
                 {
                     "id": "66c1beb0fa6e5a0c120f0e461",
                     "trader_id": "6617beeaa9cfa777ca915b7c",

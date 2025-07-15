@@ -538,7 +538,7 @@ class UpdateItemCacheJob extends DataJob {
                     item[fieldName] = dbItem[`${gameMode.name}_${fieldName}`];
                 }
             }
-            this.setTraderPrices(modeData.Item, gameMode.name);
+            this.setTraderPrices(modeData.Item);
             modeData.FleaMarket = this.getFleaMarketSettings();
             this.logger.log(`Uploading ${gameMode.name} items data to cloudflare...`);
             await this.cloudflarePut(modeData, `${this.kvName}_${gameMode.name}`);
@@ -677,12 +677,12 @@ class UpdateItemCacheJob extends DataJob {
         }
     }
 
-    setTraderPrices(itemData, gameMode) {
+    setTraderPrices(itemData) {
         this.logger.time('Add trader prices');
         for (const id in itemData) {
             if (itemData[id].types.includes('preset') && id !== 'customdogtags12345678910') {
                 itemData[id].traderPrices = itemData[id].containsItems.reduce((traderPrices, part) => {
-                    const partPrices = this.getTraderPrices(itemData[part.item], gameMode);
+                    const partPrices = this.getTraderPrices(itemData[part.item]);
                     for (const partPrice of partPrices) {
                         const totalPrice = traderPrices.find(price => price.trader === partPrice.trader);
                         if (totalPrice) {
@@ -695,7 +695,7 @@ class UpdateItemCacheJob extends DataJob {
                     return traderPrices;
                 }, []);
             } else {
-                itemData[id].traderPrices = this.getTraderPrices(itemData[id], gameMode);
+                itemData[id].traderPrices = this.getTraderPrices(itemData[id]);
             }
             
             const ignoreCategories = [
@@ -710,7 +710,7 @@ class UpdateItemCacheJob extends DataJob {
         this.logger.timeEnd('Add trader prices');
     }
 
-    getTraderPrices(item, gameMode = 'regular') {
+    getTraderPrices(item) {
         const traderPrices = [];
         if (!item) {
             return traderPrices;

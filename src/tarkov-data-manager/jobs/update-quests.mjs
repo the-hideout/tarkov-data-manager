@@ -779,6 +779,7 @@ class UpdateQuestsJob extends DataJob {
                     continue;
                 }
                 if (!this.rawTraders[reward.traderId]) {
+                    this.logger.warn(`Invalid trader ${reward.traderId} for offer unlock`);
                     continue;
                 }
                 let unlock = {
@@ -798,10 +799,10 @@ class UpdateQuestsJob extends DataJob {
                         slot: item.slotId
                     });
                 }*/
-               const rewardItems = await this.getRewardItems(reward);
-               if (!rewardItems) {
-                continue;
-               }
+                const rewardItems = await this.getRewardItems(reward);
+                if (!rewardItems) {
+                    continue;
+                }
                 unlock = {
                     ...unlock,
                     ...rewardItems,
@@ -1123,6 +1124,9 @@ class UpdateQuestsJob extends DataJob {
                 //this.logger.warn(JSON.stringify(this.changedQuests[questData.id].finishRewardsAdded), null, 4);
                 for (const rewardType in this.changedQuests[questData.id].finishRewardsAdded) {
                     for (const reward of this.changedQuests[questData.id].finishRewardsAdded[rewardType]) {
+                        if (rewardType === 'offerUnlock' && !this.rawTraders[reward.trader_id]) {
+                            continue;
+                        }
                         questData.finishRewards[rewardType].push(reward);
                     }
                 }
