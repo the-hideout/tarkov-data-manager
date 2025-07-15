@@ -273,12 +273,26 @@ const grenadeMap = {
     'grenade_smoke_m18_green': 'Smoke',
 };
 
-const getItemProperties = async (item) => {
+const getItemProperties = async (tarkovDevItem) => {
     if (!job.presets) {
         return Promise.reject(new Error('Must set presets before calling getItemProperties'));
     }
+    const item = job.bsgItems[tarkovDevItem.id];
     let properties = null;
-    if (item._parent === '5485a8684bdc2da71d8b4567') {
+    if (job.presets[tarkovDevItem.id]) {
+        const preset = job.presets[tarkovDevItem.id];
+        properties = {
+            propertiesType: 'ItemPropertiesPreset',
+            base_item_id: preset.baseId,
+            ergonomics: preset.ergonomics,
+            recoilVertical: preset.verticalRecoil,
+            recoilHorizontal: preset.horizontalRecoil,
+            moa: preset.moa,
+            default: preset.default,
+        };
+    } else if (!item) {
+        // no properties to get if item not found
+    } else if (item._parent === '5485a8684bdc2da71d8b4567') {
         // ammo
         properties = {
             propertiesType: 'ItemPropertiesAmmo',
@@ -485,7 +499,15 @@ const getItemProperties = async (item) => {
                 return currentValue.id;
             }, null),
             fireModes: translationHelper.addTranslation(item._props.weapFireType),
+            presets: Object.values(job.presets).filter(preset => preset.baseId === item._id).map(preset => preset.id),
         };
+        const preset = Object.values(job.presets).find(preset => preset.default && preset.baseId === item._id);
+        properties.defaultWidth = preset?.width ?? null;
+        properties.defaultHeight = preset?.height ?? null;
+        properties.defaultErgonomics = preset?.ergonomics ?? null;
+        properties.defaultRecoilVertical = preset?.verticalRecoil ?? null;
+        properties.defaultRecoilHorizontal = preset?.horizontalRecoil ?? null;
+        properties.defaultWeight = preset?.weight ?? null;
     } else if (item._parent === '5a2c3a9486f774688b05e574') {
         // night vision
         properties = {

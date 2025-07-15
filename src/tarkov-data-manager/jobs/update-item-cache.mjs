@@ -154,15 +154,13 @@ class UpdateItemCacheJob extends DataJob {
             this.setBaseValue(itemData[key]);
 
             // add item properties
+            itemProperties[key] = await getSpecialItemProperties(itemData[key]);
             if (this.bsgItems[key]) {
                 this.addPropertiesToItem(itemData[key]);
                 itemData[key].bsgCategoryId = this.bsgItems[key]._parent;
                 itemData[key].discardLimit = this.bsgItems[key]._props.DiscardLimit;
                 itemData[key].backgroundColor = this.bsgItems[key]._props.BackgroundColor;
-                itemProperties[key] = await getSpecialItemProperties(this.bsgItems[key]);
                 if (value.types.includes('gun')) {
-                    itemProperties[key].presets = Object.values(this.presets).filter(preset => preset.baseId === key).map(preset => preset.id);
-
                     const preset = Object.values(this.presets).find(preset => preset.default && preset.baseId === key);
                     if (preset) {
                         itemData[key].containsItems = preset.containsItems.reduce((containedItems, contained) => {
@@ -176,13 +174,6 @@ class UpdateItemCacheJob extends DataJob {
                             return containedItems;
                         }, []);
                     }
-
-                    itemProperties[key].defaultWidth = preset?.width ?? null;
-                    itemProperties[key].defaultHeight = preset?.height ?? null;
-                    itemProperties[key].defaultErgonomics = preset?.ergonomics ?? null;
-                    itemProperties[key].defaultRecoilVertical = preset?.verticalRecoil ?? null;
-                    itemProperties[key].defaultRecoilHorizontal = preset?.horizontalRecoil ?? null;
-                    itemProperties[key].defaultWeight = preset?.weight ?? null;
                 }
                 // add ammo box contents
                 if (itemData[key].bsgCategoryId === '543be5cb4bdc2deb348b4568') {
@@ -202,15 +193,6 @@ class UpdateItemCacheJob extends DataJob {
                 itemData[key].weight = preset.weight;
                 itemData[key].bsgCategoryId = preset.bsgCategoryId;
                 itemData[key].backgroundColor = preset.backgroundColor;
-                itemProperties[key] = {
-                    propertiesType: 'ItemPropertiesPreset',
-                    base_item_id: preset.baseId,
-                    ergonomics: preset.ergonomics,
-                    recoilVertical: preset.verticalRecoil,
-                    recoilHorizontal: preset.horizontalRecoil,
-                    moa: preset.moa,
-                    default: preset.default,
-                };
                 if ((itemData[preset.baseId]?.types.includes('noFlea') || itemData[preset.baseId]?.types.includes('no-flea')) && !itemData[key].types.includes('noFlea')) {
                     itemData[key].types.push('noFlea');
                 }
@@ -516,9 +498,7 @@ class UpdateItemCacheJob extends DataJob {
                 if (modeData.Item[id].updated < dbItem[`${gameMode.name}_last_scan`]) {
                     modeData.Item[id].updated = dbItem[`${gameMode.name}_last_scan`];
                 }
-                if (this.bsgItems[id]) {
-                    itemProperties[id] = await getSpecialItemProperties(this.bsgItems[id]);
-                }
+                itemProperties[id] = await getSpecialItemProperties(item);
             }
 
             // add base item prices to default presets
