@@ -205,7 +205,7 @@ class UpdateQuestsJob extends DataJob {
 
             // filter out invalid task ids
             for (const task of quests.Task) {
-                task.taskRequirements = task.taskRequirements.filter(req => quests.Task.some(t => t.id === req.task));
+                //task.taskRequirements = task.taskRequirements.filter(req => quests.Task.some(t => t.id === req.task));
                 task.failConditions = task.failConditions.filter(obj => {
                     if (obj.type !== 'taskStatus') {
                         return true;
@@ -229,6 +229,8 @@ class UpdateQuestsJob extends DataJob {
             }
             
             // validate task requirements
+
+            quests.Task = this.filterOutQuestsWithMissingPrecursor(quests.Task);
 
             const getMinPlayerLevelForTraderLevel = (traderId, traderLevel) => {
                 const trader = this.rawTraders[traderId];
@@ -289,7 +291,7 @@ class UpdateQuestsJob extends DataJob {
                     quest.normalizedName = `${quest.normalizedName}-${normalizedNames[quest.normalizedName]}`;
                 }
 
-                const removeReqs = [];
+                /*const removeReqs = [];
                 for (const req of quest.taskRequirements) {
                     const questIncluded = quests.Task.some(q => q.id === req.task);
                     if (questIncluded) {
@@ -298,7 +300,7 @@ class UpdateQuestsJob extends DataJob {
                     this.logger.warn(`${this.locales.en[quest.name]} (${quest.id}) task requirement ${req.name} (${req.task}) is not a valid task`);
                     removeReqs.push(req.task);
                 }
-                quest.taskRequirements = quest.taskRequirements.filter(req => !removeReqs.includes(req.task));
+                quest.taskRequirements = quest.taskRequirements.filter(req => !removeReqs.includes(req.task));*/
 
                 quest.minPlayerLevel = getQuestMinLevel(quest.id);
 
@@ -399,8 +401,6 @@ class UpdateQuestsJob extends DataJob {
                     this.logger.log(`${this.locales.en[quest.name]} ${questId}: ${filteredPrerequisiteTasks[questId]}`);
                 }
             }
-
-            quests.Task = this.filterOutQuestsWithMissingPrecursor(quests.Task);
 
             const neededForKappa = new Set();
             const neededForLightkeeper = new Set();
@@ -1791,8 +1791,7 @@ class UpdateQuestsJob extends DataJob {
     }
 
     filterOutQuestsWithMissingPrecursor(quests) {
-        for (let i = 0; i < quests.length; i++) {
-            const quest = quests[i];
+        for (const quest of quests) {
             const precursorsMissing = quest.taskRequirements.filter(req => {
                 const reqQuest = quests.find(q => q.id === req.task);
                 return !reqQuest;
@@ -1800,7 +1799,19 @@ class UpdateQuestsJob extends DataJob {
             if (precursorsMissing.length > 0) {
                 this.logger.warn(`Quest ${this.locales.en[`${quest.id} name`]} ${quest.id} is missing precursor quest(s) ${precursorsMissing.map(req => `${req.name} ${req.task}`).join(', ')}; removing`);
                 quests = quests.filter(q => q.id !== quest.id);
-                i = 0;
+                return this.filterOutQuestsWithMissingPrecursor(quests);
+            }
+            const failConditionMissing = quest.failConditions.filter(cond => {
+                if (cond.type !== 'taskStatus') {
+                    return false;
+                }
+                const failConditionTask = quests.find(q => q.id === cond.task);
+                return !failConditionTask;
+            });
+            if (failConditionMissing.length > 0) {
+                this.logger.warn(`Quest ${this.locales.en[`${quest.id} name`]} ${quest.id} is missing fail condition quest(s) ${failConditionMissing.map(req => `${req.name} ${req.task}`).join(', ')}; removing`);
+                quests = quests.filter(q => q.id !== quest.id);
+                return this.filterOutQuestsWithMissingPrecursor(quests);
             }
         }
         return quests;
