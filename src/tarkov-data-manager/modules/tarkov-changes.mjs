@@ -137,25 +137,28 @@ const tarkovChanges = {
         for (const file in availableFiles) {
             if (availableFiles[file].skip) continue;
             if (skip[options.gameMode]?.includes(file)) continue;
-            promises.push(tarkovChanges[file](options).then(data => {return {name: file, data: data}}));
+            promises.push(tarkovChanges[file](options)
+                .then(data => {return {name: file, data}})
+                .catch(error => {return {name: file, error}})
+            );
         }
         //promises.push(getSptLocales(true).then(data => {return {name: 'locales', data: data}}));
-        const results = await Promise.allSettled(promises);
-        const errors = [];
+        const results = await Promise.all(promises);
+        const errors = {};
         const values = {};
         for (let i = 0; i < results.length; i++) {
-            if (results[i].status === 'fulfilled') {
-                values[results[i].value.name] = results[i].value.data;
+            if (results[i].data) {
+                values[results[i].name] = results[i].data;
             } else {
-                errors.push(results[i].reason.message);
+                errors[results[i].name] = results[i].error;
             }
         }
-        if (options.returnPartial && Object.values(values).length > 0) {
+        if (options.returnErrors && Object.values(errors).length > 0) {
             values.errors = errors;
             return values;
         }
         if (errors.length > 0) {
-            return Promise.reject(new Error(errors.join('; ')));
+            return Promise.reject(new Error(Object.keys(errors).map(file => `${file}: ${errors[file].message}`).join('; ')));
         }
         return values;
     },

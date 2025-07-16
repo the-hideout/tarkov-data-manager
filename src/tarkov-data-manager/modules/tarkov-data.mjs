@@ -291,6 +291,9 @@ const dataFunctions = {
     traderQuestAssorts: async (traderId, options = defaultOptions) => {
         return spt.traderQuestAssorts(traderId, options);
     },
+    downloadAll: (options = defaultOptions) => {
+        return mainDataSource.downloadAll(options);
+    },
 };
 
 export default dataFunctions;
