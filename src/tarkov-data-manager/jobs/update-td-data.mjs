@@ -25,16 +25,15 @@ class UpdateTdDataJob extends DataJob {
         for (const gameMode of gameModes) {
             this.logger.log(`Downloading ${gameMode.name} data...`);
             
-            returnValue[gameMode.name] = await tarkovDevData.downloadAll({returnPartial: true, gameMode: gameMode.name}).then(results => {
-                if (Object.keys(results).length > 1) {
+            returnValue[gameMode.name] = await tarkovDevData.downloadAll({returnErrors: true, gameMode: gameMode.name}).then(results => {
+                const errors = results.errors;
+                results.errors = undefined;
+                if (Object.keys(results).length > 0) {
                     this.logger.success(`Downloaded: ${Object.keys(results).filter(key => key !== 'errors').join(', ')}`);
                 }
-                if (results.errors.length > 0) {
-                    this.logger.warn(`Error downloading some ${gameMode.name} data: ${results.errors.join(', ')}`);
-                }
-                if (Object.keys(results) === 1) {
-                    this.logger.error(`Error(s) downloading ${gameMode.name} data: ${results.errors.join(', ')}`);
-                    results.errors.forEach(errMessage => this.addJobSummary(errMessage, `Error(s) updating TD ${gameMode.name} data`));
+                if (errors) {
+                    this.logger.warn(`Error downloading ${gameMode.name} data: ${Object.keys(errors).map(file => `${file}: ${errors[file].message}`).join(', ')}`);
+                    Object.keys(errors).forEach(file => this.addJobSummary(`${file}: ${errors[file].message}`, `Error(s) updating TD ${gameMode.name} data`));
                 }
                 return results;
             });

@@ -10,6 +10,8 @@ const skipCrafts = [
     '670932d7b564327a0e023fcb', // event flash drive craft
     '67092bbfc45f0546bf097a7e', // from event quest Radical Treatment
     '67093210d514d26f8408612b', // from event quest Clear Conscience
+    '6745925da9c9adf0450d5bca', // from event quest That's a Great Plan, Walter
+    '67449c79268737ef6908d636', // from event quest That's a Great Plan, Walter
 ];
 
 class UpdateCraftsJob extends DataJob {
@@ -74,7 +76,7 @@ class UpdateCraftsJob extends DataJob {
                     }
                 }
                 if (craft.locked && !craft.requirements.some(req => req.type === 'QuestComplete')) {
-                    this.logger.warn(`${id}: Craft for ${endProduct.name} is locked`);
+                    //this.logger.warn(`${id}: Craft for ${endProduct.name} is locked`);
                     continue;
                 }
                 if (skipCrafts.includes(id)) {
