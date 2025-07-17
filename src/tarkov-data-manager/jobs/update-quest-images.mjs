@@ -81,6 +81,9 @@ class UpdateQuestImagesJob extends DataJob {
     }
 
     async getFromFence(questData) {
+        if (!questData?.image) {
+            return;
+        }
         if (!process.env.FENCE_BASIC_AUTH) {
             return;
         }
