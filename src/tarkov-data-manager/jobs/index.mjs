@@ -35,7 +35,7 @@ const nonDevJobTriggers = {};
 // these jobs run at startup
 const startupJobs = [
     'check-image-links',
-    'update-tc-data',
+    'update-main-data',
     'update-spt-data',
 ];
 

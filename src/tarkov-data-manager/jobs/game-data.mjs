@@ -8,7 +8,7 @@ class GameDataJob extends DataJob {
 
     async run() {
         
-        await this.jobManager.runJob('update-tc-data', {parent: this});
+        await this.jobManager.runJob('update-main-data', {parent: this});
 
         this.logger.log('Updating handbook...');
         await tarkovData.handbook({download: true}).catch(error => {
