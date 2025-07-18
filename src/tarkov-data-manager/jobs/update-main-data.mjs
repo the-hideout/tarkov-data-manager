@@ -1,15 +1,15 @@
 import DataJob from '../modules/data-job.mjs';
-import tarkovDevData from '../modules/tarkov-dev-data.mjs';
+import tarkovData from '../modules/tarkov-data.mjs';
 import webSocketServer from '../modules/websocket-server.mjs';
 import gameModes from '../modules/game-modes.mjs';
 
-class UpdateTdDataJob extends DataJob {
+class UpdateMainDataJob extends DataJob {
     constructor(options) {
-        super({...options, name: 'update-td-data'});
+        super({...options, name: 'update-main-data'});
     }
 
     async run() {
-        const services = await tarkovDevData.status().then(status => status.services).catch(error => {
+        const services = await tarkovData.status().then(status => status.services).catch(error => {
             this.logger.error(`Error getting EFT services status: ${error.message}`);
             return [];
         });
@@ -21,11 +21,11 @@ class UpdateTdDataJob extends DataJob {
         }
 
         const returnValue = {};
-        this.logger.time('td-download');
+        this.logger.time('data-download');
         for (const gameMode of gameModes) {
             this.logger.log(`Downloading ${gameMode.name} data...`);
             
-            returnValue[gameMode.name] = await tarkovDevData.downloadAll({returnErrors: true, gameMode: gameMode.name}).then(results => {
+            returnValue[gameMode.name] = await tarkovData.downloadAll({returnErrors: true, gameMode: gameMode.name}).then(results => {
                 const errors = results.errors;
                 results.errors = undefined;
                 if (Object.keys(results).length > 0) {
@@ -33,14 +33,14 @@ class UpdateTdDataJob extends DataJob {
                 }
                 if (errors) {
                     this.logger.warn(`Error downloading ${gameMode.name} data: ${Object.keys(errors).map(file => `${file}: ${errors[file].message}`).join(', ')}`);
-                    Object.keys(errors).forEach(file => this.addJobSummary(`${file}: ${errors[file].message}`, `Error(s) updating TD ${gameMode.name} data`));
+                    Object.keys(errors).forEach(file => this.addJobSummary(`${file}: ${errors[file].message}`, `Error(s) updating ${gameMode.name} data`));
                 }
                 return results;
             });
         }
-        this.logger.timeEnd('td-download');
+        this.logger.timeEnd('data-download');
         return returnValue;
     }
 }
 
-export default UpdateTdDataJob;
+export default UpdateMainDataJob;

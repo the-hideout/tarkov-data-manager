@@ -31,11 +31,10 @@ class UpdateHideoutJob extends DataJob {
                 HideoutStation: [],
             };
             const stations = await tarkovData.areas({gameMode: gameMode.name});
-            for (const stationId in stations) {
-                areasByType[stations[stationId].type] = stationId;
+            for (const station of stations) {
+                areasByType[station.type] = station._id;
             }
-            for (const stationId in stations) {
-                const station = stations[stationId];
+            for (const station of stations) {
                 if (!this.hasTranslation(`hideout_area_${station.type}_name`)) {
                     this.logger.warn(`❌ Area type ${station.type} not found in locale_en.json`);
                     continue;
@@ -52,7 +51,7 @@ class UpdateHideoutJob extends DataJob {
                 if (s3Images.includes(fileName)) {
                     stationData.imageLink = `https://${process.env.S3_BUCKET}/${fileName}`;
                 }
-                let skipArea = new Date() >= skipAreas[stationId];
+                let skipArea = new Date() >= skipAreas[station._id];
                 if (!station.enabled || skipArea) {
                     this.logger.log(`❌ ${this.getTranslation(stationData.name)}`);
                     continue;

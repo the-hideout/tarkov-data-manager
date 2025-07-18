@@ -154,15 +154,13 @@ class UpdateItemCacheJob extends DataJob {
             this.setBaseValue(itemData[key]);
 
             // add item properties
+            itemProperties[key] = await getSpecialItemProperties(itemData[key]);
             if (this.bsgItems[key]) {
                 this.addPropertiesToItem(itemData[key]);
                 itemData[key].bsgCategoryId = this.bsgItems[key]._parent;
                 itemData[key].discardLimit = this.bsgItems[key]._props.DiscardLimit;
                 itemData[key].backgroundColor = this.bsgItems[key]._props.BackgroundColor;
-                itemProperties[key] = await getSpecialItemProperties(this.bsgItems[key]);
                 if (value.types.includes('gun')) {
-                    itemProperties[key].presets = Object.values(this.presets).filter(preset => preset.baseId === key).map(preset => preset.id);
-
                     const preset = Object.values(this.presets).find(preset => preset.default && preset.baseId === key);
                     if (preset) {
                         itemData[key].containsItems = preset.containsItems.reduce((containedItems, contained) => {
@@ -176,13 +174,6 @@ class UpdateItemCacheJob extends DataJob {
                             return containedItems;
                         }, []);
                     }
-
-                    itemProperties[key].defaultWidth = preset?.width ?? null;
-                    itemProperties[key].defaultHeight = preset?.height ?? null;
-                    itemProperties[key].defaultErgonomics = preset?.ergonomics ?? null;
-                    itemProperties[key].defaultRecoilVertical = preset?.verticalRecoil ?? null;
-                    itemProperties[key].defaultRecoilHorizontal = preset?.horizontalRecoil ?? null;
-                    itemProperties[key].defaultWeight = preset?.weight ?? null;
                 }
                 // add ammo box contents
                 if (itemData[key].bsgCategoryId === '543be5cb4bdc2deb348b4568') {
@@ -202,15 +193,6 @@ class UpdateItemCacheJob extends DataJob {
                 itemData[key].weight = preset.weight;
                 itemData[key].bsgCategoryId = preset.bsgCategoryId;
                 itemData[key].backgroundColor = preset.backgroundColor;
-                itemProperties[key] = {
-                    propertiesType: 'ItemPropertiesPreset',
-                    base_item_id: preset.baseId,
-                    ergonomics: preset.ergonomics,
-                    recoilVertical: preset.verticalRecoil,
-                    recoilHorizontal: preset.horizontalRecoil,
-                    moa: preset.moa,
-                    default: preset.default,
-                };
                 if ((itemData[preset.baseId]?.types.includes('noFlea') || itemData[preset.baseId]?.types.includes('no-flea')) && !itemData[key].types.includes('noFlea')) {
                     itemData[key].types.push('noFlea');
                 }
@@ -489,10 +471,12 @@ class UpdateItemCacheJob extends DataJob {
                 this.credits,
                 this.traders,
                 this.globals,
+                this.bsgItems,
             ] = await Promise.all([
                 tarkovData.credits({gameMode: gameMode.name}),
                 tarkovData.traders({gameMode: gameMode.name}),
                 tarkovData.globals({gameMode: gameMode.name}),
+                tarkovData.items({gameMode: gameMode.name}),
             ]);
             this.logger.log(`Preparing ${gameMode.name} mode items data...`);
             const modeData = {
@@ -514,6 +498,7 @@ class UpdateItemCacheJob extends DataJob {
                 if (modeData.Item[id].updated < dbItem[`${gameMode.name}_last_scan`]) {
                     modeData.Item[id].updated = dbItem[`${gameMode.name}_last_scan`];
                 }
+                itemProperties[id] = await getSpecialItemProperties(item);
             }
 
             // add base item prices to default presets
@@ -533,10 +518,14 @@ class UpdateItemCacheJob extends DataJob {
                     item[fieldName] = dbItem[`${gameMode.name}_${fieldName}`];
                 }
             }
-            this.setTraderPrices(modeData.Item, gameMode.name);
+            this.setTraderPrices(modeData.Item);
             modeData.FleaMarket = this.getFleaMarketSettings();
             this.logger.log(`Uploading ${gameMode.name} items data to cloudflare...`);
             await this.cloudflarePut(modeData, `${this.kvName}_${gameMode.name}`);
+
+            this.logger.log(`Uploading ${gameMode.name} handbook data to cloudflare...`);
+            handbookData.locale = await this.handbookTranslationHelper.fillTranslations();
+            await this.cloudflarePut(handbookData, `handbook_data_${gameMode.name}`);
         }
 
         return this.kvData;
@@ -668,12 +657,12 @@ class UpdateItemCacheJob extends DataJob {
         }
     }
 
-    setTraderPrices(itemData, gameMode) {
+    setTraderPrices(itemData) {
         this.logger.time('Add trader prices');
         for (const id in itemData) {
             if (itemData[id].types.includes('preset') && id !== 'customdogtags12345678910') {
                 itemData[id].traderPrices = itemData[id].containsItems.reduce((traderPrices, part) => {
-                    const partPrices = this.getTraderPrices(itemData[part.item], gameMode);
+                    const partPrices = this.getTraderPrices(itemData[part.item]);
                     for (const partPrice of partPrices) {
                         const totalPrice = traderPrices.find(price => price.trader === partPrice.trader);
                         if (totalPrice) {
@@ -686,7 +675,7 @@ class UpdateItemCacheJob extends DataJob {
                     return traderPrices;
                 }, []);
             } else {
-                itemData[id].traderPrices = this.getTraderPrices(itemData[id], gameMode);
+                itemData[id].traderPrices = this.getTraderPrices(itemData[id]);
             }
             
             const ignoreCategories = [
@@ -701,7 +690,7 @@ class UpdateItemCacheJob extends DataJob {
         this.logger.timeEnd('Add trader prices');
     }
 
-    getTraderPrices(item, gameMode = 'regular') {
+    getTraderPrices(item) {
         const traderPrices = [];
         if (!item) {
             return traderPrices;
@@ -762,7 +751,11 @@ class UpdateItemCacheJob extends DataJob {
             }),
             normalizedName: 'flea-market',
             minPlayerLevel: this.globals.config.RagFair.minUserLevel,
-            enabled: this.globals.config.RagFair.enabled && new Date().getTime() > (this.globals.config.RagFair.RagfairTurnOnTimestamp * 1000),
+            enabled: (
+                this.globals.config.RagFair.enabled && 
+                this.globals.config.RagFair.minUserLevel < 80 && 
+                new Date().getTime() > (this.globals.config.RagFair.RagfairTurnOnTimestamp * 1000)
+            ),
             sellOfferFeeRate: (this.globals.config.RagFair.communityItemTax / 100),
             sellRequirementFeeRate: (this.globals.config.RagFair.communityRequirementTax / 100),
             foundInRaidRequired: this.globals.config.RagFair.isOnlyFoundInRaidAllowed,

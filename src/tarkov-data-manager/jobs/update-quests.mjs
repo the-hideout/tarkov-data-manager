@@ -87,508 +87,441 @@ class UpdateQuestsJob extends DataJob {
             return valid;
         }, {});
 
-        const questItemMap = new Map();
-        for (const [id, item] of this.itemResults) {
-            if (item.types?.includes('quest')) {
-                questItemMap.set(id, item);
-            }
-        }
+        const missingImages = new Set();
 
-        this.questItems = {};
-        const quests = {
-            Task: [],
-        };
-
-        for (const questId in this.rawQuestData) {
-            if (this.removedQuests[questId]) {
-                this.logger.warn(`Skipping removed quest ${this.locales.en[`${questId} name`]} ${questId}`);
-                continue;
-            }
-            const eventQuestConfig = this.questConfig.eventQuests[questId];
-            if (new Date() >= eventQuestConfig?.endTimestamp) {
-                this.logger.warn(`Skipping event quest ${this.locales.en[`${questId} name`]} ${questId}`);
-                continue;
-            }
-            if (!this.locales.en[`${questId} name`]) {
-                this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - localization not found`);
-                continue;
-            }
-            if (skipQuests.includes(questId)) {
-                this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - manual skip`);
-                continue;
-            }
-            quests.Task.push(await this.formatRawQuest(this.rawQuestData[questId]));
-        }
-        
-        for (const questId in this.missingQuests) {
-            if (questId.startsWith('_')) {
-                continue;
-            }
-            const quest = this.missingQuests[questId];
-            if (quests.Task.some(q => q.id === questId)) {
-                this.logger.warn(`Missing quest ${quest.name} ${questId} already exists...`);
-                continue;
-            }
-            try {
-                this.logger.warn(`Adding missing quest ${quest.name} ${quest.id}...`);
-                quest.name = this.addTranslation(`${questId} name`);
-                for (const obj of quest.objectives) {
-                    obj.description = this.addTranslation(obj.id);
-                    if (obj.type.endsWith('QuestItem')) {
-                        this.questItems[obj.item_id] = {
-                            id: obj.item_id
-                        };
-                    }
-                    if (obj.type === 'extract') {
-                        obj.exitStatus = this.addTranslation(obj.exitStatus.map(this.getExtractStatus));
-                    }
-                    if (obj.type === 'shoot') {
-                        obj.target = this.addMobTranslation(obj.target);
-                        obj.targetNames = [this.addMobTranslation(obj.target)];
-                        if (obj.usingWeaponTypes) {
-                            obj.usingWeapon = obj.usingWeaponTypes.reduce((weapons, categoryId) => {
-                                Object.values(this.itemMap).forEach(item => {
-                                    if (!item.categories.includes(categoryId)) {
-                                        return;
-                                    }
-                                    if (item.types.includes('preset')) {
-                                        return;
-                                    }
-                                    weapons.push({
-                                        id: item.id,
-                                        name: this.locales.en[item.name],
-                                    });
-                                });
-                                return weapons;
-                            }, []);
-                        }
-                    }
-                    if (obj.item && !obj.items) {
-                        obj.items = [obj.item];
-                    }
-                    this.addMapFromDescription(obj);
-                }
-                for (const skillReward of quest.finishRewards.skillLevelReward) {
-                    this.addTranslation(skillReward.name);
-                }
-                quests.Task.push(quest);
-            } catch (error) {
-                this.logger.error(error);
-                this.addJobSummary(`${quest.name} ${questId}\n${error.stack}`, 'Error Adding Missing Quest');
-            }
-        }
-
-        for (const changedId in this.changedQuests) {
-            if (!this.changedQuests[changedId].objectiveIdsChanged) {
-                continue;
-            }
-            if (Object.keys(this.changedQuests[changedId].objectiveIdsChanged).length > 0) {
-                this.logger.warn(`Changed quest ${changedId} has unused objectiveIdsChanged`);
-            }
-        }
-
-        // filter out invalid task ids
-        for (const task of quests.Task) {
-            task.taskRequirements = task.taskRequirements.filter(req => quests.Task.some(t => t.id === req.task));
-            task.failConditions = task.failConditions.filter(obj => {
-                if (obj.type !== 'taskStatus') {
-                    return true;
-                }
-                return quests.Task.some(t => t.id === obj.task);
-            });
-            task.objectives = task.objectives.filter(obj => {
-                if (obj.type !== 'taskStatus') {
-                    return true;
-                }
-                return quests.Task.some(t => t.id === obj.task);
-            });
-
-            // get old tarkovdata quest ids
-            for (const tdQuest of this.tdQuests) {
-                if (task.id == tdQuest.gameId || this.getTranslation(task.name) === tdQuest.title) {
-                    task.tarkovDataId = tdQuest.id;
-                    break;
+        const allQuests = {};
+        for (const gameMode of this.gameModes) {
+            const questItemMap = new Map();
+            for (const [id, item] of this.itemResults) {
+                if (item.types?.includes('quest')) {
+                    questItemMap.set(id, item);
                 }
             }
-        }
-        
-        // validate task requirements
 
-        const getMinPlayerLevelForTraderLevel = (traderId, traderLevel) => {
-            const trader = this.traders.find(tr => tr.id === traderId);
-            if (!trader) {
-                return 0;
-            }
-            const tLevel = trader.levels.find(lvl => lvl.level === traderLevel);
-            if (!tLevel) {
-                return 0;
-            }
-            return tLevel.requiredPlayerLevel;
-        };
-        const getQuestMinLevel = (questId, isPrereq = false) => {
-            const quest = quests.Task.find(q => q.id === questId);
-            if (!quest) {
-                return 0;
-            }
-            let actualMinLevel = quest.minPlayerLevel;
-            for (const req of quest.traderRequirements) {
-                if (req.requirementType !== 'level') {
+            this.rawTraders = await tarkovData.traders({gameMode: gameMode.name});
+            this.questItems = {};
+            const quests = {
+                Task: [],
+            };
+            allQuests[gameMode.name] = quests;
+
+            for (const questId in this.rawQuestData) {
+                if (this.removedQuests[questId]) {
+                    this.logger.warn(`Skipping removed quest ${this.locales.en[`${questId} name`]} ${questId}`);
                     continue;
                 }
-                const traderMinPlayerLevel = getMinPlayerLevelForTraderLevel(req.trader_id, req.level);
-                if (traderMinPlayerLevel > actualMinLevel) {
-                    actualMinLevel = traderMinPlayerLevel;
+                const eventQuestConfig = this.questConfig.eventQuests[questId];
+                if (new Date() >= eventQuestConfig?.endTimestamp) {
+                    this.logger.warn(`Skipping event quest ${this.locales.en[`${questId} name`]} ${questId}`);
+                    continue;
+                }
+                if (!this.locales.en[`${questId} name`]) {
+                    this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - localization not found`);
+                    continue;
+                }
+                if (skipQuests.includes(questId)) {
+                    this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - manual skip`);
+                    continue;
+                }
+                const giver = this.rawTraders[this.rawQuestData[questId].traderId];
+                if (!giver) {
+                    this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - invalid quest giver`);
+                    continue;
+                }
+                const missingTraderForRequiredLevel = this.rawQuestData[questId].conditions.AvailableForStart.some(cond => cond.conditionType === 'TraderLoyalty' && !this.rawTraders[cond.target]);
+                if (missingTraderForRequiredLevel) {
+                    this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - invalid trader for required loyalty level`);
+                    continue;
+                }
+                quests.Task.push(await this.formatRawQuest(this.rawQuestData[questId]));
+            }
+            
+            for (const questId in this.missingQuests) {
+                if (questId.startsWith('_')) {
+                    continue;
+                }
+                const quest = {...this.missingQuests[questId]};
+                if (quests.Task.some(q => q.id === questId)) {
+                    this.logger.warn(`Missing quest ${quest.name} ${questId} already exists...`);
+                    continue;
+                }
+                try {
+                    this.logger.warn(`Adding missing quest ${this.getTranslation(quest.name)} ${quest.id}...`);
+                    quest.name = this.addTranslation(`${questId} name`);
+                    for (const obj of quest.objectives) {
+                        obj.description = this.addTranslation(obj.id);
+                        if (obj.type.endsWith('QuestItem')) {
+                            this.questItems[obj.item_id] = {
+                                id: obj.item_id
+                            };
+                        }
+                        if (obj.type === 'extract') {
+                            obj.exitStatus = this.addTranslation(obj.exitStatus.map(this.getExtractStatus));
+                        }
+                        if (obj.type === 'shoot') {
+                            obj.target = this.addMobTranslation(obj.target);
+                            obj.targetNames = [this.addMobTranslation(obj.target)];
+                            if (obj.usingWeaponTypes) {
+                                obj.usingWeapon = obj.usingWeaponTypes.reduce((weapons, categoryId) => {
+                                    Object.values(this.itemMap).forEach(item => {
+                                        if (!item.categories.includes(categoryId)) {
+                                            return;
+                                        }
+                                        if (item.types.includes('preset')) {
+                                            return;
+                                        }
+                                        weapons.push({
+                                            id: item.id,
+                                            name: this.locales.en[item.name],
+                                        });
+                                    });
+                                    return weapons;
+                                }, []);
+                            }
+                        }
+                        if (obj.item && !obj.items) {
+                            obj.items = [obj.item];
+                        }
+                        this.addMapFromDescription(obj);
+                    }
+                    for (const skillReward of quest.finishRewards.skillLevelReward) {
+                        this.addTranslation(skillReward.name);
+                    }
+                    quests.Task.push(quest);
+                } catch (error) {
+                    this.logger.error(error);
+                    this.addJobSummary(`${quest.name} ${questId}\n${error.stack}`, 'Error Adding Missing Quest');
                 }
             }
-            if (isPrereq) {
-                for (const obj of quest.objectives) {
-                    if (obj.type !== 'traderLevel') {
+
+            for (const changedId in this.changedQuests) {
+                if (!this.changedQuests[changedId].objectiveIdsChanged) {
+                    continue;
+                }
+                if (Object.keys(this.changedQuests[changedId].objectiveIdsChanged).length > 0) {
+                    this.logger.warn(`Changed quest ${changedId} has unused objectiveIdsChanged`);
+                }
+            }
+
+            // filter out invalid task ids
+            for (const task of quests.Task) {
+                //task.taskRequirements = task.taskRequirements.filter(req => quests.Task.some(t => t.id === req.task));
+                task.failConditions = task.failConditions.filter(obj => {
+                    if (obj.type !== 'taskStatus') {
+                        return true;
+                    }
+                    return quests.Task.some(t => t.id === obj.task);
+                });
+                task.objectives = task.objectives.filter(obj => {
+                    if (obj.type !== 'taskStatus') {
+                        return true;
+                    }
+                    return quests.Task.some(t => t.id === obj.task);
+                });
+
+                // get old tarkovdata quest ids
+                for (const tdQuest of this.tdQuests) {
+                    if (task.id == tdQuest.gameId || this.getTranslation(task.name) === tdQuest.title) {
+                        task.tarkovDataId = tdQuest.id;
+                        break;
+                    }
+                }
+            }
+            
+            // validate task requirements
+
+            quests.Task = this.filterOutQuestsWithMissingPrecursor(quests.Task);
+
+            const getMinPlayerLevelForTraderLevel = (traderId, traderLevel) => {
+                const trader = this.rawTraders[traderId];
+                if (!trader) {
+                    return 0;
+                }
+                const tLevel = trader.loyaltyLevels[traderLevel-1];
+                if (!tLevel) {
+                    return 0;
+                }
+                return tLevel.minLevel;
+            };
+            const getQuestMinLevel = (questId, isPrereq = false) => {
+                const quest = quests.Task.find(q => q.id === questId);
+                if (!quest) {
+                    return 0;
+                }
+                let actualMinLevel = quest.minPlayerLevel;
+                for (const req of quest.traderRequirements) {
+                    if (req.requirementType !== 'level') {
                         continue;
                     }
-                    const traderMinPlayerLevel = getMinPlayerLevelForTraderLevel(obj.trader_id, obj.level);
+                    const traderMinPlayerLevel = getMinPlayerLevelForTraderLevel(req.trader_id, req.level);
                     if (traderMinPlayerLevel > actualMinLevel) {
                         actualMinLevel = traderMinPlayerLevel;
                     }
                 }
-            }
-            for (const req of quest.taskRequirements) {
-                const reqMinLevel = getQuestMinLevel(req.task, true);
-                if (reqMinLevel > actualMinLevel) {
-                    actualMinLevel = reqMinLevel;
+                if (isPrereq) {
+                    for (const obj of quest.objectives) {
+                        if (obj.type !== 'traderLevel') {
+                            continue;
+                        }
+                        const traderMinPlayerLevel = getMinPlayerLevelForTraderLevel(obj.trader_id, obj.level);
+                        if (traderMinPlayerLevel > actualMinLevel) {
+                            actualMinLevel = traderMinPlayerLevel;
+                        }
+                    }
                 }
-            }
-            return actualMinLevel;
-        };
-
-        const filteredPrerequisiteTasks = {};
-        const missingImages = [];
-        const normalizedNames = {};
-        for (const quest of quests.Task) {
-            quest.normalizedName = this.normalizeName(this.locales.en[quest.name])+(quest.factionName !== 'Any' ? `-${this.normalizeName(quest.factionName)}` : '');
-            if (!normalizedNames[quest.normalizedName]) {
-                normalizedNames[quest.normalizedName] = 1;
-            } else {
-                normalizedNames[quest.normalizedName]++;
-            }
-            if (normalizedNames[quest.normalizedName] > 1) {
-                quest.normalizedName = `${quest.normalizedName}-${normalizedNames[quest.normalizedName]}`;
-            }
-
-            const removeReqs = [];
-            for (const req of quest.taskRequirements) {
-                const questIncluded = quests.Task.some(q => q.id === req.task);
-                if (questIncluded) {
-                    continue;
+                for (const req of quest.taskRequirements) {
+                    const reqMinLevel = getQuestMinLevel(req.task, true);
+                    if (reqMinLevel > actualMinLevel) {
+                        actualMinLevel = reqMinLevel;
+                    }
                 }
-                this.logger.warn(`${this.locales.en[quest.name]} (${quest.id}) task requirement ${req.name} (${req.task}) is not a valid task`);
-                removeReqs.push(req.task);
-            }
-            quest.taskRequirements = quest.taskRequirements.filter(req => !removeReqs.includes(req.task));
-
-            quest.minPlayerLevel = getQuestMinLevel(quest.id);
-
-            const trader = this.traders.find(t => t.normalizedName === quest.normalizedName);
-            const map = this.maps.find(m => m.normalizedName === quest.normalizedName);
-            let wikiLinkSuffix = '';
-            if (trader || map) {
-                wikiLinkSuffix = '_(quest)';
-            }
-            quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.getTranslation(quest.name).replaceAll(' ', '_'))}${wikiLinkSuffix}`;
-
-            quest.kappaRequired = false;
-            quest.lightkeeperRequired = false;
-
-            const earlierTasks = new Set();
-            const addEarlier = (id) => {
-                earlierTasks.add(id);
-                quests.Task.find(q => q.id === id)?.taskRequirements.map(req => req.task).forEach(reqId => {
-                    earlierTasks.add(reqId);
-                    addEarlier(reqId);
-                });
+                return actualMinLevel;
             };
-            const requiredIds = quest.taskRequirements.map(req => req.task);
-            for (const reqId of requiredIds) {
-                quests.Task.find(q => q.id === reqId).taskRequirements.forEach(req => {
-                    addEarlier(req.task);
-                });
-            }
-            for (const reqId of requiredIds) {
-                if (quest.keepAllTaskRequirements) {
-                    break;
-                }
-                if (earlierTasks.has(reqId)) {
-                    //const requiredTask = quests.Task.find(q => q.id === reqId);
-                    //this.logger.warn(`${this.locales.en[quest.name]} ${quest.id} required task ${this.locales.en[requiredTask.name]} ${requiredTask.id} is a precursor to another required task`);
-                    quest.taskRequirements = quest.taskRequirements.filter(req => req.task !== reqId); 
-                    if (!(quest.id in filteredPrerequisiteTasks)) {
-                        filteredPrerequisiteTasks[quest.id] = 0;
-                    }
-                    filteredPrerequisiteTasks[quest.id]++;
-                }
-            }
-            delete quest.keepAllTaskRequirements;
 
-            // add locations for zones and quest items
-            for (const obj of quest.objectives) {
-                this.getObjectiveZones(obj);
-            }
-            for (const obj of quest.failConditions) {
-                this.getObjectiveZones(obj);
-            }
-
-            // add objective maps from extracts
-            for (const obj of quest.objectives) {
-                if (obj.type !== 'extract' || !obj.exitName) {
-                    continue;
-                }
-                let mapId = this.getMapFromExtractName(obj.exitName) || extractMap[obj.exitName];
-                if (mapId && !obj.map_ids.includes(mapId)) {
-                    obj.map_ids.push(mapId);
-                } else if (!mapId) {
-                    this.logger.warn(`${quest.name} objective ${obj.id} has no known map for extract ${obj.exitName}`);
-                }
-            }
-    
-            // add lighthouse map if turning in items to Lightkeeper
-            if (quest.trader === '638f541a29ffd1183d187f57') {
-                for (const obj of quest.objectives) {
-                    if (obj.type.startsWith('give') && !obj.map_ids.includes('5704e4dad2720bb55b8b4567')) {
-                        obj.map_ids.push('5704e4dad2720bb55b8b4567');
-                    }
-                }
-            }
-            this.addNeededKeys(quest);
-            
-            const imageLink = await this.getTaskImageLink(quest);
-            if (imageLink) {
-                quest.taskImageLink = imageLink;
-            } else {
-                quest.taskImageLink = `https://${process.env.S3_BUCKET}/unknown-task.webp`;
-                missingImages.push(quest.id);
-            }
-
-            for (const obj of quest.objectives) {
-                if (!obj.locale_map) {
-                    continue;
-                }
-                for (const key of Object.values(obj.locale_map)) {
-                    this.addTranslation(key);
-                }
-                delete obj.locale_map;
-            }
-        }
-        if (Object.keys(filteredPrerequisiteTasks).length > 0) {
-            this.logger.warn('Filtered out redundant prerequisite tasks:');
-            for (const questId in filteredPrerequisiteTasks) {
-                const quest = quests.Task.find(q => q.id === questId);
-                this.logger.log(`${this.locales.en[quest.name]} ${questId}: ${filteredPrerequisiteTasks[questId]}`);
-            }
-        }
-
-        quests.Task = this.filterOutQuestsWithMissingPrecursor(quests.Task);
-
-        const ignoreMissingQuests = [
-            '613708a7f8333a5d15594368',
-        ];
-        const noQuestData = [];
-        for (const key in this.locales.en) {
-            const match = key.match(/(?<id>[a-f0-9]{24}) name/);
-            if (!match) {
-                continue;
-            }
-            const questId = match.groups.id;
-            if (this.achievements.some(a => a.id === questId)) {
-                continue;
-            }
-            let found = false;
+            const filteredPrerequisiteTasks = {};
+            const normalizedNames = {};
             for (const quest of quests.Task) {
-                if (questId === quest.id) {
-                    found = true;
-                    break;
-                };
-            }
-            if (found || ignoreMissingQuests.includes(questId)) continue;
-            if (!this.locales.en[`${questId} name`]) {
-                continue;
-            }
-            if (this.removedQuests[questId] || skipQuests.includes(questId)) {
-                //this.logger.warn(`Quest ${this.locales.en[`${questId} name`]} ${questId} has been removed`);
-                continue;
-            }
-            noQuestData.push(`${this.locales.en[`${questId} name`]} ${questId}`);
-        }
-        if (false && noQuestData.length > 0) {
-            this.logger.warn(`No quest data found for:`);
-            for (const noData of noQuestData) {
-                this.logger.log(noData);
-            }
-        }
-
-        const neededForKappa = new Set();
-        const neededForLightkeeper = new Set();
-        const addPreviousRequirements = (neededSet, taskId, hardRequired) => {
-            if (hardRequired){
-                neededSet.add(taskId);
-            }
-            const task = quests.Task.find(task => task.id === taskId);
-            for (const failOn of task.failConditions) {
-                if (failOn.type !== 'taskStatus' || failOn.status[0] !== 'complete') {
-                    continue;
+                quest.normalizedName = this.normalizeName(this.locales.en[quest.name])+(quest.factionName !== 'Any' ? `-${this.normalizeName(quest.factionName)}` : '');
+                if (!normalizedNames[quest.normalizedName]) {
+                    normalizedNames[quest.normalizedName] = 1;
+                } else {
+                    normalizedNames[quest.normalizedName]++;
                 }
-                neededSet.add(failOn.task);
-            }
-            for (const req of task.taskRequirements) {
-                //addPreviousRequirements(neededSet, req.task, req.status.length === 1 && req.status[0] === 'complete');
-                addPreviousRequirements(neededSet, req.task, true);
-            }
-        };
-        addPreviousRequirements(neededForKappa, '5c51aac186f77432ea65c552', true);
-        addPreviousRequirements(neededForLightkeeper, '625d7005a4eb80027c4f2e09', true);
-        for (const task of quests.Task) {
-            if (neededForKappa.has(task.id)) {
-                task.kappaRequired = true;
-            }
-            if (neededForLightkeeper.has(task.id)) {
-                task.lightkeeperRequired = true;
-            }
+                if (normalizedNames[quest.normalizedName] > 1) {
+                    quest.normalizedName = `${quest.normalizedName}-${normalizedNames[quest.normalizedName]}`;
+                }
 
-            // sort task requirements by the minimum level required for each
-            task.taskRequirements.sort((a, b) => {
-                const taskA = quests.Task.find(q => q.id === a.task);
-                const taskB = quests.Task.find(q => q.id === b.task);
-                return taskA.minPlayerLevel - taskB.minPlayerLevel;
-            });
+                /*const removeReqs = [];
+                for (const req of quest.taskRequirements) {
+                    const questIncluded = quests.Task.some(q => q.id === req.task);
+                    if (questIncluded) {
+                        continue;
+                    }
+                    this.logger.warn(`${this.locales.en[quest.name]} (${quest.id}) task requirement ${req.name} (${req.task}) is not a valid task`);
+                    removeReqs.push(req.task);
+                }
+                quest.taskRequirements = quest.taskRequirements.filter(req => !removeReqs.includes(req.task));*/
 
-            task.traderLevelRequirements = task.traderRequirements.filter(req => req.requirementType === 'level');
-        }
+                quest.minPlayerLevel = getQuestMinLevel(quest.id);
 
-        // sort all tasks so lowest level tasks are first
-        quests.Task = quests.Task.sort((taskA,taskB) => {
-            let aMinLevel = taskA.minPlayerLevel;
-            let bMinLevel = taskB.minPlayerLevel;
-            if (!aMinLevel) {
-                aMinLevel = 100;
-            }
-            if (!bMinLevel) {
-                bMinLevel = 100;
-            }
-            if (aMinLevel === bMinLevel) {
-                aMinLevel = taskA.taskRequirements.reduce((totalMinLevel, req) => {
-                    const reqTask = quests.Task.find(q => q.id === req.task);
-                    totalMinLevel += reqTask.minPlayerLevel;
-                    return totalMinLevel;
-                }, aMinLevel);
-                bMinLevel = taskB.taskRequirements.reduce((totalMinLevel, req) => {
-                    const reqTask = quests.Task.find(q => q.id === req.task);
-                    totalMinLevel += reqTask.minPlayerLevel;
-                    return totalMinLevel;
-                }, bMinLevel);
-            }
-            return aMinLevel - bMinLevel;
-        });
+                const trader = this.traders.find(t => t.normalizedName === quest.normalizedName);
+                const map = this.maps.find(m => m.normalizedName === quest.normalizedName);
+                let wikiLinkSuffix = '';
+                if (trader || map) {
+                    wikiLinkSuffix = '_(quest)';
+                }
+                quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.getTranslation(quest.name).replaceAll(' ', '_'))}${wikiLinkSuffix}`;
 
-        for (const id in this.questItems) {
-            if (this.items[id]) {
-                //all quest items have a yellow background
-                //questItems[id].backgroundColor = items[id]._props.BackgroundColor;
-                this.questItems[id].width = this.items[id]._props.Width;
-                this.questItems[id].height = this.items[id]._props.Height;
-                this.questItems[id].name = this.addTranslation(`${id} Name`);
-                this.questItems[id].shortName = this.addTranslation(`${id} ShortName`);
-                this.questItems[id].description = this.addTranslation(`${id} Description`);
-            }
-            if (questItemMap.has(id)) {
-                const itemData = questItemMap.get(id);
-                if (!itemData.image_8x_link && webSocketServer.launchedScanners() > 0) {
-                    try {
-                        const images = await webSocketServer.getImages(id);
-                        const image = images[id];
-                        await createAndUploadFromSource(image, id);
-                        this.logger.success(`Created ${id} quest item images`);
-                    } catch (error) {
-                        this.logger.error(`Error creating ${id} quest item images ${error}`);
+                quest.kappaRequired = false;
+                quest.lightkeeperRequired = false;
+
+                const earlierTasks = new Set();
+                const addEarlier = (id) => {
+                    earlierTasks.add(id);
+                    quests.Task.find(q => q.id === id)?.taskRequirements.map(req => req.task).forEach(reqId => {
+                        earlierTasks.add(reqId);
+                        addEarlier(reqId);
+                    });
+                };
+                const requiredIds = quest.taskRequirements.map(req => req.task);
+                for (const reqId of requiredIds) {
+                    quests.Task.find(q => q.id === reqId).taskRequirements.forEach(req => {
+                        addEarlier(req.task);
+                    });
+                }
+                for (const reqId of requiredIds) {
+                    if (quest.keepAllTaskRequirements) {
+                        break;
+                    }
+                    if (earlierTasks.has(reqId)) {
+                        //const requiredTask = quests.Task.find(q => q.id === reqId);
+                        //this.logger.warn(`${this.locales.en[quest.name]} ${quest.id} required task ${this.locales.en[requiredTask.name]} ${requiredTask.id} is a precursor to another required task`);
+                        quest.taskRequirements = quest.taskRequirements.filter(req => req.task !== reqId); 
+                        if (!(quest.id in filteredPrerequisiteTasks)) {
+                            filteredPrerequisiteTasks[quest.id] = 0;
+                        }
+                        filteredPrerequisiteTasks[quest.id]++;
                     }
                 }
-                this.questItems[id].iconLink = itemData.icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
-                this.questItems[id].gridImageLink = itemData.grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
-                this.questItems[id].baseImageLink = itemData.base_image_link || 'https://assets.tarkov.dev/unknown-item-base-image.png';
-                this.questItems[id].inspectImageLink = itemData.image_link || 'https://assets.tarkov.dev/unknown-item-inspect.webp';
-                this.questItems[id].image512pxLink = itemData.image_512_link || 'https://assets.tarkov.dev/unknown-item-512.webp';
-                this.questItems[id].image8xLink = itemData.image_8x_link || 'https://assets.tarkov.dev/unknown-item-512.webp';
-            } else {
-                this.logger.warn(`Quest item ${id} not found in DB`);
-            }
-            this.questItems[id].normalizedName = this.normalizeName(this.locales.en[this.questItems[id].name]);
-        }
+                delete quest.keepAllTaskRequirements;
 
-        if (missingImages.length > 0) {
-            this.logger.warn(`${missingImages.length} quests are missing images`);
-        }
-        await fs.writeFile('./cache/quests_missing_images.json', JSON.stringify(missingImages, null, 4));
-
-        quests.QuestItem = this.questItems;
-
-        quests.Quest = await this.jobManager.runJob('update-quests-legacy', {data: this.tdQuests, parent: this});
-
-        quests.Achievement = await Promise.all(this.achievements.map(a => this.processAchievement(a)));
-
-        quests.locale = this.kvData.locale;
-
-        await this.cloudflarePut(quests);
-
-        const pveQuests = {
-            ...quests,
-        };
-        const nonPveTraders = ['6617beeaa9cfa777ca915b7c'];
-        pveQuests.Task = quests.Task.reduce((validTasks, task) => {
-            if (nonPveTraders.includes(task.trader)) {
-                return validTasks;
-            }
-            const invalidReqTask = task.taskRequirements.some(req => {
-                const reqTask = quests.Task.find(t => t.id === req.task);
-                if (!reqTask) {
-                    return true;
+                // add locations for zones and quest items
+                for (const obj of quest.objectives) {
+                    this.getObjectiveZones(obj);
                 }
-                if (nonPveTraders.includes(reqTask.trader)) {
-                    return true;
+                for (const obj of quest.failConditions) {
+                    this.getObjectiveZones(obj);
                 }
-                return false;
-            });
-            if (invalidReqTask) {
-                return validTasks;
+
+                // add objective maps from extracts
+                for (const obj of quest.objectives) {
+                    if (obj.type !== 'extract' || !obj.exitName) {
+                        continue;
+                    }
+                    let mapId = this.getMapFromExtractName(obj.exitName) || extractMap[obj.exitName];
+                    if (mapId && !obj.map_ids.includes(mapId)) {
+                        obj.map_ids.push(mapId);
+                    } else if (!mapId) {
+                        this.logger.warn(`${quest.name} objective ${obj.id} has no known map for extract ${obj.exitName}`);
+                    }
+                }
+        
+                // add lighthouse map if turning in items to Lightkeeper
+                if (quest.trader === '638f541a29ffd1183d187f57') {
+                    for (const obj of quest.objectives) {
+                        if (obj.type.startsWith('give') && !obj.map_ids.includes('5704e4dad2720bb55b8b4567')) {
+                            obj.map_ids.push('5704e4dad2720bb55b8b4567');
+                        }
+                    }
+                }
+                this.addNeededKeys(quest);
+                
+                const imageLink = await this.getTaskImageLink(quest);
+                if (imageLink) {
+                    quest.taskImageLink = imageLink;
+                } else {
+                    quest.taskImageLink = `https://${process.env.S3_BUCKET}/unknown-task.webp`;
+                    missingImages.add(quest.id);
+                }
+
+                for (const obj of quest.objectives) {
+                    if (!obj.locale_map) {
+                        continue;
+                    }
+                    for (const key of Object.values(obj.locale_map)) {
+                        this.addTranslation(key);
+                    }
+                    delete obj.locale_map;
+                }
             }
-            if (task.finishRewards.traderUnlock.some(unlock => nonPveTraders.includes(unlock.trader_id))) {
-                return validTasks;
+            if (Object.keys(filteredPrerequisiteTasks).length > 0) {
+                this.logger.warn('Filtered out redundant prerequisite tasks:');
+                for (const questId in filteredPrerequisiteTasks) {
+                    const quest = quests.Task.find(q => q.id === questId);
+                    this.logger.log(`${this.locales.en[quest.name]} ${questId}: ${filteredPrerequisiteTasks[questId]}`);
+                }
             }
-            const pveTask = {
-                ...task,
-                startRewards: {
-                    ...task.startRewards,
-                    traderStanding: task.startRewards.traderStanding.filter(standing => {
-                        return !nonPveTraders.includes(standing.trader_id);
-                    }),
-                    offerUnlock: task.startRewards.offerUnlock.filter(reward => {
-                        return !nonPveTraders.includes(reward.trader_id);
-                    }),
-                },
-                finishRewards: {
-                    ...task.finishRewards,
-                    traderStanding: task.finishRewards.traderStanding.filter(standing => {
-                        return !nonPveTraders.includes(standing.trader_id);
-                    }),
-                    offerUnlock: task.finishRewards.offerUnlock.filter(reward => {
-                        return !nonPveTraders.includes(reward.trader_id);
-                    }),
-                },
+
+            const neededForKappa = new Set();
+            const neededForLightkeeper = new Set();
+            const addPreviousRequirements = (neededSet, taskId, hardRequired) => {
+                if (hardRequired) {
+                    neededSet.add(taskId);
+                }
+                const task = quests.Task.find(task => task.id === taskId);
+                for (const failOn of task.failConditions) {
+                    if (failOn.type !== 'taskStatus' || failOn.status[0] !== 'complete') {
+                        continue;
+                    }
+                    neededSet.add(failOn.task);
+                }
+                for (const req of task.taskRequirements) {
+                    //addPreviousRequirements(neededSet, req.task, req.status.length === 1 && req.status[0] === 'complete');
+                    addPreviousRequirements(neededSet, req.task, true);
+                }
             };
-            validTasks.push(pveTask);
-            return validTasks;
-        }, []);
-        pveQuests.Task = this.filterOutQuestsWithMissingPrecursor(pveQuests.Task);
-        await this.cloudflarePut(pveQuests, `${this.kvName}_pve`);
+            addPreviousRequirements(neededForKappa, '5c51aac186f77432ea65c552', true);
+            addPreviousRequirements(neededForLightkeeper, '625d7005a4eb80027c4f2e09', true);
+            for (const task of quests.Task) {
+                if (neededForKappa.has(task.id)) {
+                    task.kappaRequired = true;
+                }
+                if (neededForLightkeeper.has(task.id)) {
+                    task.lightkeeperRequired = true;
+                }
 
-        this.logger.success(`Finished processing ${quests.Task.length} quests`);
-        return quests;
+                // sort task requirements by the minimum level required for each
+                task.taskRequirements.sort((a, b) => {
+                    const taskA = quests.Task.find(q => q.id === a.task);
+                    const taskB = quests.Task.find(q => q.id === b.task);
+                    return taskA.minPlayerLevel - taskB.minPlayerLevel;
+                });
+
+                task.traderLevelRequirements = task.traderRequirements.filter(req => req.requirementType === 'level');
+            }
+
+            // sort all tasks so lowest level tasks are first
+            quests.Task = quests.Task.sort((taskA,taskB) => {
+                let aMinLevel = taskA.minPlayerLevel;
+                let bMinLevel = taskB.minPlayerLevel;
+                if (!aMinLevel) {
+                    aMinLevel = 100;
+                }
+                if (!bMinLevel) {
+                    bMinLevel = 100;
+                }
+                if (aMinLevel === bMinLevel) {
+                    aMinLevel = taskA.taskRequirements.reduce((totalMinLevel, req) => {
+                        const reqTask = quests.Task.find(q => q.id === req.task);
+                        totalMinLevel += reqTask.minPlayerLevel;
+                        return totalMinLevel;
+                    }, aMinLevel);
+                    bMinLevel = taskB.taskRequirements.reduce((totalMinLevel, req) => {
+                        const reqTask = quests.Task.find(q => q.id === req.task);
+                        totalMinLevel += reqTask.minPlayerLevel;
+                        return totalMinLevel;
+                    }, bMinLevel);
+                }
+                return aMinLevel - bMinLevel;
+            });
+
+            for (const id in this.questItems) {
+                if (this.items[id]) {
+                    //all quest items have a yellow background
+                    //questItems[id].backgroundColor = items[id]._props.BackgroundColor;
+                    this.questItems[id].width = this.items[id]._props.Width;
+                    this.questItems[id].height = this.items[id]._props.Height;
+                    this.questItems[id].name = this.addTranslation(`${id} Name`);
+                    this.questItems[id].shortName = this.addTranslation(`${id} ShortName`);
+                    this.questItems[id].description = this.addTranslation(`${id} Description`);
+                }
+                if (questItemMap.has(id)) {
+                    const itemData = questItemMap.get(id);
+                    if (!itemData.image_8x_link && webSocketServer.launchedScanners() > 0) {
+                        try {
+                            const images = await webSocketServer.getImages(id);
+                            const image = images[id];
+                            await createAndUploadFromSource(image, id);
+                            this.logger.success(`Created ${id} quest item images`);
+                        } catch (error) {
+                            this.logger.error(`Error creating ${id} quest item images ${error}`);
+                        }
+                    }
+                    this.questItems[id].iconLink = itemData.icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg';
+                    this.questItems[id].gridImageLink = itemData.grid_image_link || 'https://assets.tarkov.dev/unknown-item-grid-image.jpg';
+                    this.questItems[id].baseImageLink = itemData.base_image_link || 'https://assets.tarkov.dev/unknown-item-base-image.png';
+                    this.questItems[id].inspectImageLink = itemData.image_link || 'https://assets.tarkov.dev/unknown-item-inspect.webp';
+                    this.questItems[id].image512pxLink = itemData.image_512_link || 'https://assets.tarkov.dev/unknown-item-512.webp';
+                    this.questItems[id].image8xLink = itemData.image_8x_link || 'https://assets.tarkov.dev/unknown-item-512.webp';
+                } else {
+                    this.logger.warn(`Quest item ${id} not found in DB`);
+                }
+                this.questItems[id].normalizedName = this.normalizeName(this.locales.en[this.questItems[id].name]);
+            }
+
+            quests.QuestItem = this.questItems;
+
+            quests.Quest = await this.jobManager.runJob('update-quests-legacy', {data: this.tdQuests, parent: this});
+
+            quests.Achievement = await Promise.all(this.achievements.map(a => this.processAchievement(a)));
+
+            quests.locale = this.kvData.locale;
+
+            let kvName = this.kvName;
+            if (gameMode.name !== 'regular') {
+                kvName += `_${gameMode.name}`;
+            }
+            await this.cloudflarePut(quests, kvName);
+
+            this.logger.success(`Finished processing ${quests.Task.length} quests`);
+        }
+
+        if (missingImages.size > 0) {
+            this.logger.warn(`${missingImages.size} quests are missing images`);
+        }
+        await fs.writeFile('./cache/quests_missing_images.json', JSON.stringify([...missingImages], null, 4));
+
+        return allQuests;
     }
 
     getQuestItemLocations = (questItemId, objectiveId) => {
@@ -826,6 +759,9 @@ class UpdateQuestsJob extends DataJob {
             if (reward.type === 'Experience') {
                 questData.experience = parseInt(reward.value);
             } else if (reward.type === 'TraderStanding') {
+                if (!this.rawTraders[reward.target]) {
+                    continue;
+                }
                 questData[rewardsType].traderStanding.push({
                     trader_id: reward.target,
                     name: this.locales.en[`${reward.target} Nickname`],
@@ -840,6 +776,10 @@ class UpdateQuestsJob extends DataJob {
             } else if (reward.type === 'AssortmentUnlock') {
                 if (!this.locales.en[`${reward.items[0]._tpl} Name`]) {
                     this.logger.warn(`No name found for unlock item "${reward.items[0]._tpl}" for completion reward ${reward.id} of ${questData.name}`);
+                    continue;
+                }
+                if (!this.rawTraders[reward.traderId]) {
+                    this.logger.warn(`Invalid trader ${reward.traderId} for offer unlock`);
                     continue;
                 }
                 let unlock = {
@@ -859,10 +799,10 @@ class UpdateQuestsJob extends DataJob {
                         slot: item.slotId
                     });
                 }*/
-               const rewardItems = await this.getRewardItems(reward);
-               if (!rewardItems) {
-                continue;
-               }
+                const rewardItems = await this.getRewardItems(reward);
+                if (!rewardItems) {
+                    continue;
+                }
                 unlock = {
                     ...unlock,
                     ...rewardItems,
@@ -877,6 +817,9 @@ class UpdateQuestsJob extends DataJob {
                 };
                 questData[rewardsType].skillLevelReward.push(skillLevel);
             } else if (reward.type === 'TraderUnlock') {
+                if (!this.rawTraders[reward.target]) {
+                    continue;
+                }
                 questData[rewardsType].traderUnlock.push({
                     trader_id: reward.target,
                     trader_name: this.locales.en[`${reward.target} Nickname`]
@@ -1181,6 +1124,9 @@ class UpdateQuestsJob extends DataJob {
                 //this.logger.warn(JSON.stringify(this.changedQuests[questData.id].finishRewardsAdded), null, 4);
                 for (const rewardType in this.changedQuests[questData.id].finishRewardsAdded) {
                     for (const reward of this.changedQuests[questData.id].finishRewardsAdded[rewardType]) {
+                        if (rewardType === 'offerUnlock' && !this.rawTraders[reward.trader_id]) {
+                            continue;
+                        }
                         questData.finishRewards[rewardType].push(reward);
                     }
                 }
@@ -1752,13 +1698,17 @@ class UpdateQuestsJob extends DataJob {
         const s3ImageLink = `https://${process.env.S3_BUCKET}/${s3FileName}`;
         if (this.s3Images.includes(s3FileName)) {
             return s3ImageLink;
-        } 
-        const imageUrl = `https://prod.escapefromtarkov.com${ach.imageUrl}`;
-        const response = await fetch(imageUrl);
-        if (!response.ok) {
+        }
+        const imageResponse = await fetch(`https://fence.tarkov.dev/achievement-image/${ach.id}?url=${ach.imageUrl}&rarity=${ach.rarity.toLowerCase()}`, {
+            headers: {
+                'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+            },
+            signal: this.abortController.signal,
+        });
+        if (!imageResponse.ok) {
             return null;
         }
-        const image = sharp(await response.arrayBuffer()).webp({lossless: true});
+        const image = sharp(await imageResponse.arrayBuffer()).webp({lossless: true});
         const metadata = await image.metadata();
         if (metadata.width <= 1 || metadata.height <= 1) {
             return null;
@@ -1841,8 +1791,7 @@ class UpdateQuestsJob extends DataJob {
     }
 
     filterOutQuestsWithMissingPrecursor(quests) {
-        for (let i = 0; i < quests.length; i++) {
-            const quest = quests[i];
+        for (const quest of quests) {
             const precursorsMissing = quest.taskRequirements.filter(req => {
                 const reqQuest = quests.find(q => q.id === req.task);
                 return !reqQuest;
@@ -1850,7 +1799,19 @@ class UpdateQuestsJob extends DataJob {
             if (precursorsMissing.length > 0) {
                 this.logger.warn(`Quest ${this.locales.en[`${quest.id} name`]} ${quest.id} is missing precursor quest(s) ${precursorsMissing.map(req => `${req.name} ${req.task}`).join(', ')}; removing`);
                 quests = quests.filter(q => q.id !== quest.id);
-                i = 0;
+                return this.filterOutQuestsWithMissingPrecursor(quests);
+            }
+            const failConditionMissing = quest.failConditions.filter(cond => {
+                if (cond.type !== 'taskStatus') {
+                    return false;
+                }
+                const failConditionTask = quests.find(q => q.id === cond.task);
+                return !failConditionTask;
+            });
+            if (failConditionMissing.length > 0) {
+                this.logger.warn(`Quest ${this.locales.en[`${quest.id} name`]} ${quest.id} is missing fail condition quest(s) ${failConditionMissing.map(req => `${req.name} ${req.task}`).join(', ')}; removing`);
+                quests = quests.filter(q => q.id !== quest.id);
+                return this.filterOutQuestsWithMissingPrecursor(quests);
             }
         }
         return quests;
