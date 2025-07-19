@@ -126,10 +126,10 @@ class UpdateTraderPricesJob extends DataJob {
                 }
                 const assort = this.traderAssorts[offer.trader_id].find(assort => assort.id === offer.id);
                 const cashPrice = {
+                    offer_id: offer.id,
                     id: offer.item_id,
                     item_name: item.name,
                     vendor: {
-                        traderOfferId: offer.id,
                         trader: offer.trader_id,
                         trader_id: offer.trader_id,
                         traderLevel: offer.min_level,
