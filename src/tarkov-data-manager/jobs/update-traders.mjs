@@ -25,9 +25,6 @@ class UpdateTradersJob extends DataJob {
         ]);
         const tradingService = this.services.find(s => s.name === 'Trading');
         const gameUpdating = tradingService?.status === 1;
-        const skipTraders = {
-            pve: ['6617beeaa9cfa777ca915b7c'] // Ref
-        };
         this.kvData = {};
         const s3Images = s3.getLocalBucketContents();
         const staleTraderInterval = 1000 * 60 * 15;
@@ -42,9 +39,6 @@ class UpdateTradersJob extends DataJob {
             };
             let staleTraderCount = 0;
             for (const traderId in this.tradersData) {
-                if (skipTraders[gameMode.name]?.includes(traderId)) {
-                    continue;
-                }
                 const trader = this.tradersData[traderId];
                 const date = new Date(trader.nextResupply*1000);
                 //date.setHours(date.getHours() +5);
@@ -148,13 +142,13 @@ class UpdateTradersJob extends DataJob {
             this.logger.log(`Processed ${this.kvData[gameMode.name].Trader.length} ${gameMode.name} traders`);
 
             if (staleTraderCount > 0 && !gameUpdating) {
-                this.logger.warn(`${staleTraderCount} stale traders; triggering restart`);
+                /*this.logger.warn(`${staleTraderCount} stale traders; triggering restart`);
                 this.addJobSummary(`${staleTraderCount} stale ${gameMode.name} traders`);
                 if (process.env.TEST_JOB !== 'true') {
                     await tarkovChanges.restart().catch(error => {
                         this.logger.warn(`Error triggering TC restart: ${error.message}`);
                     });
-                }
+                }*/
             }
     
             let kvName = this.kvName;
