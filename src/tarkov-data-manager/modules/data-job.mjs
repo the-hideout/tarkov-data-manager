@@ -202,7 +202,7 @@ class DataJob {
                     embed.setDescription(embedMessage.trim());
                 }
             }
-            embeds[embeds.length - 1].setFooter({text: new Date().toLocaleString()});
+            //embeds[embeds.length - 1].setFooter({text: new Date().toLocaleString()});
             this.discordAlertQueue.push(sendWebhook({embeds}, this.logger));
         }
         const webhookResults = await Promise.allSettled(this.discordAlertQueue);
