@@ -110,21 +110,20 @@
             "60e827faf09904268a4dbc52": "62a6ffbcec21e50cad3b6708"
         }
     },
-    "__61904daa7d0d857927447b9c": {
+    "61904daa7d0d857927447b9c": {
         "name": "The Hermit",
         "propertiesChanged" : {
             "taskRequirements": [
                 {
-                    "task": "5d25e48186f77443e625e386",
-                    "name": "Courtesy Visit",
+                    "task": "5d25cf2686f77443e75488d4",
+                    "name": "The Survivalist Path - Tough Guy",
                     "status": [
-                        "complete",
-                        "active"
+                        "complete"
                     ]
                 }
             ]
         },
-        "comment": "confirmed by razz 4/30/2023"
+        "comment": "per wiki since November 2024"
     },
     "__6179b4d1bca27a099552e04e": {
         "name": "Revision - Lighthouse",
