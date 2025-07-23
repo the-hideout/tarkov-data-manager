@@ -14,6 +14,10 @@ const skipCrafts = [
     '67449c79268737ef6908d636', // from event quest That's a Great Plan, Walter
 ];
 
+const craftReceiverOnly = [
+    '67d0576f29f580ebc10efd08', // AK-50
+];
+
 class UpdateCraftsJob extends DataJob {
     constructor(options) {
         super({...options, name: 'update-crafts'});
@@ -69,7 +73,7 @@ class UpdateCraftsJob extends DataJob {
                     this.logger.warn(`${id}: End product ${endProduct.name} ${craft.endProduct} is a quest item`);
                     continue;
                 }
-                if (endProduct.types.includes('gun')) {
+                if (endProduct.types.includes('gun') && !craftReceiverOnly.includes(endProduct.id)) {
                     const preset = Object.values(presets).find(p => p.baseId === endProduct.id && p.default);
                     if (preset) {
                         endProduct = processedItems.get(preset.id);
