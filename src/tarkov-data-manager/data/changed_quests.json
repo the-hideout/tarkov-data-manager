@@ -1733,5 +1733,11 @@
                 ]
             }
         }
+    },
+    "66058cb22cee99303f1ba067": {
+        "name": "Easy Money - Part 1",
+        "propertiesChanged": {
+            "minPlayerLevel": 20
+        }
     }
 }
