@@ -133,6 +133,12 @@ class UpdateQuestsJob extends DataJob {
                     this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - invalid trader for required loyalty level`);
                     continue;
                 }
+                //const missingTraderForUnlock = this.rawQuestData[questId].rewards.Success.some(r => r.type === 'TraderUnlock' && !this.rawTraders[r.target]);
+                const missingTraderForUnlock = Object.keys(this.rawQuestData[questId].rewards).some(rcat => this.rawQuestData[questId].rewards[rcat].some(r => r.type === 'TraderUnlock' && !this.rawTraders[r.target]));
+                if (missingTraderForUnlock) {
+                    this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - invalid trader unlock`);
+                    continue;
+                }
                 quests.Task.push(await this.formatRawQuest(this.rawQuestData[questId]));
             }
             
