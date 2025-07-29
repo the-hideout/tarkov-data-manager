@@ -673,6 +673,9 @@ class UpdateMapsJob extends DataJob {
                     this.logger.warn(`Could not find ${report.map} map`);
                     return false;
                 }
+                if (report.game_mode !== gameMode.name) {
+                    return false;
+                }
                 return {
                     map: map.id,
                     timestamp: `${report.timestamp.getTime()}`,
