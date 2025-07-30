@@ -98,6 +98,8 @@ class UpdateHideoutJob extends DataJob {
                     if (typeof stageData.tarkovDataId === 'undefined') {
                         //this.logger.warn(`Could not find tarkovData id for ${stationData.name} level ${stageData.level}`);
                     }
+                    // if the station has requirements, add them to the first stage
+                    // this can cause duplicates
                     if (i === 1 && station.requirements.length > 0) {
                         stage.requirements = [
                             ...station.requirements,
@@ -126,6 +128,11 @@ class UpdateHideoutJob extends DataJob {
                             };
                             stageData.skillRequirements.push(skillReq);
                         } else if (req.type === 'Area') {
+                            // filter out duplicates caused by merging reqs
+                            // from base station requirements
+                            if (stageData.stationLevelRequirements.some(lr => lr.station === areasByType[req.areaType] && lr.level === req.requiredLevel)) {
+                                continue;
+                            }
                             stageData.stationLevelRequirements.push({
                                 id: `${stationData.id}-${i}-${r}`,
                                 station: areasByType[req.areaType],
@@ -155,7 +162,7 @@ class UpdateHideoutJob extends DataJob {
                             stageData.stationLevelRequirements.push({
                                 id: `${stationData.id}-${i}-${stage.requirements.length}`,
                                 station: stationData.id,
-                                name: stationData.name,
+                                name: this.getTranslation(stationData.name),
                                 level: stageData.level - 1,
                             });
                         } else if (prevReq.level !== i -1) {
