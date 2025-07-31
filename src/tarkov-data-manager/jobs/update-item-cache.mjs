@@ -1,3 +1,5 @@
+import sharp from 'sharp';
+
 import DataJob from '../modules/data-job.mjs';
 import dataMaps from '../modules/data-map.js';
 import remoteData from '../modules/remote-data.mjs';
@@ -7,6 +9,7 @@ import { setItemPropertiesOptions, getSpecialItemProperties } from '../modules/g
 import webSocketServer from '../modules/websocket-server.mjs';
 import { createAndUploadFromSource } from '../modules/image-create.mjs';
 import TranslationHelper from '../modules/translation-helper.mjs';
+import { getLocalBucketContents, uploadAnyImage } from '../modules/upload-s3.mjs';
 
 class UpdateItemCacheJob extends DataJob {
     constructor(options) {
@@ -26,6 +29,7 @@ class UpdateItemCacheJob extends DataJob {
             this.itemMap,
             this.handbook,
             this.traders,
+            this.s3Images,
         ] = await Promise.all([
             tarkovData.items(), 
             tarkovData.credits({gameMode: 'regular'}),
@@ -36,6 +40,7 @@ class UpdateItemCacheJob extends DataJob {
             }),
             tarkovData.handbook(),
             tarkovData.traders({gameMode: 'regular'}),
+            getLocalBucketContents(),
         ]);
         this.logger.log('Getting presets...');
         this.presets = await this.jobManager.jobOutput('update-presets', this, 'regular', true);
@@ -437,6 +442,9 @@ class UpdateItemCacheJob extends DataJob {
                 if (typeof skillData !== 'object') {
                     return allSkills;
                 }
+                if (disabledSkills.includes(skillKey)) {
+                    return allSkills;
+                }
                 if (!this.handbookTranslationHelper.hasTranslation(skillKey, true)) {
                     return allSkills;
                 }
@@ -447,6 +455,10 @@ class UpdateItemCacheJob extends DataJob {
                 return allSkills;
             }, []),
         };
+
+        for (const skill of handbookData.Skill) {
+            await this.setSkillImageLink(skill);
+        }
 
         this.logger.log('Uploading handbook data to cloudflare...');
         handbookData.locale = await this.handbookTranslationHelper.fillTranslations();
@@ -774,6 +786,32 @@ class UpdateItemCacheJob extends DataJob {
             }, []),
         };
     }
+
+    async setSkillImageLink(skill) {
+        const s3FileName = `skill-${skill.id}-icon.webp`;
+        const s3ImageLink = `https://${process.env.S3_BUCKET}/${s3FileName}`;
+        if (this.s3Images.includes(s3FileName)) {
+            skill.imageLink = s3ImageLink;
+            return;
+        }
+        const imageResponse = await fetch(`https://fence.tarkov.dev/skill-image/${skill.id}`, {
+            headers: {
+                'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+            },
+            signal: this.abortController.signal,
+        });
+        if (!imageResponse.ok) {
+            return;
+        }
+        const image = sharp(await imageResponse.arrayBuffer()).webp({lossless: true});
+        const metadata = await image.metadata();
+        if (metadata.width <= 1 || metadata.height <= 1) {
+            return;
+        }
+        console.log(`Downloaded ${skill.id} skill image`);
+        await uploadAnyImage(image, s3FileName, 'image/webp');
+        skill.imageLink = s3ImageLink;
+    }
 }
 
 const catNameToEnum = (sentence) => {
@@ -843,5 +881,16 @@ const getGrid = (item) => {
 
     return gridData;
 };
+
+const disabledSkills = [
+    'AdvancedModding',
+    'Barter',
+    'Freetrading',
+    'Memory',
+    'ProneMovement',
+    'RecoilControl',
+    'Sniping',
+    'WeaponModding',
+];
 
 export default UpdateItemCacheJob;
