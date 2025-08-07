@@ -316,7 +316,7 @@ class UpdateQuestsJob extends DataJob {
                 if (trader || map) {
                     wikiLinkSuffix = '_(quest)';
                 }
-                quest.wikiLink = `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(this.getTranslation(quest.name).replaceAll(' ', '_'))}${wikiLinkSuffix}`;
+                quest.wikiLink = this.getWikiLink(`${this.getTranslation(quest.name)}${wikiLinkSuffix}`);
 
                 quest.kappaRequired = false;
                 quest.lightkeeperRequired = false;

@@ -451,6 +451,7 @@ class UpdateItemCacheJob extends DataJob {
                 allSkills.push({
                     id: skillKey,
                     name: this.handbookTranslationHelper.addTranslation(skillKey),
+                    wikiLink: this.getWikiLink(this.handbookTranslationHelper.getTranslation(skillKey)),
                 });
                 return allSkills;
             }, []),

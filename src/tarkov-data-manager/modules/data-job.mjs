@@ -464,6 +464,10 @@ class DataJob {
     abort = (reason) => {
         this.abortController.abort(reason);
     }
+
+    getWikiLink = (pageName) => {
+        return `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(pageName.replaceAll(' ', '_'))}`;
+    }
 }
 
 export default DataJob;

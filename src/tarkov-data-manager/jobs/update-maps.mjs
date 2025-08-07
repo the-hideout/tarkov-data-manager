@@ -170,7 +170,7 @@ class UpdateMapsJob extends DataJob {
                     normalizedName: '', // set below using the EN translation of name
                     nameId: map.Id,
                     description: this.addTranslation(`${id} Description`),
-                    wiki: 'https://escapefromtarkov.fandom.com/wiki/'+this.locales.en[`${id} Name`].replace(/ /g, '_'),
+                    wiki: this.getWikiLink(this.locales.en[`${id} Name`]),
                     enemies: [],
                     raidDuration: map.EscapeTimeLimit,
                     players: map.MinPlayers+'-'+map.MaxPlayers,
