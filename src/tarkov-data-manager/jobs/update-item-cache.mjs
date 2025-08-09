@@ -837,11 +837,23 @@ class UpdateItemCacheJob extends DataJob {
         if (!imageResponse.ok) {
             return null;
         }
-        const image = sharp(await imageResponse.arrayBuffer()).webp({lossless: true});
+        let image = sharp(await imageResponse.arrayBuffer());
         const metadata = await image.metadata();
         if (metadata.width <= 1 || metadata.height <= 1) {
             return null;
         }
+        if (handbookCategoryBackgroundColors[category.ParentId]) {
+            const icon = image;
+            image = sharp({create: {
+                width: Math.max(33, metadata.width),
+                height: Math.max(33, metadata.height),
+                channels: 4,
+                background: handbookCategoryBackgroundColors[category.ParentId],
+            }}).composite([{
+                input: await icon.toBuffer(),
+            }]);
+        }
+        image.webp({lossless: true});
         console.log(`Downloaded ${category.Id} category image`);
         await uploadAnyImage(image, s3FileName, 'image/webp');
         return s3ImageLink;
@@ -926,5 +938,27 @@ const disabledSkills = [
     'Sniping',
     'WeaponModding',
 ];
+
+
+const handbookCategoryBackgroundColors = {
+    '5b5f71b386f774093f2ecf11': { // Functional mods
+        r: 255 * 0.1569,
+        g: 255 * 0.3059,
+        b: 255 * 0.3922,
+        alpha: 1,
+    },
+    '5b5f750686f774093e6cb503': { // Gear mods
+        r: 255 * 0.121,
+        g: 255 * 0.301,
+        b: 255 * 0.164,
+        alpha: 1,
+    },
+    '5b5f75b986f77447ec5d7710': { // Vital parts
+        r: 255 * 0.301,
+        g: 255 * 0.205,
+        b: 255 * 0.152,
+        alpha: 1,
+    },
+};
 
 export default UpdateItemCacheJob;
