@@ -845,8 +845,8 @@ class UpdateItemCacheJob extends DataJob {
         if (handbookCategoryBackgroundColors[category.ParentId]) {
             const icon = image;
             image = sharp({create: {
-                width: Math.max(33, metadata.width),
-                height: Math.max(33, metadata.height),
+                width: Math.max(22, metadata.width),
+                height: Math.max(22, metadata.height),
                 channels: 4,
                 background: handbookCategoryBackgroundColors[category.ParentId],
             }}).composite([{
