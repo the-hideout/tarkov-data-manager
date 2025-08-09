@@ -10,11 +10,11 @@ class GameDataJob extends DataJob {
         
         await this.jobManager.runJob('update-main-data', {parent: this});
 
-        this.logger.log('Updating handbook...');
+        /*this.logger.log('Updating handbook...');
         await tarkovData.handbook({download: true}).catch(error => {
             this.logger.error(error);
             return tarkovData.handbook({download: true});
-        });
+        });*/
 
         const subJobs = [
             'update-new-items',

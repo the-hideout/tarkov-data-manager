@@ -252,7 +252,7 @@ class UpdateItemCacheJob extends DataJob {
             if (!handbookItem) {
                 //this.logger.warn(`Item ${this.locales.en[itemData[key].name] || this.kvData.locale.en[itemData[key].name]} ${key} has no handbook entry`);
             } else {
-                this.addHandbookCategory(handbookItem.ParentId);
+                await this.addHandbookCategory(handbookItem.ParentId);
                 let parent = this.handbookCategories[handbookItem.ParentId];
                 while (parent) {
                     itemData[key].handbookCategories.push(parent.id);
@@ -572,10 +572,11 @@ class UpdateItemCacheJob extends DataJob {
         this.addCategory(this.bsgCategories[id].parent_id);
     }
 
-    addHandbookCategory(id) {
+    async addHandbookCategory(id) {
         if (!id || this.handbookCategories[id]) {
             return;
         }
+        const category = this.handbook.Categories.find(cat => cat.Id === id);
         this.handbookCategories[id] = {
             id: id,
             name: this.handbookTranslationHelper.addTranslation(id),
@@ -583,9 +584,9 @@ class UpdateItemCacheJob extends DataJob {
             enumName: catNameToEnum(this.locales.en[id]),
             parent_id: null,
             child_ids: [],
+            imageLink: await this.getHandbookCategoryImageLink(category),
         };
     
-        const category = this.handbook.Categories.find(cat => cat.Id === id);
         const parentId = category.ParentId;
         this.handbookCategories[id].parent_id = parentId;
         this.addHandbookCategory(parentId);
@@ -812,6 +813,38 @@ class UpdateItemCacheJob extends DataJob {
         console.log(`Downloaded ${skill.id} skill image`);
         await uploadAnyImage(image, s3FileName, 'image/webp');
         skill.imageLink = s3ImageLink;
+    }
+
+    async getHandbookCategoryImageLink(category) {
+        const s3FileName = `handbook-category-${category.Id}-icon.webp`;
+        const s3ImageLink = `https://${process.env.S3_BUCKET}/${s3FileName}`;
+        if (this.s3Images.includes(s3FileName)) {
+            return s3ImageLink;
+        }
+        if (!category.Icon.endsWith('.png')) {
+            return null;
+        }
+        const imageResponse = await fetch(`https://fence.tarkov.dev/passthrough-request`, {
+            headers: {
+                'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                url: `https://prod.escapefromtarkov.com${category.Icon}`,
+            }),
+            signal: this.abortController.signal,
+        });
+        if (!imageResponse.ok) {
+            return null;
+        }
+        const image = sharp(await imageResponse.arrayBuffer()).webp({lossless: true});
+        const metadata = await image.metadata();
+        if (metadata.width <= 1 || metadata.height <= 1) {
+            return null;
+        }
+        console.log(`Downloaded ${category.Id} category image`);
+        await uploadAnyImage(image, s3FileName, 'image/webp');
+        return s3ImageLink;
     }
 }
 
