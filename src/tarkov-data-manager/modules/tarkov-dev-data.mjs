@@ -19,6 +19,7 @@ const availableFiles = {
     'locale_en': {},
     'locations': {},
     'traders': {},
+    'handbook': {},
     //'status',
 };
 
@@ -130,6 +131,9 @@ const tarkovDevData = {
     },
     traders: async (options = defaultOptions) => {
         return tarkovDevData.get('traders', options);
+    },
+    handbook: async (options = defaultOptions) => {
+        return tarkovDevData.get('handbook', options);
     },
     status: async (options = defaultOptions) => {
         return tarkovDevData.get('status', options);

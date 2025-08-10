@@ -49,7 +49,7 @@ class VerifyWikiJob extends DataJob {
                 // We don't have a wiki link, let's try retrieving from the id
                 if (!newWikiLink && !item.types.includes('preset')){
                     try {
-                        const templatePage = await got(`https://escapefromtarkov.fandom.com/wiki/Template:${item.id}`);
+                        const templatePage = await got(this.getWikiLink(`Template:${item.id}`));
                         const matches = templatePage.body.match(/<div class="mw-parser-output"><p><a href="(?<link>[^"]+)"/);
 
                         if (matches) {
@@ -63,10 +63,10 @@ class VerifyWikiJob extends DataJob {
                 // We still don't have a wiki link, let's try to guess one
                 if (!newWikiLink){
                     if (!item.types.includes('preset')) {
-                        newWikiLink = nameToWikiLink(item.name);
+                        newWikiLink = this.getWikiLink(item.name);
                     } else {
                         const baseItem = this.items.get(this.presets[item.id].baseId);
-                        newWikiLink = nameToWikiLink(baseItem.name);
+                        newWikiLink = this.getWikiLink(baseItem.name);
                     }
 
                     try {
@@ -99,14 +99,5 @@ class VerifyWikiJob extends DataJob {
         this.logger.log(`${missingWikiLinkCount} items still missing a valid wiki link`);
     }
 }
-
-const nameToWikiLink = (name) => {
-    const formattedName = name
-        .replace(/\s/g, '_')
-        .replace(/&/, '%26')
-        .replace(/'/, '%27');
-
-    return `https://escapefromtarkov.fandom.com/wiki/${formattedName}`;
-};
 
 export default VerifyWikiJob;

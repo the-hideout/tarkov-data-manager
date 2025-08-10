@@ -252,7 +252,7 @@ class UpdateItemCacheJob extends DataJob {
             if (!handbookItem) {
                 //this.logger.warn(`Item ${this.locales.en[itemData[key].name] || this.kvData.locale.en[itemData[key].name]} ${key} has no handbook entry`);
             } else {
-                this.addHandbookCategory(handbookItem.ParentId);
+                await this.addHandbookCategory(handbookItem.ParentId);
                 let parent = this.handbookCategories[handbookItem.ParentId];
                 while (parent) {
                     itemData[key].handbookCategories.push(parent.id);
@@ -451,6 +451,7 @@ class UpdateItemCacheJob extends DataJob {
                 allSkills.push({
                     id: skillKey,
                     name: this.handbookTranslationHelper.addTranslation(skillKey),
+                    wikiLink: this.getWikiLink(this.handbookTranslationHelper.getTranslation(skillKey)),
                 });
                 return allSkills;
             }, []),
@@ -571,10 +572,11 @@ class UpdateItemCacheJob extends DataJob {
         this.addCategory(this.bsgCategories[id].parent_id);
     }
 
-    addHandbookCategory(id) {
+    async addHandbookCategory(id) {
         if (!id || this.handbookCategories[id]) {
             return;
         }
+        const category = this.handbook.Categories.find(cat => cat.Id === id);
         this.handbookCategories[id] = {
             id: id,
             name: this.handbookTranslationHelper.addTranslation(id),
@@ -582,9 +584,9 @@ class UpdateItemCacheJob extends DataJob {
             enumName: catNameToEnum(this.locales.en[id]),
             parent_id: null,
             child_ids: [],
+            imageLink: await this.getHandbookCategoryImageLink(category),
         };
     
-        const category = this.handbook.Categories.find(cat => cat.Id === id);
         const parentId = category.ParentId;
         this.handbookCategories[id].parent_id = parentId;
         this.addHandbookCategory(parentId);
@@ -812,6 +814,50 @@ class UpdateItemCacheJob extends DataJob {
         await uploadAnyImage(image, s3FileName, 'image/webp');
         skill.imageLink = s3ImageLink;
     }
+
+    async getHandbookCategoryImageLink(category) {
+        const s3FileName = `handbook-category-${category.Id}-icon.webp`;
+        const s3ImageLink = `https://${process.env.S3_BUCKET}/${s3FileName}`;
+        if (this.s3Images.includes(s3FileName)) {
+            return s3ImageLink;
+        }
+        if (!category.Icon.endsWith('.png')) {
+            return null;
+        }
+        const imageResponse = await fetch(`https://fence.tarkov.dev/passthrough-request`, {
+            headers: {
+                'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                url: `https://prod.escapefromtarkov.com${category.Icon}`,
+            }),
+            signal: this.abortController.signal,
+        });
+        if (!imageResponse.ok) {
+            return null;
+        }
+        let image = sharp(await imageResponse.arrayBuffer());
+        const metadata = await image.metadata();
+        if (metadata.width <= 1 || metadata.height <= 1) {
+            return null;
+        }
+        if (handbookCategoryBackgroundColors[category.ParentId]) {
+            const icon = image;
+            image = sharp({create: {
+                width: Math.max(22, metadata.width),
+                height: Math.max(22, metadata.height),
+                channels: 4,
+                background: handbookCategoryBackgroundColors[category.ParentId],
+            }}).composite([{
+                input: await icon.toBuffer(),
+            }]);
+        }
+        image.webp({lossless: true});
+        console.log(`Downloaded ${category.Id} category image`);
+        await uploadAnyImage(image, s3FileName, 'image/webp');
+        return s3ImageLink;
+    }
 }
 
 const catNameToEnum = (sentence) => {
@@ -892,5 +938,27 @@ const disabledSkills = [
     'Sniping',
     'WeaponModding',
 ];
+
+
+const handbookCategoryBackgroundColors = {
+    '5b5f71b386f774093f2ecf11': { // Functional mods
+        r: 255 * 0.1569,
+        g: 255 * 0.3059,
+        b: 255 * 0.3922,
+        alpha: 1,
+    },
+    '5b5f750686f774093e6cb503': { // Gear mods
+        r: 255 * 0.121,
+        g: 255 * 0.301,
+        b: 255 * 0.164,
+        alpha: 1,
+    },
+    '5b5f75b986f77447ec5d7710': { // Vital parts
+        r: 255 * 0.301,
+        g: 255 * 0.205,
+        b: 255 * 0.152,
+        alpha: 1,
+    },
+};
 
 export default UpdateItemCacheJob;

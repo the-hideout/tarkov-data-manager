@@ -253,7 +253,11 @@ const getArmorDurability = (item) => {
     if (!item._props.Slots?.length) {
         return item._props.Durability ?? 0;
     }
-    return item._props.Slots.reduce((armorDurability, slot) => {
+    const armorSlots = item._props.Slots.filter(slot => !!slot._props.filters[0].Plate);
+    if (!armorSlots.length) {
+        return item._props.Durability ?? 0;
+    }
+    return armorSlots.reduce((armorDurability, slot) => {
         const plateId = slot._props.filters[0].Plate;
         if (!plateId) {
             return armorDurability;
