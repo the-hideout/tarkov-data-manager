@@ -1739,5 +1739,19 @@
         "propertiesChanged": {
             "minPlayerLevel": 20
         }
+    },
+    "6864fcef9809a149400dd2ee": {
+        "name": "Breathing Room",
+        "propertiesChanged" : {
+            "taskRequirements": [
+                {
+                    "task": "686404d348e7bb4146002cac",
+                    "name": "Friend from Norvinsk - Part 5",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
     }
 }

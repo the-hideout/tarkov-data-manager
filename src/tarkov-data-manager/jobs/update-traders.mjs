@@ -46,7 +46,7 @@ class UpdateTradersJob extends DataJob {
                     id: trader._id,
                     name: this.addTranslation(`${trader._id} Nickname`),
                     description: this.addTranslation(`${trader._id} Description`),
-                    normalizedName: this.normalizeName(this.locales.en[`${trader._id} Nickname`]),
+                    normalizedName: this.normalizeName(this.locales.en[`${trader._id} Nickname`] ?? trader.name),
                     currency: trader.currency,
                     resetTime: date,
                     discount: parseInt(trader.discount) / 100,

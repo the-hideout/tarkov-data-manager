@@ -144,7 +144,6 @@ const tarkovDevData = {
             pve: [
                 'achievements',
                 'achievementStats',
-                'locale_en',
             ],
         };
         const promises = [];
