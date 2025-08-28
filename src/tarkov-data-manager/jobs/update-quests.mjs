@@ -1967,7 +1967,7 @@ const factionMap = {
 
 const questModeZoneMap = {
     '[PVP ZONE]': 'regular',
-    '[PVE ZONE]': 'pve'
+    '[PVE ZONE]': 'pve',
 };
 
 export default UpdateQuestsJob;
