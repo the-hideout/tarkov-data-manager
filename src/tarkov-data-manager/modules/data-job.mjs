@@ -264,6 +264,7 @@ class DataJob {
         const uploadStart = new Date();
         const response = await this.cloudflareUpload(kvName, data, gameMode).catch(error => {
             this.logger.error(error);
+            this.logger.warn(`Error during Cloudflare put of ${kvName} (${JSON.stringify(data).length.toLocaleString()} bytes)`);
             return {success: false, errors: [], messages: []};
         });
         if (gameMode && gameMode !== 'regular') {

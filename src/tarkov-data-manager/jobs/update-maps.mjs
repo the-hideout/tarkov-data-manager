@@ -214,6 +214,21 @@ class UpdateMapsJob extends DataJob {
                         };
                     }).filter(Boolean),
                     extracts: this.mapDetails[id]?.extracts.map(extract => {
+                        let transferItem;
+                        const extractData = map.exits.find(e => e.Name === extract.settings.Name);
+                        if (extractData?.PassageRequirement === 'TransferItem') {
+                            transferItem = {
+                                item: extractData.Id,
+                                count: extractData.Count,
+                            };
+                        }
+                        const secretExit = map.secretExits?.find(s => s.Name === extract.settings.Name);
+                        if (secretExit) {
+                            transferItem = {
+                                item: secretExit.Id,
+                                count: 1,
+                            };
+                        }
                         return {
                             id: this.getId(id, extract),
                             name: this.addTranslation(extract.settings.Name),
@@ -234,6 +249,7 @@ class UpdateMapsJob extends DataJob {
                                 const foundSwitch = this.mapDetails[id].switches.find(sw => sw.id === switchId && sw.hasCollider);
                                 return foundSwitch ? this.getId(id, foundSwitch) : false;
                             }).filter(Boolean),
+                            transferItem,
                             ...extract.location,
                         };
                     }) ?? [],
