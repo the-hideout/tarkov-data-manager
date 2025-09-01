@@ -91,6 +91,10 @@ class UpdateQuestsJob extends DataJob {
 
         const allQuests = {};
         for (const gameMode of this.gameModes) {
+            if (gameMode.name !== 'regular') {
+                this.locales = await tarkovData.locales({gameMode: gameMode.name});
+            }
+            this.locales = await tarkovData.locales();
             const questItemMap = new Map();
             for (const [id, item] of this.itemResults) {
                 if (item.types?.includes('quest')) {
@@ -137,6 +141,11 @@ class UpdateQuestsJob extends DataJob {
                 const missingTraderForUnlock = Object.keys(this.rawQuestData[questId].rewards).some(rcat => this.rawQuestData[questId].rewards[rcat].some(r => r.type === 'TraderUnlock' && !this.rawTraders[r.target]));
                 if (missingTraderForUnlock) {
                     this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - invalid trader unlock`);
+                    continue;
+                }
+                const lockedToGameMode = this.lockedToGameMode(questId);
+                if (lockedToGameMode && lockedToGameMode !== gameMode.name) {
+                    this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - locked to ${lockedToGameMode}`);
                     continue;
                 }
                 quests.Task.push(await this.formatRawQuest(this.rawQuestData[questId]));
@@ -1822,6 +1831,18 @@ class UpdateQuestsJob extends DataJob {
         }
         return quests;
     }
+
+    lockedToGameMode(questId) {
+        const questName = this.locales.en[`${questId} name`];
+        if (!questName) {
+            return 'unknown';
+        }
+        for (const lockedText in questModeZoneMap) {
+            if (questName.includes(lockedText)) {
+                return questModeZoneMap[lockedText];
+            }
+        }
+    }
 }
 
 const questItemLocations = {};
@@ -1942,6 +1963,11 @@ const factionMap = {
     '639136d68ba6894d155e77cf': 'BEAR', // Green Corridor
     '6613f3007f6666d56807c929': 'BEAR', // Drip-Out - Part 1
     '6613f307fca4f2f386029409': 'BEAR', // Drip-Out - Part 2
+};
+
+const questModeZoneMap = {
+    '[PVP ZONE]': 'regular',
+    '[PVE ZONE]': 'pve',
 };
 
 export default UpdateQuestsJob;

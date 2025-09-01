@@ -209,6 +209,7 @@ const cloudflare = {
                 value,
             }],
         }).then(response => {
+            //console.log('put response', response);
             const result = {
                 result: {},
                 success: true,
@@ -223,7 +224,8 @@ const cloudflare = {
             }
             return result;
         }).catch(error => {
-            return Promise.reject(error.error);
+            //console.log('put error', error);
+            return Promise.reject(error);
         });
     },
     putBulk: (kvPairs, options = {}) => {
