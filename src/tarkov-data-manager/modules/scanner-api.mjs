@@ -1005,6 +1005,44 @@ const scannerApi = {
         }
         return response;
     },
+    insertSummaryPrices: async (options) => {
+        const user = options.user;
+        let scanFlags = options.scanner.flags;
+        const skipInsert = userFlags.skipPriceInsert & user.flags || scannerFlags.skipPriceInsert & scanFlags;
+        const response = {errors: [], warnings: [], data: {}};
+        const itemId = options.itemId;
+        let gameMode = 0;
+        for (const gm of gameModes) {
+            if (gm.name !== options.sessionMode) {
+                continue;
+            }
+            gameMode = gm.value;
+            break;
+        }
+        if (!options.min || !options.avg) {
+            response.errors.push('no prices to insert');
+        }
+        if (!itemId) {
+            response.errors.push('no id');
+        }
+        if (response.errors.length > 0) {
+            return response;
+        }
+        let scanned = false;
+        if (skipInsert) {
+            response.warnings.push(`Skipped insert of ${playerPrices.length} player prices`);
+        } else {
+            await query('INSERT INTO price_historical (item_id, price_min, price_avg, timestamp, game_mode) VALUES (?, ?, ?, ?, ?)',[itemId, options.min, options.avg, new Date(), gameMode]).then(() => {
+                scanned = true;
+            }).catch(error => {
+                response.errors.push(String(error));
+            });
+        }
+        await scannerApi.releaseItem({...options, scanned}).catch(error => {
+            response.errors.push(String(error));
+        });
+        return response;
+    },
     addTraderOffers: async (options) => {
         const response = {
             data: [],
