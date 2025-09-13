@@ -683,7 +683,8 @@ const scannerApi = {
         }
     
         if (itemScanned && itemId && !skipInsert) {
-            scanned = `, ${prefix}last_scan = now()`;
+            scanned = `, ${prefix}last_scan = ?`;
+            escapedValues.push(options.timestamp ?? new Date())
             if (options.offerCount && options.offersFrom !== 1) {
                 scanned += `, ${prefix}last_offer_count = ?`;
                 escapedValues.push(options.offerCount);
@@ -705,12 +706,11 @@ const scannerApi = {
         try {
             const result = await query(sql, escapedValues).then(result => {
                 if (setLastScan) {
-                    const scanDateTime = options.timestamp ?? new Date();
                     query(`
                         UPDATE scanner
-                        SET ${prefix}last_scan = ?
+                        SET ${prefix}last_scan = now()
                         WHERE id = ?
-                    `, [scanDateTime, options.scanner.id]);
+                    `, [options.scanner.id]);
                 }
                 return result;
             });
