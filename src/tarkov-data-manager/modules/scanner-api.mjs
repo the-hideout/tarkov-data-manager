@@ -147,7 +147,7 @@ const scannerApi = {
             throw new Error('User not authorized to insert prices');
         }
         if (user.scanners.length >= user.max_scanners) {
-            throw new Error(`Could not find scanner with name ${scannerName} and user already ad maximum scanners (${options.user.max_scanners})`);
+            throw new Error(`Could not find scanner with name ${scannerName} and user already at maximum scanners (${user.max_scanners})`);
         }
         if (scannerName.match(/[^a-zA-Z0-9_-]/g)) {
             throw new Error('Scanner names can only contain letters, numbers, dashes (-) and underscores (_)');
@@ -705,11 +705,12 @@ const scannerApi = {
         try {
             const result = await query(sql, escapedValues).then(result => {
                 if (setLastScan) {
+                    const scanDateTime = options.timestamp ?? new Date();
                     query(`
                         UPDATE scanner
-                        SET ${prefix}last_scan = now()
+                        SET ${prefix}last_scan = ?
                         WHERE id = ?
-                    `, [options.scanner.id]);
+                    `, [scanDateTime, options.scanner.id]);
                 }
                 return result;
             });
@@ -1011,6 +1012,7 @@ const scannerApi = {
         const skipInsert = userFlags.skipPriceInsert & user.flags || scannerFlags.skipPriceInsert & scanFlags;
         const response = {errors: [], warnings: [], data: {}};
         const itemId = options.itemId;
+        const scanDateTime = options.timestamp ?? new Date();
         let gameMode = 0;
         for (const gm of gameModes) {
             if (gm.name !== options.sessionMode) {
@@ -1032,7 +1034,7 @@ const scannerApi = {
         if (skipInsert) {
             response.warnings.push(`Skipped insert of ${playerPrices.length} player prices`);
         } else {
-            await query('INSERT INTO price_historical (item_id, price_min, price_avg, timestamp, game_mode) VALUES (?, ?, ?, ?, ?)',[itemId, options.min, options.avg, new Date(), gameMode]).then(() => {
+            await query('INSERT INTO price_historical (item_id, price_min, price_avg, timestamp, game_mode) VALUES (?, ?, ?, ?, ?)',[itemId, options.min, options.avg, scanDateTime, gameMode]).then(() => {
                 scanned = true;
             }).catch(error => {
                 response.errors.push(String(error));
