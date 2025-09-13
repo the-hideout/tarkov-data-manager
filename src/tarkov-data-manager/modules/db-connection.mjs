@@ -5,6 +5,8 @@ let pool;
 let connectedCount = 0;
 let acquiredConnections = 0;
 
+let activeQueries = 0;
+
 const createPool = () => {
     if (pool) {
         return;
@@ -63,11 +65,26 @@ const waitForConnections = () => {
     });
 };
 
+const waitForQueries = () => {
+    if (activeQueries === 0) {
+        return;
+    }
+    return new Promise((resolve, reject) => {
+        const checkInterval = setInterval(() => {
+            if (activeQueries === 0) {
+                clearInterval(checkInterval);
+                resolve();
+            }
+        }, 500);
+    });
+};
+
 const dbConnection = {
-    end: () => {
+    end: async () => {
         if (!pool || pool._closed) {
             return Promise.resolve();
         }
+        await waitForQueries();
         return new Promise((resolve, reject) => {
             pool.end(error => {
                 if (error) {
@@ -82,6 +99,7 @@ const dbConnection = {
         if (!pool) {
             createPool();
         }
+        activeQueries++;
         if (typeof values === 'object' && !Array.isArray(values)) {
             options = values;
             values = undefined;
@@ -104,45 +122,53 @@ const dbConnection = {
             }
         }).finally(() => {
             options.signal?.removeEventListener('abort', abortListener);
+            activeQueries--;
         });
     },
     batchQuery: async (sql, values = [], batchCallback, options = {}) => {
-        const batchSize = dbConnection.maxQueryRows;
-        let offset = 0;
-        const results = [];
-        const queryStart = new Date();
-        if (values && !Array.isArray(values)) {
-            batchCallback = values;
-            values = [];
-        }
-        if (!options && typeof batchCallback !== 'function') {
-            options = batchCallback;
-            batchCallback = undefined;
-        }
-        let timeout = options.timeout;
-        while (true) {
-            const batchValues = [...values, offset, batchSize];
-            let batchTimeout;
-            if (timeout) {
-                batchTimeout = timeout - (new Date() - queryStart);
-                if (batchTimeout <= 0) {
-                    return Promise.reject(new Error('Query inactivity timeout'));
+        activeQueries++;
+        try {
+            const batchSize = dbConnection.maxQueryRows;
+            let offset = 0;
+            const results = [];
+            const queryStart = new Date();
+            if (values && !Array.isArray(values)) {
+                batchCallback = values;
+                values = [];
+            }
+            if (!options && typeof batchCallback !== 'function') {
+                options = batchCallback;
+                batchCallback = undefined;
+            }
+            let timeout = options.timeout;
+            while (true) {
+                const batchValues = [...values, offset, batchSize];
+                let batchTimeout;
+                if (timeout) {
+                    batchTimeout = timeout - (new Date() - queryStart);
+                    if (batchTimeout <= 0) {
+                        throw new Error('Query inactivity timeout');
+                    }
                 }
+                if (options.signal?.aborted) {
+                    throw new Error('Query aborted');
+                }
+                const batchResults = await dbConnection.query(`${sql} LIMIT ?, ?`, batchValues, {timeout: batchTimeout, signal: options.signal});
+                batchResults.forEach(r => results.push(r));
+                if (batchCallback) {
+                    batchCallback(batchResults, offset);
+                }
+                if (batchResults.length < batchSize) {
+                    break;
+                }
+                offset += batchSize;
             }
-            if (options.signal?.aborted) {
-                return Promise.reject(new Error('Query aborted'));
-            }
-            const batchResults = await dbConnection.query(`${sql} LIMIT ?, ?`, batchValues, {timeout: batchTimeout, signal: options.signal});
-            batchResults.forEach(r => results.push(r));
-            if (batchCallback) {
-                batchCallback(batchResults, offset);
-            }
-            if (batchResults.length < batchSize) {
-                break;
-            }
-            offset += batchSize;
+            return results;
+        } catch (error) {
+            throw error;
+        } finally {
+            activeQueries--;
         }
-        return results;
     },
     maxQueryRows: 1000000,
     connectionsInUse: () => {

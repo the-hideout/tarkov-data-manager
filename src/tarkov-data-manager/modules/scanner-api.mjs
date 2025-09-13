@@ -147,7 +147,7 @@ const scannerApi = {
             throw new Error('User not authorized to insert prices');
         }
         if (user.scanners.length >= user.max_scanners) {
-            throw new Error(`Could not find scanner with name ${scannerName} and user already ad maximum scanners (${options.user.max_scanners})`);
+            throw new Error(`Could not find scanner with name ${scannerName} and user already at maximum scanners (${user.max_scanners})`);
         }
         if (scannerName.match(/[^a-zA-Z0-9_-]/g)) {
             throw new Error('Scanner names can only contain letters, numbers, dashes (-) and underscores (_)');
@@ -683,7 +683,8 @@ const scannerApi = {
         }
     
         if (itemScanned && itemId && !skipInsert) {
-            scanned = `, ${prefix}last_scan = now()`;
+            scanned = `, ${prefix}last_scan = ?`;
+            escapedValues.push(options.timestamp ?? new Date())
             if (options.offerCount && options.offersFrom !== 1) {
                 scanned += `, ${prefix}last_offer_count = ?`;
                 escapedValues.push(options.offerCount);
@@ -1003,6 +1004,45 @@ const scannerApi = {
         } catch (error) {
             response.errors.push(String(error));
         }
+        return response;
+    },
+    insertSummaryPrices: async (options) => {
+        const user = options.user;
+        let scanFlags = options.scanner.flags;
+        const skipInsert = userFlags.skipPriceInsert & user.flags || scannerFlags.skipPriceInsert & scanFlags;
+        const response = {errors: [], warnings: [], data: {}};
+        const itemId = options.itemId;
+        const scanDateTime = options.timestamp ?? new Date();
+        let gameMode = 0;
+        for (const gm of gameModes) {
+            if (gm.name !== options.sessionMode) {
+                continue;
+            }
+            gameMode = gm.value;
+            break;
+        }
+        if (!options.min || !options.avg) {
+            response.errors.push('no prices to insert');
+        }
+        if (!itemId) {
+            response.errors.push('no id');
+        }
+        if (response.errors.length > 0) {
+            return response;
+        }
+        let scanned = false;
+        if (skipInsert) {
+            response.warnings.push(`Skipped insert of ${playerPrices.length} player prices`);
+        } else {
+            await query('INSERT INTO price_historical (item_id, price_min, price_avg, timestamp, game_mode) VALUES (?, ?, ?, ?, ?)',[itemId, options.min, options.avg, scanDateTime, gameMode]).then(() => {
+                scanned = true;
+            }).catch(error => {
+                response.errors.push(String(error));
+            });
+        }
+        await scannerApi.releaseItem({...options, scanned}).catch(error => {
+            response.errors.push(String(error));
+        });
         return response;
     },
     addTraderOffers: async (options) => {

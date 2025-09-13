@@ -134,6 +134,7 @@ const methods = {
                 SELECT
                     a.item_id,
                     a.price_min as price,
+                    a.price_avg as avg,
                     timestamp,
                     a.game_mode
                 FROM
@@ -221,7 +222,7 @@ const methods = {
                     }
     
                     item24hPrices[gameMode.value]?.[itemId]?.sort();
-                    item[`${fieldPrefix}avg24hPrice`] = getInterquartileMean(item24hPrices[gameMode.value]?.[itemId] || []) || null;
+                    item[`${fieldPrefix}avg24hPrice`] = getInterquartileMean(item24hPrices[gameMode.value]?.[itemId] || []) || lastData?.avg || null;
                     item[`${fieldPrefix}low24hPrice`] = item24hPrices[gameMode.value]?.[itemId]?.at(0);
                     item[`${fieldPrefix}high24hPrice`] = item24hPrices[gameMode.value]?.[itemId]?.at(item24hPrices[gameMode.value]?.[itemId]?.length - 1);
     
