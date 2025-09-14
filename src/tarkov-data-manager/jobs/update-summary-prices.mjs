@@ -74,9 +74,6 @@ class UpdateSummaryPricesJob extends DataJob {
                 continue;
             }
             const lastPrice = lastPrices[price.tarkov_id];
-            if (!lastPrice) {
-                continue;
-            }
             const options = {
                 ...scannerOptions,
                 itemId: item.id,
@@ -87,10 +84,6 @@ class UpdateSummaryPricesJob extends DataJob {
             );
             const lastPriceDate = new Date(lastPriceTimestamp);
             const summaryPriceDate = this.roundDateToNearestSecond(new Date(price.timestamp));
-            /*console.log('summary price', price);
-            console.log('summary price date', summaryPriceDate);
-            console.log('lastPrice', lastPrice.timestamp);
-            console.log('item lastScan', item.lastScan);*/
             if (lastPriceDate < summaryPriceDate) {
                 options.timestamp = summaryPriceDate;
                 // price data is new
