@@ -66,6 +66,7 @@ class UpdateSummaryPricesJob extends DataJob {
         this.logger.log(`Retrieved ${summaryPrices.length} summary prices`);
         let newPrices = 0;
         let newScanned = 0;
+        let current = 0;
         for (const price of summaryPrices) {
             const item = items.get(price.tarkov_id);
             if (!item) {
@@ -85,7 +86,7 @@ class UpdateSummaryPricesJob extends DataJob {
                 item.lastScan?.getTime() ?? 0,
             );
             const lastPriceDate = new Date(lastPriceTimestamp);
-            const summaryPriceDate = new Date(price.timestamp);
+            const summaryPriceDate = this.roundDateToNearestSecond(new Date(price.timestamp));
             /*console.log('summary price', price);
             console.log('summary price date', summaryPriceDate);
             console.log('lastPrice', lastPrice.timestamp);
@@ -113,9 +114,18 @@ class UpdateSummaryPricesJob extends DataJob {
                         this.logger.log(`Error setting ${item.name} ${item.id} scanned: ${error.message}`);
                     });
                 }
+            } else if (lastPriceDate.getTime() === summaryPriceDate.getTime()) {
+                current++;
+            } else {
+                this.logger.log(`${item.name} ${item.id} last price: ${lastPriceDate} current price: ${summaryPriceDate}`);
             }
         }
-        this.logger.log(`Inserted ${newPrices} new prices and set ${newScanned} additional items as scanned`);
+        this.logger.log(`${current} items already current, inserted ${newPrices} new prices, set ${newScanned} additional items as scanned`);
+    }
+
+    roundDateToNearestSecond(date) {
+        const roundedMilliseconds = Math.round(date.getTime() / 1000) * 1000;
+        return new Date(roundedMilliseconds);
     }
 }
 
