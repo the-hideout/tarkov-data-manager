@@ -110,7 +110,7 @@ class UpdateSummaryPricesJob extends DataJob {
             } else if (lastPriceDate.getTime() === summaryPriceDate.getTime()) {
                 current++;
             } else {
-                this.logger.log(`${item.name} ${item.id} last price: ${lastPriceDate} current price: ${summaryPriceDate}`);
+                this.logger.log(`${item.name} ${item.id} current price older than last price: last price: ${lastPriceDate} current price: ${summaryPriceDate}`);
             }
         }
         this.logger.log(`${current} items already current, inserted ${newPrices} new prices, set ${newScanned} additional items as scanned`);
