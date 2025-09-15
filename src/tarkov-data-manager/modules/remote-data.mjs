@@ -169,8 +169,67 @@ const methods = {
                     timestamp < DATE_SUB(NOW(), INTERVAL 1 DAY)
                 GROUP BY
                     item_id, game_mode
-            `).finally(() => {
+            `).then(results => results.reduce((all, resultRow) => {
+                if (!all[resultRow.game_mode]) {
+                    all[resultRow.game_mode] = {};
+                }
+                all[resultRow.game_mode][resultRow.item_id] = resultRow.priceYesterday;
+                return all;
+            }, {})).finally(() => {
                 logger.timeEnd('price-yesterday-query');
+            });
+
+            logger.time('item-24h-price-historical-query');
+            const priceHistorical24hPromise = db.query(`
+                SELECT
+                    item_id,
+                    price_min,
+                    price_avg,
+                    game_mode
+                FROM
+                    price_historical
+                WHERE
+                    timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)
+            `).then(results => results.reduce((all, resultRow) => {
+                if (!all[resultRow.game_mode]) {
+                    all[resultRow.game_mode] = {};
+                }
+                if (!all[resultRow.game_mode][resultRow.item_id]) {
+                    all[resultRow.game_mode][resultRow.item_id] = [];
+                }
+                if (!all[resultRow.game_mode][resultRow.item_id].min) {
+                    all[resultRow.game_mode][resultRow.item_id].min = [];
+                    all[resultRow.game_mode][resultRow.item_id].avg = [];
+                }
+                all[resultRow.game_mode][resultRow.item_id].min.push(resultRow.price_min);
+                all[resultRow.game_mode][resultRow.item_id].avg.push(resultRow.price_avg);
+                return all;
+            }, {})).finally(() => {
+                logger.timeEnd('item-24h-price-historical-query');
+            });
+
+            logger.time('price-yesterday-historical-query');
+            const avgPriceHistoricalYesterdayPromise = db.query(`
+                SELECT
+                    avg(price_avg) AS priceYesterday,
+                    item_id,
+                    game_mode
+                FROM
+                    price_historical
+                WHERE
+                    timestamp > DATE_SUB(NOW(), INTERVAL 2 DAY)
+                AND
+                    timestamp < DATE_SUB(NOW(), INTERVAL 1 DAY)
+                GROUP BY
+                    item_id, game_mode
+            `).then(results => results.reduce((all, resultRow) => {
+                if (!all[resultRow.game_mode]) {
+                    all[resultRow.game_mode] = {};
+                }
+                all[resultRow.game_mode][resultRow.item_id] = resultRow.priceYesterday;
+                return all;
+            }, {})).finally(() => {
+                logger.timeEnd('price-yesterday-historical-query');
             });
 
             const [
@@ -178,11 +237,15 @@ const methods = {
                 price24hResults,
                 lastPriceResults,
                 avgPriceYesterday,
+                item24hPricesHistorical,
+                avgPriceHistoricalYesterday,
             ] = await Promise.all([
                 itemsPromise,
                 price24hPromise,
                 lastPricePromise,
                 avgPriceYesterdayPromise,
+                priceHistorical24hPromise,
+                avgPriceHistoricalYesterdayPromise,
             ]);
 
             const item24hPrices = price24hResults.reduce((all, resultRow) => {
@@ -220,13 +283,20 @@ const methods = {
                         const updatedField = `${fieldPrefix}updated`;
                         item[updatedField] = lastData.timestamp;
                     }
+
+                    let item24hPriceMin = item24hPrices[gameMode.value]?.[itemId];
+                    let item24hPriceAvg = item24hPriceMin;
+                    if (!item24hPriceMin) {
+                        item24hPriceMin = item24hPricesHistorical[gameMode.value]?.[itemId]?.min ?? [];
+                        item24hPriceAvg = item24hPricesHistorical[gameMode.value]?.[itemId]?.avg ?? [];
+                    }
+                    item24hPriceMin.sort((a, b) => a - b);
+                    
+                    item[`${fieldPrefix}avg24hPrice`] = getInterquartileMean(item24hPriceAvg) || lastData?.avg || null;
+                    item[`${fieldPrefix}low24hPrice`] = item24hPriceMin.at(0);
+                    item[`${fieldPrefix}high24hPrice`] = item24hPriceAvg.at(item24hPriceAvg.length - 1);
     
-                    item24hPrices[gameMode.value]?.[itemId]?.sort();
-                    item[`${fieldPrefix}avg24hPrice`] = getInterquartileMean(item24hPrices[gameMode.value]?.[itemId] || []) || lastData?.avg || null;
-                    item[`${fieldPrefix}low24hPrice`] = item24hPrices[gameMode.value]?.[itemId]?.at(0);
-                    item[`${fieldPrefix}high24hPrice`] = item24hPrices[gameMode.value]?.[itemId]?.at(item24hPrices[gameMode.value]?.[itemId]?.length - 1);
-    
-                    const itemPriceYesterday = avgPriceYesterday.find(row => row.item_id === itemId && row.game_mode === gameMode.value);
+                    const itemPriceYesterday = avgPriceYesterday[gameMode.value]?.[itemId] ?? avgPriceHistoricalYesterday[gameMode.value]?.[itemId];
                     if (!itemPriceYesterday || item[`${fieldPrefix}avg24hPrice`] === 0) {
                         item[`${fieldPrefix}changeLast48h`] = 0;
                         item[`${fieldPrefix}changeLast48hPercent`] = 0;
