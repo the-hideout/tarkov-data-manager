@@ -591,6 +591,7 @@ const scannerApi = {
                     WHERE (${prefix}checkout_scanner_id IS NULL OR ${prefix}checkout_scanner_id = ?) AND
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
+                        NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'replica') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${nofleaCondition} 
                     ORDER BY ${prefix}last_scan, id
                     LIMIT ?
@@ -607,6 +608,7 @@ const scannerApi = {
                     WHERE ((${prefix}checkout_scanner_id IS NULL OR ${prefix}checkout_scanner_id = ?) AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
+                        NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'replica') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'only-flea') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') AND
                         (${prefix}last_scan <= ? OR ${prefix}last_scan IS NULL) )
