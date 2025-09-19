@@ -123,6 +123,12 @@ const scannerHttpApi = {
                     response = await scannerApi.releaseItem(options);
                 }
             }
+            if (resource === 'price-summary') {
+                if (req.method === 'POST') {
+                    options.scanner = await scannerApi.getScanner(options, true);
+                    response = await scannerApi.insertSummaryPrices(options);
+                }
+            }
             if (resource === 'scanner') {
                 if (req.method === 'DELETE') {
                     response = await scannerApi.deleteScanner(options);

@@ -27,12 +27,17 @@ class UpdateNewItemsJob extends DataJob {
                 return false;
             }
 
-            if (ignoreMap.includes(bsgObject._id)) {
+            // Removes shrapnel etc
+            if (bsgObject._props.StackMinRandom === 0) {
                 return false;
             }
 
-            // Parent is LootContainer
-            if (bsgObject._parent === '566965d44bdc2d814c8b4571') {
+            if (skipItems.includes(bsgObject._id)) {
+                return false;
+            }
+
+            // Exlcude blacklisted categories
+            if (skipParents.includes(bsgObject._parent)) {
                 return false;
             }
 
@@ -42,45 +47,8 @@ class UpdateNewItemsJob extends DataJob {
                 return !bsgObject._props.Grids.some(grid => grid._props.cellsH >= 10 || grid._props.cellsV >= 10);
             }
 
-            // Parent is Stash
-            if (bsgObject._parent === '566abbb64bdc2d144c8b457d') {
-                return false;
-            }
-
-            // Parent is Pockets
-            if (bsgObject._parent === '557596e64bdc2dc2118b4571') {
-                return false;
-            }
-
-            // Parent is Inventory
-            if (bsgObject._parent === '55d720f24bdc2d88028b456d') {
-                return false;
-            }
-
-            // Parent is Sorting table
-            if (bsgObject._parent === '6050cac987d3f925bf016837') {
-                return false;
-            }
-
-            // Parent is HideoutAreaContainer
-            if (bsgObject._parent === '63da6da4784a55176c018dba') {
-                return false;
-            }
-
-            // skip built-in armor plates
-            if (bsgObject._parent === '65649eb40bf0ed77b8044453') {
-                return false;
-            }
-
-            // 5b9b9020e7ef6f5716480215 dogtagt
-
-            // Removes shrapnel etc
-            if (bsgObject._props.StackMinRandom === 0) {
-                return false;
-            }
-
             // skip 999-round zombie magazines
-            if (bsgObject._parent === '5448bc234bdc2d3c308b4569' || bsgObject._parent === '610720f290b75a49ff2e5e25') {
+            if (magazines.includes(bsgObject._parent)) {
                 return !bsgObject._props.Cartridges.some(cart => cart._max_count === 999);
             }
 
@@ -151,7 +119,7 @@ class UpdateNewItemsJob extends DataJob {
     }
 }
 
-const ignoreMap = [
+const skipItems = [
     '5447bed64bdc2d97278b4568', // AGS 30x29 mm automatic grenade launcher
     '5d52cc5ba4b9367408500062', // AGS 30x29 mm automatic grenade launcher
     '5d52d479a4b936793d58c76b', // AGS-30 30-Grenades box 30x29
@@ -169,6 +137,21 @@ const ignoreMap = [
     '5675838d4bdc2d95058b456e', // Drawer
     '602543c13fee350cd564d032', // Sorting table
     '5751961824597720a31c09ac', // (off)black keycard
+];
+
+const skipParents = [
+    '566965d44bdc2d814c8b4571', // LootContainer
+    '566abbb64bdc2d144c8b457d', // Stash
+    '557596e64bdc2dc2118b4571', // Pockets
+    '55d720f24bdc2d88028b456d', // Inventory
+    '6050cac987d3f925bf016837', // Sorting Table
+    '63da6da4784a55176c018dba', // HideoutAreaContainer
+    '65649eb40bf0ed77b8044453', // BuiltInInserts (built-in soft armor plates)
+];
+
+const magazines = [
+    '5448bc234bdc2d3c308b4569', // Magazine
+    '610720f290b75a49ff2e5e25', // CylinderMagazine
 ];
 
 export default UpdateNewItemsJob;

@@ -91,10 +91,15 @@ class UpdateItemCacheJob extends DataJob {
         ];
         this.logger.log('Processing items...');
         for (const [key, value] of this.itemMap.entries()) {
-            if (value.types.includes('disabled') || value.types.includes('quest'))
+            if (value.types.includes('disabled') || value.types.includes('quest')){
                 continue;
-            if (!this.bsgItems[key] && !this.presets[key])
+            }
+            if (value.types.includes('replica')) {
                 continue;
+            }
+            if (!this.bsgItems[key] && !this.presets[key]) {
+                continue;
+            }                
 
             if (!value.image_8x_link && webSocketServer.launchedScanners() > 0) {
                 try {
