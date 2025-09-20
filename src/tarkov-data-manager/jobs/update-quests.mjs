@@ -31,6 +31,7 @@ class UpdateQuestsJob extends DataJob {
             this.mapDetails,
             this.locales,
             this.itemResults,
+            this.pvpRefQuests,
             this.missingQuests,
             this.changedQuests,
             this.removedQuests,
@@ -58,6 +59,7 @@ class UpdateQuestsJob extends DataJob {
             tarkovData.mapDetails(),
             tarkovData.locales(),
             remoteData.get(),
+            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'pvp_ref_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'missing_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'changed_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'removed_quests.json')).then(json => JSON.parse(json)),
@@ -86,6 +88,12 @@ class UpdateQuestsJob extends DataJob {
             }
             return valid;
         }, {});
+
+        for (const id in this.pvpRefQuests) {
+            if (!this.rawQuestData[id]) {
+                this.rawQuestData[id] = this.pvpRefQuests[id];
+            }
+        }
 
         const missingImages = new Set();
 
