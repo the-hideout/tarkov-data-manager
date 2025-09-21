@@ -33,7 +33,8 @@ class UpdateQuestsJob extends DataJob {
             this.itemResults,
             this.pvpRefQuests,
             this.missingQuests,
-            this.changedQuests,
+            this.changedQuestsOriginal,
+            this.changedQuestsGameMode,
             this.removedQuests,
             this.neededKeys,
             this.questConfig,
@@ -62,6 +63,7 @@ class UpdateQuestsJob extends DataJob {
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'pvp_ref_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'missing_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'changed_quests.json')).then(json => JSON.parse(json)),
+            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'changed_quests_game_mode.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'removed_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'needed_keys.json')).then(json => JSON.parse(json)),
             tarkovData.questConfig(),
@@ -103,6 +105,13 @@ class UpdateQuestsJob extends DataJob {
                 this.locales = await tarkovData.locales({gameMode: gameMode.name});
             }
             this.locales = await tarkovData.locales();
+            this.changedQuests = {};
+            for (const id in this.changedQuestsOriginal) {
+                this.changedQuests[id] = {
+                    ...this.changedQuestsOriginal[id],
+                    ...this.changedQuestsGameMode[id]?.[gameMode.name],
+                };
+            }
             const questItemMap = new Map();
             for (const [id, item] of this.itemResults) {
                 if (item.types?.includes('quest')) {
