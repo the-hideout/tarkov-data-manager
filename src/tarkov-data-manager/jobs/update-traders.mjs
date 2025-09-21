@@ -9,6 +9,7 @@ class UpdateTradersJob extends DataJob {
     constructor(options) {
         super({...options, name: 'update-traders', loadLocales: true});
         this.kvName = 'trader_data';
+        this.saveFields.push('skipTraders');
         this.skipTraders = [
             '6864e812f9fe664cb8b8e152', // Storyteller
         ];
