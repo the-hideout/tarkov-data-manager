@@ -1,0 +1,19 @@
+{
+    "675c15fbf7da9792a4059871": {
+        "name": "Provide Viewership",
+        "regular": {
+            "propertiesChanged": {
+                "taskRequirements": [
+                    {
+                        "task": "66058cb5ae4719735349b9e8",
+                        "name": "Easy Money - Part 2 [PVP ZONE]",
+                        "status": [
+                            "active",
+                            "complete"
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+}

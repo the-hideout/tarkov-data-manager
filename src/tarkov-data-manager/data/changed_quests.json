@@ -1753,5 +1753,9 @@
                 }
             ]
         }
+    },
+    "675c15fbf7da9792a4059871": {
+        "name": "Provide Viewership",
+        "note": "added to trigger game mode change"
     }
 }

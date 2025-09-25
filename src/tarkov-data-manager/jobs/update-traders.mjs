@@ -9,6 +9,10 @@ class UpdateTradersJob extends DataJob {
     constructor(options) {
         super({...options, name: 'update-traders', loadLocales: true});
         this.kvName = 'trader_data';
+        this.saveFields.push('skipTraders');
+        this.skipTraders = [
+            '6864e812f9fe664cb8b8e152', // Storyteller
+        ];
     }
 
     async run() {
@@ -39,6 +43,9 @@ class UpdateTradersJob extends DataJob {
             };
             let staleTraderCount = 0;
             for (const traderId in this.tradersData) {
+                if (this.skipTraders.includes(traderId)) {
+                    continue;
+                }
                 const trader = this.tradersData[traderId];
                 const date = new Date(trader.nextResupply*1000);
                 //date.setHours(date.getHours() +5);
