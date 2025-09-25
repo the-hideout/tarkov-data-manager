@@ -11,6 +11,11 @@ import { createAndUploadFromSource } from '../modules/image-create.mjs';
 import TranslationHelper from '../modules/translation-helper.mjs';
 import { getLocalBucketContents, uploadAnyImage } from '../modules/upload-s3.mjs';
 
+const excludeTypes = [
+    'onlyFlea',
+    'noHandbook',
+];
+
 class UpdateItemCacheJob extends DataJob {
     constructor(options) {
         super({...options, name: 'update-item-cache', loadLocales: true});
@@ -94,6 +99,7 @@ class UpdateItemCacheJob extends DataJob {
             if (value.types.includes('disabled') || value.types.includes('quest')){
                 continue;
             }
+            // remove this if enabling replicas
             if (value.types.includes('replica')) {
                 continue;
             }
@@ -106,6 +112,9 @@ class UpdateItemCacheJob extends DataJob {
                     let image;
                     if (value.types.includes('preset')) {
                         image = await webSocketServer.getJsonImage(value.properties.items);
+                    } else if (value.types.includes('replica')) {
+                        const images = await webSocketServer.getImages(value.properties.source);
+                        image = images[value.properties.source];
                     } else {
                         const images = await webSocketServer.getImages(key);
                         image = images[key];
@@ -128,7 +137,7 @@ class UpdateItemCacheJob extends DataJob {
                 height: value.height,
                 weight: value.weight,
                 lastOfferCount: value.last_offer_count,
-                types: value.types.map(type => dashToCamelCase(type)).filter(type => type !== 'onlyFlea'),
+                types: value.types.map(type => dashToCamelCase(type)).filter(type => !excludeTypes.includes(type)),
                 wikiLink: value.wiki_link,
                 link: `https://tarkov.dev/item/${value.normalized_name}`,
                 iconLink: value.icon_link || 'https://assets.tarkov.dev/unknown-item-icon.jpg',
@@ -161,7 +170,7 @@ class UpdateItemCacheJob extends DataJob {
             Reflect.deleteProperty(itemData[key], 'disabled');
             Reflect.deleteProperty(itemData[key], 'properties');
 
-            this.setBaseValue(itemData[key]);
+            this.setBaseValue(itemData[key], value);
 
             // add item properties
             itemProperties[key] = await getSpecialItemProperties(itemData[key]);
@@ -237,6 +246,30 @@ class UpdateItemCacheJob extends DataJob {
                         this.addTranslation(`${key} ShortName`, langCode, this.presets[key].locale[langCode].shortName);
                     }
                 }
+            } else if (value.types.includes('replica')) {
+                itemData[key].name = this.addTranslation(`${key} Name`, (lang) => {
+                    const tKey = `${value.properties.source} Name`;
+                    if (!lang[tKey]) {
+                        return;
+                    }
+                    const any = lang["Currency/Any"];
+                    if (!any) {
+                        return;
+                    }
+                    return `${lang[tKey]} (${any}%)`;
+                });
+                itemData[key].shortName = this.addTranslation(`${key} ShortName`, (lang) => {
+                    const tKey = `${value.properties.source} ShortName`;
+                    if (!lang[tKey]) {
+                        return;
+                    }
+                    const any = lang["Currency/Any"];
+                    if (!any) {
+                        return;
+                    }
+                    return `${lang[tKey]} (${any}%)`;
+                });
+                itemData[key].description = this.addTranslation(`${value.properties.source} Description`);
             }
 
             // add template categories
@@ -323,6 +356,13 @@ class UpdateItemCacheJob extends DataJob {
         for (const id in itemData) {
             const item = itemData[id];
 
+            if (item.types.includes('replica')) {
+                const replica = this.itemMap.get(item.id);
+                item.categories = itemData[replica.properties.source].categories;
+                item.handbookCategories = itemData[replica.properties.source].handbookCategories;
+                item.properties = itemData[replica.properties.source].properties;
+            }
+
             // validate contained items
             item.containsItems = item.containsItems.reduce((allContents, contained) => {
                 if (itemData[contained.item]) {
@@ -337,6 +377,9 @@ class UpdateItemCacheJob extends DataJob {
             item.conflictingSlotIds = [];
             item.conflictingCategories = [];
             if (item.types.includes('preset')) {
+                continue;
+            }
+            if (item.types.includes('replica')) {
                 continue;
             }
             this.bsgItems[id]._props.ConflictingItems.forEach(conId => {                
@@ -639,7 +682,7 @@ class UpdateItemCacheJob extends DataJob {
         }
     }
 
-    setBaseValue(item) {
+    setBaseValue(item, replica) {
         const ignoreMissingBaseValueCategories = [
             '62f109593b54472778797866', // RandomLootContainer
         ];
@@ -655,6 +698,11 @@ class UpdateItemCacheJob extends DataJob {
         };
         if (this.presets[item.id]) {
             item.basePrice = this.presets[item.id].baseValue;
+        } else if (item.types.includes('replica')) {
+            if (!replica?.properties?.source) {
+                return;
+            }
+            item.basePrice = this.credits[replica.properties.source];
         } else if (this.credits[item.id] !== undefined) {
             item.basePrice = this.credits[item.id];
             // add base value for built-in armor pieces

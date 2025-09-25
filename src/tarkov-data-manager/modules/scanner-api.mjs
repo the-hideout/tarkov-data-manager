@@ -18,6 +18,7 @@ const { imageSizes } = imgGen.imageFunctions;
 let users;
 let usersUpdating = false;
 let presets = {};
+const replicas = {};
 const activeTraderScans = {};
 
 export const userFlags = {
@@ -58,6 +59,43 @@ emitter.on('presetsUpdated', updatePresets);
 
 updatePresets(presetData.presets);
 
+const addReplica = (replica) => {
+    if (!replicas[item.properties.source]) {
+        replicas[item.properties.source] = [];
+    }
+    if (replicas[item.properties.source].some(i => i.id === replica.id)) {
+        return;
+    }
+    replicas[item.properties.source].push(replica);
+};
+
+const removeReplica = (replica) => {
+    if (!replicas[item.properties.source]) {
+        return;
+    }
+    replicas[item.properties.source] = replicas[item.properties.source].filter(r => r.id !== replica.id);
+};
+
+remoteData.on('dbItemsLoaded', items => {
+    for (const item of items.values()) {
+        if (item.types.includes('replica') && item.properties.source) {
+            addReplica(item);
+        }
+    }
+});
+
+remoteData.on('itemAdded', item => {
+    if (item.types.includes('replica') && item.properties.source) {
+        addReplica(item);
+    }
+});
+
+remoteData.on('itemRemoved', item => {
+    if (item.types.includes('replica') && item.properties.source) {
+        removeReplica(item);
+    }
+});
+
 const refreshTraderScanStatus = async () => {
     const activeScans = await query('SELECT * from trader_offer_scan WHERE ended IS NULL');
     for (const gameMode of gameModes) {
@@ -96,6 +134,19 @@ const queryResultToBatchItem = item => {
                 default: preset.default,
                 items: preset.items,
             }
+        }) ?? [],
+        replicas: replicas[item.id]?.map(replica => {
+            return {
+                id: replica.id,
+                name: replica.name,
+                shortName: replica.short_name,
+                types: replica.types,
+                backgroundColor: replica.backgroundColor,
+                width: replica.width,
+                height: replica,height,
+                source: replica.properties.source,
+                filters: replica.properties.filters,
+            };
         }) ?? [],
     };
 };
@@ -590,6 +641,7 @@ const scannerApi = {
                     SET ${prefix}checkout_scanner_id = ?
                     WHERE (${prefix}checkout_scanner_id IS NULL OR ${prefix}checkout_scanner_id = ?) AND
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
+                        NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'no-handbook') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'replica') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'quest') ${nofleaCondition} 
@@ -607,6 +659,7 @@ const scannerApi = {
                     SET ${prefix}checkout_scanner_id = ?
                     WHERE ((${prefix}checkout_scanner_id IS NULL OR ${prefix}checkout_scanner_id = ?) AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'disabled') AND 
+                        NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'no-handbook') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'preset') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'replica') AND 
                         NOT EXISTS (SELECT type FROM types WHERE item_data.id = types.item_id AND type = 'only-flea') AND 
@@ -1304,6 +1357,12 @@ const scannerApi = {
             default: newPreset.default,
             items: newPreset.items,
         };
+    },
+    addReplica: (replica) => {
+        replicas[replica.properties.source] = replica;
+    },
+    removeReplica: (id) => {
+        delete replicas[id];
     },
     on: (event, listener) => {
         return emitter.on(event, listener);
