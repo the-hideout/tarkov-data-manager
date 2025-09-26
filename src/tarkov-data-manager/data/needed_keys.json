@@ -378,5 +378,71 @@
         "67a0e4e64cb065811d95c6d9": [
             ["679bab714e9ca6b3d80586b4"]
         ]
+    },
+    "66058ccbc7f3584787181478": {
+        "name": "Against the Conscience - Part 1 [PVP ZONE]",
+        "664ef37c4c1e8a2e6c4b1e9a": [
+            ["664d4b0103ef2c61246afb56"]
+        ],
+        "664ef2e5c11296c444642040": [
+            ["664d4b0103ef2c61246afb56"]
+        ]
+    },
+    "6834233fecd5cf3a440d855b": {
+        "name": "Against the Conscience - Part 1 [PVE ZONE]",
+        "6834233fecd5cf3a440d855f": [
+            ["664d4b0103ef2c61246afb56"]
+        ],
+        "6834233fecd5cf3a440d8561": [
+            ["664d4b0103ef2c61246afb56"]
+        ]
+    },
+    "66058ccf06ef1d50a60c1f48": {
+        "name": "Between Two Fires [PVP ZONE]",
+        "67e993b1ac26bf29380a320e": [
+            ["664d4b0103ef2c61246afb56"]
+        ],
+        "67e993b1ac26bf29380a3210": [
+            ["664d4b0103ef2c61246afb56"]
+        ]
+    },
+    "683425dd8f5b18d29a05d9d1": {
+        "name": "Between Two Fires [PVE ZONE]",
+        "683425dd8f5b18d29a05d9d4": [
+            ["664d4b0103ef2c61246afb56"]
+        ],
+        "683425dd8f5b18d29a05d9d6": [
+            ["664d4b0103ef2c61246afb56"]
+        ]
+    },
+    "66058cd19f59e625462acc90": {
+        "name": "Decisions, Decisions [PVP ZONE]",
+        "664fd86520fa1bd9f8fa5489": [
+            ["664d4b0103ef2c61246afb56"]
+        ]
+    },
+    "6834254f2f0e2a7eb90b62ef": {
+        "name": "Decisions, Decisions [PVE ZONE]",
+        "6834254f2f0e2a7eb90b62f1": [
+            ["664d4b0103ef2c61246afb56"]
+        ]
+    },
+    "67e993b1ac26bf29380a320b": {
+        "name": "Surprise Gift [PVP ZONE]",
+        "67e993b1ac26bf29380a320e": [
+            ["664d4b0103ef2c61246afb56"]
+        ],
+        "67e993b1ac26bf29380a3210": [
+            ["664d4b0103ef2c61246afb56"]
+        ]
+    },
+    "683427418f5b18d29a05d9e3": {
+        "name": "Surprise Gift [PVE ZONE]",
+        "683427418f5b18d29a05d9e5": [
+            ["664d4b0103ef2c61246afb56"]
+        ],
+        "683427418f5b18d29a05d9e7": [
+            ["664d4b0103ef2c61246afb56"]
+        ]
     }
 }
