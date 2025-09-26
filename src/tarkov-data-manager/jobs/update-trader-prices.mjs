@@ -207,7 +207,7 @@ class UpdateTraderPricesJob extends DataJob {
         }
         const itemId = offer.item_id;
         for (const quest of this.tasks) {
-            const match = unlockMatches(itemId, quest.startRewards, offer.trader_id) || unlockMatches(itemId, quest.finishRewards, offer.trader_id);
+            const match = unlockMatches(offer, quest.startRewards) || unlockMatches(offer, quest.finishRewards);
             if (match) {
                 return {
                     id: quest.id,
@@ -246,12 +246,13 @@ class UpdateTraderPricesJob extends DataJob {
     }
 }
 
-const unlockMatches = (itemId, rewards, traderId) => {
+const unlockMatches = (offer, rewards) => {
     if (!rewards || !rewards.offerUnlock) return false;
     for (const unlock of rewards.offerUnlock) {
-        if (unlock.trader_id !== traderId) continue;
-        if (unlock.item === itemId) return unlock;
-        if (unlock.base_item_id && unlock.base_item_id === itemId) return unlock;
+        if (unlock.trader_id !== offer.trader_id) continue;
+        if (unlock.level !== offer.min_level) continue;
+        if (unlock.item === offer.item_id) return unlock;
+        if (unlock.base_item_id && unlock.base_item_id === offer.item_id) return unlock;
     }
     return false;
 };

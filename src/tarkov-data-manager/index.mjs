@@ -408,6 +408,9 @@ app.post('/items/refresh-images/:id', async (req, res) => {
                 id: item.id,
                 items: item.properties.items,
             });
+        } else if (item.types.includes('replica')) {
+            const results = await webSocketServer.getImages(item.properties.source);
+            newImage = results[item.properties.source];
         } else {
             const results = await webSocketServer.getImages(item.id);
             newImage = results[item.id];

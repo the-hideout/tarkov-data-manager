@@ -2,6 +2,8 @@ import tarkovData from '../modules/tarkov-data.mjs';
 import remoteData from '../modules/remote-data.mjs';
 import DataJob from '../modules/data-job.mjs';
 
+const createReplicas = false;
+
 const skipOffers = {
     '5c0647fdd443bc2504c2d371': { // jaeger
         4: [
@@ -92,6 +94,7 @@ class UpdateBartersJob extends DataJob {
             '59f32c3b86f77472a31742f0',
             'customdogtags12345678910',
         ];
+        const usedReplicas = new Set();
         for (const gameMode of this.gameModes) {
             [this.tasks, this.traders ] = await Promise.all([
                 this.jobOutput('update-quests', {gameMode: gameMode.name}),
@@ -232,8 +235,41 @@ class UpdateBartersJob extends DataJob {
                 });
                 ammoPacks++;
             }
-    
             this.logger.log(`Unpacked ${ammoPacks} ${gameMode.name} ammo pack barters`);
+    
+            let replicaBarters = 0;
+            for (const barter of barters) {
+                if (!createReplicas) {
+                    break;
+                }
+                if (!barter.requiredItems.some(r => this.isReplicaItem(r.item))) {
+                    continue;
+                }
+                const newBarter = {
+                    ...barter,
+                    id: `${barter.id}-replica`,
+                    requiredItems: [],
+                };
+                for (const r of barter.requiredItems) {
+                    if (!this.isReplicaItem(r.item)) {
+                        newBarter.requiredItems.push(r);
+                        continue;
+                    }
+                    const replica = await this.getReplicaItem(r.item);
+                    newBarter.requiredItems.push({
+                        ...r,
+                        item: replica.id,
+                        name: replica.name,
+                    });
+                    usedReplicas.add(replica.id);
+                }
+                console.log('new barter', newBarter);
+                //barters.push(newbarter);
+                replicaBarters++;
+            }
+            if (createReplicas) {
+                this.logger.log(`Duplicated ${replicaBarters} ${gameMode.name} replica barters`);
+            }
 
             let kvName = this.kvName;
             if (gameMode.name !== 'regular') {
@@ -241,6 +277,15 @@ class UpdateBartersJob extends DataJob {
             }
     
             await this.cloudflarePut(this.kvData[gameMode.name], kvName);
+        }
+        for (const item of this.itemData.values()) {
+            if (!item.types.includes('replica')) {
+                continue;
+            }
+            if (usedReplicas.has(item.id)) {
+                continue;
+            }
+            this.logger.log(`Replica item ${item.name} ${item.id} is no longer used`);
         }
 
         return this.kvData;
