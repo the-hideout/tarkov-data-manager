@@ -15,7 +15,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: start vm
-        uses: azure/CLI@089eac9d8cc39f5d003e94f8b65efc51076c9cbd # pin@v2.1.0
+        uses: azure/CLI@9f7ce6f37c31b777ec6c6b6d1dfe7db79f497956 # pin@v2.2.0
         with:
           azcliversion: 2.50.0
           inlineScript: |
