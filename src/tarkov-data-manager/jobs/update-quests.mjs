@@ -2,12 +2,11 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import got from 'got';
-import sharp from 'sharp';
 
 import DataJob from '../modules/data-job.mjs';
 import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
-import { getLocalBucketContents, uploadAnyImage } from '../modules/upload-s3.mjs';
+import { getLocalBucketContents } from '../modules/upload-s3.mjs';
 import presetData from '../modules/preset-data.mjs';
 import webSocketServer from '../modules/websocket-server.mjs';
 import { createAndUploadFromSource } from '../modules/image-create.mjs';
@@ -39,6 +38,8 @@ class UpdateQuestsJob extends DataJob {
             this.neededKeys,
             this.questConfig,
             this.s3Images,
+            this.customization,
+            this.prestige,
         ] = await Promise.all([
             got('https://tarkovtracker.github.io/tarkovdata/quests.json', {
                 responseType: 'json',
@@ -68,6 +69,8 @@ class UpdateQuestsJob extends DataJob {
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'needed_keys.json')).then(json => JSON.parse(json)),
             tarkovData.questConfig(),
             getLocalBucketContents(),
+            tarkovData.customization(),
+            tarkovData.prestige(),
         ]);
         this.maps = await this.jobManager.jobOutput('update-maps', this);
         this.hideout = await this.jobManager.jobOutput('update-hideout', this);
@@ -173,6 +176,9 @@ class UpdateQuestsJob extends DataJob {
                     continue;
                 }
                 const quest = {...this.missingQuests[questId]};
+                if (quest.gameMode && !quest.gameMode.includes(gameMode.name)) {
+                    continue;
+                }
                 if (quests.Task.some(q => q.id === questId)) {
                     this.logger.warn(`Missing quest ${quest.name} ${questId} already exists...`);
                     continue;
@@ -537,6 +543,11 @@ class UpdateQuestsJob extends DataJob {
 
             quests.Achievement = await Promise.all(this.achievements.map(a => this.processAchievement(a)));
 
+            quests.Prestige = [];
+            if (gameMode.name === 'regular') {
+                quests.Prestige = await Promise.all(this.prestige.map((p, i) => this.processPrestige(p, i)));;
+            }
+
             quests.locale = this.kvData.locale;
 
             let kvName = this.kvName;
@@ -788,6 +799,13 @@ class UpdateQuestsJob extends DataJob {
 
     loadRewards = async (questData, rewardsType, sourceRewards) => {
         for (const reward of sourceRewards) {
+            const ignoreRewardTypes = [
+                'NotificationPopup',
+                'WebPromoCode',
+            ];
+            if (ignoreRewardTypes.includes(reward.type)) {
+                continue;
+            }
             if (reward.type === 'Experience') {
                 questData.experience = parseInt(reward.value);
             } else if (reward.type === 'TraderStanding') {
@@ -883,8 +901,48 @@ class UpdateQuestsJob extends DataJob {
                     station_name: station.name,
                     level: reward.loyaltyLevel,
                 });
+            } else if (reward.type === 'Achievement') {
+                questData[rewardsType].achievement.push(reward.target);
+            } else if (reward.type === 'CustomizationDirect') {
+                const cust = this.getCustomization(reward.target);
+                if (!cust) {
+                    this.logger.warn(`Unrecognized customization reward "${reward.target}" for ${rewardsType} reward ${reward.id} of ${questData.name}`);
+                    continue;
+                }
+                const customizationType = this.customization[cust._parent]._name;
+                if (!this.isValidCustomizationType(cust)) {
+                    this.logger.warn(`Invalid customization reward type ${customizationType} for${reward.target} in ${rewardsType} reward ${reward.id} of ${questData.name}`);
+                    continue;
+                }
+                const customizationData = {
+                    __typename: 'CustomizationItemBasic',
+                    id: reward.target,
+                    name: this.getCustomizationName(cust),
+                    imageLink: await this.getCustomizationImage(cust),
+                    customizationType,
+                    customizationTypeName: this.getCustomizationTypeName(cust),
+                };
+                if (customizationType === 'DogTags') {
+                    customizationData.__typename = 'CustomizationItems'
+                    customizationData.items = [];
+                    if (cust._props.BearTemplateId) {
+                        customizationData.items.push(cust._props.BearTemplateId);
+                    }
+                    if (cust._props.UsecTemplateId) {
+                        customizationData.items.push(cust._props.UsecTemplateId);
+                    }
+                }
+                questData[rewardsType].customization.push(customizationData);
+            } else if (reward.type === 'Stub') {
+                questData[rewardsType].customization.push({
+                    __typename: 'CustomizationItemBasic',
+                    id: reward.id,
+                    name: this.addTranslation('UI/Quest/Reward/StubCaption'),
+                    customizationType: 'Stub',
+                    customizationTypeName: 'UI/Quest/Reward/StubCaption',
+                });
             } else {
-                this.logger.warn(`Unrecognized reward type "${reward.type}" for ${rewardsType} reward ${reward.id} of ${this.locales.en[questData.name]}`);
+                this.logger.warn(`Unrecognized reward type "${reward.type}" for ${rewardsType} ${reward.id} of ${this.locales.en[questData.name] ?? questData.id}`);
             }
         }
     }
@@ -970,6 +1028,8 @@ class UpdateQuestsJob extends DataJob {
                 skillLevelReward: [],
                 traderUnlock: [],
                 craftUnlock: [],
+                achievement: [],
+                customization: [],
             },
             finishRewards: {
                 traderStanding: [],
@@ -978,6 +1038,8 @@ class UpdateQuestsJob extends DataJob {
                 skillLevelReward: [],
                 traderUnlock: [],
                 craftUnlock: [],
+                achievement: [],
+                customization: [],
             },
             failureOutcome : {
                 traderStanding: [],
@@ -986,6 +1048,8 @@ class UpdateQuestsJob extends DataJob {
                 skillLevelReward: [],
                 traderUnlock: [],
                 craftUnlock: [],
+                achievement: [],
+                customization: [],
             },
             restartable: quest.restartable,
             experience: 0,
@@ -996,14 +1060,14 @@ class UpdateQuestsJob extends DataJob {
             availableDelaySecondsMax: 0,
         };
         for (const objective of quest.conditions.AvailableForFinish) {
-            const obj = this.formatObjective(questData.id, objective);
+            const obj = this.formatObjective(questData.id, objective, 'complete');
             if (!obj) {
                 continue;
             }
             questData.objectives.push(obj);
         }
         for (const objective of quest.conditions.Fail) {
-            const obj = this.formatObjective(questData.id, objective, true);
+            const obj = this.formatObjective(questData.id, objective, 'fail');
             if (obj) {
                 questData.failConditions.push(obj);
             }
@@ -1211,14 +1275,14 @@ class UpdateQuestsJob extends DataJob {
         return questData;
     }
 
-    formatObjective(questId, objective, failConditions = false) {
+    formatObjective(questId, objective, objectiveType = 'complete') {
         if (this.changedQuests[questId]?.objectivesRemoved?.includes(objective.id)) {
             return false;
         }
         if (!objective.id) {
             return false;
         }
-        if (!failConditions && objective.zoneId && this.rawQuestData[questId].conditions.Fail?.some(f => f.zoneId === objective.zoneId)) {
+        if (objectiveType !== 'fail' && objective.zoneId && this.rawQuestData[questId].conditions.Fail?.some(f => f.zoneId === objective.zoneId)) {
             return false;
         }
         let objectiveId = objective.id;
@@ -1231,7 +1295,7 @@ class UpdateQuestsJob extends DataJob {
 
         const obj = {
             id: objectiveId,
-            description: (!failConditions || this.locales.en[objectiveId]) ? this.addTranslation(objectiveId) : this.addTranslation(objectiveId, 'en', ''),
+            description: (objectiveType === 'complete' || this.locales.en[objectiveId]) ? this.addTranslation(objectiveId) : this.addTranslation(objectiveId, 'en', ''),
             type: null,
             count: isNaN(objective.value) ? null : parseInt(objective.value),
             optional: Boolean((objective.parentId)),
@@ -1243,7 +1307,7 @@ class UpdateQuestsJob extends DataJob {
         if (obj.count === 9999999999) {
             obj.count = 1;
         }
-        if (objective.conditionType === 'FindItem' || objective.conditionType === 'HandoverItem' || objective.conditionType === 'SellItemToTrader') {
+        if (objective.conditionType === 'FindItem' || objective.conditionType === 'HandoverItem' || objective.conditionType === 'SellItemToTrader' || objective.conditionType === 'HasItem') {
             const targetItem = this.items[objective.target[0]];
             let verb = 'give';
             if (objective.conditionType === 'FindItem' || (objective.conditionType === 'HandoverItem' && obj.optional)) {
@@ -1251,6 +1315,9 @@ class UpdateQuestsJob extends DataJob {
             }
             if (objective.conditionType === 'SellItemToTrader') {
                 verb = 'sell';
+            }
+            if (objective.conditionType === 'HasItem') {
+                verb = 'have';
             }
             obj.item_id = objective.target[0];
             obj.item_name = this.locales.en[`${objective.target[0]} Name`];
@@ -1273,7 +1340,16 @@ class UpdateQuestsJob extends DataJob {
             }
         } else if (objective.conditionType === 'CounterCreator') {
             const counter = objective.counter;
+            const ignoreConditions = [
+                'ArenaGameMode',
+                'ArenaMatchPlace',
+                'ArenaPlayerInTeamPlace',
+                'Time',
+            ];
             for (const cond of counter.conditions) {
+                if (ignoreConditions.includes(cond.conditionType)) {
+                    continue;
+                }
                 if (cond.conditionType === 'VisitPlace') {
                     //obj.description = en.quest[questId].conditions[objective.id];
                     obj.zoneKeys.push(cond.target);
@@ -1636,6 +1712,15 @@ class UpdateQuestsJob extends DataJob {
         } else if (objective.conditionType === 'Level') {
             obj.type = 'playerLevel';
             obj.playerLevel = parseInt(objective.value);
+        } else if (objective.conditionType === 'HideoutArea') {
+            obj.type = 'hideoutStation';
+            const hideoutStation = this.hideout.find(s => s.areaType === objective.areaType);
+            if (!hideoutStation) {
+                this.logger.warn(`Could not find hideout station of type ${objective.areaType}`);
+                return;
+            }
+            obj.station = hideoutStation.id;
+            obj.stationLevel = objective.value;
         } else {
             this.logger.warn(`Unrecognized type "${objective.conditionType}" for objective ${objective.id}`);
             return;
@@ -1675,8 +1760,182 @@ class UpdateQuestsJob extends DataJob {
             //conditions: ach.conditions.availableForFinish.map(c => this.formatObjective(ach.id, c, true)),
             playersCompletedPercent: this.achievementStats[ach.id] || 0,
             adjustedPlayersCompletedPercent: parseFloat((((this.achievementStats[ach.id] || 0) / this.achievementStats['65141c30ec10ff011f17cc3b']) * 100).toFixed(2)),
-            imageLink: await this.getAchievementImageLink(ach),
+            imageLink: await this.retrieveImage({
+                filename: `achievement-${ach.id}-icon.webp`,
+                fetch: () => {
+                    return fetch(`https://fence.tarkov.dev/achievement-image/${ach.id}?url=${ach.imageUrl}&rarity=${ach.rarity.toLowerCase()}`, {
+                        headers: {
+                            'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+                        },
+                        signal: this.abortController.signal,
+                    });
+                },
+            }),
         };
+    }
+
+    async processPrestige(prestige, prestigeIndex) {
+        const prestigeData = {
+            id: prestige.id,
+            name: this.addTranslation(`${prestige.id} name`),
+            prestigeLevel: prestigeIndex+1,
+            conditions: prestige.conditions.map(condition => this.formatObjective(prestige.id, condition, 'prestige')),
+            rewards: {
+                traderStanding: [],
+                items: [],
+                offerUnlock: [],
+                skillLevelReward: [],
+                traderUnlock: [],
+                craftUnlock: [],
+                achievement: [],
+                customization: [],
+            },
+            transferSettings: [
+                {
+                    gridWidth: prestige.transferConfigs.stashConfig.xCellCount,
+                    gridHeight: prestige.transferConfigs.stashConfig.yCellCount,
+                    itemFilters: {
+                        allowedCategories: prestige.transferConfigs.stashConfig.filters.includedItems.filter(id => {
+                            return this.items[id]._type === 'Node';
+                        }),
+                        allowedItems: prestige.transferConfigs.stashConfig.filters.includedItems.filter(id => {
+                            if (this.items[id]._type === 'Node') {
+                                return false;
+                            }
+                            const itemFound = this.itemResults.get(id);
+                            if (!itemFound) {
+                                this.logger.warn(`Prestige transfer allowed item ${id} not found`);
+                            }
+                            if (itemFound.types.includes('disabled')) {
+                                return false;
+                            }
+                            return !!itemFound;
+                        }),
+                        excludedItems: prestige.transferConfigs.stashConfig.filters.excludedItems.filter(id => {
+                            if (this.items[id]._type === 'Node') {
+                                return false;
+                            }
+                            const itemFound = this.itemResults.get(id);
+                            if (!itemFound) {
+                                this.logger.warn(`Prestige transfer excluded item ${id} not found`);
+                            }
+                            if (itemFound.types.includes('disabled')) {
+                                return false;
+                            }
+                            return !!itemFound;
+                        }),
+                        excludedCategories: prestige.transferConfigs.stashConfig.filters.excludedItems.filter(id => {
+                            return this.items[id]._type === 'Node';
+                        }),
+                    },
+                },
+                {
+                    name: this.addTranslation('arena/career/tabs/skills'),
+                    skillType: 'skills',
+                    transferRate: parseFloat((1 - prestige.transferConfigs.skillConfig.transferMultiplier).toFixed(2)),
+                },
+                {
+                    name: this.addTranslation('weapon mastering'),
+                    skillType: 'mastering',
+                    transferRate: parseFloat((1 - prestige.transferConfigs.masteringConfig.transferMultiplier).toFixed(2)),
+                },
+            ],
+        };
+        await this.loadRewards(prestigeData, 'rewards', prestige.rewards);
+        for (const reward of prestigeData.rewards.customization) {
+            if (reward.customizationType !== 'Stub') {
+                continue;
+            }
+            const rawReward = prestige.rewards.find(r => r.id === reward.id);
+            reward.imageLink = await this.retrieveImage({
+                filename: `customization-${reward.id}.webp`,
+                fetch: () => {
+                    return fetch(`https://fence.tarkov.dev/passthrough-request`, {
+                        headers: {
+                            'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+                        },
+                        method: 'POST',
+                        body: JSON.stringify({
+                            url: `https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`,
+                        }),
+                        signal: this.abortController.signal,
+                    });
+                },
+            });
+        }
+        for (const reward of prestigeData.rewards.customization) {
+            if (reward.customizationType !== 'MannequinPose') {
+                continue;
+            }
+            const rawReward = prestige.rewards.find(r => r.target === reward.id);
+            reward.imageLink = await this.retrieveImage({
+                filename: `customization-${reward.id}.webp`,
+                fetch: () => {
+                    return fetch(`https://fence.tarkov.dev/passthrough-request`, {
+                        headers: {
+                            'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+                        },
+                        method: 'POST',
+                        body: JSON.stringify({
+                            url: `https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`,
+                        }),
+                        signal: this.abortController.signal,
+                    });
+                },
+            });
+        }
+        for (const reward of prestigeData.rewards.customization) {
+            if (reward.customizationType !== 'EnvironmentUI') {
+                continue;
+            }
+            const rawReward = prestige.rewards.find(r => r.target === reward.id);
+            reward.imageLink = await this.retrieveImage({
+                filename: `customization-${reward.id}.webp`,
+                fetch: () => {
+                    return fetch(`https://fence.tarkov.dev/passthrough-request`, {
+                        headers: {
+                            'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+                        },
+                        method: 'POST',
+                        body: JSON.stringify({
+                            url: `https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`,
+                        }),
+                        signal: this.abortController.signal,
+                    });
+                },
+            });
+        }
+        prestigeData.iconLink = await this.retrieveImage({
+            filename: `prestige-${prestigeIndex+1}-icon.webp`,
+            fetch: () => {
+                return fetch(`https://fence.tarkov.dev/passthrough-request`, {
+                    headers: {
+                        'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+                    },
+                    method: 'POST',
+                    body: JSON.stringify({
+                        url: `https://prod.escapefromtarkov.com${prestige.image}`,
+                    }),
+                    signal: this.abortController.signal,
+                });
+            },
+        });
+        prestigeData.imageLink = await this.retrieveImage({
+            filename: `prestige-${prestigeIndex+1}-image.webp`,
+            fetch: () => {
+                return fetch(`https://fence.tarkov.dev/passthrough-request`, {
+                    headers: {
+                        'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+                    },
+                    method: 'POST',
+                    body: JSON.stringify({
+                        url: `https://prod.escapefromtarkov.com${prestige.bigImage}`,
+                    }),
+                    signal: this.abortController.signal,
+                });
+            },
+        });
+        return prestigeData;
     }
 
     getMobMaps(mobName, locationSet) {
@@ -1723,31 +1982,6 @@ class UpdateQuestsJob extends DataJob {
             return s3ImageLink;
         }
         return null;
-    }
-
-    async getAchievementImageLink(ach) {
-        const s3FileName = `achievement-${ach.id}-icon.webp`;
-        const s3ImageLink = `https://${process.env.S3_BUCKET}/${s3FileName}`;
-        if (this.s3Images.includes(s3FileName)) {
-            return s3ImageLink;
-        }
-        const imageResponse = await fetch(`https://fence.tarkov.dev/achievement-image/${ach.id}?url=${ach.imageUrl}&rarity=${ach.rarity.toLowerCase()}`, {
-            headers: {
-                'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-            },
-            signal: this.abortController.signal,
-        });
-        if (!imageResponse.ok) {
-            return null;
-        }
-        const image = sharp(await imageResponse.arrayBuffer()).webp({lossless: true});
-        const metadata = await image.metadata();
-        if (metadata.width <= 1 || metadata.height <= 1) {
-            return null;
-        }
-        console.log(`Downloaded ${ach.id} achievement image`);
-        await uploadAnyImage(image, s3FileName, 'image/webp');
-        return s3ImageLink;
     }
 
     getExtractStatus(stat) {

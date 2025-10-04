@@ -14,10 +14,12 @@ const availableFiles = {
     'areas': {},
     'crafts': {},
     'credits': {},
+    'customization': {},
     'items': {},
     'globals': {},
     'locale_en': {},
     'locations': {},
+    'prestige': {},
     'traders': {},
     'handbook': {},
     //'status',
@@ -117,6 +119,9 @@ const tarkovDevData = {
     credits: async (options = defaultOptions) => {
         return tarkovDevData.get('credits', options);
     },
+    customization: async (options = defaultOptions) => {
+        return tarkovDevData.get('customization', options);
+    },
     locale_en: async (options = defaultOptions) => {
         return tarkovDevData.get('locale_en', options);
     },
@@ -135,6 +140,9 @@ const tarkovDevData = {
     handbook: async (options = defaultOptions) => {
         return tarkovDevData.get('handbook', options);
     },
+    prestige: async (options = defaultOptions) => {
+        return tarkovDevData.get('prestige', options);
+    },
     status: async (options = defaultOptions) => {
         return tarkovDevData.get('status', options);
     },
@@ -144,6 +152,8 @@ const tarkovDevData = {
             pve: [
                 'achievements',
                 'achievementStats',
+                'customization',
+                'prestige',
             ],
         };
         const promises = [];

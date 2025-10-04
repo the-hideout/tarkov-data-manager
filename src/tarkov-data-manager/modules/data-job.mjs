@@ -4,9 +4,9 @@ import { setMaxListeners } from 'node:events';
 
 import  { EmbedBuilder } from 'discord.js';
 import { DateTime } from 'luxon';
+import sharp from 'sharp';
 
 import cloudflare from './cloudflare.mjs';
-import stellate from './stellate.mjs';
 import TranslationHelper from './translation-helper.mjs';
 import dbConnection from'./db-connection.mjs';
 import JobLogger from './job-logger.mjs';
@@ -17,6 +17,7 @@ import normalizeName from './normalize-name.js';
 import gameModes from './game-modes.mjs';
 import emitter from './emitter.mjs';
 import { createAndUploadFromSource } from './image-create.mjs';
+import s3 from '../modules/upload-s3.mjs';
 
 const verbose = false;
 
@@ -470,6 +471,165 @@ class DataJob {
     getWikiLink = (pageName) => {
         pageName = pageName.replace(/ \[\w+ ZONE\]$/, '');
         return `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(pageName.replaceAll(' ', '_'))}`;
+    }
+
+    customizationTypes() {
+        return {
+            hideout: [
+                'Wall',
+                'Floor',
+                'Ceiling',
+                'ShootingRangeMark',
+            ],
+            character: [
+                'Body',
+                'Feet',
+                'Head',
+                'Voice',
+            ],
+            other: [
+                'Gestures',
+                'MannequinPose',
+                'DogTags',
+                'EnvironmentUI',
+            ],
+        };
+    }
+
+    getCustomization(id) {
+        const cust = this.customization[id];
+        const customizationType = this.customization[cust._parent]._name;
+        if (customizationType === 'Upper') {
+            return this.customization[cust._props.Body];
+        }
+        if (customizationType === 'Lower') {
+            return this.customization[cust._props.Feet];
+        }
+        return cust;
+    }
+
+    getCustomizationName(cust) {
+        const customizationType = this.customization[cust._parent]._name;
+        let translationKey = `${cust._id} Name`;
+        if (customizationType === 'MannequinPose') {
+            translationKey = `Hideout/Mannequin/Pose/${cust._props.MannequinPoseName}`;
+        }
+        if (customizationType === 'Gestures') {
+            translationKey = cust._props.Name;
+        }
+        if (customizationType === 'EnvironmentUI') {
+            translationKey = cust._props.EnvironmentUIType;
+        }
+        if (customizationType === 'DogTags') {
+            //return;
+        }
+        if (customizationType === 'Stub') {
+            translationKey = 'UI/Quest/Reward/StubCaption';
+        }
+        return this.addTranslation(translationKey);
+    }
+
+    getCustomizationTypeName(cust) {
+        const customizationType = this.customization[cust._parent]._name;
+        let translationKey = `ECustomizationItemCategory/${customizationType}`;
+        if (customizationType === 'Gestures') {
+            translationKey = 'ECustomizationItemCategory/Gesture';
+        }
+        if (customizationType === 'EnvironmentUI') {
+            translationKey = 'ECustomizationItemCategory/Environment';
+        }
+        if (customizationType === 'DogTags') {
+            translationKey = 'ECustomizationItemCategory/DogTag';
+        }
+        if (this.customizationTypes().hideout.includes(customizationType)) {
+            translationKey = `Hideout/Customization/${customizationType}/TabName`;
+        }
+        if (customizationType === 'Feet' || customizationType === 'Lower') {
+            translationKey = 'Lower body';
+        }
+        if (customizationType === 'Body' || customizationType === 'Upper') {
+            translationKey = 'Upper body';
+        }
+        return this.addTranslation(translationKey);
+    }
+
+    isValidCustomizationType(cust) {
+        const customizationType = this.customization[cust._parent]._name;
+        const validTypes = this.customizationTypes();
+        for (const custTypeKey in validTypes) {
+            if (validTypes[custTypeKey].includes(customizationType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    async getCustomizationImage(cust) {
+        const customizationType = this.customization[cust._parent]._name;
+        const custTypes = this.customizationTypes();
+        const validImageTypes = [
+            ...custTypes.hideout,
+            ...custTypes.character,
+            'Gestures',
+        ];
+        if (customizationType === 'Voice') {
+            return;
+        }
+        if (!validImageTypes.includes(customizationType)) {
+            return;
+        }
+        return this.retrieveImage({
+            filename: `customization-${cust._id}.webp`,
+            fetch: () => {
+                return fetch(`https://fence.tarkov.dev/customization-image/${cust._id}`, {
+                    headers: {
+                        'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+                    },
+                    signal: this.abortController.signal,
+                });
+            },
+        });
+    }
+
+    async retrieveImage(options) {
+        const s3FileName = options.filename;//`prestige-${prestigeNumber}-icon.png`;
+        if (!options.filename) {
+            return Promise.reject(new Error('options must include filename'));
+        }
+        const s3ImageLink = `https://${process.env.S3_BUCKET}/${s3FileName}`;
+        if (this.s3Images.includes(s3FileName) && !options.forceDownload) {
+            return s3ImageLink;
+        }
+        if (!options.fetch || typeof options.fetch !== 'function') {
+            return Promise.reject(new Error('options must include fetch function'));
+        }
+        const imageResponse = await options.fetch();/*await fetch(`https://fence.tarkov.dev/${imageSlug}-image/${cust._id}`, {
+            headers: {
+                'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+            },
+            signal: this.abortController.signal,
+        });*/
+        if (!imageResponse.ok) {
+            return null;
+        }
+        const imageType = s3FileName.split('.').pop();
+        const image = sharp(await imageResponse.arrayBuffer());//.webp({lossless: true});
+        if (imageType === 'webp' || options.imageOptions) {
+            const imageOptions = options.imageOptions ?? {};
+            if (imageType === 'webp' && !options.imageOptions) {
+                imageOptions.lossless = true;
+            }
+            if (Object.keys(imageOptions).length) {
+                image[imageType](imageOptions);
+            }
+        }
+        const metadata = await image.metadata();
+        if (metadata.width <= 1 || metadata.height <= 1) {
+            return null;
+        }
+        this.logger.log(`Downloaded image ${s3FileName}`);
+        await s3.uploadAnyImage(image, s3FileName, `image/${imageType}`);
+        return s3ImageLink;
     }
 
     isReplicaItem = (itemId) => {

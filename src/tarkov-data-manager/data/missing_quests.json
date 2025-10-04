@@ -3416,5 +3416,1039 @@
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
+    },
+    "6761f28a022f60bb320f3e95": {
+        "id": "6761f28a022f60bb320f3e95",
+        "name": "New Beginning (Prestige 1)",
+        "trader": "5ac3b934156ae10c4430e83c",
+        "gameMode": ["regular"],
+        "location_id": "5b0fc42d86f7744a585f9105",
+        "locationName": "The Lab",
+        "minPlayerLevel": 55,
+        "taskRequirements": [],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "6848100b00afffa81f09e36b",
+                "type": "extract",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "The Lab"
+                ],
+                "map_ids": [
+                    "5b0fc42d86f7744a585f9105"
+                ],
+                "zoneNames": [],
+                "exitStatus": [
+                    "Survived"
+                ],
+                "zones": []
+            },
+            {
+                "id": "6761f93bc757eb8c228fa754",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "target": "Savage",
+                "count": 50,
+                "shotType": "kill",
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            },
+            {
+                "id": "6761f6f1bacf72169272e381",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c652d60d0ac437100fed7",
+                "item_name": "BEAR operative figurine",
+                "count": 1,
+                "item": "655c652d60d0ac437100fed7",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "6761f7d086fd2d9c941b8aa3",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c66e40b2de553b618d4b8",
+                "item_name": "Politician Mutkevich figurine",
+                "count": 1,
+                "item": "655c66e40b2de553b618d4b8",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "6761f7f87b309912d6b5f2a9",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572c82ad599021091c6118",
+                "item_name": "Killa figurine",
+                "count": 1,
+                "item": "66572c82ad599021091c6118",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "6761f80838201b0588f39a07",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572be36a723f7f005a066e",
+                "item_name": "Reshala figurine",
+                "count": 1,
+                "item": "66572be36a723f7f005a066e",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "6761f817d42b2f3a242de658",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c67782a1356436041c9c5",
+                "item_name": "Ryzhy figurine",
+                "count": 1,
+                "item": "655c67782a1356436041c9c5",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "6761f826d5b89d2d15b53eca",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c673673a43e23e857aebd",
+                "item_name": "Scav figurine",
+                "count": 1,
+                "item": "655c673673a43e23e857aebd",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "6761f838d641d60f18a45e1f",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572cbdad599021091c611a",
+                "item_name": "Tagilla figurine",
+                "count": 1,
+                "item": "66572cbdad599021091c611a",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "6761f85183d342080d39ca98",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c663a6689c676ce57af85",
+                "item_name": "USEC operative figurine",
+                "count": 1,
+                "item": "655c663a6689c676ce57af85",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "6761f862c1ba6ee8e161d3d6",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c669103999d3c810c025b",
+                "item_name": "Cultist figurine",
+                "count": 1,
+                "item": "655c669103999d3c810c025b",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "6761f87227aeff895cef62c5",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572b8d80b1cd4b6a67847f",
+                "item_name": "Den figurine",
+                "count": 1,
+                "item": "66572b8d80b1cd4b6a67847f",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "5ac3b934156ae10c4430e83c",
+                    "name": "Ragman",
+                    "standing": 0.01
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 100000,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 10000,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "6761ff17cdc36bd66102e9d0": {
+        "id": "6761ff17cdc36bd66102e9d0",
+        "name": "New Beginning (Prestige 2)",
+        "trader": "5ac3b934156ae10c4430e83c",
+        "gameMode": ["regular"],
+        "location_id": "5b0fc42d86f7744a585f9105",
+        "locationName": "The Lab",
+        "minPlayerLevel": 55,
+        "requiredPrestige": "672df12f97f0469cea52f55e",
+        "taskRequirements": [],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "6761f9d718fa62aac3264ff2",
+                "type": "extract",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "The Lab"
+                ],
+                "map_ids": [
+                    "5b0fc42d86f7744a585f9105"
+                ],
+                "zoneNames": [],
+                "exitStatus": [
+                    "Survived"
+                ],
+                "zones": []
+            },
+            {
+                "id": "6762015739c53fca8ac51336",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "target": "AnyPmc",
+                "count": 15,
+                "shotType": "kill",
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            },
+            {
+                "id": "6761ff17cdc36bd66102e9d8",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c652d60d0ac437100fed7",
+                "item_name": "BEAR operative figurine",
+                "count": 1,
+                "item": "655c652d60d0ac437100fed7",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6761ff17cdc36bd66102e9d9",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c66e40b2de553b618d4b8",
+                "item_name": "Politician Mutkevich figurine",
+                "count": 1,
+                "item": "655c66e40b2de553b618d4b8",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6761ff17cdc36bd66102e9da",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572c82ad599021091c6118",
+                "item_name": "Killa figurine",
+                "count": 1,
+                "item": "66572c82ad599021091c6118",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6761ff17cdc36bd66102e9db",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572be36a723f7f005a066e",
+                "item_name": "Reshala figurine",
+                "count": 1,
+                "item": "66572be36a723f7f005a066e",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6761ff17cdc36bd66102e9dc",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c67782a1356436041c9c5",
+                "item_name": "Ryzhy figurine",
+                "count": 1,
+                "item": "655c67782a1356436041c9c5",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6761ff17cdc36bd66102e9dd",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c673673a43e23e857aebd",
+                "item_name": "Scav figurine",
+                "count": 1,
+                "item": "655c673673a43e23e857aebd",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6761ff17cdc36bd66102e9de",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572cbdad599021091c611a",
+                "item_name": "Tagilla figurine",
+                "count": 1,
+                "item": "66572cbdad599021091c611a",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6761ff17cdc36bd66102e9df",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c663a6689c676ce57af85",
+                "item_name": "USEC operative figurine",
+                "count": 1,
+                "item": "655c663a6689c676ce57af85",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6761ff17cdc36bd66102e9e0",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c669103999d3c810c025b",
+                "item_name": "Cultist figurine",
+                "count": 1,
+                "item": "655c669103999d3c810c025b",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6761ff17cdc36bd66102e9e1",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572b8d80b1cd4b6a67847f",
+                "item_name": "Den figurine",
+                "count": 1,
+                "item": "66572b8d80b1cd4b6a67847f",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "5ac3b934156ae10c4430e83c",
+                    "name": "Ragman",
+                    "standing": 0.01
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 200000,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 11000,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "6848100b00afffa81f09e365": {
+        "id": "6848100b00afffa81f09e365",
+        "name": "New Beginning (Prestige 3)",
+        "trader": "5ac3b934156ae10c4430e83c",
+        "gameMode": ["regular"],
+        "location_id": null,
+        "locationName": "any",
+        "minPlayerLevel": 55,
+        "requiredPrestige": "672df4281ab8d9c8849a0c88",
+        "taskRequirements": [],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "6848100b00afffa81f09e369",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "target": "AnyPmc",
+                "count": 25,
+                "shotType": "kill",
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            },
+            {
+                "id": "684812156189183883f13947",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "target": "PmcBot",
+                "count": 50,
+                "shotType": "kill",
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            },
+            {
+                "id": "6848116061809d65b8503617",
+                "type": "extract",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "The Lab",
+                    "Strets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12",
+                    "5714dc692459777137212e12"
+                ],
+                "zoneNames": [],
+                "exitStatus": [
+                    "marathon Name"
+                ],
+                "zones": []
+            },
+            {
+                "id": "6848100b00afffa81f09e36d",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c652d60d0ac437100fed7",
+                "item_name": "BEAR operative figurine",
+                "count": 1,
+                "item": "655c652d60d0ac437100fed7",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6848100b00afffa81f09e36e",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c66e40b2de553b618d4b8",
+                "item_name": "Politician Mutkevich figurine",
+                "count": 1,
+                "item": "655c66e40b2de553b618d4b8",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6848100b00afffa81f09e36f",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572c82ad599021091c6118",
+                "item_name": "Killa figurine",
+                "count": 1,
+                "item": "66572c82ad599021091c6118",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6848100b00afffa81f09e370",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572be36a723f7f005a066e",
+                "item_name": "Reshala figurine",
+                "count": 1,
+                "item": "66572be36a723f7f005a066e",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6848100b00afffa81f09e371",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c67782a1356436041c9c5",
+                "item_name": "Ryzhy figurine",
+                "count": 1,
+                "item": "655c67782a1356436041c9c5",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6848100b00afffa81f09e372",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c673673a43e23e857aebd",
+                "item_name": "Scav figurine",
+                "count": 1,
+                "item": "655c673673a43e23e857aebd",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6848100b00afffa81f09e373",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572cbdad599021091c611a",
+                "item_name": "Tagilla figurine",
+                "count": 1,
+                "item": "66572cbdad599021091c611a",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6848100b00afffa81f09e374",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c663a6689c676ce57af85",
+                "item_name": "USEC operative figurine",
+                "count": 1,
+                "item": "655c663a6689c676ce57af85",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6848100b00afffa81f09e375",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c669103999d3c810c025b",
+                "item_name": "Cultist figurine",
+                "count": 1,
+                "item": "655c669103999d3c810c025b",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "6848100b00afffa81f09e376",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572b8d80b1cd4b6a67847f",
+                "item_name": "Den figurine",
+                "count": 1,
+                "item": "66572b8d80b1cd4b6a67847f",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "5ac3b934156ae10c4430e83c",
+                    "name": "Ragman",
+                    "standing": 0.01
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 2000000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "59faff1d86f7746c51718c9c",
+                    "item_name": "Physical Bitcoin",
+                    "count": 2,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 11000,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "68481881f43abfdda2058369": {
+        "id": "68481881f43abfdda2058369",
+        "name": "New Beginning (Prestige 4)",
+        "trader": "5ac3b934156ae10c4430e83c",
+        "gameMode": ["regular"],
+        "location_id": null,
+        "locationName": "any",
+        "minPlayerLevel": 55,
+        "requiredPrestige": "683da91d6f472cfa738c52f2",
+        "taskRequirements": [],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "68481881f43abfdda205836d",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "target": "AnyPmc",
+                "count": 40,
+                "shotType": "kill",
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            },
+            {
+                "id": "68481a8eda10b760b3b1a73f",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "target": "ExUsec",
+                "count": 100,
+                "shotType": "kill",
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            },
+            {
+                "id": "68481881f43abfdda205836f",
+                "type": "extract",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "The Lab",
+                    "Strets of Tarkov"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12",
+                    "5714dc692459777137212e12"
+                ],
+                "zoneNames": [],
+                "exitStatus": [
+                    "marathon Name"
+                ],
+                "zones": []
+            },
+            {
+                "id": "68483a05801f8d9e40ac05b1",
+                "type": "extract",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Strets of Tarkov",
+                    "Interchange"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12",
+                    "5714dbc024597771384a510d"
+                ],
+                "zoneNames": [],
+                "exitStatus": [
+                    "marathon Name"
+                ],
+                "zones": []
+            },
+            {
+                "id": "68481881f43abfdda2058371",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c652d60d0ac437100fed7",
+                "item_name": "BEAR operative figurine",
+                "count": 1,
+                "item": "655c652d60d0ac437100fed7",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "68481881f43abfdda2058372",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c66e40b2de553b618d4b8",
+                "item_name": "Politician Mutkevich figurine",
+                "count": 1,
+                "item": "655c66e40b2de553b618d4b8",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "68481881f43abfdda2058373",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572c82ad599021091c6118",
+                "item_name": "Killa figurine",
+                "count": 1,
+                "item": "66572c82ad599021091c6118",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "68481881f43abfdda2058374",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572be36a723f7f005a066e",
+                "item_name": "Reshala figurine",
+                "count": 1,
+                "item": "66572be36a723f7f005a066e",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "68481881f43abfdda2058375",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c67782a1356436041c9c5",
+                "item_name": "Ryzhy figurine",
+                "count": 1,
+                "item": "655c67782a1356436041c9c5",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "68481881f43abfdda2058376",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c673673a43e23e857aebd",
+                "item_name": "Scav figurine",
+                "count": 1,
+                "item": "655c673673a43e23e857aebd",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "68481881f43abfdda2058377",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572cbdad599021091c611a",
+                "item_name": "Tagilla figurine",
+                "count": 1,
+                "item": "66572cbdad599021091c611a",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "68481881f43abfdda2058378",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c663a6689c676ce57af85",
+                "item_name": "USEC operative figurine",
+                "count": 1,
+                "item": "655c663a6689c676ce57af85",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "68481881f43abfdda2058379",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "655c669103999d3c810c025b",
+                "item_name": "Cultist figurine",
+                "count": 1,
+                "item": "655c669103999d3c810c025b",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "68481881f43abfdda205837a",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "66572b8d80b1cd4b6a67847f",
+                "item_name": "Den figurine",
+                "count": 1,
+                "item": "66572b8d80b1cd4b6a67847f",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "5ac3b934156ae10c4430e83c",
+                    "name": "Ragman",
+                    "standing": 0.01
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 3000000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "59faff1d86f7746c51718c9c",
+                    "item_name": "Physical Bitcoin",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 11000,
+        "tarkovDataId": null,
+        "factionName": "Any"
     }
 }
