@@ -5,7 +5,7 @@ import db from './db-connection.mjs';
 import gameModes from './game-modes.mjs';
 import emitter from './emitter.mjs';
 
-let myData = false;
+const myData = new Map();
 let lastRefresh = new Date(0);
 
 const getInterquartileMean = (validValues) => {
@@ -49,8 +49,10 @@ const getInterquartileMean = (validValues) => {
 const methods = {
     get: async (forceRefresh = false) => {
         // refresh if data hasn't been loaded, it's a forced refresh, or if it's been > 10 minutes
-        if (!myData || forceRefresh || new Date() - 1000 * 60 * 10 > lastRefresh) {
-            return methods.refresh();
+        if (!myData.size || forceRefresh || new Date() - 1000 * 60 * 10 > lastRefresh) {
+            return methods.refresh().finally(() => {
+                emitter.emit('dbItemsLoaded', myData);
+            });
         }
         return myData;
     },
@@ -72,7 +74,7 @@ const methods = {
                 return rows;
             });
 
-            const returnData = new Map();
+            const currentItems = new Map();
 
             for (const result of results) {
                 Reflect.deleteProperty(result, 'item_id');
@@ -98,13 +100,19 @@ const methods = {
                     pve_lastScan: result.pve_last_scan,
                 };
                 if (!preparedData.properties) preparedData.properties = {};
-                returnData.set(result.id, preparedData);
+                currentItems.set(result.id, preparedData);
+                myData.set(result.id, preparedData);
             }
 
-            myData = returnData;
+            for (const id of myData.keys()) {
+                if (!currentItems.has(id)) {
+                    myData.delete(id);
+                }
+            }
+
             lastRefresh = new Date();
             emitter.emit('dbItemsUpdated', myData);
-            return returnData;
+            return myData;
         } catch (error) {
             return Promise.reject(error);
         }
@@ -344,6 +352,23 @@ const methods = {
         }
         return insertResult;
     },
+    addTypes: async (id, itemTypes) => {
+        const queryvalues = [];
+        for (const t of itemTypes) {
+            queryvalues.push(id, t);
+        }
+        const [itemData, insertResult] = await Promise.all([
+            methods.get(),
+            db.query(`INSERT IGNORE INTO types (item_id, type) VALUES ${itemTypes.map(() => '(?, ?)').join(', ')}`, queryvalues),
+        ]);
+        const item = myData.get(id);
+        for (const type of itemTypes) {
+            if (item && !item.types.includes(type)) {
+                item.types.push(type);
+            }
+        }
+        return insertResult;
+    },
     removeType: async (id, type) => {
         //console.log(`Removing ${type} for ${id}`);
         const [itemData, deleteResult] = await Promise.all([
@@ -435,7 +460,7 @@ const methods = {
                 updateValues.push(value);
             }
         }
-        return db.query(`
+        const insertResult = await db.query(`
             INSERT INTO 
                 item_data (${insertFields.join(', ')})
             VALUES (
@@ -443,18 +468,22 @@ const methods = {
             )
             ON DUPLICATE KEY UPDATE
                 ${updateFields.join(', ')}
-        `, [...insertValues, ...updateValues]).then(insertResult => {
-            if (insertResult.affectedRows > 0) {
-                const currentItemData = myData.get(values.id);
-                myData.set(values.id, {
-                    ...currentItemData,
-                    ...values,
-                    types: currentItemData?.types ?? [],
-                    updated: currentItemData?.updated ?? new Date(),
-                });
+        `, [...insertValues, ...updateValues]);
+        console.log('insertResult', insertResult);
+        if (insertResult.affectedRows > 0) {
+            if (values.types) {
+                await methods.addTypes(values.id, values.types);
             }
-            return insertResult;
-        });
+            const currentItemData = myData.get(values.id);
+            myData.set(values.id, {
+                ...currentItemData,
+                ...values,
+                types: values.types ?? [],
+                updated: currentItemData?.updated ?? new Date(),
+            });
+            emitter.emit('itemAdded', myData.get(values.id));
+        }
+        return insertResult;
     },
     removeItem: async (id) => {
         if (!id) {
@@ -465,6 +494,7 @@ const methods = {
             return Promise.reject(new Error(`Item ${id} not found`));
         }
         const result = await db.query('DELETE FROM item_data WHERE id = ?', [id]);
+        emitter.emit('itemRemoved', myData.get(id));
         myData.delete(id);
         return result;
     },

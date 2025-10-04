@@ -16,6 +16,7 @@ import tarkovData from'./tarkov-data.mjs';
 import normalizeName from './normalize-name.js';
 import gameModes from './game-modes.mjs';
 import emitter from './emitter.mjs';
+import { createAndUploadFromSource } from './image-create.mjs';
 
 const verbose = false;
 
@@ -469,6 +470,108 @@ class DataJob {
     getWikiLink = (pageName) => {
         pageName = pageName.replace(/ \[\w+ ZONE\]$/, '');
         return `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(pageName.replaceAll(' ', '_'))}`;
+    }
+
+    isReplicaItem = (itemId) => {
+        if (!this.items) {
+            throw new Error ('this.items must be initialized to bsg items');
+        }
+        if (!this.items[itemId]?._props) {
+            return false;
+        }
+        if (this.items[itemId]._props.MaximumNumberOfUsage) {
+            return this.items[itemId]._props.MaximumNumberOfUsage > 1 && this.items[itemId]._props.MaximumNumberOfUsage <= 20;
+        }
+        if (this.items[itemId]._props.Resource) {
+            return true;
+        }
+        // low durability weapons and armor setll for HIGHER prices
+        // due to people leveling repair skills
+        /*if (this.items[itemId]._props.MaxDurability && this.items[itemId]._props.armorClass !== '0' && !this.items[itemId]._props.knifeDurab) {
+            return true;
+        }*/
+        return false;
+    }
+
+    getReplicaSettings = (bsgItem) => {
+        const settings = {
+            maxResourceField: 'Durability',
+            usedResourceField: 'Repairable.Durability',
+            filters: {
+                conditionFrom: 0,
+                onlyFunctional: false,
+            },
+        };
+        if (bsgItem._props.MaximumNumberOfUsage) {
+            settings.maxResourceField = 'MaximumNumberOfUsage';
+            settings.usedResourceField = 'Key.NumberOfUsages';
+        } else if (bsgItem._props.Resource) {
+            settings.filters.maxResourceField = 'Resource';
+            settings.filters.usedResourceField = 'Resource.Value';
+        }
+        return settings;
+    }
+
+    getReplicaItem = async (itemId) => {
+        for (const item of this.itemData.values()) {
+            if (item.types.includes('replica') && item.properties?.source === itemId) {
+                return item;
+            }
+        }
+        const bsgItem = this.items[itemId];
+        const sourceItem = this.itemData.get(itemId);
+        this.logger.log(`Must create replica of ${sourceItem.name}`);
+        const idPrefix = '7265706C696361';
+        let replicaNum = 0;
+        let id;
+        while (true) {
+            id = `${idPrefix}${replicaNum.toString(16).padStart(10, '0')}`;
+            if (!this.itemData.get(id)) {
+                break;
+            }
+            presetNum++;
+        }
+        const replicaSettings = this.getReplicaSettings(bsgItem);
+        //console.log(sourceItem.name, replicaSettings);
+        const replicaName = `${sourceItem.name} (any%)`;
+        return {
+            id,
+            name: replicaName,
+        };
+        await remoteData.addItem({
+            id,
+            name: replicaName,
+            short_name: `${sourceItem.shortName} (any%)`,
+            normalized_name: this.normalizeName(replicaName),
+            base_price: sourceItem.base_price,
+            width: sourceItem.width,
+            height: sourceItem.height,
+            properties: {
+                backgroundColor: sourceItem.properties.backgroundColor,
+                source: itemId,
+                filters: replicaSettings.filters,
+            },
+        });
+        await remoteData.addTypes(id, [...sourceItem.types, 'replica']);
+        let itemImage;
+        if (sourceItem.image_8x_link) {
+            const response = await fetch(sourceItem.image_8x_link);
+            if (response.ok) {
+                const buffer = await response.arrayBuffer();
+                itemImage = sharp(buffer);
+            }
+        }
+        if (!itemImage) {
+            const results = await webSocketServer.getImages(sourceItem.id).catch(error => {
+                this.logger.error(`Error generating image for ${replicaName} ${id}: error`);
+            });
+            itemImage = results[sourceItem.id];
+        }
+        if (itemImage) {
+            await createAndUploadFromSource(itemImage, id).catch(error => {
+                this.logger.error(`Error creating image for ${replicaName} ${id}: error`);
+            });
+        }
     }
 }
 

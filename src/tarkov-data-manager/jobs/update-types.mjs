@@ -92,9 +92,10 @@ class UpdateTypesJob extends DataJob {
             },
         };
 
-        [this.allItems, this.bsgData, this.presets] = await Promise.all([
+        [this.allItems, this.bsgData, this.handbook, this.presets] = await Promise.all([
             remoteData.get(),
             tarkovData.items(),
+            tarkovData.handbook(),
             this.jobManager.jobOutput('update-presets', this),
         ]);;
 
@@ -109,6 +110,9 @@ class UpdateTypesJob extends DataJob {
                         }
                     });
                 }
+                continue;
+            }
+            if (item.types.includes('replica')) {
                 continue;
             }
             //this.logger.log(`Checking ${itemId} ${item.name}`)
@@ -171,6 +175,22 @@ class UpdateTypesJob extends DataJob {
                 await remoteData.addType(itemId, 'quest').then(results => {
                     if (results.affectedRows == 0) {
                         this.logger.fail(`Already marked as quest item ${itemId} ${item.name}`);
+                    }
+                });
+            }
+            const handbookEntry = this.handbook.Items.find(i => i.Id === itemId);
+            if (handbookEntry && item.types.includes('no-handbook')) {
+                this.logger.warn(`${itemId} ${item.name} has a handbook entry but is marked no-handbook`);
+                await remoteData.removeType(itemId, 'no-handbook').then(results => {
+                    if (results.affectedRows == 0) {
+                        this.logger.fail(`Already not marked no-handbook item ${itemId} ${item.name}`);
+                    }
+                });
+            } else if (!handbookEntry && !item.types.includes('no-handbook')) {
+                this.logger.warn(`${itemId} ${item.name} has no handbook entry and is not marked no-handbook`);
+                await remoteData.addType(itemId, 'no-handbook').then(results => {
+                    if (results.affectedRows == 0) {
+                        this.logger.fail(`Already marked as no-handbook item ${itemId} ${item.name}`);
                     }
                 });
             }
