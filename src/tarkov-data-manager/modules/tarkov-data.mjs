@@ -59,6 +59,9 @@ const dataFunctions = {
     credits: (options = defaultOptions) => {
         return mainDataSource.credits(options);
     },
+    customization: (options = defaultOptions) => {
+        return mainDataSource.customization(options);
+    },
     globals: (options = defaultOptions) => {
         return mainDataSource.globals(options);
     },
@@ -232,6 +235,9 @@ const dataFunctions = {
     },
     mapLoot: (options = defaultOptions) => {
         return spt.mapLoot(options);
+    },
+    prestige: (options = defaultOptions) => {
+        return mainDataSource.prestige(options);
     },
     quests: async (options = defaultOptions) => {
         const mainQuests = await spt.quests(options);
