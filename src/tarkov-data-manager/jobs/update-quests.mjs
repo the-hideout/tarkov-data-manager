@@ -241,6 +241,34 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
 
+            for (const task of quests.Task) {
+                const rewardCategory = [
+                    'startRewards',
+                    'finishRewards',
+                    'failureOutcome',
+                ];
+                const rewardTypes = [
+                    'traderStanding',
+                    'items',
+                    'offerUnlock',
+                    'skillLevelReward',
+                    'traderUnlock',
+                    'craftUnlock',
+                    'achievement',
+                    'customization',
+                ];
+                for (const category of rewardCategory) {
+                    if (!task[category]) {
+                        task[category] = {};
+                    }
+                    for (const r of rewardTypes) {
+                        if (!task[category][r]) {
+                            task[category][r] = [];
+                        }
+                    }
+                }
+            }
+
             // filter out invalid task ids
             for (const task of quests.Task) {
                 //task.taskRequirements = task.taskRequirements.filter(req => quests.Task.some(t => t.id === req.task));

@@ -3620,7 +3620,9 @@
             "items": [],
             "offerUnlock": [],
             "skillLevelReward": [],
-            "traderUnlock": []
+            "traderUnlock": [],
+            "achievement": [],
+            "customization": []
         },
         "finishRewards": {
             "traderStanding": [
@@ -3641,14 +3643,18 @@
             ],
             "offerUnlock": [],
             "skillLevelReward": [],
-            "traderUnlock": []
+            "traderUnlock": [],
+            "achievement": [],
+            "customization": []
         },
         "failureOutcome": {
             "traderStanding": [],
             "items": [],
             "offerUnlock": [],
             "skillLevelReward": [],
-            "traderUnlock": []
+            "traderUnlock": [],
+            "achievement": [],
+            "customization": []
         },
         "failConditions": [],
         "restartable": false,
@@ -3860,7 +3866,9 @@
             "items": [],
             "offerUnlock": [],
             "skillLevelReward": [],
-            "traderUnlock": []
+            "traderUnlock": [],
+            "achievement": [],
+            "customization": []
         },
         "finishRewards": {
             "traderStanding": [
@@ -3881,14 +3889,18 @@
             ],
             "offerUnlock": [],
             "skillLevelReward": [],
-            "traderUnlock": []
+            "traderUnlock": [],
+            "achievement": [],
+            "customization": []
         },
         "failureOutcome": {
             "traderStanding": [],
             "items": [],
             "offerUnlock": [],
             "skillLevelReward": [],
-            "traderUnlock": []
+            "traderUnlock": [],
+            "achievement": [],
+            "customization": []
         },
         "failConditions": [],
         "restartable": false,
@@ -4121,7 +4133,9 @@
             "items": [],
             "offerUnlock": [],
             "skillLevelReward": [],
-            "traderUnlock": []
+            "traderUnlock": [],
+            "achievement": [],
+            "customization": []
         },
         "finishRewards": {
             "traderStanding": [
@@ -4149,14 +4163,18 @@
             ],
             "offerUnlock": [],
             "skillLevelReward": [],
-            "traderUnlock": []
+            "traderUnlock": [],
+            "achievement": [],
+            "customization": []
         },
         "failureOutcome": {
             "traderStanding": [],
             "items": [],
             "offerUnlock": [],
             "skillLevelReward": [],
-            "traderUnlock": []
+            "traderUnlock": [],
+            "achievement": [],
+            "customization": []
         },
         "failConditions": [],
         "restartable": false,
@@ -4408,7 +4426,9 @@
             "items": [],
             "offerUnlock": [],
             "skillLevelReward": [],
-            "traderUnlock": []
+            "traderUnlock": [],
+            "achievement": [],
+            "customization": []
         },
         "finishRewards": {
             "traderStanding": [
@@ -4436,14 +4456,18 @@
             ],
             "offerUnlock": [],
             "skillLevelReward": [],
-            "traderUnlock": []
+            "traderUnlock": [],
+            "achievement": [],
+            "customization": []
         },
         "failureOutcome": {
             "traderStanding": [],
             "items": [],
             "offerUnlock": [],
             "skillLevelReward": [],
-            "traderUnlock": []
+            "traderUnlock": [],
+            "achievement": [],
+            "customization": []
         },
         "failConditions": [],
         "restartable": false,
