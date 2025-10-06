@@ -500,17 +500,24 @@ class DataJob {
         const cust = this.customization[id];
         const customizationType = this.customization[cust._parent]._name;
         if (customizationType === 'Upper') {
-            return this.customization[cust._props.Body];
+            return {
+                ...this.customization[cust._props.Body],
+                original: cust,
+            };
         }
         if (customizationType === 'Lower') {
-            return this.customization[cust._props.Feet];
+            return {
+                ...this.customization[cust._props.Feet],
+                original: cust,
+            };
         }
         return cust;
     }
 
     getCustomizationName(cust) {
         const customizationType = this.customization[cust._parent]._name;
-        let translationKey = `${cust._id} Name`;
+        const custId = cust.original?._id ?? cust._id;
+        let translationKey = `${custId} Name`;
         if (customizationType === 'MannequinPose') {
             translationKey = `Hideout/Mannequin/Pose/${cust._props.MannequinPoseName}`;
         }
