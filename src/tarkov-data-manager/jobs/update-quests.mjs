@@ -1863,7 +1863,11 @@ class UpdateQuestsJob extends DataJob {
                     transferRate: parseFloat((1 - prestige.transferConfigs.skillConfig.transferMultiplier).toFixed(2)),
                 },
                 {
-                    name: this.addTranslation('weapon mastering'),
+                    name: this.addTranslation('WeaponMastering', (lang) => {
+                        return lang['weapon mastering'].replace(/(?<!^|\s)\p{Lu}/gu, substr => {
+                            return substr.toLowerCase();
+                        });
+                    }),
                     skillType: 'mastering',
                     transferRate: parseFloat((1 - prestige.transferConfigs.masteringConfig.transferMultiplier).toFixed(2)),
                 },
