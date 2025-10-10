@@ -50,9 +50,7 @@ const getFromFence = async (jsonName, options) => {
     requestURL.searchParams.set('m', options.gameMode ?? 'regular');
     const response = await got(requestURL, {
         method: options.method ?? 'GET',
-        responseType: 'json',
         headers: {
-            'Accept': 'application/json',
             'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
         },
         retry: {
@@ -73,7 +71,7 @@ const getFromFence = async (jsonName, options) => {
     if (!response.ok) {
         return Promise.reject(new Error(`${response.statusCode} ${response.statusMessage}`));
     }
-    return response.body;
+    return JSON.parse(response.body);
 };
 
 const tarkovDevData = {
