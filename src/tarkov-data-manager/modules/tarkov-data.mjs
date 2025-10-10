@@ -20,8 +20,7 @@ try {
     console.error('Error parsing manual language file:', error);
 }
 
-async function addManualTranslations(lang, langCode) {
-    lang = await lang;
+function addManualTranslations(lang, langCode) {
     if (!manualTranslations[langCode]) {
         return lang;
     }
@@ -59,6 +58,9 @@ const dataFunctions = {
     credits: (options = defaultOptions) => {
         return mainDataSource.credits(options);
     },
+    customization: (options = defaultOptions) => {
+        return mainDataSource.customization(options);
+    },
     globals: (options = defaultOptions) => {
         return mainDataSource.globals(options);
     },
@@ -68,28 +70,32 @@ const dataFunctions = {
     items: (options = defaultOptions) => {
         return mainDataSource.items(options);
     },
-    locale: (lang = 'en', options = defaultOptions) => {
-        if (lang === 'en') return addManualTranslations(mainDataSource.locale_en(options), lang);
+    locale: async (lang = 'en', options = defaultOptions) => {
+        if (lang === 'en') {
+            return addManualTranslations(await mainDataSource.locale_en(options), lang);
+        }
         //if (lang == 'ru') return tarkovBot.locale('ru', options);
-        return addManualTranslations(spt.locale(lang, options), lang);
+        return addManualTranslations(await spt.locale(lang, options), lang);
     },
     locales: async (options = defaultOptions) => {
         const [en, others] = await Promise.all([
-            addManualTranslations(mainDataSource.locale_en(options), 'en'),
+            mainDataSource.locale_en(options).then(localeEn => {
+                return addManualTranslations(localeEn, 'en');
+            }),
             //addManualTranslations(tarkovBot.locale('ru', options), 'ru'),
             spt.locales(options).then(async langs => {
                 const mergedLangs = {};
                 const langCodes = Object.keys(langs);
                 for (const langCode of langCodes) {
-                    mergedLangs[langCode] = await addManualTranslations(langs[langCode], langCode);
+                    mergedLangs[langCode] = addManualTranslations(langs[langCode], langCode);
                 }
                 return mergedLangs;
             }),
         ]);
         return {
-            en: en,
+            en,
             ...others
-        }
+        };
     },
     locations: (options = defaultOptions) => {
         return mainDataSource.locations(options);
@@ -232,6 +238,9 @@ const dataFunctions = {
     },
     mapLoot: (options = defaultOptions) => {
         return spt.mapLoot(options);
+    },
+    prestige: (options = defaultOptions) => {
+        return mainDataSource.prestige(options);
     },
     quests: async (options = defaultOptions) => {
         const mainQuests = await spt.quests(options);

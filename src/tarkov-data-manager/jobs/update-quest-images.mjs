@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import path from 'node:path';
 
 import * as cheerio from 'cheerio';
 import sharp from 'sharp';
@@ -14,8 +15,15 @@ class UpdateQuestImagesJob extends DataJob {
     }
 
     async run() {
-        [this.eftQuests, this.localeEn, this.quests, this.missingImages] = await Promise.all([
+        [
+            this.eftQuests,
+            this.pvpRefQuests,
+            this.localeEn,
+            this.quests,
+            this.missingImages
+        ] = await Promise.all([
             tarkovData.quests(),
+            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'pvp_ref_quests.json')).then(json => JSON.parse(json)),
             tarkovData.locale('en'),
             this.jobManager.jobOutput('update-quests', this),
             fs.readFile('./cache/quests_missing_images.json').then(fileString => {
@@ -27,6 +35,12 @@ class UpdateQuestImagesJob extends DataJob {
                 return [];
             }),
         ]);
+
+        for (const id in this.pvpRefQuests) {
+            if (!this.eftQuests[id]) {
+                this.eftQuests[id] = this.pvpRefQuests[id];
+            }
+        }
 
         this.s3Images = getLocalBucketContents();
 
