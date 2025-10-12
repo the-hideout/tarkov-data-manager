@@ -415,6 +415,7 @@ class UpdateMapsJob extends DataJob {
                         }
                     }) ?? [],
                     btrRoutes: [],
+                    btrStops: [],
                     minPlayerLevel: map.RequiredPlayerLevelMin,
                     maxPlayerLevel: map.RequiredPlayerLevelMax,
                     accessKeys: map.AccessKeys,
@@ -666,6 +667,7 @@ class UpdateMapsJob extends DataJob {
                 };
 
                 if (globals.config.BTRSettings.MapsConfigs[map.Id] && this.mapDetails[id]) {
+                    const pathPoints = new Set();
                     for (const pathConfig of globals.config.BTRSettings.MapsConfigs[map.Id].pathsConfigurations) {
                         if (!pathConfig.active) {
                             continue;
@@ -677,6 +679,21 @@ class UpdateMapsJob extends DataJob {
                                 //getWaypoint(pathConfig.exitPoint),
                             ].filter(Boolean),
                         });
+                        pathConfig.pathPoints.forEach(p => pathPoints.add(p));
+                    }
+                    for (const pathPoint of pathPoints.values()) {
+                        const stopNameKey = `Trading/Dialog/PlayerTaxi/${mapData.nameId}/${pathPoint}/Name`;
+                        if (!this.locales.en[stopNameKey]) {
+                            continue;
+                        }
+                        const waypoint = getWaypoint(pathPoint);
+                        if (!waypoint) {
+                            continue;
+                        }
+                        mapData.btrStops.push({
+                            name: this.addTranslation(stopNameKey),
+                            ...waypoint,
+                        })
                     }
                 }
     
