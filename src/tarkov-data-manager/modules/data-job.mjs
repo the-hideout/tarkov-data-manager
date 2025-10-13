@@ -599,7 +599,11 @@ class DataJob {
     }
 
     async retrieveImage(options) {
-        const s3FileName = options.filename;//`prestige-${prestigeNumber}-icon.png`;
+        const s3FileName = options.filename;
+        let fallback;
+        if (options.fallback) {
+            fallback = `https://${process.env.S3_BUCKET}/${options.fallback}`;
+        }
         if (!options.filename) {
             return Promise.reject(new Error('options must include filename'));
         }
@@ -608,16 +612,14 @@ class DataJob {
             return s3ImageLink;
         }
         if (!options.fetch || typeof options.fetch !== 'function') {
+            if (fallback) {
+                return fallback;
+            }
             return Promise.reject(new Error('options must include fetch function'));
         }
-        const imageResponse = await options.fetch();/*await fetch(`https://fence.tarkov.dev/${imageSlug}-image/${cust._id}`, {
-            headers: {
-                'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-            },
-            signal: this.abortController.signal,
-        });*/
+        const imageResponse = await options.fetch();
         if (!imageResponse.ok) {
-            return null;
+            return fallback;
         }
         const imageType = s3FileName.split('.').pop();
         const image = sharp(await imageResponse.arrayBuffer());//.webp({lossless: true});
@@ -632,7 +634,7 @@ class DataJob {
         }
         const metadata = await image.metadata();
         if (metadata.width <= 1 || metadata.height <= 1) {
-            return null;
+            return fallback;
         }
         this.logger.log(`Downloaded image ${s3FileName}`);
         await s3.uploadAnyImage(image, s3FileName, `image/${imageType}`);

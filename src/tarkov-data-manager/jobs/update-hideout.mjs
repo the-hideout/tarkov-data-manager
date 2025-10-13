@@ -23,7 +23,7 @@ class UpdateHideoutJob extends DataJob {
                 resolveBodyOnly: true,
             }),
         ]);
-        const s3Images = s3.getLocalBucketContents();
+        this.s3Images = s3.getLocalBucketContents();
 
         const areasByType = {};
         for (const gameMode of this.gameModes) {
@@ -45,12 +45,19 @@ class UpdateHideoutJob extends DataJob {
                     normalizedName: this.normalizeName(this.getTranslation(`hideout_area_${station.type}_name`)),
                     areaType: station.type,
                     levels: [],
-                    imageLink: `https://${process.env.S3_BUCKET}/station-unknown.png`,
                 };
-                const fileName = `station-${stationData.normalizedName}.png`;
-                if (s3Images.includes(fileName)) {
-                    stationData.imageLink = `https://${process.env.S3_BUCKET}/${fileName}`;
-                }
+                stationData.imageLink = await this.retrieveImage({
+                    filename:`station-${stationData.normalizedName}.png`,
+                    fallback: 'station-unknown.png',
+                    fetch: () => {
+                        return fetch(`https://fence.tarkov.dev/hideout-image/${stationData.id}`, {
+                            headers: {
+                                'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+                            },
+                            signal: this.abortController.signal,
+                        });
+                    },
+                });
                 let skipArea = new Date() >= skipAreas[station._id];
                 if (!station.enabled || skipArea) {
                     this.logger.log(`❌ ${this.getTranslation(stationData.name)}`);
