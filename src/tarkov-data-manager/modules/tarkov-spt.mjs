@@ -210,7 +210,10 @@ const getFolderData = async (options) => {
     try {
         oldFolderIndex = JSON.parse(fs.readFileSync(cachePath(`spt_${folderLabel}_index.json`)));
     } catch (error) {
-        if (error.code !== 'ENOENT' && !error.message.includes('Unterminated string in JSON')) {
+        if (error.code !== 'ENOENT' && 
+            !error.message.includes('Unterminated string in JSON') &&
+            !error.message.includes('Unexpected end of JSON input')
+        ) {
             return Promise.reject(error);
         }
     }
