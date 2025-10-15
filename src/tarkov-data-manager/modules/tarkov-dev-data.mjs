@@ -83,7 +83,9 @@ const tarkovDevData = {
             try {
                 return JSON.parse(fs.readFileSync(cachePath(filename)));
             } catch (error) {
-                if (error.code !== 'ENOENT') {
+                if (error.code !== 'ENOENT' && 
+                    !error.message.includes('Unexpected end of JSON input')
+                ) {
                     return Promise.reject(error);
                 }
             }
