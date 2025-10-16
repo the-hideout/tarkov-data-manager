@@ -240,7 +240,7 @@ const presetData = {
                 count: 1
             };
             if (part.upd && part.upd.StackObjectsCount) {
-                partData.count = part.upd.StackObjectsCount;
+                partData.count = parseInt(part.upd.StackObjectsCount);
             }
             const existingPart = processedPreset.containsItems.find(part => part.item.id === partData.item.id);
             if (existingPart) {
