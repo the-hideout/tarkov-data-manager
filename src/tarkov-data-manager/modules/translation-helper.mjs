@@ -157,7 +157,7 @@ class TranslationHelper {
                 continue;
             }
             for (const key in target[langCode]) {
-                if (target.en[key] === target[langCode][key]) {
+                if (target.en[key] === target[langCode][key] || (!!target.en[key] && !target[langCode][key])) {
                     delete target[langCode][key];
                 }
             }

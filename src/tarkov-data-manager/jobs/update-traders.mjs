@@ -30,7 +30,7 @@ class UpdateTradersJob extends DataJob {
         const tradingService = this.services.find(s => s.name === 'Trading');
         const gameUpdating = tradingService?.status === 1;
         this.kvData = {};
-        const s3Images = s3.getLocalBucketContents();
+        this.s3Images = s3.getLocalBucketContents();
         const staleTraderInterval = 1000 * 60 * 15;
         for (const gameMode of this.gameModes) {
             this.logger.log(`Processing ${gameMode.name} traders...`);
@@ -61,7 +61,22 @@ class UpdateTradersJob extends DataJob {
                     reputationLevels: [],
                     items_buy: trader.items_buy,
                     items_buy_prohibited: trader.items_buy_prohibited,
-                    imageLink: `https://${process.env.S3_BUCKET}/unknown-trader.webp`,
+                    imageLink: await this.retrieveImage({
+                        filename: `${trader._id}.webp`,
+                        fallback: 'unknown-trader.webp',
+                        fetch: () => {
+                            return fetch('https://fence.tarkov.dev/passthrough-request', {
+                                headers: {
+                                    'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+                                },
+                                method: 'POST',
+                                body: JSON.stringify({
+                                    url: `https://prod.escapefromtarkov.com${trader.avatar}`,
+                                }),
+                                signal: this.abortController.signal,
+                            });
+                        },
+                    }),
                     image4xLink: `https://${process.env.S3_BUCKET}/unknown-trader-4x.webp`,
                 };
                 if (traderData.id === this.globals.config.FenceSettings.FenceId) {
@@ -91,10 +106,7 @@ class UpdateTradersJob extends DataJob {
                         return a.minimumReputation - b.minimumReputation;
                     });
                 }
-                if (s3Images.includes(`${traderData.id}.webp`)) {
-                    traderData.imageLink = `https://${process.env.S3_BUCKET}/${traderData.id}.webp`;
-                }
-                if (s3Images.includes(`${traderData.id}-4x.webp`)) {
+                if (this.s3Images.includes(`${traderData.id}-4x.webp`)) {
                     traderData.image4xLink = `https://${process.env.S3_BUCKET}/${traderData.id}-4x.webp`;
                 }
                 if (!this.locales.en[`${trader._id} Nickname`]) {
@@ -129,10 +141,10 @@ class UpdateTradersJob extends DataJob {
                     if (trader.repair.availability) {
                         levelData.repairCostMultiplier = 1 + (parseInt(level.repair_price_coef) / 100);
                     }
-                    if (s3Images.includes(`${traderData.id}-${levelData.level}.webp`)) {
+                    if (this.s3Images.includes(`${traderData.id}-${levelData.level}.webp`)) {
                         levelData.imageLink = `https://${process.env.S3_BUCKET}/${traderData.id}-${levelData.level}.webp`;
                     }
-                    if (s3Images.includes(`${traderData.id}-${levelData.level}-4x.webp`)) {
+                    if (this.s3Images.includes(`${traderData.id}-${levelData.level}-4x.webp`)) {
                         levelData.image4xLink = `https://${process.env.S3_BUCKET}/${traderData.id}-${levelData.level}-4x.webp`;
                     }
                     traderData.levels.push(levelData);

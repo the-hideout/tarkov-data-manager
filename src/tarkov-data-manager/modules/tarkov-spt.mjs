@@ -210,7 +210,10 @@ const getFolderData = async (options) => {
     try {
         oldFolderIndex = JSON.parse(fs.readFileSync(cachePath(`spt_${folderLabel}_index.json`)));
     } catch (error) {
-        if (error.code !== 'ENOENT') {
+        if (error.code !== 'ENOENT' && 
+            !error.message.includes('Unterminated string in JSON') &&
+            !error.message.includes('Unexpected end of JSON input')
+        ) {
             return Promise.reject(error);
         }
     }
@@ -222,7 +225,10 @@ const getFolderData = async (options) => {
     }
     const folderData = {};
     for (const filename in folderIndex) {
-        const fileIsNew = oldFolderIndex[filename]?.sha !== folderIndex[filename]?.sha || !oldFolderIndex[filename];
+        let fileIsNew = false;
+        if (oldFolderIndex) {
+            fileIsNew = oldFolderIndex[filename]?.sha !== folderIndex[filename]?.sha || !oldFolderIndex[filename];
+        }
         let prefix = '';
         if (options.filePrefix) {
             prefix = `${options.filePrefix}_`;

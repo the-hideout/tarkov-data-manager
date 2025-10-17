@@ -14,10 +14,12 @@ const availableFiles = {
     'areas': {},
     'crafts': {},
     'credits': {},
+    'customization': {},
     'items': {},
     'globals': {},
     'locale_en': {},
     'locations': {},
+    'prestige': {},
     'traders': {},
     'handbook': {},
     //'status',
@@ -48,9 +50,7 @@ const getFromFence = async (jsonName, options) => {
     requestURL.searchParams.set('m', options.gameMode ?? 'regular');
     const response = await got(requestURL, {
         method: options.method ?? 'GET',
-        responseType: 'json',
         headers: {
-            'Accept': 'application/json',
             'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
         },
         retry: {
@@ -71,7 +71,7 @@ const getFromFence = async (jsonName, options) => {
     if (!response.ok) {
         return Promise.reject(new Error(`${response.statusCode} ${response.statusMessage}`));
     }
-    return response.body;
+    return JSON.parse(response.body);
 };
 
 const tarkovDevData = {
@@ -83,7 +83,9 @@ const tarkovDevData = {
             try {
                 return JSON.parse(fs.readFileSync(cachePath(filename)));
             } catch (error) {
-                if (error.code !== 'ENOENT') {
+                if (error.code !== 'ENOENT' && 
+                    !error.message.includes('Unexpected end of JSON input')
+                ) {
                     return Promise.reject(error);
                 }
             }
@@ -117,6 +119,9 @@ const tarkovDevData = {
     credits: async (options = defaultOptions) => {
         return tarkovDevData.get('credits', options);
     },
+    customization: async (options = defaultOptions) => {
+        return tarkovDevData.get('customization', options);
+    },
     locale_en: async (options = defaultOptions) => {
         return tarkovDevData.get('locale_en', options);
     },
@@ -135,6 +140,9 @@ const tarkovDevData = {
     handbook: async (options = defaultOptions) => {
         return tarkovDevData.get('handbook', options);
     },
+    prestige: async (options = defaultOptions) => {
+        return tarkovDevData.get('prestige', options);
+    },
     status: async (options = defaultOptions) => {
         return tarkovDevData.get('status', options);
     },
@@ -144,6 +152,8 @@ const tarkovDevData = {
             pve: [
                 'achievements',
                 'achievementStats',
+                'customization',
+                'prestige',
             ],
         };
         const promises = [];
