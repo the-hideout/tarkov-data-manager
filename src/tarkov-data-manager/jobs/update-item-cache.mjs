@@ -317,6 +317,10 @@ class UpdateItemCacheJob extends DataJob {
                 continue;
             }
             const baseItem = itemData[itemProperties[item.id].base_item_id];
+            if (!baseItem) {
+                this.addJobSummary(`${item.id}; base: ${itemProperties[item.id].base_item_id}`, 'No base item found for preset');
+                continue;
+            }
             if (itemProperties[baseItem.id]?.defaultPreset !== item.id) {
                 continue;
             }
