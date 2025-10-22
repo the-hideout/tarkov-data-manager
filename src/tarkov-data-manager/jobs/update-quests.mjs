@@ -777,6 +777,9 @@ class UpdateQuestsJob extends DataJob {
         }
 
         let matchedPreset = Object.values(this.presets).find(preset => {
+            if (!preset) {
+                return false;
+            }
             if (preset.baseId !== rewardData.item) return false;
             if (preset.containsItems.length !== rewardData.contains.length+1) return false;
             for (const part of preset.containsItems) {
