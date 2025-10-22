@@ -2024,9 +2024,13 @@ class UpdateQuestsJob extends DataJob {
     }
 
     getObjectiveZones(obj) {
+        const forceMap = forceObjectiveMap[obj.id];
         obj.zones = [];
         obj.zoneKeys?.forEach((zoneId) => {
             for (const mapId in this.mapDetails) {
+                if (forceMap && forceMap !== mapId) {
+                    continue;
+                }
                 for (const trigger of this.mapDetails[mapId].zones) {
                     if (trigger.id !== zoneId) {
                         continue;

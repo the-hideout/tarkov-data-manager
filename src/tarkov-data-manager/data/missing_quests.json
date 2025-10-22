@@ -2762,7 +2762,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "67af4c17f4f1fb58a907f8f6": {
+    "_67af4c17f4f1fb58a907f8f6": {
         "id": "67af4c17f4f1fb58a907f8f6",
         "name": "Never Too Late to Learn",
         "trader": "58330581ace78e27b8b10cee",
@@ -2870,7 +2870,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "67af4c1991ee75c6d7060a16": {
+    "_67af4c1991ee75c6d7060a16": {
         "id": "67af4c1991ee75c6d7060a16",
         "name": "Get a Foothold",
         "trader": "58330581ace78e27b8b10cee",
@@ -3057,7 +3057,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "67af4c1a6c3ebfd8e6034916": {
+    "_67af4c1a6c3ebfd8e6034916": {
         "id": "67af4c1a6c3ebfd8e6034916",
         "name": "Profit Retention",
         "trader": "58330581ace78e27b8b10cee",
@@ -3154,7 +3154,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "67af4c1cc0e59d55e2010b97": {
+    "_67af4c1cc0e59d55e2010b97": {
         "id": "67af4c1cc0e59d55e2010b97",
         "name": "A Life Lesson",
         "trader": "58330581ace78e27b8b10cee",
@@ -3266,7 +3266,7 @@
         "tarkovDataId": null,
         "factionName": "Any"
     },
-    "67af4c1d8c9482eca103e477": {
+    "_67af4c1d8c9482eca103e477": {
         "id": "67af4c1d8c9482eca103e477",
         "name": "Consolation Prize",
         "trader": "58330581ace78e27b8b10cee",
@@ -4472,6 +4472,158 @@
         "failConditions": [],
         "restartable": false,
         "experience": 11000,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "67e993f5ed537409f009da75": {
+        "id": "67e993f5ed537409f009da75",
+        "name": "Postponed Reward [PVP ZONE]",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "gameMode": ["regular"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "67e993b1ac26bf29380a320b",
+                "name": "Surprise Gift [PVP ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "67ebc5f501052193cdb4c9ac",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "6656560053eaaa7a23349c86",
+                "item_name": "Lega Medal",
+                "count": 1,
+                "item": "6656560053eaaa7a23349c86",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.01
+                }
+            ],
+            "items": [
+                {
+                    "item": "664a55d84a90fc2c8a6305c9",
+                    "item_name": "Secure Container Theta",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 0,
+        "tarkovDataId": null,
+        "factionName": "Any"
+    },
+    "6834287b7559f4e6d50bc0fa": {
+        "id": "6834287b7559f4e6d50bc0fa",
+        "name": "Postponed Reward [PVE ZONE]",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "gameMode": ["pve"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "683427418f5b18d29a05d9e3",
+                "name": "Surprise Gift [PVE ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "6834287b7559f4e6d50bc0fd",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "6656560053eaaa7a23349c86",
+                "item_name": "Lega Medal",
+                "count": 1,
+                "item": "6656560053eaaa7a23349c86",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.01
+                }
+            ],
+            "items": [
+                {
+                    "item": "664a55d84a90fc2c8a6305c9",
+                    "item_name": "Secure Container Theta",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
     }
