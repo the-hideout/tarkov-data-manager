@@ -14,6 +14,7 @@ import { getLocalBucketContents, uploadAnyImage } from '../modules/upload-s3.mjs
 const excludeTypes = [
     'onlyFlea',
     'noHandbook',
+    'noTranslation',
 ];
 
 class UpdateItemCacheJob extends DataJob {
