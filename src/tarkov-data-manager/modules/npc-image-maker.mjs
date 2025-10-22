@@ -3,18 +3,24 @@ import path from 'node:path';
 
 import sharp from 'sharp';
 
+import tarkovDevData from './tarkov-dev-data.mjs';
+
 const customImageData = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, '..', 'data', 'npc_images.json')));
 
 const npcImageMaker = {
     requestImage: async(requestData) => {
-        const url = new URL(`https://imagemagic.tarkov.dev/player/${requestData.aid}.webp`);
+        /*const url = new URL(`https://imagemagic.tarkov.dev/player/${requestData.aid}.webp`);
         url.searchParams.append('data', JSON.stringify(requestData));
         const imageResponse = await fetch(url);
         if (!imageResponse.ok) {
             this.logger.warn(`Error retrieving ${bossInfo.normalizedName} image: ${imageResponse.status} ${imageResponse.statusText}`);
             return;
         }
-        const image = sharp(await imageResponse.arrayBuffer());
+        const image = sharp(await imageResponse.arrayBuffer());*/
+        const image = await tarkovDevData.fenceFetchImage('/profile-image?scale=1', {
+            method: 'POST',
+            body: JSON.stringify(requestData),
+        });
         const metadata = await image.metadata();
         if (metadata.width <= 1 || metadata.height <= 1) {
             return;

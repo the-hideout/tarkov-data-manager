@@ -24,6 +24,7 @@ import { createAndUploadFromSource, regenerateFromExisting } from './modules/ima
 import webSocketServer from './modules/websocket-server.mjs';
 import jobManager from './jobs/index.mjs';
 import presetData from './modules/preset-data.mjs';
+import tarkovDevData from './modules/tarkov-dev-data.mjs';
 
 vm.runInThisContext(fs.readFileSync(import.meta.dirname + '/public/common.js'));
 
@@ -404,16 +405,17 @@ app.post('/items/refresh-images/:id', async (req, res) => {
         }
         let newImage;
         if (item.types.includes('preset')) {
-            newImage = await webSocketServer.getJsonImage({
-                id: item.id,
-                items: item.properties.items,
+            newImage = await this.fenceFetchImage('/preset-image', {
+                method: 'POST',
+                body: JSON.stringify({
+                    id: item.id,
+                    items: item.properties.items,
+                }),
             });
         } else if (item.types.includes('replica')) {
-            const results = await webSocketServer.getImages(item.properties.source);
-            newImage = results[item.properties.source];
+            newImage = await tarkovDevData.fenceFetchImage(`/item-image/${item.properties.source}`);
         } else {
-            const results = await webSocketServer.getImages(item.id);
-            newImage = results[item.id];
+            newImage = await tarkovDevData.fenceFetchImage(`/item-image/${item.id}`);
         }
         
         await createAndUploadFromSource(newImage, item.id);

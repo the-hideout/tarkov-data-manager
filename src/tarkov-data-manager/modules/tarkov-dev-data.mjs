@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import got from 'got';
+import sharp from 'sharp';
 
-import webSocketServer from './websocket-server.mjs';
 import dataOptions from './data-options.mjs';
 
 const availableFiles = {
@@ -75,6 +75,28 @@ const getFromFence = async (jsonName, options) => {
 };
 
 const tarkovDevData = {
+    fenceFetch: (path, options = {}) => {
+        if (!options) {
+            options = {};
+        }
+        if (!options.headers) {
+            options.headers = {};
+        }
+        options.headers.Authorization = `Basic ${process.env.FENCE_BASIC_AUTH}`;
+        const url = new URL('https://fence.tarkov.dev');
+        url.pathname = path;
+        return fetch(url, options);
+    },
+    fenceFetchImage: async (path, options = {}) => {
+        const response = await tarkovDevData.fenceFetch(path, options);
+        if (!response.ok) {
+            return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+        }
+        if (!response.headers.get('content-type')?.includes('image/')) {
+            return Promise.reject(new Error(`Content type ${response.headers.get('content-type')} is not an image`));
+        }
+        return sharp(await response.arrayBuffer());
+    },
     get: async (jsonName, options = defaultOptions) => {
         const { download, gameMode } = merge(options);
         const suffix = gameMode === 'regular' ? '' : `_${gameMode}`;

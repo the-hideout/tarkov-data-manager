@@ -18,6 +18,7 @@ import gameModes from './game-modes.mjs';
 import emitter from './emitter.mjs';
 import { createAndUploadFromSource } from './image-create.mjs';
 import s3 from '../modules/upload-s3.mjs';
+import tarkovDevData from './tarkov-dev-data.mjs';
 
 const verbose = false;
 
@@ -571,6 +572,20 @@ class DataJob {
         return false;
     }
 
+    fenceFetch(path, options = {}) {
+        return tarkovDevData.fenceFetch(path, {
+            ...options,
+            signal: this.abortController.signal,
+        });
+    }
+
+    fenceFetchImage(path, options = {}) {
+        return tarkovDevData.fenceFetchImage(path, {
+            ...options,
+            signal: this.abortController.signal,
+        });
+    }
+
     async getCustomizationImage(cust) {
         const customizationType = this.customization[cust._parent]._name;
         const custTypes = this.customizationTypes();
@@ -588,12 +603,7 @@ class DataJob {
         return this.retrieveImage({
             filename: `customization-${cust._id}.webp`,
             fetch: () => {
-                return fetch(`https://fence.tarkov.dev/customization-image/${cust._id}`, {
-                    headers: {
-                        'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-                    },
-                    signal: this.abortController.signal,
-                });
+                return this.fenceFetch(`/customization-image/${cust._id}`);
             },
         });
     }
@@ -731,10 +741,9 @@ class DataJob {
             }
         }
         if (!itemImage) {
-            const results = await webSocketServer.getImages(sourceItem.id).catch(error => {
+            itemImage = await this.fenceFetchImage(`/item-image/${sourceItem.id}`).catch(error => {
                 this.logger.error(`Error generating image for ${replicaName} ${id}: error`);
             });
-            itemImage = results[sourceItem.id];
         }
         if (itemImage) {
             await createAndUploadFromSource(itemImage, id).catch(error => {
