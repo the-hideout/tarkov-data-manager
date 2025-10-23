@@ -98,7 +98,7 @@ app.set('trust proxy', true);
 //app.use(bodyParser.json());
 app.use(express.static('public'));
 app.use(session(sess));
-app.use(express.json({limit: '100mb'}));
+app.use(express.json({limit: '100mb'}), express.raw({type: 'image/*', limit: '50mb'}));
 app.use(express.urlencoded({extended: true}));
 app.use(maybe((req, res, next) => {
     if (req.session.loggedin) {

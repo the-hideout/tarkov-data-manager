@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import formidable from 'formidable';
+import sharp from 'sharp';
 
 import scannerApi from './scanner-api.mjs';
 
@@ -75,6 +76,26 @@ const submitImage = async (request, user) => {
     return response;
 };
 
+const singleItemImage = async (request, user) => {
+    const response = {errors: [], warnings: [], data: []};
+
+    console.log(`User ${user?.username ?? '[no user]'} submitting ${req.query.id ?? '[no id]'} source image`);
+
+    try {
+        const apiResponse = await scannerApi.submitItemSourceImage({
+            id: req.query.id,
+            image: sharp(req.body),
+            overwrite: request.query.overwrite === 'true' ? true : false,
+        }, user);
+        response.data = apiResponse.data;
+        response.warnings = apiResponse.warnings;
+        response.errors = apiResponse.errors;
+    } catch (error) {
+        response.errors.push(String(error));
+    }
+    return response;
+};
+
 const scannerHttpApi = {
     request: async (req, res, resource) => {
         const username = req.headers.username;
@@ -85,6 +106,9 @@ const scannerHttpApi = {
         }
         if (resource === 'image') {
             return res.json(await submitImage(req, user));
+        }
+        if (resource === 'item-image') {
+            return res.json(await singleItemImage(req, user));
         }
         if (resource === 'json') {
             if (user.flags & scannerApi.userFlags.jsonDownload) {
