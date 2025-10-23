@@ -60,6 +60,13 @@ $(document).ready( async function () {
             data: 'name',
             render: (data, type, item) => {
                 if (type === 'display') {
+                    const links = [];
+                    if (item.wiki_link) {
+                        links.push(`<a href="${item.wiki_link}" target="_blank">Wiki</a>`);
+                    }
+                    if (item.normalized_name) {
+                        links.push(`<a href="https://tarkov.dev/item/${item.normalized_name}" target="_blank">Tarkov.dev</a>`);
+                    }
                     return `
                         <div>
                             ${data}
@@ -68,9 +75,7 @@ $(document).ready( async function () {
                             ${item.id}
                         </div>
                         <div>
-                            <a href="${item.wiki_link}">Wiki</a>
-                            |
-                            <a href="https://tarkov.dev/item/${item.normalized_name}">Tarkov.dev</a>
+                            ${links.join(' | ')}
                             <br>
                             <a class="waves-effect waves-light btn-small filled edit-item" data-item="${encodeURIComponent(JSON.stringify(item))}"><i class="material-icons">edit</i></a>
                         </div>
