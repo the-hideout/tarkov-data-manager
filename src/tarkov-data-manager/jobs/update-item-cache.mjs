@@ -730,7 +730,7 @@ class UpdateItemCacheJob extends DataJob {
                 }
             }
         }  else if (this.bsgItems[item.id] && !ignoreMissingBaseValue(item)) {
-            this.logger.warn(`Unknown base value for ${this.getTranslation(item.name)} ${item.id} ${this.credits[item.id]}`);
+            this.logger.warn(`Unknown base value for ${this.getTranslation(item.name)} ${item.id}`);
         }
     }
 

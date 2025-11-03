@@ -1571,10 +1571,7 @@ class UpdateQuestsJob extends DataJob {
                     obj.compareMethod = cond.compareMethod;
                     obj.count = cond.value;
                 } else if (cond.conditionType === 'LaunchFlare') {
-                    obj.useAny = [
-                        '624c0b3340357b5f566e8766',
-                        '62389be94d5d474bf712e709',
-                    ];
+                    obj.useAny = flareColors[conditionFlares[cond.id] ?? 'yellow'];
                     obj.count = 1;
                     obj.compareMethod = '>=';
                     obj.zoneKeys.push(cond.target);
@@ -2232,6 +2229,21 @@ const factionMap = {
 const questModeZoneMap = {
     '[PVP ZONE]': 'regular',
     '[PVE ZONE]': 'pve',
+};
+
+const flareColors = {
+    yellow: [
+        '624c0b3340357b5f566e8766',
+        '62389be94d5d474bf712e709',
+    ],
+    red: [
+        '62178c4d4ecf221597654e3d',
+        '62389ba9a63f32501b1b4451',
+    ],
+};
+
+const conditionFlares = {
+    '66740959ccd38d189b9d61cc': 'red', // Airmail
 };
 
 export default UpdateQuestsJob;
