@@ -1292,6 +1292,34 @@ const scannerApi = {
 
         return response;
     },
+    submitItemSourceImage: async (options) => {
+        const response = {errors: [], warnings: [], data: []};
+
+        try {
+            if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+                throw new Error('aws variables not configured; image upload disabled');
+            }
+
+            if (!options.id) {
+                throw new Error('No id provided');
+            }
+
+            if (!options.image) {
+                throw new Error('No image provided');
+            }
+
+            const allItemData = await remoteData.get();
+            const itemData = allItemData.get(options.id);
+            if (!itemData) {
+                throw new Error(`Item ${options.id} not found`);
+            }
+            response.data.push(await createAndUploadFromSource(options.image, options.id, options.overwrite));
+        } catch (error) {
+            response.errors.push(String(error));
+        }
+
+        return response;
+    },
     // options has properties: id, type, image, overwrite
     // id is the item id, type is the type of image, 
     // image is the string file path or a sharp object, and

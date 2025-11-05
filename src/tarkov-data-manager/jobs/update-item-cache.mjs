@@ -14,6 +14,7 @@ import { getLocalBucketContents, uploadAnyImage } from '../modules/upload-s3.mjs
 const excludeTypes = [
     'onlyFlea',
     'noHandbook',
+    'noTranslation',
 ];
 
 class UpdateItemCacheJob extends DataJob {
@@ -107,23 +108,28 @@ class UpdateItemCacheJob extends DataJob {
                 continue;
             }                
 
-            if (!value.image_8x_link && webSocketServer.launchedScanners() > 0) {
+            if (!value.image_8x_link) {
                 try {
                     let image;
                     if (value.types.includes('preset')) {
-                        image = await webSocketServer.getJsonImage(value.properties.items);
+                        image = await this.fenceFetchImage('/preset-image', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                id: key,
+                                items: value.properties.items,
+                            }),
+                        });
                     } else if (value.types.includes('replica')) {
-                        const images = await webSocketServer.getImages(value.properties.source);
-                        image = images[value.properties.source];
+                        image = await this.fenceFetchImage(`/item-image/${value.properties.source}`);
                     } else {
-                        const images = await webSocketServer.getImages(key);
-                        image = images[key];
+                        image = await this.fenceFetchImage(`/item-image/${key}`);
                     }
                     await createAndUploadFromSource(image, key);
-                    this.logger.success(`Created ${key} item images`);
+                    this.logger.success(`Created ${key} item image`);
                 } catch (error) {
-                    this.logger.error(`Error creating ${key} item images ${error}`);
+                    this.logger.error(`Error creating ${key} item image ${error}`);
                 }
+                return;
             }
 
             itemData[key] = {
@@ -316,6 +322,10 @@ class UpdateItemCacheJob extends DataJob {
                 continue;
             }
             const baseItem = itemData[itemProperties[item.id].base_item_id];
+            if (!baseItem) {
+                this.addJobSummary(`${item.id}; base: ${itemProperties[item.id].base_item_id}`, 'No base item found for preset');
+                continue;
+            }
             if (itemProperties[baseItem.id]?.defaultPreset !== item.id) {
                 continue;
             }
@@ -720,7 +730,7 @@ class UpdateItemCacheJob extends DataJob {
                 }
             }
         }  else if (this.bsgItems[item.id] && !ignoreMissingBaseValue(item)) {
-            this.logger.warn(`Unknown base value for ${this.getTranslation(item.name)} ${item.id} ${this.credits[item.id]}`);
+            this.logger.warn(`Unknown base value for ${this.getTranslation(item.name)} ${item.id}`);
         }
     }
 
@@ -849,12 +859,7 @@ class UpdateItemCacheJob extends DataJob {
             skill.imageLink = s3ImageLink;
             return;
         }
-        const imageResponse = await fetch(`https://fence.tarkov.dev/skill-image/${skill.id}`, {
-            headers: {
-                'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-            },
-            signal: this.abortController.signal,
-        });
+        const imageResponse = await this.fenceFetch(`/skill-image/${skill.id}`);
         if (!imageResponse.ok) {
             return;
         }
@@ -877,15 +882,11 @@ class UpdateItemCacheJob extends DataJob {
         if (!category.Icon.endsWith('.png')) {
             return null;
         }
-        const imageResponse = await fetch(`https://fence.tarkov.dev/passthrough-request`, {
-            headers: {
-                'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-            },
+        const imageResponse = await this.fenceFetch('/passthrough-request', {
             method: 'POST',
             body: JSON.stringify({
                 url: `https://prod.escapefromtarkov.com${category.Icon}`,
             }),
-            signal: this.abortController.signal,
         });
         if (!imageResponse.ok) {
             return null;

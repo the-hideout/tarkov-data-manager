@@ -101,15 +101,11 @@ class UpdateQuestImagesJob extends DataJob {
         if (!process.env.FENCE_BASIC_AUTH) {
             return;
         }
-        const imageResponse = await fetch(`https://fence.tarkov.dev/passthrough-request`, {
+        const imageResponse = await this.fenceFetch('/passthrough-request', {
             method: 'POST',
             body: JSON.stringify({
                 url: `https://prod.escapefromtarkov.com${questData.image}`
             }),
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-            },
         });
         if (!imageResponse.ok) {
             return;
