@@ -50,12 +50,7 @@ class UpdateHideoutJob extends DataJob {
                     filename:`station-${stationData.normalizedName}.png`,
                     fallback: 'station-unknown.png',
                     fetch: () => {
-                        return fetch(`https://fence.tarkov.dev/hideout-image/${stationData.id}`, {
-                            headers: {
-                                'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-                            },
-                            signal: this.abortController.signal,
-                        });
+                        return this.fenceFetch(`/hideout-image/${stationData.id}`);
                     },
                 });
                 let skipArea = new Date() >= skipAreas[station._id];

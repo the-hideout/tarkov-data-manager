@@ -65,15 +65,11 @@ class UpdateTradersJob extends DataJob {
                         filename: `${trader._id}.webp`,
                         fallback: 'unknown-trader.webp',
                         fetch: () => {
-                            return fetch('https://fence.tarkov.dev/passthrough-request', {
-                                headers: {
-                                    'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-                                },
+                            return this.fenceFetch('/passthrough-request', {
                                 method: 'POST',
                                 body: JSON.stringify({
                                     url: `https://prod.escapefromtarkov.com${trader.avatar}`,
                                 }),
-                                signal: this.abortController.signal,
                             });
                         },
                     }),

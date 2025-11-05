@@ -37,15 +37,21 @@ class UpdateProfileIndexJob extends DataJob {
             }
             try {
                 let newImages = {};
-                if (!item.types.includes('preset')) {
-                    newImages = await webSocketServer.getImages(item.id);
-                } else if (gamePresets[id]) {
-                    continue;
-                } else {
-                    newImages[id] = await webSocketServer.getJsonImage({
-                        id,
-                        items: item.properties.items ?? item.properties._items,
+                if (item.types.includes('preset')) {
+                    if (gamePresets[id]) {
+                        continue;
+                    }
+                    newImages[id] = await this.fenceFetchImage('/preset-image', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            id,
+                            items: item.properties.items ?? item.properties._items,
+                        }),
                     });
+                } else if (item.types.includes('replica')) {
+                    newImages[id] = await this.fenceFetchImage(`/item-image/${item.properties.source}`);
+                } else {
+                    newImages[id] = await this.fenceFetchImage(`/item-image/${item.id}`);
                 }
                 
                 await Promise.all(Object.keys(newImages).map(imageId => createAndUploadFromSource(newImages[imageId], imageId)));

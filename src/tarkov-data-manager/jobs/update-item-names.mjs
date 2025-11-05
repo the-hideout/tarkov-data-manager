@@ -61,12 +61,16 @@ class UpdateItemNamesJob extends DataJob {
             let height = localItem.height;
 
             if (!en[`${itemId} Name`]) {
-                if (!localItem.types.includes('disabled')) {
-                    this.addJobSummary(`${name} ${itemId}`, 'Disabled for not having a current translation');
-                    await remoteData.addType(itemId, 'disabled');
+                if (!localItem.types.includes('no-translation')) {
+                    this.addJobSummary(`${name} ${itemId}`, 'Marked no-translation');
+                    await remoteData.addType(itemId, 'no-translation');
                 }
                 this.logger.log(`No en translation found for ${itemId} ${item._name}`);
                 continue;
+            } else if (localItem.types.includes('no-translation')) {
+                this.addJobSummary(`${name} ${itemId}`, 'Removed no-translation type');
+                await remoteData.removeType(itemId, 'no-translation');
+                this.logger.log(`New en translation found for ${itemId} ${item._name}`);
             }
             name = en[`${itemId} Name`].toString().trim();
             shortname = en[`${itemId} ShortName`].toString().trim();

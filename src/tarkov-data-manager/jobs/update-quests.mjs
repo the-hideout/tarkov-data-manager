@@ -543,10 +543,9 @@ class UpdateQuestsJob extends DataJob {
                 }
                 if (questItemMap.has(id)) {
                     const itemData = questItemMap.get(id);
-                    if (!itemData.image_8x_link && webSocketServer.launchedScanners() > 0) {
+                    if (!itemData.image_8x_link) {
                         try {
-                            const images = await webSocketServer.getImages(id);
-                            const image = images[id];
+                            const image = await this.fenceFetchImage(`/item-image/${id}`);
                             await createAndUploadFromSource(image, id);
                             this.logger.success(`Created ${id} quest item images`);
                         } catch (error) {
@@ -778,6 +777,9 @@ class UpdateQuestsJob extends DataJob {
         }
 
         let matchedPreset = Object.values(this.presets).find(preset => {
+            if (!preset) {
+                return false;
+            }
             if (preset.baseId !== rewardData.item) return false;
             if (preset.containsItems.length !== rewardData.contains.length+1) return false;
             for (const part of preset.containsItems) {
@@ -1569,10 +1571,7 @@ class UpdateQuestsJob extends DataJob {
                     obj.compareMethod = cond.compareMethod;
                     obj.count = cond.value;
                 } else if (cond.conditionType === 'LaunchFlare') {
-                    obj.useAny = [
-                        '624c0b3340357b5f566e8766',
-                        '62389be94d5d474bf712e709',
-                    ];
+                    obj.useAny = flareColors[conditionFlares[cond.id] ?? 'yellow'];
                     obj.count = 1;
                     obj.compareMethod = '>=';
                     obj.zoneKeys.push(cond.target);
@@ -1791,12 +1790,7 @@ class UpdateQuestsJob extends DataJob {
             imageLink: await this.retrieveImage({
                 filename: `achievement-${ach.id}-icon.webp`,
                 fetch: () => {
-                    return fetch(`https://fence.tarkov.dev/achievement-image/${ach.id}?url=${ach.imageUrl}&rarity=${ach.rarity.toLowerCase()}`, {
-                        headers: {
-                            'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-                        },
-                        signal: this.abortController.signal,
-                    });
+                    return this.fenceFetch(`/achievement-image/${ach.id}?url=${ach.imageUrl}&rarity=${ach.rarity.toLowerCase()}`);
                 },
             }),
         };
@@ -1882,15 +1876,11 @@ class UpdateQuestsJob extends DataJob {
             reward.imageLink = await this.retrieveImage({
                 filename: `customization-${reward.id}.webp`,
                 fetch: () => {
-                    return fetch(`https://fence.tarkov.dev/passthrough-request`, {
-                        headers: {
-                            'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-                        },
+                    return this.fenceFetch('/passthrough-request', {
                         method: 'POST',
                         body: JSON.stringify({
                             url: `https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`,
                         }),
-                        signal: this.abortController.signal,
                     });
                 },
             });
@@ -1903,15 +1893,11 @@ class UpdateQuestsJob extends DataJob {
             reward.imageLink = await this.retrieveImage({
                 filename: `customization-${reward.id}.webp`,
                 fetch: () => {
-                    return fetch(`https://fence.tarkov.dev/passthrough-request`, {
-                        headers: {
-                            'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-                        },
+                    return this.fenceFetch('/passthrough-request', {
                         method: 'POST',
                         body: JSON.stringify({
                             url: `https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`,
                         }),
-                        signal: this.abortController.signal,
                     });
                 },
             });
@@ -1924,15 +1910,11 @@ class UpdateQuestsJob extends DataJob {
             reward.imageLink = await this.retrieveImage({
                 filename: `customization-${reward.id}.webp`,
                 fetch: () => {
-                    return fetch(`https://fence.tarkov.dev/passthrough-request`, {
-                        headers: {
-                            'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-                        },
+                    return this.fenceFetch('/passthrough-request', {
                         method: 'POST',
                         body: JSON.stringify({
                             url: `https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`,
                         }),
-                        signal: this.abortController.signal,
                     });
                 },
             });
@@ -1940,30 +1922,22 @@ class UpdateQuestsJob extends DataJob {
         prestigeData.iconLink = await this.retrieveImage({
             filename: `prestige-${prestigeIndex+1}-icon.webp`,
             fetch: () => {
-                return fetch(`https://fence.tarkov.dev/passthrough-request`, {
-                    headers: {
-                        'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-                    },
+                return this.fenceFetch('/passthrough-request', {
                     method: 'POST',
                     body: JSON.stringify({
                         url: `https://prod.escapefromtarkov.com${prestige.image}`,
                     }),
-                    signal: this.abortController.signal,
                 });
             },
         });
         prestigeData.imageLink = await this.retrieveImage({
             filename: `prestige-${prestigeIndex+1}-image.webp`,
             fetch: () => {
-                return fetch(`https://fence.tarkov.dev/passthrough-request`, {
-                    headers: {
-                        'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-                    },
+                return this.fenceFetch('/passthrough-request', {
                     method: 'POST',
                     body: JSON.stringify({
                         url: `https://prod.escapefromtarkov.com${prestige.bigImage}`,
                     }),
-                    signal: this.abortController.signal,
                 });
             },
         });
@@ -2024,9 +1998,13 @@ class UpdateQuestsJob extends DataJob {
     }
 
     getObjectiveZones(obj) {
+        const forceMap = forceObjectiveMap[obj.id];
         obj.zones = [];
         obj.zoneKeys?.forEach((zoneId) => {
             for (const mapId in this.mapDetails) {
+                if (forceMap && forceMap !== mapId) {
+                    continue;
+                }
                 for (const trigger of this.mapDetails[mapId].zones) {
                     if (trigger.id !== zoneId) {
                         continue;
@@ -2251,6 +2229,21 @@ const factionMap = {
 const questModeZoneMap = {
     '[PVP ZONE]': 'regular',
     '[PVE ZONE]': 'pve',
+};
+
+const flareColors = {
+    yellow: [
+        '624c0b3340357b5f566e8766',
+        '62389be94d5d474bf712e709',
+    ],
+    red: [
+        '62178c4d4ecf221597654e3d',
+        '62389ba9a63f32501b1b4451',
+    ],
+};
+
+const conditionFlares = {
+    '66740959ccd38d189b9d61cc': 'red', // Airmail
 };
 
 export default UpdateQuestsJob;
