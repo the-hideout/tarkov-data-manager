@@ -135,9 +135,9 @@ const scannerHttpApi = {
             if (!options.scannerName) {
                 return res.json({errors: ['no scanner name specified'], warnings: [], data: {}});
             }
-            if (resource === 'items') {
+            if (resource === 'items' || resource === 'item-batch') {
                 options.scanner = await scannerApi.getScanner(options, true);
-                if (req.method === 'GET') {
+                if (req.method === 'GET' || resource === 'item-batch') {
                     response = await scannerApi.getItems(options);
                 }
                 if (req.method === 'POST') {
