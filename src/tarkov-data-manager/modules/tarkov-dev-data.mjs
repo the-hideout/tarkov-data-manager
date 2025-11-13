@@ -64,7 +64,7 @@ const getFromFence = async (jsonName, options) => {
             }
         },
         timeout: {
-            request: 30000,
+            request: 60000,
         },
         signal: options.signal,
     });
