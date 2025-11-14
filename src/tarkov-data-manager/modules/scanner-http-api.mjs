@@ -140,7 +140,7 @@ const scannerHttpApi = {
                 if (req.method === 'GET' || resource === 'item-batch') {
                     response = await scannerApi.getItems(options);
                 }
-                if (req.method === 'POST') {
+                if (req.method === 'POST' && resource !== 'item-batch') {
                     response = await scannerApi.insertPrices(options);
                 }
                 if (req.method === 'DELETE') {
