@@ -513,6 +513,7 @@ class UpdateItemCacheJob extends DataJob {
                 });
                 return allSkills;
             }, []),
+            SpecialItems: this.getSpecialItems(),
         };
 
         for (const skill of handbookData.Skill) {
@@ -591,6 +592,7 @@ class UpdateItemCacheJob extends DataJob {
             }
             this.setTraderPrices(modeData.Item);
             modeData.FleaMarket = this.getFleaMarketSettings();
+            handbookData.SpecialItems = this.getSpecialItems();
             this.logger.log(`Uploading ${gameMode.name} items data to cloudflare...`);
             await this.cloudflarePut(modeData, `${this.kvName}_${gameMode.name}`);
 
@@ -850,6 +852,36 @@ class UpdateItemCacheJob extends DataJob {
                 return levels;
             }, []),
         };
+    }
+
+    getSpecialItems() {
+        const specialItems = [];
+        const pockets = this.bsgItems['627a4e6b255f7527fb05a0f6'];
+        if (!pockets) {
+            console.log('pockets not found');
+            return specialItems;
+        }
+        const specialItemSlot = pockets._props.Slots[0];
+        if (!specialItemSlot) {
+            console.log('special item slot not found');
+            return specialItems;
+        }
+        for (const id of specialItemSlot._props.filters[0].Filter) {
+            let item = this.itemMap.get(id);
+            if (!item) {
+                item = Object.values(this.kvData.Item).find(i => i.categories.includes(id));
+                if (item) {
+                    item = this.itemMap.get(item.id);
+                }
+            }
+            if (!item) {
+                console.log(`item ${id} not found`);
+                continue;
+            }
+            //console.log(item.name);
+            specialItems.push(id);
+        }
+        return specialItems;
     }
 
     async setSkillImageLink(skill) {
