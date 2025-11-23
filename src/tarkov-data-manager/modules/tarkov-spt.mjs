@@ -40,6 +40,7 @@ const sptLangs = {
 }
 
 const branches = [
+    '4.1.x-dev',
     'develop',
     'main',
 ];
@@ -318,7 +319,7 @@ const tarkovSpt = {
             try {
                 oldLocationIndex = JSON.parse(fs.readFileSync(cachePath(`spt_location_${id}_index.json`)));
             } catch (error) {
-                if (error.code !== 'ENOENT') {
+                if (error.code !== 'ENOENT' && !error.message.includes('Unexpected end of JSON input')) {
                     return Promise.reject(error);
                 }
             }
