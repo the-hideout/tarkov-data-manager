@@ -7,7 +7,7 @@ import spt from './tarkov-spt.mjs';
 import tarkovDevData from './tarkov-dev-data.mjs';
 import dataOptions from './data-options.mjs';
 
-const mainDataSource = tarkovDevData;
+const mainDataSource = tarkovChanges;
 
 let manualTranslations = {};
 try {

@@ -71,6 +71,10 @@ const cachePath = (filename) => {
     return path.join(import.meta.dirname, '..', 'cache', filename);   
 }
 
+const convertToArray = [
+    'areas',
+];
+
 const tarkovChanges = {
     get: async (file, options) => {
         const { download, gameMode } = merge(options);
@@ -80,6 +84,9 @@ const tarkovChanges = {
             let returnValue = await jsonRequest(requestFileName, options);
             if (returnValue.elements) {
                 returnValue = returnValue.elements;
+            }
+            if (convertToArray.includes(file) && !Array.isArray(returnValue)) {
+                returnValue = Object.values(returnValue);
             }
             fs.writeFileSync(cachePath(saveFileName), JSON.stringify(returnValue, null, 4));
             return returnValue;
@@ -125,6 +132,10 @@ const tarkovChanges = {
     },
     downloadAll: async (options = defaultOptions) => {
         options = {...merge(options), download: true};
+        if (options.gameMode === 'pve') {
+            // PVE not currently available
+            return [];
+        }
         const skip = {
             pve: [
                 'achievements',
