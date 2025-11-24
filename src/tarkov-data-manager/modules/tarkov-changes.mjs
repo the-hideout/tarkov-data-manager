@@ -78,7 +78,7 @@ const convertToArray = [
 const tarkovChanges = {
     get: async (file, options) => {
         const { download, gameMode } = merge(options);
-        const requestFileName = (availableFiles[file].requestName ?? file) + '.json';
+        const requestFileName = (availableFiles[file]?.requestName ?? file) + '.json';
         const saveFileName = file + (gameMode === 'regular' ? '' : `_${gameMode}`) + '.json';
         if (download) {
             let returnValue = await jsonRequest(requestFileName, options);
@@ -115,6 +115,9 @@ const tarkovChanges = {
     credits: async (options = defaultOptions) => {
         return tarkovChanges.get('credits', merge(options));
     },
+    customization: async (options = defaultOptions) => {
+        return tarkovChanges.get('customization', merge({...options, download: false}));
+    },
     locale_en: async (options = defaultOptions) => {
         return tarkovChanges.get('locale_en', merge(options));
     },
@@ -126,6 +129,9 @@ const tarkovChanges = {
     },
     areas: async(options = defaultOptions) => {
         return tarkovChanges.get('areas', merge(options));
+    },
+    prestige: async (options = defaultOptions) => {
+        return tarkovChanges.get('prestige', merge({...options, download: false}));
     },
     traders: async (options = defaultOptions) => {
         return tarkovChanges.get('traders', merge(options));

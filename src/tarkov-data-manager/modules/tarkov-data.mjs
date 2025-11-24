@@ -227,8 +227,11 @@ const dataFunctions = {
                 }, []) || [];
                 details[id].path_destinations = details[id].path_destinations || [];
             } catch (error) {
-                if (error.code === 'ENOENT' && (!map.Enabled || map.Locked)) {
+                if (error.code === 'ENOENT') {
                     details[id] = emptyData;
+                    if (!map.Enabled && !map.Locked) {
+                        console.warn(`No map details data for ${map.Id} ${id}`);
+                    }
                     continue;
                 }
                 return Promise.reject(error);
