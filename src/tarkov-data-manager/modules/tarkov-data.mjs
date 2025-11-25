@@ -78,16 +78,17 @@ const dataFunctions = {
         return addManualTranslations(await spt.locale(lang, options), lang);
     },
     locales: async (options = defaultOptions) => {
+        const oldLocales = await spt.localesOld(options);
         const [en, others] = await Promise.all([
             mainDataSource.locale_en(options).then(localeEn => {
-                return addManualTranslations(localeEn, 'en');
+                return addManualTranslations({...oldLocales.en, ...localeEn}, 'en');
             }),
             //addManualTranslations(tarkovBot.locale('ru', options), 'ru'),
             spt.locales(options).then(async langs => {
                 const mergedLangs = {};
                 const langCodes = Object.keys(langs);
                 for (const langCode of langCodes) {
-                    mergedLangs[langCode] = addManualTranslations(langs[langCode], langCode);
+                    mergedLangs[langCode] = addManualTranslations({...oldLocales[langCode], ...langs[langCode]}, langCode);
                 }
                 return mergedLangs;
             }),
