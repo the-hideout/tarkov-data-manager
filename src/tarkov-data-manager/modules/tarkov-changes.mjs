@@ -9,23 +9,21 @@ const defaultOptions = dataOptions.default;
 const merge = dataOptions.merge;
 
 const jsonRequest = async (filename, options) => {
-    if (!process.env.TC_URL || !process.env.TC_USERNAME || !process.env.TC_PASSWORD) {
-        return Promise.reject(new Error('TC_URL, TC_USERNAME, or TC_PASSWORD not set'));
+    if (!process.env.TC_URL || !process.env.TC_LATEST_URL || !process.env.TC_API_KEY) {
+        return Promise.reject(new Error('TC_LATEST_URL or TC_API_KEY not set'));
     }
     const { gameMode } = options;
-    let path = process.env.TC_URL;
+    let path = process.env.TC_LATEST_URL;
     if (gameMode !== 'regular') {
-        path = path.replace('//files', `//${gameMode}-files`);
+        // path += '/pve'; // enable this when pve data is available
     }
+    path += '/latest/';
     const response = await got(path+filename, {
-        method: 'POST',
-        username: process.env.TC_USERNAME,
-        password: process.env.TC_PASSWORD,
+        method: 'GET',
         responseType: 'json',
         headers: {
             'Accept': 'application/json',
-            'CF-Access-Client-Id': process.env.TC_CF_CLIENT_ID,
-            'CF-Access-Client-Secret': process.env.TC_CF_CLIENT_SECRET,
+            'X-API-KEY': process.env.TC_API_KEY,
         },
         resolveBodyOnly: true,
         retry: {
@@ -41,6 +39,11 @@ const jsonRequest = async (filename, options) => {
             request: 10000,
         },
         signal: options.signal,
+    }).then(apiResponse => {
+        if (apiResponse.status !== 'success') {
+            return Promise.reject(new Error('API response does not indicate success', {cause: apiResponse}));
+        }
+        return apiResponse.response_data;
     });
     if (!response) return Promise.reject(new Error(`Tarkov Changes returned null result for ${path}`));
     return response;
@@ -48,23 +51,32 @@ const jsonRequest = async (filename, options) => {
 
 const availableFiles = {
     achievements: {
-        requestName: 'achievements_list',
+        requestName: 'achievement_list',
     },
     achievementStats: {
-        requestName: 'achievements_statistics',
+        requestName: 'achievement_statistic',
     },
-    crafts: {},
-    credits: {},
-    items: {},
+    areas: {
+        requestName: 'hideout_areas',
+    },
+    crafts: {
+        requestName: 'hideout_recipes',
+    },
+    credits: {
+        requestName: 'items_prices',
+    },
+    customization: {},
     globals: {},
-    areas: {},
-    traders: {
-        requestName: 'traders_clean',
+    items: {},
+    handbook: {
+        requestName: 'handbook_templates',
     },
+    locale_en: {},
     locations: {},
-    locale_en: {
-        requestName: 'locale_en_td',
+    prestige: {
+        requestName: 'prestige_list',
     },
+    traders: {},
 };
 
 const cachePath = (filename) => {
@@ -78,7 +90,7 @@ const convertToArray = [
 const tarkovChanges = {
     get: async (file, options) => {
         const { download, gameMode } = merge(options);
-        const requestFileName = (availableFiles[file]?.requestName ?? file) + '.json';
+        const requestFileName = (availableFiles[file]?.requestName ?? file);
         const saveFileName = file + (gameMode === 'regular' ? '' : `_${gameMode}`) + '.json';
         if (download) {
             let returnValue = await jsonRequest(requestFileName, options);
@@ -106,8 +118,8 @@ const tarkovChanges = {
     achievementStats: (options = defaultOptions) => {
         return tarkovChanges.get('achievementStats', merge(options));
     },
-    items: async (options = defaultOptions) => {
-        return tarkovChanges.get('items', merge(options));
+    areas: async(options = defaultOptions) => {
+        return tarkovChanges.get('areas', merge(options));
     },
     crafts: async (options = defaultOptions) => {
         return tarkovChanges.get('crafts', merge(options));
@@ -116,7 +128,16 @@ const tarkovChanges = {
         return tarkovChanges.get('credits', merge(options));
     },
     customization: async (options = defaultOptions) => {
-        return tarkovChanges.get('customization', merge({...options, download: false}));
+        return tarkovChanges.get('customization', merge(options));
+    },
+    globals: async(options = defaultOptions) => {
+        return tarkovChanges.get('globals', merge(options));
+    },
+    handbook: async(options = defaultOptions) => {
+        return tarkovChanges.get('handbook', merge(options));
+    },
+    items: async (options = defaultOptions) => {
+        return tarkovChanges.get('items', merge(options));
     },
     locale_en: async (options = defaultOptions) => {
         return tarkovChanges.get('locale_en', merge(options));
@@ -124,14 +145,8 @@ const tarkovChanges = {
     locations: async (options = defaultOptions) => {
         return tarkovChanges.get('locations', merge(options));
     },
-    globals: async(options = defaultOptions) => {
-        return tarkovChanges.get('globals', merge(options));
-    },
-    areas: async(options = defaultOptions) => {
-        return tarkovChanges.get('areas', merge(options));
-    },
     prestige: async (options = defaultOptions) => {
-        return tarkovChanges.get('prestige', merge({...options, download: false}));
+        return tarkovChanges.get('prestige', merge(options));
     },
     traders: async (options = defaultOptions) => {
         return tarkovChanges.get('traders', merge(options));

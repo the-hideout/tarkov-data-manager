@@ -65,7 +65,7 @@ const dataFunctions = {
         return mainDataSource.globals(options);
     },
     handbook: (options = defaultOptions) => {
-        return tarkovDevData.handbook(options);
+        return mainDataSource.handbook(options);
     },
     items: (options = defaultOptions) => {
         return mainDataSource.items(options);
