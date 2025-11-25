@@ -12,6 +12,7 @@ class UpdateTradersJob extends DataJob {
         this.saveFields.push('skipTraders');
         this.skipTraders = [
             '6864e812f9fe664cb8b8e152', // Storyteller
+            '67f7af56c117b6140af2a607' // ???
         ];
     }
 
@@ -42,11 +43,11 @@ class UpdateTradersJob extends DataJob {
                 Trader: []
             };
             let staleTraderCount = 0;
-            for (const traderId in this.tradersData) {
+            for (const trader of this.tradersData) {
+                const traderId = trader._id;
                 if (this.skipTraders.includes(traderId)) {
                     continue;
                 }
-                const trader = this.tradersData[traderId];
                 const date = new Date(trader.nextResupply*1000);
                 //date.setHours(date.getHours() +5);
                 const traderData = {

@@ -147,18 +147,18 @@ class UpdateQuestsJob extends DataJob {
                     this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - manual skip`);
                     continue;
                 }
-                const giver = this.rawTraders[this.rawQuestData[questId].traderId];
+                const giver = this.rawTraders.find(t => t._id === this.rawQuestData[questId].traderId);
                 if (!giver) {
                     this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - invalid quest giver`);
                     continue;
                 }
-                const missingTraderForRequiredLevel = this.rawQuestData[questId].conditions.AvailableForStart.some(cond => cond.conditionType === 'TraderLoyalty' && !this.rawTraders[cond.target]);
+                const missingTraderForRequiredLevel = this.rawQuestData[questId].conditions.AvailableForStart.some(cond => cond.conditionType === 'TraderLoyalty' && !this.rawTraders.find(t => t._id === cond.target));
                 if (missingTraderForRequiredLevel) {
                     this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - invalid trader for required loyalty level`);
                     continue;
                 }
-                //const missingTraderForUnlock = this.rawQuestData[questId].rewards.Success.some(r => r.type === 'TraderUnlock' && !this.rawTraders[r.target]);
-                const missingTraderForUnlock = Object.keys(this.rawQuestData[questId].rewards).some(rcat => this.rawQuestData[questId].rewards[rcat].some(r => r.type === 'TraderUnlock' && !this.rawTraders[r.target]));
+                //const missingTraderForUnlock = this.rawQuestData[questId].rewards.Success.some(r => r.type === 'TraderUnlock' && !this.rawTraders.find(t => t._id === r.target));
+                const missingTraderForUnlock = Object.keys(this.rawQuestData[questId].rewards).some(rcat => this.rawQuestData[questId].rewards[rcat].some(r => r.type === 'TraderUnlock' && !this.rawTraders.find(t => t._id === r.target)));
                 if (missingTraderForUnlock) {
                     this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - invalid trader unlock`);
                     continue;
@@ -299,7 +299,7 @@ class UpdateQuestsJob extends DataJob {
             quests.Task = this.filterOutQuestsWithMissingPrecursor(quests.Task);
 
             const getMinPlayerLevelForTraderLevel = (traderId, traderLevel) => {
-                const trader = this.rawTraders[traderId];
+                const trader = this.rawTraders.find(t => t._id === traderId);
                 if (!trader) {
                     return 0;
                 }
@@ -839,7 +839,7 @@ class UpdateQuestsJob extends DataJob {
             if (reward.type === 'Experience') {
                 questData.experience = parseInt(reward.value);
             } else if (reward.type === 'TraderStanding') {
-                if (!this.rawTraders[reward.target]) {
+                if (!this.rawTraders.find(t => t._id === reward.target)) {
                     continue;
                 }
                 questData[rewardsType].traderStanding.push({
@@ -858,7 +858,7 @@ class UpdateQuestsJob extends DataJob {
                     this.logger.warn(`No name found for unlock item "${reward.items[0]._tpl}" for completion reward ${reward.id} of ${questData.name}`);
                     continue;
                 }
-                if (!this.rawTraders[reward.traderId]) {
+                if (!this.rawTraders.find(t => t._id === reward.traderId)) {
                     this.logger.warn(`Invalid trader ${reward.traderId} for offer unlock`);
                     continue;
                 }
@@ -897,7 +897,7 @@ class UpdateQuestsJob extends DataJob {
                 };
                 questData[rewardsType].skillLevelReward.push(skillLevel);
             } else if (reward.type === 'TraderUnlock') {
-                if (!this.rawTraders[reward.target]) {
+                if (!this.rawTraders.find(t => t._id === reward.target)) {
                     continue;
                 }
                 questData[rewardsType].traderUnlock.push({
@@ -1250,7 +1250,7 @@ class UpdateQuestsJob extends DataJob {
                 //this.logger.warn(JSON.stringify(this.changedQuests[questData.id].finishRewardsAdded), null, 4);
                 for (const rewardType in this.changedQuests[questData.id].finishRewardsAdded) {
                     for (const reward of this.changedQuests[questData.id].finishRewardsAdded[rewardType]) {
-                        if (rewardType === 'offerUnlock' && !this.rawTraders[reward.trader_id]) {
+                        if (rewardType === 'offerUnlock' && !this.rawTraders.find(t => t._id === reward.trader_id)) {
                             continue;
                         }
                         questData.finishRewards[rewardType].push(reward);

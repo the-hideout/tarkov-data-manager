@@ -108,7 +108,7 @@ class UpdateItemCacheJob extends DataJob {
                 continue;
             }                
 
-            if (!value.image_8x_link) {
+            if (!value.image_8x_link && false) {
                 try {
                     let image;
                     if (value.types.includes('preset')) {
@@ -129,7 +129,6 @@ class UpdateItemCacheJob extends DataJob {
                 } catch (error) {
                     this.logger.error(`Error creating ${key} item image ${error}`);
                 }
-                return;
             }
 
             itemData[key] = {
@@ -653,9 +652,9 @@ class UpdateItemCacheJob extends DataJob {
     }
 
     getTraderMultiplier(traderId) {
-        for (const id in this.traders) {
-            if (id === traderId) {
-                const buyCoef = parseInt(this.traders[id].loyaltyLevels[0].buy_price_coef);
+        for (const trader of this.traders) {
+            if (trader._id === traderId) {
+                const buyCoef = parseInt(trader.loyaltyLevels[0].buy_price_coef);
                 return buyCoef ? (100 - buyCoef) / 100 : 0.0001;
             }
         }
@@ -718,7 +717,7 @@ class UpdateItemCacheJob extends DataJob {
         } else if (this.credits[item.id] !== undefined) {
             item.basePrice = this.credits[item.id];
             // add base value for built-in armor pieces
-            this.bsgItems[item.id]._props.Slots?.forEach(slot => {
+            this.bsgItems[item.id]?._props.Slots?.forEach(slot => {
                 slot._props?.filters?.forEach(filter => {
                     if (!filter.Plate || !filter.locked) {
                         return;
@@ -726,7 +725,7 @@ class UpdateItemCacheJob extends DataJob {
                     item.basePrice += this.credits[filter.Plate];
                 });
             });
-            if (item.types.includes('ammoBox')) {
+            if (item.types.includes('ammoBox') && this.bsgItems[item.id]) {
                 for (const stackSlot of this.bsgItems[item.id]._props.StackSlots) {
                     item.basePrice += this.credits[stackSlot._props.filters[0].Filter[0]] * stackSlot._max_count;
                 }
@@ -783,8 +782,8 @@ class UpdateItemCacheJob extends DataJob {
         };
         const currencyId = dataMaps.currencyIsoId;
 
-        for (const traderId in this.traders) {
-            const trader = this.traders[traderId];
+        for (const trader of this.traders) {
+            const traderId = trader._id;
             if (trader.items_buy_prohibited.id_list.includes(item.id)) {
                 continue;
             }

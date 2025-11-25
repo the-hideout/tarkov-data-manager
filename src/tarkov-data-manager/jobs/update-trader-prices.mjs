@@ -101,7 +101,7 @@ class UpdateTraderPricesJob extends DataJob {
                 if (this.skipOffer(offer)) {
                     continue;
                 }
-                if (!this.traders[offer.trader_id]) {
+                if (!this.traders.find(t => t._id === offer.trader_id)) {
                     continue;
                 }
                 const item = this.items.get(offer.item_id);
@@ -223,13 +223,6 @@ class UpdateTraderPricesJob extends DataJob {
         error.item = this.items.get(itemId).name;
         //this.logger.warn(`Could not find quest unlock for trader offer ${offer.id}: ${traderNormalizedName} ${offer.min_level} ${this.items.get(itemId).name} ${itemId}`);
         throw error;
-    }
-
-    getTraderByName = (traderName) => {
-        for (const traderId in this.traders) {
-            const normalized = this.normalizeName(this.en[`${traderId} Nickname`]);
-            return normalized === traderName.toLowerCase();
-        };
     }
 
     skipOffer = (offer) => {
