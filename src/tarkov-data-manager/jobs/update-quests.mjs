@@ -127,6 +127,7 @@ class UpdateQuestsJob extends DataJob {
             const quests = {
                 Task: [],
             };
+            this.Tasks = quests.Task;
             allQuests[gameMode.name] = quests;
 
             for (const questId in this.rawQuestData) {
@@ -1867,6 +1868,12 @@ class UpdateQuestsJob extends DataJob {
                 },
             ],
         };
+        prestigeData.conditions = prestigeData.conditions.filter(condition => {
+            if (condition.type !== 'taskStatus') {
+                return true;
+            }
+            return this.Tasks.some(t => t.id === condition.task);
+        });
         await this.loadRewards(prestigeData, 'rewards', prestige.rewards);
         for (const reward of prestigeData.rewards.customization) {
             if (reward.customizationType !== 'Stub') {
