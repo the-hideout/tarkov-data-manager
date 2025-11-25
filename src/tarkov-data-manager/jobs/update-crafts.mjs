@@ -155,7 +155,7 @@ class UpdateCraftsJob extends DataJob {
                     } else if (req.type === 'Item') {
                         const ingredient = this.itemData.get(req.templateId);
                         if (!ingredient) {
-                            this.logger.warn(`${id}: Ingredient item ${en[`${req.templateId} Name`]} ${req.templateId} found in items`);
+                            this.logger.warn(`${id}: Ingredient item ${en[`${req.templateId} Name`]} ${req.templateId} not found in items`);
                             continue;
                         }
                         if (ingredient.types.includes('disabled')) {

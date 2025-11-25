@@ -153,10 +153,6 @@ const tarkovChanges = {
     },
     downloadAll: async (options = defaultOptions) => {
         options = {...merge(options), download: true};
-        if (options.gameMode === 'pve') {
-            // PVE not currently available
-            return [];
-        }
         const skip = {
             pve: [
                 'achievements',
