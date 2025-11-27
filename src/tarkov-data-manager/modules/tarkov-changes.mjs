@@ -40,7 +40,7 @@ const jsonRequest = async (filename, options) => {
         },
         signal: options.signal,
     }).then(apiResponse => {
-        if (apiResponse.status !== 'success') {
+        if (apiResponse.status && apiResponse.status !== 'success') {
             return Promise.reject(new Error('API response does not indicate success', {cause: apiResponse}));
         }
         return apiResponse.response_data;
