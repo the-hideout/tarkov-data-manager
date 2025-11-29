@@ -14,8 +14,8 @@ class UpdateResetTimersJob extends DataJob {
         ]);
 
         const resetTimes = {};
-        for (const id in traders) {
-            const trader = traders[id];
+        for (const trader of traders) {
+            const id = trader._id;
             const date = new Date(trader.nextResupply*1000);
             date.setHours(date.getHours() +5);
             resetTimes[this.normalizeName(en[`${id} Nickname`])] = date;

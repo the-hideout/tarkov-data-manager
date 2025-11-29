@@ -177,6 +177,8 @@ class TranslationHelper {
             marksman: 'Marksman',
             pmcBot: 'PmcBot',
             savage: 'Savage',
+            assaultTutorial: 'Savage',
+            sentry: 'Sentry',
         };
         return keySubs[enemy] || enemy;
     }

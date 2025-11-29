@@ -15,7 +15,13 @@ class UpdateGameStatusJob extends DataJob {
     }
 
     async run() {
-        const status = await tarkovData.status({download: true});
+        let status;
+        try {
+            status = await tarkovData.status({download: true});
+        } catch (error) {
+            this.logger.log(error.message);
+            return;
+        }
 
         if (status.global.message === 'Access denied' && status.global.status !== null && status.global.status !== undefined) {
             status.global.message = ''

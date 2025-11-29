@@ -270,7 +270,7 @@ class UpdateTraderPricesJob extends DataJob {
         }
         this.logger.log('Checking assorts for missing offers...');
         for (const traderId in this.traderAssorts) {
-            const trader = this.traders[traderId];
+            const trader = this.traders.find(t => t._id === traderId);
             const traderName = this.localeEn[`${traderId} Nickname`];
             const traderNormalizedName = this.normalizeName(traderName);
             this.traderAssorts[traderId].forEach(offer => {
@@ -379,7 +379,7 @@ class UpdateTraderPricesJob extends DataJob {
     }
 
     getTraderByName = (traderName) => {
-        return Object.values(this.traders).find(t => {
+        this.traders.find(t => {
             const normalized = this.normalizeName(this.localeEn[`${t._id} Nickname`]);
             return normalized === traderName.toLowerCase();
         });

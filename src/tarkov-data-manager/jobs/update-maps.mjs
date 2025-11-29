@@ -165,6 +165,12 @@ class UpdateMapsJob extends DataJob {
                             }
                             return 'Ground Zero 21+';
                         }
+                        if (id === '68236e8153654e8c1200798a') {
+                            const mapName = lang[id] ?? this.locales.en[id] ?? 'Ground Zero';
+                            const tutorialKey = 'Tutorial_ConfirmationDialog_Title';
+                            const tutorial = lang[tutorialKey] ?? this.locales.en[tutorialKey] ?? 'Tutorial';
+                            return `${mapName} ${tutorial}`;
+                        }
                         return lang[`${id} Name`];
                     }),
                     normalizedName: '', // set below using the EN translation of name
@@ -433,7 +439,7 @@ class UpdateMapsJob extends DataJob {
     
                 const enemySet = new Set();
                 for (const wave of map.waves) {
-                    if (wave.WildSpawnType === 'assault') {
+                    if (wave.WildSpawnType === 'assault' || wave.WildSpawnType === 'assaultTutorial') {
                         enemySet.add('scavs');
                     } else if (wave.WildSpawnType === 'marksman') {
                         enemySet.add('sniper');
