@@ -108,7 +108,7 @@ class UpdateItemCacheJob extends DataJob {
                 continue;
             }                
 
-            if (!value.image_8x_link && false) {
+            if (!value.image_8x_link) {
                 try {
                     let image;
                     if (value.types.includes('preset')) {
