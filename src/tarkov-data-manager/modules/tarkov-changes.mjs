@@ -157,8 +157,8 @@ const tarkovChanges = {
             pve: [
                 'achievements',
                 'achievementStats',
-                'items',
-                'locale_en',
+                'customization',
+                'prestige',
             ],
         };
         const promises = [];
