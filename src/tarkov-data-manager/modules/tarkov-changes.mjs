@@ -4,6 +4,7 @@ import path from 'node:path';
 import got from 'got';
 
 import dataOptions from './data-options.mjs';
+import gameModes, { getGameMode } from './game-modes.mjs';
 
 const defaultOptions = dataOptions.default;
 const merge = dataOptions.merge;
@@ -153,18 +154,11 @@ const tarkovChanges = {
     },
     downloadAll: async (options = defaultOptions) => {
         options = {...merge(options), download: true};
-        const skip = {
-            pve: [
-                'achievements',
-                'achievementStats',
-                'customization',
-                'prestige',
-            ],
-        };
+        const gameMode = getGameMode(options.gameMode);
         const promises = [];
         for (const file in availableFiles) {
             if (availableFiles[file].skip) continue;
-            if (skip[options.gameMode]?.includes(file)) continue;
+            if (gameMode.skipData?.includes(file)) continue;
             promises.push(tarkovChanges[file](options)
                 .then(data => {return {name: file, data}})
                 .catch(error => {return {name: file, error}})
