@@ -23,12 +23,12 @@ class UpdateSummaryPricesJob extends DataJob {
             }
             const gameMode = gameModeInfo.name;
             const [
-                summaryPrices,
+                latestPrices,
                 lastPrices,
                 items,
                 scannerOptions,
             ] = await Promise.all([
-                spApi.getAllSummaryPrices(gameMode),
+                spApi.itemsOverview(gameMode),
                 db.query(`
                     SELECT
                         a.item_id,
@@ -72,39 +72,49 @@ class UpdateSummaryPricesJob extends DataJob {
                     });
                 }),
             ]);
-            this.logger.log(`Retrieved ${summaryPrices.length} summary prices`);
+            this.logger.log(`Retrieved ${latestPrices.length} summary prices`);
             let newPrices = 0;
             let newScanned = 0;
             let current = 0;
-            for (const price of summaryPrices) {
-                const item = items.get(price.tarkov_id);
+            for (const itemPrice of latestPrices) {
+                const item = items.get(itemPrice.tarkovId);
                 if (!item) {
                     // we don't have this item
                     continue;
                 }
-                const lastPrice = lastPrices[price.tarkov_id];
+                const lastPrice = lastPrices[itemPrice.tarkovId];
                 const options = {
                     ...scannerOptions,
                     itemId: item.id,
+                    itemPrices: [],
                 };
                 const lastPriceTimestamp = Math.max(
                     lastPrice?.timestamp?.getTime() ?? 0,
                     item.lastScan?.getTime() ?? 0,
                 );
                 const lastPriceDate = new Date(lastPriceTimestamp);
-                const summaryPriceDate = this.roundDateToNearestSecond(new Date(price.timestamp));
+                const summaryPriceDate = this.roundDateToNearestSecond(new Date(itemPrice.latestPriceSample.sampleTimeEpoch));
                 if (lastPriceDate < summaryPriceDate) {
                     options.timestamp = summaryPriceDate;
                     // price data is new
-                    if (price.min_price) {
+                    if (itemPrice.latestPriceSample.minPrice) {
                         // insert new price
-                        this.logger.log(`${item.name} ${item.id} New prices: ${price.min_price}, ${price.avg_price}`);
+                        this.logger.log(`${item.name} ${item.id} New prices: ${itemPrice.latestPriceSample.minPrice}, ${itemPrice.latestPriceSample.robustAvgPrice}`);
                         newPrices++;
-                        options.min = price.min_price;
-                        options.avg = price.avg_price;
-                        scannerApi.insertSummaryPrices(options).catch(error => {
+                        options.offerCount = itemPrice.latestPriceSample.listingCount;
+                        for (const scanned of itemPrice.latestPriceSample.latestSupplyPressure) {
+                            const price = scanned[0];
+                            for (let i = 0; i < scanned[1].length; i++) {
+                                options.itemPrices.push({
+                                    seller: 'Player',
+                                    price,
+                                });
+                            }
+                        }
+                        options.itemPrices = options.itemPrices.slice(0, 12);
+                        scannerApi.insertPrices(options).catch(error => {
                             this.addJobSummary(`${item.name} ${item.id}: ${error.message}`, 'Price Insert Error');
-                            this.logger.log(`Error inserting ${item.name} ${item.id} summary prices: ${error.message}`);
+                            this.logger.log(`Error inserting ${item.name} ${item.id} prices: ${error.message}`);
                         });
                     } else {
                         // set item scanned

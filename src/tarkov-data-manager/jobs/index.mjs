@@ -9,7 +9,7 @@ import discord from '../modules/webhook.mjs';
 
 const defaultJobTriggers = {
     'update-item-cache': '*/5 * * * *',
-    'update-summary-prices': '8-59/10 * * * *',
+    'update-flea-prices': '8-59/10 * * * *',
     'game-data': '1-59/10 * * * *',
     'update-barters': 'jobComplete_update-trader-prices',
     'update-quests': '3-59/10 * * * *',
