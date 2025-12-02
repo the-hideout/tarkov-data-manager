@@ -16,7 +16,7 @@ const jsonRequest = async (filename, options) => {
     const { gameMode } = options;
     let path = process.env.TC_LATEST_URL;
     if (gameMode !== 'regular') {
-        // path += '/pve'; // enable this when pve data is available
+        path += '/pve';
     }
     path += '/latest/';
     const response = await got(path+filename, {
