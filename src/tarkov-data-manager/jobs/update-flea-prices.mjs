@@ -5,9 +5,9 @@ import remoteData from '../modules/remote-data.mjs';
 import scannerApi from '../modules/scanner-api.mjs';
 import gameModes from '../modules/game-modes.mjs';
 
-class UpdateSummaryPricesJob extends DataJob {
+class UpdateFleaPricesJob extends DataJob {
     constructor(options) {
-        super({...options, name: 'update-summary-prices'});
+        super({...options, name: 'update-flea-prices'});
     }
 
     async run() {
@@ -142,4 +142,4 @@ class UpdateSummaryPricesJob extends DataJob {
     }
 }
 
-export default UpdateSummaryPricesJob;
+export default UpdateFleaPricesJob;
