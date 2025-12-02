@@ -93,7 +93,7 @@ class UpdateFleaPricesJob extends DataJob {
                     item.lastScan?.getTime() ?? 0,
                 );
                 const lastPriceDate = new Date(lastPriceTimestamp);
-                const summaryPriceDate = this.roundDateToNearestSecond(new Date(itemPrice.latestPriceSample.sampleTimeEpoch));
+                const summaryPriceDate = new Date(itemPrice.latestPriceSample.sampleTimeEpoch * 1000);
                 if (lastPriceDate < summaryPriceDate) {
                     options.timestamp = summaryPriceDate;
                     // price data is new
