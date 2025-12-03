@@ -150,7 +150,7 @@ class UpdateTraderOffersJob extends DataJob {
                 value: 1,
             },
             '5696686a4bdc2da3298b456a': {
-                code: 'USB',
+                code: 'USD',
             },
             '569668774bdc2da2298b4568': {
                 code: 'EUR',
@@ -232,6 +232,7 @@ class UpdateTraderOffersJob extends DataJob {
                 const assort = this.traderAssorts[offer.trader_id]?.find(assort => assort.id === offer._id);
                 if (this.isCashOffer(offer)) {
                     // cash offer
+                    const currency = this.currencyData[offer.requirements[0]._tpl];
                     const cashPrice = {
                         offer_id: offer._id,
                         id: item.id,
@@ -246,12 +247,12 @@ class UpdateTraderOffersJob extends DataJob {
                             buyLimit: parseInt(offer.buyRestrictionMax) ?? 0,
                         },
                         source: this.normalizeName(traderName),
-                        price: Math.round(offer.price), // prices in API are Int; we should convert to float
-                        priceRUB: Math.round(offer.price * this.currencyData[offer.requirements[0]._tpl].value),
+                        price: Math.round(offer.requirements[0].count), // prices in API are Int; we should convert to float
+                        priceRUB: Math.round(offer.requirements[0].count * currency.value),
                         updated: offer.updated,
                         quest_unlock: Boolean(questUnlock),
                         quest_unlock_id: questUnlock ? questUnlock.id : null,
-                        currency: this.currencyData[offer.requirements[0]._tpl].code,
+                        currency: currency.code,
                         currencyItem: offer.requirements[0]._tpl,
                         requirements: [
                             {
