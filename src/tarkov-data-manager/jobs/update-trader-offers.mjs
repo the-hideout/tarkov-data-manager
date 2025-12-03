@@ -170,7 +170,7 @@ class UpdateTraderOffersJob extends DataJob {
                 TraderCashOffer: cashOffers,
             };
             barterData[gameMode.name] = {
-                Barters: barters,
+                Barter: barters,
             };
             [
                 this.bsgItems,
@@ -226,7 +226,7 @@ class UpdateTraderOffersJob extends DataJob {
                     if (!preset) {
                         preset = await presetData.addJsonPreset(offer, this.logger);
                     }
-                    item = this.items.get(preset.id);
+                    item = {id: preset.id};
                 }
                 const traderName = this.en[`${offer.user.id} Nickname`];
                 const assort = this.traderAssorts[offer.trader_id]?.find(assort => assort.id === offer._id);
