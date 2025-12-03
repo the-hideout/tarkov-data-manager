@@ -74,7 +74,7 @@ class UpdateFleaPricesJob extends DataJob {
             ]);
             const insertActions = [];
             const scannedActions = [];
-            this.logger.log(`Retrieved ${latestPrices.length} summary prices`);
+            this.logger.log(`Retrieved ${latestPrices.length} flea prices`);
             let newPrices = 0;
             let newScanned = 0;
             let current = 0;
