@@ -156,8 +156,7 @@ class UpdateTraderOffersJob extends DataJob {
                 code: 'EUR',
             },
         };
-        [this.tasks, this.traderAssorts, this.items, this.credits] = await Promise.all([
-            this.jobManager.jobOutput('update-quests', this),
+        [this.traderAssorts, this.items, this.credits] = await Promise.all([
             this.jobManager.jobOutput('update-trader-assorts', this, 'regular', true),
             remoteData.get(),
         ]);
@@ -178,12 +177,14 @@ class UpdateTraderOffersJob extends DataJob {
                 this.credits,
                 this.en,
                 this.traderOffers,
+                this.tasks,
             ] = await Promise.all([
                 tarkovData.items({gameMode: gameMode.name}),
                 tarkovData.traders({gameMode: gameMode.name}),
                 tarkovData.credits({gameMode: gameMode.name}),
                 tarkovData.locale('en', {gameMode: gameMode.name}),
                 spApi.traderPrices(gameMode.name),
+                this.jobManager.jobOutput('update-quests', this, gameMode.name),
             ]);
             //this.offerRequirements = await this.query(`SELECT * FROM trader_offer_requirements`);
             this.getCurrencyValues(this.traderOffers.data);
