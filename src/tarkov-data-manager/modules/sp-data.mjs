@@ -38,6 +38,14 @@ const spApi = {
         }
         return apiResponse.items;
     },
+    traderPrices: async (gameMode = 'regular') => {
+        const apiResponse = await ApiRequest(`/flea-advanced/${getGameType(gameMode)}/traders/offers`);
+        if (!apiResponse.data) {
+            return Promise.reject(new Error('Response missing data attribute'));
+        }
+        return apiResponse;
+    },
+
 };
 
 export default spApi;
