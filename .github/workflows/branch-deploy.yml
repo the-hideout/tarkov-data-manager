@@ -29,13 +29,13 @@ jobs:
 
       - name: checkout
         if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ steps.branch-deploy.outputs.sha }}
 
       - name: SSH Remote Deploy
         if: ${{ steps.branch-deploy.outputs.continue == 'true' && steps.branch-deploy.outputs.noop != 'true' }}
-        uses: appleboy/ssh-action@2ead5e36573f08b82fbfce1504f1a4b05a647c6f # pin@v1.2.2
+        uses: appleboy/ssh-action@823bd89e131d8d508129f9443cad5855e9ba96f0 # pin@v1.2.4
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
