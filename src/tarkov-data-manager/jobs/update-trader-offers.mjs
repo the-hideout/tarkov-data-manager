@@ -224,7 +224,7 @@ class UpdateTraderOffersJob extends DataJob {
                 if (offer.items.length > 1 && !item.types.includes('ammo-box')) {
                     const preset = presetData.findPreset(offer.items);
                     if (!preset) {
-                        preset = await presetData.addJsonPreset(offer.items, this.logger);
+                        preset = await presetData.addJsonPreset(offer, this.logger);
                     }
                     item = this.items.get(preset.id);
                 }
