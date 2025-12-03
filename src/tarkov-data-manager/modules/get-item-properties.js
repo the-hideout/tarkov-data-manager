@@ -74,6 +74,9 @@ const getFilterConstraints = (item, grid) => {
                 if (!disabledItemIds.includes(excluded)) constraints.excludedItems.push(excluded);
                 continue;
             }
+            if (!job.bsgItems[excluded]) {
+                continue;
+            }
             if (job.bsgItems[excluded]._type === 'Item') continue;
             constraints.excludedCategories.push(excluded);
         }

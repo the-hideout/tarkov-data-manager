@@ -30,7 +30,7 @@
     "cron-validator": "^1.4.0",
     "discord.js": "^14.24.2",
     "dotenv": "^17.2.3",
-    "express": "^5.1.0",
+    "express": "^5.2.0",
     "formidable": "^3.5.4",
     "got": "^14.4.8",
     "luxon": "^3.7.2",

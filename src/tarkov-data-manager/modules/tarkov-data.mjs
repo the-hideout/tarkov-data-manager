@@ -7,7 +7,7 @@ import spt from './tarkov-spt.mjs';
 import tarkovDevData from './tarkov-dev-data.mjs';
 import dataOptions from './data-options.mjs';
 
-const mainDataSource = tarkovDevData;
+const mainDataSource = tarkovChanges;
 
 let manualTranslations = {};
 try {
@@ -65,7 +65,7 @@ const dataFunctions = {
         return mainDataSource.globals(options);
     },
     handbook: (options = defaultOptions) => {
-        return tarkovDevData.handbook(options);
+        return mainDataSource.handbook(options);
     },
     items: (options = defaultOptions) => {
         return mainDataSource.items(options);
@@ -78,16 +78,17 @@ const dataFunctions = {
         return addManualTranslations(await spt.locale(lang, options), lang);
     },
     locales: async (options = defaultOptions) => {
+        const oldLocales = await spt.localesOld(options);
         const [en, others] = await Promise.all([
             mainDataSource.locale_en(options).then(localeEn => {
-                return addManualTranslations(localeEn, 'en');
+                return addManualTranslations({...oldLocales.en, ...localeEn}, 'en');
             }),
             //addManualTranslations(tarkovBot.locale('ru', options), 'ru'),
             spt.locales(options).then(async langs => {
                 const mergedLangs = {};
                 const langCodes = Object.keys(langs);
                 for (const langCode of langCodes) {
-                    mergedLangs[langCode] = addManualTranslations(langs[langCode], langCode);
+                    mergedLangs[langCode] = addManualTranslations({...oldLocales[langCode], ...langs[langCode]}, langCode);
                 }
                 return mergedLangs;
             }),
@@ -227,8 +228,11 @@ const dataFunctions = {
                 }, []) || [];
                 details[id].path_destinations = details[id].path_destinations || [];
             } catch (error) {
-                if (error.code === 'ENOENT' && (!map.Enabled || map.Locked)) {
+                if (error.code === 'ENOENT') {
                     details[id] = emptyData;
+                    if (!map.Enabled && !map.Locked) {
+                        console.warn(`No map details data for ${map.Id} ${id}`);
+                    }
                     continue;
                 }
                 return Promise.reject(error);

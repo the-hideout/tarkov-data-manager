@@ -279,6 +279,16 @@ const tarkovSpt = {
         }
         return tarkovSpt.locales({...options, targetFile: localeFilename}).then(locales => locales[locale]);
     },
+    localeOld: async (locale, options = defaultOptions) => {
+        let localeFilename = locale;
+        for (const sptLocale in sptLangs) {
+            if (sptLangs[sptLocale] === locale) {
+                localeFilename = sptLocale;
+                break;
+            }
+        }
+        return tarkovSpt.localesOld({...options, targetFile: localeFilename}).then(locales => locales[locale]);
+    },
     locales: async (options = defaultOptions) => {
         const localeData = await getFolderData({
             ...options,
@@ -289,6 +299,23 @@ const tarkovSpt = {
         const locales = {};
         for (const sptLocale in localeData) {
             const isoLocale = sptLangs[sptLocale];
+            if (!isoLocale) {
+                continue;
+            }
+            locales[isoLocale] = localeData[sptLocale];
+        }
+        return locales;
+    },
+    localesOld: async (options = defaultOptions) => {
+        const localeData = await getFolderData({
+            ...options,
+            folderLabel: 'locales',
+            folderPath: `contents/${sptDataPathStub}locales/global`,
+            filePrefix: 'locale_old',
+        });
+        const locales = {};
+        for (const sptLocale in localeData) {
+            const isoLocale = sptLocale !== 'en' ? sptLangs[sptLocale] : 'en';
             if (!isoLocale) {
                 continue;
             }
