@@ -153,7 +153,7 @@ class UpdateTypesJob extends DataJob {
                 this.logger.warn(`${itemId} ${item.name} lacks item properties`);
                 continue;
             }
-            if (item.types.includes('no-flea') && this.bsgData[itemId]._props.CanSellOnRagfair && this.bsgData[itemId]._parent !== '6575ea719c7cad336508e418') {
+            if (item.types.includes('no-flea') && this.canSellOnFlea(this.bsgData[itemId])) {
                 this.logger.warn(`You can sell ${itemId} ${item.name} on flea, but it is marked as noFlea`);
 
                 await remoteData.removeType(itemId, 'no-flea').then(results => {
@@ -161,7 +161,7 @@ class UpdateTypesJob extends DataJob {
                         this.logger.fail(`Not marked as no-flea ${itemId} ${item.name}`);
                     }
                 });
-            } else if (!item.types.includes('no-flea') && !this.bsgData[itemId]._props.CanSellOnRagfair) {
+            } else if (!item.types.includes('no-flea') && !this.canSellOnFlea(this.bsgData[itemId])) {
                 this.logger.warn(`You can't sell ${itemId} ${item.name} on flea`);
     
                 await remoteData.addType(itemId, 'no-flea').then(results => {
@@ -218,6 +218,19 @@ class UpdateTypesJob extends DataJob {
             category = this.bsgData[category]._parent;
         }
         return false;
+    }
+
+    canSellOnFlea = (item) => {
+        if (!item._props.CanSellOnRagfair) {
+            return false;
+        }
+        if (item._parent === '5485a8684bdc2da71d8b4567') { // ammo
+            return false;
+        }
+        if (item._parent === '543be5cb4bdc2deb348b4568') { // ammo boxes
+            return false;
+        }
+        return true;
     }
 }
 

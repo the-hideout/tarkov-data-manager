@@ -469,7 +469,7 @@ const methods = {
             ON DUPLICATE KEY UPDATE
                 ${updateFields.join(', ')}
         `, [...insertValues, ...updateValues]);
-        console.log('insertResult', insertResult);
+        //console.log('insertResult', insertResult);
         if (insertResult.affectedRows > 0) {
             if (values.types) {
                 await methods.addTypes(values.id, values.types);

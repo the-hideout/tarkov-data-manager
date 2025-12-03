@@ -5,9 +5,9 @@ import remoteData from '../modules/remote-data.mjs';
 import scannerApi from '../modules/scanner-api.mjs';
 import gameModes from '../modules/game-modes.mjs';
 
-class UpdateSummaryPricesJob extends DataJob {
+class UpdateFleaPricesJob extends DataJob {
     constructor(options) {
-        super({...options, name: 'update-summary-prices'});
+        super({...options, name: 'update-flea-prices'});
     }
 
     async run() {
@@ -23,12 +23,12 @@ class UpdateSummaryPricesJob extends DataJob {
             }
             const gameMode = gameModeInfo.name;
             const [
-                summaryPrices,
+                latestPrices,
                 lastPrices,
                 items,
                 scannerOptions,
             ] = await Promise.all([
-                spApi.getAllSummaryPrices(gameMode),
+                spApi.itemsOverview(gameMode),
                 db.query(`
                     SELECT
                         a.item_id,
@@ -72,56 +72,84 @@ class UpdateSummaryPricesJob extends DataJob {
                     });
                 }),
             ]);
-            this.logger.log(`Retrieved ${summaryPrices.length} summary prices`);
+            const insertActions = [];
+            const scannedActions = [];
+            this.logger.log(`Retrieved ${latestPrices.length} flea prices`);
             let newPrices = 0;
             let newScanned = 0;
             let current = 0;
-            for (const price of summaryPrices) {
-                const item = items.get(price.tarkov_id);
+            for (const itemPrice of latestPrices) {
+                const item = items.get(itemPrice.tarkovId);
                 if (!item) {
                     // we don't have this item
                     continue;
                 }
-                const lastPrice = lastPrices[price.tarkov_id];
+                const lastPrice = lastPrices[itemPrice.tarkovId];
                 const options = {
                     ...scannerOptions,
                     itemId: item.id,
+                    itemPrices: [],
                 };
                 const lastPriceTimestamp = Math.max(
                     lastPrice?.timestamp?.getTime() ?? 0,
                     item.lastScan?.getTime() ?? 0,
                 );
                 const lastPriceDate = new Date(lastPriceTimestamp);
-                const summaryPriceDate = this.roundDateToNearestSecond(new Date(price.timestamp));
-                if (lastPriceDate < summaryPriceDate) {
-                    options.timestamp = summaryPriceDate;
+                const latestPriceDate = new Date(itemPrice.latestPriceSample.sampleTimeEpoch * 1000);
+                if (lastPriceDate < latestPriceDate) {
+                    options.timestamp = latestPriceDate;
                     // price data is new
-                    if (price.min_price) {
+                    if (itemPrice.latestPriceSample.minPrice) {
                         // insert new price
-                        this.logger.log(`${item.name} ${item.id} New prices: ${price.min_price}, ${price.avg_price}`);
                         newPrices++;
-                        options.min = price.min_price;
-                        options.avg = price.avg_price;
-                        scannerApi.insertSummaryPrices(options).catch(error => {
+                        options.offerCount = itemPrice.latestPriceSample.listingCount;
+                        for (const scanned of itemPrice.latestPriceSample.latestSupplyPressure) {
+                            const price = scanned[0];
+                            for (let i = 0; i < scanned[1].length; i++) {
+                                options.itemPrices.push({
+                                    seller: 'Player',
+                                    price,
+                                    currency: 'RUB',
+                                });
+                            }
+                        }
+                        options.itemPrices = options.itemPrices.slice(0, 12);
+                        //this.logger.log(`${item.name} ${item.id} ${options.itemPrices.length} New prices: ${itemPrice.latestPriceSample.minPrice}, ${itemPrice.latestPriceSample.robustAvgPrice}`);
+                        insertActions.push(scannerApi.insertPrices(options).then(response => {
+                            return {item, response};
+                        }).catch(error => {
                             this.addJobSummary(`${item.name} ${item.id}: ${error.message}`, 'Price Insert Error');
-                            this.logger.log(`Error inserting ${item.name} ${item.id} summary prices: ${error.message}`);
-                        });
+                            this.logger.log(`Error inserting ${item.name} ${item.id} prices: ${error.message}`);
+                        }));
                     } else {
                         // set item scanned
                         //this.logger.log(`${item.name} ${item.id} scanned`);
                         newScanned++;
                         options.scanned = true;
-                        scannerApi.releaseItem(options).catch(error => {
+                        scannedActions.push(scannerApi.releaseItem(options).catch(error => {
                             this.addJobSummary(`${item.name} ${item.id}: ${error.message}`, 'Set Scanned Error');
                             this.logger.log(`Error setting ${item.name} ${item.id} scanned: ${error.message}`);
-                        });
+                        }));
                     }
-                } else if (lastPriceDate.getTime() === summaryPriceDate.getTime()) {
+                } else if (lastPriceDate.getTime() === latestPriceDate.getTime()) {
                     current++;
                 } else {
-                    //this.logger.log(`${item.name} ${item.id} current price older than last price: last price: ${lastPriceDate} current price: ${summaryPriceDate}`);
+                    //this.logger.log(`${item.name} ${item.id} current price older than last price: last price: ${lastPriceDate} current price: ${latestPriceDate}`);
                 }
             }
+            await Promise.all(insertActions).then(responses => {
+                for (const response of responses) {
+                    if (response.response.warnings?.length) {
+                        this.logger.log(`Warning inserting ${response.item.name} ${response.item.id} prices: ${response.response.warnings.join(', ')}`)
+                    }
+                    if (!response.response.errors?.length) {
+                        //this.logger.log(`${response.item.name} ${JSON.stringify(response.response.data, null, 4)}`)
+                        continue;
+                    }
+                    this.logger.log(`Error inserting ${response.item.name} ${response.item.id} prices: ${response.response.errors.join(', ')}`)
+                }
+            });
+            await Promise.all(insertActions);
             this.logger.log(`${gameMode}: ${current} items already current, inserted ${newPrices} new prices, set ${newScanned} additional items as scanned`);
         }
     }
@@ -132,4 +160,4 @@ class UpdateSummaryPricesJob extends DataJob {
     }
 }
 
-export default UpdateSummaryPricesJob;
+export default UpdateFleaPricesJob;
