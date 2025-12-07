@@ -1,11 +1,11 @@
 
 const BASE_URL = process.env.SP_API_URL;
 
-const ApiRequest = (path, options = {}) => {
+const ApiRequest = async (path, options = {}) => {
     if (!path) {
         throw new Error('No path specified');
     }
-    const url = new URL(`${BASE_URL}${path}`);
+    const url = new URL(`https://publicfleaapi.asoloproject.xyz/api/v2${path}`);
     const method = options.method ?? 'GET';
     const body = options.body ? JSON.stringify(options.body) : undefined;
     if (options.params) {
@@ -13,15 +13,14 @@ const ApiRequest = (path, options = {}) => {
             url.searchParams.set(paramName, options.params[paramName]);
         }
     }
-    return fetch(url, {
-        headers: {
-            'X-API-KEY': process.env.SP_X_API_KEY,
-            'CF-ACCESS-CLIENT-ID': process.env.SP_CF_ACCESS_CLIENT_ID,
-            'CF-ACCESS-CLIENT-SECRET': process.env.SP_CF_ACCESS_CLIENT_SECRET,
-        },
+    const response = await fetch(url, {
         method,
         body,
     });
+    if (!response.ok) {
+        return Promise.reject(new Error(`${response.statusText} ${response.status}`));
+    }
+    return response.json();
 };
 
 const getGameType = (gameMode) => {
@@ -32,38 +31,21 @@ const getGameType = (gameMode) => {
 }
 
 const spApi = {
-    getFleaSummaryPrice: async (item, gameMode = 'regular') => {
-        const response = await ApiRequest(`/flea/${getGameType(gameMode)}/item/${item.id}/price`);
-        if (!response.ok) {
-            if (response.status === 404) {
-                return {
-                    tarkov_id: item.id,
-                    name: item.name,
-                    short_name: item.shortName,
-                    min_price: 0,
-                    max_price: 0,
-                    avg_price: 0,
-                }
-            }
-            return Promise.reject(new Error(`${response.statusText} ${response.status} getting summary price for ${item.name} ${item.id}`));
+    itemsOverview: async (gameMode = 'regular') => {
+        const apiResponse = await ApiRequest(`/flea-advanced/${getGameType(gameMode)}/items-overview`);
+        if (!apiResponse.items) {
+            return Promise.reject(new Error('Response missing items attribute'));
         }
-        const responseData = await response.json();
-        if (!responseData.success) {
-            return Promise.reject(new Error('Response did not indicate success'));
-        }
-        return responseData.data;
+        return apiResponse.items;
     },
-    getAllSummaryPrices: async (gameMode = 'regular') => {
-        const response = await ApiRequest(`/flea/${getGameType(gameMode)}/prices/all`);
-        if (!response.ok) {
-            return Promise.reject(new Error(`${response.statusText} ${response.status} getting summary prices`));
+    traderPrices: async (gameMode = 'regular') => {
+        const apiResponse = await ApiRequest(`/flea-advanced/${getGameType(gameMode)}/traders/offers`);
+        if (!apiResponse.data) {
+            return Promise.reject(new Error('Response missing data attribute'));
         }
-        const responseData = await response.json();
-        if (!responseData.success) {
-            return Promise.reject(new Error('Response did not indicate success'));
-        }
-        return responseData.data;
+        return apiResponse;
     },
+
 };
 
 export default spApi;

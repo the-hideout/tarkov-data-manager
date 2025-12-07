@@ -170,17 +170,10 @@ const tarkovDevData = {
     },
     downloadAll: async(options = defaultOptions) => {
         options = {...merge(options), download: true};
-        const skip = {
-            pve: [
-                'achievements',
-                'achievementStats',
-                'customization',
-                'prestige',
-            ],
-        };
+        const gameMode = getGameMode(options.gameMode);
         const promises = [];
         for (const file in availableFiles) {
-            if (skip[options.gameMode]?.includes(file)) continue;
+            if (gameMode.skipData?.includes(file)) continue;
             promises.push(tarkovDevData[file](options)
                 .then(data => { return {name: file, data}; })
                 .catch(error => { return {name: file, error}; })
