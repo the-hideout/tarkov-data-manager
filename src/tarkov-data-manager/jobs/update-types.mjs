@@ -228,7 +228,7 @@ class UpdateTypesJob extends DataJob {
             return false;
         }
         if (item._parent === '543be5cb4bdc2deb348b4568') { // ammo boxes
-            return false;
+            //return false;
         }
         return true;
     }
