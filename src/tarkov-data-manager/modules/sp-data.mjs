@@ -16,6 +16,7 @@ const ApiRequest = async (path, options = {}) => {
     const response = await fetch(url, {
         method,
         body,
+        signal: options.signal ?? AbortSignal.timeout(30000),
     });
     if (!response.ok) {
         return Promise.reject(new Error(`${response.statusText} ${response.status}`));
