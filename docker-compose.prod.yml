@@ -15,6 +15,10 @@ services:
       - db_prod_certs:/etc/mysql/certs
 
   backup:
+    # Only start this when the Azure backup profile is explicitly enabled.
+    # ex: `docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile azure-backup up -d`
+    profiles:
+      - azure-backup
     environment:
       NODE_ENV: production
     env_file:
