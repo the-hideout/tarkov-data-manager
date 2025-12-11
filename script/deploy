@@ -5,6 +5,7 @@
 set -e
 
 BASE_BRANCH="main"
+DC_CMD="docker-compose"
 
 function usage() {
   echo -e "\t ============================== script/deploy usage =============================="
@@ -81,6 +82,16 @@ function checkout_ref() {
 function main() {
   parse_args "$@"
 
+  # prefer docker-compose, fallback to docker compose
+  if command -v docker-compose >/dev/null 2>&1; then
+    DC_CMD="docker-compose"
+  elif command -v docker >/dev/null 2>&1; then
+    DC_CMD="docker compose"
+  else
+    echo "ERROR: docker is not installed"
+    exit 1
+  fi
+
   # If a deployment dir is specified, enter it
   if [[ -n $dir ]]; then
     cd $dir || { echo "ERROR: failed to change directory to $dir"; exit 1; }
@@ -106,10 +117,10 @@ function main() {
   ############################
 
   echo "[-] Killing old docker processes"
-  sudo -E bash -c 'source ~/.profile && docker-compose -f docker-compose.yml -f docker-compose.prod.yml down -v -t 1'
+  sudo -E bash -c "source ~/.profile && $DC_CMD -f docker-compose.yml -f docker-compose.prod.yml down -v -t 1"
 
   echo "[i] Building docker containers"
-  sudo -E bash -c 'source ~/.profile && docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d'
+  sudo -E bash -c "source ~/.profile && $DC_CMD -f docker-compose.yml -f docker-compose.prod.yml up --build -d"
 
   echo "[+] Containers are now running!"
 }
