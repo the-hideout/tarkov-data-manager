@@ -78,7 +78,7 @@ const skipOffers = {
     '5ac3b934156ae10c4430e83c': { // ragman
         1: [
             {
-                reward: '679b9819a2f2dd4da9023512',
+                reward: '679b9819a2f2dd4da9023512', // Labrys access keycard
                 requirements: [
                     '5734758f24597738025ee253', // Golden neck chain
                     '5c12688486f77426843c7d32', // Paracord
