@@ -17,7 +17,7 @@ const sptConfigPath = `${sptPath}${sptConfigPathStub}`;
 
 const sptApiPath = 'https://api.github.com/repos/sp-tarkov/server-csharp/';
 
-const lfsPath = 'https://lfs.sp-tarkov.com/sp-tarkov/server-csharp/';
+const lfsPath = 'https://spt-lfs.sp-tarkov.com/sp-tarkov/server-csharp/';
 const lfsPointerRegEx = /version https:\/\/git-lfs\.github\.com\/spec\/v[0-9]\Woid sha256:(?<oid>[a-z0-9]+)\Wsize (?<size>[0-9]+)/;
 
 const sptLangs = {
@@ -66,6 +66,9 @@ const setBranch = async () => {
                 resolveBodyOnly: true,
                 searchParams: {
                     //access_token: process.env.SPT_TOKEN,
+                },
+                headers: {
+                    'Authorization': `Bearer ${process.env.GH_API_TOKEN}`,
                 },
             });
             for (const b of branches) {    
@@ -126,7 +129,7 @@ const downloadJson = async (fileName, path, download = false, writeFile = true, 
         return JSON.parse(fs.readFileSync(cachePath(fileName)));
     } catch (error) {
         if (error.code === 'ENOENT') {
-            return downloadJson(fileName, path, true);
+            return downloadJson(fileName, path, true, writeFile, saveElement);
         }
         return Promise.reject(error);
     }
@@ -147,6 +150,9 @@ const apiRequest = async (request, searchParams) => {
             //access_token: process.env.SPT_TOKEN,
             ...searchParams,
             ref: branch,
+        },
+        headers: {
+            'Authorization': `Bearer ${process.env.GH_API_TOKEN}`,
         },
     });
     if (response.ok) {
@@ -362,7 +368,7 @@ const tarkovSpt = {
             }
             const oldLooseLootInfo = oldLocationIndex?.find(f => f.name === 'looseLoot.json');
             const fileIsNew = !oldLooseLootInfo || looseLootInfo?.sha !== oldLooseLootInfo.sha;
-            mapLootPromises.push(downloadJson(`${map.Id.toLowerCase()}_loot.json`, `${sptDataPath}locations/${locations.locations[id].Id.toLowerCase()}/looseLoot.json`, download && fileIsNew, true).then(lootJson => {
+            mapLootPromises.push(downloadJson(`${map.Id.toLowerCase()}_loot.json`, `${sptDataPath}locations/${locations.locations[id].Id.toLowerCase()}/looseLoot.json`, download && fileIsNew).then(lootJson => {
                 mapLoot[id] = lootJson;
             }).catch(error => {
                 if (error.code === 'ERR_NON_2XX_3XX_RESPONSE') {
@@ -372,7 +378,11 @@ const tarkovSpt = {
                 return Promise.reject(error);
             }));
         }
-        await Promise.all(mapLootPromises);
+        const settled = await Promise.allSettled(mapLootPromises);
+        const error = settled.find(p => p.status === 'rejected')?.reason;
+        if (error) {
+            return Promise.reject(error);
+        }
         return mapLoot;
     },
     botInfo: async (botKey, options = defaultOptions) => {
