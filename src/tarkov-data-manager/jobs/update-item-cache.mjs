@@ -180,7 +180,7 @@ class UpdateItemCacheJob extends DataJob {
 
             // add item properties
             itemProperties[key] = await getSpecialItemProperties(itemData[key]);
-            itemData[key].minFleaLevel = this.getMinFleaLevel(key);
+            itemData[key].minLevelForFlea = this.getMinFleaLevel(key);
             if (this.bsgItems[key]) {
                 this.addPropertiesToItem(itemData[key]);
                 itemData[key].bsgCategoryId = this.bsgItems[key]._parent;
@@ -572,7 +572,7 @@ class UpdateItemCacheJob extends DataJob {
                     modeData.Item[id].updated = dbItem[`${gameMode.name}_last_scan`];
                 }
                 itemProperties[id] = await getSpecialItemProperties(item);
-                item.minFleaLevel = this.getMinFleaLevel(id);
+                item.minLevelForFlea = this.getMinFleaLevel(id);
             }
 
             // add base item prices to default presets
