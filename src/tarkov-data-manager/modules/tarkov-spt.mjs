@@ -47,6 +47,11 @@ const branches = [
 
 let branch, branchSetPromise;
 
+const ghHeaders = process.env.GH_API_TOKEN ? 
+    {
+        'Authorization': `Bearer ${process.env.GH_API_TOKEN}`,
+    } : {};
+
 const defaultOptions = dataOptions.default;
 const merge = dataOptions.merge;
 
@@ -64,12 +69,7 @@ const setBranch = async () => {
             const response = await got(url, {
                 responseType: 'json',
                 resolveBodyOnly: true,
-                searchParams: {
-                    //access_token: process.env.SPT_TOKEN,
-                },
-                headers: {
-                    'Authorization': `Bearer ${process.env.GH_API_TOKEN}`,
-                },
+                headers: ghHeaders,
             });
             for (const b of branches) {    
                 if (response.some(remoteBranch => remoteBranch.name === b)) {
@@ -145,15 +145,11 @@ const apiRequest = async (request, searchParams) => {
     const url = `${sptApiPath}${request}`;
     const response = await got(url, {
         throwHttpErrors: false,
-        //responseType: 'json',
         searchParams: {
-            //access_token: process.env.SPT_TOKEN,
             ...searchParams,
             ref: branch,
         },
-        headers: {
-            'Authorization': `Bearer ${process.env.GH_API_TOKEN}`,
-        },
+        headers: ghHeaders,
     });
     if (response.ok) {
         return JSON.parse(response.body);
