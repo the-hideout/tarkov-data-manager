@@ -6,7 +6,6 @@ import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import { dashToCamelCase, camelCaseToTitleCase } from '../modules/string-functions.mjs';
 import { setItemPropertiesOptions, getSpecialItemProperties } from '../modules/get-item-properties.js';
-import webSocketServer from '../modules/websocket-server.mjs';
 import { createAndUploadFromSource } from '../modules/image-create.mjs';
 import TranslationHelper from '../modules/translation-helper.mjs';
 import { getLocalBucketContents, uploadAnyImage } from '../modules/upload-s3.mjs';
@@ -181,6 +180,7 @@ class UpdateItemCacheJob extends DataJob {
 
             // add item properties
             itemProperties[key] = await getSpecialItemProperties(itemData[key]);
+            itemData[key].minFleaLevel = this.getMinFleaLevel(key);
             if (this.bsgItems[key]) {
                 this.addPropertiesToItem(itemData[key]);
                 itemData[key].bsgCategoryId = this.bsgItems[key]._parent;
@@ -572,6 +572,7 @@ class UpdateItemCacheJob extends DataJob {
                     modeData.Item[id].updated = dbItem[`${gameMode.name}_last_scan`];
                 }
                 itemProperties[id] = await getSpecialItemProperties(item);
+                item.minFleaLevel = this.getMinFleaLevel(id);
             }
 
             // add base item prices to default presets
@@ -944,6 +945,17 @@ class UpdateItemCacheJob extends DataJob {
         console.log(`Downloaded ${category.Id} category image`);
         await uploadAnyImage(image, s3FileName, 'image/webp');
         return s3ImageLink;
+    }
+
+    getMinFleaLevel(id) {
+        let item = this.bsgItems[id];
+        if (!item && this.presets[id]) {
+            item = this.bsgItems[this.presets[id].baseId];
+        }
+        if (!item) {
+            return 0;
+        }
+        return item._props.RagfairLevelToTrade ?? 0;
     }
 }
 
