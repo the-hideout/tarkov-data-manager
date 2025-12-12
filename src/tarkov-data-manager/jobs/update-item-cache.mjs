@@ -647,6 +647,7 @@ class UpdateItemCacheJob extends DataJob {
             parent_id: null,
             child_ids: [],
             imageLink: await this.getHandbookCategoryImageLink(category),
+            minLevelForFlea: category.RagfairLevelToTrade,
         };
     
         const parentId = category.ParentId;
@@ -955,7 +956,26 @@ class UpdateItemCacheJob extends DataJob {
         if (!item) {
             return 0;
         }
-        return item._props.RagfairLevelToTrade ?? 0;
+        const itemLevel = item._props.RagfairLevelToTrade ?? 0;
+        if (itemLevel !== 0) {
+            return itemLevel;
+        }
+        const itemEntry = this.handbook.Items.find(entry => entry.Id === item._id);
+        if (!itemEntry) {
+            return itemLevel;
+        }
+        const category = this.handbook.Categories.find(c => c.Id === itemEntry.ParentId);
+        if (!category) {
+            return itemLevel;
+        }
+        const getHighestHandbookLevel = (cat) => {
+            const catLevel = cat.RagfairLevelToTrade ?? 0;
+            if (!cat.ParentId) {
+                return catLevel;
+            }
+            return Math.max(catLevel, getHighestHandbookLevel(this.handbook.Categories.find(c => c.Id === cat.ParentId)));
+        };
+        return Math.max(itemLevel, getHighestHandbookLevel(category));
     }
 }
 
