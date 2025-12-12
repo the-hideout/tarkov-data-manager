@@ -76,6 +76,17 @@ const skipOffers = {
         ],
     },
     '5ac3b934156ae10c4430e83c': { // ragman
+        1: [
+            {
+                reward: '679b9819a2f2dd4da9023512', // Labrys access keycard
+                requirements: [
+                    '5734758f24597738025ee253', // Golden neck chain
+                    '5c12688486f77426843c7d32', // Paracord
+                    '61bf83814088ec1a363d7097', // Sewing kit
+                    '59e3556c86f7741776641ac2', // Ox Bleach
+                ],
+            }
+        ],
         4: [
             {
                 reward: '5f60c74e3b85f6263c145586', // Rys-T bulletproof helmet (Black)

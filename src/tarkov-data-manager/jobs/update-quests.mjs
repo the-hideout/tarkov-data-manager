@@ -2180,9 +2180,7 @@ const skipQuests = [
     '67a0966817e34930e500754c', // Forced Alliance
     '67a0967c003a9986cb0f5ac1', // Sensory Analysis - Part 1
     '67a096ed77dd677f600804ba', // Sensory Analysis - Part 2
-    '67a096f605d1611ed90be75a', // Hot Zone
     '67a0970744893b9f3f0d9b68', // Offensive Reconnaissance
-    '67a09673972c11a3f507731d', // The Tarkov Butcher
     '67d03be712fb5f8fd2096332', // Vacate the Premises
     '67a0970f05d1611ed90be75d', // Hypothesis Testing
     '67a09724972c11a3f5077324', // Confidential Info
@@ -2195,6 +2193,8 @@ const skipQuests = [
     '67f3eaa3a7799274d50a8b66', // Preemptive Strive
     '67f3eab9a33cd296b20ee695', // Staff Shortage
     '67f3eacef649e7bceb0bb455', // Fearless Beast
+    '67a096f605d1611ed90be75a', // Hot Zone
+    '67a09673972c11a3f507731d', // The Tarkov Butcher
 ];
 
 // Secure Folder 0013 appears on multiple maps

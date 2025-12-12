@@ -272,6 +272,29 @@ const getArmorDurability = (item) => {
     }, 0);
 };
 
+const setRicochetValues = (properties, item) => {
+    properties.ricochetX = item._props.RicochetParams.x;
+    properties.ricochetY = item._props.RicochetParams.y;
+    properties.ricochetZ = item._props.RicochetParams.z;
+    if(!item._props.Slots) {
+        return;
+    }
+    for (const slot of item._props.Slots) {
+        const filter = slot._props.filters[0];
+        if (!filter.locked) {
+            continue;
+        }
+        const plate = job.bsgItems[filter.Plate];
+        if (!plate?._props.RicochetParams) {
+            continue;
+        }
+        properties.ricochetX = plate._props.RicochetParams.x;
+        properties.ricochetY = plate._props.RicochetParams.y;
+        properties.ricochetZ = plate._props.RicochetParams.z;
+        break;
+    }
+};
+
 const grenadeMap = {
     'Grenade_new': 'Grenade',
     'Grenade_new2': 'Impact Grenade',
@@ -433,9 +456,6 @@ const getItemProperties = async (tarkovDevItem) => {
                 turnPenalty: parseFloat(item._props.mousePenalty) / 100,
                 ergoPenalty: parseFloat(item._props.weaponErgonomicPenalty) /100,
                 blindnessProtection: item._props.BlindnessProtection,
-                ricochetX: item._props.RicochetParams.x,
-                ricochetY: item._props.RicochetParams.y,
-                ricochetZ: item._props.RicochetParams.z,
                 armor_material_id: item._props.ArmorMaterial,
                 headZones: translationHelper.addTranslation(getArmorZones(item)),
                 armorType: translationHelper.addTranslation(item._props.ArmorType, (lang) => {
@@ -449,6 +469,7 @@ const getItemProperties = async (tarkovDevItem) => {
                 slots: getSlots(item),
                 armorSlots: getArmorSlots(item),
             };
+            setRicochetValues(properties, item);
             if (hasCategory(item, ['5a341c4086f77401f2541505', '5a341c4686f77469e155819e'])) {
                 properties.propertiesType = 'ItemPropertiesHelmet';
                 properties.deafening = item._props.DeafStrength;

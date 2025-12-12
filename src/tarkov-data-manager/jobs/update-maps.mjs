@@ -62,7 +62,7 @@ class UpdateMapsJob extends DataJob {
         for (const mapId in this.mapLoot) {
             // collapse items contained within items down to a a single item
             this.mapLooseLoot[mapId] = [
-                ...this.mapLoot[mapId].spawnpoints.map(sp => this.processLootSpawnPointItems(sp)),
+                ...(this.mapLoot[mapId].spawnpoints?.map(sp => this.processLootSpawnPointItems(sp)) ?? []),
                 ...(this.mapLoot[mapId].spawnpointsForced?.map(sp => this.processLootSpawnPointItems(sp)) ?? []),
             ];
             this.mapLooseLoot[mapId] = this.mapLooseLoot[mapId].filter(sp => sp.template.Items.length > 0);
