@@ -24,7 +24,7 @@ import { createAndUploadFromSource, regenerateFromExisting } from './modules/ima
 import webSocketServer from './modules/websocket-server.mjs';
 import jobManager from './jobs/index.mjs';
 import presetData from './modules/preset-data.mjs';
-import tarkovDevData from './modules/tarkov-dev-data.mjs';
+import tarkovDevData from './modules/tarkov-data-tarkov-dev.mjs';
 
 vm.runInThisContext(fs.readFileSync(import.meta.dirname + '/public/common.js'));
 

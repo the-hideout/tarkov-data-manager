@@ -1,5 +1,5 @@
 import DataJob from '../modules/data-job.mjs';
-import spt from '../modules/tarkov-spt.mjs';
+import spt from '../modules/tarkov-data-spt.mjs';
 
 class UpdateLangJob extends DataJob {
     constructor(options) {

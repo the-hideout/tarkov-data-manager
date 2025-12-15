@@ -3,7 +3,7 @@
 import DataJob from '../modules/data-job.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import remoteData from '../modules/remote-data.mjs';
-import spApi from '../modules/sp-data.mjs';
+import spApi from '../modules/tarkov-data-sp.mjs';
 import presetData from '../modules/preset-data.mjs';
 import dogtags from '../modules/dogtags.mjs';
 

@@ -1,5 +1,5 @@
 import DataJob from '../modules/data-job.mjs';
-import tarkovDevData from '../modules/tarkov-dev-data.mjs';
+import tarkovDevData from '../modules/tarkov-data-tarkov-dev.mjs';
 import webSocketServer from '../modules/websocket-server.mjs';
 import gameModes from '../modules/game-modes.mjs';
 

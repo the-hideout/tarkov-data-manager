@@ -3,7 +3,6 @@ import got from 'got';
 import DataJob from '../modules/data-job.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import s3 from '../modules/upload-s3.mjs';
-import tarkovChanges from '../modules/tarkov-changes.mjs';
 
 class UpdateTradersJob extends DataJob {
     constructor(options) {

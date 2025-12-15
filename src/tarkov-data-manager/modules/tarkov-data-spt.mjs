@@ -4,7 +4,7 @@ import path from 'node:path';
 import got from 'got';
 import sharp from 'sharp';
 
-import tarkovChanges from './tarkov-changes.mjs';
+import tarkovChanges from './tarkov-data-tarkov-changes.mjs';
 import discordWebhook from './webhook.mjs';
 import dataOptions from './data-options.mjs';
 

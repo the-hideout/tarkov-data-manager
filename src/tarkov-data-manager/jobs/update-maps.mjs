@@ -18,6 +18,8 @@ const enableMaps = [
     '5714dc692459777137212e12', // Streets of Tarkov
     '5704e3c2d2720bac5b8b4567', // Woods
     '5b0fc42d86f7744a585f9105', // Labs
+    '65cc8f81a9aac3e77d0cfd3e', // Terminal
+    //'6925a2c38bdebd9e2302692e', // Terminal?
 ];
 
 class UpdateMapsJob extends DataJob {
@@ -36,6 +38,7 @@ class UpdateMapsJob extends DataJob {
             this.mapLoot,
             this.eftItems,
             this.hideout,
+            this.botsHealth,
             this.goonReports,
         ] = await Promise.all([
             remoteData.get(),
@@ -45,7 +48,9 @@ class UpdateMapsJob extends DataJob {
             tarkovData.mapLoot(),
             tarkovData.items(),
             tarkovData.areas(),
+            tarkovData.botsHealth().then(json => json.groups),
             this.query('SELECT * FROM goon_reports WHERE timestamp >= now() - INTERVAL 1 DAY'),
+
         ]);
         this.mapRotationData = JSON.parse(fs.readFileSync('./data/map_coordinates.json'));
         this.bossLoadouts = {};
@@ -259,7 +264,7 @@ class UpdateMapsJob extends DataJob {
                             ...extract.location,
                         };
                     }) ?? [],
-                    transits: map.transits.map(transit => {
+                    transits: map.transits?.map(transit => {
                         if (!transit.active) {
                             return false;
                         }
@@ -279,7 +284,7 @@ class UpdateMapsJob extends DataJob {
                             conditions,
                             ...locationData.location,
                         };
-                    }).filter(Boolean),
+                    }).filter(Boolean) ?? [],
                     locks: this.mapDetails[id]?.locks.map(lock => {
                         const keyItem = this.items.get(lock.key);
                         if (!keyItem || keyItem.types.includes('disabled')) {
@@ -450,6 +455,13 @@ class UpdateMapsJob extends DataJob {
                         enemySet.add('scavs');
                         continue;
                     }
+                    if (spawn.BossName === 'civilian') {
+                        continue;
+                    }
+                    if (spawn.BossName === 'assault') {
+                        enemySet.add('scavs');
+                        continue;
+                    }
                     if (spawn.BossName === 'bossKillaAgro') {
                         const tagillaSpawn = mapData.bosses.find(s => s.id === 'bossTagillaAgro');
                         if (!tagillaSpawn) {
@@ -534,7 +546,7 @@ class UpdateMapsJob extends DataJob {
                                 if (langCode !== 'en' && this.locales.en[locationCount[locationName].key]) {
                                     return this.locales.en[locationCount[locationName].key];
                                 }
-                                this.logger.warn(`No translation found for spawn location ${locationCount[locationName].key}`);
+                                //this.logger.warn(`No translation found for spawn location ${locationCount[locationName].key}`);
                                 return locationName;
                             }),
                             chance: Math.round((locationCount[locationName].count / locations.length) * 100) / 100,
@@ -866,6 +878,7 @@ class UpdateMapsJob extends DataJob {
     }
 
     getBossInfo = async (bossKey) => {
+        const originalBossKey = bossKey.toLowerCase();
         bossKey = this.getMobKey(bossKey);
         if (this.processedBosses[bossKey]) {
             return this.processedBosses[bossKey];
@@ -938,17 +951,30 @@ class UpdateMapsJob extends DataJob {
             await s3.uploadAnyImage(image.resize(128, 128), portraitFilename, 'image/webp');
             this.s3Images.push(portraitFilename);
         }
+        const bossHealth = this.botsHealth.find(b => b.role.toLowerCase() === originalBossKey);
+        if (bossHealth) {
+            bossInfo.health = bossHealth.healthParts.map(healthPart => {
+                return {
+                    id: healthPart.bodyPart,
+                    bodyPart: this.addTranslation(`QuestCondition/Elimination/Kill/BodyPart/${healthPart.bodyPart}`),
+                    max: healthPart.hp,
+                };
+            });
+        }
+        this.processedBosses[bossKey] = bossInfo;
         if (!bossExtraData) {
-            this.processedBosses[bossKey] = bossInfo;
             return bossInfo;
         }
-        bossInfo.health = Object.keys(bossExtraData.health.BodyParts[0]).map(bodyPart => {
-            return {
-                id: bodyPart,
-                bodyPart: this.addTranslation(`QuestCondition/Elimination/Kill/BodyPart/${bodyPart}`),
-                max: bossExtraData.health.BodyParts[0][bodyPart].max,
-            };
-        });
+        if (!bossInfo.health) {
+            bossInfo.health = Object.keys(bossExtraData.health.BodyParts[0]).map(bodyPart => {
+                return {
+                    id: bodyPart,
+                    bodyPart: this.addTranslation(`QuestCondition/Elimination/Kill/BodyPart/${bodyPart}`),
+                    max: bossExtraData.health.BodyParts[0][bodyPart].max,
+                };
+            });
+        }
+        return bossInfo; // ignore equipment since it's pre-1.0 data
         for (const slotName in bossExtraData.inventory.equipment) {
             const totalWeight = Object.keys(bossExtraData.inventory.equipment[slotName]).reduce((total, id) => {
                 if (this.isValidItem(id)) {
@@ -1010,7 +1036,6 @@ class UpdateMapsJob extends DataJob {
                 });
             }
         }
-        this.processedBosses[bossKey] = bossInfo;
         return bossInfo;
     }
 
