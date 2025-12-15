@@ -1,24 +1,24 @@
 import { DateTime } from 'luxon';
 
-import { jobOutput } from '../jobs/index.mjs';
 import dbConnection from './db-connection.mjs';
 import { alert } from './webhook.mjs';
+import tarkovData from './tarkov-data.mjs';
 
 const allMaps = { timestamp: DateTime.now().toFormat('yyyy-LL-dd HH:mm:ss'), maps: [] };
 
 const raidTypes = ['scav', 'pmc', 'pve', 'unknown'];
 
 const validateMap = async (req, res) => {
-    // Check if allMaps has data and is from the last 1 hour cache time
+    // Check if allMaps has data and is from the last 15 minutes
     if (allMaps.timestamp > DateTime.now().minus({minutes: 15}).toFormat('yyyy-LL-dd HH:mm:ss') && allMaps.maps.length > 0) {
         // console.log('public-api: using cached map data');
     } else {
         // Fetch all current maps
-        const allMapsRaw = await jobOutput('update-maps');
+        const allMapsRaw = await tarkovData.locations();
 
         // Update the allMaps object in the memory cache
         allMaps.timestamp = DateTime.now().toFormat('yyyy-LL-dd HH:mm:ss');
-        allMaps.maps = allMapsRaw;
+        allMaps.maps = Object.values(allMapsRaw.locations).map(m => m.Id);
         // console.log('public-api: using fresh map data');
     }
 
@@ -30,8 +30,8 @@ const validateMap = async (req, res) => {
     } else {
         map = req.body.map;
         // If the map is not valid, return an error
-        if (!allMaps.maps.some(mapItem => mapItem.nameId === map)) {
-            res.status(400).send(`value 'map' must be one of: ${allMaps.maps.map(map => map.nameId).join(', ')}`);
+        if (!allMaps.maps.includes(map)) {
+            res.status(400).send(`value 'map' must be one of: ${allMaps.maps.join(', ')}`);
             return false;
         }
     }
