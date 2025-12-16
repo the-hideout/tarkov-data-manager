@@ -46,7 +46,13 @@ const spApi = {
         }
         return apiResponse;
     },
-
+    botsHealth: async () => {
+        const response = await fetch('https://tarkovbotroleapi.asoloproject.xyz/api/bot-health');
+        if (!response.ok) {
+            return Promise.reject(new Error(`${response.statusText} ${response.status}`));
+        }
+        return response.json();
+    },
 };
 
 export default spApi;

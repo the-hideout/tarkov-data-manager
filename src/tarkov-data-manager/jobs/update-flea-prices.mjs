@@ -1,5 +1,5 @@
 import DataJob from '../modules/data-job.mjs';
-import spApi from '../modules/sp-data.mjs';
+import spApi from '../modules/tarkov-data-sp.mjs';
 import db from '../modules/db-connection.mjs';
 import remoteData from '../modules/remote-data.mjs';
 import scannerApi from '../modules/scanner-api.mjs';

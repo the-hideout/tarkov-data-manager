@@ -18,7 +18,7 @@ import gameModes from './game-modes.mjs';
 import emitter from './emitter.mjs';
 import { createAndUploadFromSource } from './image-create.mjs';
 import s3 from '../modules/upload-s3.mjs';
-import tarkovDevData from './tarkov-dev-data.mjs';
+import tarkovDevData from './tarkov-data-tarkov-dev.mjs';
 
 const verbose = false;
 

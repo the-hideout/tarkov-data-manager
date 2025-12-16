@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import sharp from 'sharp';
 
-import tarkovDevData from './tarkov-dev-data.mjs';
+import tarkovDevData from './tarkov-data-tarkov-dev.mjs';
 
 const customImageData = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, '..', 'data', 'npc_images.json')));
 

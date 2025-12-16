@@ -200,6 +200,7 @@ class TranslationHelper {
                 `QuestCondition/Elimination/Kill/BotRole/${foundKey}`,
                 `QuestCondition/Elimination/Kill/Target/${foundKey}`,
                 `ScavRole/${foundKey}`,
+                `SCAVROLE/${foundKey}`,
             ];
             for (const enemyKey of enemyKeys) {
                 if (found) {
@@ -301,6 +302,11 @@ const enemyKeyMap = {
     'bossZryachiy': '63626d904aa74b8fe30ab426 ShortName',
     'pmcBEAR': 'BEAR',
     'pmcUSEC': 'USEC',
+    'civilian': 'CIVILIAN',
+    'blackDivision': 'BlackDivision',
+    'sniperBlackDivision': 'SniperBlackDivision',
+    'vsRF': 'VSRF',
+    'vsRFSniper': 'VSRF',
 };
 
 export default TranslationHelper;

@@ -6,7 +6,7 @@ import sharp from 'sharp';
 
 import DataJob from '../modules/data-job.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
-import tarkovSpt from '../modules/tarkov-spt.mjs';
+import tarkovDataSpt from '../modules/tarkov-data-spt.mjs';
 import { getLocalBucketContents, uploadAnyImage } from '../modules/upload-s3.mjs';
 
 class UpdateQuestImagesJob extends DataJob {
@@ -123,7 +123,7 @@ class UpdateQuestImagesJob extends DataJob {
         if (!questData?.image) {
             return;
         }
-        const image = await tarkovSpt.getImage(questData.image);
+        const image = await tarkovDataSpt.getImage(questData.image);
         if (!image) {
             return false;
         }

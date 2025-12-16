@@ -1,10 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import tarkovChanges from './tarkov-changes.mjs';
+import tarkovChanges from './tarkov-data-tarkov-changes.mjs';
 import tarkovBot from './tarkov-bot.mjs';
-import spt from './tarkov-spt.mjs';
-import tarkovDevData from './tarkov-dev-data.mjs';
+import spt from './tarkov-data-spt.mjs';
+import tarkovDevData from './tarkov-data-tarkov-dev.mjs';
+import sp from './tarkov-data-sp.mjs';
 import dataOptions from './data-options.mjs';
 
 const mainDataSource = tarkovChanges;
@@ -51,6 +52,9 @@ const dataFunctions = {
     },
     botsInfo: async (options = defaultOptions) => {
         return spt.botsInfo(options);
+    },
+    botsHealth: async(options = defaultOptions) => {
+        return sp.botsHealth();
     },
     crafts: (options = defaultOptions) => {
         return mainDataSource.crafts(options);

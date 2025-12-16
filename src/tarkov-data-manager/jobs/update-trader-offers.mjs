@@ -3,7 +3,7 @@
 import DataJob from '../modules/data-job.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import remoteData from '../modules/remote-data.mjs';
-import spApi from '../modules/sp-data.mjs';
+import spApi from '../modules/tarkov-data-sp.mjs';
 import presetData from '../modules/preset-data.mjs';
 import dogtags from '../modules/dogtags.mjs';
 
@@ -236,7 +236,7 @@ class UpdateTraderOffersJob extends DataJob {
                 if (offer.items.length > 1 && !item.types.includes('ammo-box')) {
                     let preset = presetData.findPreset(offer.items);
                     if (!preset) {
-                        preset = await presetData.addJsonPreset(offer, this.logger);
+                        preset = await presetData.addJsonPreset(offer, this.logger).then(p => p.preset);
                     }
                     item = {id: preset.id};
                 }

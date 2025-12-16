@@ -1,5 +1,5 @@
 import DataJob from '../modules/data-job.mjs';
-import tarkovChanges from '../modules/tarkov-changes.mjs';
+import tarkovChanges from '../modules/tarkov-data-tarkov-changes.mjs';
 import gameModes from '../modules/game-modes.mjs';
 
 class UpdateTcDataJob extends DataJob {
