@@ -32,9 +32,6 @@ class UpdatePresetsJob extends DataJob {
         const dbPresets = await presetsHelper.getDatabasePresets();
 
         for (const p of Object.values(dbPresets)) {
-            if (!p._id.startsWith('707265736574')) {
-                console.log(p);
-            }
             this.presets[p._id] = p;
         }
 
@@ -198,21 +195,10 @@ class UpdatePresetsJob extends DataJob {
             if (!item.types.includes('preset')) {
                 continue;
             }
-            if (item.types.includes('disabled')) {
-                if (!remoteData.hasPrices(id)) {
-                    await query('DELETE FROM item_data WHERE id = ?', [id]);
-                    await query('DELETE FROM types WHERE item_id = ?', [id]);
-                    this.logger.log(`Deleted unused preset ${item.name} ${id}`);
-                }
-                continue;
-            }
             const p = this.presetsData[id];
             if (!p) {
-                this.logger.warn(`Preset ${item.name} ${id} is no longer valid; disabling`);
-                queries.push(remoteData.addType(id, 'disabled').catch(error => {
-                    this.logger.error(`Error disabling ${item.name} ${id}`);
-                    this.logger.error(error);
-                }));
+                this.logger.warn(`Preset ${item.name} ${id} is no longer valid; removing`);
+                queries.push(presetsHelper.deletePreset(id));
                 continue;
             }
             if (p.armorOnly) {
