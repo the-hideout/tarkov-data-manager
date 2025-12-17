@@ -539,7 +539,7 @@ app.post('/items/edit/:id', async (req, res) => {
 
 app.get('/items', async (req, res) => {
     let typeFilters = '';
-    const allTypes = await dbConnection.query('SELECT type from types GROUP BY type');
+    const allTypes = (await dbConnection.query('SELECT type from types GROUP BY type')).map(result => result.type);
     for(const type of allTypes){
         typeFilters = `${typeFilters}
         <div class="col s4 m3 l2">
