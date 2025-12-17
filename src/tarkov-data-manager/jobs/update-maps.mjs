@@ -458,7 +458,7 @@ class UpdateMapsJob extends DataJob {
                     if (spawn.BossName === 'civilian') {
                         continue;
                     }
-                    if (spawn.BossName === 'assault') {
+                    if (spawn.BossName === 'assault' || spawn.BossName === 'assaultTutorial') {
                         enemySet.add('scavs');
                         continue;
                     }
