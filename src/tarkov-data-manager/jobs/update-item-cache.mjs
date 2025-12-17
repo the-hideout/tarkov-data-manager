@@ -9,6 +9,7 @@ import { setItemPropertiesOptions, getSpecialItemProperties } from '../modules/g
 import { createAndUploadFromSource } from '../modules/image-create.mjs';
 import TranslationHelper from '../modules/translation-helper.mjs';
 import { getLocalBucketContents, uploadAnyImage } from '../modules/upload-s3.mjs';
+import presetData from '../modules/preset-data.mjs';
 
 const excludeTypes = [
     'onlyFlea',
@@ -35,6 +36,7 @@ class UpdateItemCacheJob extends DataJob {
             this.handbook,
             this.traders,
             this.s3Images,
+            this.presetTranslations,
         ] = await Promise.all([
             tarkovData.items(), 
             tarkovData.credits({gameMode: 'regular'}),
@@ -46,18 +48,15 @@ class UpdateItemCacheJob extends DataJob {
             tarkovData.handbook(),
             tarkovData.traders({gameMode: 'regular'}),
             getLocalBucketContents(),
+            this.query('SELECT * FROM preset_locale').then(records => {
+                const translations = [];
+                for (const record of records) {
+                    translations[record.locale] ??= {};
+                    translations[record.locale][record.key] = record.localization;
+                }
+                return translations;
+            }),
         ]);
-        this.logger.log('Getting presets...');
-        this.presets = await this.jobManager.jobOutput('update-presets', this, 'regular', true);
-        this.presetsLocale = this.presets.locale;
-        this.presets = this.presets.presets;
-        // make sure we don't include any disabled presets
-        this.presets = Object.keys(this.presets).reduce((all, presetId) => {
-            if (this.itemMap.has(presetId) && !this.itemMap.get(presetId).types.includes('disabled')) {
-                all[presetId] = this.presets[presetId];
-            }
-            return all;
-        }, {});
         const itemData = {};
         const itemTypesSet = new Set();
         this.bsgCategories = {};
@@ -78,6 +77,7 @@ class UpdateItemCacheJob extends DataJob {
             logger: this.logger,
         });
         const itemProperties = {};
+        this.presets = remoteData.getPresets();
 
         await setItemPropertiesOptions({
             job: this,
@@ -104,7 +104,7 @@ class UpdateItemCacheJob extends DataJob {
             if (value.types.includes('replica')) {
                 continue;
             }
-            if (!this.bsgItems[key] && !this.presets[key]) {
+            if (!this.bsgItems[key] && !value.types.includes('preset')) {
                 continue;
             }                
 
@@ -141,7 +141,7 @@ class UpdateItemCacheJob extends DataJob {
                 updated: value.updated,
                 width: value.width,
                 height: value.height,
-                weight: value.weight,
+                weight: 0,
                 lastOfferCount: value.last_offer_count,
                 types: value.types.map(type => dashToCamelCase(type)).filter(type => !excludeTypes.includes(type)),
                 wikiLink: value.wiki_link,
@@ -187,18 +187,9 @@ class UpdateItemCacheJob extends DataJob {
                 itemData[key].discardLimit = this.bsgItems[key]._props.DiscardLimit;
                 itemData[key].backgroundColor = this.bsgItems[key]._props.BackgroundColor;
                 if (value.types.includes('gun')) {
-                    const preset = Object.values(this.presets).find(preset => preset.default && preset.baseId === key);
+                    const preset = Object.values(this.presets).find(preset => preset.properties.default && preset.properties.items[0]._tpl === key);
                     if (preset) {
-                        itemData[key].containsItems = preset.containsItems.reduce((containedItems, contained) => {
-                            if (contained.item.id !== key) {
-                                containedItems.push({
-                                    item: contained.item.id,
-                                    count: contained.count,
-                                    attributes: []
-                                });
-                            }
-                            return containedItems;
-                        }, []);
+                        itemData[key].containsItems = presetData.flatItemsToContainedItems(preset.properties.items, key);
                     }
                 }
                 // add ammo box contents
@@ -214,21 +205,14 @@ class UpdateItemCacheJob extends DataJob {
                 }
             } else if (this.presets[key]) {
                 const preset = this.presets[key];
-                itemData[key].width = preset.width;
-                itemData[key].height = preset.height;
-                itemData[key].weight = preset.weight;
-                itemData[key].bsgCategoryId = preset.bsgCategoryId;
-                itemData[key].backgroundColor = preset.backgroundColor;
-                if ((itemData[preset.baseId]?.types.includes('noFlea') || itemData[preset.baseId]?.types.includes('no-flea')) && !itemData[key].types.includes('noFlea')) {
+                itemData[key].weight = value.properties.weight;
+                itemData[key].bsgCategoryId = value.properties.bsgCategoryId;
+                itemData[key].backgroundColor = value.properties.backgroundColor;
+                const presetBaseId = preset.properties.items[0]._tpl;
+                if ((itemData[presetBaseId]?.types.includes('noFlea') || itemData[presetBaseId]?.types.includes('no-flea')) && !itemData[key].types.includes('noFlea')) {
                     itemData[key].types.push('noFlea');
                 }
-                itemData[key].containsItems = preset.containsItems.map(contained => {
-                    return {
-                        item: contained.item.id,
-                        count: contained.count,
-                        attributes: []
-                    };
-                });
+                itemData[key].containsItems = presetData.flatItemsToContainedItems(preset.properties.items);
             } else if (!itemData[key].types.includes('disabled')) {
                 this.logger.log(`Item ${this.getTranslation(itemData[key].name)} (${key}) is neither an item nor a preset`);
                 delete itemData[key];
@@ -244,15 +228,6 @@ class UpdateItemCacheJob extends DataJob {
                 itemData[key].name = this.addTranslation(`${key} Name`);
                 itemData[key].shortName = this.addTranslation(`${key} ShortName`);
                 itemData[key].description = this.addTranslation(`${key} Description`);
-            } else if (this.presets[key]) {
-                for (const langCode in this.presets[key].locale) {
-                    if (this.presets[key].locale[langCode].name) {
-                        this.addTranslation(`${key} Name`, langCode, this.presets[key].locale[langCode].name);
-                    }
-                    if (this.presets[key].locale[langCode].shortName) {
-                        this.addTranslation(`${key} ShortName`, langCode, this.presets[key].locale[langCode].shortName);
-                    }
-                }
             } else if (value.types.includes('replica')) {
                 itemData[key].name = this.addTranslation(`${key} Name`, (lang) => {
                     const tKey = `${value.properties.source} Name`;
@@ -312,7 +287,7 @@ class UpdateItemCacheJob extends DataJob {
 
         this.logger.time('Merge preset translations');
         // merge preset translations
-        this.mergeTranslations(this.presetsLocale);
+        this.mergeTranslations(this.presetTranslations);
         this.logger.timeEnd('Merge preset translations');
 
         this.setTraderPrices(itemData);
@@ -712,7 +687,7 @@ class UpdateItemCacheJob extends DataJob {
             return false;
         };
         if (this.presets[item.id]) {
-            item.basePrice = this.presets[item.id].baseValue;
+            item.basePrice = this.presets[item.id].properties.baseValue;
         } else if (item.types.includes('replica')) {
             if (!replica?.properties?.source) {
                 return;
@@ -951,7 +926,7 @@ class UpdateItemCacheJob extends DataJob {
     getMinFleaLevel(id) {
         let item = this.bsgItems[id];
         if (!item && this.presets[id]) {
-            item = this.bsgItems[this.presets[id].baseId];
+            item = this.bsgItems[this.presets[id].properties.items[0]._tpl];
         }
         if (!item) {
             return 0;

@@ -471,7 +471,7 @@ class DataJob {
 
     getWikiLink = (pageName) => {
         pageName = pageName.replace(/ \[\w+ ZONE\]$/, '');
-        return `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(pageName.replaceAll(' ', '_'))}`;
+        return `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(pageName.replaceAll(' ', '_').replaceAll('#', ''))}`;
     }
 
     customizationTypes() {

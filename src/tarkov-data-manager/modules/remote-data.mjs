@@ -56,6 +56,14 @@ const methods = {
         }
         return myData;
     },
+    getPresets: () => {
+        return myData.values().reduce((all, i) => {
+            if (i.types?.includes('preset') && !i.types.includes('disabled')) {
+                all[i.id] = i;
+            }
+            return all;
+        }, {});
+    },
     refresh: async () => {
         //console.log('Loading item data');
 

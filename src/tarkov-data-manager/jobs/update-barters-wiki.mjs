@@ -8,6 +8,7 @@ import remoteData from '../modules/remote-data.mjs';
 import fixName from '../modules/wiki-replacements.js';
 import tarkovData from '../modules/tarkov-data.mjs';
 import DataJob from '../modules/data-job.mjs';
+import presetData from '../modules/preset-data.mjs';
 
 const WIKI_URL = 'https://escapefromtarkov.fandom.com'
 const TRADES_URL = `${WIKI_URL}/wiki/Barter_trades`;
@@ -31,7 +32,7 @@ class UpdateBartersJob extends DataJob {
 
     run = async () => {
         this.logger.log('Retrieving barters data...');
-        [this.itemData, this.$, this.oldTasks, this.items] = await Promise.all([
+        [this.itemData, this.$, this.oldTasks, this.items, this.presetNames] = await Promise.all([
             remoteData.get(),
             got(TRADES_URL).then(response => cheerio.load(response.body)),
             got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
@@ -41,7 +42,7 @@ class UpdateBartersJob extends DataJob {
             tarkovData.items(),
         ]);
         this.oldNames = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, '..', 'old-names.json')));
-        this.presets = await this.jobManager.jobOutput('update-presets', this);
+        this.presets = await presetData.getAllPresets();
         this.tasks = await this.jobManager.jobOutput('update-quests', this);
         this.barterAssort = await this.jobManager.jobOutput('update-trader-assorts', this, 'regular', true).then(assorts => {
             for (const traderId in assorts) {
@@ -234,15 +235,15 @@ class UpdateBartersJob extends DataJob {
         const attachments = variant.attachments;
         for (const presetId in this.presets) {
             const preset = this.presets[presetId];
-            if (preset.baseId !== baseItem.id) continue;
-            if (preset.containsItems.length - 1 !== attachments.length) continue;
-            const presetParts = preset.containsItems.filter(contained => contained.item.id !== baseItem.id);
+            if (preset._items[0]._tpl !== baseItem.id) continue;
+            if (preset._items.length - 1 !== attachments.length) continue;
+            const presetParts = preset._items.filter(i => i._tpl !== baseItem.id);
             let matchedPartCount = 0;
             for (const part of presetParts) {
                 let matchedPart = false;
                 for (const attachmentId of attachments) {
                     //console.log(attachment);
-                    if (attachmentId === part.item.id) {
+                    if (attachmentId === part._tpl) {
                         matchedPart = true;
                         matchedPartCount++;
                         break;
@@ -261,8 +262,8 @@ class UpdateBartersJob extends DataJob {
 
     getPresetByShortName = (shortName) => {
         for (const presetId in this.presets) {
-            const preset = this.presets[presetId];
-            if (preset.shortName === shortName) return preset;
+            const item = this.itemData.get(presetId);
+            if (item?.short_name === shortName) return this.presets[presetId];
         }
         return false;
     }
@@ -360,7 +361,7 @@ class UpdateBartersJob extends DataJob {
                 //this.logger.warn(`Could not find matching preset for ${gunImage}`);
                 // If no variants match, assume it's the default preset
                 for (const preset of (Object.values(this.presets))) {
-                    if (preset.baseId === rewardItem.id && preset.default) {
+                    if (preset._items[0]._tpl === rewardItem.id && preset._encyclopedia === preset._items[0]._tpl) {
                         rewardItem = preset;
                         break;
                     }

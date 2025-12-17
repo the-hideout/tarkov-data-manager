@@ -32,6 +32,9 @@ class UpdatePresetsJob extends DataJob {
         const dbPresets = await presetsHelper.getDatabasePresets();
 
         for (const p of Object.values(dbPresets)) {
+            if (!p._id.startsWith('707265736574')) {
+                console.log(p);
+            }
             this.presets[p._id] = p;
         }
 
@@ -68,13 +71,15 @@ class UpdatePresetsJob extends DataJob {
 
         // add dog tag preset
         const bearTag = this.items['59f32bb586f774757e1e8442'];
+        const usecTag = this.items['59f32c3b86f77472a31742f0'];
+        const dogtagPresetId = this.dbItems.values().find(i => i.types.includes('preset') && i.properties.items?.some(part => part._tpl === bearTag._id) && i.properties.items?.some(part => part._tpl === usecTag._id))?.id ?? await presetsHelper.getNextPresetId();
         const getDogTagName = lang => {
             return lang[`${bearTag._id} Name`].replace(lang['59f32bb586f774757e1e8442 ShortName'], '').trim().replace(/^\p{Ll}/gu, substr => {
                 return substr.toUpperCase();
             });
         };
-        this.presetsData['customdogtags12345678910'] = {
-            id: 'customdogtags12345678910',
+        this.presetsData[dogtagPresetId] = {
+            id: dogtagPresetId,
             name: this.addTranslation('customdogtags12345678910 Name', getDogTagName),
             shortName: this.addTranslation('customdogtags12345678910 ShortName', getDogTagName),
             //name: getDogTagName(this.locales.en),
@@ -93,13 +98,13 @@ class UpdatePresetsJob extends DataJob {
             containsItems: [
                 {
                     item: {
-                        id: bearTag._id
+                        id: bearTag._id,
                     },
                     count: 1
                 },
                 {
                     item: {
-                        id: '59f32c3b86f77472a31742f0'
+                        id: usecTag._id,
                     },
                     count: 1
                 }
@@ -111,7 +116,7 @@ class UpdatePresetsJob extends DataJob {
                 },
                 {
                     _id: '000000000000000000000002',
-                    _tpl: '59f32c3b86f77472a31742f0',
+                    _tpl: usecTag._id,
                 }
             ]
         };
@@ -229,7 +234,20 @@ class UpdatePresetsJob extends DataJob {
                 normalized_name: p.normalized_name,
                 width: p.width,
                 height: p.height,
-                properties: {backgroundColor: p.backgroundColor, items: p.items},
+                properties: {
+                    backgroundColor: p.backgroundColor,
+                    items: p.items,
+                    weight: p.weight,
+                    bsgCategoryId: p.bsgCategoryId,
+                    noFlea: p.noFlea,
+                    default: p.default,
+                    ergonomics: p.ergonomics,
+                    verticalRecoil: p.verticalRecoil,
+                    horizontalRecoil: p.horizontalRecoil,
+                    moa: p.moa,
+                    armorOnly: p.armorOnly,
+                    baseValue: p.baseValue,
+                },
             }).then(() => {
                 if (presetIsNewItem) {
                     this.logger.log(`${p.name} added`);
@@ -319,9 +337,10 @@ class UpdatePresetsJob extends DataJob {
 
         this.kvData.presets = this.presetsData;
         this.kvData.locale = await this.fillTranslations();
+        await presetsHelper.savePresetLocalizations(this.kvData.locale);
         fs.writeFileSync(path.join(import.meta.dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(this.kvData, null, 4));
         await Promise.allSettled(queries);
-        presetsHelper.updatePresets(this.kvData);
+        presetsHelper.updatedPresets();
         return this.kvData;
     }
 }

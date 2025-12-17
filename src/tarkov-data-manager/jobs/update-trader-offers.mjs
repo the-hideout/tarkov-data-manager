@@ -237,8 +237,10 @@ class UpdateTraderOffersJob extends DataJob {
                     let preset = presetData.findPreset(offer.items);
                     if (!preset) {
                         preset = await presetData.addJsonPreset(offer, this.logger).then(p => p.preset);
+                    } else {
+                        presetData.presetUsed(preset.id);
                     }
-                    item = {id: preset.id};
+                    item = preset;
                 }
                 const traderName = this.en[`${offer.user.id} Nickname`];
                 const assort = this.traderAssorts[offer.trader_id]?.find(assort => assort.id === offer._id);

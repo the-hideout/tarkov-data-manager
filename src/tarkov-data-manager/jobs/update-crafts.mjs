@@ -1,6 +1,7 @@
 import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import DataJob from '../modules/data-job.mjs';
+import presetData from '../modules/preset-data.mjs';
 
 const createReplicas = false;
 
@@ -37,7 +38,7 @@ class UpdateCraftsJob extends DataJob {
             tarkovData.items(),
             remoteData.get(),
             tarkovData.locale('en'),
-            this.jobOutput('update-presets'),
+            presetData.getGamePresets(),
         ]);
         const en = this.localeEn;
         const usedReplicas = new Set();
@@ -83,9 +84,9 @@ class UpdateCraftsJob extends DataJob {
                     continue;
                 }
                 if (endProduct.types.includes('gun') && !craftReceiverOnly.includes(endProduct.id)) {
-                    const preset = Object.values(this.presets).find(p => p.baseId === endProduct.id && p.default);
+                    const preset = Object.values(this.presets).find(p => p._encyclopedia === p._items[0]._tpl && p._items[0]._tpl === endProduct.id);
                     if (preset) {
-                        endProduct = this.itemData.get(preset.id);
+                        endProduct = this.itemData.get(preset._id);
                     }
                 }
                 if (craft.locked && !craft.requirements.some(req => req.type === 'QuestComplete')) {

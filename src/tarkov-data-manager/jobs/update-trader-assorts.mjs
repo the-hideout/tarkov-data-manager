@@ -4,6 +4,7 @@ import path from 'path';
 import DataJob from '../modules/data-job.mjs';
 import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
+import presetData from '../modules/preset-data.mjs';
 
 class UpdateTraderAssortsJob extends DataJob {
     constructor(options) {
@@ -13,11 +14,12 @@ class UpdateTraderAssortsJob extends DataJob {
     }
 
     async run() {
-        [this.tasks, this.traders, this.presets, this.items, this.en] = await Promise.all([
+        [this.tasks, this.traders, this.presets, this.items, this.bsgItems, this.en] = await Promise.all([
             this.jobManager.jobOutput('update-quests', this),
             tarkovData.traders(),
-            this.jobManager.jobOutput('update-presets', this),
+            presetData.getAllPresets(),
             remoteData.get(),
+            tarkovData.items(),
             tarkovData.locale('en'),
         ]);
         this.currencyId = {
@@ -69,11 +71,34 @@ class UpdateTraderAssortsJob extends DataJob {
                 Promise.resolve(traderId),
             ]).then(([assort, questAssort, realTraderId]) => {
                 assorts[realTraderId] = assort.items.map(offer => {
+                    let offerItemId = offer._items[0]._tpl;
+                    const filteredItems = offer._items.filter(i => {
+                        // filter out soft armor inserts and ammo inside packs
+                        const bsgItem = this.bsgItems[i._tpl];
+                        if (bsgItem._parent === '65649eb40bf0ed77b8044453') {
+                            return false;
+                        }
+                        // filter contained ammo out of packs
+                        if (i.parentId) {
+                            const parentSlot = offer._items.find(i2 => i2._id === i.parentId);
+                            const bsgParent = this.bsgItems[parentSlot._tpl];
+                            if (i.slotId === 'cartridges' && bsgParent._parent === '543be5cb4bdc2deb348b4568') {
+                                return false;
+                            }
+                        }
+                        return true;
+                    });
+                    if (filteredItems.length > 1) {
+                        const preset = presetData.findPreset(filteredItems);
+                        if (preset) {
+                            offerItemId = preset.id;
+                        }
+                    }
                     return {
                         id: offer._id,
-                        item: offer._items[0]._tpl,
-                        itemName: this.items.get(offer._items[0]._tpl).name,
-                        baseItem: offer._items[0]._tpl,
+                        item: offerItemId,
+                        itemName: this.items.get(offerItemId).name,
+                        baseItem: offerItemId,
                         stock: offer._items[0].upd.StackObjectsCount,
                         unlimitedStock: Boolean(offer._items[0].upd.UnlimitedCount),
                         buyLimit: offer._items[0].upd.BuyRestrictionMax || 0,
@@ -124,14 +149,6 @@ class UpdateTraderAssortsJob extends DataJob {
             totalOffers += assorts[traderId].length;
             for (const offer of assorts[traderId]) {
                 offer.barter = !this.isCashOffer(offer);
-                const preset = this.offerMatchesPreset(offer);
-                if (preset) {
-                    offer.item = preset.id;
-                    offer.itemName = preset.name;
-                } else if (offer.contains.length > 1) {
-                    //this.logger.warn('Could not match preset for offer');
-                    //this.logger.log(JSON.stringify(offer, null, 4));
-                }
             }
         }
         if (totalOffers === 0) {
@@ -151,23 +168,6 @@ class UpdateTraderAssortsJob extends DataJob {
             return false;
         }
         return Object.values(this.currencyId).includes(offer.cost[0].item);
-    }
-
-    offerMatchesPreset = (offer) => {
-        const weaponPresets = Object.values(this.presets).filter(p => p.baseId === offer.item);
-        presetLoop:
-        for (const preset of weaponPresets) {
-            if (preset.containsItems.length !== offer.contains.length) {
-                continue;
-            }
-            for (const ci of preset.containsItems) {
-                if (!offer.contains.some(part => part.item === ci.item.id)) {
-                    continue presetLoop;
-                }
-            }
-            return preset;
-        }
-        return false;
     }
 }
 

@@ -2,6 +2,8 @@ let table = false;
 
 let gamePresets = [];
 
+const normalidPrefix = '707265736574';
+
 const existingImageElement = (itemId, imageType, url) => {
     const tooltipId = `${itemId}-${imageType}-tooltip-content`;
     return `
@@ -35,6 +37,10 @@ $(document).ready( function () {
             data: 'name',
             render: (data, type, preset) => {
                 if (type === 'display') {
+                    let changeIdButton = '';
+                    if (!preset.id.startsWith(normalidPrefix)) {
+                        changeIdButton = `<a href="#" class="waves-effect waves-light btn-small tonal change-id-preset tooltipped" data-tooltip="Normalize id" data-id="${preset.id}" data-name="${preset.name}"><i class="material-icons">qr_code</i></a>`;
+                    }
                     return `
                         <div><b>${data}</b></div>
                         <div>${preset.id}</div>
@@ -42,6 +48,7 @@ $(document).ready( function () {
                             <a href="#" class="waves-effect waves-light btn-small tonal edit-preset tooltipped" data-tooltip="Edit" data-id="${preset.id}"><i class="material-icons">edit</i></a>
                             <a href="#" class="waves-effect waves-light btn-small tonal merge-preset tooltipped" data-tooltip="Merge" data-id="${preset.id}"><i class="material-icons">merge</i></a>
                             <a href="#" class="waves-effect waves-light btn-small tonal delete-preset tooltipped" data-tooltip="Delete" data-id="${preset.id}" data-name="${preset.name}"><i class="material-icons">delete</i></a>
+                            ${changeIdButton}
                         </div>
                     `;
                 }
@@ -197,6 +204,17 @@ $(document).ready( function () {
                 M.Modal.getInstance(document.getElementById('modal-delete-confirm')).open();
             });
 
+            $('.change-id-preset').off('click');
+            $('.change-id-preset').click(function (event) {
+                let target = $(event.target);
+                if (target[0].nodeName === 'I') target = target.parent();
+                target.addClass('disabled');
+                const presetName = target.data('name');
+                $('#modal-id-change-confirm .modal-change-confirm-preset-name').text(presetName);
+                $('#modal-id-change-confirm .change-confirm').data('id', target.data('id'));
+                M.Modal.getInstance(document.getElementById('modal-id-change-confirm')).open();
+            });
+
             $('.btn-small.regenerate').off('click');
             $('.btn-small.regenerate').click(event => {
                 let target = event.target;
@@ -311,6 +329,38 @@ $(document).ready( function () {
             }
             M.Modal.getInstance(document.getElementById('modal-merge-confirm')).close();
             table.ajax.reload();
+        });
+    });
+
+    $('#modal-id-change-confirm .change-confirm').click(event => {
+        const presetId = $('#modal-id-change-confirm .change-confirm').data('id');
+        $.ajax({
+            method: 'GET',
+            dataType: 'json',
+            url: `/presets/normalize-id/${presetId}`
+        }).done(function (data) {
+            new M.Toast({text: data.message});
+            $('.change-id-preset').each((index, el) => {
+                if (el.dataset.id === presetId) {
+                    $(el).removeClass('disabled');
+                }
+            });
+            if (data.errors.length > 0) {
+                for (let i = 0; i < data.errors.length; i++) {
+                    new M.Toast({text: data.errors[i]});
+                }
+                return;
+            }
+            table.ajax.reload();
+        });
+    });
+
+    $('#modal-id-change-confirm .change-cancel').click(event => {
+        const presetId = $('#modal-id-change-confirm .change-confirm').data('id');
+        $('.change-id-preset').each((index, el) => {
+            if (el.dataset.id === presetId) {
+                $(el).removeClass('disabled');
+            }
         });
     });
 

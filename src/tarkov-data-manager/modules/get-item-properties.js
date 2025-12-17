@@ -309,16 +309,16 @@ const getItemProperties = async (tarkovDevItem) => {
     }
     const item = job.bsgItems[tarkovDevItem.id];
     let properties = null;
-    if (job.presets[tarkovDevItem.id]) {
+    if (tarkovDevItem.types?.includes('preset')) {
         const preset = job.presets[tarkovDevItem.id];
         properties = {
             propertiesType: 'ItemPropertiesPreset',
-            base_item_id: preset.baseId,
-            ergonomics: preset.ergonomics,
-            recoilVertical: preset.verticalRecoil,
-            recoilHorizontal: preset.horizontalRecoil,
-            moa: preset.moa,
-            default: preset.default,
+            base_item_id: preset.properties.items[0]._tpl,
+            ergonomics: preset.properties.ergonomics,
+            recoilVertical: preset.properties.verticalRecoil,
+            recoilHorizontal: preset.properties.horizontalRecoil,
+            moa: preset.properties.moa,
+            default: preset.properties.default,
         };
     } else if (!item) {
         // no properties to get if item not found
@@ -522,14 +522,14 @@ const getItemProperties = async (tarkovDevItem) => {
             }) || [],
             slots: getSlots(item),
             defaultPreset: Object.values(job.presets).filter(preset => {
-                return preset.default && preset.baseId === item._id;
+                return preset.properties.default && preset.properties.items[0]._tpl === item._id;
             }).reduce((previousValue, currentValue) => {
                 return currentValue.id;
             }, null),
             fireModes: translationHelper.addTranslation(item._props.weapFireType),
-            presets: Object.values(job.presets).filter(preset => preset.baseId === item._id).map(preset => preset.id),
+            presets: Object.values(job.presets).filter(preset => preset.properties.items[0]._tpl === item._id).map(preset => preset.id),
         };
-        const preset = Object.values(job.presets).find(preset => preset.default && preset.baseId === item._id);
+        const preset = Object.values(job.presets).find(preset => preset.properties.default && preset.properties.items[0]._tpl === item._id);
         properties.defaultWidth = preset?.width ?? null;
         properties.defaultHeight = preset?.height ?? null;
         properties.defaultErgonomics = preset?.ergonomics ?? null;

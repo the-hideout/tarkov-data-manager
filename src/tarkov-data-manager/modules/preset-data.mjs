@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { query } from './db-connection.mjs';
 import tarkovData from './tarkov-data.mjs';
 import TranslationHelper from './translation-helper.mjs';
 import dbConnection from './db-connection.mjs';
@@ -12,11 +13,6 @@ let items = false;
 let credits = false;
 let locales = false;
 
-export const presets = {
-    presets: {},
-    locale: {},
-};
-
 const defaultLogger = {
     log: console.log,
     warn: console.warn,
@@ -24,12 +20,10 @@ const defaultLogger = {
 };
 
 try {
-    const fileContents = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, '..', 'cache', 'presets.json')));
-    presets.presets = fileContents.presets;
-    presets.locale = fileContents.locale;
-    emitter.emit('updated', presets);
+    await remoteData.get();
+    emitter.emit('updated', remoteData.getPresets());
 } catch (error) {
-    console.log('preset-data error reading presets.json:', error.message);
+    console.log('preset-data error loading presets:', error.message);
 }
 
 const presetData = {
@@ -250,12 +244,12 @@ const presetData = {
             }
         }
         if (processedPreset.containsItems.length === 1) {
-            const message = `Skipping empty preset for ${t.getTranslation(processedPreset.name)}`;
+            /*const message = `Skipping empty preset for ${t.getTranslation(processedPreset.name)}`;
             if (logger) {
                 logger.warn(message);
             } else {
                 defaultLogger.warn(message);
-            }
+            }*/
             const dbItems = await remoteData.get();
             const dbItem = dbItems.get(presetId);
             if (dbItem && !dbItem.types.includes('disabled')) {
@@ -283,25 +277,15 @@ const presetData = {
         if (attempt > 1) {
             normal += `-${attempt}`;
         }
-        const matchedPreset = Object.values(presets).find(p => p.normalized_name === normal);
+        const matchedPreset = Object.values(remoteData.getPresets()).find(p => p.normalized_name === normal);
         if (matchedPreset) {
-            return this.validateNormalizedName(preset, attempt + 1);
+            return presetData.validateNormalizedName(preset, attempt + 1);
         }
         if (attempt > 1) {
             preset.normalized_name = normal;
         }
     },
-    addJsonPreset: async (json, logger) => {
-        const items = json.items ?? json._items;
-        const existingPreset = presetData.findPreset(items);
-        if (existingPreset) {
-            return Promise.reject(new Error(`Specified preset already exists as ${existingPreset.id}`));
-        }
-        if (!locales) {
-            locales = await tarkovData.locales();
-        }
-        const t = new TranslationHelper({locales, logger});
-
+    getNextPresetId: async () => {
         const idPrefix = '707265736574';
         const dbPresets = await presetData.getDatabasePresets();
         let presetNum = 0;
@@ -313,6 +297,20 @@ const presetData = {
             }
             presetNum++;
         }
+        return id;
+    },
+    addJsonPreset: async (json, logger) => {
+        const items = json.items ?? json._items;
+        const existingPreset = presetData.findPreset(items);
+        if (existingPreset) {
+            return Promise.reject(new Error(`Specified preset already exists as ${existingPreset.id}`));
+        }
+        if (!locales) {
+            locales = await tarkovData.locales();
+        }
+
+        const id = await presetData.getNextPresetId();
+
         let appendName = 'Stripped';
         const slotNames = [
             'mod_scope',
@@ -355,13 +353,47 @@ const presetData = {
             normalized_name: processedPreset.preset.normalized_name,
             width: processedPreset.preset.width,
             height: processedPreset.preset.height,
-            properties: {backgroundColor: processedPreset.preset.backgroundColor, items: processedPreset.preset.items},
+            properties: {
+                backgroundColor: processedPreset.preset.backgroundColor,
+                items: processedPreset.preset.items,
+                weight: processedPreset.preset.weight,
+                bsgCategoryId: processedPreset.preset.bsgCategoryId,
+                noFlea: processedPreset.preset.noFlea,
+                default: processedPreset.preset.default,
+                ergonomics: processedPreset.preset.ergonomics,
+                verticalRecoil: processedPreset.preset.verticalRecoil,
+                horizontalRecoil: processedPreset.preset.horizontalRecoil,
+                moa: processedPreset.preset.moa,
+                armorOnly: processedPreset.preset.armorOnly,
+                baseValue: processedPreset.preset.baseValue,
+            },
+            types: ['preset'],
         });
-        await remoteData.addType(processedPreset.preset.id, 'preset');
 
-        presetData.addPreset(processedPreset);
+        await presetData.savePresetLocalizations(processedPreset.locale);
+
+        presetData.updatedPresets();
         
-        return processedPreset;
+        return remoteData.getPresets()[id];
+    },
+    savePresetLocalizations: async (localizations) => {
+        for (const langCode in localizations) {
+            const insertPlaceholders = [];
+            const insertValues = [];
+            for (const translationKey in localizations[langCode]) {
+                if (!localizations[langCode][translationKey]) {
+                    continue;
+                }
+                insertValues.push(langCode, translationKey, localizations[langCode][translationKey]);
+                insertPlaceholders.push('(?, ?, ?)');
+            }
+            await query(`
+                INSERT INTO preset_locale (locale, \`key\`, localization) 
+                VALUES ${insertPlaceholders.join(', ')}
+                ON DUPLICATE KEY UPDATE localization=VALUES(localization)`,
+                insertValues,
+            );
+        }
     },
     getDatabasePresets: async () => {
         const results = await dbConnection.query('SELECT * from manual_preset');
@@ -391,31 +423,47 @@ const presetData = {
     getGamePresets: async () => {
         return tarkovData.globals().then(glob => glob['ItemPresets']);
     },
-    updatePresets: (updatedPresets) => {
-        for (const id in updatedPresets.presets) {
-            presets.presets[id] = updatedPresets.presets[id];
+    getAllPresets: async () => {
+        const [
+            allPresets,
+            dbPresets,
+        ] = await Promise.all([
+            presetData.getGamePresets(),
+            presetData.getDatabasePresets(),
+        ]);
+        for (const p of Object.values(dbPresets)) {
+            allPresets[p._id] = p;
         }
-        presets.locale = updatedPresets.locale;
-        for (const id in presets.presets) {
-            if (updatedPresets.presets[id]) {
-                continue;
-            }
-            presets.presets[id] = undefined;
-        }
-        presets.locale = updatedPresets.locale;
-        emitter.emit('presetsUpdated', presets);
+        return allPresets;
     },
-    addPreset: (processedPreset) => {
-        presets.presets[processedPreset.preset.id] = processedPreset.preset;
-        for (const langCode in processedPreset.locale) {
-            if (!presets.locale[langCode]) {
-                presets.locale[langCode] = {};
-            }
-            for (const key in processedPreset.locale[langCode]) {
-                presets.locale[langCode][key] = processedPreset.locale[langCode][key];
-            }
+    updatedPresets: () => {
+        emitter.emit('presetsUpdated', remoteData.getPresets());
+    },
+    getPresetItems: async (forceRefresh = false) => {
+        await remoteData.get(forceRefresh);
+        return remoteData.getPresets();
+    },
+    flatItemsToContainedItems: (items, blacklist = []) => {
+        if (typeof blacklist === 'string') {
+            blacklist = [blacklist];
         }
-        emitter.emit('presetsUpdated', presets);
+        return items.reduce((all, current) => {
+            if (blacklist.includes(current._tpl)) {
+                return all;
+            }
+            const existing = all.find(c => c.item === current._tpl);
+            const amount = parseInt(current.upd?.StackObjectsCount ?? 1);
+            if (existing) {
+                existing.count += amount;
+            } else {
+                all.push({
+                    item: current._tpl,
+                    count: amount,
+                    attributes: [],
+                });
+            }
+            return all;
+        }, [])
     },
     itemsMatch: (itemsA, itemsB) => {
         if (itemsA.length !== itemsB.length) {
@@ -475,57 +523,93 @@ const presetData = {
         });
     },
     findPreset: (items) => {
-        for (const preset of Object.values(presets.presets)) {
-            if (presetData.itemsMatch(items, preset.items)) {
+        const allPresets = remoteData.getPresets();
+        for (const preset of Object.values(allPresets)) {
+            if (presetData.itemsMatch(items, preset.properties.items)) {
                 return preset;
             }
         }
+        console.log(items);
         return false;
     },
     presetUsed: async (id) => {
         const result = await dbConnection.query(`UPDATE manual_preset SET last_used = CURRENT_TIMESTAMP WHERE id = ?`, [id]);
         return result.affectedRows > 0;
     },
-    presets,
     deletePreset: async (id) => {
-        if (!presets.presets[id]) {
+        const presets = remoteData.getPresets();
+        if (!presets[id]) {
             return Promise.reject(new Error(`No preset found with id ${id}`));
         }
         const gamePresets = await presetData.getGamePresets();
         if (gamePresets[id]) {
             return Promise.reject(new Error(`Cannot delete game preset ${id}`));
         }
-        delete presets.presets[id];
-        emitter.emit('presetsUpdated', presets);
-        return Promise.all([
+        await Promise.all([
             dbConnection.query(`DELETE FROM manual_preset WHERE id = ?`, [id]),
+            dbConnection.query(`DELETE FROM preset_locale WHERE \`key\` = ?`, [`${id} Name`]),
+            dbConnection.query(`DELETE FROM preset_locale WHERE \`key\` = ?`, [`${id} ShortName`]),
             dbConnection.query(`DELETE FROM price_data WHERE item_id = ?`, [id]),
             dbConnection.query(`DELETE FROM price_archive WHERE item_id = ?`, [id]),
             dbConnection.query('DELETE FROM price_historical WHERE item_id = ?', [id]),
             remoteData.removeItem(id),
         ]);
+        emitter.emit('presetsUpdated', presets);
     },
     mergePreset: async (sourceId, targetId) => {
-        if (!presets.presets[sourceId]) {
+        const presets = remoteData.getPresets();
+        if (!presets[sourceId]) {
             return Promise.reject(new Error(`No preset found with id ${sourceId}`));
         }
-        if (!presets.presets[targetId]) {
+        if (!presets[targetId]) {
             return Promise.reject(new Error(`No preset found with id ${targetId}`));
         }
         const gamePresets = await presetData.getGamePresets();
         if (gamePresets[sourceId]) {
             return Promise.reject(new Error(`Cannot merge game preset ${sourceId}`));
         }
-        delete presets.presets[sourceId];
-        emitter.emit('presetsUpdated', presets);
-        return Promise.all([
+        await Promise.all([
             dbConnection.query(`UPDATE price_data SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
             dbConnection.query(`UPDATE IGNORE price_archive SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
             dbConnection.query(`UPDATE IGNORE price_historical SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
             dbConnection.query(`UPDATE IGNORE trader_offers SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
             dbConnection.query(`DELETE FROM manual_preset WHERE id = ?`, [sourceId]),
+            dbConnection.query(`DELETE FROM preset_locale WHERE \`key\` = ?`, [`${sourceId} Name`]),
+            dbConnection.query(`DELETE FROM preset_locale WHERE \`key\` = ?`, [`${sourceId} ShortName`]),
             remoteData.removeItem(sourceId),
         ]);
+        emitter.emit('presetsUpdated', presets);
+    },
+    changePresetId: async (sourceId, targetId) => {
+        const presets = remoteData.getPresets();
+        if (!presets[sourceId]) {
+            return Promise.reject(new Error(`No preset found with id ${sourceId}`));
+        }
+        if (presets[targetId]) {
+            return Promise.reject(new Error(`Preset found with id ${targetId} already exists`));
+        }
+        const gamePresets = await presetData.getGamePresets();
+        if (gamePresets[sourceId]) {
+            return Promise.reject(new Error(`Cannot change id for game preset ${sourceId}`));
+        }
+        
+        await Promise.all([
+            dbConnection.query(`UPDATE IGNORE item_data SET id = ? WHERE id = ?`, [targetId, sourceId]),
+            dbConnection.query(`UPDATE IGNORE manual_preset SET id = ? WHERE id = ?`, [targetId, sourceId]),
+            dbConnection.query(`UPDATE IGNORE preset_locale SET \`key\` = ? WHERE \`key\` = ?`, [`${targetId} Name`, `${sourceId} Name`]),
+            dbConnection.query(`UPDATE IGNORE preset_locale SET \`key\` = ? WHERE \`key\` = ?`, [`${targetId} ShortName`, `${sourceId} ShortName`]),
+            dbConnection.query(`UPDATE IGNORE price_data SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
+            dbConnection.query(`UPDATE IGNORE price_archive SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
+            dbConnection.query(`UPDATE IGNORE price_historical SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
+            dbConnection.query(`UPDATE IGNORE trader_offers SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
+        ]);
+        const allItems = await remoteData.get();
+        const item = allItems.get(sourceId);
+        item.id = targetId;
+        allItems.set(item.id, item);
+        allItems.delete(sourceId);
+        emitter.emit('presetsUpdated', presets);
+        return item;
     },
 };
 

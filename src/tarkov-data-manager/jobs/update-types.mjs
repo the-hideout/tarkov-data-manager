@@ -1,6 +1,7 @@
 import DataJob from '../modules/data-job.mjs';
 import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
+import presetData from '../modules/preset-data.mjs';
 
 class UpdateTypesJob extends DataJob {
     constructor(options) {
@@ -96,7 +97,7 @@ class UpdateTypesJob extends DataJob {
             remoteData.get(),
             tarkovData.items(),
             tarkovData.handbook(),
-            this.jobManager.jobOutput('update-presets', this),
+            presetData.getAllPresets(),
         ]);;
 
         this.logger.log(`Updating types`);
