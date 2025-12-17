@@ -1,4 +1,5 @@
 import got from 'got';
+import * as cheerio from 'cheerio';
 
 import DataJob from '../modules/data-job.mjs';
 import remoteData from '../modules/remote-data.mjs';
@@ -47,13 +48,17 @@ class VerifyWikiJob extends DataJob {
                     }
 
                     // We don't have a wiki link, let's try retrieving from the id
-                    if (!newWikiLink && !item.types.includes('preset')){
+                    if (!newWikiLink){
                         try {
-                            const templatePage = await got(this.getWikiLink(`Template:${item.id}`));
-                            const matches = templatePage.body.match(/<div class="mw-parser-output"><p><a href="(?<link>[^"]+)"/);
-
-                            if (matches) {
-                                newWikiLink = `https://escapefromtarkov.fandom.com${matches.groups.link}`;
+                            let itemId = item.id;
+                            if (item.types.includes('preset')) {
+                                itemId = item.properties.items[0]._tpl;
+                            }
+                            const templatePage = await got(this.getWikiLink(`Template:${itemId}`));
+                            const pageContent = cheerio.load(templatePage.body);
+                            const pathName = pageContent('.mw-parser-output p a').first().prop('href');
+                            if (pathName) {
+                                newWikiLink = `https://escapefromtarkov.fandom.com${pathName}`;
                             }
                         } catch (requestError){
                             // nothing to do
