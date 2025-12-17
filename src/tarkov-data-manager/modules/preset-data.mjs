@@ -529,7 +529,6 @@ const presetData = {
                 return preset;
             }
         }
-        console.log(items);
         return false;
     },
     presetUsed: async (id) => {
