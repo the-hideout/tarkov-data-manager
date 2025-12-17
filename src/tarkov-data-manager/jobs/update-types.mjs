@@ -64,10 +64,10 @@ class UpdateTypesJob extends DataJob {
             '5448e5284bdc2dcb718b4567': {
                 types: ['rig', 'wearable'],
                 always: async itemId => {
-                    if (this.bsgData[itemId]._props.armorClass && !this.allItems.get(itemId).types.includes('armor')) {
+                    if (this.bsgItems[itemId]._props.armorClass && !this.allItems.get(itemId).types.includes('armor')) {
                         await remoteData.addType(itemId, 'armor').then(results => {
                             if (results.affectedRows == 0) {
-                                logger.fail(`Already marked as armor ${itemId} ${this.allItems.get(itemId).name}`);
+                                this.logger.fail(`Already marked as armor ${itemId} ${this.allItems.get(itemId).name}`);
                             }
                         });
                     }
@@ -91,9 +91,18 @@ class UpdateTypesJob extends DataJob {
             '65649eb40bf0ed77b8044453': { // built-in armor plates
                 types: ['armor-plate', 'disabled']
             },
+            '5447e1d04bdc2dff2f8b4567': { // melee
+                types: ['wearable'],
+            },
+            '57bef4c42459772e8d35a53b': { // ArmoredEquipment
+                types: ['wearable'],
+            },
+            '6759673c76e93d8eb20b2080': {
+                types: ['poster'],
+            },
         };
 
-        [this.allItems, this.bsgData, this.handbook, this.presets] = await Promise.all([
+        [this.allItems, this.bsgItems, this.handbook, this.presets] = await Promise.all([
             remoteData.get(),
             tarkovData.items(),
             tarkovData.handbook(),
@@ -117,7 +126,7 @@ class UpdateTypesJob extends DataJob {
                 continue;
             }
             //this.logger.log(`Checking ${itemId} ${item.name}`)
-            if (!this.bsgData[itemId]) {
+            if (!this.bsgItems[itemId]) {
                 if (!item.types.includes('disabled')) {
                     this.logger.warn(`${itemId} ${item.name} is no longer in the game, disabling`);
                     await remoteData.addType(itemId, 'disabled').then(results => {
@@ -130,9 +139,9 @@ class UpdateTypesJob extends DataJob {
             }
 
             //Check for unusable armor
-            if (this.bsgData[itemId]._parent === '644120aa86ffbe10ee032b6f') {
-                const armorIsUsable = Object.keys(this.bsgData).some(id => {
-                    return this.bsgData[id]._props?.Slots?.some(slot => slot._props.filters?.some(f => f.Filter.includes(itemId)));
+            if (this.bsgItems[itemId]._parent === '644120aa86ffbe10ee032b6f') {
+                const armorIsUsable = Object.keys(this.bsgItems).some(id => {
+                    return this.bsgItems[id]._props?.Slots?.some(slot => slot._props.filters?.some(f => f.Filter.includes(itemId)));
                 });
                 if (armorIsUsable && item.types.includes('disabled')) {
                     this.logger.warn(`Armor plate ${itemId} ${item.name} is now usable, enabling`);
@@ -150,20 +159,20 @@ class UpdateTypesJob extends DataJob {
                     });
                 }
             }
-            if (!this.bsgData[itemId]?._props) {
+            if (!this.bsgItems[itemId]?._props) {
                 this.logger.warn(`${itemId} ${item.name} lacks item properties`);
                 continue;
             }
-            if (item.types.includes('no-flea') && this.canSellOnFlea(this.bsgData[itemId])) {
-                this.logger.warn(`You can sell ${itemId} ${item.name} on flea, but it is marked as noFlea`);
+            if (item.types.includes('no-flea') && this.canSellOnFlea(this.bsgItems[itemId])) {
+                this.logger.warn(`Removing ${itemId} ${item.name} no-flea type`);
 
                 await remoteData.removeType(itemId, 'no-flea').then(results => {
                     if (results.affectedRows == 0) {
                         this.logger.fail(`Not marked as no-flea ${itemId} ${item.name}`);
                     }
                 });
-            } else if (!item.types.includes('no-flea') && !this.canSellOnFlea(this.bsgData[itemId])) {
-                this.logger.warn(`You can't sell ${itemId} ${item.name} on flea`);
+            } else if (!item.types.includes('no-flea') && !this.canSellOnFlea(this.bsgItems[itemId])) {
+                this.logger.warn(`Adding ${itemId} ${item.name} no-flea type`);
     
                 await remoteData.addType(itemId, 'no-flea').then(results => {
                     if (results.affectedRows == 0) {
@@ -171,8 +180,8 @@ class UpdateTypesJob extends DataJob {
                     }
                 });
             }
-            if (!item.types.includes('quest') && this.bsgData[itemId]._props.QuestItem) {
-                this.logger.warn(`${itemId} ${item.name} is not marked as a quest item`);
+            if (!item.types.includes('quest') && this.bsgItems[itemId]._props.QuestItem) {
+                this.logger.warn(`Assigning ${itemId} ${item.name} quest type`);
                 await remoteData.addType(itemId, 'quest').then(results => {
                     if (results.affectedRows == 0) {
                         this.logger.fail(`Already marked as quest item ${itemId} ${item.name}`);
@@ -181,22 +190,38 @@ class UpdateTypesJob extends DataJob {
             }
             const handbookEntry = this.handbook.Items.find(i => i.Id === itemId);
             if (handbookEntry && item.types.includes('no-handbook')) {
-                this.logger.warn(`${itemId} ${item.name} has a handbook entry but is marked no-handbook`);
+                this.logger.warn(`Removing ${itemId} ${item.name} no-handbook type`);
                 await remoteData.removeType(itemId, 'no-handbook').then(results => {
                     if (results.affectedRows == 0) {
                         this.logger.fail(`Already not marked no-handbook item ${itemId} ${item.name}`);
                     }
                 });
             } else if (!handbookEntry && !item.types.includes('no-handbook')) {
-                this.logger.warn(`${itemId} ${item.name} has no handbook entry and is not marked no-handbook`);
+                this.logger.warn(`Assigning ${itemId} ${item.name} no-handbook type`);
                 await remoteData.addType(itemId, 'no-handbook').then(results => {
                     if (results.affectedRows == 0) {
                         this.logger.fail(`Already marked as no-handbook item ${itemId} ${item.name}`);
                     }
                 });
             }
+            const isSpecialSlot = this.isSpecialSlotItem(item);
+            if (isSpecialSlot && !item.types.includes('special-slot')) {
+                this.logger.warn(`Assigning ${itemId} ${item.name} special-slot type`);
+                await remoteData.addType(itemId, 'special-slot').then(results => {
+                    if (results.affectedRows == 0) {
+                        this.logger.fail(`Already marked special-slot item ${itemId} ${item.name}`);
+                    }
+                });
+            } else if (!isSpecialSlot && item.types.includes('special-slot')) {
+                this.logger.warn(`Removing ${itemId} ${item.name} special-slot type`);
+                await remoteData.removeType(itemId, 'special-slot').then(results => {
+                    if (results.affectedRows == 0) {
+                        this.logger.fail(`Already not marked as special-slot item ${itemId} ${item.name}`);
+                    }
+                });
+            }
             for (const categoryId in categoryMap) {
-                if (!this.isCategory(this.bsgData[itemId], categoryId)) continue;
+                if (!this.isCategory(this.bsgItems[itemId], categoryId)) continue;
                 for (const type of categoryMap[categoryId].types) {
                     if (item.types.includes(type)) continue;
                     this.logger.warn(`Assigning ${itemId} ${item.name} ${type} type`);
@@ -216,7 +241,7 @@ class UpdateTypesJob extends DataJob {
         let category = item._parent;
         while (category) {
             if (category === categoryId) return true;
-            category = this.bsgData[category]._parent;
+            category = this.bsgItems[category]._parent;
         }
         return false;
     }

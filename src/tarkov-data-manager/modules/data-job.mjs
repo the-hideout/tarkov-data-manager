@@ -651,6 +651,37 @@ class DataJob {
         return s3ImageLink;
     }
 
+    isSpecialSlotItem(dbItem) {
+        const pockets = this.bsgItems['627a4e6b255f7527fb05a0f6'];
+        if (!pockets) {
+            throw new Error('pockets not found');
+        }
+        const specialItemSlot = pockets._props.Slots[0];
+        if (!specialItemSlot) {
+            throw new Error('special item slot not found');
+        }
+        let itemId = dbItem.id;
+        if (dbItem.types.includes('preset')) {
+            itemId = dbItem.properties.items[0]._tpl;
+        }
+        const allIds = [];
+        let currentItem = this.bsgItems[itemId];
+        if (currentItem._props.QuestItem) {
+            return false;
+        }
+        while (currentItem) {
+            allIds.push(currentItem._id);
+            currentItem = this.bsgItems[currentItem._parent];
+        }
+
+        for (const id of specialItemSlot._props.filters[0].Filter) {
+            if (allIds.includes(id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     isReplicaItem = (itemId) => {
         if (!this.items) {
             throw new Error ('this.items must be initialized to bsg items');
