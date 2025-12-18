@@ -72,6 +72,11 @@ class UpdateFleaPricesJob extends DataJob {
                     });
                 }),
             ]);
+            this.presets = Object.values(remoteData.getPresets()).reduce((all, current) => {
+                all[current.properties.items[0]._tpl] ??= [];
+                all[current.properties.items[0]._tpl].push(current);
+                return all;
+            }, {});
             const insertActions = [];
             const scannedActions = [];
             this.logger.log(`Retrieved ${latestPrices.length} flea prices`);
@@ -97,13 +102,40 @@ class UpdateFleaPricesJob extends DataJob {
                 const lastPriceDate = new Date(lastPriceTimestamp);
                 const latestPriceDate = new Date(itemPrice.latestPriceSample.sampleTimeEpoch * 1000);
                 if (lastPriceDate < latestPriceDate) {
+                    let minPrice = itemPrice.latestPriceSample.minPrice;
+                    let listingCount = itemPrice.latestPriceSample.listingCount;
+                    const latestSupplyPressure = itemPrice.latestPriceSample.latestSupplyPressure.map(s => [s[0], [...s[1]]]);
+                    // we need to add preset prices back into the base weapon
+                    const presets = item.types.includes('gun') ? this.presets[item.id] ?? [] : [];
+                    for (const preset of presets) {
+                        const presetPrice = latestPrices.find(p => p.tarkovId === preset.id);
+                        if (!presetPrice) {
+                            continue;
+                        }
+                        if (!presetPrice.latestPriceSample.minPrice) {
+                            continue;
+                        }
+                        if (presetPrice.latestPriceSample.minPrice < minPrice) {
+                            minPrice = presetPrice.latestPriceSample.minPrice;
+                        }
+                        listingCount += presetPrice.latestPriceSample.listingCount;
+                        for (const scan of presetPrice.latestPriceSample.latestSupplyPressure) {
+                            const existingScan = latestSupplyPressure.find(s => s[0] === scan[0]);
+                            if (existingScan) {
+                                existingScan[1].push(...scan[1]);
+                            } else {
+                                latestSupplyPressure.push([scan[0], [...scan[1]]]);
+                            }
+                        }
+                    }
+                    latestSupplyPressure.sort((a, b) => a[0] - b[0]);
                     options.timestamp = latestPriceDate;
                     // price data is new
-                    if (itemPrice.latestPriceSample.minPrice) {
+                    if (minPrice) {
                         // insert new price
                         newPrices++;
-                        options.offerCount = itemPrice.latestPriceSample.listingCount;
-                        for (const scanned of itemPrice.latestPriceSample.latestSupplyPressure) {
+                        options.offerCount = listingCount;
+                        for (const scanned of latestSupplyPressure) {
                             const price = scanned[0];
                             for (let i = 0; i < scanned[1].length; i++) {
                                 options.itemPrices.push({
