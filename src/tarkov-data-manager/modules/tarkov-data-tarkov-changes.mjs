@@ -37,7 +37,7 @@ const jsonRequest = async (filename, options) => {
             }
         },
         timeout: {
-            request: 10000,
+            request: 20000,
         },
         signal: options.signal,
     }).then(apiResponse => {
