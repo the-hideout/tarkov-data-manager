@@ -1894,12 +1894,7 @@ class UpdateQuestsJob extends DataJob {
             reward.imageLink = await this.retrieveImage({
                 filename: `customization-${reward.id}.webp`,
                 fetch: () => {
-                    return this.fenceFetch('/passthrough-request', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            url: `https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`,
-                        }),
-                    });
+                    return this.fencePassthrough(`https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`);
                 },
             });
         }
@@ -1911,12 +1906,7 @@ class UpdateQuestsJob extends DataJob {
             reward.imageLink = await this.retrieveImage({
                 filename: `customization-${reward.id}.webp`,
                 fetch: () => {
-                    return this.fenceFetch('/passthrough-request', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            url: `https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`,
-                        }),
-                    });
+                    return this.fencePassthrough(`https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`);
                 },
             });
         }
@@ -1928,35 +1918,20 @@ class UpdateQuestsJob extends DataJob {
             reward.imageLink = await this.retrieveImage({
                 filename: `customization-${reward.id}.webp`,
                 fetch: () => {
-                    return this.fenceFetch('/passthrough-request', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            url: `https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`,
-                        }),
-                    });
+                    return this.fencePassthrough(`https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`);
                 },
             });
         }
         prestigeData.iconLink = await this.retrieveImage({
             filename: `prestige-${prestigeIndex+1}-icon.webp`,
             fetch: () => {
-                return this.fenceFetch('/passthrough-request', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        url: `https://prod.escapefromtarkov.com${prestige.image}`,
-                    }),
-                });
+                return this.fencePassthrough(`https://prod.escapefromtarkov.com${prestige.image}`);
             },
         });
         prestigeData.imageLink = await this.retrieveImage({
             filename: `prestige-${prestigeIndex+1}-image.webp`,
             fetch: () => {
-                return this.fenceFetch('/passthrough-request', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        url: `https://prod.escapefromtarkov.com${prestige.bigImage}`,
-                    }),
-                });
+                return this.fencePassthrough(`https://prod.escapefromtarkov.com${prestige.bigImage}`);
             },
         });
         return prestigeData;

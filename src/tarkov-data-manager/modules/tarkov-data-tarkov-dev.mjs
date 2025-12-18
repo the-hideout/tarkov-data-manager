@@ -31,6 +31,8 @@ const arrayToDictionary = [
     'traders',
 ];
 
+const failedHosts = [];
+
 const defaultOptions = dataOptions.default;
 const merge = dataOptions.merge;
 
@@ -96,6 +98,23 @@ const tarkovDevData = {
             return Promise.reject(new Error(`Content type ${response.headers.get('content-type')} is not an image`));
         }
         return sharp(await response.arrayBuffer());
+    },
+    fencePassthrough: async (url, options = {}) => {
+        const hostName = new URL(url).hostname;
+        if (!failedHosts.includes(hostName)) {
+            const response = await fetch(url, options);
+            if (response.ok) {
+                return response;
+            }
+            failedHosts.push(hostName);
+        }
+        return tarkovDevData.fenceFetch('/passthrough-request', {
+            ...options,
+            method: 'POST',
+            body: JSON.stringify({
+                url,
+            }),
+        });
     },
     get: async (jsonName, options = defaultOptions) => {
         const { download, gameMode } = merge(options);

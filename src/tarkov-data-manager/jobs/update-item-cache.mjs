@@ -892,12 +892,7 @@ class UpdateItemCacheJob extends DataJob {
         if (!category.Icon.endsWith('.png')) {
             return null;
         }
-        const imageResponse = await this.fenceFetch('/passthrough-request', {
-            method: 'POST',
-            body: JSON.stringify({
-                url: `https://prod.escapefromtarkov.com${category.Icon}`,
-            }),
-        });
+        const imageResponse = await this.fencePassthrough(`https://prod.escapefromtarkov.com${category.Icon}`);
         if (!imageResponse.ok) {
             return null;
         }

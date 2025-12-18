@@ -586,6 +586,13 @@ class DataJob {
         });
     }
 
+    fencePassthrough(url, options = {}) {
+        return tarkovDevData.fencePassthrough(url, {
+            ...options,
+            signal: this.abortController.signal,
+        });
+    }
+
     async getCustomizationImage(cust) {
         const customizationType = this.customization[cust._parent]._name;
         const custTypes = this.customizationTypes();
