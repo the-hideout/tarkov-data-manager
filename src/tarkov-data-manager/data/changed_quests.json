@@ -584,101 +584,40 @@
             "64b694c8a857ea477002a408"
         ]
     },
-    "__5c0bd94186f7747a727f09b2": {
+    "5c0bd94186f7747a727f09b2": {
         "name": "Test Drive - Part 1",
-        "objectivePropertiesChanged": {
-            "5c1b765d86f77413193fa4f2": {
-                "usingWeaponMods": [
-                    [
-                        {
-                            "id": "59bffbb386f77435b379b9c2",
-                            "name": "SilencerCo Hybrid 46 multi-caliber sound suppressor"
-                        },
-                        {
-                            "id": "617151c1d92c473c770214ab",
-                            "name": "Schmidt & Bender PM II 1-8x24 30mm riflescope"
-                        }
-                    ]
-                ]
-            }
-        },
-        "startRewardsChanged": {
-            "items": [
-                {
-                    "item": "5aafa857e5b5b00018480968",
-                    "item_name": "Springfield Armory M1A 7.62x51 rifle",
-                    "count": 1,
-                    "contains": [
-                        {
-                            "item": "5addcce35acfc4001a5fc635",
-                            "name": "M14 7.62x51 30-round magazine",
-                            "count": 1
-                        },
-                        {
-                            "item": "5addbf175acfc408fb13965b",
-                            "name": "M1A ProMag Archangel stock",
-                            "count": 1
-                        },
-                        {
-                            "item": "5addbfbb5acfc400194dbcf7",
-                            "name": "M14 UltiMAK M8 Forward Optic mount",
-                            "count": 1
-                        },
-                        {
-                            "item": "5addbac75acfc400194dbc56",
-                            "name": "M1A 7.62x51 22 inch barrel",
-                            "count": 1
-                        },
-                        {
-                            "item": "59bffc1f86f77435b128b872",
-                            "name": "SilencerCo Hybrid 46 Direct Thread Mount adapter",
-                            "count": 1
-                        },
-                        {
-                            "item": "59bffbb386f77435b379b9c2",
-                            "name": "SilencerCo Hybrid 46 multi-caliber sound suppressor",
-                            "count": 1
-                        },
-                        {
-                            "item": "5abcbb20d8ce87001773e258",
-                            "name": "M14 SA Enlarged Military Aperture rear sight",
-                            "count": 1
-                        },
-                        {
-                            "item": "5addbfef5acfc400185c2857",
-                            "name": "M14 Leapers UTG 4-Point Locking Deluxe mount",
-                            "count": 1
-                        },
-                        {
-                            "item": "5b3b99265acfc4704b4a1afb",
-                            "name": "Nightforce Magmount 30mm ring scope mount",
-                            "count": 1
-                        },
-                        {
-                            "item": "617151c1d92c473c770214ab",
-                            "name": "Schmidt & Bender PM II 1-8x24 30mm riflescope",
-                            "count": 1
-                        }
-                    ],
-                    "attributes": [],
-                    "base_item_id": "5aafa857e5b5b00018480968"
-                }
-            ]
-        },
-        "finishRewardsChanged": {
-            "offerUnlock": [
-                {
-                    "id": "64d52511c06f9028d80eb2842",
-                    "trader_id": "54cb50c76803fa8b248b4571",
-                    "trader_name": "Prapor",
-                    "level": 4,
-                    "item": "57a0e5022459774d1673f889",
-                    "item_name": "9x39mm SP-6 gs",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
+        "propertiesChanged" : {
+            "minPlayerLevel": 18
+        }
+    },
+    "63a5cf262964a7488f5243ce": {
+        "name": "Test Drive - Part 2",
+        "propertiesChanged" : {
+            "minPlayerLevel": 22
+        }
+    },
+    "64f5deac39e45b527a7c4232": {
+        "name": "Test Drive - Part 3",
+        "propertiesChanged" : {
+            "minPlayerLevel": 25
+        }
+    },
+    "6574e0dedc0d635f633a5805": {
+        "name": "Test Drive - Part 4",
+        "propertiesChanged" : {
+            "minPlayerLevel": 28
+        }
+    },
+    "669fa3a40c828825de06d6a1": {
+        "name": "Test Drive - Part 5",
+        "propertiesChanged" : {
+            "minPlayerLevel": 32
+        }
+    },
+    "675c1ff1a757ddd00404f0aa": {
+        "name": "Test Drive - Part 6",
+        "propertiesChanged" : {
+            "minPlayerLevel": 35
         }
     },
     "__5d25e4ca86f77409dd5cdf2c": {
@@ -889,10 +828,10 @@
             }
         }
     },
-    "__5c0d190cd09282029f5390d8": {
+    "5c0d190cd09282029f5390d8": {
         "name": "Grenadier",
         "propertiesChanged" : {
-            "taskRequirements": []
+            "minPlayerLevel": 10
         }
     },
     "__5b4794cb86f774598100d5d4": {
@@ -1737,7 +1676,7 @@
     "66058cb22cee99303f1ba067": {
         "name": "Easy Money - Part 1",
         "propertiesChanged": {
-            "minPlayerLevel": 20
+            "minPlayerLevel": 10
         }
     },
     "6864fcef9809a149400dd2ee": {
