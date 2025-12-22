@@ -1688,5 +1688,73 @@
     "675c15fbf7da9792a4059871": {
         "name": "Provide Viewership",
         "note": "added to trigger game mode change"
+    },
+    "67af4c1d8c9482eca103e477": {
+        "name": "Consolation Prize",
+        "note": "remove Sniping",
+        "finishRewardsChanged": {
+            "skillLevelReward": [
+                {
+                    "name": "AimDrills",
+                    "level": 1
+                },
+                {
+                    "name": "Assault",
+                    "level": 1
+                },
+                {
+                    "name": "WeaponTreatment",
+                    "level": 1
+                },
+                {
+                    "name": "TroubleShooting",
+                    "level": 1
+                },
+                {
+                    "name": "DMR",
+                    "level": 1
+                },
+                {
+                    "name": "HMG",
+                    "level": 1
+                },
+                {
+                    "name": "LMG",
+                    "level": 1
+                },
+                {
+                    "name": "Melee",
+                    "level": 1
+                },
+                {
+                    "name": "Pistol",
+                    "level": 1
+                },
+                {
+                    "name": "Revolver",
+                    "level": 1
+                },
+                {
+                    "name": "Launcher",
+                    "level": 1
+                },
+                {
+                    "name": "Shotgun",
+                    "level": 1
+                },
+                {
+                    "name": "SMG",
+                    "level": 1
+                },
+                {
+                    "name": "Throwing",
+                    "level": 1
+                },
+                {
+                    "name": "AttachedLauncher",
+                    "level": 1
+                }
+            ]
+        }
     }
 }
