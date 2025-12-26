@@ -61,6 +61,9 @@ class UpdateItemCacheJob extends DataJob {
         const itemTypesSet = new Set();
         this.bsgCategories = {};
         this.handbookCategories = {};
+        this.itemsLocale = {
+            locale: {},
+        };
         this.kvData = {
             Item: itemData,
             locale: {},
@@ -435,8 +438,9 @@ class UpdateItemCacheJob extends DataJob {
         //this.kvData.LanguageCode = Object.keys(this.locales).sort();
         this.kvData.FleaMarket = this.getFleaMarketSettings();
         this.logger.log('Uploading items data to cloudflare...');
-        await this.fillTranslations(this.kvData.locale);
+        await this.fillTranslations(this.itemsLocale.locale);
         await this.cloudflarePut();
+        await this.cloudflarePut(this.itemsLocale, 'items_locale_data');
 
         const handbookData = {
             ItemProperties: itemProperties,
