@@ -67,24 +67,19 @@ class UpdateItemCacheJob extends DataJob {
         this.kvData = {
             Item: itemData,
             locale: {},
-            //ItemCategory: this.bsgCategories,
-            //HandbookCategory: this.handbookCategories
+            ItemCategory: this.bsgCategories,
+            HandbookCategory: this.handbookCategories,
         }
         this.translationHelper = new TranslationHelper({
             locales: this.locales,
             logger: this.logger,
             target: this.itemsLocale.locale,
         });
-        this.handbookTranslationHelper = new TranslationHelper({
-            locales: this.locales,
-            logger: this.logger,
-        });
-        const itemProperties = {};
         this.presets = remoteData.getPresets();
 
         await setItemPropertiesOptions({
             job: this,
-            translationHelper: this.handbookTranslationHelper,
+            translationHelper: this.translationHelper,
         });
             
         const priceFields = [
@@ -182,7 +177,7 @@ class UpdateItemCacheJob extends DataJob {
             this.setBaseValue(itemData[key], value);
 
             // add item properties
-            itemProperties[key] = await getSpecialItemProperties(itemData[key]);
+            itemData[key].properties = await getSpecialItemProperties(itemData[key]);
             itemData[key].minLevelForFlea = this.getMinFleaLevel(key);
             if (this.bsgItems[key]) {
                 this.addPropertiesToItem(itemData[key]);
@@ -221,9 +216,9 @@ class UpdateItemCacheJob extends DataJob {
                 delete itemData[key];
                 continue;
             }
-            if (itemProperties[key] && !itemProperties[key].propertiesType) {
+            if (itemData[key].properties && !itemData[key].properties.propertiesType) {
                 this.logger.warn(`${this.getTranslation(itemData[key].name)} ${key} lacks propertiesType`);
-                itemProperties[key] = null;
+                itemData[key].properties = null;
             }
 
             // translations
@@ -270,7 +265,7 @@ class UpdateItemCacheJob extends DataJob {
             }
 
             // add handbook categories
-            const handbookItemId = itemData[key].types.includes('preset') ? itemProperties[key].base_item_id : key;
+            const handbookItemId = itemData[key].types.includes('preset') ? itemData[key].properties.base_item_id : key;
             const handbookItem = this.handbook.Items.find(hbi => hbi.Id === handbookItemId);
             if (!handbookItem) {
                 //this.logger.warn(`Item ${this.locales.en[itemData[key].name] || this.itemsLocale.locale.en[itemData[key].name]} ${key} has no handbook entry`);
@@ -300,12 +295,12 @@ class UpdateItemCacheJob extends DataJob {
             if (!item.types.includes('preset')) {
                 continue;
             }
-            const baseItem = itemData[itemProperties[item.id].base_item_id];
+            const baseItem = itemData[itemData[item.id].properties.base_item_id];
             if (!baseItem) {
-                this.addJobSummary(`${item.id}; base: ${itemProperties[item.id].base_item_id}`, 'No base item found for preset');
+                this.addJobSummary(`${item.id}; base: ${itemData[item.id].properties.base_item_id}`, 'No base item found for preset');
                 continue;
             }
-            if (itemProperties[baseItem.id]?.defaultPreset !== item.id) {
+            if (itemData[baseItem.id].properties?.defaultPreset !== item.id) {
                 continue;
             }
             item.updated = baseItem.updated;
@@ -386,43 +381,27 @@ class UpdateItemCacheJob extends DataJob {
             });
         }
 
-        /*const armorData = {};
-        for (const armorTypeId in this.globals.config.ArmorMaterials) {
+        this.kvData.FleaMarket = this.getFleaMarketSettings();
+        this.kvData.ArmorMaterial = Object.keys(this.globals.config.ArmorMaterials).reduce((allArmor, armorTypeId) => {
             const armorType = this.globals.config.ArmorMaterials[armorTypeId];
-            armorData[armorTypeId] = {
+            allArmor[armorTypeId] = {
                 id: armorTypeId,
-                name: this.addTranslation('Mat'+armorTypeId),
+                name: this.translationHelper.addTranslation('Mat'+armorTypeId),
             };
             for (const key in armorType) {
-                armorData[armorTypeId][key.charAt(0).toLocaleLowerCase()+key.slice(1)] = armorType[key];
+                allArmor[armorTypeId][key.charAt(0).toLocaleLowerCase()+key.slice(1)] = armorType[key];
             }
-        }
-
-        const levelData = [];
-        let currentLevel = 1;
-        for (const level of this.globals.config.exp.level.exp_table) {
-            levelData.push({
-                level: currentLevel++,
-                exp: level.exp
-            });
-        }
-
-        this.kvData.Skill = [];
-        for (const skillKey in this.globals.config.SkillsSettings) {
-            const skillData = this.globals.config.SkillsSettings[skillKey];
-            //console.log(skillKey, typeof skillData);
-            if (typeof skillData !== 'object') {
-                continue;
-            }
-            if (!this.hasTranslation(skillKey, true)) {
-                continue;
-            }
-            this.kvData.Skill.push({
-                id: skillKey,
-                name: this.addTranslation(skillKey),
-            });
-        }
-
+            return allArmor;
+        }, {});
+        this.kvData.PlayerLevel = this.globals.config.exp.level.exp_table.map((level, index) => {
+            const playerLevel = index + 1;
+            const levelGroup = Math.trunc(playerLevel / 5) + 1;
+            return {
+                level: playerLevel,
+                exp: level.exp,
+                levelBadgeImageLink: `https://assets.tarkov.dev/player-level-group-${levelGroup}.png`,
+            };
+        });
         this.kvData.Mastering = this.globals.config.Mastering.map(m => {
             return {
                 id: m.Name,
@@ -431,78 +410,39 @@ class UpdateItemCacheJob extends DataJob {
                 level3: m.Level3,
             };
         });
+        this.kvData.Skill = Object.keys(this.globals.config.SkillsSettings).reduce((allSkills, skillKey) => {
+            const skillData = this.globals.config.SkillsSettings[skillKey];
+            if (typeof skillData !== 'object') {
+                return allSkills;
+            }
+            if (disabledSkills.includes(skillKey)) {
+                return allSkills;
+            }
+            if (!this.translationHelper.hasTranslation(skillKey, true)) {
+                return allSkills;
+            }
+            allSkills.push({
+                id: skillKey,
+                name: this.translationHelper.addTranslation(skillKey),
+                wikiLink: this.getWikiLink(this.translationHelper.getTranslation(skillKey)),
+            });
+            return allSkills;
+        }, []);
+        this.kvData.SpecialItems = this.getSpecialItems();
 
-        this.kvData.ItemType = ['any', ...itemTypesSet].sort();
-        this.kvData.ArmorMaterial = armorData;
-        this.kvData.PlayerLevel = levelData;*/
-        //this.kvData.LanguageCode = Object.keys(this.locales).sort();
+        for (const skill of this.kvData.Skill) {
+            await this.setSkillImageLink(skill);
+        }
+
         this.kvData.FleaMarket = this.getFleaMarketSettings();
         this.logger.log('Uploading items data to cloudflare...');
         await this.fillTranslations(this.itemsLocale.locale);
         await this.cloudflarePut();
         await this.cloudflarePut(this.itemsLocale, 'items_locale_data');
 
-        const handbookData = {
-            ItemProperties: itemProperties,
-            ItemCategory: this.bsgCategories,
-            HandbookCategory: this.handbookCategories,
-            //FleaMarket: this.getFleaMarketSettings(),
-            ArmorMaterial: Object.keys(this.globals.config.ArmorMaterials).reduce((allArmor, armorTypeId) => {
-                const armorType = this.globals.config.ArmorMaterials[armorTypeId];
-                allArmor[armorTypeId] = {
-                    id: armorTypeId,
-                    name: this.handbookTranslationHelper.addTranslation('Mat'+armorTypeId),
-                };
-                for (const key in armorType) {
-                    allArmor[armorTypeId][key.charAt(0).toLocaleLowerCase()+key.slice(1)] = armorType[key];
-                }
-                return allArmor;
-            }, {}),
-            PlayerLevel: this.globals.config.exp.level.exp_table.map((level, index) => {
-                const playerLevel = index + 1;
-                const levelGroup = Math.trunc(playerLevel / 5) + 1;
-                return {
-                    level: playerLevel,
-                    exp: level.exp,
-                    levelBadgeImageLink: `https://assets.tarkov.dev/player-level-group-${levelGroup}.png`,
-                };
-            }),
-            Mastering: this.globals.config.Mastering.map(m => {
-                return {
-                    id: m.Name,
-                    weapons: m.Templates.filter(id => !!itemData[id]),
-                    level2: m.Level2,
-                    level3: m.Level3,
-                };
-            }),
-            Skill: Object.keys(this.globals.config.SkillsSettings).reduce((allSkills, skillKey) => {
-                const skillData = this.globals.config.SkillsSettings[skillKey];
-                if (typeof skillData !== 'object') {
-                    return allSkills;
-                }
-                if (disabledSkills.includes(skillKey)) {
-                    return allSkills;
-                }
-                if (!this.handbookTranslationHelper.hasTranslation(skillKey, true)) {
-                    return allSkills;
-                }
-                allSkills.push({
-                    id: skillKey,
-                    name: this.handbookTranslationHelper.addTranslation(skillKey),
-                    wikiLink: this.getWikiLink(this.handbookTranslationHelper.getTranslation(skillKey)),
-                });
-                return allSkills;
-            }, []),
-            SpecialItems: this.getSpecialItems(),
-        };
-
-        for (const skill of handbookData.Skill) {
-            await this.setSkillImageLink(skill);
-        }
-
-        this.logger.log('Uploading handbook data to cloudflare...');
-        handbookData.locale = await this.handbookTranslationHelper.fillTranslations();
-        await this.cloudflarePut(handbookData, 'handbook_data');
+        //this.logger.log('Uploading handbook data to cloudflare...');
+        //handbookData.locale = await this.translationHelper.fillTranslations();
+        //await this.cloudflarePut(handbookData, 'handbook_data');
 
         const schemaData = {
             ItemType: ['any', ...itemTypesSet].sort().join('\n '),
@@ -550,7 +490,7 @@ class UpdateItemCacheJob extends DataJob {
                 if (modeData.Item[id].updated < dbItem[`${gameMode.name}_last_scan`]) {
                     modeData.Item[id].updated = dbItem[`${gameMode.name}_last_scan`];
                 }
-                itemProperties[id] = await getSpecialItemProperties(item);
+                modeData.Item[id].properties = await getSpecialItemProperties(item);
                 item.minLevelForFlea = this.getMinFleaLevel(id);
             }
 
@@ -559,8 +499,8 @@ class UpdateItemCacheJob extends DataJob {
                 if (!item.types.includes('preset')) {
                     continue;
                 }
-                const baseItem = modeData.Item[itemProperties[item.id].base_item_id];
-                if (itemProperties[baseItem.id]?.defaultPreset !== item.id) {
+                const baseItem = modeData.Item[modeData.Item[item.id].properties.base_item_id];
+                if (modeData.Item[baseItem.id].properties?.defaultPreset !== item.id) {
                     continue;
                 }
                 const dbItem = this.itemMap.get(item.id);
@@ -573,14 +513,14 @@ class UpdateItemCacheJob extends DataJob {
             }
             this.setTraderPrices(modeData.Item);
             modeData.FleaMarket = this.getFleaMarketSettings();
-            handbookData.SpecialItems = this.getSpecialItems();
+            modeData.SpecialItems = this.getSpecialItems();
             this.logger.log(`Uploading ${gameMode.name} items data to cloudflare...`);
             await this.cloudflarePut(modeData, `${this.kvName}_${gameMode.name}`);
             await this.cloudflarePut(this.itemsLocale, `items_locale_data_${gameMode.name}`);
 
-            this.logger.log(`Uploading ${gameMode.name} handbook data to cloudflare...`);
-            handbookData.locale = await this.handbookTranslationHelper.fillTranslations();
-            await this.cloudflarePut(handbookData, `handbook_data_${gameMode.name}`);
+            //this.logger.log(`Uploading ${gameMode.name} handbook data to cloudflare...`);
+            //handbookData.locale = await this.translationHelper.fillTranslations();
+            //await this.cloudflarePut(handbookData, `handbook_data_${gameMode.name}`);
         }
 
         return this.kvData;
@@ -594,7 +534,7 @@ class UpdateItemCacheJob extends DataJob {
             id: id,
             parent_id: this.bsgItems[id]._parent,
             child_ids: [],
-            name: this.handbookTranslationHelper.addTranslation(`${id} Name`, (lang, langCode) => {
+            name: this.translationHelper.addTranslation(`${id} Name`, (lang, langCode) => {
                 if (lang[`${id} Name`]) {
                     return lang[`${id} Name`];
                 } else {
@@ -609,7 +549,7 @@ class UpdateItemCacheJob extends DataJob {
             }),
         };
         this.bsgCategories[id].normalizedName = this.normalizeName(this.getTranslation(this.bsgCategories[id].name));
-        this.bsgCategories[id].enumName = catNameToEnum(this.handbookTranslationHelper.getTranslation(this.bsgCategories[id].name));
+        this.bsgCategories[id].enumName = catNameToEnum(this.translationHelper.getTranslation(this.bsgCategories[id].name));
     
         this.addCategory(this.bsgCategories[id].parent_id);
     }
@@ -621,7 +561,7 @@ class UpdateItemCacheJob extends DataJob {
         const category = this.handbook.Categories.find(cat => cat.Id === id);
         this.handbookCategories[id] = {
             id: id,
-            name: this.handbookTranslationHelper.addTranslation(id),
+            name: this.translationHelper.addTranslation(id),
             normalizedName: this.normalizeName(this.locales.en[id]),
             enumName: catNameToEnum(this.locales.en[id]),
             parent_id: null,
