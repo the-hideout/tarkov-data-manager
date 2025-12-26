@@ -73,7 +73,7 @@ class UpdateItemCacheJob extends DataJob {
         this.translationHelper = new TranslationHelper({
             locales: this.locales,
             logger: this.logger,
-            target: this.kvData.locale,
+            target: this.itemsLocale.locale,
         });
         this.handbookTranslationHelper = new TranslationHelper({
             locales: this.locales,
@@ -273,7 +273,7 @@ class UpdateItemCacheJob extends DataJob {
             const handbookItemId = itemData[key].types.includes('preset') ? itemProperties[key].base_item_id : key;
             const handbookItem = this.handbook.Items.find(hbi => hbi.Id === handbookItemId);
             if (!handbookItem) {
-                //this.logger.warn(`Item ${this.locales.en[itemData[key].name] || this.kvData.locale.en[itemData[key].name]} ${key} has no handbook entry`);
+                //this.logger.warn(`Item ${this.locales.en[itemData[key].name] || this.itemsLocale.locale.en[itemData[key].name]} ${key} has no handbook entry`);
             } else {
                 await this.addHandbookCategory(handbookItem.ParentId);
                 let parent = this.handbookCategories[handbookItem.ParentId];
