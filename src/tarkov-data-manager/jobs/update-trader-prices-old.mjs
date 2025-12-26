@@ -12,11 +12,10 @@ class UpdateTraderPricesJob extends DataJob {
     }
 
     async run() {
-        [this.tasks, this.traders, this.traderAssorts, this.presets, this.items, this.localeEn] = await Promise.all([
+        [this.tasks, this.traders, this.traderAssorts, this.items, this.localeEn] = await Promise.all([
             this.jobManager.jobOutput('update-quests', this),
             tarkovData.traders(),
             this.jobManager.jobOutput('update-trader-assorts', this, 'regular', true),
-            this.jobManager.jobOutput('update-presets', this),
             remoteData.get(),
             tarkovData.locale('en'),
         ]);

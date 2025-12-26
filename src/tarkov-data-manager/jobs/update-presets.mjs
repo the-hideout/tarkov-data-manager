@@ -68,13 +68,15 @@ class UpdatePresetsJob extends DataJob {
 
         // add dog tag preset
         const bearTag = this.items['59f32bb586f774757e1e8442'];
+        const usecTag = this.items['59f32c3b86f77472a31742f0'];
+        const dogtagPresetId = this.dbItems.values().find(i => i.types.includes('preset') && i.properties.items?.some(part => part._tpl === bearTag._id) && i.properties.items?.some(part => part._tpl === usecTag._id))?.id ?? await presetsHelper.getNextPresetId();
         const getDogTagName = lang => {
             return lang[`${bearTag._id} Name`].replace(lang['59f32bb586f774757e1e8442 ShortName'], '').trim().replace(/^\p{Ll}/gu, substr => {
                 return substr.toUpperCase();
             });
         };
-        this.presetsData['customdogtags12345678910'] = {
-            id: 'customdogtags12345678910',
+        this.presetsData[dogtagPresetId] = {
+            id: dogtagPresetId,
             name: this.addTranslation('customdogtags12345678910 Name', getDogTagName),
             shortName: this.addTranslation('customdogtags12345678910 ShortName', getDogTagName),
             //name: getDogTagName(this.locales.en),
@@ -93,13 +95,13 @@ class UpdatePresetsJob extends DataJob {
             containsItems: [
                 {
                     item: {
-                        id: bearTag._id
+                        id: bearTag._id,
                     },
                     count: 1
                 },
                 {
                     item: {
-                        id: '59f32c3b86f77472a31742f0'
+                        id: usecTag._id,
                     },
                     count: 1
                 }
@@ -111,7 +113,7 @@ class UpdatePresetsJob extends DataJob {
                 },
                 {
                     _id: '000000000000000000000002',
-                    _tpl: '59f32c3b86f77472a31742f0',
+                    _tpl: usecTag._id,
                 }
             ]
         };
@@ -193,21 +195,11 @@ class UpdatePresetsJob extends DataJob {
             if (!item.types.includes('preset')) {
                 continue;
             }
-            if (item.types.includes('disabled')) {
-                if (!remoteData.hasPrices(id)) {
-                    await query('DELETE FROM item_data WHERE id = ?', [id]);
-                    await query('DELETE FROM types WHERE item_id = ?', [id]);
-                    this.logger.log(`Deleted unused preset ${item.name} ${id}`);
-                }
-                continue;
-            }
             const p = this.presetsData[id];
-            if (!p) {
+            if (!p && !item.types.includes('disabled')) {
                 this.logger.warn(`Preset ${item.name} ${id} is no longer valid; disabling`);
-                queries.push(remoteData.addType(id, 'disabled').catch(error => {
-                    this.logger.error(`Error disabling ${item.name} ${id}`);
-                    this.logger.error(error);
-                }));
+                //queries.push(presetsHelper.deletePreset(id));
+                queries.push(remoteData.addType(id, 'disabled'));
                 continue;
             }
             if (p.armorOnly) {
@@ -229,7 +221,20 @@ class UpdatePresetsJob extends DataJob {
                 normalized_name: p.normalized_name,
                 width: p.width,
                 height: p.height,
-                properties: {backgroundColor: p.backgroundColor, items: p.items},
+                properties: {
+                    backgroundColor: p.backgroundColor,
+                    items: p.items,
+                    weight: p.weight,
+                    bsgCategoryId: p.bsgCategoryId,
+                    noFlea: p.noFlea,
+                    default: p.default,
+                    ergonomics: p.ergonomics,
+                    verticalRecoil: p.verticalRecoil,
+                    horizontalRecoil: p.horizontalRecoil,
+                    moa: p.moa,
+                    armorOnly: p.armorOnly,
+                    baseValue: p.baseValue,
+                },
             }).then(() => {
                 if (presetIsNewItem) {
                     this.logger.log(`${p.name} added`);
@@ -319,9 +324,10 @@ class UpdatePresetsJob extends DataJob {
 
         this.kvData.presets = this.presetsData;
         this.kvData.locale = await this.fillTranslations();
+        await presetsHelper.savePresetLocalizations(this.kvData.locale);
         fs.writeFileSync(path.join(import.meta.dirname, '..', this.writeFolder, `${this.kvName}.json`), JSON.stringify(this.kvData, null, 4));
         await Promise.allSettled(queries);
-        presetsHelper.updatePresets(this.kvData);
+        presetsHelper.updatedPresets();
         return this.kvData;
     }
 }

@@ -471,7 +471,7 @@ class DataJob {
 
     getWikiLink = (pageName) => {
         pageName = pageName.replace(/ \[\w+ ZONE\]$/, '');
-        return `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(pageName.replaceAll(' ', '_'))}`;
+        return `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(pageName.replaceAll(' ', '_').replaceAll('#', ''))}`;
     }
 
     customizationTypes() {
@@ -586,6 +586,13 @@ class DataJob {
         });
     }
 
+    fencePassthrough(url, options = {}) {
+        return tarkovDevData.fencePassthrough(url, {
+            ...options,
+            signal: this.abortController.signal,
+        });
+    }
+
     async getCustomizationImage(cust) {
         const customizationType = this.customization[cust._parent]._name;
         const custTypes = this.customizationTypes();
@@ -649,6 +656,37 @@ class DataJob {
         this.logger.log(`Downloaded image ${s3FileName}`);
         await s3.uploadAnyImage(image, s3FileName, `image/${imageType}`);
         return s3ImageLink;
+    }
+
+    isSpecialSlotItem(dbItem) {
+        const pockets = this.bsgItems['627a4e6b255f7527fb05a0f6'];
+        if (!pockets) {
+            throw new Error('pockets not found');
+        }
+        const specialItemSlot = pockets._props.Slots[0];
+        if (!specialItemSlot) {
+            throw new Error('special item slot not found');
+        }
+        let itemId = dbItem.id;
+        if (dbItem.types.includes('preset')) {
+            itemId = dbItem.properties.items[0]._tpl;
+        }
+        const allIds = [];
+        let currentItem = this.bsgItems[itemId];
+        if (currentItem._props.QuestItem) {
+            return false;
+        }
+        while (currentItem) {
+            allIds.push(currentItem._id);
+            currentItem = this.bsgItems[currentItem._parent];
+        }
+
+        for (const id of specialItemSlot._props.filters[0].Filter) {
+            if (allIds.includes(id)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     isReplicaItem = (itemId) => {

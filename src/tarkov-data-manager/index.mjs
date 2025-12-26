@@ -1996,6 +1996,16 @@ app.get('/presets', async (req, res) => {
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat delete-cancel">No</a>
             </div>
         </div>
+        <div id="modal-id-change-confirm" class="modal">
+            <div class="modal-content">
+                <h4>Confirm Normalize ID</h4>
+                <div>Are you sure you want to normalize the id for <span class="modal-change-confirm-preset-name"></span>?</div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat change-confirm">Yes</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat change-cancel">No</a>
+            </div>
+        </div>
     ${getFooter(req)}`);
 });
 
@@ -2034,29 +2044,32 @@ app.get('/presets/get/game', async (req, res) => {
         remoteData.get(),
     ]);
     const presets = [];
-    for (const presetId in presetData.presets.presets) {
+    for (const presetId in items.keys()) {
         if (!gamePresets[presetId]) {
             continue;
         }
-        const p = presetData.presets.presets[presetId];
+        const p = items.get(presetId);
+        if (!p) {
+            continue;
+        }
         const preset = {
             id: p.id,
-            name: presetData.presets.locale.en[p.name],
-            shortName: presetData.presets.locale.en[p.shortName],
-            items: p.items,
-            itemNames: p.items.map(item => {
+            name: p.name,
+            shortName: p.short_name,
+            items: p.properties.items,
+            itemNames: p.properties.items.map(item => {
                 return {
                     id: item._tpl,
                     name: en[`${item._tpl} Name`],
                     shortName: en[`${item._tpl} ShortName`],
                 };
             }),
-            image_8x_link: items.get(p.id)?.image_8x_link,
-            image_512_link: items.get(p.id)?.image_512_link,
-            image_link: items.get(p.id)?.image_link,
-            base_image_link: items.get(p.id)?.base_image_link,
-            grid_image_link: items.get(p.id)?.grid_image_link,
-            icon_link: items.get(p.id)?.icon_link,
+            image_8x_link: p.image_8x_link,
+            image_512_link: p.image_512_link,
+            image_link: p.image_link,
+            base_image_link: p.base_image_link,
+            grid_image_link: p.grid_image_link,
+            icon_link: p.icon_link,
         };
         presets.push(preset);
     }
@@ -2109,6 +2122,27 @@ app.delete('/presets/:id', async (req, res) => {
     try {
         await presetData.deletePreset(req.params.id);
         response.message = `Preset ${req.params.id} deleted`;
+    } catch (error) {
+        response.errors.push(error.message);
+    }
+    res.send(response);
+});
+
+app.get('/presets/normalize-id/:id', async (req, res) => {
+    const response = {message: 'No changes made.', errors: []};
+    try {
+        //await presetData.deletePreset(req.params.id);
+        if (req.params.id.startsWith('707265736574')) {
+            throw new Error(`Preset id ${req.params.id} is already normalized`);
+        }
+        const presets = remoteData.getPresets();
+        const preset = presets[req.params.id];
+        if (!preset) {
+            throw new Error(`Preset ${req.params.id} not found`);
+        }
+        const newId = await presetData.getNextPresetId();
+        await presetData.changePresetId(req.params.id, newId);
+        response.message = `Preset ${req.params.id} changed to ${newId}`;
     } catch (error) {
         response.errors.push(error.message);
     }

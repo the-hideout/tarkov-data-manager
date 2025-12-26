@@ -7,6 +7,7 @@ import tarkovData from '../modules/tarkov-data.mjs';
 //import mapQueueTimes from '../modules/map-queue-times';
 import s3 from '../modules/upload-s3.mjs';
 import npcImageMaker from '../modules/npc-image-maker.mjs';
+import presetData from '../modules/preset-data.mjs';
 
 const enableMaps = [
     '59fc81d786f774390775787e', // night factory
@@ -32,7 +33,6 @@ class UpdateMapsJob extends DataJob {
         this.logger.log('Getting maps data...');
         [
             this.items,
-            this.presets,
             this.botInfo,
             this.mapDetails,
             this.mapLoot,
@@ -42,7 +42,6 @@ class UpdateMapsJob extends DataJob {
             this.goonReports,
         ] = await Promise.all([
             remoteData.get(),
-            this.jobManager.jobOutput('update-presets', this, 'regular', true),
             tarkovData.botsInfo(),
             tarkovData.mapDetails(),
             tarkovData.mapLoot(),
@@ -59,6 +58,7 @@ class UpdateMapsJob extends DataJob {
         this.stationaryWeapons = {};
         this.s3Images = s3.getLocalBucketContents();
         this.kvData = {};
+        this.presets = remoteData.getPresets();
 
         // prepare loose loot data per map
         this.mapLooseLoot = {};
@@ -458,7 +458,7 @@ class UpdateMapsJob extends DataJob {
                     if (spawn.BossName === 'civilian') {
                         continue;
                     }
-                    if (spawn.BossName === 'assault') {
+                    if (spawn.BossName === 'assault' || spawn.BossName === 'assaultTutorial') {
                         enemySet.add('scavs');
                         continue;
                     }
@@ -806,16 +806,16 @@ class UpdateMapsJob extends DataJob {
         const containedParts = parts.filter(p => {
             return !p.attributes.some(a => a.value === 'cartridges');
         });
-        for (const preset of Object.values(this.presets.presets)) {
-            if (preset.baseId !== baseItemId) {
+        for (const preset of Object.values(this.presets)) {
+            if (preset.propertiess.items[0]._tpl !== baseItemId) {
                 continue;
             }
-            const presetParts = preset.containsItems.filter(ci => ci.item.id !== preset.baseId).filter(ci => !this.items.get(ci.item.id).types.includes('ammo'));
+            const presetParts = preset.properties.items.filter(i => i._tpl !== preset.baseId).filter(i => !this.items.get(i._tpl).types.includes('ammo'));
             if (presetParts.length !== containedParts.length) {
                 continue;
             }
             const partIsMissing = presetParts.some(contained => {
-                return !containedParts.some(part => contained.item.id === part.item);
+                return !containedParts.some(part => contained._tpl === part.item);
             });
             if (partIsMissing) {
                 continue;
@@ -1006,7 +1006,7 @@ class UpdateMapsJob extends DataJob {
                 const preset = this.matchEquipmentItemToPreset(equipmentItem);
                 if (preset) {
                     equipmentItem.item = preset.id;
-                    equipmentItem.item_name = this.presets.locale.en[preset.name];
+                    equipmentItem.item_name = this.items.get(preset.id);
                     //add base item to preset
                     equipmentItem.contains.unshift({
                         item: id,

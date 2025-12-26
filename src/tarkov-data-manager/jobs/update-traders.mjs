@@ -65,12 +65,7 @@ class UpdateTradersJob extends DataJob {
                         filename: `${trader._id}.webp`,
                         fallback: 'unknown-trader.webp',
                         fetch: () => {
-                            return this.fenceFetch('/passthrough-request', {
-                                method: 'POST',
-                                body: JSON.stringify({
-                                    url: `https://prod.escapefromtarkov.com${trader.avatar}`,
-                                }),
-                            });
+                            return this.fencePassthrough(`https://prod.escapefromtarkov.com${trader.avatar}`);
                         },
                     }),
                     image4xLink: `https://${process.env.S3_BUCKET}/unknown-trader-4x.webp`,
@@ -157,9 +152,9 @@ class UpdateTradersJob extends DataJob {
             this.logger.log(`Processed ${this.kvData[gameMode.name].Trader.length} ${gameMode.name} traders`);
 
             if (staleTraderCount > 0 && !gameUpdating) {
-                /*this.logger.warn(`${staleTraderCount} stale traders; triggering restart`);
+                this.logger.warn(`${staleTraderCount} stale traders; triggering restart`);
                 this.addJobSummary(`${staleTraderCount} stale ${gameMode.name} traders`);
-                if (process.env.TEST_JOB !== 'true') {
+                /*if (process.env.TEST_JOB !== 'true') {
                     await tarkovChanges.restart().catch(error => {
                         this.logger.warn(`Error triggering TC restart: ${error.message}`);
                     });

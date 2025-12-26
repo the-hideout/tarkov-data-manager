@@ -20,12 +20,14 @@ const AVAILABLE_TYPES = [
     'no-flea',
     'only-flea',
     'pistol-grip',
+    'poster',
     'preset',
     'provisions',
     'quest',
     'rig',
     'suppressor',
     'wearable',
+    'special-slot',
 ];
 
 const CUSTOM_HANDLERS = [

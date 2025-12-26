@@ -1,7 +1,6 @@
 import DataJob from '../modules/data-job.mjs';
 import remoteData from '../modules/remote-data.mjs';
 import presetData from '../modules/preset-data.mjs';
-import webSocketServer from '../modules/websocket-server.mjs';
 import { createAndUploadFromSource } from '../modules/image-create.mjs';
 
 class UpdateProfileIndexJob extends DataJob {

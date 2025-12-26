@@ -147,6 +147,19 @@ const skipOffers = {
     },
 };
 
+const forceBarterUnlocks = {
+    '64ee99639878a0569d6ec8c9': { // Broadcast - Part 5
+        '63fc44e2429a8a166c7f61e6': [ // Armasight Zeus-Pro 640 2-8x50 30Hz thermal scope
+            '5fc64ea372b0dd78d51159dc', // cultist knife
+        ],
+    },
+    '64e7b971f9d6fa49d6769b44': { // The Huntsman Path - Big Game
+        '63fc44e2429a8a166c7f61e6': [ // Armasight Zeus-Pro 640 2-8x50 30Hz thermal scope
+            '5c0530ee86f774697952d952', // Ledx
+        ],
+    },
+};
+
 class UpdateTraderOffersJob extends DataJob {
     constructor(options) {
         super({...options, name: 'update-trader-offers'});
@@ -237,8 +250,10 @@ class UpdateTraderOffersJob extends DataJob {
                     let preset = presetData.findPreset(offer.items);
                     if (!preset) {
                         preset = await presetData.addJsonPreset(offer, this.logger).then(p => p.preset);
+                    } else {
+                        presetData.presetUsed(preset.id);
                     }
-                    item = {id: preset.id};
+                    item = preset;
                 }
                 const traderName = this.en[`${offer.user.id} Nickname`];
                 const assort = this.traderAssorts[offer.trader_id]?.find(assort => assort.id === offer._id);
@@ -419,6 +434,10 @@ class UpdateTraderOffersJob extends DataJob {
         const itemId = offer.items[0]._tpl;
         for (const quest of this.tasks) {
             const match = unlockMatches(offer, quest.startRewards) || unlockMatches(offer, quest.finishRewards);
+            const forcedBarter = forceBarterUnlocks[quest.id]?.[itemId];
+            if (forcedBarter && !forcedBarter.every(reqId => offer.requirements.some(offerReq => offerReq._tpl === reqId))) {
+                continue;
+            }
             if (match) {
                 return {
                     id: quest.id,

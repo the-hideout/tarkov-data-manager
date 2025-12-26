@@ -75,8 +75,8 @@ class UpdateQuestsJob extends DataJob {
         this.maps = await this.jobManager.jobOutput('update-maps', this);
         this.hideout = await this.jobManager.jobOutput('update-hideout', this);
         this.traders = (await this.jobManager.jobOutput('update-traders', this));
-        this.presets = presetData.presets.presets;
         this.itemMap = await this.jobManager.jobOutput('update-item-cache', this);
+        this.presets = remoteData.getPresets();
 
         // only keep details for active maps
         this.mapDetails = Object.keys(this.mapDetails).reduce((valid, mapId) => {
@@ -762,7 +762,7 @@ class UpdateQuestsJob extends DataJob {
         if (armorTypes.includes(this.items[rewardData.item]?._parent)) {
             // all armors are default presets
             const matchedPreset = Object.values(this.presets).find(preset => {
-                return preset?.baseId === rewardData.item && preset?.default;
+                return preset?.properties.items[0]._tpl === rewardData.item && preset?.properties.default;
             });
             if (matchedPreset) {
                 rewardData.item = matchedPreset.id;
@@ -777,11 +777,29 @@ class UpdateQuestsJob extends DataJob {
             return rewardData;
         }
 
-        let matchedPreset = Object.values(this.presets).find(preset => {
+        let breakpoint = false;
+        let matchedPreset = presetData.findPreset(reward.items.reduce((all, current, currentIndex) => {
+            // sometimes the flat item list includes multiple composite items
+            // stop adding items after the first
+            if (breakpoint) {
+                return all;
+            }
+            if (currentIndex > 0 && !current.parentId) {
+                breakpoint = true;
+                return all;
+            }
+            // filter out soft armor inserts
+            const bsgItem = this.items[current._tpl];
+            if (bsgItem._parent !== '65649eb40bf0ed77b8044453') {
+                all.push(current);
+            }
+            return all;
+        }, []));
+        /*let matchedPreset = Object.values(this.presets).find(preset => {
             if (!preset) {
                 return false;
             }
-            if (preset.baseId !== rewardData.item) return false;
+            if (preset.properties.items[0]._tpl !== rewardData.item) return false;
             if (preset.containsItems.length !== rewardData.contains.length+1) return false;
             for (const part of preset.containsItems) {
                 if (part.item.id === preset.baseId) continue;
@@ -790,7 +808,7 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
             return true;
-        });
+        });*/
 
         if (!matchedPreset) {
             try {
@@ -812,15 +830,8 @@ class UpdateQuestsJob extends DataJob {
             //this.logger.success('Reward matches preset '+matchedPreset.name);
             rewardData.item = matchedPreset.id;
             rewardData.item_name = matchedPreset.name;
-            rewardData.base_item_id = matchedPreset.baseId;
-            rewardData.contains = [];
-            for (const part of matchedPreset.containsItems) {
-                rewardData.contains.push({
-                    item: part.item.id,
-                    name: part.item.name,
-                    count: part.count
-                });
-            }
+            rewardData.base_item_id = matchedPreset.properties.items[0]._tpl;
+            rewardData.contains = presetData.flatItemsToContainedItems(matchedPreset.properties.items);
         } else {
             this.logger.warn('Could not match preset to reward');
             this.logger.log(JSON.stringify(reward, null, 4));
@@ -1883,12 +1894,7 @@ class UpdateQuestsJob extends DataJob {
             reward.imageLink = await this.retrieveImage({
                 filename: `customization-${reward.id}.webp`,
                 fetch: () => {
-                    return this.fenceFetch('/passthrough-request', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            url: `https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`,
-                        }),
-                    });
+                    return this.fencePassthrough(`https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`);
                 },
             });
         }
@@ -1900,12 +1906,7 @@ class UpdateQuestsJob extends DataJob {
             reward.imageLink = await this.retrieveImage({
                 filename: `customization-${reward.id}.webp`,
                 fetch: () => {
-                    return this.fenceFetch('/passthrough-request', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            url: `https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`,
-                        }),
-                    });
+                    return this.fencePassthrough(`https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`);
                 },
             });
         }
@@ -1917,35 +1918,20 @@ class UpdateQuestsJob extends DataJob {
             reward.imageLink = await this.retrieveImage({
                 filename: `customization-${reward.id}.webp`,
                 fetch: () => {
-                    return this.fenceFetch('/passthrough-request', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            url: `https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`,
-                        }),
-                    });
+                    return this.fencePassthrough(`https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`);
                 },
             });
         }
         prestigeData.iconLink = await this.retrieveImage({
             filename: `prestige-${prestigeIndex+1}-icon.webp`,
             fetch: () => {
-                return this.fenceFetch('/passthrough-request', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        url: `https://prod.escapefromtarkov.com${prestige.image}`,
-                    }),
-                });
+                return this.fencePassthrough(`https://prod.escapefromtarkov.com${prestige.image}`);
             },
         });
         prestigeData.imageLink = await this.retrieveImage({
             filename: `prestige-${prestigeIndex+1}-image.webp`,
             fetch: () => {
-                return this.fenceFetch('/passthrough-request', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        url: `https://prod.escapefromtarkov.com${prestige.bigImage}`,
-                    }),
-                });
+                return this.fencePassthrough(`https://prod.escapefromtarkov.com${prestige.bigImage}`);
             },
         });
         return prestigeData;

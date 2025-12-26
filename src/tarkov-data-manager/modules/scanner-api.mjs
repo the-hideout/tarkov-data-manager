@@ -18,6 +18,7 @@ const { imageSizes } = imgGen.imageFunctions;
 let users;
 let usersUpdating = false;
 let presets = {};
+let presetsByBase = {};
 const replicas = {};
 const activeTraderScans = {};
 
@@ -40,24 +41,22 @@ export const scannerFlags = {
 
 const updatePresets = (newPresets) => {
     try {
-        presets = {
-            ...newPresets,
-            byBase: Object.values(newPresets.presets).reduce((all, p) => {
-                if (!all[p.baseId]) {
-                    all[p.baseId] = [];
-                }
-                all[p.baseId].push(p);
-                return all;
-            }, {}),
-        };
+        presets = newPresets;
+        presetsByBase = Object.values(newPresets).reduce((all, p) => {
+            if (!all[p.properties.items[0]._tpl]) {
+                all[p.properties.items[0]._tpl] = [];
+            }
+            all[p.properties.items[0]._tpl].push(p);
+            return all;
+        }, {});
     } catch (error) {
         console.log('ScannerAPI error updating presets:', error.message);
     }
 };
 
 emitter.on('presetsUpdated', updatePresets);
-
-updatePresets(presetData.presets);
+await remoteData.get();
+updatePresets(remoteData.getPresets());
 
 const addReplica = (replica) => {
     if (!replicas[item.properties.source]) {
@@ -122,16 +121,16 @@ const queryResultToBatchItem = item => {
         needsIconImage: !!item.needs_icon_image,
         needs512pxImage: !!item.needs_512px_image,
         needs8xImage: !!item.needs_8x_image,
-        presets: presets.byBase[item.id]?.map(preset => {
+        presets: presetsByBase[item.id]?.map(preset => {
             return {
                 id: preset.id,
-                name: presets.locale.en[preset.name],
-                shortName: presets.locale.en[preset.shortName],
+                name: preset.name,
+                shortName: preset.short_name,
                 types: preset.types,
-                backgroundColor: preset.backgroundColor,
+                backgroundColor: preset.properties.backgroundColor,
                 width: preset.width,
                 height: preset.height,
-                default: preset.default,
+                default: preset.properties.default,
                 items: preset.items,
             }
         }) ?? [],
@@ -837,7 +836,7 @@ const scannerApi = {
         if (response.errors.length > 0) {
             return response;
         }
-        if (presets.presets[itemId]) {
+        if (presets[itemId]) {
             presetData.presetUsed(itemId);
         }
         const playerPrices = [];
@@ -1141,7 +1140,7 @@ const scannerApi = {
                 insertValues.price = null;
                 insertValues.currency = null;
             }
-            if (presets.presets[offer.item]) {
+            if (presets[offer.item]) {
                 presetData.presetUsed(offer.item);
             }
             const updateValues = Object.keys(insertValues).reduce((all, current) => {
