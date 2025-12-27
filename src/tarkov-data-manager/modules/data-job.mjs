@@ -189,9 +189,6 @@ class DataJob {
                 let embedMessage = '';
                 if (this.jobSummary[messageType].length > 0) {
                     for (let message of this.jobSummary[messageType]) {
-                        if (message.length > 4096) {
-                            message = message.substring(0, 4092)+'...';
-                        }
                         if (embedMessage.length + message.length > 4096) {
                             embed.setDescription(embedMessage.trim());
                             embed = new EmbedBuilder();
@@ -462,7 +459,15 @@ class DataJob {
         if (!this.jobSummary[category]) {
             this.jobSummary[category] = [];
         }
-        this.jobSummary[category].push(text);
+        if (text.length > 4096) {
+            let remaining = text;
+            while (remaining.length) {
+                this.jobSummary[category].push(remaining.substring(0, 4096));
+                remaining = remaining.substring(4096);
+            }
+        } else {
+            this.jobSummary[category].push(text);
+        }
     }
 
     abort = (reason) => {
