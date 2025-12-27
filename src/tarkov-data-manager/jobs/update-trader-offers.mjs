@@ -43,6 +43,9 @@ const skipOffers = {
             {
                 reward: '5ede475b549eed7c6d5c18fb', // Failed Setup
             },
+            {
+                reward: '6866665cdf54e1190902df55' // Friend from Norvinsk - Part 5
+            },
         ],
         3: [
             {
