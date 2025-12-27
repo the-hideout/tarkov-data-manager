@@ -1,4 +1,3 @@
-import got from 'got';
 import * as cheerio from 'cheerio';
 
 import DataJob from '../modules/data-job.mjs';
@@ -31,42 +30,55 @@ class VerifyWikiJob extends DataJob {
 
                     if (item.wiki_link) {
                         try {
-                            const currentPage = await got(item.wiki_link);
-                            const matches = currentPage.body.match(/rel="canonical" href="(?<canonical>.+)"/);
+                            const response = await fetch(item.wiki_link);
+                            if (!response.ok) {
+                                if (response.status === 404) {
+                                    shouldRemoveCurrentLink = true;
+                                } else {
+                                    // request wasn't successful but wasn't a 404
+                                    // don't change anything
+                                    return resolve();
+                                }
+                                throw new Error('bad link');
+                            }
+                            const pageBody = await response.text();
+                            const matches = pageBody.match(/rel="canonical" href="(?<canonical>.+)"/);
 
                             // We have the right link. Move on
-                            if(matches.groups.canonical === item.wiki_link){
+                            if (matches.groups.canonical === item.wiki_link) {
                                 return resolve();
                             }
 
                             // We don't have the right link, but there's a redirect
                             newWikiLink = matches.groups.canonical;
-                        } catch (requestError){
-                            // console.log(requestError);
-                            shouldRemoveCurrentLink = true;
+                        } catch (error) {
+
                         }
                     }
 
                     // We don't have a wiki link, let's try retrieving from the id
-                    if (!newWikiLink){
+                    if (!newWikiLink) {
                         try {
                             let itemId = item.id;
                             if (item.types.includes('preset')) {
                                 itemId = item.properties.items[0]._tpl;
                             }
-                            const templatePage = await got(this.getWikiLink(`Template:${itemId}`));
-                            const pageContent = cheerio.load(templatePage.body);
+                            const response = await fetch(this.getWikiLink(`Template:${itemId}`));
+                            if (!response.ok) {
+                                throw new Error('bad wiki link');
+                            }
+                            const pageContent = cheerio.load(await response.text());
                             const pathName = pageContent('.mw-parser-output p a').first().prop('href');
                             if (pathName) {
                                 newWikiLink = `https://escapefromtarkov.fandom.com${pathName}`;
                             }
-                        } catch (requestError){
+                        } catch (error){
                             // nothing to do
                         }
                     }
 
                     // We still don't have a wiki link, let's try to guess one
-                    if (!newWikiLink){
+                    if (!newWikiLink) {
                         if (!item.types.includes('preset')) {
                             newWikiLink = this.getWikiLink(item.name);
                         } else {
@@ -75,8 +87,11 @@ class VerifyWikiJob extends DataJob {
                         }
 
                         try {
-                            await got.head(newWikiLink);
-                        } catch (requestError){
+                            const response = await fetch(newWikiLink, {method: 'HEAD'});
+                            if (!response.ok) {
+                                throw new Error('bad wiki link');
+                            }
+                        } catch (error) {
                             missingWikiLinkCount = missingWikiLinkCount + 1;
                             newWikiLink = false;
                             this.logger.warn(`${item.name} (${item.id}) missing wiki link`);
@@ -87,12 +102,12 @@ class VerifyWikiJob extends DataJob {
                         shouldRemoveCurrentLink = false;
                     }
 
-                    if (shouldRemoveCurrentLink && item.wiki_link){
+                    if (shouldRemoveCurrentLink && item.wiki_link) {
                         this.addJobSummary(item.name, 'Broken Wiki Link');
                         remoteData.setProperty(item.id, 'wiki_link', '');
                     }
 
-                    if (newWikiLink){
+                    if (newWikiLink) {
                         this.addJobSummary(item.name, 'Updated Wiki Link');
                         remoteData.setProperty(item.id, 'wiki_link', newWikiLink);
                     }
