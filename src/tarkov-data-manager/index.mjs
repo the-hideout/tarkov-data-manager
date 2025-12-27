@@ -405,7 +405,7 @@ app.post('/items/refresh-images/:id', async (req, res) => {
         }
         let newImage;
         if (item.types.includes('preset')) {
-            newImage = await this.fenceFetchImage('/preset-image', {
+            newImage = await tarkovDevData.fenceFetchImage('/preset-image', {
                 method: 'POST',
                 body: JSON.stringify({
                     id: item.id,
