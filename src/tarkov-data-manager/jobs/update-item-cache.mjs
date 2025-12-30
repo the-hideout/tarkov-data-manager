@@ -438,7 +438,7 @@ class UpdateItemCacheJob extends DataJob {
         this.logger.log('Uploading items data to cloudflare...');
         await this.fillTranslations(this.itemsLocale.locale);
         await this.cloudflarePut();
-        await this.cloudflarePut(this.itemsLocale, 'items_locale_data');
+        await this.cloudflarePut(this.itemsLocale, `${this.kvName}_locale`);
 
         //this.logger.log('Uploading handbook data to cloudflare...');
         //handbookData.locale = await this.translationHelper.fillTranslations();
@@ -516,7 +516,7 @@ class UpdateItemCacheJob extends DataJob {
             modeData.SpecialItems = this.getSpecialItems();
             this.logger.log(`Uploading ${gameMode.name} items data to cloudflare...`);
             await this.cloudflarePut(modeData, `${this.kvName}_${gameMode.name}`);
-            await this.cloudflarePut(this.itemsLocale, `items_locale_data_${gameMode.name}`);
+            await this.cloudflarePut(this.itemsLocale, `${this.kvName}_locale_${gameMode.name}`);
 
             //this.logger.log(`Uploading ${gameMode.name} handbook data to cloudflare...`);
             //handbookData.locale = await this.translationHelper.fillTranslations();
