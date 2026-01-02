@@ -82,6 +82,8 @@ const users = {
     "admin": process.env.AUTH_PASSWORD
 };
 
+const SESSION_VERSION = '2';
+
 const sess = {
     secret: process.env.AUTH_SECRET,
     resave: false,
@@ -101,7 +103,7 @@ app.use(session(sess));
 app.use(express.json({limit: '100mb'}), express.raw({type: 'image/*', limit: '50mb'}));
 app.use(express.urlencoded({extended: true}));
 app.use(maybe((req, res, next) => {
-    if (req.session.loggedin && req.session.sessionversion === '2') {
+    if (req.session.loggedin && req.session.sessionversion === SESSION_VERSION) {
         next();
     } else {
         res.send(`${getHeader(req)}
@@ -185,7 +187,7 @@ app.post('/auth', async (req, res) => {
         if (Object.hasOwn(users, username) && users[username] === password) {
             req.session.loggedin = true;
             req.session.username = username;
-            req.session.sessionversion = '2';
+            req.session.sessionversion = SESSION_VERSION;
             response.success = true;
             response.message = 'Login successful!';
         }
