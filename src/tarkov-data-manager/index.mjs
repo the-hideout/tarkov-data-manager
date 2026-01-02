@@ -154,13 +154,6 @@ app.use(maybe((req, res, next) => {
         ${getFooter(req)}`);
     }
 }));
-const encodeToast = (text) => {
-    return Buffer.from(text, 'utf8').toString('hex');
-};
-
-const decodeToast = (hex) => {
-    return Buffer.from(hex, 'hex').toString('utf8');
-}
 
 const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
@@ -276,10 +269,6 @@ const getHeader = (req, options) => {
 }
 
 const getFooter = (req) => {
-    let toastJs = '';
-    if (req.query.toast) {
-        toastJs = `new M.Toast({text: '${decodeToast(req.query.toast)}'});`;
-    }
     return `
             </div>
             <footer class="page-footer"></footer>
@@ -288,7 +277,6 @@ const getFooter = (req) => {
                 $(document).ready(function(){
                     //$('.sidenav').sidenav();
                     M.Sidenav.init($('.sidenav'), {});
-                    ${toastJs}
                 });
             </script>
         </body>
