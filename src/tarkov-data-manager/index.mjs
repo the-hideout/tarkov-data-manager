@@ -189,7 +189,7 @@ app.post('/auth', async (req, res) => {
     let username = req.body.username;
     let password = req.body.password;
     if (username && password) {
-        if (users[username] && users[username] === password) {
+        if (Object.hasOwn(users, username) && users[username] === password) {
             req.session.loggedin = true;
             req.session.username = username;
             response.success = true;
