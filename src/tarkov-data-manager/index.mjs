@@ -101,7 +101,7 @@ app.use(session(sess));
 app.use(express.json({limit: '100mb'}), express.raw({type: 'image/*', limit: '50mb'}));
 app.use(express.urlencoded({extended: true}));
 app.use(maybe((req, res, next) => {
-    if (req.session.loggedin) {
+    if (req.session.loggedin && req.session.sessionversion === '2') {
         next();
     } else {
         res.send(`${getHeader(req)}
@@ -192,6 +192,7 @@ app.post('/auth', async (req, res) => {
         if (Object.hasOwn(users, username) && users[username] === password) {
             req.session.loggedin = true;
             req.session.username = username;
+            req.session.sessionversion = '2';
             response.success = true;
             response.message = 'Login successful!';
         }
