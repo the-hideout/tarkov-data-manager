@@ -1193,7 +1193,7 @@ app.put('/webhooks/:id', async (req, res) => {
         if (updateFields.length > 0) {
             await dbConnection.query(`UPDATE webhooks SET ${updateFields.map(field => {
                 return `${field} = ?`;
-            }).join(', ')} WHERE id='${req.params.id}'`, updateValues);
+            }).join(', ')} WHERE id=?`, updateValues, req.params.id);
             webhookApi.refresh();
             response.message = `Updated ${updateFields.join(', ')}`;
             console.log(`Edited webhook ${req.params.id}: ${updateFields.join(', ')}`)
