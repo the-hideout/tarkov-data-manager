@@ -82,6 +82,8 @@ const users = {
     "admin": process.env.AUTH_PASSWORD
 };
 
+const SESSION_VERSION = '2';
+
 const sess = {
     secret: process.env.AUTH_SECRET,
     resave: false,
@@ -101,7 +103,7 @@ app.use(session(sess));
 app.use(express.json({limit: '100mb'}), express.raw({type: 'image/*', limit: '50mb'}));
 app.use(express.urlencoded({extended: true}));
 app.use(maybe((req, res, next) => {
-    if (req.session.loggedin) {
+    if (req.session.loggedin && req.session.sessionversion === SESSION_VERSION) {
         next();
     } else {
         res.send(`${getHeader(req)}
@@ -154,13 +156,6 @@ app.use(maybe((req, res, next) => {
         ${getFooter(req)}`);
     }
 }));
-const encodeToast = (text) => {
-    return Buffer.from(text, 'utf8').toString('hex');
-};
-
-const decodeToast = (hex) => {
-    return Buffer.from(hex, 'hex').toString('utf8');
-}
 
 const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
@@ -189,9 +184,10 @@ app.post('/auth', async (req, res) => {
     let username = req.body.username;
     let password = req.body.password;
     if (username && password) {
-        if (users[username] && users[username] == password) {
+        if (Object.hasOwn(users, username) && users[username] === password) {
             req.session.loggedin = true;
             req.session.username = username;
+            req.session.sessionversion = SESSION_VERSION;
             response.success = true;
             response.message = 'Login successful!';
         }
@@ -275,10 +271,6 @@ const getHeader = (req, options) => {
 }
 
 const getFooter = (req) => {
-    let toastJs = '';
-    if (req.query.toast) {
-        toastJs = `new M.Toast({text: '${decodeToast(req.query.toast)}'});`;
-    }
     return `
             </div>
             <footer class="page-footer"></footer>
@@ -287,7 +279,6 @@ const getFooter = (req) => {
                 $(document).ready(function(){
                     //$('.sidenav').sidenav();
                     M.Sidenav.init($('.sidenav'), {});
-                    ${toastJs}
                 });
             </script>
         </body>
@@ -405,7 +396,7 @@ app.post('/items/refresh-images/:id', async (req, res) => {
         }
         let newImage;
         if (item.types.includes('preset')) {
-            newImage = await this.fenceFetchImage('/preset-image', {
+            newImage = await tarkovDevData.fenceFetchImage('/preset-image', {
                 method: 'POST',
                 body: JSON.stringify({
                     id: item.id,
@@ -1191,9 +1182,10 @@ app.put('/webhooks/:id', async (req, res) => {
             updateValues.push(updates[field]);
         }
         if (updateFields.length > 0) {
+            updateValues.push(req.params.id);
             await dbConnection.query(`UPDATE webhooks SET ${updateFields.map(field => {
                 return `${field} = ?`;
-            }).join(', ')} WHERE id='${req.params.id}'`, updateValues);
+            }).join(', ')} WHERE id=?`, updateValues);
             webhookApi.refresh();
             response.message = `Updated ${updateFields.join(', ')}`;
             console.log(`Edited webhook ${req.params.id}: ${updateFields.join(', ')}`)

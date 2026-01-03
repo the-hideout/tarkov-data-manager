@@ -536,9 +536,10 @@ const presetData = {
         return result.affectedRows > 0;
     },
     deletePreset: async (id) => {
-        const presets = remoteData.getPresets();
-        if (!presets[id]) {
-            return Promise.reject(new Error(`No preset found with id ${id}`));
+        const items = await remoteData.get();
+        const item = items.get(id);
+        if (item && !item.inclues('preset')) {
+            return Promise.reject(new Error(`Item ${item.name} ${id} is not a preset`));
         }
         const gamePresets = await presetData.getGamePresets();
         if (gamePresets[id]) {
@@ -551,9 +552,9 @@ const presetData = {
             dbConnection.query(`DELETE FROM price_data WHERE item_id = ?`, [id]),
             dbConnection.query(`DELETE FROM price_archive WHERE item_id = ?`, [id]),
             dbConnection.query('DELETE FROM price_historical WHERE item_id = ?', [id]),
-            remoteData.removeItem(id),
+            remoteData.removeItem(id).catch(() => {}),
         ]);
-        emitter.emit('presetsUpdated', presets);
+        emitter.emit('presetsUpdated', remoteData.getPresets());
     },
     mergePreset: async (sourceId, targetId) => {
         const presets = remoteData.getPresets();
