@@ -1241,7 +1241,7 @@ const scannerApi = {
     submitJson: (options) => {
         const response = {errors: [], warnings: [], data: {}};
         try {
-            let filename = options.name;
+            const filename = path.basename(options.name);
             fs.writeFileSync(path.join(import.meta.dirname, '..', 'cache', `${filename}.json`), JSON.stringify(options.data, null, 4));
             response.data.filename = filename;
         } catch (error) {
