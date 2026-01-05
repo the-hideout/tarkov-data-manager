@@ -200,6 +200,9 @@ class UpdateItemCacheJob extends DataJob {
                         count: count,
                         attributes: []
                     });
+                    if (!itemData[key].types.includes('noFlea')) {
+                        itemData[key].types.push('noFlea');
+                    }
                 }
             } else if (this.presets[key]) {
                 const preset = this.presets[key];
