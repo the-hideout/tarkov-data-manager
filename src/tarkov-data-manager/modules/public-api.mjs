@@ -84,6 +84,7 @@ const validateGoons = async (req, res) => {
     try {
         const map = await validateMap(req, res);
         if (!map) {
+            res.status(400).send("invalid map");
             return false;
         }
 
