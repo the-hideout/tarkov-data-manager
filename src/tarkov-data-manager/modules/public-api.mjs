@@ -24,7 +24,7 @@ const validateMap = async (req, res) => {
 
     // Do some basic validation
     let map;
-    if (req.body.map === undefined || req.body.map === null || req.body.map === '') {
+    if (!req.body?.map) {
         res.status(400).send("value 'map' is required");
         return false;
     } else {
