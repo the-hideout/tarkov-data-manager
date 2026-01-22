@@ -1120,7 +1120,7 @@ class UpdateMapsJob extends DataJob {
                             value: difficulty.difficulty,
                         },
                         {
-                            name: 'chance',
+                            name: 'prevalence',
                             value: +(Math.round(lootItem.botPresencePct + "e+2") + "e-2"),
                         }
                     ],
