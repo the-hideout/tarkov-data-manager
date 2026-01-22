@@ -51,7 +51,7 @@ const dataFunctions = {
         return spt.botInfo(botKey, options);
     },
     botsInfo: async (options = defaultOptions) => {
-        return spt.botsInfo(options);
+        return sp.botRender(options);
     },
     botsHealth: async(options = defaultOptions) => {
         return sp.botsHealth();

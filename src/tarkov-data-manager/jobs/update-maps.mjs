@@ -781,6 +781,76 @@ class UpdateMapsJob extends DataJob {
         return true;
     }
 
+    getItemTopParent = (item, items) => {
+        if (!item.parentId) {
+            return;
+        }
+        let parent = items.find(i => i._id === item.parentId);
+        while (parent) {
+            if (parent.parentId === items[0]._id) {
+                return parent;
+            }
+            parent = items.find(i => i._id === parent.parentId);
+        }
+    }
+
+    getItemSlot = (item, items) => {
+        const parent = this.getItemTopParent(item, items);
+        if (!parent) {
+            return;
+        }
+        return parent.slotId;
+    }
+
+    fillItemContents = (item, items, contains = []) => {
+        for (const it of items) {
+            if (!this.isValidItem(it._tpl)) {
+                continue;
+            }
+            const parent = this.getItemTopParent(item, items);
+            if (!parent) {
+                continue;
+            }
+            if (parent._id !== item.parentId) {
+                continue;
+            }
+            contains.push({
+                item: it._tpl,
+                item_name: this.items.get(it._tpl).name,
+                count: 1,
+                attributes: [
+                    {
+                        name: 'parentItemId',
+                        value: parent._tpl,
+                    },
+                    {
+                        name: 'slotNameId',
+                        value: it.slotId,
+                    }
+                ],
+            });
+        }
+    }
+
+    buildPreset = (item, items) => {
+        const preset = {
+            _id: '000000000000000000000000',
+            _items: [
+                {...item}
+            ],
+        };
+        delete preset._items[0].parentId;
+        delete preset._items[0].slotId;
+        for (const it of items) {
+            const parent = this.getItemTopParent(it, items);
+            if (parent._id !== item._id) {
+                continue;
+            }
+            preset._items.push(it);
+        }
+        return preset;
+    }
+
     matchEquipmentItemToPreset = (equipmentItem) => {
         const baseItemId = equipmentItem.item;
         const parts = equipmentItem.contains;
@@ -892,7 +962,7 @@ class UpdateMapsJob extends DataJob {
             equipment: [],
             items: [],
         };
-        const bossExtraData = this.botInfo[bossKey.toLowerCase()];
+        const bossExtraData = this.botInfo.groups.filter(g => g.role.toLowerCase() === bossKey.toLowerCase());
         const extensions = [
             'webp',
             'png',
@@ -925,11 +995,11 @@ class UpdateMapsJob extends DataJob {
                 }
                 
             }
-            if (!imageData && bossExtraData) {
+            if (!imageData && bossExtraData.length) {
                 try {    
-                    imageData = this.bossDataToImageData(bossExtraData);
+                    imageData = this.bossDataToImageData(bossExtraData[0]);
                 } catch (error) {
-                    this.logger.warn(`Error getting ${bossKey} spt image data: ${error.message}`);
+                    this.logger.warn(`Error getting ${bossKey} image data: ${error.message}`);
                 }
             }
             if (!imageData) {
@@ -962,19 +1032,51 @@ class UpdateMapsJob extends DataJob {
             });
         }
         this.processedBosses[bossKey] = bossInfo;
-        if (!bossExtraData) {
+        if (!bossExtraData.length) {
             return bossInfo;
         }
-        if (!bossInfo.health) {
-            bossInfo.health = Object.keys(bossExtraData.health.BodyParts[0]).map(bodyPart => {
-                return {
-                    id: bodyPart,
-                    bodyPart: this.addTranslation(`QuestCondition/Elimination/Kill/BodyPart/${bodyPart}`),
-                    max: bossExtraData.health.BodyParts[0][bodyPart].max,
-                };
-            });
+        for (const difficulty of bossExtraData) {
+            for (const render of difficulty.renders) {
+                for (const item of render.data.Equipment.items) {
+                    if (!item.parentId) {
+                        continue;
+                    }
+                    if (!this.isValidItem(item._tpl)) {
+                        continue;
+                    }
+                    const slotName = this.getItemSlot(item, render.data.Equipment.items);
+                    const topLevel = item._parentId === render.data.Equipment.Id;
+                    
+                    const equipmentItem = {
+                        item: item._tpl,
+                        item_name: this.items.get(item._tpl).name,
+                        contains: [],
+                        count: 1,
+                        attributes: [
+                            {
+                                name: 'slot',
+                                value: slotName,
+                            }
+                        ]
+                    };
+                    const weaponsSlots = [
+                        'FirstPrimaryWeapon',
+                        'SecondPrimaryWeapon',
+                        'Holster',
+                    ];
+                    if (topLevel && weaponsSlots.includes(slotName)) {
+                        this.fillItemContents(item, render.data.Equipment.items, equipmentItem.contains);
+                        const preset = presetData.findPreset(this.buildPreset(item, render.data.Equipment.Items));
+                        if (preset) {
+                            equipmentItem.item = preset.id;
+                            equipmentItem.item_name = preset.name;
+                        }
+                    }
+                    bossInfo.equipment.push(equipmentItem);
+                }
+            }
         }
-        return bossInfo; // ignore equipment since it's pre-1.0 data
+        return bossInfo;
         for (const slotName in bossExtraData.inventory.equipment) {
             const totalWeight = Object.keys(bossExtraData.inventory.equipment[slotName]).reduce((total, id) => {
                 if (this.isValidItem(id)) {
@@ -1041,6 +1143,9 @@ class UpdateMapsJob extends DataJob {
 
     bossDataToImageData(bossExtraData) {
         const requestData = npcImageMaker.defaultData();
+        requestData.customization = bossExtraData.renders[0].data.Customization;
+        requestData.equipment = bossExtraData.renders[0].data.Equipment;
+        return requestData;
         const bodyParts = [
             'head',
             'body',
