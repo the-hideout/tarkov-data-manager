@@ -34,6 +34,7 @@ class UpdateMapsJob extends DataJob {
         [
             this.items,
             this.botInfo,
+            this.botGroups,
             this.mapDetails,
             this.mapLoot,
             this.eftItems,
@@ -43,6 +44,7 @@ class UpdateMapsJob extends DataJob {
         ] = await Promise.all([
             remoteData.get(),
             tarkovData.botsInfo(),
+            tarkovData.botGroups(),
             tarkovData.mapDetails(),
             tarkovData.mapLoot(),
             tarkovData.items(),
@@ -774,6 +776,7 @@ class UpdateMapsJob extends DataJob {
             '5df8a6a186f77412640e2e80', // red
             '5df8a72c86f77412640e2e83', // white
             '5df8a77486f77412672a1e3f', // purple
+            '6937ed118715e9fd1b0f286d', // tangerine
         ];
         if (ornaments.includes(id)) {
             return false;
@@ -785,7 +788,7 @@ class UpdateMapsJob extends DataJob {
         if (!item.parentId) {
             return;
         }
-        let parent = items.find(i => i._id === item.parentId);
+        let parent = item;
         while (parent) {
             if (parent.parentId === items[0]._id) {
                 return parent;
@@ -804,14 +807,21 @@ class UpdateMapsJob extends DataJob {
 
     fillItemContents = (item, items, contains = []) => {
         for (const it of items) {
+            if (it._id === item._id) {
+                continue;
+            }
             if (!this.isValidItem(it._tpl)) {
                 continue;
             }
-            const parent = this.getItemTopParent(item, items);
-            if (!parent) {
+            const topParent = this.getItemTopParent(it, items);
+            if (!topParent) {
                 continue;
             }
-            if (parent._id !== item.parentId) {
+            if (topParent._id !== item._id) {
+                continue;
+            }
+            const parent = items.find(i => i._id === it.parentId);
+            if (!parent) {
                 continue;
             }
             contains.push({
@@ -843,6 +853,9 @@ class UpdateMapsJob extends DataJob {
         delete preset._items[0].slotId;
         for (const it of items) {
             const parent = this.getItemTopParent(it, items);
+            if (!parent) {
+                continue;
+            }
             if (parent._id !== item._id) {
                 continue;
             }
@@ -1045,7 +1058,7 @@ class UpdateMapsJob extends DataJob {
                         continue;
                     }
                     const slotName = this.getItemSlot(item, render.data.Equipment.items);
-                    const topLevel = item._parentId === render.data.Equipment.Id;
+                    const topLevel = item.parentId === render.data.Equipment.Id;
                     
                     const equipmentItem = {
                         item: item._tpl,
@@ -1055,7 +1068,7 @@ class UpdateMapsJob extends DataJob {
                         attributes: [
                             {
                                 name: 'slot',
-                                value: slotName,
+                                value: item.slotId,
                             }
                         ]
                     };
@@ -1064,9 +1077,12 @@ class UpdateMapsJob extends DataJob {
                         'SecondPrimaryWeapon',
                         'Holster',
                     ];
-                    if (topLevel && weaponsSlots.includes(slotName)) {
+                    if (weaponsSlots.includes(slotName)) {
+                        if (!topLevel) {
+                            continue;
+                        }
                         this.fillItemContents(item, render.data.Equipment.items, equipmentItem.contains);
-                        const preset = presetData.findPreset(this.buildPreset(item, render.data.Equipment.Items));
+                        const preset = presetData.findPreset(this.buildPreset(item, render.data.Equipment.items));
                         if (preset) {
                             equipmentItem.item = preset.id;
                             equipmentItem.item_name = preset.name;
@@ -1074,6 +1090,41 @@ class UpdateMapsJob extends DataJob {
                     }
                     bossInfo.equipment.push(equipmentItem);
                 }
+            }
+        }
+        const lootDifficulties = this.botGroups.groups.filter(b => b.role.toLowerCase() === bossKey.toLowerCase());
+        if (!lootDifficulties.length) {
+            return bossInfo;
+        }
+        for (const difficulty of lootDifficulties) {
+            for (const lootItem of difficulty.items) {
+                if (!this.isValidItem(lootItem.tpl)) {
+                    continue;
+                }
+                const item = this.items.get(lootItem.tpl);
+                const skipTypes = [
+                    'wearable',
+                    'gun',
+                    'mods',
+                    'ammo',
+                ];
+                if (item.types.some(t => skipTypes.includes(t))) {
+                    continue;
+                }
+                bossInfo.items.push({
+                    id: item.id,
+                    name: item.name,
+                    attributes: [
+                        {
+                            name: 'difficulty',
+                            value: difficulty.difficulty,
+                        },
+                        {
+                            name: 'chance',
+                            value: +(Math.round(lootItem.botPresencePct + "e+2") + "e-2"),
+                        }
+                    ],
+                });
             }
         }
         return bossInfo;

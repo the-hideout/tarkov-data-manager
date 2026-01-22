@@ -53,8 +53,11 @@ const dataFunctions = {
     botsInfo: async (options = defaultOptions) => {
         return sp.botRender(options);
     },
-    botsHealth: async(options = defaultOptions) => {
+    botsHealth: async (options = defaultOptions) => {
         return sp.botsHealth();
+    },
+    botGroups: async (options = defaultOptions) => {
+        return sp.botGroups();
     },
     crafts: (options = defaultOptions) => {
         return mainDataSource.crafts(options);

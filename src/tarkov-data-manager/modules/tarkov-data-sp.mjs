@@ -58,6 +58,13 @@ const spApi = {
         }
         return response.json();
     },
+    botGroups: async () => {
+        const response = await fetch('https://tarkovbotroleapi.asoloproject.xyz/api/bot-groups');
+        if (!response.ok) {
+            return Promise.reject(new Error(`${response.statusText} ${response.status}`));
+        }
+        return response.json();
+    },
 };
 
 export default spApi;
