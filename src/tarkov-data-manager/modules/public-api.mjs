@@ -24,7 +24,7 @@ const validateMap = async (req, res) => {
 
     // Do some basic validation
     let map;
-    if (req.body.map === undefined || req.body.map === null || req.body.map === '') {
+    if (!req.body?.map) {
         res.status(400).send("value 'map' is required");
         return false;
     } else {
@@ -50,7 +50,7 @@ const validateQueue = async (req, res) => {
         }
 
         let time;
-        if (req.body.time === undefined || req.body.time === null || req.body.time === '') {
+        if (!req.body?.time) {
             res.status(400).send("value 'time' is required");
             return false;
         } else {
@@ -58,7 +58,7 @@ const validateQueue = async (req, res) => {
         }
 
         let type;
-        if (req.body.type === undefined || req.body.type === null || req.body.type === '') {
+        if (!req.body?.type) {
             type = 'unknown';
         } else {
             type = req.body.type;
@@ -89,7 +89,7 @@ const validateGoons = async (req, res) => {
         }
 
         let timestamp;
-        if (req.body.timestamp === undefined || req.body.timestamp === null || req.body.timestamp === '') {
+        if (!req.body?.timestamp) {
             res.status(400).send("value 'timestamp' is required");
             return false;
         } else {
@@ -98,10 +98,10 @@ const validateGoons = async (req, res) => {
 
         let accountId, discordId;
 
-        if (req.body.accountId) {
+        if (req.body?.accountId) {
             accountId = req.body.accountId
         }
-        if (req.body.discordId) {
+        if (req.body?.discordId) {
             discordId = req.body.discordId;
         }
         if (!accountId && !discordId) {

@@ -447,17 +447,6 @@ class UpdateItemCacheJob extends DataJob {
         //handbookData.locale = await this.translationHelper.fillTranslations();
         //await this.cloudflarePut(handbookData, 'handbook_data');
 
-        const schemaData = {
-            ItemType: ['any', ...itemTypesSet].sort().join('\n '),
-            ItemCategory: Object.values(this.bsgCategories).map(cat => cat.enumName).sort().join('\n  '),
-            //ItemSourceName: [],
-            HandbookCategory: Object.values(this.handbookCategories).map(cat => cat.enumName).sort().join('\n  '),
-            LanguageCode: Object.keys(this.locales).sort().join('\n '),
-            //TraderName: [],
-        };
-        this.logger.log('Uploading schema data to cloudflare...');
-        await this.cloudflarePut(schemaData, 'schema_data');
-
         for (const gameMode of this.gameModes) {
             if (gameMode.name === 'regular') {
                 continue;
@@ -552,7 +541,6 @@ class UpdateItemCacheJob extends DataJob {
             }),
         };
         this.bsgCategories[id].normalizedName = this.normalizeName(this.getTranslation(this.bsgCategories[id].name));
-        this.bsgCategories[id].enumName = catNameToEnum(this.translationHelper.getTranslation(this.bsgCategories[id].name));
     
         this.addCategory(this.bsgCategories[id].parent_id);
     }
@@ -566,7 +554,6 @@ class UpdateItemCacheJob extends DataJob {
             id: id,
             name: this.translationHelper.addTranslation(id),
             normalizedName: this.normalizeName(this.locales.en[id]),
-            enumName: catNameToEnum(this.locales.en[id]),
             parent_id: null,
             child_ids: [],
             imageLink: await this.getHandbookCategoryImageLink(category),

@@ -209,6 +209,9 @@ class UpdateQuestsJob extends DataJob {
                                         if (item.types.includes('preset')) {
                                             return;
                                         }
+                                        if (item.types.includes('disabled')) {
+                                            return;
+                                        }
                                         weapons.push({
                                             id: item.id,
                                             name: this.locales.en[item.name],
