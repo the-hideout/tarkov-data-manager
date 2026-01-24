@@ -34,6 +34,7 @@ class UpdateMapsJob extends DataJob {
         [
             this.items,
             this.botInfo,
+            this.botGroups,
             this.mapDetails,
             this.mapLoot,
             this.eftItems,
@@ -43,6 +44,7 @@ class UpdateMapsJob extends DataJob {
         ] = await Promise.all([
             remoteData.get(),
             tarkovData.botsInfo(),
+            tarkovData.botGroups(),
             tarkovData.mapDetails(),
             tarkovData.mapLoot(),
             tarkovData.items(),
@@ -774,11 +776,92 @@ class UpdateMapsJob extends DataJob {
             '5df8a6a186f77412640e2e80', // red
             '5df8a72c86f77412640e2e83', // white
             '5df8a77486f77412672a1e3f', // purple
+            '6937ed118715e9fd1b0f286d', // tangerine
         ];
         if (ornaments.includes(id)) {
             return false;
         }
         return true;
+    }
+
+    getItemTopParent = (item, items) => {
+        if (!item.parentId) {
+            return;
+        }
+        let parent = item;
+        while (parent) {
+            if (parent.parentId === items[0]._id) {
+                return parent;
+            }
+            parent = items.find(i => i._id === parent.parentId);
+        }
+    }
+
+    getItemSlot = (item, items) => {
+        const parent = this.getItemTopParent(item, items);
+        if (!parent) {
+            return;
+        }
+        return parent.slotId;
+    }
+
+    fillItemContents = (item, items, contains = []) => {
+        for (const it of items) {
+            if (it._id === item._id) {
+                continue;
+            }
+            if (!this.isValidItem(it._tpl)) {
+                continue;
+            }
+            const topParent = this.getItemTopParent(it, items);
+            if (!topParent) {
+                continue;
+            }
+            if (topParent._id !== item._id) {
+                continue;
+            }
+            const parent = items.find(i => i._id === it.parentId);
+            if (!parent) {
+                continue;
+            }
+            contains.push({
+                item: it._tpl,
+                item_name: this.items.get(it._tpl).name,
+                count: 1,
+                attributes: [
+                    {
+                        name: 'parentItemId',
+                        value: parent._tpl,
+                    },
+                    {
+                        name: 'slotNameId',
+                        value: it.slotId,
+                    }
+                ],
+            });
+        }
+    }
+
+    buildPreset = (item, items) => {
+        const preset = {
+            _id: '000000000000000000000000',
+            _items: [
+                {...item}
+            ],
+        };
+        delete preset._items[0].parentId;
+        delete preset._items[0].slotId;
+        for (const it of items) {
+            const parent = this.getItemTopParent(it, items);
+            if (!parent) {
+                continue;
+            }
+            if (parent._id !== item._id) {
+                continue;
+            }
+            preset._items.push(it);
+        }
+        return preset;
     }
 
     matchEquipmentItemToPreset = (equipmentItem) => {
@@ -892,7 +975,7 @@ class UpdateMapsJob extends DataJob {
             equipment: [],
             items: [],
         };
-        const bossExtraData = this.botInfo[bossKey.toLowerCase()];
+        const bossExtraData = this.botInfo.groups.filter(g => g.role.toLowerCase() === bossKey.toLowerCase());
         const extensions = [
             'webp',
             'png',
@@ -925,11 +1008,11 @@ class UpdateMapsJob extends DataJob {
                 }
                 
             }
-            if (!imageData && bossExtraData) {
+            if (!imageData && bossExtraData.length) {
                 try {    
-                    imageData = this.bossDataToImageData(bossExtraData);
+                    imageData = this.bossDataToImageData(bossExtraData[0]);
                 } catch (error) {
-                    this.logger.warn(`Error getting ${bossKey} spt image data: ${error.message}`);
+                    this.logger.warn(`Error getting ${bossKey} image data: ${error.message}`);
                 }
             }
             if (!imageData) {
@@ -962,19 +1045,89 @@ class UpdateMapsJob extends DataJob {
             });
         }
         this.processedBosses[bossKey] = bossInfo;
-        if (!bossExtraData) {
+        if (!bossExtraData.length) {
             return bossInfo;
         }
-        if (!bossInfo.health) {
-            bossInfo.health = Object.keys(bossExtraData.health.BodyParts[0]).map(bodyPart => {
-                return {
-                    id: bodyPart,
-                    bodyPart: this.addTranslation(`QuestCondition/Elimination/Kill/BodyPart/${bodyPart}`),
-                    max: bossExtraData.health.BodyParts[0][bodyPart].max,
-                };
-            });
+        for (const difficulty of bossExtraData) {
+            for (const render of difficulty.renders) {
+                for (const item of render.data.Equipment.items) {
+                    if (!item.parentId) {
+                        continue;
+                    }
+                    if (!this.isValidItem(item._tpl)) {
+                        continue;
+                    }
+                    const slotName = this.getItemSlot(item, render.data.Equipment.items);
+                    const topLevel = item.parentId === render.data.Equipment.Id;
+                    
+                    const equipmentItem = {
+                        item: item._tpl,
+                        item_name: this.items.get(item._tpl).name,
+                        contains: [],
+                        count: 1,
+                        attributes: [
+                            {
+                                name: 'slot',
+                                value: item.slotId,
+                            }
+                        ]
+                    };
+                    const weaponsSlots = [
+                        'FirstPrimaryWeapon',
+                        'SecondPrimaryWeapon',
+                        'Holster',
+                    ];
+                    if (weaponsSlots.includes(slotName)) {
+                        if (!topLevel) {
+                            continue;
+                        }
+                        this.fillItemContents(item, render.data.Equipment.items, equipmentItem.contains);
+                        const preset = presetData.findPreset(this.buildPreset(item, render.data.Equipment.items));
+                        if (preset) {
+                            equipmentItem.item = preset.id;
+                            equipmentItem.item_name = preset.name;
+                        }
+                    }
+                    bossInfo.equipment.push(equipmentItem);
+                }
+            }
         }
-        return bossInfo; // ignore equipment since it's pre-1.0 data
+        const lootDifficulties = this.botGroups.groups.filter(b => b.role.toLowerCase() === bossKey.toLowerCase());
+        if (!lootDifficulties.length) {
+            return bossInfo;
+        }
+        for (const difficulty of lootDifficulties) {
+            for (const lootItem of difficulty.items) {
+                if (!this.isValidItem(lootItem.tpl)) {
+                    continue;
+                }
+                const item = this.items.get(lootItem.tpl);
+                const skipTypes = [
+                    'wearable',
+                    'gun',
+                    'mods',
+                    'ammo',
+                ];
+                if (item.types.some(t => skipTypes.includes(t))) {
+                    continue;
+                }
+                bossInfo.items.push({
+                    id: item.id,
+                    name: item.name,
+                    attributes: [
+                        {
+                            name: 'difficulty',
+                            value: difficulty.difficulty,
+                        },
+                        {
+                            name: 'prevalence',
+                            value: +(Math.round(lootItem.botPresencePct + "e+2") + "e-2"),
+                        }
+                    ],
+                });
+            }
+        }
+        return bossInfo;
         for (const slotName in bossExtraData.inventory.equipment) {
             const totalWeight = Object.keys(bossExtraData.inventory.equipment[slotName]).reduce((total, id) => {
                 if (this.isValidItem(id)) {
@@ -1041,6 +1194,9 @@ class UpdateMapsJob extends DataJob {
 
     bossDataToImageData(bossExtraData) {
         const requestData = npcImageMaker.defaultData();
+        requestData.customization = bossExtraData.renders[0].data.Customization;
+        requestData.equipment = bossExtraData.renders[0].data.Equipment;
+        return requestData;
         const bodyParts = [
             'head',
             'body',

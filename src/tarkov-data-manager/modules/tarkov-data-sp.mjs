@@ -1,6 +1,4 @@
 
-const BASE_URL = process.env.SP_API_URL;
-
 const ApiRequest = async (path, options = {}) => {
     if (!path) {
         throw new Error('No path specified');
@@ -48,6 +46,20 @@ const spApi = {
     },
     botsHealth: async () => {
         const response = await fetch('https://tarkovbotroleapi.asoloproject.xyz/api/bot-health');
+        if (!response.ok) {
+            return Promise.reject(new Error(`${response.statusText} ${response.status}`));
+        }
+        return response.json();
+    },
+    botRender: async () => {
+        const response = await fetch('https://tarkovbotroleapi.asoloproject.xyz/api/bot-render');
+        if (!response.ok) {
+            return Promise.reject(new Error(`${response.statusText} ${response.status}`));
+        }
+        return response.json();
+    },
+    botGroups: async () => {
+        const response = await fetch('https://tarkovbotroleapi.asoloproject.xyz/api/bot-groups');
         if (!response.ok) {
             return Promise.reject(new Error(`${response.statusText} ${response.status}`));
         }
