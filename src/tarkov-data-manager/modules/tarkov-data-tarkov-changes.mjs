@@ -32,6 +32,12 @@ const jsonRequest = async (filename, options) => {
             options.signal,
             AbortSignal.timeout(timeout),
         ].filter(Boolean)),
+    }).catch(error => {
+        return {
+            ok: false,
+            status: 500,
+            statusMessage: error.message,
+        };
     });
     if (!response.ok) {
         if (options.attempt >= options.retryLimit) {
