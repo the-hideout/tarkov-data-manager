@@ -134,7 +134,7 @@ const tarkovChanges = {
         return tarkovChanges.get('handbook', merge(options));
     },
     items: async (options = defaultOptions) => {
-        return tarkovChanges.get('items', merge({...options, timeout: 30000}));
+        return tarkovChanges.get('items', merge({...options, timeout: 40000}));
     },
     locale_en: async (options = defaultOptions) => {
         return tarkovChanges.get('locale_en', merge(options));
