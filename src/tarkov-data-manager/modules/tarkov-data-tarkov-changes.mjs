@@ -13,7 +13,6 @@ const jsonRequest = async (filename, options) => {
         return Promise.reject(new Error('TC_LATEST_URL or TC_API_KEY not set'));
     }
     options.attempt ??= 0;
-    options.retries ??= 0;
     options.retryLimit ??= 10;
     const { gameMode } = options;
     const timeout = options.timeout ?? 20000;
@@ -22,34 +21,34 @@ const jsonRequest = async (filename, options) => {
         path += '/pve';
     }
     path += '/latest/';
-    const response = await fetch(path+filename, {
-        method: 'GET',
-        headers: {
-            'Accept': 'application/json',
-            'X-API-KEY': process.env.TC_API_KEY,
-        },
-        signal: AbortSignal.any([
-            options.signal,
-            AbortSignal.timeout(timeout),
-        ].filter(Boolean)),
-    }).catch(error => {
-        return {
-            ok: false,
-            status: 500,
-            statusMessage: error.message,
-        };
-    });
-    if (!response.ok) {
+    try {
+        const response = await fetch(path+filename, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-API-KEY': process.env.TC_API_KEY,
+            },
+            signal: AbortSignal.any([
+                options.signal,
+                AbortSignal.timeout(timeout),
+            ].filter(Boolean)),
+        });
+        if (!response.ok) {
+            throw new Error(`${response.status} ${response.statusMessage}`);
+        }
+        const apiResponse = await response.json();
+        if (!apiResponse.response_data) {
+            throw new Error('Tarkov Changes returned null result');
+        }
+        return apiResponse.response_data;
+    } catch (error) {
         if (options.attempt >= options.retryLimit) {
-            return Promise.reject(new Error(`${response.status} ${response.statusMessage}`))
+            return Promise.reject(error);
         }
         options.attempt++;
         await sleep(1000, options.signal);
         return jsonRequest(filename, options);
     }
-    const apiResponse = await response.json();
-    if (!apiResponse.response_data) return Promise.reject(new Error(`Tarkov Changes returned null result for ${path}`));
-    return apiResponse.response_data;
 };
 
 const availableFiles = {
