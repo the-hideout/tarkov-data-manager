@@ -1,8 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import got from 'got';
-
 import DataJob from '../modules/data-job.mjs';
 import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
@@ -41,10 +39,7 @@ class UpdateQuestsJob extends DataJob {
             this.customization,
             this.prestige,
         ] = await Promise.all([
-            got('https://tarkovtracker.github.io/tarkovdata/quests.json', {
-                responseType: 'json',
-                resolveBodyOnly: true,
-            }),
+            fetch('https://tarkovtracker.github.io/tarkovdata/quests.json').then(r => r.json()),
             tarkovData.quests(true).catch(error => {
                 this.logger.error('Error getting quests');
                 this.logger.error(error);

@@ -1,10 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import got from 'got';
-
 import dataOptions from './data-options.mjs';
 import gameModes, { getGameMode } from './game-modes.mjs';
+import sleep from './sleep.js';
 
 const defaultOptions = dataOptions.default;
 const merge = dataOptions.merge;
@@ -13,41 +12,43 @@ const jsonRequest = async (filename, options) => {
     if (!process.env.TC_URL || !process.env.TC_LATEST_URL || !process.env.TC_API_KEY) {
         return Promise.reject(new Error('TC_LATEST_URL or TC_API_KEY not set'));
     }
+    options.attempt ??= 0;
+    options.retryLimit ??= 10;
     const { gameMode } = options;
+    const timeout = options.timeout ?? 20000;
     let path = process.env.TC_LATEST_URL;
     if (gameMode !== 'regular') {
         path += '/pve';
     }
     path += '/latest/';
-    const response = await got(path+filename, {
-        method: 'GET',
-        responseType: 'json',
-        headers: {
-            'Accept': 'application/json',
-            'X-API-KEY': process.env.TC_API_KEY,
-        },
-        resolveBodyOnly: true,
-        retry: {
-            limit: 10,
-            calculateDelay: (retryInfo) => {
-                if (retryInfo.attemptCount > retryInfo.retryOptions.limit) {
-                    return 0;
-                }
-                return 1000;
-            }
-        },
-        timeout: {
-            request: 20000,
-        },
-        signal: options.signal,
-    }).then(apiResponse => {
-        if (apiResponse.status && apiResponse.status !== 'success') {
-            return Promise.reject(new Error('API response does not indicate success', {cause: apiResponse}));
+    try {
+        const response = await fetch(path+filename, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-API-KEY': process.env.TC_API_KEY,
+            },
+            signal: AbortSignal.any([
+                options.signal,
+                AbortSignal.timeout(timeout),
+            ].filter(Boolean)),
+        });
+        if (!response.ok) {
+            throw new Error(`${response.status} ${response.statusMessage}`);
+        }
+        const apiResponse = await response.json();
+        if (!apiResponse.response_data) {
+            throw new Error('Tarkov Changes returned null result');
         }
         return apiResponse.response_data;
-    });
-    if (!response) return Promise.reject(new Error(`Tarkov Changes returned null result for ${path}`));
-    return response;
+    } catch (error) {
+        if (options.attempt >= options.retryLimit) {
+            return Promise.reject(error);
+        }
+        options.attempt++;
+        await sleep(1000, options.signal);
+        return jsonRequest(filename, options);
+    }
 };
 
 const availableFiles = {
@@ -138,7 +139,7 @@ const tarkovChanges = {
         return tarkovChanges.get('handbook', merge(options));
     },
     items: async (options = defaultOptions) => {
-        return tarkovChanges.get('items', merge(options));
+        return tarkovChanges.get('items', merge({...options, timeout: 40000}));
     },
     locale_en: async (options = defaultOptions) => {
         return tarkovChanges.get('locale_en', merge(options));
@@ -188,7 +189,7 @@ const tarkovChanges = {
         if (!process.env.TC_RESTART_URL) {
             return Promise.reject(new Error('Credentials not set'));
         }
-        const response = await got(process.env.TC_RESTART_URL, {
+        const response = await fetch(process.env.TC_RESTART_URL, {
             method: 'GET',
             headers: {
                 'CF-Access-Client-Id': process.env.TC_RESTART_CLIENT_ID,
@@ -199,10 +200,11 @@ const tarkovChanges = {
         if (!response.ok) {
             return Promise.reject(new Error(`${response.statusCode} ${response.statusMessage}`));
         }
-        if (response.body.includes('Sign in')) {
+        const responseBody = await response.text();
+        if (responseBody.includes('Sign in')) {
             return Promise.reject(new Error('Login required'));
         }
-        return response.body;
+        return responseBody;
     }
 }
 

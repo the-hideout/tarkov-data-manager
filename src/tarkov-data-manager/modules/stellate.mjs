@@ -1,5 +1,3 @@
-import got from 'got';
-
 import kvDelta from './kv-delta.js';
 
 const ignoreData = [
@@ -44,7 +42,7 @@ async function purge(dataName, logger = false) {
         setTimeout(async () => {
             let response = {};
             try {    
-                response = await got(url, { 
+                response = await fetch(url, { 
                     // Always use POST for purge mutations
                     method: 'POST',
                     headers: {
@@ -53,9 +51,7 @@ async function purge(dataName, logger = false) {
                         'stellate-token': process.env.STELLATE_PURGE_TOKEN,
                     },
                     body: JSON.stringify({ query: `mutation { ${purgeBody.join(' ')} }` }),
-                    responseType: 'json',
-                    resolveBodyOnly: true,
-                });
+                }).then(r => r.json());
             } catch (error) {
                 response = {
                     errors: [error],

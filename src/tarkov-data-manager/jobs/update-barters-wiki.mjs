@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import got from 'got';
 import * as cheerio from 'cheerio';
 
 import remoteData from '../modules/remote-data.mjs';
@@ -34,11 +33,8 @@ class UpdateBartersJob extends DataJob {
         this.logger.log('Retrieving barters data...');
         [this.itemData, this.$, this.oldTasks, this.items, this.presetNames] = await Promise.all([
             remoteData.get(),
-            got(TRADES_URL).then(response => cheerio.load(response.body)),
-            got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
-                responseType: 'json',
-                resolveBodyOnly: true,
-            }),
+            fetch(TRADES_URL).then(r => r.text()).then(responseBody => cheerio.load(responseBody)),
+            fetch('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json').then(r => r.json()),
             tarkovData.items(),
         ]);
         this.oldNames = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, '..', 'old-names.json')));
@@ -185,7 +181,7 @@ class UpdateBartersJob extends DataJob {
 
     getGunVariants = (url) => {
         if (!this.gunVariants[url]) {
-            this.gunVariants[url] = got(url, {resolveBodyOnly: true}).then(response => {
+            this.gunVariants[url] = fetch(url).then(r => r.text()).then(response => {
                 const $gunPage = cheerio.load(response);
                 const foundVariants = [];
                 $gunPage('.wikitable').each((tableIndex, tableElement) => {

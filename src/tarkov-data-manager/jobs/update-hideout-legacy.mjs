@@ -1,5 +1,3 @@
-import got from 'got';
-
 import DataJob from '../modules/data-job.mjs';
 
 class UpdateHideoutLegacyJob extends DataJob {
@@ -12,10 +10,7 @@ class UpdateHideoutLegacyJob extends DataJob {
         let data = options?.data;
         if (!data) {
             this.logger.log('Retrieving tarkovdata hideout.json...');
-            data = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/hideout.json', {
-                responseType: 'json',
-                resolveBodyOnly: true
-            });
+            data = await fetch('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/hideout.json').then(r => r.json());
         }
         this.logger.log('Processing tarkovdata hideout.json...');
         for (const hideoutModule of data.modules) {

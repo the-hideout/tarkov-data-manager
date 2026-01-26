@@ -1,5 +1,3 @@
-import got from 'got';
-
 import DataJob from '../modules/data-job.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import s3 from '../modules/upload-s3.mjs';
@@ -18,10 +16,7 @@ class UpdateHideoutJob extends DataJob {
     async run() {
         [this.items, this.tdHideout] = await Promise.all([
             tarkovData.items(),
-            got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/hideout.json', {
-                responseType: 'json',
-                resolveBodyOnly: true,
-            }),
+            fetch('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/hideout.json').then(r => r.json()),
         ]);
         this.s3Images = s3.getLocalBucketContents();
 
