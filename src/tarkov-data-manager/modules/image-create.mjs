@@ -1,5 +1,4 @@
 import sharp from 'sharp';
-import got from 'got';
 
 import imgGen from 'tarkov-dev-image-generator';
 
@@ -119,7 +118,7 @@ export async function regenerateFromExisting(id, backgroundOnly = false) {
         sourceUrl = `https://${process.env.S3_BUCKET}/${id}-base-image.png`;
         regenSource = 'base';
     }
-    const imageData = await got(sourceUrl).buffer();
+    const imageData = await fetch(sourceUrl).then(r => r.arrayBuffer());
     const sourceImage = sharp(imageData);
     const imageJobs = [
         imageFunctions.createIcon(sourceImage, item)

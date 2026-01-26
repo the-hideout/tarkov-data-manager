@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import got from 'got';
 import sharp from 'sharp';
 
 import tarkovChanges from './tarkov-data-tarkov-changes.mjs';
@@ -66,11 +65,9 @@ const setBranch = async () => {
     branchSetPromise = new Promise(async (resolve, reject) => {
         try {
             const url = `${sptApiPath}branches`;
-            const response = await got(url, {
-                responseType: 'json',
-                resolveBodyOnly: true,
+            const response = await fetch(url, {
                 headers: ghHeaders,
-            });
+            }).then(resp => resp.json());
             for (const b of branches) {    
                 if (response.some(remoteBranch => remoteBranch.name === b)) {
                     branch = b;
@@ -95,12 +92,9 @@ const downloadJson = async (fileName, path, download = false, writeFile = true, 
         if (!branch) {
             await setBranch();
         }
-        const response = await got(path.replace('{branch}', branch), {
-            throwHttpErrors: false,
-            //responseType: 'json',
-        });
+        const response = await fetch(path.replace('{branch}', branch));
         if (response.ok) {
-            let responseBody = response.body;
+            let responseBody = await response.text();
             const lfsMatch = responseBody.match(lfsPointerRegEx);
             if (lfsMatch) {
                 responseBody = await lfsDownload(lfsMatch.groups.oid, lfsMatch.groups.size);
@@ -114,15 +108,15 @@ const downloadJson = async (fileName, path, download = false, writeFile = true, 
             }
             return returnValue;
         }
-        if (response.statusCode === 404) {
+        if (response.status === 404) {
             const oldBranch = branch;
             await setBranch();
             if (oldBranch !== branch) {
                 return downloadJson(fileName, path, download, writeFile, saveElement);
             }
         }
-        const error = new Error(`Response code ${response.statusCode} (${response.statusMessage})`);
-        error.code = response.statusCode;
+        const error = new Error(`Response code ${response.status} (${response.statusText})`);
+        error.code = response.status;
         return Promise.reject(error);
     }
     try {
@@ -135,34 +129,33 @@ const downloadJson = async (fileName, path, download = false, writeFile = true, 
     }
 };
 
-const apiRequest = async (request, searchParams) => {
+const apiRequest = async (request, searchParams = {}) => {
     if (!process.env.SPT_TOKEN) {
         //return Promise.reject(new Error('SPT_TOKEN not set'));
     }
     if (!branch) {
         await setBranch();
     }
-    const url = `${sptApiPath}${request}`;
-    const response = await got(url, {
-        throwHttpErrors: false,
-        searchParams: {
-            ...searchParams,
-            ref: branch,
-        },
+    const url = new URL(`${sptApiPath}${request}`);
+    url.searchParams.set('ref', branch);
+    for (const paramName in searchParams) {
+        url.searchParams.set(paramName, searchParams[paramName]);
+    }
+    const response = await fetch(url, {
         headers: ghHeaders,
     });
     if (response.ok) {
-        return JSON.parse(response.body);
+        return response.json();
     }
-    if (response.statusCode === 404) {
+    if (response.status === 404) {
         const oldBranch = branch;
         await setBranch();
         if (oldBranch !== branch) {
             return apiRequest(request, searchParams);
         }
     }
-    const error = new Error(`Response code ${response.statusCode} (${response.statusMessage})`);
-    error.code = response.statusCode;
+    const error = new Error(`Response code ${response.status} (${response.statusText})`);
+    error.code = response.status;
     return Promise.reject(error);
 };
 
@@ -248,18 +241,21 @@ const getFolderData = async (options) => {
 };
 
 const lfsDownload = async (oid, size) => {
-    const lfsInfo = await got(`${lfsPath}objects/batch`, {
+    const lfsInfo = await fetch(`${lfsPath}objects/batch`, {
         method: 'POST',
-        json: {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
             operation: 'download',
             objects: [{
                 oid,
                 size
             }]
-        },
-    }).json();
-    const response = await got(lfsInfo.objects[0].actions.download.href);
-    return response.body;
+        }),
+    }).then(r => r.json());
+    const response = await fetch(lfsInfo.objects[0].actions.download.href);
+    return response.text();
 };
 
 const tarkovSpt = {
