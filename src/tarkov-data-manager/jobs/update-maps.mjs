@@ -452,6 +452,33 @@ class UpdateMapsJob extends DataJob {
                         enemySet.add('sniper');
                     }
                 }
+                if (randomBossPool[id]) {
+                    const bossChance = Math.round(1.0 / Object.keys(randomBossPool[id]).length * 100);
+                    const spawnInfo = map.BossLocationSpawn.find(s => randomBossPool[id][s.BossName]);
+                    spawnInfo.BossChance = bossChance;
+                    for (const bossKey in randomBossPool[id]) {
+                        if (!spawnInfo) {
+                            break;
+                        }
+                        if (bossKey === spawnInfo.BossName) {
+                            continue;
+                        }
+                        const newBossInfo = {...spawnInfo};
+                        newBossInfo.BossName = bossKey;
+                        newBossInfo.BossEscortAmount = '0';
+                        newBossInfo.Supports = [];
+                        for (const supportKey in randomBossPool[id][bossKey]) {
+                            newBossInfo.Supports.push({
+                                BossEscortType: supportKey,
+                                BossEscortAmount: `${randomBossPool[id][bossKey][supportKey]}`,
+                                BossEscortDifficult: [
+                                    spawnInfo.BossEscortDifficult,
+                                ]
+                            });
+                        }
+                        map.BossLocationSpawn.push(newBossInfo);
+                    }
+                }
                 for (const spawn of map.BossLocationSpawn) {
                     if (spawn.BossName === 'tagillaHelperAgro') {
                         enemySet.add('scavs');
@@ -1602,5 +1629,23 @@ const looseLootBlacklistItems = [
     '5c10c8fd86f7743d7d706df3', // Adrenaline
     '573474f924597738002c6174', // Chainlet
 ];
+
+const randomBossPool = {
+    '65cc8f81a9aac3e77d0cfd3e': { // terminal
+        bossGluhar: {
+            followerGluharAssault: 2,
+            followerGluharSecurity: 2,
+            followerGluharScout: 2,
+        },
+        bossKilla: {},
+        bossBully: {
+            followerBully: 4,
+        },
+        bossSanitar: {
+            followerSanitar: 3,
+        },
+        bossTagilla: {},
+    },
+};
 
 export default UpdateMapsJob;
