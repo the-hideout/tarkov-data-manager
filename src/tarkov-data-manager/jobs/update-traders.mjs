@@ -1,5 +1,3 @@
-import got from 'got';
-
 import DataJob from '../modules/data-job.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import s3 from '../modules/upload-s3.mjs';
@@ -18,10 +16,7 @@ class UpdateTradersJob extends DataJob {
     async run() {
         this.logger.log('Loading TarkovData traders.json and services status...');
         [this.tdTraders, this.services] = await Promise.all([
-            got('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json', {
-                responseType: 'json',
-                resolveBodyOnly: true,
-            }),
+            fetch('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json').then(r => r.json()),
             tarkovData.status().then(status => status.services).catch(error => {
                 this.logger.error(`Error getting EFT services status: ${error.message}`);
                 return [];

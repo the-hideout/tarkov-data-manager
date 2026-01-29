@@ -32,7 +32,6 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "formidable": "^3.5.4",
-    "got": "^14.4.8",
     "luxon": "^3.7.2",
     "mysql2": "^3.16.0",
     "node-schedule": "^2.1.1",

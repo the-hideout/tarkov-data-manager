@@ -1,5 +1,3 @@
-import got from 'got';
-
 import DataJob from '../modules/data-job.mjs';
 
 class UpdateQuestsLegacyJob extends DataJob {
@@ -12,10 +10,7 @@ class UpdateQuestsLegacyJob extends DataJob {
         let data = options?.data;
         if (!data) {
             this.logger.log('Retrieving tarkovdata quests.json...');
-            data = await got('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json', {
-                responseType: 'json',
-                resolveBodyOnly: true
-            });
+            data = await fetch('https://raw.githubusercontent.com/TarkovTracker/tarkovdata/master/quests.json').then(r => r.json());
         }
         this.logger.log('Processing tarkovdata quests.json...');
 

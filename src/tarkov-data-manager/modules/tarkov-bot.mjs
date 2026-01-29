@@ -1,8 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import got from 'got';
-
 const dataTypes = {
     'items': 'items-tb.json',
     'prices': 'credits-tb.json',
@@ -21,20 +19,19 @@ const langs = {
     'zh': 'ch',
 }
 
-const jsonRequest = async (dataType, params, logger = false) => {
+const jsonRequest = async (dataType, params = {}, logger = false) => {
     if (!process.env.TB_URL || !process.env.TB_KEY) {
         return Promise.reject(new Error('TB_URL or TB_KEY not set'));
     }
-    const response = await got(process.env.TB_URL, {
-        searchParams: {
-            api_key: process.env.TB_KEY,
-            data_type: dataType,
-            ...params
-        },
-        responseType: 'json',
-        //throwHttpErrors: false
-    });
-    if (!response.body) return Promise.reject(new Error(`Tarkov-Bot returned null result for ${path}`));
+    const url = new URL(process.env.TB_URL);
+    for (const paramName in params) {
+        url.searchParams.set(paramName, params[paramName]);
+    }
+    url.searchParams.set('api_key', process.env.TB_KEY);
+    url.searchParams.set('data_type', dataType);
+    const response = await fetch(url);
+    const responseBody = await response.json();
+    if (!responseBody) return Promise.reject(new Error(`Tarkov-Bot returned null result for ${path}`));
 
     const rateLimitMessage = 'Tarkov-Bot rate-hour-limit: '+response.headers['rate-hour-limit'];
     const remainingMessage = 'Tarkov-Bot rate-hour-left: '+response.headers['rate-hour-left'];
@@ -45,8 +42,8 @@ const jsonRequest = async (dataType, params, logger = false) => {
         console.log(rateLimitMessage);
         console.log(remainingMessage);
     }
-    if (response.body.err === 'Rate limits exceeded') return Promise.reject(new Error('Tarkov-Bot rate limits exceeded'));
-    return response.body;
+    if (responseBody.err === 'Rate limits exceeded') return Promise.reject(new Error('Tarkov-Bot rate limits exceeded'));
+    return responseBody;
 };
 
 const cachePath = (filename) => {
@@ -83,24 +80,24 @@ const tarkovBot = {
             return JSON.parse(fs.readFileSync(cachePath(saveFileName || dataTypes[dataType])));
         } catch (error) {
             if (error.code === 'ENOENT') {
-                return module.exports.get(dataType, true, params, logger);
+                return tarkovBot.get(dataType, true, params, logger);
             }
             return Promise.reject(error);
         }
     },
     items: async (download = false, logger = false) => {
-        return module.exports.get('items', download, false, logger);
+        return tarkovBot.get('items', download, false, logger);
     },
     prices: async (download = false, logger = false) => {
-        return module.exports.get('prices', download, false, logger);
+        return tarkovBot.get('prices', download, false, logger);
     },
     locale: (lang = 'ru', download = false, logger = false) => {
-        return module.exports.get('dictionary', download, {lang: langs[lang]}, logger);
+        return tarkovBot.get('dictionary', download, {lang: langs[lang]}, logger);
     },
     locales: async (download = false, logger = false) => {
         const promises = [];
         for (const lang in langs) {
-            promises.push(module.exports.get('dictionary', download, {lang: langs[lang]}, logger).then(data => {
+            promises.push(tarkovBot.get('dictionary', download, {lang: langs[lang]}, logger).then(data => {
                 return {lang: lang, data: data};
             }).catch(error => {
                 return Promise.reject({lang: lang, error: error});

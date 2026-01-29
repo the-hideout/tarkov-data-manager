@@ -1,7 +1,6 @@
 //import zlib from 'zlib';
 
 import Cloudflare from 'cloudflare';
-import got from 'got';
 
 import sleep from './sleep.js';
 
@@ -22,6 +21,9 @@ const doRequest = async (options = {}) => {
     const method = options.method ?? 'GET';
     const path = options.path;
     const body = options.body;
+    options.attempt ??= 0;
+    options.retryLimit ??= 3;
+    const timeout = options.timeout ?? 20000;
 
     if (!process.env.CLOUDFLARE_TOKEN) {
         return {
@@ -31,23 +33,6 @@ const doRequest = async (options = {}) => {
            messages: []
         };
     }
-    const requestOptions = {
-        method: method,
-        headers: {
-            'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
-            ...options.headers,
-        },
-        responseType: 'json',
-        resolveBodyOnly: true,
-        retry: {
-            limit: 3,
-            methods: ['GET', 'PUT', 'POST', 'DELETE'],
-        },
-        timeout: {
-            response: 20000,
-        },
-        signal: options.signal,
-    };
 
     //let namespace = process.env.NODE_ENV === 'production' ? '2e6feba88a9e4097b6d2209191ed4ae5' : '17fd725f04984e408d4a70b37c817171';
     //namespace = '2e6feba88a9e4097b6d2209191ed4ae5'; // force production
@@ -65,13 +50,34 @@ const doRequest = async (options = {}) => {
         }
     }
 
-    return got(`${BASE_URL}${fullCloudflarePath}`, requestOptions).catch(error => {
-        return {
-            success: false,
-            errors: [error],
-            messages: [],
+    try {
+        const response = await fetch(`${BASE_URL}${fullCloudflarePath}`, {
+            method: method,
+            headers: {
+                'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
+                ...options.headers,
+            },
+            signal: AbortSignal.any([
+                options.signal,
+                AbortSignal.timeout(timeout),
+            ].filter(Boolean)),
+        });
+        if (!response.ok) {
+            throw new Error(`${response.status} ${response.statusText}`);
         }
-    });
+        return response.json();
+    } catch (error) {
+        if (options.attempt >= options.retryLimit) {
+            return {
+                success: false,
+                errors: [error],
+                messages: [],
+            };
+        }
+        options.attempt++;
+        await sleep(1000, options.signal);
+        return doRequest(options);
+    }
 };
 
 export const getKeys = async () => {
@@ -92,17 +98,16 @@ const getOldKeys = async () => {
         headers: {
             'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
         },
-        responseType: 'json'
     };
     const fullCloudflarePath = `accounts/424ad63426a1ae47d559873f929eb9fc/storage/kv/namespaces/2973a2dd070e4a348d87084171efe11a/keys`;
     let response;
     try {
-        response = await got(`${BASE_URL}${fullCloudflarePath}`, requestOptions);
+        response = await fetch(`${BASE_URL}${fullCloudflarePath}`, requestOptions);
     } catch (requestError){
         console.log(requestError);
     }
 
-    return response.body;
+    return response.json();
 };
 
 const deleteValue = async (key) => {
@@ -119,17 +124,16 @@ const deleteValue = async (key) => {
         headers: {
             'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
         },
-        responseType: 'json'
     };
     const fullCloudflarePath = `accounts/424ad63426a1ae47d559873f929eb9fc/storage/kv/namespaces/2973a2dd070e4a348d87084171efe11a/values/${key}`;
     let response;
     try {
-        response = await got(`${BASE_URL}${fullCloudflarePath}`, requestOptions);
+        response = await fetch(`${BASE_URL}${fullCloudflarePath}`, requestOptions);
     } catch (requestError){
         console.log(requestError);
     }
 
-    return response.body;
+    return response.json();
 };
 
 const deleteValues = async (keys) => {
@@ -154,18 +158,17 @@ const deleteValues = async (keys) => {
         headers: {
             'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
         },
-        responseType: 'json',
         body: JSON.stringify(keys)
     };
     const fullCloudflarePath = `accounts/424ad63426a1ae47d559873f929eb9fc/storage/kv/namespaces/2973a2dd070e4a348d87084171efe11a/bulk`;
     let response;
     try {
-        response = await got(`${BASE_URL}${fullCloudflarePath}`, requestOptions);
+        response = await fetch(`${BASE_URL}${fullCloudflarePath}`, requestOptions);
     } catch (requestError){
         console.log(requestError);
     }
 
-    return response.body;
+    return response.json();
 };
 
 export const purgeCache = async (urls) => {
@@ -177,15 +180,11 @@ export const purgeCache = async (urls) => {
         headers: {
             'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
         },
-        responseType: 'json',
-        //resolveBodyOnly: true,
-        json: {
+        body: JSON.stringify({
             files: urls
-        },
-        throwHttpErrors: false,
-        resolveBodyOnly: true,
+        }),
     };
-    return got(`${BASE_URL}zones/a17204c79af55fcf05e4975f66e2490e/purge_cache`, requestOptions).then(response => {
+    return fetch(`${BASE_URL}zones/a17204c79af55fcf05e4975f66e2490e/purge_cache`, requestOptions).then(r => r.json()).then(response => {
         if (response.success === false && response.errors) {
             //console.log(`Error purging ${urls.join(', ')}: ${response.errors.map(err => err.message).join(', ')}`);
             return Promise.reject(new Error(`${response.errors[0].message} (${response.errors[0].code}) purging ${urls.join(', ')}: `));

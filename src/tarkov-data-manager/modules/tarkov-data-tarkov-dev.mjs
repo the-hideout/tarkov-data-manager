@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import got from 'got';
 import sharp from 'sharp';
 
 import dataOptions from './data-options.mjs';
@@ -48,32 +47,37 @@ const getFromFence = async (jsonName, options) => {
     if (availableFiles[jsonName]?.requestName) {
         jsonRequest = availableFiles[jsonName].requestName;
     }
+    options.attempt ??= 0;
+    options.retryLimit ??= 10;
+    const timeout = options.timeout ?? 60000;
     const requestURL = new URL(`https://fence.tarkov.dev/json/${jsonRequest}`);
     requestURL.searchParams.set('m', options.gameMode ?? 'regular');
-    const response = await got(requestURL, {
-        method: options.method ?? 'GET',
-        headers: {
-            'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-        },
-        retry: {
-            limit: 10,
-            calculateDelay: (retryInfo) => {
-                //console.log(jsonName, retryInfo);
-                if (retryInfo.attemptCount > retryInfo.retryOptions.limit) {
-                    return 0;
-                }
-                return 1000;
-            }
-        },
-        timeout: {
-            request: 60000,
-        },
-        signal: options.signal,
-    });
-    if (!response.ok) {
-        return Promise.reject(new Error(`${response.statusCode} ${response.statusMessage}`));
+    try {
+        const response = await fetch(requestURL, {
+            method: options.method ?? 'GET',
+            headers: {
+                'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+            },
+            timeout: {
+                request: 60000,
+            },
+            signal: AbortSignal.any([
+                options.signal,
+                AbortSignal.timeout(timeout),
+            ].filter(Boolean)),
+        });
+        if (!response.ok) {
+            return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+        }
+        return await response.json();
+    } catch (error) {
+        if (options.attempt >= options.retryLimit) {
+            return Promise.reject(error);
+        }
+        options.attempt++;
+        await sleep(1000, options.signal);
+        return getFromFence(jsonName, options);
     }
-    return JSON.parse(response.body);
 };
 
 const tarkovDevData = {
