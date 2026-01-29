@@ -34,7 +34,7 @@ const jsonRequest = async (filename, options) => {
             ].filter(Boolean)),
         });
         if (!response.ok) {
-            throw new Error(`${response.status} ${response.statusMessage}`);
+            throw new Error(`${response.status} ${response.statusText}`);
         }
         const apiResponse = await response.json();
         if (!apiResponse.response_data) {
@@ -198,7 +198,7 @@ const tarkovChanges = {
             signal: options.signal,
         });
         if (!response.ok) {
-            return Promise.reject(new Error(`${response.statusCode} ${response.statusMessage}`));
+            return Promise.reject(new Error(`${response.statusCode} ${response.statusText}`));
         }
         const responseBody = await response.text();
         if (responseBody.includes('Sign in')) {
