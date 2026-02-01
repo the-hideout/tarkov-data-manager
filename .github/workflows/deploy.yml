@@ -26,7 +26,7 @@ jobs:
 
       - name: SSH Remote Deploy
         if: ${{ steps.deployment-check.outputs.continue == 'true' }}
-        uses: appleboy/ssh-action@823bd89e131d8d508129f9443cad5855e9ba96f0 # pin@v1.2.4
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # pin@v1.2.5
         with:
           host: ${{ secrets.SSH_HOST_V2 }}
           username: ${{ secrets.SSH_USERNAME_V2 }}
