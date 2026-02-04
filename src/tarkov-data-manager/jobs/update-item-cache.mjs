@@ -639,11 +639,11 @@ class UpdateItemCacheJob extends DataJob {
                     item.basePrice += this.credits[filter.Plate];
                 });
             });
-            if (item.types.includes('ammoBox') && this.bsgItems[item.id]) {
+            /*if (item.types.includes('ammoBox') && this.bsgItems[item.id]) {
                 for (const stackSlot of this.bsgItems[item.id]._props.StackSlots) {
                     item.basePrice += this.credits[stackSlot._props.filters[0].Filter[0]] * stackSlot._max_count;
                 }
-            }
+            }*/
         }  else if (this.bsgItems[item.id] && !ignoreMissingBaseValue(item)) {
             this.logger.warn(`Unknown base value for ${this.getTranslation(item.name)} ${item.id}`);
         }
