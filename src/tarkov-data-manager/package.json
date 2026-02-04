@@ -21,9 +21,9 @@
     "@aws-sdk/client-s3": "^3.884.0",
     "@aws-sdk/credential-providers": "^3.883.0",
     "adm-zip": "^0.5.16",
-    "body-parser": "^2.2.1",
+    "body-parser": "^2.2.2",
     "chalk": "^5.6.2",
-    "cheerio": "^1.1.2",
+    "cheerio": "^1.2.0",
     "cloudflare": "^5.2.0",
     "compute-midmean": "^1.0.3",
     "cookie-session": "^2.1.1",
@@ -33,13 +33,13 @@
     "express": "^5.2.1",
     "formidable": "^3.5.4",
     "luxon": "^3.7.2",
-    "mysql2": "^3.16.0",
+    "mysql2": "^3.16.2",
     "node-schedule": "^2.1.1",
     "nodemon": "^3.1.11",
     "sharp": "^0.34.3",
-    "tarkov-dev-image-generator": "^2.2.4",
+    "tarkov-dev-image-generator": "^2.3.0",
     "unidecode": "^1.1.0",
-    "ws": "^8.18.3"
+    "ws": "^8.19.0"
   },
   "nodemonConfig": {
     "ignore": [
