@@ -317,9 +317,6 @@ const methods = {
                         item[`${fieldPrefix}changeLast48h`] = 0;
                         item[`${fieldPrefix}changeLast48hPercent`] = 0;
                     } else {
-                        if (item.id === '5d1b385e86f774252167b98a') {
-                            console.log(itemPriceYesterday);
-                        }
                         item[`${fieldPrefix}changeLast48h`] = Math.round(item[`${fieldPrefix}avg24hPrice`] - itemPriceYesterday);
                         const percentOfDayBefore = item[`${fieldPrefix}avg24hPrice`] / itemPriceYesterday;
                         item[`${fieldPrefix}changeLast48hPercent`] = Math.round((percentOfDayBefore - 1) * 100 * 100) / 100;
