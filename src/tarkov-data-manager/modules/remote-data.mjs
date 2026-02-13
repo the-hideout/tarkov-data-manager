@@ -100,8 +100,8 @@ const methods = {
                     lastLowPricePve: null,
                     avg24hPricePve: null,
                     high24hPricePve: null,
-                    changeLast48hPve: null,
-                    changeLast48hPercentPve: null,
+                    pve_changeLast48h: null,
+                    pve_changeLast48hPercent: null,
                     lastOfferCount: result.last_offer_count,
                     pve_lastOfferCount: result.pve_last_offer_count,
                     lastScan: result.last_scan,
@@ -317,8 +317,11 @@ const methods = {
                         item[`${fieldPrefix}changeLast48h`] = 0;
                         item[`${fieldPrefix}changeLast48hPercent`] = 0;
                     } else {
-                        item[`${fieldPrefix}changeLast48h`] = Math.round(item[`${fieldPrefix}avg24hPrice`] - itemPriceYesterday.priceYesterday);
-                        const percentOfDayBefore = item[`${fieldPrefix}avg24hPrice`] / itemPriceYesterday.priceYesterday;
+                        if (item.id === '5d1b385e86f774252167b98a') {
+                            console.log(itemPriceYesterday);
+                        }
+                        item[`${fieldPrefix}changeLast48h`] = Math.round(item[`${fieldPrefix}avg24hPrice`] - itemPriceYesterday);
+                        const percentOfDayBefore = item[`${fieldPrefix}avg24hPrice`] / itemPriceYesterday;
                         item[`${fieldPrefix}changeLast48hPercent`] = Math.round((percentOfDayBefore - 1) * 100 * 100) / 100;
                     }
                 }
