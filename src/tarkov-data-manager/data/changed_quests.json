@@ -1,1760 +1,247 @@
-{
-    "5c51aac186f77432ea65c552": {
-        "name": "Collector",
-        "taskRequirementsAdded": [
-            {
-                "task": "59674cd986f7744ab26e32f2",
-                "name": "Shootout Picnic",
-                "status": [
-                    "complete"
-                ],
-                "notes": "Per wiki 8/13/2024"
-            },
-            {
-                "task": "59675ea386f77414b32bded2",
-                "name": "Postman Pat - Part 1",
-                "status": [
-                    "complete"
-                ],
-                "notes": "Per wiki 8/15/2024"
-            },
-            {
-                "task": "596760e186f7741e11214d58",
-                "name": "Postman Pat - Part 2",
-                "status": [
-                    "complete"
-                ],
-                "notes": "Per wiki 8/15/2024"
-            },
-            {
-                "task": "5968eb3186f7741dde183a4d",
-                "name": "Operation Aquarius - Part 2",
-                "status": [
-                    "complete"
-                ],
-                "notes": "Wiki says required, but that was last updated 2/6/2021"
-            }
-        ],
-        "___taskRequirementsRemoved": [
-            {
-                "id": "597a0e5786f77426d66c0636",
-                "name": "Chemical - Part 3"
-            },
-            {
-                "id": "6179afd0bca27a099552e040",
-                "name": "Lost Contact"
-            },
-            {
-                "id": "5d25e29d86f7740a22516326",
-                "name": "The Survivalist Path - Eagle-Owl"
-            },
-            {
-                "id": "6089736efa70fc097863b8f6",
-                "name": "Back Door"
-            },
-            {
-                "id": "608a768d82e40b3c727fd17d",
-                "name": "Pest Control"
-            },
-            {
-                "id": "5c0d0f1886f77457b8210226",
-                "name": "Lend-Lease - Part 2"
-            },
-            {
-                "id": "5ae4497b86f7744cf402ed00",
-                "name": "Sew it Good - Part 4"
-            },
-            {
-                "id": "5d25bfd086f77442734d3007",
-                "name": "The Survivalist Path - Zhivchik"
-            }
-        ],
-        "__objectivesAdded": [
-            {
-                "id": "65b10c6a8511b7ef8694e060",
-                "description": "65b10c6a8511b7ef8694e060",
-                "type": "giveItem",
-                "count": 1,
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "zoneNames": [],
-                "item_id": "62a09e08de7ac81993580532",
-                "item_name": "Glorious E lightweight armored mask",
-                "item": "62a09e08de7ac81993580532",
-                "items": [
-                    "62a09e08de7ac81993580532"
-                ],
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true,
-                "zones": []
-            }
-        ],
-        "__objectivesRemoved": [
-            "60d9d34e8a6f9a3731773f93"
-        ],
-        "___objectiveIdsChanged": {
-            "60e827faf09904268a4dbc41": "62a6ff004de19a4c3422ea5d",
-            "60e827faf09904268a4dbc42": "62a6ff141c307729c3264f96",
-            "60e827faf09904268a4dbc43": "62a6ff203e015d7ce1151d8a",
-            "60e827faf09904268a4dbc44": "62a6ff454de19a4c3422ea5e",
-            "60e827faf09904268a4dbc45": "62a6ff53b0c0eb73f7394741",
-            "60e827faf09904268a4dbc46": "62a6ff633e015d7ce1151d8b",
-            "60e827faf09904268a4dbc47": "62a6ff6b3e015d7ce1151d8c",
-            "60e827faf09904268a4dbc48": "62a6ff7f1c307729c3264f97",
-            "60e827faf09904268a4dbc49": "62a6ff897230237f257cac2a",
-            "60e827faf09904268a4dbc50": "62a6ffaa7230237f257cac2c",
-            "60e827faf09904268a4dbc51": "62a6ffb4a9a0ea77981b57d5",
-            "60e827faf09904268a4dbc52": "62a6ffbcec21e50cad3b6708"
-        }
-    },
-    "61904daa7d0d857927447b9c": {
-        "name": "The Hermit",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5d25cf2686f77443e75488d4",
-                    "name": "The Survivalist Path - Tough Guy",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment": "per wiki since November 2024"
-    },
-    "__6179b4d1bca27a099552e04e": {
-        "name": "Revision - Lighthouse",
+    "5c0d190cd09282029f5390d8": {
         "propertiesChanged": {
-            "taskRequirements": [
-                {
-                    "task": "6086c852c945025d41566124",
-                    "name": "Revision - Reserve",
-                    "status": [
-                        "active",
-                        "complete"
-                    ]
-                }
-            ]
+            "experience": 12500
         },
-        "comment":"confirmed by razz 5/8/2023"
-    },
-    "__639135f286e646067c176a87": {
-        "name": "Revision - Streets of Tarkov",
-        "propertiesChanged": {
-            "taskRequirements": [
-                {
-                    "task": "6086c852c945025d41566124",
-                    "name": "Revision - Reserve",
-                    "status": [
-                        "active",
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment":"confirmed by razz 5/8/2023"
-    },
-    "63966fe7ea74a47c2d3fc0e6": {
-        "name": "Return the Favor",
-        "propertiesChanged": {
-            "location_id": "5704e3c2d2720bac5b8b4567",
-            "locationName": "Woods"
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "6396700fea19ac7ed845db32": {
-        "name": "Spotter",
-        "propertiesChanged": {
-            "location_id": "5714dc692459777137212e12",
-            "locationName": "Streets of Tarkov"
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "__60e729cf5698ee7b05057439": {
-        "name": "Swift One",
-        "propertiesChanged": {
-            "minPlayerLevel": 50
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "__5a03153686f77442d90e2171": {
-        "name": "Spa Tour - Part 1",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5a27d2af86f7744e1115b323",
-                    "name": "Friend from the West - Part 2",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "5a27b87686f77460de0252a8",
-                    "name": "Humanitarian Supplies",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "comment": "per Wiki 5/8/2023"
-    },
-    "5ae3280386f7742a41359364": {
-        "name": "Gunsmith - Part 15",
-        "propertiesChanged": {
-            "minPlayerLevel": 29
-        },
-        "comment": "per Wiki 5/15/2023"
-    },
-    "626148251ed3bb5bcc5bd9ed": {
-        "name": "Make Amends - Buyout",
-        "taskRequirementsAdded": [
+        "taskRequirementsAdded": 
             {
-                "task": "625d7005a4eb80027c4f2e09",
-                "name": "Knock-Knock",
+                "task": "657315df034d76585f032e01",
+                "name": "Shooting Cans",
                 "status": [
                     "complete"
                 ]
+            },
+        "objectivesChanged": {
+            "5c1b760686f77412780211a3": {
+                "count": 5
             }
-        ]
+        }
     },
-    "__5c0bde0986f77479cf22c2f8": {
-        "name": "A Shooter Born in Heaven",
-        "objectivePropertiesChanged": {
-            "5c0bdf2c86f7746f016734a8": {
-                "count": 5,
-                "usingWeapon": [
-                    {
-                        "id": "5bfd297f0db834001a669119",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
-                    },
-                    {
-                        "id": "5ae08f0a5acfc408fb1398a1",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
-                    },
-                    {
-                        "id": "55801eed4bdc2d89578b4588",
-                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "588892092459774ac91d4b11",
-                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5bfea6e90db834001b7347f3",
-                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5de652c31b7e3716273428be",
-                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
-                    },
-                    {
-                        "id": "5df24cf80dee1b22f862e9bc",
-                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "61f7c9e189e6fb1a5e3ea78d",
-                        "name": "MP-18 7.62x54R single-shot rifle"
-                    },
-                    {
-                        "id": "627e14b21713922ded6f2c15",
-                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
-                    }
-                ],
-                "distance": null
-            },
-            "5c137b8886f7747ae3220ff4": {
-                "count": 5,
-                "usingWeapon": [
-                    {
-                        "id": "5bfd297f0db834001a669119",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
-                    },
-                    {
-                        "id": "5ae08f0a5acfc408fb1398a1",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
-                    },
-                    {
-                        "id": "55801eed4bdc2d89578b4588",
-                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "588892092459774ac91d4b11",
-                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5bfea6e90db834001b7347f3",
-                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5de652c31b7e3716273428be",
-                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
-                    },
-                    {
-                        "id": "5df24cf80dee1b22f862e9bc",
-                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "61f7c9e189e6fb1a5e3ea78d",
-                        "name": "MP-18 7.62x54R single-shot rifle"
-                    },
-                    {
-                        "id": "627e14b21713922ded6f2c15",
-                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
-                    }
-                ],
-                "distance": null
-            },
-            "5c137ef386f7747ae10a821e": {
-                "count": 5,
-                "usingWeapon": [
-                    {
-                        "id": "5bfd297f0db834001a669119",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
-                    },
-                    {
-                        "id": "5ae08f0a5acfc408fb1398a1",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
-                    },
-                    {
-                        "id": "55801eed4bdc2d89578b4588",
-                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "588892092459774ac91d4b11",
-                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5bfea6e90db834001b7347f3",
-                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5de652c31b7e3716273428be",
-                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
-                    },
-                    {
-                        "id": "5df24cf80dee1b22f862e9bc",
-                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "61f7c9e189e6fb1a5e3ea78d",
-                        "name": "MP-18 7.62x54R single-shot rifle"
-                    },
-                    {
-                        "id": "627e14b21713922ded6f2c15",
-                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
-                    }
-                ],
-                "distance": null
-            },
-            "5c137f5286f7747ae267d8a3": {
-                "count": 5,
-                "usingWeapon": [
-                    {
-                        "id": "5bfd297f0db834001a669119",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
-                    },
-                    {
-                        "id": "5ae08f0a5acfc408fb1398a1",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
-                    },
-                    {
-                        "id": "55801eed4bdc2d89578b4588",
-                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "588892092459774ac91d4b11",
-                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5bfea6e90db834001b7347f3",
-                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5de652c31b7e3716273428be",
-                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
-                    },
-                    {
-                        "id": "5df24cf80dee1b22f862e9bc",
-                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "61f7c9e189e6fb1a5e3ea78d",
-                        "name": "MP-18 7.62x54R single-shot rifle"
-                    },
-                    {
-                        "id": "627e14b21713922ded6f2c15",
-                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
-                    }
-                ],
-                "distance": null
-            },
-            "629f10b114061f3074380298": {
-                "count": 5,
-                "usingWeapon": [
-                    {
-                        "id": "5bfd297f0db834001a669119",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
-                    },
-                    {
-                        "id": "5ae08f0a5acfc408fb1398a1",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
-                    },
-                    {
-                        "id": "55801eed4bdc2d89578b4588",
-                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "588892092459774ac91d4b11",
-                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5bfea6e90db834001b7347f3",
-                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5de652c31b7e3716273428be",
-                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
-                    },
-                    {
-                        "id": "5df24cf80dee1b22f862e9bc",
-                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "61f7c9e189e6fb1a5e3ea78d",
-                        "name": "MP-18 7.62x54R single-shot rifle"
-                    },
-                    {
-                        "id": "627e14b21713922ded6f2c15",
-                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
-                    }
-                ],
-                "distance": null
-            },
-            "63aec6f256503c322a190374": {
-                "count": 5,
-                "usingWeapon": [
-                    {
-                        "id": "5bfd297f0db834001a669119",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
-                    },
-                    {
-                        "id": "5ae08f0a5acfc408fb1398a1",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
-                    },
-                    {
-                        "id": "55801eed4bdc2d89578b4588",
-                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "588892092459774ac91d4b11",
-                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5bfea6e90db834001b7347f3",
-                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5de652c31b7e3716273428be",
-                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
-                    },
-                    {
-                        "id": "5df24cf80dee1b22f862e9bc",
-                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "61f7c9e189e6fb1a5e3ea78d",
-                        "name": "MP-18 7.62x54R single-shot rifle"
-                    },
-                    {
-                        "id": "627e14b21713922ded6f2c15",
-                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
-                    }
-                ],
-                "distance": null
+    "5ae449c386f7744bde357697": {
+        "objectivesChanged": {
+            "5bb60cbc88a45011a8235cc5": {
+                "count": 7
             }
-        },
-        "objectivesAdded": [
+        }
+    },
+    "6179acbdc760af5ad2053585": {
+        "objectivesChanged": {
+            "617bd94c5a52d2390a2630c7": {
+                "count": 10
+            }
+        }
+    },
+    "6193850f60b34236ee0483de": {
+        "objectivesChanged": {
+            "6193dabd5f6468204470571f": {
+                "count": 4
+            }
+        }
+    },
+    "5c51aac186f77432ea65c552": {
+      "objectivesAdd": [
+          "items": [
             {
-                "id": "64b694c8a857ea477002a408",
-                "description": "64b694c8a857ea477002a408",
-                "type": "shoot",
-                "optional": false,
-                "locationNames": [
-                    "5714dbc024597771384a510d Name"
-                ],
-                "map_ids": [
-                    "5714dbc024597771384a510d"
-                ],
-                "target": "AnyPmc",
-                "count": 5,
-                "shotType": "kill",
-                "bodyParts": [
-                    "QuestCondition/Elimination/Kill/BodyPart/Head"
-                ],
-                "usingWeapon": [
-                    {
-                        "id": "5bfd297f0db834001a669119",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
-                    },
-                    {
-                        "id": "5ae08f0a5acfc408fb1398a1",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
-                    },
-                    {
-                        "id": "55801eed4bdc2d89578b4588",
-                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "588892092459774ac91d4b11",
-                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5bfea6e90db834001b7347f3",
-                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5de652c31b7e3716273428be",
-                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
-                    },
-                    {
-                        "id": "5df24cf80dee1b22f862e9bc",
-                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "61f7c9e189e6fb1a5e3ea78d",
-                        "name": "MP-18 7.62x54R single-shot rifle"
-                    },
-                    {
-                        "id": "627e14b21713922ded6f2c15",
-                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
-                    }
-                ],
-                "usingWeaponMods": [],
-                "zoneNames": [],
-                "distance": null,
-                "timeFromHour": null,
-                "timeUntilHour": null,
-                "wearing": [],
-                "notWearing": [],
-                "healthEffect": null,
-                "enemyHealthEffect": null,
-                "targetNames": [
-                    "AnyPmc"
-                ],
-                "playerHealthEffect": null
+              "id": "69398e94ca94fd2877039504",
+              "name": "Nut Sack balaclava"
+			  "count": 1
+            },
+            {
+              "id": "6937edb912d456a817083e82",
+              "name": "Mazoni golden dumbbell"
+			  "count": 1
+            },
+            {
+              "id": "6937ecf8628ee476240c07cb",
+              "name": "Tigzresq splint"
+			  "count": 1
+            },
+            {
+              "id": "6937f02dfd6488bb27024839",
+              "name": "Domontovich ushanka hat"
+			  "count": 1
             }
-        ],
-        "finishRewardsChanged": {
-            "skillLevelReward": [
-                {
-                    "name": "Sniper",
-                    "level": 5
-                }
-            ],
-            "offerUnlock": [
-                {
-                    "id": "5c20cc1086f7740cfb37b111",
-                    "trader_id": "5a7c2eca46aef81a7ca2145d",
-                    "trader_name": "Mechanic",
-                    "level": 3,
-                    "item": "5c127c4486f7745625356c13",
-                    "item_name": "Magazine case",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "id": "64d52503c06f9028d80ea5e31",
-                    "trader_id": "5c0647fdd443bc2504c2d371",
-                    "trader_name": "Jaeger",
-                    "level": 4,
-                    "item": "6193e590069d61205d490dd8",
-                    "item_name": "HK G28 7.62x51 marksman rifle Default",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        },
-        "translationKeys": [
-            "64b694c8a857ea477002a408"
-        ]
+          ]
+      ]
+    },
+    "65734c186dc1e402c80dc19e": {
+        "propertiesChanged": {
+            "experience": 11000
+        }
     },
     "5c0bd94186f7747a727f09b2": {
-        "name": "Test Drive - Part 1",
-        "propertiesChanged" : {
-            "minPlayerLevel": 18,
-            "taskRequirements": [
-                {
-                    "task": "657315df034d76585f032e01",
-                    "name": "Shooting Cans",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
+        "propertiesChanged": {
+            "experience": 9100
         }
     },
     "63a5cf262964a7488f5243ce": {
-        "name": "Test Drive - Part 2",
-        "propertiesChanged" : {
-            "minPlayerLevel": 22
+        "propertiesChanged": {
+            "experience": 12000
         }
     },
     "64f5deac39e45b527a7c4232": {
-        "name": "Test Drive - Part 3",
-        "propertiesChanged" : {
-            "minPlayerLevel": 25
+        "propertiesChanged": {
+            "experience": 18000
         }
     },
     "6574e0dedc0d635f633a5805": {
-        "name": "Test Drive - Part 4",
-        "propertiesChanged" : {
-            "minPlayerLevel": 28
+        "propertiesChanged": {
+            "experience": 20000
         }
     },
     "669fa3a40c828825de06d6a1": {
-        "name": "Test Drive - Part 5",
-        "propertiesChanged" : {
-            "minPlayerLevel": 32
+        "propertiesChanged": {
+            "experience": 23000
         }
     },
     "675c1ff1a757ddd00404f0aa": {
-        "name": "Test Drive - Part 6",
-        "propertiesChanged" : {
-            "minPlayerLevel": 35
-        }
-    },
-    "__5d25e4ca86f77409dd5cdf2c": {
-        "name": "Hunting Trip",
-        "objectivePropertiesChanged": {
-            "5fd8aa3206fb3a6b8154a2c3": {
-                "distance": {
-                    "compareMethod": ">=",
-                    "value": 75
-                },
-                "usingWeaponMods": [
-                    [
-                        {
-                            "id": "5b2388675acfc4771e1be0be",
-                            "name": "Burris FullField TAC30 1-4x24 30mm riflescope"
-                        }
-                    ]
-                ]
-            }
-        }
-    },
-    "__5c0be13186f7746f016734aa": {
-        "name": "Psycho Sniper",
-        "objectivePropertiesChanged": {
-            "5c0be2b486f7747bcb347d58": {
-                "skillLevel": {
-                    "name": "Sniper",
-                    "level": 10
-                }
-            }
-        },
-        "objectivesAdded": [
-            {
-                "id": "64b67c6358b5637e2d71a655",
-                "description": "64b67c6358b5637e2d71a655",
-                "type": "shoot",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "target": "AnyPmc",
-                "count": 5,
-                "shotType": "kill",
-                "usingWeapon": [
-                    {
-                        "id": "5bfd297f0db834001a669119",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Infantry)"
-                    },
-                    {
-                        "id": "5ae08f0a5acfc408fb1398a1",
-                        "name": "Mosin 7.62x54R bolt-action rifle (Sniper)"
-                    },
-                    {
-                        "id": "55801eed4bdc2d89578b4588",
-                        "name": "SV-98 7.62x54R bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "588892092459774ac91d4b11",
-                        "name": "Lobaev Arms DVL-10 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5bfea6e90db834001b7347f3",
-                        "name": "Remington Model 700 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "5de652c31b7e3716273428be",
-                        "name": "Molot VPO-215 \"Gornostay\" .366 TKM bolt-action rifle"
-                    },
-                    {
-                        "id": "5df24cf80dee1b22f862e9bc",
-                        "name": "ORSIS T-5000M 7.62x51 bolt-action sniper rifle"
-                    },
-                    {
-                        "id": "61f7c9e189e6fb1a5e3ea78d",
-                        "name": "MP-18 7.62x54R single-shot rifle"
-                    },
-                    {
-                        "id": "627e14b21713922ded6f2c15",
-                        "name": "Accuracy International AXMC .338 LM bolt-action sniper rifle"
-                    }
-                ],
-                "usingWeaponMods": [],
-                "zoneNames": [],
-                "distance": null,
-                "timeFromHour": null,
-                "timeUntilHour": null,
-                "wearing": [],
-                "notWearing": [],
-                "healthEffect": null,
-                "enemyHealthEffect": null,
-                "targetNames": [
-                    "AnyPmc"
-                ],
-                "playerHealthEffect": null
-            }
-        ],
         "propertiesChanged": {
-            "failConditions": [
-                {
-                    "id": "64b67fcd3e349c7dbd06bd16",
-                    "description": "64b67fcd3e349c7dbd06bd16",
-                    "type": "extract",
-                    "optional": false,
-                    "locationNames": [],
-                    "map_ids": [],
-                    "exitStatus": [
-                        "ExpBonusKilled",
-                        "ExpBonusLeft",
-                        "ExpBonusMissingInAction"
-                    ],
-                    "zoneNames": []
-                }
-            ]
-        },
-        "translationKeys": [
-            "64b67c6358b5637e2d71a655",
-            "64b67fcd3e349c7dbd06bd16"
-        ]
-    },
-    "__5bc4893c86f774626f5ebf3e": {
-        "name": "Tarkov Shooter - Part 8",
-        "finishRewardsChanged": {
-            "skillLevelReward": [
-                {
-                    "name": "Sniper",
-                    "level": 3
-                }
-            ],
-            "offerUnlock": [
-                {
-                    "id": "5bcf268686f7746a45695b0a",
-                    "trader_id": "5c0647fdd443bc2504c2d371",
-                    "trader_name": "Jaeger",
-                    "level": 4,
-                    "item": "5bae13ded4351e44f824bf38",
-                    "item_name": "Mosin Rifle 7.62x54R ProMag Archangel OPFOR 10-round magazine",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "id": "5bcf269286f7746a472ad9f7",
-                    "trader_id": "5c0647fdd443bc2504c2d371",
-                    "trader_name": "Jaeger",
-                    "level": 4,
-                    "item": "5bae13bad4351e00320204af",
-                    "item_name": "Mosin Rifle ProMag Archangel OPFOR PRS chassis",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "id": "64d52503c06f9028d80ea57c3",
-                    "trader_id": "5c0647fdd443bc2504c2d371",
-                    "trader_name": "Jaeger",
-                    "level": 4,
-                    "item": "618ba27d9008e4636a67f61d",
-                    "item_name": "Vortex Razor HD Gen.2 1-6x24 30mm riflescope",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "id": "64d52513c06f9028d80eb54d2",
-                    "trader_id": "54cb50c76803fa8b248b4571",
-                    "trader_name": "Prapor",
-                    "level": 4,
-                    "item": "5e023d48186a883be655e551",
-                    "item_name": "7.62x54mm R BS gs",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
+            "experience": 32000
         }
     },
-    "__60e71b9bbd90872cb85440f3": {
-        "name": "Capturing Outposts",
-        "objectivePropertiesChanged": {
-            "60ec2229fd1bf4491c4e4552": {
-                "zoneKeys": [
-                    "prapor_27_resort"
-                ],
-                "zoneNames": [
-                    "prapor_27_resort"
-                ]
-            }
-        },
-        "translationKeys": [
-            "prapor_27_resort"
-        ]
-    },
-    "__5ac3464c86f7741d651d6877": {
-        "name": "Farming - Part 4",
-        "objectivePropertiesChanged": {
-            "5ac5083d86f7740be2744eed": {
-                "count": 15
-            },
-            "5ac5084d86f7740bde1b0031": {
-                "count": 15
-            }
-        }
-    },
-    "__5dc53acb86f77469c740c893": {
-        "name": "The Stylish One",
-        "objectivePropertiesChanged": {
-            "5dc53fd386f77469c87589a3": {
-                "count": 50
-            }
-        }
-    },
-    "5c0d190cd09282029f5390d8": {
-        "name": "Grenadier",
-        "propertiesChanged" : {
-            "minPlayerLevel": 10
-        }
-    },
-    "__5b4794cb86f774598100d5d4": {
-        "name": "Lend-Lease - Part 1",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5a27d2af86f7744e1115b323",
-                    "name": "Friend from the West - Part 2",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        }
-    },
-    "__596a204686f774576d4c95de": {
-        "name": "Sanitary Standards - Part 2",
-        "taskRequirementsRemoved": [
-            {
-                "id": "5968eb3186f7741dde183a4d",
-                "name": "Operation Aquarius - Part 2"
-            }
-        ]
-    },
-    "__5bc479e586f7747f376c7da3": {
-        "name": "Tarkov Shooter - Part 2",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "5bc4776586f774512d07cf05",
-                    "name": "The Tarkov Shooter - Part 1",
-                    "status": [
-                        "active",
-                        "complete"
-                    ]
-                }
-            ]
-        }
-    },
-    "60e71c48c1bfa3050473b8e5": {
-        "name": "Crisis",
-        "propertiesChanged" : {
-            "minPlayerLevel": 38
-        }
-    },
-    "__5c0bd01e86f7747cdd799e56": {
-        "name": "Insomnia",
-        "propertiesChanged" : {
-            "traderName": "Peacekeeper",
-            "trader": "5935c25fb3acc3127c3d8cd9",
-            "taskRequirements": [
-                {
-                    "task": "61958c366726521dd96828ec",
-                    "name": "Cargo X - Part 4",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ],
-            "finishRewards": {
-                "traderStanding": [
-                    {
-                        "trader_id": "5935c25fb3acc3127c3d8cd9",
-                        "name": "Peacekeeper",
-                        "standing": 0.01
-                    }
-                ],
-                "items": [
-                    {
-                        "item": "5696686a4bdc2da3298b456a",
-                        "item_name": "Dollars",
-                        "count": 1000,
-                        "contains": [],
-                        "attributes": []
-                    },
-                    {
-                        "item": "5c0558060db834001b735271",
-                        "item_name": "GPNVG-18 Night Vision goggles",
-                        "count": 2,
-                        "contains": [],
-                        "attributes": []
-                    },
-                    {
-                        "item": "5a154d5cfcdbcb001a3b00da",
-                        "item_name": "Ops-Core FAST MT Super High Cut helmet (Black)",
-                        "count": 1,
-                        "contains": [],
-                        "attributes": []
-                    },
-                    {
-                        "item": "5a16b7e1fcdbcb00165aa6c9",
-                        "item_name": "Ops-Core FAST multi-hit ballistic face shield",
-                        "count": 2,
-                        "contains": [],
-                        "attributes": []
-                    }
-                ],
-                "offerUnlock": [],
-                "skillLevelReward": [],
-                "traderUnlock": [],
-                "craftUnlock": []
-            }
-        }
-    },
-    "__5d25e2e286f77444001e2e48": {
-        "name": "The Huntsman Path - Sellout",
-        "finishRewardsChanged": {
-            "offerUnlock": [
-                {
-                    "id": "64d52514c06f9028d80eb64a1",
-                    "trader_id": "54cb50c76803fa8b248b4571",
-                    "trader_name": "Prapor",
-                    "level": 2,
-                    "item": "rpk166L26000000000000001",
-                    "item_name": "RPK-16 5.45x39 light machine gun 6L26",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
-    "__596b36c586f77450d6045ad2": {
-        "name": "Supplier",
-        "finishRewardsChanged": {
-            "offerUnlock": [
-                {
-                    "id": "64d524ffc06f9028d80ea34a5",
-                    "trader_id": "58330581ace78e27b8b10cee",
-                    "trader_name": "Skier",
-                    "level": 1,
-                    "item": "59e7635f86f7742cbf2c1095",
-                    "item_name": "BNTI Module-3M body armor",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "id": "64d524fdc06f9028d80ea0771",
-                    "trader_id": "58330581ace78e27b8b10cee",
-                    "trader_name": "Skier",
-                    "level": 1,
-                    "item": "5a13df5286f774032f5454a0",
-                    "item_name": "Saiga-9 9x19 carbine Default",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
-    "__5a27b9de86f77464e5044585": {
-        "name": "The Cult - Part 1",
-        "finishRewardsChanged": {
-            "offerUnlock": [
-                {
-                    "id": "64d5250bc06f9028d80eaccf2",
-                    "trader_id": "5935c25fb3acc3127c3d8cd9",
-                    "trader_name": "Peacekeeper",
-                    "level": 3,
-                    "item": "54527ac44bdc2d36668b4567",
-                    "item_name": "5.56x45mm M855A1",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
-    "__60e71bb4e456d449cd47ca75": {
-        "name": "Intimidator",
-        "finishRewardsChanged": {
-            "offerUnlock": [
-                {
-                    "id": "64d52511c06f9028d80eb28a2",
-                    "trader_id": "54cb50c76803fa8b248b4571",
-                    "trader_name": "Prapor",
-                    "level": 4,
-                    "item": "59e0d99486f7744a32234762",
-                    "item_name": "prapor 7.62x39mm BP gzh",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
-    "__5a27b75b86f7742e97191958": {
-        "name": "Fishing Gear",
-        "finishRewardsChanged": {
-            "offerUnlock": [
-                {
-                    "id": "64d5250cc06f9028d80eae311",
-                    "trader_id": "5935c25fb3acc3127c3d8cd9",
-                    "trader_name": "Peacekeeper",
-                    "level": 2,
-                    "item": "5ac4ad3686f774181345c3da",
-                    "item_name": "Springfield Armory M1A 7.62x51 rifle Default",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "id": "64f97d0508bf3d71960c1a7a3",
-                    "trader_id": "5935c25fb3acc3127c3d8cd9",
-                    "trader_name": "Peacekeeper",
-                    "level": 2,
-                    "item": "5b3116595acfc40019476364",
-                    "item_name": "SIG Sauer ROMEO4 reflex sight",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
-    "__60e71e8ed54b755a3b53eb67": {
-        "name": "The Huntsman Path - Relentless",
+    "5edac34d0bb72a50635c2bfa": {
         "propertiesChanged": {
-            "minPlayerLevel": 65
-        }
-    },
-    "657315df034d76585f032e01": {
-        "name": "Shooting Cans",
-        "propertiesChanged" : {
-            "minPlayerLevel": 1
-        }
-    },
-    "657315ddab5a49b71f098853": {
-        "name": "First in Line",
-        "propertiesChanged" : {
-            "minPlayerLevel": 1
-        }
-    },
-    "657315e4a6af4ab4b50f3459": {
-        "name": "Saving the Mole",
-        "propertiesChanged" : {
-            "minPlayerLevel": 1
-        }
-    },
-    "657315e270bb0b8dba00cc48": {
-        "name": "Burning Rubber",
-        "propertiesChanged" : {
-            "minPlayerLevel": 1
-        }
-    },
-    "_5ae4496986f774459e77beb6": {
-        "name": "Sew it Good - Part 3",
-        "objectivePropertiesChanged": {
-            "5ae9bb6986f77415a869b40b": {
-                "item_id": "5c0e53c886f7747fa54205c7",
-                "item_name": "6B13 assault armor (Digital Flora)",
-                "item": "5c0e53c886f7747fa54205c7",
-                "items": ["5c0e53c886f7747fa54205c7", "5c0e51be86f774598e797894"]
-            },
-            "5ae9bc6e86f7746e0026222c": {
-                "item_id": "5c0e53c886f7747fa54205c7",
-                "item_name": "6B13 assault armor (Digital Flora)",
-                "item": "5c0e53c886f7747fa54205c7",
-                "items": ["5c0e53c886f7747fa54205c7", "5c0e51be86f774598e797894"]
-            },
-            "5ae9be7f86f7746c6337153d": {
-                "item_id": "5c0e53c886f7747fa54205c7",
-                "item_name": "6B13 assault armor (Digital Flora)",
-                "item": "5c0e53c886f7747fa54205c7",
-                "items": ["5c0e53c886f7747fa54205c7", "5c0e51be86f774598e797894"]
-            },
-            "5ae9bea886f77468ab400e64": {
-                "item_id": "5c0e53c886f7747fa54205c7",
-                "item_name": "6B13 assault armor (Digital Flora)",
-                "item": "5c0e53c886f7747fa54205c7",
-                "items": ["5c0e53c886f7747fa54205c7", "5c0e51be86f774598e797894"]
-            }
+            "experience": 27500
         }
     },
     "60e71b62a0beca400d69efc4": {
-        "name": "Escort",
         "propertiesChanged": {
-            "experience": 177000
-        },
-        "objectivesAdded": [
-            {
-                "id": "65e09b343458a36a766837c7",
-                "description": "65e09b343458a36a766837c7",
-                "type": "shoot",
-                "count": 4,
-                "optional": false,
-                "locationNames": [
-                    "65b8d6f5cdde2479cb2a3125 Name"
-                ],
-                "map_ids": [
-                    "65b8d6f5cdde2479cb2a3125"
-                ],
-                "zoneNames": [],
-                "target": "AnyPmc",
-                "shotType": "kill",
-                "bodyParts": [],
-                "usingWeapon": [],
-                "usingWeaponMods": [],
-                "distance": {
-                    "compareMethod": ">=",
-                    "value": 0
-                },
-                "timeFromHour": 0,
-                "timeUntilHour": 0,
-                "wearing": [],
-                "notWearing": [],
-                "healthEffect": null,
-                "enemyHealthEffect": null,
-                "targetNames": [
-                    "AnyPmc"
-                ],
-                "playerHealthEffect": null,
-                "zones": []
-            }
-        ],
-        "finishRewardsChanged": {
-            "skillLevelReward": [
-                {
-                    "name": "Melee",
-                    "level": 5
-                },
-                {
-                    "name": "Pistol",
-                    "level": 5
-                },
-                {
-                    "name": "Strength",
-                    "level": 5
-                }
-            ],
-            "items": [
-                {
-                    "item": "65766adc234b9f6e050a431a",
-                    "item_name": "6B43 Zabralo-Sh body armor (Digital Flora)",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": [],
-                    "base_item_id": "545cdb794bdc2d3a198b456a"
-                },
-                {
-                    "item": "5f60c74e3b85f6263c145586",
-                    "item_name": "Rys-T bulletproof helmet (Black)",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "item": "5f60c85b58eff926626a60f7",
-                    "item_name": "Rys-T face shield",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ],
-            "craftUnlock": [
-                {
-                    "items": [
-                        {
-                            "id": "5f60c74e3b85f6263c145586",
-                            "name": "Rys-T bulletproof helmet (Black)",
-                            "count": 1
-                        }
-                    ],
-                    "station_id": "5d484fba654e7600691aadf7",
-                    "trader_name": "Lavatory",
-                    "level": 3
-                }
-            ]
+            "experience": 155000
         }
     },
-    "59675d6c86f7740a842fc482": {
-        "name": "Ice Cream Cones",
-        "objectivePropertiesChanged": {
-            "5a3fbe3a86f77414422e0d9b": {
-                "zoneKeys": ["bunker1"]
-            }
-        }
-    },
-    "639872fc93ae507d5858c3a6": {
-        "name": "Gunsmith - Part 11",
-        "finishRewardsAdded": {
-            "offerUnlock": [
-                {
-                    "id": "66c46c37f7ca8a539f08613a1",
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "trader_name": "Ref",
-                    "level": 2,
-                    "item": "5dd800eae49222636663133b",
-                    "item_name": "M4A1 SAI",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
-    "6179b3bdc7560e13d23eeb8d": {
-        "name": "Corporate Secrets",
-        "finishRewardsAdded": {
-            "offerUnlock": [
-                {
-                    "id": "66c1beadfa6e5a0c120f0c481",
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "trader_name": "Ref",
-                    "level": 2,
-                    "item": "618ab04934aa2e47480fba2b",
-                    "item_name": "AK-104 RPKT mod.1",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
-    "6179b3a12153c15e937d52bc": {
-        "name": "Energy Crisis",
-        "finishRewardsAdded": {
-            "offerUnlock": [
-                {
-                    "id": "66c1beaffa6e5a0c120f0dff1",
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "trader_name": "Ref",
-                    "level": 3,
-                    "item": "619e61e70459e93c12392ba7",
-                    "item_name": "FN SCAR-L 5.56x45 assault rifle (FDE) Contract Wars",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
-    "639872f9decada40426d3447": {
-        "name": "Gunsmith - Part 4",
-        "finishRewardsAdded": {
-            "offerUnlock": [
-                {
-                    "id": "66c1beb0fa6e5a0c120f0e461",
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "trader_name": "Ref",
-                    "level": 1,
-                    "item": "5a8ae65f86f774377a23ed55",
-                    "item_name": "PP-19-01 Vityaz 9x19 submachine gun Zenit",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
-    "5b47891f86f7744d1b23c571": {
-        "name": "Living High Is Not a Crime - Part 1",
-        "finishRewardsAdded": {
-            "offerUnlock": [
-                {
-                    "id": "66c46c36f7ca8a539f08600d5",
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "trader_name": "Ref",
-                    "level": 4,
-                    "item": "65766582234b9f6e050a42c1",
-                    "item_name": "IOTV Gen4 body armor (High Mobility Kit, MultiCam) Default",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
-    "__63966fd9ea19ac7ed845db30": {
-        "name": "Payback",
-        "finishRewardsChanged": {
-            "offerUnlock": [
-                {
-                    "id": "66c46c3ef7ca8a539f0866055",
-                    "trader_id": "5ac3b934156ae10c4430e83c",
-                    "trader_name": "Ragman",
-                    "level": 4,
-                    "item": "5b4329f05acfc47a86086aa1",
-                    "item_name": "DevTac Ronin Respirator",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
-    "__63967028c4a91c5cb76abd81": {
-        "name": "Trouble in the Big City",
-        "finishRewardsAdded": {
-            "offerUnlock": [
-                {
-                    "id": "66c46c7af7ca8a539f0881693",
-                    "trader_id": "5935c25fb3acc3127c3d8cd9",
-                    "trader_name": "Peacekeeper",
-                    "level": 4,
-                    "item": "65293c7a17e14363030ad308",
-                    "item_name": "AR-10 7.62x51 Lancer L7AWM 25-round magazine",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "id": "66c46c7df7ca8a539f0882ab2",
-                    "trader_id": "5935c25fb3acc3127c3d8cd9",
-                    "trader_name": "Peacekeeper",
-                    "level": 4,
-                    "item": "6529243824cbe3c74a05e5c1",
-                    "item_name": "6.8x51mm SIG Hybrid",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
-    "__63966fccac6f8f3c677b9d89": {
-        "name": "Snatch",
-        "finishRewardsChanged": {
-            "offerUnlock": [
-                {
-                    "id": "66c46c3ef7ca8a539f0865fb5",
-                    "trader_id": "5ac3b934156ae10c4430e83c",
-                    "trader_name": "Ragman",
-                    "level": 4,
-                    "item": "657089638db3adca1009f4ca",
-                    "item_name": "Atomic Defense CQCM ballistic mask (Black)",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ]
-        }
-    },
-    "673f4e956f1b89c7bc0f56ef": {
-        "name": "Hot Wheels",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "673f2cd5d3346c2167020484",
-                    "name": "Shipping Delay - Part 2",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        }
-    },
-    "6745fcded0fbbc74ca0f721d": {
-        "name": "Swift Retribution",
-        "propertiesChanged" : {
-            "failConditions": [
-                {
-                    "id": "6745fcded0fbbc74ca0f7226",
-                    "description": "6745fcded0fbbc74ca0f7226",
-                    "type": "taskStatus",
-                    "count": null,
-                    "optional": false,
-                    "locationNames": [],
-                    "map_ids": [],
-                    "zoneNames": [],
-                    "task": "673f6027352b4da8e00322d2",
-                    "quest_name": "Inevitable Response",
-                    "status": [
-                        "complete"
-                    ],
-                    "zones": []
-                }
-            ]
-        },
-        "translationKeys": [
-            "6745fcded0fbbc74ca0f7226"
-        ]
-    },
-    "673f629c5b555b53460cf827": {
-        "name": "Building Foundations",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "6745fcded0fbbc74ca0f721d",
-                    "name": "Swift Retribution",
-                    "status": [
-                        "complete",
-                        "failed"
-                    ]
-                }
-            ]
-        }
-    },
-    "6745fae369a58fceba10343d": {
-        "name": "The Higher They Fly",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "673f629c5b555b53460cf827",
-                    "name": "Building Foundations",
-                    "status": [
-                        "active",
-                        "complete"
-                    ]
-                }
-            ]
-        }
-    },
-    "6740a15566e6a521aa051b15": {
-        "name": "Forge a Friendship",
+    "60e71c48c1bfa3050473b8e5": {
         "propertiesChanged": {
-            "keepAllTaskRequirements": true
+            "experience": 34000
         }
     },
-    "6744a728352b4da8e003eda9": {
-        "name": "Battery Change (Prapor)",
-        "propertiesChanged" : {
-            "failConditions": [
-                {
-                    "id": "6744a951d9ac62db4b79b618",
-                    "description": "6744a951d9ac62db4b79b618",
-                    "type": "taskStatus",
-                    "count": null,
-                    "optional": false,
-                    "locationNames": [],
-                    "map_ids": [],
-                    "zoneNames": [],
-                    "task": "6744a9dfef61d56e020b5c4a",
-                    "quest_name": "Battery Change (Ragman",
-                    "status": [
-                        "complete"
-                    ],
-                    "zones": []
-                }
-            ]
-        },
-        "translationKeys": [
-            "6744a951d9ac62db4b79b618"
-        ]
-    },
-    "6744ab1def61d56e020b5c56": {
-        "name": "Protect the Sky",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "6744a728352b4da8e003eda9",
-                    "name": "Battery Change",
-                    "status": [
-                        "complete",
-                        "failed"
-                    ]
-                }
-            ]
-        }
-    },
-    "6744af0969a58fceba101fed": {
-        "name": "The Price of Independence (Prapor)",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "6744a728352b4da8e003eda9",
-                    "name": "Battery Change (Prapor)",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "6744aca8d3346c216702c583",
-                    "name": "Discombobulate",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ],
-            "keepAllTaskRequirements": true
-        }
-    },
-    "6745cbee909d2013670a4a55": {
-        "name": "The Price of Independence (Ragman)",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "6744a9dfef61d56e020b5c4a",
-                    "name": "Battery Change (Ragman)",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "6744aca8d3346c216702c583",
-                    "name": "Discombobulate",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        }
-    },
-    "67a09761e720611a6a01f288": {
-        "name": "Keeper's Word",
-        "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "67a09636b8725511260bc421",
-                    "name": "Shady Contractor",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67a0964e972c11a3f507731b",
-                    "name": "Needle in a Haystack",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67a096577e86e067eb045733",
-                    "name": "Hidden Layer",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67a0967c003a9986cb0f5ac1",
-                    "name": "Sensory Analysis - Part 1",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67a096ed77dd677f600804ba",
-                    "name": "Sensory Analysis - Part 2",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67a096f605d1611ed90be75a",
-                    "name": "Hot Zone",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67a0966817e34930e500754c",
-                    "name": "Forced Alliance",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67a09673972c11a3f507731d",
-                    "name": "The Tarkov Butcher",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67a0970744893b9f3f0d9b68",
-                    "name": "Offensive Reconnaissance",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67a0970f05d1611ed90be75d",
-                    "name": "Hypothesis Testing",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67d03be712fb5f8fd2096332",
-                    "name": "Vacate the Premises",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67a09724972c11a3f5077324",
-                    "name": "Confidential Info",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67a097379f2068e74603c6ac",
-                    "name": "Indisputable Authority",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67a0972e77dd677f600804bd",
-                    "name": "This Tape Sucks",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        }
-    },
-    "66aa58245ab22944110db6e9": {
-        "name": "New Day, New Paths",
-        "objectivesRemoved": [
-            "66b0e57eddc25d8d17e3e3c0",
-            "66aa5c8ba8c36eaef492ef92"
-        ]
-    },
-    "_66058cbd9f59e625462acc8e": {
-        "name": "Create a Distraction - Part 1",
+    "5c0d1c4cd0928202a02a6f5c": {
         "propertiesChanged": {
-            "location_id": null,
-            "locationName": "any"
+            "experience": 12500
+        }
+    },
+    "639dbaf17c898a131e1cffff": {
+        "propertiesChanged": {
+            "experience": 13200
+        }
+    },
+    "5c0d0d5086f774363760aef2": {
+        "propertiesChanged": {
+            "experience": 3500
+        }
+    },
+    "5c112d7e86f7740d6f647486": {
+        "propertiesChanged": {
+            "experience": 10000
+        }
+    },
+    "6572e876dc0d635f633a5714": {
+        "propertiesChanged": {
+            "experience": 12400
+        }
+    },
+    "666314b2a9290f9e0806cca3": {
+        "propertiesChanged": {
+            "experience": 16000
+        }
+    },
+    "666314b0acf8442f8b0531a1": {
+        "propertiesChanged": {
+            "experience": 2300
+        }
+    },
+    "639135e8c115f907b14700aa": {
+        "propertiesChanged": {
+            "experience": 12000
+        }
+    },
+    "675c3582f6ddc329a90f9c6d": {
+        "propertiesChanged": {
+            "experience": 11000
+        }
+    },
+    "658027799634223183395339": {
+        "propertiesChanged": {
+            "experience": 12000
         },
-        "objectivesRemoved": [
-            "660a9dcf070cb9c8cc1715c7"
-        ],
         "objectivesChanged": {
-            "660a9dc64c0927ead4fcfeef": {
-                "zoneKeys": [
-                    "nt2024_5_throtil_epicentr"
-                ]
+            "65802779963422318339533c": {
+                "count": 10
             }
         }
     },
-    "66058cb22cee99303f1ba067": {
-        "name": "Easy Money - Part 1",
+    "6573397ef3f8344c4575cd87": {
         "propertiesChanged": {
-            "minPlayerLevel": 10
+            "experience": 6600
         }
     },
-    "6864fcef9809a149400dd2ee": {
-        "name": "Breathing Room",
+    "64e7b9bffd30422ed03dad38": {
+        "propertiesChanged": {
+            "experience": 8300
+        }
+    },
+    "64e7b9a4aac4cd0a726562cb": {
+        "propertiesChanged": {
+            "experience": 7500
+        }
+    },
+    "64e7b99017ab941a6f7bf9d7": {
+        "propertiesChanged": {
+            "experience": 7100
+        }
+    },
+    "626bd75c71bd851e971b82a5": {
+        "propertiesChanged": {
+            "experience": 7500
+        }
+    },
+    "5c0bde0986f77479cf22c2f8": {
+        "propertiesChanged": {
+            "experience": 55000
+        }
+    },
+    "66aba85403e0ee3101042877": {
+        "propertiesChanged": {
+            "experience": 24000
+        }
+    },
+    "60e71e8ed54b755a3b53eb67": {
+        "propertiesChanged": {
+            "minPlayerLevel": 55
+        }
+    },
+    "60e71b62a0beca400d69efc4": {
+        "propertiesChanged": {
+            "minPlayerLevel": 46
+        }
+    },
+    "5c0d4e61d09282029f53920e": {
+        "propertiesChanged": {
+            "minPlayerLevel": 32
+        }
+    },
+    "67a0970744893b9f3f0d9b68": {
+        "taskRequirementsAdded": 
+            {
+                "task": "67a096577e86e067eb045733",
+                "name": "Hidden Layer",
+                "status": [
+                    "complete"
+                ]
+            },
+        "taskRequirementsRemoved":
+            {
+                "id": "67a0966817e34930e500754c",
+                "name": "Forced Alliance"
+            }
+    },
+    "665eeca92f7aedcc900b0437": {
         "propertiesChanged" : {
-            "taskRequirements": [
-                {
-                    "task": "686404d348e7bb4146002cac",
-                    "name": "Friend from Norvinsk - Part 5",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
+            "finishRewards": {
+                "items": 
+                    {
+                        "item": "66507eabf5ddb0818b085b68",
+                        "item_name": "2A2-(b-TG) stimulant injector",
+                        "count": 6
+                    }
+            }
         }
     },
-    "675c15fbf7da9792a4059871": {
-        "name": "Provide Viewership",
-        "note": "added to trigger game mode change"
-    },
-    "67af4c1d8c9482eca103e477": {
-        "name": "Consolation Prize",
-        "note": "remove Sniping",
-        "finishRewardsChanged": {
-            "skillLevelReward": [
-                {
-                    "name": "AimDrills",
-                    "level": 1
-                },
-                {
-                    "name": "Assault",
-                    "level": 1
-                },
-                {
-                    "name": "WeaponTreatment",
-                    "level": 1
-                },
-                {
-                    "name": "TroubleShooting",
-                    "level": 1
-                },
-                {
-                    "name": "DMR",
-                    "level": 1
-                },
-                {
-                    "name": "HMG",
-                    "level": 1
-                },
-                {
-                    "name": "LMG",
-                    "level": 1
-                },
-                {
-                    "name": "Melee",
-                    "level": 1
-                },
-                {
-                    "name": "Pistol",
-                    "level": 1
-                },
-                {
-                    "name": "Revolver",
-                    "level": 1
-                },
-                {
-                    "name": "Launcher",
-                    "level": 1
-                },
-                {
-                    "name": "Shotgun",
-                    "level": 1
-                },
-                {
-                    "name": "SMG",
-                    "level": 1
-                },
-                {
-                    "name": "Throwing",
-                    "level": 1
-                },
-                {
-                    "name": "AttachedLauncher",
-                    "level": 1
-                }
-            ]
-        }
-    }
-}
