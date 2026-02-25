@@ -1756,9 +1756,8 @@
                 }
             ]
         }
-    }
-},
-"5c0d190cd09282029f5390d8": {
+    },
+    "5c0d190cd09282029f5390d8": {
         "propertiesChanged": {
             "experience": 12500
         },
@@ -1799,28 +1798,30 @@
     },
     "5c51aac186f77432ea65c552": {
       "objectivesAdd": [
+        {
           "items": [
             {
               "id": "69398e94ca94fd2877039504",
-              "name": "Nut Sack balaclava"
+              "name": "Nut Sack balaclava",
 			  "count": 1
             },
             {
               "id": "6937edb912d456a817083e82",
-              "name": "Mazoni golden dumbbell"
+              "name": "Mazoni golden dumbbell",
 			  "count": 1
             },
             {
               "id": "6937ecf8628ee476240c07cb",
-              "name": "Tigzresq splint"
+              "name": "Tigzresq splint",
 			  "count": 1
             },
             {
               "id": "6937f02dfd6488bb27024839",
-              "name": "Domontovich ushanka hat"
+              "name": "Domontovich ushanka hat",
 			  "count": 1
             }
           ]
+        }
       ]
     },
     "65734c186dc1e402c80dc19e": {
@@ -1994,13 +1995,15 @@
             }
     },
     "665eeca92f7aedcc900b0437": {
-        "finishRewardsAdded" : {
-			"items": [
-				{
-					"item": "66507eabf5ddb0818b085b68",
-					"item_name": "2A2-(b-TG) stimulant injector",
-					"count": 6
-				}
-			]
+        "propertiesChanged" : {
+            "finishRewards": {
+                "items": 
+                    {
+                        "item": "66507eabf5ddb0818b085b68",
+                        "item_name": "2A2-(b-TG) stimulant injector",
+                        "count": 6
+                    }
+            }
         }
     }
+}
