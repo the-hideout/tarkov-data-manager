@@ -173,7 +173,7 @@
     },
     "61904daa7d0d857927447b9c": {
         "name": "The Hermit",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "taskRequirements": [
                 {
                     "task": "5d25cf2686f77443e75488d4",
@@ -200,7 +200,7 @@
                 }
             ]
         },
-        "comment":"confirmed by razz 5/8/2023"
+        "comment": "confirmed by razz 5/8/2023"
     },
     "__639135f286e646067c176a87": {
         "name": "Revision - Streets of Tarkov",
@@ -216,7 +216,7 @@
                 }
             ]
         },
-        "comment":"confirmed by razz 5/8/2023"
+        "comment": "confirmed by razz 5/8/2023"
     },
     "63966fe7ea74a47c2d3fc0e6": {
         "name": "Return the Favor",
@@ -243,7 +243,7 @@
     },
     "__5a03153686f77442d90e2171": {
         "name": "Spa Tour - Part 1",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "taskRequirements": [
                 {
                     "task": "5a27d2af86f7744e1115b323",
@@ -647,7 +647,7 @@
     },
     "5c0bd94186f7747a727f09b2": {
         "name": "Test Drive - Part 1",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "experience": 9100,
             "minPlayerLevel": 18,
             "taskRequirements": [
@@ -663,46 +663,46 @@
     },
     "63a5cf262964a7488f5243ce": {
         "name": "Test Drive - Part 2",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "experience": 12000,
             "minPlayerLevel": 22
         }
     },
     "64f5deac39e45b527a7c4232": {
         "name": "Test Drive - Part 3",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "experience": 18000,
             "minPlayerLevel": 25
         }
     },
     "6574e0dedc0d635f633a5805": {
         "name": "Test Drive - Part 4",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "experience": 20000,
             "minPlayerLevel": 28
         }
     },
     "669fa3a40c828825de06d6a1": {
         "name": "Test Drive - Part 5",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "experience": 23000,
             "minPlayerLevel": 32
         }
     },
     "675c1ff1a757ddd00404f0aa": {
         "name": "Test Drive - Part 6",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "experience": 32000,
             "minPlayerLevel": 35
         }
     },
-    "__5d25e4ca86f77409dd5cdf2c": {
+    "5d25e4ca86f77409dd5cdf2c": {
         "name": "Hunting Trip",
         "objectivePropertiesChanged": {
             "5fd8aa3206fb3a6b8154a2c3": {
                 "distance": {
                     "compareMethod": ">=",
-                    "value": 75
+                    "value": 40
                 },
                 "usingWeaponMods": [
                     [
@@ -906,7 +906,7 @@
     },
     "5c0d190cd09282029f5390d8": {
         "name": "Grenadier",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "minPlayerLevel": 10,
             "experience": 12500
         },
@@ -927,7 +927,7 @@
     },
     "__5b4794cb86f774598100d5d4": {
         "name": "Lend-Lease - Part 1",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "taskRequirements": [
                 {
                     "task": "5a27d2af86f7744e1115b323",
@@ -950,7 +950,7 @@
     },
     "__5bc479e586f7747f376c7da3": {
         "name": "Tarkov Shooter - Part 2",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "taskRequirements": [
                 {
                     "task": "5bc4776586f774512d07cf05",
@@ -965,14 +965,14 @@
     },
     "60e71c48c1bfa3050473b8e5": {
         "name": "Crisis",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "experience": 34000,
             "minPlayerLevel": 38
         }
     },
     "__5c0bd01e86f7747cdd799e56": {
         "name": "Insomnia",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "traderName": "Peacekeeper",
             "trader": "5935c25fb3acc3127c3d8cd9",
             "taskRequirements": [
@@ -1149,25 +1149,25 @@
     },
     "657315df034d76585f032e01": {
         "name": "Shooting Cans",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "minPlayerLevel": 1
         }
     },
     "657315ddab5a49b71f098853": {
         "name": "First in Line",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "minPlayerLevel": 1
         }
     },
     "657315e4a6af4ab4b50f3459": {
         "name": "Saving the Mole",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "minPlayerLevel": 1
         }
     },
     "657315e270bb0b8dba00cc48": {
         "name": "Burning Rubber",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "minPlayerLevel": 1
         }
     },
@@ -1462,7 +1462,7 @@
     },
     "673f4e956f1b89c7bc0f56ef": {
         "name": "Hot Wheels",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "taskRequirements": [
                 {
                     "task": "673f2cd5d3346c2167020484",
@@ -1476,7 +1476,7 @@
     },
     "6745fcded0fbbc74ca0f721d": {
         "name": "Swift Retribution",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "failConditions": [
                 {
                     "id": "6745fcded0fbbc74ca0f7226",
@@ -1502,7 +1502,7 @@
     },
     "673f629c5b555b53460cf827": {
         "name": "Building Foundations",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "taskRequirements": [
                 {
                     "task": "6745fcded0fbbc74ca0f721d",
@@ -1517,7 +1517,7 @@
     },
     "6745fae369a58fceba10343d": {
         "name": "The Higher They Fly",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "taskRequirements": [
                 {
                     "task": "673f629c5b555b53460cf827",
@@ -1538,7 +1538,7 @@
     },
     "6744a728352b4da8e003eda9": {
         "name": "Battery Change (Prapor)",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "failConditions": [
                 {
                     "id": "6744a951d9ac62db4b79b618",
@@ -1564,7 +1564,7 @@
     },
     "6744ab1def61d56e020b5c56": {
         "name": "Protect the Sky",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "taskRequirements": [
                 {
                     "task": "6744a728352b4da8e003eda9",
@@ -1579,7 +1579,7 @@
     },
     "6744af0969a58fceba101fed": {
         "name": "The Price of Independence (Prapor)",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "taskRequirements": [
                 {
                     "task": "6744a728352b4da8e003eda9",
@@ -1601,7 +1601,7 @@
     },
     "6745cbee909d2013670a4a55": {
         "name": "The Price of Independence (Ragman)",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "taskRequirements": [
                 {
                     "task": "6744a9dfef61d56e020b5c4a",
@@ -1622,7 +1622,7 @@
     },
     "67a09761e720611a6a01f288": {
         "name": "Keeper's Word",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "taskRequirements": [
                 {
                     "task": "67a09636b8725511260bc421",
@@ -1655,27 +1655,6 @@
                 {
                     "task": "67a096ed77dd677f600804ba",
                     "name": "Sensory Analysis - Part 2",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67a096f605d1611ed90be75a",
-                    "name": "Hot Zone",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67a0966817e34930e500754c",
-                    "name": "Forced Alliance",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "67a09673972c11a3f507731d",
-                    "name": "The Tarkov Butcher",
                     "status": [
                         "complete"
                     ]
@@ -1757,7 +1736,7 @@
     },
     "6864fcef9809a149400dd2ee": {
         "name": "Breathing Room",
-        "propertiesChanged" : {
+        "propertiesChanged": {
             "taskRequirements": [
                 {
                     "task": "686404d348e7bb4146002cac",
@@ -1990,12 +1969,80 @@
         ]
     },
     "665eeca92f7aedcc900b0437": {
-        "finishRewardsAdded" : {
+        "finishRewardsAdded": {
             "items": [
                 {
                     "item": "66507eabf5ddb0818b085b68",
                     "item_name": "2A2-(b-TG) stimulant injector",
                     "count": 6
+                }
+            ]
+        }
+    },
+    "59674cd986f7744ab26e32f2": {
+        "name": "Shootout Picnic",
+        "finishRewardsAdded": {
+            "items": [
+                {
+                    "item": "544fb3f34bdc2d03748b456a",
+                    "item_name": "Morphine injector",
+                    "count": 1
+                }
+            ]
+        }
+    },
+    "5a27b75b86f7742e97191958": {
+        "name": "Fishing Gear",
+        "finishRewardsAdded": {
+            "offerUnlock": [
+                {
+                    "id": "68efe00fc487dbe6f2d2ac54",
+                    "trader_id": "5935c25fb3acc3127c3d8cd9",
+                    "trader_name": "Peacekeeper",
+                    "level": 2,
+                    "item": "68a639748e1fe612970728e9",
+                    "item_name": "Colt M16A1 5.56x45 assault rifle",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "5a27bc8586f7741b543d8ea4": {
+        "name": "Wet Job - Part 6",
+        "finishRewardsAdded": {
+            "craftUnlock": [
+                {
+                    "items": [
+                        {
+                            "id": "6768c25aa7b238f14a08d3f6",
+                            "name": "7.62x51mm M80A1",
+                            "count": 40
+                        }
+                    ],
+                    "station_id": "5d484fda654e7600681d9315",
+                    "trader_name": "Workbench",
+                    "level": 3
+                }
+            ]
+        }       
+    },
+    "5b47825886f77468074618d3": {
+        "name": "Gunsmith - Part 22",
+        "finishRewardsAdded": {
+            "craftUnlock": [
+                {
+                    "items": [
+                        {
+                            "id": "5a1eaa87fcdbcb001865f75e",
+                            "name": "Trijicon REAP-IR thermal scope",
+                            "count": 1
+                        }
+                    ],
+                    "station_id": "5d484fda654e7600681d9315",
+                    "trader_name": "Workbench",
+                    "level": 3
                 }
             ]
         }
