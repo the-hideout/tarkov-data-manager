@@ -69,21 +69,84 @@
                 "name": "The Survivalist Path - Zhivchik"
             }
         ],
-        "__objectivesAdded": [
+        "objectivesAdded": [
             {
-                "id": "65b10c6a8511b7ef8694e060",
-                "description": "65b10c6a8511b7ef8694e060",
+                "id": "693c3a908ad994118b846d63",
+                "description": "693c3a908ad994118b846d63",
                 "type": "giveItem",
                 "count": 1,
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
                 "zoneNames": [],
-                "item_id": "62a09e08de7ac81993580532",
-                "item_name": "Glorious E lightweight armored mask",
-                "item": "62a09e08de7ac81993580532",
+                "item_id": "69398e94ca94fd2877039504",
+                "item_name": "Nut Sack Balaclava",
+                "item": "69398e94ca94fd2877039504",
                 "items": [
-                    "62a09e08de7ac81993580532"
+                    "69398e94ca94fd2877039504"
+                ],
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true,
+                "zones": []
+            },
+            {
+                "id": "693c3a9fc17c9edbfc58325a",
+                "description": "693c3a9fc17c9edbfc58325a",
+                "type": "giveItem",
+                "count": 1,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "item_id": "6937edb912d456a817083e82",
+                "item_name": "Mazoni golden dumbell",
+                "item": "6937edb912d456a817083e82",
+                "items": [
+                    "6937edb912d456a817083e82"
+                ],
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true,
+                "zones": []
+            },
+            {
+                "id": "693c3aacf0cd3ec97007f2c1",
+                "description": "693c3aacf0cd3ec97007f2c1",
+                "type": "giveItem",
+                "count": 1,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "item_id": "6937ecf8628ee476240c07cb",
+                "item_name": "Tigzresq splint",
+                "item": "6937ecf8628ee476240c07cb",
+                "items": [
+                    "6937ecf8628ee476240c07cb"
+                ],
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true,
+                "zones": []
+            },
+            {
+                "id": "693c3ab82b0477e3de2b2312",
+                "description": "693c3ab82b0477e3de2b2312",
+                "type": "giveItem",
+                "count": 1,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "item_id": "6937f02dfd6488bb27024839",
+                "item_name": "Domontovich ushanka hat",
+                "item": "6937f02dfd6488bb27024839",
+                "items": [
+                    "6937f02dfd6488bb27024839"
                 ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
@@ -108,6 +171,20 @@
             "60e827faf09904268a4dbc50": "62a6ffaa7230237f257cac2c",
             "60e827faf09904268a4dbc51": "62a6ffb4a9a0ea77981b57d5",
             "60e827faf09904268a4dbc52": "62a6ffbcec21e50cad3b6708"
+        },
+        "locale": {
+            "en": {
+                "693c3a908ad994118b846d63": "Hand over the found in raid item: Nut Sack balaclava",
+                "693c3a9fc17c9edbfc58325a": "Hand over the found in raid item: Mazoni golden dumbbell",
+                "693c3aacf0cd3ec97007f2c1": "Hand over the found in raid item: Tigzresq splint",
+                "693c3ab82b0477e3de2b2312": "Hand over the found in raid item: Domontovich ushanka hat"
+            },
+            "zh": {
+                "693c3a908ad994118b846d63": "上交战局中找到的物品：Nut Sack 巴拉克拉瓦头套",
+                "693c3a9fc17c9edbfc58325a": "上交战局中找到的物品：Mazoni 金色哑铃",
+                "693c3aacf0cd3ec97007f2c1": "上交战局中找到的物品：Tigzresq 夹板",
+                "693c3ab82b0477e3de2b2312": "上交战局中找到的物品：Domontovich 毛帽"
+            }
         }
     },
     "61904daa7d0d857927447b9c": {
@@ -587,6 +664,7 @@
     "5c0bd94186f7747a727f09b2": {
         "name": "Test Drive - Part 1",
         "propertiesChanged" : {
+            "experience": 9100,
             "minPlayerLevel": 18,
             "taskRequirements": [
                 {
@@ -602,30 +680,35 @@
     "63a5cf262964a7488f5243ce": {
         "name": "Test Drive - Part 2",
         "propertiesChanged" : {
+            "experience": 12000,
             "minPlayerLevel": 22
         }
     },
     "64f5deac39e45b527a7c4232": {
         "name": "Test Drive - Part 3",
         "propertiesChanged" : {
+            "experience": 18000,
             "minPlayerLevel": 25
         }
     },
     "6574e0dedc0d635f633a5805": {
         "name": "Test Drive - Part 4",
         "propertiesChanged" : {
+            "experience": 20000,
             "minPlayerLevel": 28
         }
     },
     "669fa3a40c828825de06d6a1": {
         "name": "Test Drive - Part 5",
         "propertiesChanged" : {
+            "experience": 23000,
             "minPlayerLevel": 32
         }
     },
     "675c1ff1a757ddd00404f0aa": {
         "name": "Test Drive - Part 6",
         "propertiesChanged" : {
+            "experience": 32000,
             "minPlayerLevel": 35
         }
     },
@@ -840,7 +923,22 @@
     "5c0d190cd09282029f5390d8": {
         "name": "Grenadier",
         "propertiesChanged" : {
-            "minPlayerLevel": 10
+            "minPlayerLevel": 10,
+            "experience": 12500
+        },
+        "taskRequirementsAdded": [
+            {
+                "task": "657315df034d76585f032e01",
+                "name": "Shooting Cans",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "objectivesChanged": {
+            "5c1b760686f77412780211a3": {
+                "count": 5
+            }
         }
     },
     "__5b4794cb86f774598100d5d4": {
@@ -884,6 +982,7 @@
     "60e71c48c1bfa3050473b8e5": {
         "name": "Crisis",
         "propertiesChanged" : {
+            "experience": 34000,
             "minPlayerLevel": 38
         }
     },
@@ -1120,7 +1219,8 @@
     "60e71b62a0beca400d69efc4": {
         "name": "Escort",
         "propertiesChanged": {
-            "experience": 177000
+            "experience": 155000,
+            "minPlayerLevel": 46
         },
         "objectivesAdded": [
             {
@@ -1753,6 +1853,165 @@
                 {
                     "name": "AttachedLauncher",
                     "level": 1
+                }
+            ]
+        }
+    },
+    "5ae449c386f7744bde357697": {
+        "objectivesChanged": {
+            "5bb60cbc88a45011a8235cc5": {
+                "count": 7
+            }
+        }
+    },
+    "6179acbdc760af5ad2053585": {
+        "objectivesChanged": {
+            "617bd94c5a52d2390a2630c7": {
+                "count": 10
+            }
+        }
+    },
+    "6193850f60b34236ee0483de": {
+        "objectivesChanged": {
+            "6193dabd5f6468204470571f": {
+                "count": 4
+            }
+        }
+    },
+    "65734c186dc1e402c80dc19e": {
+        "propertiesChanged": {
+            "experience": 11000
+        }
+    },
+    "5edac34d0bb72a50635c2bfa": {
+        "propertiesChanged": {
+            "experience": 27500
+        }
+    },
+    "5c0d1c4cd0928202a02a6f5c": {
+        "propertiesChanged": {
+            "experience": 12500
+        }
+    },
+    "639dbaf17c898a131e1cffff": {
+        "propertiesChanged": {
+            "experience": 13200
+        }
+    },
+    "5c0d0d5086f774363760aef2": {
+        "propertiesChanged": {
+            "experience": 3500
+        }
+    },
+    "5c112d7e86f7740d6f647486": {
+        "propertiesChanged": {
+            "experience": 10000
+        }
+    },
+    "6572e876dc0d635f633a5714": {
+        "propertiesChanged": {
+            "experience": 12400
+        }
+    },
+    "666314b2a9290f9e0806cca3": {
+        "propertiesChanged": {
+            "experience": 16000
+        }
+    },
+    "666314b0acf8442f8b0531a1": {
+        "propertiesChanged": {
+            "experience": 2300
+        }
+    },
+    "639135e8c115f907b14700aa": {
+        "propertiesChanged": {
+            "experience": 12000
+        }
+    },
+    "675c3582f6ddc329a90f9c6d": {
+        "propertiesChanged": {
+            "experience": 11000
+        }
+    },
+    "658027799634223183395339": {
+        "propertiesChanged": {
+            "experience": 12000
+        },
+        "objectivesChanged": {
+            "65802779963422318339533c": {
+                "count": 10
+            }
+        }
+    },
+    "6573397ef3f8344c4575cd87": {
+        "propertiesChanged": {
+            "experience": 6600
+        }
+    },
+    "64e7b9bffd30422ed03dad38": {
+        "propertiesChanged": {
+            "experience": 8300
+        }
+    },
+    "64e7b9a4aac4cd0a726562cb": {
+        "propertiesChanged": {
+            "experience": 7500
+        }
+    },
+    "64e7b99017ab941a6f7bf9d7": {
+        "propertiesChanged": {
+            "experience": 7100
+        }
+    },
+    "626bd75c71bd851e971b82a5": {
+        "propertiesChanged": {
+            "experience": 7500
+        }
+    },
+    "5c0bde0986f77479cf22c2f8": {
+        "propertiesChanged": {
+            "experience": 55000
+        }
+    },
+    "66aba85403e0ee3101042877": {
+        "propertiesChanged": {
+            "experience": 24000
+        }
+    },
+    "60e71e8ed54b755a3b53eb67": {
+        "propertiesChanged": {
+            "minPlayerLevel": 55
+        }
+    },
+    "5c0d4e61d09282029f53920e": {
+        "propertiesChanged": {
+            "minPlayerLevel": 32
+        }
+    },
+    "67a0970744893b9f3f0d9b68": {
+        "taskRequirementsAdded": [
+            {
+                "task": "67a096577e86e067eb045733",
+                "name": "Hidden Layer",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "taskRequirementsRemoved": [
+            {
+                "id": "67a0966817e34930e500754c",
+                "name": "Forced Alliance"
+            }
+        ]
+    },
+    "665eeca92f7aedcc900b0437": {
+        "finishRewardsAdded" : {
+            "items": [
+                {
+                    "item": "66507eabf5ddb0818b085b68",
+                    "item_name": "2A2-(b-TG) stimulant injector",
+                    "count": 6
                 }
             ]
         }

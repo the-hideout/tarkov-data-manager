@@ -1296,6 +1296,13 @@ class UpdateQuestsJob extends DataJob {
                     this.addTranslation(key);
                 }
             }
+            if (this.changedQuests[questData.id].locale) {
+                for (const langCode in this.changedQuests[questData.id].locale) {
+                    for (const translationKey in this.changedQuests[questData.id].locale[langCode]) {
+                        this.addTranslation(translationKey, langCode, this.changedQuests[questData.id].locale[langCode][translationKey]);
+                    }
+                }
+            }
         }
         const locationTypes = [
             'visit',
