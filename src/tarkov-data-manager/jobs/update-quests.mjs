@@ -181,6 +181,14 @@ class UpdateQuestsJob extends DataJob {
                 }
                 try {
                     this.logger.warn(`Adding missing quest ${this.getTranslation(quest.name)} ${quest.id}...`);
+                    if (quest.locale) {
+                        for (const langCode in quest.locale) {
+                            for (const translationKey in quest.locale[langCode]) {
+                                this.addTranslation(translationKey, langCode, quest.locale[langCode][translationKey]);
+                            }
+                        }
+                        delete quest.locale;
+                    }
                     quest.name = this.addTranslation(`${questId} name`);
                     for (const obj of quest.objectives) {
                         obj.description = this.addTranslation(obj.id);

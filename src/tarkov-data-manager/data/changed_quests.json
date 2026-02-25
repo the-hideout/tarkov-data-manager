@@ -927,6 +927,22 @@
             "5c1b760686f77412780211a3": {
                 "count": 5
             }
+        },
+        "finishRewardsChanged": {
+            "craftUnlock": [
+                {
+                    "items": [
+                        {
+                            "id": "5e340dcdcb6d5863cc5e5efb",
+                            "name": "VOG-25 Khattabka improvised hand grenade",
+                            "count": 5
+                        }
+                    ],
+                    "station_id": "5d484fda654e7600681d9315",
+                    "station_name": "hideout_area_10_name",
+                    "level": 2
+                }
+            ]
         }
     },
     "__5b4794cb86f774598100d5d4": {
@@ -1944,6 +1960,25 @@
                     "item": "66507eabf5ddb0818b085b68",
                     "item_name": "2A2-(b-TG) stimulant injector",
                     "count": 6
+                }
+            ]
+        }
+    },
+    "5a27bc8586f7741b543d8ea4": {
+        "name": "Wet Job - Part 6",
+        "finishRewardsAdded": {
+            "craftUnlock": [
+                {
+                    "items": [
+                        {
+                            "id": "6768c25aa7b238f14a08d3f6",
+                            "name": "7.62x51mm M80A1",
+                            "count": 40
+                        }
+                    ],
+                    "station_id": "5d484fda654e7600681d9315",
+                    "station_name": "hideout_area_10_name",
+                    "level": 3
                 }
             ]
         }
