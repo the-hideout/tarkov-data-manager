@@ -640,9 +640,7 @@
                     "level": 3,
                     "item": "5c127c4486f7745625356c13",
                     "item_name": "Magazine case",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 },
                 {
                     "id": "64d52503c06f9028d80ea5e31",
@@ -651,9 +649,7 @@
                     "level": 4,
                     "item": "6193e590069d61205d490dd8",
                     "item_name": "HK G28 7.62x51 marksman rifle Default",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 }
             ]
         },
@@ -845,9 +841,7 @@
                     "level": 4,
                     "item": "5bae13ded4351e44f824bf38",
                     "item_name": "Mosin Rifle 7.62x54R ProMag Archangel OPFOR 10-round magazine",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 },
                 {
                     "id": "5bcf269286f7746a472ad9f7",
@@ -856,9 +850,7 @@
                     "level": 4,
                     "item": "5bae13bad4351e00320204af",
                     "item_name": "Mosin Rifle ProMag Archangel OPFOR PRS chassis",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 },
                 {
                     "id": "64d52503c06f9028d80ea57c3",
@@ -867,9 +859,7 @@
                     "level": 4,
                     "item": "618ba27d9008e4636a67f61d",
                     "item_name": "Vortex Razor HD Gen.2 1-6x24 30mm riflescope",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 },
                 {
                     "id": "64d52513c06f9028d80eb54d2",
@@ -878,9 +868,7 @@
                     "level": 4,
                     "item": "5e023d48186a883be655e551",
                     "item_name": "7.62x54mm R BS gs",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 }
             ]
         }
@@ -1056,9 +1044,7 @@
                     "level": 2,
                     "item": "rpk166L26000000000000001",
                     "item_name": "RPK-16 5.45x39 light machine gun 6L26",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 }
             ]
         }
@@ -1074,9 +1060,7 @@
                     "level": 1,
                     "item": "59e7635f86f7742cbf2c1095",
                     "item_name": "BNTI Module-3M body armor",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 },
                 {
                     "id": "64d524fdc06f9028d80ea0771",
@@ -1085,9 +1069,7 @@
                     "level": 1,
                     "item": "5a13df5286f774032f5454a0",
                     "item_name": "Saiga-9 9x19 carbine Default",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 }
             ]
         }
@@ -1103,9 +1085,7 @@
                     "level": 3,
                     "item": "54527ac44bdc2d36668b4567",
                     "item_name": "5.56x45mm M855A1",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 }
             ]
         }
@@ -1121,9 +1101,7 @@
                     "level": 4,
                     "item": "59e0d99486f7744a32234762",
                     "item_name": "prapor 7.62x39mm BP gzh",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 }
             ]
         }
@@ -1139,9 +1117,7 @@
                     "level": 2,
                     "item": "5ac4ad3686f774181345c3da",
                     "item_name": "Springfield Armory M1A 7.62x51 rifle Default",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 },
                 {
                     "id": "64f97d0508bf3d71960c1a7a3",
@@ -1150,9 +1126,7 @@
                     "level": 2,
                     "item": "5b3116595acfc40019476364",
                     "item_name": "SIG Sauer ROMEO4 reflex sight",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 }
             ]
         }
@@ -1308,9 +1282,7 @@
                     "level": 2,
                     "item": "5dd800eae49222636663133b",
                     "item_name": "M4A1 SAI",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 }
             ]
         }
@@ -1326,9 +1298,7 @@
                     "level": 2,
                     "item": "618ab04934aa2e47480fba2b",
                     "item_name": "AK-104 RPKT mod.1",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 }
             ]
         }
@@ -1344,9 +1314,7 @@
                     "level": 3,
                     "item": "619e61e70459e93c12392ba7",
                     "item_name": "FN SCAR-L 5.56x45 assault rifle (FDE) Contract Wars",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 }
             ]
         }
@@ -1362,9 +1330,7 @@
                     "level": 1,
                     "item": "5a8ae65f86f774377a23ed55",
                     "item_name": "PP-19-01 Vityaz 9x19 submachine gun Zenit",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 }
             ]
         }
@@ -1380,9 +1346,7 @@
                     "level": 4,
                     "item": "65766582234b9f6e050a42c1",
                     "item_name": "IOTV Gen4 body armor (High Mobility Kit, MultiCam) Default",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 }
             ]
         }
@@ -1398,9 +1362,7 @@
                     "level": 4,
                     "item": "5b4329f05acfc47a86086aa1",
                     "item_name": "DevTac Ronin Respirator",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 }
             ]
         }
@@ -1416,9 +1378,7 @@
                     "level": 4,
                     "item": "65293c7a17e14363030ad308",
                     "item_name": "AR-10 7.62x51 Lancer L7AWM 25-round magazine",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 },
                 {
                     "id": "66c46c7df7ca8a539f0882ab2",
@@ -1427,9 +1387,7 @@
                     "level": 4,
                     "item": "6529243824cbe3c74a05e5c1",
                     "item_name": "6.8x51mm SIG Hybrid",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 }
             ]
         }
@@ -1445,9 +1403,7 @@
                     "level": 4,
                     "item": "657089638db3adca1009f4ca",
                     "item_name": "Atomic Defense CQCM ballistic mask (Black)",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
+                    "count": 1
                 }
             ]
         }
@@ -1987,9 +1943,7 @@
                 {
                     "item": "66507eabf5ddb0818b085b68",
                     "item_name": "2A2-(b-TG) stimulant injector",
-                    "count": 6,
-                    "contains": [],
-                    "attributes": []
+                    "count": 6
                 }
             ]
         }

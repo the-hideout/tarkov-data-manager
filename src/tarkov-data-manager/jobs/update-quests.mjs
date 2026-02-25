@@ -1263,6 +1263,8 @@ class UpdateQuestsJob extends DataJob {
                         if (rewardType === 'offerUnlock' && !this.rawTraders.find(t => t._id === reward.trader_id)) {
                             continue;
                         }
+                        reward.contains ??= [];
+                        reward.attributes ??= [];
                         questData.finishRewards[rewardType].push(reward);
                     }
                 }
@@ -1286,6 +1288,12 @@ class UpdateQuestsJob extends DataJob {
                     if (rewardType === 'skillLevelReward') {
                         for (const reward of rewardsTarget[rewardType]) {
                             reward.name = this.addTranslation(reward.name);
+                        }
+                    }
+                    if (rewardType === 'offerUnlock') {
+                        for (const reward of rewardsTarget[rewardType]) {
+                            reward.contains ??= [];
+                            reward.attributes ??= [];
                         }
                     }
                 }
