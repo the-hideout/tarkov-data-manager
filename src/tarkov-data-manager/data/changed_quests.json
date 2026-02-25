@@ -3,14 +3,6 @@
         "name": "Collector",
         "taskRequirementsAdded": [
             {
-                "task": "59674cd986f7744ab26e32f2",
-                "name": "Shootout Picnic",
-                "status": [
-                    "complete"
-                ],
-                "notes": "Per wiki 8/13/2024"
-            },
-            {
                 "task": "59675ea386f77414b32bded2",
                 "name": "Postman Pat - Part 1",
                 "status": [
@@ -25,14 +17,6 @@
                     "complete"
                 ],
                 "notes": "Per wiki 8/15/2024"
-            },
-            {
-                "task": "5968eb3186f7741dde183a4d",
-                "name": "Operation Aquarius - Part 2",
-                "status": [
-                    "complete"
-                ],
-                "notes": "Wiki says required, but that was last updated 2/6/2021"
             }
         ],
         "___taskRequirementsRemoved": [
