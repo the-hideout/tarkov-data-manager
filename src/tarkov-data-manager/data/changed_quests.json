@@ -1273,30 +1273,6 @@
                     "level": 5
                 }
             ],
-            "items": [
-                {
-                    "item": "65766adc234b9f6e050a431a",
-                    "item_name": "6B43 Zabralo-Sh body armor (Digital Flora)",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": [],
-                    "base_item_id": "545cdb794bdc2d3a198b456a"
-                },
-                {
-                    "item": "5f60c74e3b85f6263c145586",
-                    "item_name": "Rys-T bulletproof helmet (Black)",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                },
-                {
-                    "item": "5f60c85b58eff926626a60f7",
-                    "item_name": "Rys-T face shield",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ],
             "craftUnlock": [
                 {
                     "items": [
@@ -2011,7 +1987,9 @@
                 {
                     "item": "66507eabf5ddb0818b085b68",
                     "item_name": "2A2-(b-TG) stimulant injector",
-                    "count": 6
+                    "count": 6,
+                    "contains": [],
+                    "attributes": []
                 }
             ]
         }
