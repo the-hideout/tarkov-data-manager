@@ -1995,15 +1995,14 @@
             }
     },
     "665eeca92f7aedcc900b0437": {
-        "propertiesChanged" : {
-            "finishRewards": {
-                "items": 
+        "finishRewardsAdded" : {
+                "items": [
                     {
                         "item": "66507eabf5ddb0818b085b68",
                         "item_name": "2A2-(b-TG) stimulant injector",
                         "count": 6
                     }
-            }
+                ]
         }
     }
 }
