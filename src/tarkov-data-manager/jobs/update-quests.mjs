@@ -181,6 +181,14 @@ class UpdateQuestsJob extends DataJob {
                 }
                 try {
                     this.logger.warn(`Adding missing quest ${this.getTranslation(quest.name)} ${quest.id}...`);
+                    if (quest.locale) {
+                        for (const langCode in quest.locale) {
+                            for (const translationKey in quest.locale[langCode]) {
+                                this.addTranslation(translationKey, langCode, quest.locale[langCode][translationKey]);
+                            }
+                        }
+                        delete quest.locale;
+                    }
                     quest.name = this.addTranslation(`${questId} name`);
                     for (const obj of quest.objectives) {
                         obj.description = this.addTranslation(obj.id);
@@ -1263,37 +1271,61 @@ class UpdateQuestsJob extends DataJob {
                         if (rewardType === 'offerUnlock' && !this.rawTraders.find(t => t._id === reward.trader_id)) {
                             continue;
                         }
+                        reward.contains ??= [];
+                        reward.attributes ??= [];
                         questData.finishRewards[rewardType].push(reward);
                     }
                 }
             }
-            if (this.changedQuests[questData.id].finishRewardsChanged) {
-                //this.logger.warn('Changing finish rewards');
-                //this.logger.warn(JSON.stringify(this.changedQuests[questData.id].finishRewardsChanged), null, 4);
-                for (const rewardType in this.changedQuests[questData.id].finishRewardsChanged) {
-                    questData.finishRewards[rewardType] = this.changedQuests[questData.id].finishRewardsChanged[rewardType];
+            const handleRewardsChanged = (rewardsChanged, rewardsTarget) => {
+                for (const rewardType in rewardsChanged) {
+                    if (rewardType === 'items') {
+                        for (const itemId in rewardsChanged[rewardType]) {
+                            const itemReward = rewardsTarget[rewardType].find(r => r.item === itemId);
+                            if (!itemReward) {
+                                this.logger.error(`Item reward ${itemId} not found for change`);
+                                continue;
+                            }
+                            for (const propertyName in rewardsChanged[rewardType][itemId]) {
+                                itemReward[propertyName] = rewardsChanged[rewardType][itemId][propertyName];
+                            }
+                        }
+                        continue;
+                    }
+                    rewardsTarget[rewardType] = rewardsChanged[rewardType];
                     if (rewardType === 'skillLevelReward') {
-                        for (const reward of questData.finishRewards[rewardType]) {
+                        for (const reward of rewardsTarget[rewardType]) {
                             reward.name = this.addTranslation(reward.name);
                         }
                     }
+                    if (rewardType === 'offerUnlock') {
+                        for (const reward of rewardsTarget[rewardType]) {
+                            reward.contains ??= [];
+                            reward.attributes ??= [];
+                        }
+                    }
                 }
+            };
+            if (this.changedQuests[questData.id].finishRewardsChanged) {
+                //this.logger.warn('Changing finish rewards');
+                //this.logger.warn(JSON.stringify(this.changedQuests[questData.id].finishRewardsChanged), null, 4);
+                handleRewardsChanged(this.changedQuests[questData.id].finishRewardsChanged, questData.finishRewards);
             }
             if (this.changedQuests[questData.id].startRewardsChanged) {
                 //this.logger.warn('Changing start rewards');
                 //this.logger.warn(JSON.stringify(this.changedQuests[questData.id].startRewardsChanged), null, 4);
-                for (const rewardType in this.changedQuests[questData.id].startRewardsChanged) {
-                    questData.startRewards[rewardType] = this.changedQuests[questData.id].startRewardsChanged[rewardType];
-                    if (rewardType === 'skillLevelReward') {
-                        for (const reward of questData.startRewards[rewardType]) {
-                            reward.name = this.addTranslation(reward.name);
-                        }
-                    }
-                }
+                handleRewardsChanged(this.changedQuests[questData.id].startRewardsChanged, questData.startRewards);
             }
             if (this.changedQuests[questData.id].translationKeys) {
                 for (const key of this.changedQuests[questData.id].translationKeys) {
                     this.addTranslation(key);
+                }
+            }
+            if (this.changedQuests[questData.id].locale) {
+                for (const langCode in this.changedQuests[questData.id].locale) {
+                    for (const translationKey in this.changedQuests[questData.id].locale[langCode]) {
+                        this.addTranslation(translationKey, langCode, this.changedQuests[questData.id].locale[langCode][translationKey]);
+                    }
                 }
             }
         }

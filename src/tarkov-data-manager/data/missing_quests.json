@@ -4626,5 +4626,261 @@
         "experience": 0,
         "tarkovDataId": null,
         "factionName": "Any"
+    },
+    "68db9c7557bc51a8c804c14b": {
+        "id": "68db9c7557bc51a8c804c14b",
+        "name": "Goals and Means",
+        "trader": "5a7c2eca46aef81a7ca2145d",
+        "location_id": null,
+        "locationName": "any",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "5ae3280386f7742a41359364",
+                "name": "Gunsmith - Part 15",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "625d700cc48e6c62a440fab5",
+                "name": "Getting Acquainted",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "68db9ea0e6c69908254eceee",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zone_keys": [],
+                "target": "AnyPmc",
+                "count": 20,
+                "shotType": "kill",
+                "usingWeaponTypes": [],
+                "usingWeapon": [
+                    "644674a13d52156624001fbc",
+                    "6871284e9a353bb50606f3ed",
+                    "651450ce0e00edc794068371",
+                    "645e0c6b3b381ede770e1cc9",
+                    "57c44b372459772d2b39b8ce",
+                    "57838ad32459774a17445cd2"
+                ],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": {
+                    "compareMethod": ">=",
+                    "value": 50
+                },
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "5a7c2eca46aef81a7ca2145d",
+                    "name": "Mechanic",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "68d502e016a16a91e200bbbc",
+                    "item_name": "AS VAL MOD.4 9x39 special assault rifle Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "65118f531b90b4fc77015083",
+                    "item_name": "VSS/VAL 9x39 30-round magazine",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "657025cfbfc87b3a34093253",
+                    "item_name": "9x39mm PAB-9 gs ammo pack (20 pcs)",
+                    "count": 6,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [
+                {
+                    "id": "68db9c7557bc51a8c804c14b-5a7c2eca46aef81a7ca2145d-68d502e016a16a91e200bbbc",
+                    "trader_id": "5a7c2eca46aef81a7ca2145d",
+                    "trader_name": "Mechanic",
+                    "level": 4,
+                    "item": "68d502e016a16a91e200bbbc",
+                    "item_name": "AS VAL MOD.4 9x39 special assault rifle Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": [],
+                    "base_item_id": "6871284e9a353bb50606f3ed"
+                }
+            ],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 12500,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "68db9ea0e6c69908254eceee": "Eliminate PMC operatives from over 50 meters away while using any 9x39 caliber weapon"
+            },
+            "zh": {
+                "68db9c7557bc51a8c804c14b name": "目标与手段",
+                "68db9ea0e6c69908254eceee": "使用 9x39 毫米口径的武器在 50 米开外消灭 PMC"
+            }
+        }
+    },
+    "68ee1c18b4e5bc9a68018cd7": {
+        "id": "68ee1c18b4e5bc9a68018cd7",
+        "name": "No Questions Asked",
+        "trader": "54cb50c76803fa8b248b4571",
+        "location_id": null,
+        "locationName": "any",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "59ca2eb686f77445a80ed049",
+                "name": "The Punisher - Part 6",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "68ee1cc7e8b13097f525e6f2",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5c0126f40db834002a125382",
+                "item_name": "Red Rebel ice pick",
+                "count": 1,
+                "item": "5c0126f40db834002a125382",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "68ec0c1e4a10ddacb2069398",
+                    "item_name": "TKPD 9.3x64 carbine Assault",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "68ee0103b5db65191e0ec07c",
+                    "item_name": "9.3x64mm 7N33 ammo pack (20 pcs)",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [
+                {
+                    "id": "68db9c7557bc51a8c804c14b-54cb50c76803fa8b248b4571-68ec0c1e4a10ddacb2069398",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 4,
+                    "item": "68ec0c1e4a10ddacb2069398",
+                    "item_name": "AS VAL MOD.4 9x39 special assault rifle Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": [],
+                    "base_item_id": "68aee763130c00663d08aea8"
+                },
+                {
+                    "id": "68db9c7557bc51a8c804c14b-54cb50c76803fa8b248b4571-68bac6ca653ee6b1e406d978",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 4,
+                    "item": "68bac6ca653ee6b1e406d978",
+                    "item_name": "9.3x64mm FMJ",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": [],
+                    "base_item_id": null
+                },
+                {
+                    "id": "68db9c7557bc51a8c804c14b-54cb50c76803fa8b248b4571-68aee9b89df2c1144f0aaa46",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 4,
+                    "item": "68aee9b89df2c1144f0aaa46",
+                    "item_name": "TKPD 9.3x64 457mm barrel",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": [],
+                    "base_item_id": null
+                }
+            ],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 11200,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "68ee1cc7e8b13097f525e6f2": "Hand over the found in raid item: Red Rebel ice pick"
+            },
+            "zh": {
+                "68ee1c18b4e5bc9a68018cd7 name": "不容置问",
+                "68ee1cc7e8b13097f525e6f2": "上交战局中找到的物品：Red Rebel 冰镐"
+            }
+        }
     }
 }
