@@ -4673,7 +4673,10 @@
                 ],
                 "usingWeaponMods": [],
                 "zoneNames": [],
-                "distance": 50,
+                "distance": {
+                    "compareMethod": ">=",
+                    "value": 50
+                },
                 "wearing": [],
                 "notWearing": [],
                 "healthEffect": null,
