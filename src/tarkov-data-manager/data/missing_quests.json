@@ -4941,7 +4941,7 @@
                 "usingWeaponMods": [],
                 "usingWeapon": [],
                 "zoneNames": [],
-                "distance": 0,
+                "distance": null,
                 "wearing": [
                     [
                         {
@@ -5766,7 +5766,7 @@
                 "usingWeaponMods": [],
                 "usingWeapon": [],
                 "zoneNames": [],
-                "distance": 0,
+                "distance": null,
                 "wearing": [
                     [
                         {
