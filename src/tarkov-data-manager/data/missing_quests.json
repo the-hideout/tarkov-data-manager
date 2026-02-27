@@ -5048,6 +5048,10 @@
                 ],
                 "notWearing": [
                     {
+                        "id": "5448e54d4bdc2dcc718b4568",
+                        "name": "Armor vest"
+                    },
+                    {
                         "id": "5ab8e79e86f7742d8b372e78",
                         "name": "BNTI Gzhel-K body armor"
                     },
@@ -5777,16 +5781,8 @@
                 ],
                 "notWearing": [
                     {
-                        "id": "693bb59250fafa102607aeb7",
-                        "name": "OPSMEN Earmor M32 headset (White)"
-                    },
-                    {
-                        "id": "69413241b1ce1e5fbb09ed0a",
-                        "name": "CENS ProFlex DX5 tactical earplug"
-                    },
-                    {
-                        "id": "68bf405779c8186398099017",
-                        "name": "Peltor TEP-300 tactical earplug (Coyote Brown)"
+                        "id": "5645bcb74bdc2ded0b8b4578",
+                        "name": "Headphones"
                     }
                 ],
                 "healthEffect": null,
