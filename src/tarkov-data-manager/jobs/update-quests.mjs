@@ -223,6 +223,25 @@ class UpdateQuestsJob extends DataJob {
                                     return weapons;
                                 }, []);
                             }
+                            if (obj.notWearing) {
+                                obj.notWearing = obj.notWearing.reduce((notWearing, item) => {
+                                    const ids = this.getItemsIdsIfCategory(item.id);
+                                    for (const id of ids) {
+                                        if (notWearing.some(i => i.id === id)) {
+                                            continue;
+                                        }
+                                        console.log(id, this.itemResults.get(id));
+                                        notWearing.push({
+                                            id,
+                                            name: this.itemResults.get(id).name,
+                                        });
+                                    }
+                                    if (ids.length === 0 && !notWearing.some(i => i.id === item.id)) {
+                                        notWearing.push(item);
+                                    }
+                                    return notWearing;
+                                }, []);
+                            }
                         }
                         if (obj.item && !obj.items) {
                             obj.items = [obj.item];
@@ -2126,6 +2145,28 @@ class UpdateQuestsJob extends DataJob {
                 return questModeZoneMap[lockedText];
             }
         }
+    }
+
+    getItemsIdsIfCategory(id) {
+        const itemIds = [];
+        const catItem = this.items[id];
+        if (!catItem) {
+            return itemIds;
+        }
+        if (catItem._type === 'Item') {
+            return itemIds;
+        }
+        for (const bsgItem of Object.values(this.items)) {
+            if (bsgItem._parent !== id) {
+                continue;
+            }
+            const item = this.itemResults.get(bsgItem._id);
+            if (!item || item.types.includes('disabled')) {
+                continue;
+            }
+            itemIds.push(item.id);
+        }
+        return itemIds;
     }
 }
 

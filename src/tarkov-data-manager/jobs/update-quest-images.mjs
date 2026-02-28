@@ -8,6 +8,7 @@ import DataJob from '../modules/data-job.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import tarkovDataSpt from '../modules/tarkov-data-spt.mjs';
 import { getLocalBucketContents, uploadAnyImage } from '../modules/upload-s3.mjs';
+import gameModes from '../modules/game-modes.mjs';
 
 class UpdateQuestImagesJob extends DataJob {
     constructor(options) {
@@ -20,12 +21,14 @@ class UpdateQuestImagesJob extends DataJob {
             this.pvpRefQuests,
             this.localeEn,
             this.quests,
+            this.questsPve,
             this.missingImages
         ] = await Promise.all([
             tarkovData.quests(),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'pvp_ref_quests.json')).then(json => JSON.parse(json)),
             tarkovData.locale('en'),
             this.jobManager.jobOutput('update-quests', this),
+            this.jobManager.jobOutput('update-quests', this, 'pve'),
             fs.readFile('./cache/quests_missing_images.json').then(fileString => {
                 return JSON.parse(fileString);
             }).catch(error => {
@@ -52,7 +55,7 @@ class UpdateQuestImagesJob extends DataJob {
                 this.logger.warn(`Image already exists for ${this.localeEn[`${id} name`]} ${id}`);
                 continue;
             }
-            const task = this.quests.find(t => t.id === id);
+            const task = this.quests.find(t => t.id === id) ?? this.questsPve.find(t => t.id === id);
             if (!task) {
                 this.logger.error(`Task ${this.localeEn[`${id} name`]} ${id} was not found`);
                 continue;
@@ -130,7 +133,11 @@ class UpdateQuestImagesJob extends DataJob {
         if (!task?.wikiLink) {
             return;
         }
-        const pageResponse = await fetch(task.wikiLink).catch(error => {
+        let wikiLink = task.wikiLink;
+        if (this.localeEn[`${task.id} name`] === 'New Beginning') {
+            wikiLink += '_(Prestige_1)';
+        }
+        const pageResponse = await fetch(wikiLink).catch(error => {
             this.logger.error(`Error fetching wiki page for ${this.localeEn[`${task.id} name`]} ${this.task.id}: ${error}`);
             return {
                 ok: false,
@@ -140,8 +147,9 @@ class UpdateQuestImagesJob extends DataJob {
             return;
         }
         const $ = cheerio.load(await pageResponse.text());
-        const imageUrl = $('.va-infobox-mainimage-image img').first().data('src');
+        const imageUrl = $('.va-infobox-mainimage-image img').first().attr('src');
         if (!imageUrl) {
+            this.logger.warn(`Could not find wiki image for ${this.localeEn[`${task.id} name`]} ${task.id} at ${wikiLink}`);
             return;
         }
         const imageResponse = await fetch(imageUrl);
