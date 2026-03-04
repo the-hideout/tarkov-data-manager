@@ -4787,7 +4787,7 @@
                 "map_ids": [],
                 "item_id": "5c0126f40db834002a125382",
                 "item_name": "Red Rebel ice pick",
-                "count": 1,
+                "count": 2,
                 "item": "5c0126f40db834002a125382",
                 "dogTagLevel": 0,
                 "maxDurability": 100,
@@ -4806,7 +4806,7 @@
             "traderStanding": [],
             "items": [
                 {
-                    "item": "68ec0c1e4a10ddacb2069398",
+                    "item": "707265736574000000000010",
                     "item_name": "TKPD 9.3x64 carbine Assault",
                     "count": 1,
                     "contains": [],
@@ -4822,12 +4822,12 @@
             ],
             "offerUnlock": [
                 {
-                    "id": "68db9c7557bc51a8c804c14b-54cb50c76803fa8b248b4571-68ec0c1e4a10ddacb2069398",
+                    "id": "68db9c7557bc51a8c804c14b-54cb50c76803fa8b248b4571-707265736574000000000010",
                     "trader_id": "54cb50c76803fa8b248b4571",
                     "trader_name": "Prapor",
                     "level": 4,
-                    "item": "68ec0c1e4a10ddacb2069398",
-                    "item_name": "AS VAL MOD.4 9x39 special assault rifle Default",
+                    "item": "707265736574000000000010",
+                    "item_name": "TKPD 9.3x64 carbine Assault",
                     "count": 1,
                     "contains": [],
                     "attributes": [],
