@@ -35,11 +35,13 @@
     "luxon": "^3.7.2",
     "mysql2": "^3.18.2",
     "node-schedule": "^2.1.1",
-    "nodemon": "^3.1.14",
     "sharp": "^0.34.3",
     "tarkov-dev-image-generator": "^2.3.0",
     "unidecode": "^1.1.0",
     "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   },
   "nodemonConfig": {
     "ignore": [
