@@ -3,7 +3,7 @@ import zlib from 'node:zlib';
 import DataJob from '../modules/data-job.mjs';
 import { uploadFile } from '../modules/upload-s3.mjs';
 import cloudflare from '../modules/cloudflare.mjs';
-import gameModes from '../modules/game-modes.mjs';
+import gameModesRegular from '../modules/game-modes.mjs';
 
 class UpdateProfileIndexJob extends DataJob {
     constructor(options) {
@@ -12,6 +12,12 @@ class UpdateProfileIndexJob extends DataJob {
 
     async run() {
         this.logger.log('Downloading all profiles...');
+        const gameModes = [
+            ...gameModesRegular,
+            {
+                name: 'arena',
+            }
+        ];
         const profiles = {};
         const updated = {};
         for (const gameMode of gameModes) {
