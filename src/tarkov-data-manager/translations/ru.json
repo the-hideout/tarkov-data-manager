@@ -168,6 +168,7 @@
     "ZoneClearVill": "Поселок",
     "ZoneClimova": "Торговый центр Климова",
     "ZoneCrossRoad": "Перекресток на Западном берегу",
+    "ZoneCustoms": "Customs Warehouse",
     "ZoneDormitory": "Общежития",
     "ZoneFactoryCenter": "Стройка",
     "ZoneForestGasStation": "Лес за заправкой",
@@ -198,5 +199,6 @@
     "ZoneStartVillage": "Поселок",
     "ZoneSubCommand": "Командный бункер",
     "ZoneSubStorage": "Бункер для хранения",
+    "ZoneTankSquare": "Construction",
     "ZoneWoodCutter": "Лесопилка"
 }
