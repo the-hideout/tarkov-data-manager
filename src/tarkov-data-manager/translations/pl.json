@@ -168,6 +168,7 @@
     "ZoneClearVill": "Wioska",
     "ZoneClimova": "Centrum handlowe Klimowa",
     "ZoneCrossRoad": "Skrzyżowanie zachodniego banku",
+    "ZoneCustoms": "Customs Warehouse",
     "ZoneDormitory": "Budynki noclegowe",
     "ZoneFactoryCenter": "Budowa",
     "ZoneForestGasStation": "Las stacji paliw",
@@ -198,5 +199,6 @@
     "ZoneStartVillage": "Wioska",
     "ZoneSubCommand": "Bunkier dowodzenia",
     "ZoneSubStorage": "Bunkier magazynowy",
+    "ZoneTankSquare": "Construction",
     "ZoneWoodCutter": "Tartak"
 }

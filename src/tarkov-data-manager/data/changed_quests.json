@@ -666,8 +666,74 @@
     },
     "64f5deac39e45b527a7c4232": {
         "name": "Test Drive - Part 3",
+        "objectivePropertiesChanged": {
+            "64f5deac39e45b527a7c4235": {
+                "locationNames": [
+                    "Lighthouse",
+                    "Customs",
+                    "Reserve"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567",
+                    "56f40101d2720b2a4d8b45d6",
+                    "5704e5fad2720bc05b8b4567"
+                ]
+            }
+        },
+        "locale": {
+            "cs": {
+                "64f5deac39e45b527a7c4235": "Eliminovat na Lighthouse, Customs nebo Reserve PMC pomocí AK-12 s tlumičem a zaměřovačem Valday PS-320 1/6x"
+            },
+            "de": {
+                "64f5deac39e45b527a7c4235": "Eliminiere PMCs auf Lighthouse, Customs oder Reserve mit einer schallgedämpften AK-12 und einem Valday PS-320 1/6x Zielfernrohr"
+            },
+            "en": {
+                "64f5deac39e45b527a7c4235": "Eliminate 20 PMCs with AK-12 with the proprietary suppressor and PS-320 scope on Lighthouse, Customs, or Reserve"
+            },
+            "es": {
+                "64f5deac39e45b527a7c4235": "Elimina operadores PMC en Lighthouse, Customs o Reserve utilizando un fusil AK-12 con silenciador y óptica Valday PS-320 1/6x"
+            },
+            "fr": {
+                "64f5deac39e45b527a7c4235": "Éliminez des opérateurs d'une SMP en utilisant un AK-12 muni d'un RDS et d'une lunette Valday PS-320 1/6x dans la zone du phare, des Douanes ou de la Base militaire"
+            },
+            "hu": {
+                "64f5deac39e45b527a7c4235": "Eliminate PMC operatives while using an AK-12 with a suppressor and Valday PS-320 1/6x scope on Lighthouse, Customs, or Reserve"
+            },
+            "it": {
+                "64f5deac39e45b527a7c4235": "Elimina gli agenti PMC mentre usi un AK-12 con un soppressore e un mirino Valday PS-320 1/6x a Lighthouse, Customs o Reserve"
+            },
+            "ja": {
+                "64f5deac39e45b527a7c4235": "Eliminate PMC operatives while using an AK-12 with a suppressor and Valday PS-320 1/6x scope on Lighthouse, Customs, or Reserve"
+            },
+            "ko": {
+                "64f5deac39e45b527a7c4235": "등대(Lighthouse), 세관(Customs), 또는 리저브(Reserve)에서 소음기와 Valday PS-320 1/6x 조준경을 장착한 AK-12를 사용하여 PMC 사살하기"
+            },
+            "pl": {
+                "64f5deac39e45b527a7c4235": "Zlikwiduj operatorów PMC używając AK-12 z tłumikiem i lunetą Valday PS-320 1/6x na latarni morskiej, Składzie celnym lub Rezerwach"
+            },
+            "pt": {
+                "64f5deac39e45b527a7c4235": "Elimine operadores PMC usando um AK-12 com um supressor e mira Valday PS-320 1/6x na Lighthouse, Customs ou Reserve"
+            },
+            "ro": {
+                "64f5deac39e45b527a7c4235": "Elimină operatori PMC folosind un AK-12 echipat cu amortizor și lunetă Valday PS-320 1/6x în zona Farului, a Vămii sau a Rezervei"
+            },
+            "ru": {
+                "64f5deac39e45b527a7c4235": "Убить бойцов ЧВК, используя автомат АК-12 с глушителем и прицелом Валдай \"ПС-320 1x/6x\" на локациях Маяк, Таможня или Резерв"
+            },
+            "sk": {
+                "64f5deac39e45b527a7c4235": "Eliminate PMC operatives while using an AK-12 with a suppressor and Valday PS-320 1/6x scope on Lighthouse, Customs, or Reserve"
+            },
+            "tr": {
+                "64f5deac39e45b527a7c4235": "Deniz Feneri'nde, Gümrük'te veya Rezerv'de AK-12 ile susturuculu ve Valday PS-320 1/6x dürbün kullanırken PMC'leri ortadan kaldırın"
+            },
+            "zh": {
+                "64f5deac39e45b527a7c4235": "在灯塔、海关或储备站使用装有Valday PS-320 1/6x瞄准镜与消音器的AK-12击杀PMC行动人员"
+            }
+        },
         "propertiesChanged": {
             "experience": 18000,
+            "location_id": null,
+            "locationName": "any",
             "minPlayerLevel": 25
         }
     },
@@ -694,6 +760,56 @@
     },
     "5d25e4ca86f77409dd5cdf2c": {
         "name": "Hunting Trip",
+        "locale": {
+            "cs": {
+                "5fd8aa3206fb3a6b8154a2c3": "Eliminovat Shturmana do hlavy nad 40 metrů pomocí pušky M700 s určeným zaměřovačem"
+            },
+            "de": {
+                "5fd8aa3206fb3a6b8154a2c3": "Eliminiere Shturman aus über 40 Meter Entfernung mittels Kopfschuss. Verwende ein M700 Scharfschützengewehr mit dem angegebenen Zielfernrohr"
+            },
+            "en": {
+                "5fd8aa3206fb3a6b8154a2c3": "Locate and neutralize Shturman with a headshot from over 40 meters away while using an M700 sniper rifle with the specified scope"
+            },
+            "es": {
+                "5fd8aa3206fb3a6b8154a2c3": "Localiza y neutraliza a Shturman de disparo a la cabeza a más de 40 metros utilizando un fusil de francotirador Remington M700 con la óptica especificada"
+            },
+            "fr": {
+                "5fd8aa3206fb3a6b8154a2c3": "Éliminez Shturman d'un tir à la tête à plus de 40 mètres avec un M700 muni de la lunette spécifiée"
+            },
+            "hu": {
+                "5fd8aa3206fb3a6b8154a2c3": "Eliminate Shturman with a headshot from over 40 meters away while using an M700 sniper rifle with the specified scope"
+            },
+            "it": {
+                "5fd8aa3206fb3a6b8154a2c3": "Elimina Shturman con un colpo in testa, da almeno 40 metri, utilizzando un fucile da cecchino M700 con il mirino specificato"
+            },
+            "ja": {
+                "5fd8aa3206fb3a6b8154a2c3": "M700 と指定のスコープを使用し 40m 以上離れた位置からのヘッドショットで Shturman を殺す"
+            },
+            "ko": {
+                "5fd8aa3206fb3a6b8154a2c3": "Locate and neutralize Shturman with a headshot from over 40 meters away while using an M700 sniper rifle with the specified scope"
+            },
+            "pl": {
+                "5fd8aa3206fb3a6b8154a2c3": "Zlikwiduj Nawigatora trafieniem w głowę z odległości ponad 40 metrów używając karabinu wyborowego M700 z określoną lunetą"
+            },
+            "pt": {
+                "5fd8aa3206fb3a6b8154a2c3": "Elimine Shturman com um tiro na cabeça a mais de 40 metros de distância usando um rifle sniper M700 com a luneta especificada"
+            },
+            "ro": {
+                "5fd8aa3206fb3a6b8154a2c3": "Elimină-l pe Shturman cu lovitură la cap folosind o pușcă cu lunetă M700 cu luneta cerută la peste 40 de metri"
+            },
+            "ru": {
+                "5fd8aa3206fb3a6b8154a2c3": "Найти и нейтрализовать Штурмана в голову с расстояния более 40 метров, используя Remington M700 с условленным прицелом"
+            },
+            "sk": {
+                "5fd8aa3206fb3a6b8154a2c3": "Locate and neutralize Shturman with a headshot from over 40 meters away while using an M700 sniper rifle with the specified scope"
+            },
+            "tr": {
+                "5fd8aa3206fb3a6b8154a2c3": "Belirtilen dürbünle donatılmış bir M700 keskin nişancı tüfeği kullanarak, 40 metreden uzaktan Shturman'ı kafadan vurarak etkisiz hale getir"
+            },
+            "zh": {
+                "5fd8aa3206fb3a6b8154a2c3": "使用装有指定瞄具的M700狙击步枪从40米开外爆头击杀Shturman"
+            }
+        },
         "objectivePropertiesChanged": {
             "5fd8aa3206fb3a6b8154a2c3": {
                 "distance": {
