@@ -208,6 +208,7 @@
     "ZoneClearVill": "Village",
     "ZoneClimova": "Centre commercial Klimov",
     "ZoneCrossRoad": "Carrefour de la rive ouest",
+    "ZoneCustoms": "Customs Warehouse",
     "ZoneDormitory": "Dortoirs",
     "ZoneFactoryCenter": "Construction",
     "ZoneForestGasStation": "Station-service de la forêt",
@@ -242,5 +243,6 @@
     "ZoneSubStorage": "Bunker de stockage",
     "ZoneSW00": "Bloc de l'allée Zmejskij",
     "ZoneSW01": "Bloc de l'allée Zmejskij",
+    "ZoneTankSquare": "Construction",
     "ZoneWoodCutter": "Scierie"
 }
