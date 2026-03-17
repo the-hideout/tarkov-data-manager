@@ -209,6 +209,7 @@
     "ZoneClearVill": "Village",
     "ZoneClimova": "Klimov Shopping Mall",
     "ZoneCrossRoad": "West Bank Crossroads",
+    "ZoneCustoms": "Customs Warehouse",
     "ZoneDormitory": "Dorms",
     "ZoneFactoryCenter": "Construction",
     "ZoneForestGasStation": "Gas Station Forest",
@@ -243,5 +244,6 @@
     "ZoneSubStorage": "Storage Bunker",
     "ZoneSW00": "Zmejskij Alley Block",
     "ZoneSW01": "Zmejskij Alley Block",
+    "ZoneTankSquare": "Construction",
     "ZoneWoodCutter": "Lumber Mill"
 }
