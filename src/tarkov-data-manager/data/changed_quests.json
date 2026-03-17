@@ -760,6 +760,56 @@
     },
     "5d25e4ca86f77409dd5cdf2c": {
         "name": "Hunting Trip",
+        "locale": {
+            "cs": {
+                "5fd8aa3206fb3a6b8154a2c3": "Eliminovat Shturmana do hlavy nad 40 metrů pomocí pušky M700 s určeným zaměřovačem"
+            },
+            "de": {
+                "5fd8aa3206fb3a6b8154a2c3": "Eliminiere Shturman aus über 40 Meter Entfernung mittels Kopfschuss. Verwende ein M700 Scharfschützengewehr mit dem angegebenen Zielfernrohr"
+            },
+            "en": {
+                "5fd8aa3206fb3a6b8154a2c3": "Locate and neutralize Shturman with a headshot from over 40 meters away while using an M700 sniper rifle with the specified scope"
+            },
+            "es": {
+                "5fd8aa3206fb3a6b8154a2c3": "Localiza y neutraliza a Shturman de disparo a la cabeza a más de 40 metros utilizando un fusil de francotirador Remington M700 con la óptica especificada"
+            },
+            "fr": {
+                "5fd8aa3206fb3a6b8154a2c3": "Éliminez Shturman d'un tir à la tête à plus de 40 mètres avec un M700 muni de la lunette spécifiée"
+            },
+            "hu": {
+                "5fd8aa3206fb3a6b8154a2c3": "Eliminate Shturman with a headshot from over 40 meters away while using an M700 sniper rifle with the specified scope"
+            },
+            "it": {
+                "5fd8aa3206fb3a6b8154a2c3": "Elimina Shturman con un colpo in testa, da almeno 40 metri, utilizzando un fucile da cecchino M700 con il mirino specificato"
+            },
+            "ja": {
+                "5fd8aa3206fb3a6b8154a2c3": "M700 と指定のスコープを使用し 40m 以上離れた位置からのヘッドショットで Shturman を殺す"
+            },
+            "ko": {
+                "5fd8aa3206fb3a6b8154a2c3": "Locate and neutralize Shturman with a headshot from over 40 meters away while using an M700 sniper rifle with the specified scope"
+            },
+            "pl": {
+                "5fd8aa3206fb3a6b8154a2c3": "Zlikwiduj Nawigatora trafieniem w głowę z odległości ponad 40 metrów używając karabinu wyborowego M700 z określoną lunetą"
+            },
+            "pt": {
+                "5fd8aa3206fb3a6b8154a2c3": "Elimine Shturman com um tiro na cabeça a mais de 40 metros de distância usando um rifle sniper M700 com a luneta especificada"
+            },
+            "ro": {
+                "5fd8aa3206fb3a6b8154a2c3": "Elimină-l pe Shturman cu lovitură la cap folosind o pușcă cu lunetă M700 cu luneta cerută la peste 40 de metri"
+            },
+            "ru": {
+                "5fd8aa3206fb3a6b8154a2c3": "Найти и нейтрализовать Штурмана в голову с расстояния более 40 метров, используя Remington M700 с условленным прицелом"
+            },
+            "sk": {
+                "5fd8aa3206fb3a6b8154a2c3": "Locate and neutralize Shturman with a headshot from over 40 meters away while using an M700 sniper rifle with the specified scope"
+            },
+            "tr": {
+                "5fd8aa3206fb3a6b8154a2c3": "Belirtilen dürbünle donatılmış bir M700 keskin nişancı tüfeği kullanarak, 40 metreden uzaktan Shturman'ı kafadan vurarak etkisiz hale getir"
+            },
+            "zh": {
+                "5fd8aa3206fb3a6b8154a2c3": "使用装有指定瞄具的M700狙击步枪从40米开外爆头击杀Shturman"
+            }
+        },
         "objectivePropertiesChanged": {
             "5fd8aa3206fb3a6b8154a2c3": {
                 "distance": {

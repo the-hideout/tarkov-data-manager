@@ -2009,7 +2009,7 @@ class UpdateQuestsJob extends DataJob {
                 if (spawn.BossName.toLowerCase() === mobName) {
                     return true;
                 }
-                if (spawn.BossEscortAmount !== '0' && spawn.BossEscortType.toLowerCase() === mobName) {
+                if (spawn.BossEscortAmount !== '0' && spawn.BossEscortType.toLowerCase() === mobName && spawn.BossName !== 'bossKnight') {
                     return true;
                 }
                 return !!spawn.Supports?.some(support => {
