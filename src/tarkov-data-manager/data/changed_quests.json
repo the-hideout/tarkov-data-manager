@@ -2111,5 +2111,113 @@
                 }
             ]
         }
+    },
+    "5d25e46e86f77409453bce7c": {
+        "name": "Ambulance",
+        "locale": {
+            "zh": {
+                "5d25e46e86f77409453bce7c name": "急救措施"
+            }
+        }
+    },
+    "5d25e48d86f77408251c4bfb": {
+        "name": "Shady Business",
+        "locale": {
+            "zh": {
+                "5d25e48d86f77408251c4bfb name": "黑幕交易"
+            }
+        }
+    },
+    "5d25e44f86f77443e625e385": {
+        "name": "The Huntsman Path - Eraser - Part 1",
+        "locale": {
+            "zh": {
+                "5d25e44f86f77443e625e385 name": "猎人之路 - 蒸发密令 - 1"
+            }
+        }
+    },
+    "5d25e2c386f77443e7549029": {
+        "name": "The Huntsman Path - Trophy",
+        "locale": {
+            "zh": {
+                "5d25e2c386f77443e7549029 name": "猎人之路 - 战利品"
+            }
+        }
+    },
+    "6613f3007f6666d56807c929": {
+        "name": "Drip-Out - Part 1",
+        "locale": {
+            "zh": {
+                "6613f3007f6666d56807c929 name": "人靠衣装 - 1"
+            }
+        }
+    },
+    "66151401efb0539ae10875ae": {
+        "name": "Drip-Out - Part 1",
+        "locale": {
+            "zh": {
+                "66151401efb0539ae10875ae name": "人靠衣装 - 1"
+            }
+        }
+    },
+    "6613f307fca4f2f386029409": {
+        "name": "Drip-Out - Part 1",
+        "locale": {
+            "zh": {
+                "6613f307fca4f2f386029409 name": "人靠衣装 - 2"
+            }
+        }
+    },
+    "6615141bfda04449120269a7": {
+        "name": "Drip-Out - Part 1",
+        "locale": {
+            "zh": {
+                "6615141bfda04449120269a7 name": "人靠衣装 - 2"
+            }
+        }
+    },
+    "675c1d6d59b0575973008fc7": {
+        "name": "Seizing the Initiative",
+        "locale": {
+            "zh": {
+                "675c1d6d59b0575973008fc7 name": "先声夺人"
+            }
+        }
+    },
+    "669fa38fad7f1eac2607ed46": {
+        "name": "One Less Loose End",
+        "locale": {
+            "zh": {
+                "669fa38fad7f1eac2607ed46 name": "悬结已解"
+            }
+        }
+    },
+    "669fa3910c828825de06d69f": {
+        "name": "A Healthy Alternative",
+        "locale": {
+            "zh": {
+                "669fa3910c828825de06d69f name": "健全替代"
+            }
+        }
+    },
+    "6764174c86addd02bc033d68": {
+        "name": "Connections Up North",
+        "objectivesChanged": {
+            "676418a60b9bcbe280972288": {
+                "count": 20
+            }
+        }
+    },
+    "608974af4b05530f55550c21": {
+        "name": "Inventory Check",
+        "locale": {
+            "zh": {
+                "608bd0a053b9dd01a116f474": "检查储备站兵营东楼（黑兵）的第一个军械库",
+                "608bd2465e0ef91ab810f98a": "检查储备站兵营东楼（黑兵）的值班室",
+                "608bd0c20637f21f9934b6e4": "检查储备站兵营东楼（黑兵）的第二个军械库",
+                "608bd136c61c4b541b381da3": "检查储备站兵营南楼（白兵）的第一个军械库",
+                "608bd149f597ad0a33574d74": "检查储备站兵营南楼（白兵）的第二个军械库"
+            }
+        }
     }
 }
