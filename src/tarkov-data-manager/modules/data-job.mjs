@@ -420,7 +420,7 @@ class DataJob {
         const oldName = newName.replace('.json', '_old.json');
         const folderName = path.dirname(newName);
         try {
-            fs.mkdirSync(folderName);
+            fs.mkdirSync(folderName, { recursive: true });
         } catch {}
         if (saveOld) {
             try {
