@@ -199,7 +199,6 @@ export const purgeCache = async (urls) => {
         }),
     };
     return fetch(`${BASE_URL}zones/a17204c79af55fcf05e4975f66e2490e/purge_cache`, requestOptions).then(r => r.json()).then(response => {
-        console.log(urls, response);
         if (response.success === false && response.errors) {
             //console.log(`Error purging ${urls.join(', ')}: ${response.errors.map(err => err.message).join(', ')}`);
             return Promise.reject(new Error(`${response.errors[0].message} (${response.errors[0].code}) purging ${urls.join(', ')}: `));
