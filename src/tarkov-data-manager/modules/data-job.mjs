@@ -358,7 +358,7 @@ class DataJob {
         if (options.locale) {
             await this.putStaticApiLocale(key, options.locale);
         }
-        if (!options.skipPurge && response.status !== 404) {
+        if (!options.skipPurge) {
             await this.purgeCachePrefix(publicPath);
         }
         this.writeDump(data, `v2/${key}`, false);
