@@ -159,22 +159,6 @@ app.use(maybe((req, res, next) => {
 
 const urlencodedParser = bodyParser.urlencoded({ extended: false })
 
-try {
-    fs.mkdirSync(path.join(import.meta.dirname, 'cache'));
-} catch (createError){
-    if(createError.code !== 'EEXIST'){
-        console.error(createError);
-    }
-}
-
-try {
-    fs.mkdirSync(path.join(import.meta.dirname, 'dumps'));
-} catch (createError){
-    if(createError.code !== 'EEXIST'){
-        console.error(createError);
-    }
-}
-
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }

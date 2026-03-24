@@ -784,6 +784,7 @@ class UpdateMapsJob extends DataJob {
                 kvName += `_${gameMode.name}`;
             }
             await this.cloudflarePut(this.kvData[gameMode.name], kvName);
+            await this.updateStaticApi(this.kvData[gameMode.name], gameMode.name);
         }
         return this.kvData;
     }
@@ -1514,6 +1515,70 @@ class UpdateMapsJob extends DataJob {
         this.notFoundNeededForHideout.push(id);
         return false;
     };
+    
+    async updateStaticApi(data, gameMode) {
+        const apiData = {maps: {}};
+        for (const map of structuredClone(data.Map)) {
+            apiData.maps[map.id] = map;
+            delete map.tarkovDataId;
+            for (const boss of map.bosses) {
+
+            }
+            for (const extract of map.extracts) {
+                delete extract.terrainElevation;
+            }
+            for (const transit of map.transits) {
+                delete transit.terrainElevation;
+            }
+            for (const lock of map.locks) {
+                delete lock.terrainElevation;
+            }
+            for (const hazard of map.hazards) {
+                delete hazard.terrainElevation;
+            }
+            for (const sw of map.switches) {
+                delete sw.terrainElevation;
+                delete sw.object_id;
+                delete sw.object_name;
+            }
+            delete map.btrRoutes;
+        }
+        apiData.goonReports = structuredClone(data.GoonReport);
+        apiData.mobs = structuredClone(data.MobInfo);
+        for (const mobId in apiData.mobs) {
+            const mob = apiData.mobs[mobId];
+            for (const it of mob.equipment) {
+                delete it.item_name;
+                it.attributes = this.objectifyAttributes(it.attributes);
+                for (const ci of it.contains) {
+                    delete ci.item_name;
+                    ci.attributes = this.objectifyAttributes(ci.attributes);
+                }
+            }
+            for (const it of mob.items) {
+                delete it.name;
+                it.attributes = this.objectifyAttributes(it.attributes);
+            }
+        }
+        apiData.lootContainers = structuredClone(data.LootContainer);
+        apiData.stationaryWeapons = structuredClone(data.StationaryWeapon);
+        await this.r2Put(`${gameMode}/maps`, 
+            {data: apiData, translations: [
+                '$.data.maps.*.name',
+                '$.data.maps.*.description',
+                '$.data.maps.*.enemies[*]',
+                '$.data.maps.*.bosses[*].spawnLocations[*].name',
+                '$.data.maps.*.extracts[*].name',
+                '$.data.maps.*.hazards[*].name',
+                '$.data.maps.*.switches[*].name',
+                '$.data.maps.*.transits[*].description',
+                '$.data.maps.*.btrStops[*].name',
+                '$.data.mobs.*.name',
+                '$.data.mobs.*.health[*].bodyPart',
+            ]},
+            {locale: data.locale},
+        );
+    }
 }
 
 const mapNames = {

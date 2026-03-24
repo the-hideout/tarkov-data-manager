@@ -311,8 +311,41 @@ class UpdateCraftsJob extends DataJob {
                 kvName += `_${gameMode.name}`;
             }
             await this.cloudflarePut(this.kvData[gameMode.name], kvName);
+            await this.updateStaticApi(this.kvData[gameMode.name], gameMode.name);
         }
         return this.kvData;
+    }
+
+    async updateStaticApi(data, gameMode) {
+        const apiData = structuredClone(data.Craft);
+        for (const craft of apiData) {
+            delete craft.station_id;
+            delete craft.source;
+            delete craft.sourceName;
+            for (const req of craft.requiredItems) {
+                delete req.name;
+                req.attributes = this.objectifyAttributes(req.attributes);
+            };
+            for (const req of craft.requiredQuestItems) {
+                delete req.name;
+                req.count ?? 1;
+            };
+            for (const req of craft.rewardItems) {
+                delete req.name;
+                req.attributes = this.objectifyAttributes(req.attributes);
+            };
+            craft.requirements = craft.requirements.map(req => {
+                if (req.type === 'stationLevel') {
+                    return;
+                }
+                if (req.stringValue) {
+                    req.value = req.stringValue;
+                    delete req.stringValue;
+                }
+                return req;
+            }).filter(Boolean);
+        }
+        await this.r2Put(`${gameMode}/crafts`, {data: apiData, translations: []});
     }
 }
 

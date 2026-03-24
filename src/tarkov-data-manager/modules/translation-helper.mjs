@@ -43,9 +43,6 @@ class TranslationHelper {
         }
         if (Array.isArray(key)) {
             for (const k of key) {
-                if (!this.locale[k]){
-                    this.locale[k] = {};
-                }
                 if (langCode && value) {
                     if (!this.locale[langCode]) {
                         this.locale[langCode] = {};
@@ -138,6 +135,14 @@ class TranslationHelper {
             //return Promise.reject(new Error(`Missing translation for ${key}`));
         }
         return target[langCode][key];
+    }
+
+    peekTranslation = (key, langCode = 'en') => {
+        const usedKey = this.translationKeyMap[key] ?? key;
+        if (typeof usedKey === 'function') {
+            return usedKey(key, langCode, this.locales[langCode]);
+        }
+        return this.locales[langCode][usedKey];
     }
 
     fillTranslations = async (target) => {

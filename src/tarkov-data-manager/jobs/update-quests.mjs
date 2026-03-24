@@ -608,6 +608,7 @@ class UpdateQuestsJob extends DataJob {
                 kvName += `_${gameMode.name}`;
             }
             await this.cloudflarePut(quests, kvName);
+            await this.updateStaticApi(quests, gameMode.name);
 
             this.logger.success(`Finished processing ${quests.Task.length} quests`);
         }
@@ -1497,23 +1498,21 @@ class UpdateQuestsJob extends DataJob {
                             obj.usingWeaponMods.push(modSet);
                         }
                     }
-                    if (cond.enemyHealthEffects && cond.enemyHealthEffects.length > 0) {
+                    if (cond.enemyHealthEffects?.length) {
                         obj.enemyHealthEffect = {
                             ...cond.enemyHealthEffects[0],
                             time: null,
                         };
                         if (cond.enemyHealthEffects[0].bodyParts) {
-                            obj.bodyParts = this.addTranslation(cond.enemyHealthEffects[0].bodyParts.map(part => `QuestCondition/Elimination/Kill/BodyPart/${part}`));
-                            obj.enemyHealthEffect.bodyParts = obj.bodyParts;
+                            obj.enemyHealthEffect.bodyParts = this.addTranslation(cond.enemyHealthEffects[0].bodyParts.map(part => `QuestCondition/Elimination/Kill/BodyPart/${part}`));
                         }
                         if (cond.enemyHealthEffects[0].effects) {
-                            obj.effects = this.addTranslation(cond.enemyHealthEffects[0].effects.map(eff => {
+                            obj.enemyHealthEffect.effects = this.addTranslation(cond.enemyHealthEffects[0].effects.map(eff => {
                                 if (eff === 'Stimulator') {
                                     return '5448f3a64bdc2d60728b456a Name';
                                 }
                                 return eff;
                             }));
-                            obj.enemyHealthEffect.effects = obj.effects;
                         }
                     }
                     let targetCode = cond.target;
@@ -1643,6 +1642,7 @@ class UpdateQuestsJob extends DataJob {
             if (obj.shotType) {
                 obj.type = 'shoot';
                 obj.playerHealthEffect = obj.healthEffect;
+                delete obj.healthEffect;
             } else if (obj.exitStatus) {
                 obj.type = 'extract';
             } else if (obj.healthEffect) {
@@ -2167,6 +2167,205 @@ class UpdateQuestsJob extends DataJob {
             itemIds.push(item.id);
         }
         return itemIds;
+    }
+
+    async updateStaticApi(data, gameMode) {
+        const apiData = {
+            tasks: {},
+            questItems: {},
+            achievements: {},
+        };
+        const fixRewards = (rewards) => {
+            for (const rew of rewards.traderStanding) {
+                rew.trader = rew.trader_id;
+                delete rew.trader_id;
+                delete rew.name;
+            }
+            for (const rew of rewards.items) {
+                delete rew.item_name;
+                delete rew.contains;
+                delete rew.base_item_id;
+                rew.attributes = this.objectifyAttributes(rew.attributes);
+            }
+            for (const unlock of rewards.offerUnlock) {
+                unlock.trader = unlock.trader_id;
+                delete unlock.trader_id;
+                delete unlock.trader_name;
+                delete unlock.item_name;
+                delete unlock.base_item_id;
+            }
+            for (const rew of rewards.skillLevelReward) {
+                rew.skill = rew.name;
+                delete rew.name;
+            }
+            rewards.traderUnlock = rewards.traderUnlock.map(rew => rew.trader_id);
+            for (const rew of rewards.craftUnlock) {
+                rew.station = rew.station_id;
+                delete rew.station_id;
+                delete rew.station_name;
+                rew.item = rew.items[0].id;
+                rew.count = rew.items[0].count;
+                delete rew.items;
+            }
+            for (const rew of rewards.customization) {
+                delete rew.__typename;
+            }
+        };
+        const fixObjectives = (objectives) => {
+            for (const obj of objectives) {
+                obj.maps = obj.map_ids;
+                delete obj.map_ids;
+                delete obj.zoneKeys;
+                delete obj.item_name;
+                delete obj.item;
+                delete obj.locationNames;
+                delete obj.target;
+                delete obj.quest_name;
+                for (const z of obj.zones ?? []) {
+                    if (obj.zoneNames?.includes(z.id)) {
+                        z.name = z.id;
+                    }
+                }
+                delete obj.zoneNames;
+                if (obj.map_ids) {
+                    obj.maps = obj.map_ids;
+                    delete obj.map_ids;
+                }
+                if (obj.skillLevel) {
+                    obj.skill = obj.skillLevel.name;
+                    obj.level = obj.skillLevel.level;
+                    delete obj.count;
+                    delete obj.skillLevel;
+                }
+                if (obj.type === 'visit') {
+                    delete obj.count;
+                }
+                if (obj.type === 'giveItem') {
+                    delete obj.zones;
+                    delete obj.maps;
+                }
+                if (obj.type === 'extract') {
+                    delete obj.zones;
+                }
+                if (obj.type === 'findQuestItem') {
+                    delete obj.zones;
+                }
+                if (obj.type === 'plantQuestItem') {
+                }
+                if (obj.type === 'giveQuestItem') {
+                    delete obj.zones;
+                    delete obj.possibleLocations;
+                }
+                if (obj.type === 'buildWeapon') {
+                    obj.buildAttributes = obj.attributes.reduce((atts, att) => {
+                        atts[att.name] = att.requirement;
+                        return atts;
+                    }, {});
+                    delete obj.attributes;
+                }
+                if (obj.containsAll) {
+                    obj.containsAll = obj.containsAll.map(cont => cont.id);
+                }
+                if (obj.containsOne) {
+                    obj.containsOne = obj.containsOne.map(cont => cont.id);
+                }
+                if (obj.containsCategory) {
+                    obj.containsCategory = obj.containsCategory.map(cont => cont.id);
+                }
+                if (obj.usingWeapon) {
+                    obj.usingWeapon = obj.usingWeapon.map(weap => {
+                        return weap.id;
+                    });
+                }
+                if (obj.usingWeaponMods) {
+                    obj.usingWeaponMods = obj.usingWeaponMods.reduce((modGroups, group) => {
+                        modGroups.push(group.map(mod => mod.id));
+                        return modGroups;
+                    }, []);
+                }
+                if (obj.type === 'findQuestItem' || obj.type === 'giveQuestItem') {
+                    obj.questItem = obj.item_id;
+                }
+                if (obj.trader_id) {
+                    obj.trader = obj.trader_id;
+                    delete obj.count;
+                    delete obj.zones;
+                    delete obj.maps;
+                }
+                delete obj.trader_id;
+                delete obj.trader_name;
+                delete obj.item_id;
+            }
+        };
+        for (const task of structuredClone(data.Task)) {
+            apiData.tasks[task.id] = task;
+            delete task.traderName;
+            task.map = task.location_id;
+            delete task.location_id;
+            delete task.locationName;
+            delete task.traderLevelRequirements;
+            for (const req of task.taskRequirements) {
+                delete req.name;
+            }
+            for (const req of task.traderRequirements) {
+                req.trader = req.trader_id;
+                delete req.trader_id;
+                delete req.name;
+                delete req.level;
+            }
+            fixObjectives(task.objectives);
+            fixObjectives(task.failConditions);
+            fixRewards(task.startRewards);
+            fixRewards(task.finishRewards);
+            fixRewards(task.failureOutcome);
+            for (const nk of task.neededKeys ?? []) {
+                nk.map = nk.map_id;
+                nk.keys = nk.key_ids;
+                delete nk.map_id;
+                delete nk.key_ids;
+            }
+        }
+        apiData.questItems = structuredClone(data.QuestItem);
+        for (const ach of structuredClone(data.Achievement)) {
+            apiData.achievements[ach.id] = ach;
+        }
+        apiData.prestige = structuredClone(data.Prestige);
+        for (const prestige of apiData.prestige) {
+            fixObjectives(prestige.conditions);
+            fixRewards(prestige.rewards);
+        }
+        await this.r2Put(`${gameMode}/tasks`,
+            {data: apiData, translations: [
+                '$.data.tasks.*.name',
+                '$.data.tasks..*.objectives[*].description',
+                '$.data.tasks.*.objectives[*].exitName',
+                '$.data.tasks.*.objectives[*].exitStatus[*]',
+                '$.data.tasks.*.objectives[*].zones[*].name',
+                '$.data.tasks.*.objectives[*].targetNames[*]',
+                '$.data.tasks.*.objectives[*].bodyParts[*]',
+                "$.data.tasks.*.objectives.*.*.bodyParts[*]",
+                "$.data.tasks.*.objectives[*].healthEffect.effects[*]",
+                "$.data.tasks.*.objectives[*].playerHealthEffect.effects[*]",
+                "$.data.tasks.*.objectives[*].enemyHealthEffect.effects[*]",
+                "$.data.tasks.*.startRewards[*].customization[*].name",
+                "$.data.tasks.*.finishRewards[*].customization[*].name",
+                "$.data.tasks.*.failureOutcome[*].customization[*].name",
+                "$.data.tasks.*.startRewards[*].customization[*].customizationTypeName",
+                "$.data.tasks.*.finishRewards[*].customization[*].customizationTypeName",
+                "$.data.tasks.*.failureOutcome[*].customization[*].customizationTypeName",
+                '$.data.questItems.*.name',
+                '$.data.questItems.*.shortName',
+                '$.data.questItems.*.description',
+                '$.data.achievemnts.*.name',
+                '$.data.achievemnts.*.description',
+                '$.data.achievemnts.*.side',
+                '$.data.achievemnts.*.rarity',
+                '$.data.prestige[*].name',
+                '$.data.prestige[*].conditions[*].description',
+                '$.data.prestige[*].transferSettings[*].name',
+            ]},
+            {locale: data.locale},
+        );
     }
 }
 
