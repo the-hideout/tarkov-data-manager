@@ -343,7 +343,7 @@ class DataJob {
         const response = await fetch(publicPath);
         if (response.ok) {
             const currentValue = await response.text();
-            if (dataString === currentValue && false) {
+            if (dataString === currentValue) {
                 this.logger.log(`Value of ${key} has not changed; skipping upload`);
                 return;
             }
