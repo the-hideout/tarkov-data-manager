@@ -903,6 +903,10 @@ class UpdateItemCacheJob extends DataJob {
                 item.properties.armorMaterial = item.properties.armor_material_id;
                 delete item.properties.armor_material_id;
             }
+            if (item.properties.base_item_id) {
+                item.properties.baseItem = item.properties.base_item_id;
+                delete item.properties.base_item_id;
+            }
             for (const slot of item.properties.armorSlots ?? []) {
                 slot.armorMaterial = slot.armor_material_id;
                 delete slot.armor_material_id;
