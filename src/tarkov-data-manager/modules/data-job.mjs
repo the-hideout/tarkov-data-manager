@@ -138,6 +138,7 @@ class DataJob {
         }
         this.discordAlertQueue = [];
         this.queries = [];
+        this.purgeList = [];
         this.logger.start();
         let returnValue;
         let throwError = false;
@@ -355,11 +356,12 @@ class DataJob {
             Body: dataString,
         });
         const uploadTime = new Date() - start;
+        this.purgeList.push(publicPath);
         if (options.locale) {
             await this.putStaticApiLocale(key, options.locale);
         }
         if (!options.skipPurge) {
-            await this.purgeCachePrefix(publicPath);
+            await this.purgeCachePrefix(this.purgeList);
         }
         this.writeDump(data, `v2/${key}`, false);
         this.logger.success(`Successful R2 put of ${key} in ${uploadTime} ms (${dataString.length.toLocaleString()} bytes)`);
