@@ -185,6 +185,17 @@ const deleteValues = async (keys) => {
     return response.json();
 };
 
+const chunkArray = (myArray, chunkSize) => {
+    const chunks = [];
+
+    for (let i = 0; i < myArray.length; i += chunkSize) {
+        const chunk = myArray.slice(i, i + chunkSize);
+        chunks.push(chunk);
+    }
+
+    return chunks;
+};
+
 export const purgeCache = async (urls) => {
     if (typeof urls === 'string') {
         urls = [urls];
@@ -261,22 +272,28 @@ const cloudflare = {
         urlPrefixes = urlPrefixes.map(prefix => {
             return prefix.replace('http://', '').replace('https://', '');
         });
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
-            },
-            body: JSON.stringify({
-                prefixes: urlPrefixes
-            }),
-        };
-        return fetch(`${BASE_URL}zones/a17204c79af55fcf05e4975f66e2490e/purge_cache`, requestOptions).then(r => r.json()).then(response => {
-            if (response.success === false && response.errors) {
-                //console.log(`Error purging ${urls.join(', ')}: ${response.errors.map(err => err.message).join(', ')}`);
-                return Promise.reject(new Error(`${response.errors[0].message} (${response.errors[0].code}) purging ${urlPrefixes.join(', ')}: `));
-            }
-            return response;
-        });
+        const prefixChunks = chunkArray(urlPrefixes, 100);
+        const responses = [];
+        for (const prefixes of prefixChunks) {
+            const requestOptions = {
+                method: 'POST',
+                headers: {
+                    'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
+                },
+                body: JSON.stringify({
+                    prefixes: prefixes
+                }),
+            };
+            const purgeResposne = fetch(`${BASE_URL}zones/a17204c79af55fcf05e4975f66e2490e/purge_cache`, requestOptions).then(r => r.json()).then(response => {
+                if (response.success === false && response.errors) {
+                    //console.log(`Error purging ${urls.join(', ')}: ${response.errors.map(err => err.message).join(', ')}`);
+                    return Promise.reject(new Error(`${response.errors[0].message} (${response.errors[0].code}) purging ${urlPrefixes.join(', ')}: `));
+                }
+                return response;
+            });
+            responses.push(purgeResposne);
+        }
+        return responses;
     },
     //getOldKeys: getOldKeys,
     //delete: deleteValue,
