@@ -109,9 +109,11 @@ class UpdateHistoricalPricesJob extends DataJob {
                 purgeUrls.push(url);
             }));
             if (puts.length >= 100) {
+                await Promise.all(puts);
                 puts.length = 0;
             }
         }
+        await Promise.all(puts);
         await this.purgeCachePrefix(purgeUrls);
     }
 }
