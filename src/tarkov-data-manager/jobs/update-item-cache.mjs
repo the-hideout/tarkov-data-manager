@@ -967,7 +967,7 @@ class UpdateItemCacheJob extends DataJob {
             ]},
             {locale: this.itemsLocale.locale},
         );
-        await this.r2Put(`${gameMode}/lang`, {data: Object.keys(this.itemsLocale.locale).sort(), translations: []});
+        await this.r2Put(`lang`, {data: Object.keys(this.itemsLocale.locale).sort(), translations: []});
     }
 }
 
