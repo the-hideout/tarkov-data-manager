@@ -918,8 +918,10 @@ class UpdateItemCacheJob extends DataJob {
                 effect.skill = effect.skillName;
                 delete effect.skillName;
             }
-            item.defaultAmmo = item.default_ammo_id;
-            delete item.default_ammo_id;
+            if (item.properties.default_ammo_id) {
+                item.properties.defaultAmmo = item.properties.default_ammo_id;
+                delete item.properties.default_ammo_id;
+            }
         }
         apiData.itemCategories = structuredClone(data.ItemCategory);
         for (const id in apiData.categories) {
