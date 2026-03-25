@@ -84,7 +84,9 @@ class UpdateHistoricalPricesJob extends DataJob {
     
             this.kvData[gameMode.name][this.apiType] = itemPriceData;
             await this.cloudflarePut(this.kvData[gameMode.name], this.kvName, gameMode.name);
-            await this.updateStaticApi(this.kvData[gameMode.name], gameMode.name);
+            await this.updateStaticApi(this.kvData[gameMode.name], gameMode.name).catch(error => {
+                this.logger.error(`Error updating JSON API: ${error}`);
+            });
             this.logger.log(`Uploaded ${gameMode.name} historical prices`);
         }
         this.logger.success('Done with historical prices');
