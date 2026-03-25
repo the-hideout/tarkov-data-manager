@@ -138,7 +138,6 @@ class DataJob {
         }
         this.discordAlertQueue = [];
         this.queries = [];
-        this.purgeList = [];
         this.logger.start();
         let returnValue;
         let throwError = false;
@@ -356,12 +355,11 @@ class DataJob {
             Body: dataString,
         });
         const uploadTime = new Date() - start;
-        this.purgeList.push(publicPath);
         if (options.locale) {
             await this.putStaticApiLocale(key, options.locale);
         }
         if (!options.skipPurge) {
-            await this.purgeCachePrefix(this.purgeList);
+            await this.purgeCachePrefix(publicPath);
         }
         this.writeDump(data, `v2/${key}`, false);
         this.logger.success(`Successful R2 put of ${key} in ${uploadTime} ms (${dataString.length.toLocaleString()} bytes)`);
@@ -392,7 +390,7 @@ class DataJob {
 
     putStaticApiLocale = async (key, locale) => {
         const apiLocale = this.getStaticApiLocale(locale);
-        await Promise.all(Object.keys(apiLocale).map(langCode => {
+        return Promise.all(Object.keys(apiLocale).map(langCode => {
             return this.r2Put(`${key}_${langCode}`, {data: apiLocale[langCode]}, {skipPurge: true});
         }));
     }

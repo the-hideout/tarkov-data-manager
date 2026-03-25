@@ -94,6 +94,7 @@ class UpdateHistoricalPricesJob extends DataJob {
     async updateStaticApi(data, gameMode) {
         const itemIds = [...new Set([...Object.keys(data.historicalPricePoint), ...Object.keys(this.archivedPrices)])];
         const puts = [];
+        const purgeUrls = [];
         for (const id of itemIds) {
             puts.push(this.r2Put(`${gameMode}/prices/${id}`, {
                 data: [
@@ -101,13 +102,17 @@ class UpdateHistoricalPricesJob extends DataJob {
                     ...this.archivedPrices[id] ?? [],
                 ],
                 translations: []
+            }, {skipPurge: true}).then(url => {
+                if (!url) {
+                    return;
+                }
+                purgeUrls.push(url);
             }));
             if (puts.length >= 100) {
-                await Promise.all(puts);
                 puts.length = 0;
             }
         }
-        await Promise.all(puts);
+        await this.purgeCachePrefix(purgeUrls);
     }
 }
 
