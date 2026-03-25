@@ -255,6 +255,9 @@ const cloudflare = {
         if (typeof urlPrefixes === 'string') {
             urlPrefixes = [urlPrefixes];
         }
+        if (!urlPrefixes.length) {
+            return;
+        }
         urlPrefixes = urlPrefixes.map(prefix => {
             return prefix.replace('http://', '').replace('https://', '');
         });
