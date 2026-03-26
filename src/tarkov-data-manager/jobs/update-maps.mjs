@@ -1522,7 +1522,16 @@ class UpdateMapsJob extends DataJob {
             apiData.maps[map.id] = map;
             delete map.tarkovDataId;
             for (const spawn of map.bosses) {
-                spawn.boss = spawn.id;
+                spawn.mob = spawn.id;
+                //delete spawn.id;
+                for (const escort of spawn.escorts) {
+                    escort.mob = escort.id;
+                    //delete escort.id;
+                }
+                for (const support of spawn.supports) {
+                    support.mob = support.id;
+                    //delete support.id;
+                }
             }
             for (const extract of map.extracts) {
                 delete extract.terrainElevation;
