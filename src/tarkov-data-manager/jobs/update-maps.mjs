@@ -1521,8 +1521,8 @@ class UpdateMapsJob extends DataJob {
         for (const map of structuredClone(data.Map)) {
             apiData.maps[map.id] = map;
             delete map.tarkovDataId;
-            for (const boss of map.bosses) {
-
+            for (const spawn of map.bosses) {
+                spawn.boss = spawn.id;
             }
             for (const extract of map.extracts) {
                 delete extract.terrainElevation;
