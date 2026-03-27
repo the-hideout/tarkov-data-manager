@@ -960,7 +960,6 @@ class UpdateItemCacheJob extends DataJob {
                 '$.data.items.*.description',
                 '$.data.items.*.properties.slots[*].name',
                 '$.data.items.*.properties.zones[*]',
-                '$.data.items.*.properties.headZones[*]',
                 '$.data.items.*.properties.armorType',
                 '$.data.items.*.properties.armorSlots[*].name',
                 '$.data.items.*.properties.armorSlots[*].zones[*]',
