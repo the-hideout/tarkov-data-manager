@@ -922,6 +922,10 @@ class UpdateItemCacheJob extends DataJob {
                 item.properties.defaultAmmo = item.properties.default_ammo_id;
                 delete item.properties.default_ammo_id;
             }
+            if (item.properties.headZones) {
+                item.properties.zones = item.properties.headZones;
+                delete item.properties.headZones;
+            }
         }
         apiData.itemCategories = structuredClone(data.ItemCategory);
         for (const id in apiData.itemCategories) {
