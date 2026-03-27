@@ -1550,6 +1550,11 @@ class UpdateMapsJob extends DataJob {
                 delete sw.object_id;
                 delete sw.object_name;
             }
+            if (map.artillery?.zones) {    
+                for (const zone of map.artillery?.zones) {
+                    delete zone.radius;
+                }
+            }
             delete map.btrRoutes;
         }
         apiData.goonReports = structuredClone(data.GoonReport);

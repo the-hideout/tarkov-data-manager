@@ -2221,6 +2221,7 @@ class UpdateQuestsJob extends DataJob {
                 delete obj.locationNames;
                 delete obj.target;
                 delete obj.quest_name;
+                delete obj.containsOne;
                 for (const z of obj.zones ?? []) {
                     if (obj.zoneNames?.includes(z.id)) {
                         z.name = z.id;
@@ -2265,9 +2266,6 @@ class UpdateQuestsJob extends DataJob {
                 }
                 if (obj.containsAll) {
                     obj.containsAll = obj.containsAll.map(cont => cont.id);
-                }
-                if (obj.containsOne) {
-                    obj.containsOne = obj.containsOne.map(cont => cont.id);
                 }
                 if (obj.containsCategory) {
                     obj.containsCategory = obj.containsCategory.map(cont => cont.id);

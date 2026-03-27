@@ -334,16 +334,7 @@ class UpdateCraftsJob extends DataJob {
                 delete req.name;
                 req.attributes = this.objectifyAttributes(req.attributes);
             };
-            craft.requirements = craft.requirements.map(req => {
-                if (req.type === 'stationLevel') {
-                    return;
-                }
-                if (req.stringValue) {
-                    req.value = req.stringValue;
-                    delete req.stringValue;
-                }
-                return req;
-            }).filter(Boolean);
+            delete craft.requirements;
         }
         await this.r2Put(`${gameMode}/crafts`, {data: apiData, translations: []});
     }

@@ -930,6 +930,10 @@ class UpdateItemCacheJob extends DataJob {
                 item.properties.material = item.properties.armorMaterial;
                 delete item.properties.armorMaterial;
             }
+            delete item.properties.accuracy;
+            delete item.accuracy;
+            delete item.properties.recoil;
+            delete item.bsgCategoryId;
         }
         apiData.itemCategories = structuredClone(data.ItemCategory);
         for (const id in apiData.itemCategories) {
