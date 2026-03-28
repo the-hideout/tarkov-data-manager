@@ -1589,6 +1589,9 @@ class UpdateMapsJob extends DataJob {
                 '$.data.maps.*.btrStops[*].name',
                 '$.data.mobs.*.name',
                 '$.data.mobs.*.health[*].bodyPart',
+                '$.data.lootContainers.*.name',
+                '$.data.stationaryWeapons.*.name',
+                '$.data.stationaryWeapons.*.shortName',
             ]},
             {locale: data.locale},
         );
