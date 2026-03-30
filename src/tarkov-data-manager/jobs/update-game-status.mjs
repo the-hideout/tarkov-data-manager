@@ -52,7 +52,14 @@ class UpdateGameStatusJob extends DataJob {
             }
         };
         await this.cloudflarePut();
+        await this.updateStaticApi(this.kvData);
         return this.kvData;
+    }
+
+    async updateStaticApi(data) {
+        const apiData = structuredClone(data.ServerStatus);
+        await this.r2Put("status", {data: apiData, translations: []});
+        //await this.putStaticApiLocale(`${gameMode}/hideout`, data.locale);
     }
 }
 
