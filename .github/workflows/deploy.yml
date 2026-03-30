@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: deployment check
-        uses: github/branch-deploy@v11
+        uses: github/branch-deploy@v11.1.2
         id: deployment-check
         with:
           merge_deploy_mode: "true"
@@ -32,5 +32,4 @@ jobs:
           username: ${{ secrets.SSH_USERNAME_V2 }}
           key: ${{ secrets.SSH_KEY_V2 }}
           port: ${{ secrets.SSH_PORT }}
-          script_stop: true
           script: ~/tarkov-data-manager/script/deploy -r "main" -d "/home/ubuntu/tarkov-data-manager"
