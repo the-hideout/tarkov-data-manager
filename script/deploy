@@ -6,6 +6,7 @@ set -e
 
 BASE_BRANCH="main"
 DC_CMD="docker-compose"
+LOCK_FILE="/tmp/the-hideout-deploy.lock"
 
 function usage() {
   echo -e "\t ============================== script/deploy usage =============================="
@@ -79,6 +80,23 @@ function checkout_ref() {
   fi
 }
 
+function ensure_ingress_network() {
+  if ! sudo docker network inspect ingress >/dev/null 2>&1; then
+    echo "[i] creating shared ingress docker network"
+    sudo docker network create ingress >/dev/null
+  fi
+}
+
+function acquire_deploy_lock() {
+  if command -v flock >/dev/null 2>&1; then
+    exec 9>"$LOCK_FILE"
+    echo "[i] waiting for shared deploy lock: $LOCK_FILE"
+    flock 9
+  else
+    echo "[!] flock is not installed; continuing without a shared deploy lock"
+  fi
+}
+
 function main() {
   parse_args "$@"
 
@@ -97,6 +115,8 @@ function main() {
     cd $dir || { echo "ERROR: failed to change directory to $dir"; exit 1; }
   fi
 
+  acquire_deploy_lock
+
   # debug info for deployments
   echo "[i] current working directory: $(pwd)"
   echo "[i] current commit SHA: $(git rev-parse HEAD)"
@@ -111,16 +131,14 @@ function main() {
   fi
 
   echo "[i] checked out commit SHA to deploy: $(git rev-parse HEAD)"
+  ensure_ingress_network
 
   ############################
   # DEPLOYMENT LOGIC
   ############################
 
-  echo "[-] Killing old docker processes"
-  sudo -E bash -c "source ~/.profile && $DC_CMD -f docker-compose.yml -f docker-compose.prod.yml down -v -t 1"
-
-  echo "[i] Building docker containers"
-  sudo -E bash -c "source ~/.profile && $DC_CMD -f docker-compose.yml -f docker-compose.prod.yml up --build -d"
+  echo "[i] Recreating docker containers"
+  sudo -E bash -c "source ~/.profile && $DC_CMD -f docker-compose.yml -f docker-compose.prod.yml up --build -d --remove-orphans"
 
   echo "[+] Containers are now running!"
 }

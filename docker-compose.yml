@@ -11,9 +11,6 @@ services:
     env_file: 
       - ./src/tarkov-data-manager/config.env
       - ./src/tarkov-data-manager/creds.env
-    ports:
-      - 4000:4000
-      - 5000:5000
     volumes:
       - ./src/tarkov-data-manager/settings:/app/settings
       - ./src/tarkov-data-manager/cache:/app/cache
@@ -22,27 +19,6 @@ services:
       - ./src/tarkov-data-manager/node-logs:/home/node/.npm/_logs
     depends_on:
       - database
-
-  caddy:
-    container_name: caddy-service
-    restart: unless-stopped
-    build:
-      context: ./src/caddy
-      dockerfile: ./Dockerfile
-    ports:
-      - 80:80
-      - 443:443
-      - 8443:8443
-    volumes:
-      - ./data/caddy_data:/data
-      - ./data/caddy_config:/config
-    depends_on:
-      - tarkov_data_manager
-    environment:
-      PROXY_BACKEND: tarkov_data_manager
-      PROXY_PORT: 4000
-      PROXY_PORT_WS: 5000
-      DOMAIN: ${DOMAIN}
 
   database:
     build:
@@ -69,8 +45,6 @@ services:
       - database
 
 volumes:
-  caddy_data:
-  caddy_config:
   settings:
   cache:
   logs:
