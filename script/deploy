@@ -79,6 +79,13 @@ function checkout_ref() {
   fi
 }
 
+function ensure_ingress_network() {
+  if ! sudo docker network inspect ingress >/dev/null 2>&1; then
+    echo "[i] creating shared ingress docker network"
+    sudo docker network create ingress >/dev/null
+  fi
+}
+
 function main() {
   parse_args "$@"
 
@@ -111,6 +118,7 @@ function main() {
   fi
 
   echo "[i] checked out commit SHA to deploy: $(git rev-parse HEAD)"
+  ensure_ingress_network
 
   ############################
   # DEPLOYMENT LOGIC

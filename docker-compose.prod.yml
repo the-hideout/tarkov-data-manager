@@ -6,6 +6,9 @@ services:
   tarkov_data_manager:
     environment:
       NODE_ENV: production
+    networks:
+      - default
+      - ingress
 
   database:
     env_file:
@@ -37,3 +40,8 @@ volumes:
       o: bind
       type: none
       device: ./src/db/prod_certs # host location
+
+networks:
+  ingress:
+    name: ingress
+    external: true
