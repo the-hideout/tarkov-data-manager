@@ -17,7 +17,7 @@ src/tarkov-data-manager/node-logs/*
 src/tarkov-data-manager/generated-images
 src/tarkov-data-manager/generated-images/*
 src/tarkov-data-manager/public/data/*.json
-src/tarkov-data-manager/dumps/*.json
+src/tarkov-data-manager/dumps/*
 
 # Terraform
 terraform.auto.tfvars.json

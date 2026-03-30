@@ -402,6 +402,7 @@ class UpdateTraderOffersJob extends DataJob {
             }
             await this.cloudflarePut(cashOfferData[gameMode.name], `trader_price_data${kvSuffix}`);
             await this.cloudflarePut(barterData[gameMode.name], `barter_data${kvSuffix}`);
+            await this.updateStaticApi(cashOfferData[gameMode.name], barterData[gameMode.name], gameMode.name);
         }
         return {...cashOfferData, ...barterData};
     }
@@ -475,6 +476,51 @@ class UpdateTraderOffersJob extends DataJob {
             return true;
         }
         return false;
+    }
+
+    async updateStaticApi(cashData, barterData, gameMode) {
+        const apiCashData = structuredClone(cashData.TraderCashOffer);
+        for (const itemId in apiCashData) {
+            for (const offer of apiCashData[itemId]) {
+                offer.item = offer.id;
+                offer.id = offer.offer_id;
+                delete offer.offer_id;
+                delete offer.item_name;
+                offer.trader = offer.vendor.trader;
+                offer.minTraderLevel = offer.vendor.minTraderLevel;
+                offer.restockAmount = offer.vendor.restockAmount;
+                offer.buyLimit = offer.vendor.buyLimit;
+                delete offer.vendor;
+                delete offer.source;
+                offer.questUnlock = offer.quest_unlock_id;
+                delete offer.quest_unlock;
+                delete offer.quest_unlock_id;
+                delete offer.requirements;
+            }
+        }
+        await this.r2Put(`${gameMode}/trader_cash_offers`, {data: apiCashData, translations: []});
+        //await this.putStaticApiLocale(`${gameMode}/trader_cash_offers`, data.locale);
+        const apiBarterData = structuredClone(barterData.Barter);
+        for (const barter of apiBarterData) {
+            barter.trader = barter.trader_id;
+            delete barter.trader_id;
+            delete barter.trader_name;
+            delete barter.source;
+            delete barter.sourceName;
+            barter.minTraderLevel = barter.level;
+            delete barter.level;
+            for (const req of barter.requiredItems) {
+                delete req.name;
+                req.attributes = this.objectifyAttributes(req.attributes);
+            };
+            for (const req of barter.rewardItems) {
+                delete req.name;
+                req.attributes = this.objectifyAttributes(req.attributes);
+            };
+            delete barter.requirements;
+        }
+        await this.r2Put(`${gameMode}/barters`, {data: apiBarterData, translations: []});
+        //await this.putStaticApiLocale(`${gameMode}/barters`, data.locale);
     }
 }
 
