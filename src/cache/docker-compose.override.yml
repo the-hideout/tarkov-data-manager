@@ -1,0 +1,16 @@
+# To build the entire stack run 'make run'
+
+services:
+  cache:
+    environment:
+      GIN_MODE: debug
+    networks:
+      - cache
+  
+  redis:
+    networks:
+      - cache
+
+networks:
+  cache:
+    name: cache

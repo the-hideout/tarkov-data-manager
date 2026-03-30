@@ -1,0 +1,22 @@
+name: acceptance
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance:
+    name: acceptance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: acceptance
+        run: script/acceptance

@@ -1,0 +1,20 @@
+{
+    "type": "object",
+    "properties": {
+        "redis_host": {
+            "type": "string"
+        },
+        "redis_port": {
+            "type": "integer"
+        },
+        "ttl": {
+            "type": "integer"
+        }
+    },
+    "required": [
+        "redis_host",
+        "redis_port",
+        "ttl"
+    ],
+    "additionalProperties": false
+}

@@ -1,0 +1,13 @@
+__pycache__
+creds.env
+*.pem
+
+# container volume files
+data/*
+!data/.gitkeep
+
+# Terraform
+terraform.auto.tfvars.json
+terraform/.terraform/providers
+**/.terraform/*
+src/cache/cache

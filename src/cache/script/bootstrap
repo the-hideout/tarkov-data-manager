@@ -1,0 +1,37 @@
+#! /usr/bin/env bash
+
+set -e
+
+# COLORS
+OFF='\033[0m'
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+PURPLE='\033[0;35m'
+
+# set the working directory to the root of the project
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
+
+# Save the current directory
+ORIGINAL_DIR="$(pwd)"
+
+# Function to cleanup and return to original directory
+cleanup() {
+    echo -e "\n${BLUE}Returning to original directory...${OFF}"
+    cd "$ORIGINAL_DIR"
+}
+
+# Set trap to ensure cleanup happens on exit, interrupt, or error
+trap cleanup EXIT INT TERM
+
+# enter the project dir
+echo -e "${BLUE}Entering cache directory...${OFF}"
+cd "$DIR/src/cache"
+
+echo "Bootstrapping the project..."
+
+go mod tidy
+go mod vendor
+go mod verify
+
+echo "Done!"

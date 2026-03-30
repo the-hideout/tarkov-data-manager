@@ -1,0 +1,46 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  deployment-check:
+    runs-on: ubuntu-latest
+    outputs: # set outputs for use in downstream jobs
+      continue: ${{ steps.deployment-check.outputs.continue }}
+      sha: ${{ steps.deployment-check.outputs.sha }}
+
+    steps:
+      # https://github.com/github/branch-deploy/blob/d3c24bd92505e623615b75ffdfac5ed5259adbdb/docs/merge-commit-strategy.md
+      - name: deployment check
+        uses: github/branch-deploy@v10
+        id: deployment-check
+        with:
+          merge_deploy_mode: "true"
+          environment: production
+
+  deploy:
+    if: ${{ needs.deployment-check.outputs.continue == 'true' }}
+    needs: deployment-check
+    environment: production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.deployment-check.outputs.sha }}
+
+      - name: SSH Remote Deploy
+        uses: appleboy/ssh-action@2ead5e36573f08b82fbfce1504f1a4b05a647c6f # pin@v1.2.2
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: ~/cache/script/deploy -r "main" -d "/home/${{ secrets.SSH_USERNAME }}/cache"

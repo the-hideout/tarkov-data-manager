@@ -1,0 +1,26 @@
+name: config validation
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  json-yaml-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: json-yaml-validate
+        uses: GrantBirki/json-yaml-validate@v3.3.0
+        with:
+          comment: "true"
+          json_schema: "config/schema.json"
+          base_dir: src/cache
+          json_exclude_regex: ".*/vendor/.*"
+          yaml_exclude_regex: ".*/vendor/.*"

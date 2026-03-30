@@ -1,0 +1,27 @@
+name: test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'src/cache/go.mod'
+
+      - name: bootstrap
+        run: script/bootstrap
+    
+      - name: test
+        run: script/test
