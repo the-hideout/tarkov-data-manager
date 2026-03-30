@@ -32,10 +32,5 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
-    environment:
-      SENTRY_DSN: ${SENTRY_DSN:-}
-      SENTRY_ENVIRONMENT: ${SENTRY_ENVIRONMENT:-}
-      SENTRY_RELEASE: ${SENTRY_RELEASE:-cache@local}
-      SENTRY_TRACE_RATE: ${SENTRY_TRACE_RATE:-1.0}
     depends_on:
       - redis

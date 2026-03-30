@@ -79,6 +79,30 @@ function checkout_ref() {
   fi
 }
 
+function ensure_required_files() {
+  required_files=(
+    "./src/tarkov-data-manager/config.env"
+    "./src/tarkov-data-manager/creds.env"
+    "./src/caddy/creds.env"
+    "./src/db/creds.env"
+    "./src/backup/config.env"
+  )
+
+  missing_files=()
+
+  for file in "${required_files[@]}"; do
+    if [[ ! -f "$file" ]]; then
+      missing_files+=("$file")
+    fi
+  done
+
+  if (( ${#missing_files[@]} > 0 )); then
+    echo "ERROR: deployment aborted because required env/config files are missing:"
+    printf ' - %s\n' "${missing_files[@]}"
+    exit 1
+  fi
+}
+
 function main() {
   parse_args "$@"
 
@@ -111,6 +135,7 @@ function main() {
   fi
 
   echo "[i] checked out commit SHA to deploy: $(git rev-parse HEAD)"
+  ensure_required_files
 
   ############################
   # DEPLOYMENT LOGIC

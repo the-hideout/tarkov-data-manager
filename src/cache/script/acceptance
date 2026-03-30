@@ -1,14 +1,46 @@
 #!/bin/bash
 
+set -e
+
 # COLORS
 OFF='\033[0m'
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
+YELLOW='\033[1;33m'
 
 # set the working directory to the root of the project
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && cd .. && pwd )"
+
+# Save the current directory
+ORIGINAL_DIR="$(pwd)"
+
+cleanup() {
+    echo -e "\n${BLUE}Cleaning up cache acceptance stack...${OFF}"
+    cd "$DIR"
+    docker compose down -v -t 1 >/dev/null 2>&1 || true
+    echo -e "${BLUE}Returning to original directory...${OFF}"
+    cd "$ORIGINAL_DIR"
+}
+
+trap cleanup EXIT INT TERM
+
+run_curl_with_timeout() {
+    if command -v timeout >/dev/null 2>&1; then
+        timeout 30s curl "$@"
+        return
+    fi
+
+    if command -v gtimeout >/dev/null 2>&1; then
+        gtimeout 30s curl "$@"
+        return
+    fi
+
+    curl "$@"
+}
+
+cd "$DIR"
 
 # start the docker compose stack
 make run
@@ -1547,7 +1579,11 @@ echo -e "\n${PURPLE}=== SIZE AND MEMORY LIMITS ===${OFF}"
 # Test extremely large JSON payload (10MB) - might hit server limits
 echo -e "Testing extremely large payload (10MB)..."
 huge_value=$(printf 'X%.0s' {1..10485760})
-response=$(timeout 30s curl --insecure --location --request POST "http://localhost:${HTTP_PORT}/api/cache" --header 'Content-Type: application/json' --data-raw "{\"key\": \"huge\", \"value\": \"$huge_value\", \"ttl\": \"30\"}" -w "%{http_code}" -s 2>/dev/null)
+cat > /tmp/huge_payload_ttl.json << EOF
+{"key": "huge", "value": "$huge_value", "ttl": "30"}
+EOF
+response=$(run_curl_with_timeout --insecure --location --request POST "http://localhost:${HTTP_PORT}/api/cache" --header 'Content-Type: application/json' --data @/tmp/huge_payload_ttl.json -w "%{http_code}" -s 2>/dev/null)
+rm -f /tmp/huge_payload_ttl.json
 status_code=$(echo "$response" | sed 's/.*\([0-9][0-9][0-9]\)$/\1/')
 
 if [[ $status_code -eq 200 ]]; then

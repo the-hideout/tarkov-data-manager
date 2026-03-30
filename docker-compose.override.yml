@@ -19,10 +19,6 @@ services:
     environment:
       DB_PASS: password
 
-  caddy:
-    environment:
-      DOMAIN: localhost
-
 volumes:
   db_data_dev:
     driver: local

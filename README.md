@@ -13,9 +13,10 @@ It is a web application that allows you to do the following:
 
 ## Components 🛠️
 
-This repo contains two main components:
+This repo contains three main components:
 
 - The **Tarkov Data Manager** - Web application for managing Tarkov game data and scanners.
+- The **Cache Service** - Go + Redis service for caching GraphQL responses served at `cache.tarkov.dev`.
 - The **Caddy Reverse Proxy** - Reverse proxy for the Tarkov Data Manager, handles TLS.
 
 ### Tarkov Data Manager
@@ -55,12 +56,16 @@ First, edit the `src/tarkov-data-manager/creds.env` file to include your proper 
 
 > An example of this file can be found at [`src/tarkov-data-manager/creds.env.example`](src/tarkov-data-manager/creds.env.example).
 
+Then create `src/caddy/creds.env` with the manager/cache domains and cache basic-auth credentials.
+
+> An example of this file can be found at [`src/caddy/creds.env.example`](src/caddy/creds.env.example).
+
 You now have two options to start the docker-compose stack (both do the exact same thing):
 
 - `make run`
 - `docker-compose up --build`
 
-Browse to your web app when it starts up [localhost](https://localhost).
+Browse to your web app when it starts up at [localhost](https://localhost) and the cache endpoint at `https://cache.localhost`.
 
 You can test that the database has initialized correctly with the sample data by exec'ing onto the database container and running the following command:
 

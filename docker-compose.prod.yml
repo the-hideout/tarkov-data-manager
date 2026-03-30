@@ -7,6 +7,18 @@ services:
     environment:
       NODE_ENV: production
 
+  redis:
+    command:
+      [
+        "redis-server",
+        "--maxmemory",
+        "2gb",
+        "--maxmemory-policy",
+        "allkeys-lru"
+      ]
+    volumes:
+      - redis_data:/data
+
   database:
     env_file:
       - src/db/creds.env
@@ -37,3 +49,9 @@ volumes:
       o: bind
       type: none
       device: ./src/db/prod_certs # host location
+  redis_data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./data/redis # host location

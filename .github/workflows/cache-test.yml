@@ -1,8 +1,9 @@
-name: test
+name: cache-test
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
 
 permissions:
@@ -13,15 +14,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: setup go
         uses: actions/setup-go@v5
         with:
-          go-version-file: 'src/cache/go.mod'
+          go-version-file: src/cache/src/cache/go.mod
 
       - name: bootstrap
+        working-directory: ./src/cache
         run: script/bootstrap
-    
+
       - name: test
+        working-directory: ./src/cache
         run: script/test

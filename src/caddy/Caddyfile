@@ -1,5 +1,5 @@
-{$DOMAIN}:8443 {
-  reverse_proxy {$PROXY_BACKEND}:{$PROXY_PORT_WS} {
+{$DOMAIN} {
+  reverse_proxy tarkov_data_manager:4000 {
     header_down Strict-Transport-Security max-age=31536000;
   }
 
@@ -10,9 +10,29 @@
   }
 }
 
-{$DOMAIN} {
-  reverse_proxy {$PROXY_BACKEND}:{$PROXY_PORT}  {
+{$DOMAIN}:8443 {
+  reverse_proxy tarkov_data_manager:5000 {
     header_down Strict-Transport-Security max-age=31536000;
+  }
+
+  log {
+    output stdout
+    format json
+    level info
+  }
+}
+
+{$CACHE_DOMAIN} {
+  reverse_proxy cache:8080 {
+    header_down Strict-Transport-Security max-age=31536000;
+  }
+
+  basicauth /api/* {
+    {env.CACHE_BASIC_AUTH_USER} {env.CACHE_BASIC_AUTH_PASSWORD}
+  }
+
+  encode {
+    gzip 9
   }
 
   log {

@@ -1,4 +1,4 @@
-name: acceptance
+name: cache-acceptance
 
 on:
   push:
@@ -11,12 +11,11 @@ permissions:
 
 jobs:
   acceptance:
-    name: acceptance
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: acceptance
+        working-directory: ./src/cache
         run: script/acceptance

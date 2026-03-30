@@ -19,3 +19,7 @@ updates:
           - "*"
     schedule:
       interval: monthly
+  - package-ecosystem: gomod
+    directory: "/src/cache/src/cache"
+    schedule:
+      interval: monthly

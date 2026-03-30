@@ -1,4 +1,5 @@
-name: config validation
+name: cache-config-validation
+
 on:
   push:
     branches:
@@ -13,14 +14,15 @@ permissions:
 jobs:
   json-yaml-validate:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: json-yaml-validate
-        uses: GrantBirki/json-yaml-validate@v3.3.0
+        uses: GrantBirki/json-yaml-validate@v4.0.0
         with:
           comment: "true"
-          json_schema: "config/schema.json"
-          base_dir: src/cache
+          json_schema: "src/cache/config/schema.json"
+          base_dir: src/cache/src/cache
           json_exclude_regex: ".*/vendor/.*"
           yaml_exclude_regex: ".*/vendor/.*"

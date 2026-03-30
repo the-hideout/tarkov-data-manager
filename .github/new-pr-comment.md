@@ -6,5 +6,5 @@ If you are new, please check out the trimmed down summary of our deployment proc
 1. ✔️ Obtain an approval/review on this pull request
 1. 🚀 Branch deploy your pull request to production
 
-    > Comment `.deploy` on this pull request to trigger a deploy. If anything goes wrong, rollback with `.deploy main`
+    > Comment `.deploy` on this pull request to trigger a deploy of the full TDM stack, including cache. If anything goes wrong, rollback with `.deploy main`
 1. 🎉 Merge!
