@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: github/branch-deploy@v11.1.2
+      - uses: github/branch-deploy@fded0351b6b79f854b335c11b3d93063461dd288 # pin@v11.1.2
         id: branch-deploy
         with:
           admins: GrantBirki,Razzmatazzz
@@ -30,7 +30,7 @@ jobs:
 
       - name: checkout
         if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # pin@v6
         with:
           ref: ${{ steps.branch-deploy.outputs.sha }}
 
