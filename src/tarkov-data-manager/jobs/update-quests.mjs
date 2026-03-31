@@ -2257,6 +2257,9 @@ class UpdateQuestsJob extends DataJob {
                     delete obj.zones;
                     delete obj.possibleLocations;
                 }
+                if (obj.type === 'mark') {
+                    obj.markerItem = obj.item_id;
+                }
                 if (obj.type === 'buildWeapon') {
                     obj.buildAttributes = obj.attributes.reduce((atts, att) => {
                         atts[att.name] = att.requirement;
