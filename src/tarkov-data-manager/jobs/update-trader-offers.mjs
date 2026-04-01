@@ -492,8 +492,7 @@ class UpdateTraderOffersJob extends DataJob {
                 offer.buyLimit = offer.vendor.buyLimit;
                 delete offer.vendor;
                 delete offer.source;
-                offer.questUnlock = offer.quest_unlock_id;
-                offer.taskUnlock = offer.questUnlock;
+                offer.taskUnlock = offer.quest_unlock_id;
                 delete offer.quest_unlock;
                 delete offer.quest_unlock_id;
                 delete offer.requirements;
