@@ -28,17 +28,17 @@
     "compute-midmean": "^1.0.3",
     "cookie-session": "^2.1.1",
     "cron-validator": "^1.4.0",
-    "discord.js": "^14.25.1",
+    "discord.js": "^14.26.0",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "formidable": "^3.5.4",
     "luxon": "^3.7.2",
-    "mysql2": "^3.18.2",
+    "mysql2": "^3.20.0",
     "node-schedule": "^2.1.1",
     "sharp": "^0.34.3",
     "tarkov-dev-image-generator": "^2.3.0",
     "unidecode": "^1.1.0",
-    "ws": "^8.19.0"
+    "ws": "^8.20.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
