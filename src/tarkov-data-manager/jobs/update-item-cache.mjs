@@ -893,10 +893,6 @@ class UpdateItemCacheJob extends DataJob {
             for (const ci of item.containsItems) {
                 ci.attributes = this.objectifyAttributes(ci.attributes);
             }
-            for (const price of item.traderPrices) {
-                delete price.name;
-                delete price.source;
-            }
             if (!item.properties) {
                 continue;
             }
@@ -959,6 +955,7 @@ class UpdateItemCacheJob extends DataJob {
                     currencyItem: sell.currencyItem,
                 };
             });
+            delete item.traderPrices;
         }
         apiData.itemCategories = structuredClone(data.ItemCategory);
         for (const id in apiData.itemCategories) {
