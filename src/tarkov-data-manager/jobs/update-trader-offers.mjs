@@ -483,7 +483,7 @@ class UpdateTraderOffersJob extends DataJob {
     }
 
     async updateStaticApi(cashData, barterData, gameMode) {
-        const apiCashData = structuredClone(cashData.TraderCashOffer);
+        /*const apiCashData = structuredClone(cashData.TraderCashOffer);
         for (const itemId in apiCashData) {
             for (const offer of apiCashData[itemId]) {
                 offer.item = offer.id;
@@ -502,8 +502,7 @@ class UpdateTraderOffersJob extends DataJob {
                 delete offer.requirements;
             }
         }
-        await this.r2Put(`${gameMode}/trader_cash_offers`, {data: apiCashData, translations: []});
-        //await this.putStaticApiLocale(`${gameMode}/trader_cash_offers`, data.locale);
+        await this.r2Put(`${gameMode}/trader_cash_offers`, {data: apiCashData, translations: []});*/
         const apiBarterData = structuredClone(barterData.Barter);
         for (const barter of apiBarterData) {
             barter.trader = barter.trader_id;
@@ -524,7 +523,6 @@ class UpdateTraderOffersJob extends DataJob {
             delete barter.requirements;
         }
         await this.r2Put(`${gameMode}/barters`, {data: apiBarterData, translations: []});
-        //await this.putStaticApiLocale(`${gameMode}/barters`, data.locale);
     }
 }
 
