@@ -416,7 +416,7 @@ class DataJob {
         if (!filename) {
             filename = this.kvName;
         }
-        const newName = path.join(import.meta.dirname, '..', 'dumps', `${filename.toLowerCase()}.json`);
+        const newName = path.join(import.meta.dirname, '..', this.writeFolder, `${filename.toLowerCase()}.json`);
         const oldName = newName.replace('.json', '_old.json');
         const folderName = path.dirname(newName);
         try {

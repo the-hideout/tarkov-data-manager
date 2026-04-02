@@ -886,6 +886,7 @@ class UpdateItemCacheJob extends DataJob {
     }
 
     async updateStaticApi(data, gameMode) {
+        const cashPrices = await this.jobOutput('update-trader-offers', {gameMode});
         const apiData = {items: structuredClone(data.Item)};
         for (const id in apiData.items) {
             const item = apiData.items[id];
@@ -934,6 +935,30 @@ class UpdateItemCacheJob extends DataJob {
             delete item.accuracy;
             delete item.properties.recoil;
             delete item.bsgCategoryId;
+
+            item.buyFromTrader = [];
+            for (const offer of cashPrices[id] ?? []) {
+                item.buyFromTrader.push({
+                    trader: offer.vendor.trader,
+                    price: offer.price,
+                    priceRUB: offer.priceRUB,
+                    currency: offer.currency,
+                    currencyItem: offer.currencyItem,
+                    minTraderLevel: offer.vendor.traderLevel,
+                    taskUnlock: offer.quest_unlock_id,
+                    restockAmount: offer.restockAmount,
+                    buyLimit: offer.buyLimit
+                });
+            }
+            item.sellToTrader = item.traderPrices.map(sell => {
+                return {
+                    trader: sell.trader,
+                    price: sell.price,
+                    priceRUB: sell.priceRUB,
+                    currency: sell.currency,
+                    currencyItem: sell.currencyItem,
+                };
+            });
         }
         apiData.itemCategories = structuredClone(data.ItemCategory);
         for (const id in apiData.itemCategories) {

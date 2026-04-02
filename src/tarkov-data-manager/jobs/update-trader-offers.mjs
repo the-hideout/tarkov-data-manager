@@ -404,7 +404,11 @@ class UpdateTraderOffersJob extends DataJob {
             await this.cloudflarePut(barterData[gameMode.name], `barter_data${kvSuffix}`);
             await this.updateStaticApi(cashOfferData[gameMode.name], barterData[gameMode.name], gameMode.name);
         }
-        return {...cashOfferData, ...barterData};
+        const returnValue = {};
+        for (const gameMode of this.gameModes) {
+            returnValue[gameMode.name] = cashOfferData[gameMode.name];
+        }
+        return returnValue;
     }
 
     getCurrencyValues = (offers) => {
