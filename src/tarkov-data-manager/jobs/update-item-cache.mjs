@@ -893,6 +893,32 @@ class UpdateItemCacheJob extends DataJob {
             for (const ci of item.containsItems) {
                 ci.attributes = this.objectifyAttributes(ci.attributes);
             }
+            item.buyFromTrader = [];
+            for (const offer of cashPrices[id] ?? []) {
+                item.buyFromTrader.push({
+                    trader: offer.vendor.trader,
+                    price: offer.price,
+                    priceRUB: offer.priceRUB,
+                    currency: offer.currency,
+                    currencyItem: offer.currencyItem,
+                    minTraderLevel: offer.vendor.traderLevel,
+                    taskUnlock: offer.quest_unlock_id,
+                    restockAmount: offer.restockAmount,
+                    buyLimit: offer.buyLimit
+                });
+            }
+            item.sellToTrader = item.traderPrices.map(sell => {
+                return {
+                    trader: sell.trader,
+                    price: sell.price,
+                    priceRUB: sell.priceRUB,
+                    currency: sell.currency,
+                    currencyItem: sell.currencyItem,
+                };
+            });
+            delete item.traderPrices;
+            delete item.accuracy;
+            delete item.bsgCategoryId;
             if (!item.properties) {
                 continue;
             }
@@ -928,34 +954,7 @@ class UpdateItemCacheJob extends DataJob {
                 delete item.properties.armorMaterial;
             }
             delete item.properties.accuracy;
-            delete item.accuracy;
             delete item.properties.recoil;
-            delete item.bsgCategoryId;
-
-            item.buyFromTrader = [];
-            for (const offer of cashPrices[id] ?? []) {
-                item.buyFromTrader.push({
-                    trader: offer.vendor.trader,
-                    price: offer.price,
-                    priceRUB: offer.priceRUB,
-                    currency: offer.currency,
-                    currencyItem: offer.currencyItem,
-                    minTraderLevel: offer.vendor.traderLevel,
-                    taskUnlock: offer.quest_unlock_id,
-                    restockAmount: offer.restockAmount,
-                    buyLimit: offer.buyLimit
-                });
-            }
-            item.sellToTrader = item.traderPrices.map(sell => {
-                return {
-                    trader: sell.trader,
-                    price: sell.price,
-                    priceRUB: sell.priceRUB,
-                    currency: sell.currency,
-                    currencyItem: sell.currencyItem,
-                };
-            });
-            delete item.traderPrices;
         }
         apiData.itemCategories = structuredClone(data.ItemCategory);
         for (const id in apiData.itemCategories) {
