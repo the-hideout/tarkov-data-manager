@@ -335,6 +335,7 @@ class UpdateCraftsJob extends DataJob {
                 req.attributes = this.objectifyAttributes(req.attributes);
             };
             craft.productItem = craft.rewardItems[0];
+            delete craft.rewardItems;
             delete craft.requirements;
         }
         await this.r2Put(`${gameMode}/crafts`, {data: apiData, translations: []});
