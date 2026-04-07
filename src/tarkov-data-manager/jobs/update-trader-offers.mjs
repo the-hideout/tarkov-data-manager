@@ -520,6 +520,7 @@ class UpdateTraderOffersJob extends DataJob {
                 delete req.name;
                 req.attributes = this.objectifyAttributes(req.attributes);
             };
+            barter.offeredItem = barter.rewardItems[0];
             delete barter.requirements;
         }
         await this.r2Put(`${gameMode}/barters`, {data: apiBarterData, translations: []});

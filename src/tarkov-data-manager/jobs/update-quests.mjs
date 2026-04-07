@@ -2305,6 +2305,7 @@ class UpdateQuestsJob extends DataJob {
             delete task.location_id;
             delete task.locationName;
             delete task.traderLevelRequirements;
+            delete task.tarkovDataId;
             for (const req of task.taskRequirements) {
                 delete req.name;
             }
