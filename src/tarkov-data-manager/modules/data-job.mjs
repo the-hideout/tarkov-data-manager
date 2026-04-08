@@ -11,7 +11,6 @@ import TranslationHelper from './translation-helper.mjs';
 import dbConnection from'./db-connection.mjs';
 import JobLogger from './job-logger.mjs';
 import { alert, send as sendWebhook } from './webhook.mjs';
-import webSocketServer from './websocket-server.mjs';
 import tarkovData from'./tarkov-data.mjs';
 import normalizeName from './normalize-name.js';
 import gameModes from './game-modes.mjs';
@@ -223,11 +222,6 @@ class DataJob {
         }
         if (this.name) {
             emitter.emit(`jobComplete_${this.name}`);
-        }
-        if (!options?.parent) {
-            if (process.env.TEST_JOB === 'true') {
-                webSocketServer.close();
-            }
         }
         if (throwError) {
             return Promise.reject(throwError);

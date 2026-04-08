@@ -6,7 +6,7 @@ import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import { getLocalBucketContents } from '../modules/upload-s3.mjs';
 import presetData from '../modules/preset-data.mjs';
-import webSocketServer from '../modules/websocket-server.mjs';
+import tarkovDevData from '../modules/tarkov-data-tarkov-dev.mjs';
 import { createAndUploadFromSource } from '../modules/image-create.mjs';
 
 class UpdateQuestsJob extends DataJob {
@@ -230,7 +230,6 @@ class UpdateQuestsJob extends DataJob {
                                         if (notWearing.some(i => i.id === id)) {
                                             continue;
                                         }
-                                        console.log(id, this.itemResults.get(id));
                                         notWearing.push({
                                             id,
                                             name: this.itemResults.get(id).name,
@@ -838,7 +837,10 @@ class UpdateQuestsJob extends DataJob {
 
         if (!matchedPreset) {
             try {
-                const presetImage = await webSocketServer.getJsonImage(reward);
+                const presetImage = await this.fenceFetchImage('/preset-image', {
+                    method: 'POST',
+                    body: JSON.stringify(reward),
+                });
                 const matchedPresetData = await presetData.addJsonPreset(reward);
                 matchedPreset = matchedPresetData.preset;
                 await createAndUploadFromSource(presetImage, matchedPreset.id);

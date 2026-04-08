@@ -62,8 +62,6 @@ You now have two options to start the local docker-compose stack (both do the ex
 
 Browse to the web app at `http://localhost:4000`.
 
-The local websocket server is exposed on `ws://localhost:5000`.
-
 Production TLS and public routing for `manager.tarkov.dev` are handled by the standalone `the-hideout/ingress` repo, not by this repository.
 
 You can test that the database has initialized correctly with the sample data by exec'ing onto the database container and running the following command:
