@@ -1,3 +1,6 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
 import sharp from 'sharp';
 
 import DataJob from '../modules/data-job.mjs';
@@ -37,6 +40,7 @@ class UpdateItemCacheJob extends DataJob {
             this.traders,
             this.s3Images,
             this.presetTranslations,
+            this.endpointsData,
         ] = await Promise.all([
             tarkovData.items(), 
             tarkovData.credits({gameMode: 'regular'}),
@@ -56,6 +60,7 @@ class UpdateItemCacheJob extends DataJob {
                 }
                 return translations;
             }),
+            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'json_api_endpoints.json')).then(json => JSON.parse(json)),
         ]);
         const itemData = {};
         const itemTypesSet = new Set();
@@ -443,6 +448,8 @@ class UpdateItemCacheJob extends DataJob {
         await this.cloudflarePut();
         await this.cloudflarePut(this.itemsLocale, `${this.kvName}_locale`);
         await this.updateStaticApi(this.kvData, 'regular');
+        this.endpointsData.data.languages = Object.keys(this.itemsLocale.locale).sort();
+        await this.r2Put(`endpoints`, this.endpointsData);
 
         //this.logger.log('Uploading handbook data to cloudflare...');
         //handbookData.locale = await this.translationHelper.fillTranslations();
@@ -999,7 +1006,7 @@ class UpdateItemCacheJob extends DataJob {
             ]},
             {locale: this.itemsLocale.locale},
         );
-        await this.r2Put(`lang`, {data: Object.keys(this.itemsLocale.locale).sort(), translations: []});
+        //await this.r2Put(`lang`, {data: Object.keys(this.itemsLocale.locale).sort(), translations: []});
     }
 }
 
