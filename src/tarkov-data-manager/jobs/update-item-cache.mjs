@@ -985,6 +985,10 @@ class UpdateItemCacheJob extends DataJob {
         apiData.mastering = structuredClone(data.Mastering);
         apiData.skills = structuredClone(data.Skill);
         apiData.specialItems = structuredClone(data.SpecialItems);
+        apiData.settings = {
+            scavCooldownSeconds: this.globals.config.SavagePlayCooldown,
+            globalMaxTraders: this.globals.config.MaxLoyaltyLevelForAll,
+        };
         await this.r2Put(`${gameMode}/items`,
             {data: apiData, translations: [
                 '$.data.items.*.name',
