@@ -100,8 +100,8 @@ class UpdateHistoricalPricesJob extends DataJob {
         for (const id of itemIds) {
             puts.push(this.r2Put(`${gameMode}/prices/${id}`, {
                 data: [
-                    ...data.historicalPricePoint[id] ?? [],
                     ...this.archivedPrices[id] ?? [],
+                    ...data.historicalPricePoint[id] ?? [],
                 ],
                 translations: []
             }, {skipPurge: true}).then(url => {
