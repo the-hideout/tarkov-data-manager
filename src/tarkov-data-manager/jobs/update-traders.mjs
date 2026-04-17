@@ -173,12 +173,12 @@ class UpdateTradersJob extends DataJob {
             for (const level of trader.levels) {
                 delete level.name;
                 delete level.imageLink;
-                delete level.imageLink4x;
+                delete level.image4xLink;
             }
             for (const repLevel of trader.reputationLevels) {
                 delete repLevel.__typename;
             }
-            delete trader.imageLink4x;
+            delete trader.image4xLink;
             trader.buyAllowed = trader.items_buy;
             delete trader.items_buy;
             trader.buyAllowed.items = trader.buyAllowed.id_list;
