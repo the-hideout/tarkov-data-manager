@@ -1,5 +1,5 @@
 import scannerApi from '../modules/scanner-api.mjs';
-import webSocketServer from '../modules/websocket-server.mjs';
+import tarkovDevData from '../modules/tarkov-data-tarkov-dev.mjs';
 import DataJob from '../modules/data-job.mjs';
 
 class StartTraderScanJob extends DataJob {
@@ -9,6 +9,7 @@ class StartTraderScanJob extends DataJob {
 
     async run() {
         const traderScanGameModes = ['regular', 'pve'];
+        const scannersStatus = await tarkovDevData.scannersStatus();
         for (const gameMode of this.gameModes) {
             if (!traderScanGameModes.includes(gameMode.name)) {
                 continue;
@@ -23,17 +24,17 @@ class StartTraderScanJob extends DataJob {
     
             const traderScan = await scannerApi.currentTraderScan(gameMode.name);
             if (!traderScan.scanner_name) {
-                for (const scanner of webSocketServer.launchedScanners()) {
-                    if (scanner.settings.scanStatus !== 'idle' || scanner.settings.scanMode !== 'auto') {
+                for (const scannerDomain in scannersStatus) {
+                    const scanner = scannersStatus[scannerDomain];
+                    if (scanner.status !== 'idle' || scanner.scanMode !== 'auto') {
                         continue;
                     }
-                    if (scanner.settings.sessionMode !== gameMode.name) {
+                    if (scanner.gameMode !== gameMode.name) {
                         return;
                     }
                     this.logger.log(`Starting ${scanner.name}`);
                     await scannerApi.setTraderScanScanner(gameMode.name, scanner.name);
-                    //await webSocketServer.sendCommand(scanner.name, 'changeSetting', {name: 'offersFrom', value: 1});
-                    await webSocketServer.sendCommand(scanner.name, 'resume');
+                    await tarkovDevData.scannerStart(scannerDomain);
                     break;
                 }
                 if (!traderScan.scanner_name) {
