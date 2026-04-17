@@ -16,7 +16,7 @@ It is a web application that allows you to do the following:
 This repo contains two main components:
 
 - The **Tarkov Data Manager** - Web application for managing Tarkov game data and scanners.
-- The **Caddy Reverse Proxy** - Reverse proxy for the Tarkov Data Manager, handles TLS.
+- The **MySQL + Backup stack** - Database and optional backup jobs used by the manager.
 
 ### Tarkov Data Manager
 
@@ -55,12 +55,14 @@ First, edit the `src/tarkov-data-manager/creds.env` file to include your proper 
 
 > An example of this file can be found at [`src/tarkov-data-manager/creds.env.example`](src/tarkov-data-manager/creds.env.example).
 
-You now have two options to start the docker-compose stack (both do the exact same thing):
+You now have two options to start the local docker-compose stack (both do the exact same thing):
 
 - `make run`
 - `docker-compose up --build`
 
-Browse to your web app when it starts up [localhost](https://localhost).
+Browse to the web app at `http://localhost:4000`.
+
+Production TLS and public routing for `manager.tarkov.dev` are handled by the standalone `the-hideout/ingress` repo, not by this repository.
 
 You can test that the database has initialized correctly with the sample data by exec'ing onto the database container and running the following command:
 

@@ -1,3 +1,6 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
 import sharp from 'sharp';
 
 import DataJob from '../modules/data-job.mjs';
@@ -37,6 +40,7 @@ class UpdateItemCacheJob extends DataJob {
             this.traders,
             this.s3Images,
             this.presetTranslations,
+            this.endpointsData,
         ] = await Promise.all([
             tarkovData.items(), 
             tarkovData.credits({gameMode: 'regular'}),
@@ -56,6 +60,7 @@ class UpdateItemCacheJob extends DataJob {
                 }
                 return translations;
             }),
+            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'json_api_endpoints.json')).then(json => JSON.parse(json)),
         ]);
         const itemData = {};
         const itemTypesSet = new Set();
@@ -443,6 +448,8 @@ class UpdateItemCacheJob extends DataJob {
         await this.cloudflarePut();
         await this.cloudflarePut(this.itemsLocale, `${this.kvName}_locale`);
         await this.updateStaticApi(this.kvData, 'regular');
+        this.endpointsData.data.languages = Object.keys(this.itemsLocale.locale).sort();
+        await this.r2Put(`endpoints`, this.endpointsData);
 
         //this.logger.log('Uploading handbook data to cloudflare...');
         //handbookData.locale = await this.translationHelper.fillTranslations();
@@ -886,16 +893,39 @@ class UpdateItemCacheJob extends DataJob {
     }
 
     async updateStaticApi(data, gameMode) {
+        const cashPrices = await this.jobOutput('update-trader-offers', {gameMode});
         const apiData = {items: structuredClone(data.Item)};
         for (const id in apiData.items) {
             const item = apiData.items[id];
             for (const ci of item.containsItems) {
                 ci.attributes = this.objectifyAttributes(ci.attributes);
             }
-            for (const price of item.traderPrices) {
-                delete price.name;
-                delete price.source;
+            item.buyFromTrader = [];
+            for (const offer of cashPrices[id] ?? []) {
+                item.buyFromTrader.push({
+                    trader: offer.vendor.trader,
+                    price: offer.price,
+                    priceRUB: offer.priceRUB,
+                    currency: offer.currency,
+                    currencyItem: offer.currencyItem,
+                    minTraderLevel: offer.vendor.traderLevel,
+                    taskUnlock: offer.quest_unlock_id,
+                    restockAmount: offer.restockAmount,
+                    buyLimit: offer.buyLimit
+                });
             }
+            item.sellToTrader = item.traderPrices.map(sell => {
+                return {
+                    trader: sell.trader,
+                    price: sell.price,
+                    priceRUB: sell.priceRUB,
+                    currency: sell.currency,
+                    currencyItem: sell.currencyItem,
+                };
+            });
+            delete item.traderPrices;
+            delete item.accuracy;
+            delete item.bsgCategoryId;
             if (!item.properties) {
                 continue;
             }
@@ -931,9 +961,7 @@ class UpdateItemCacheJob extends DataJob {
                 delete item.properties.armorMaterial;
             }
             delete item.properties.accuracy;
-            delete item.accuracy;
             delete item.properties.recoil;
-            delete item.bsgCategoryId;
         }
         apiData.itemCategories = structuredClone(data.ItemCategory);
         for (const id in apiData.itemCategories) {
@@ -957,6 +985,10 @@ class UpdateItemCacheJob extends DataJob {
         apiData.mastering = structuredClone(data.Mastering);
         apiData.skills = structuredClone(data.Skill);
         apiData.specialItems = structuredClone(data.SpecialItems);
+        apiData.settings = {
+            scavCooldownSeconds: this.globals.config.SavagePlayCooldown,
+            globalMaxTraders: this.globals.config.MaxLoyaltyLevelForAll,
+        };
         await this.r2Put(`${gameMode}/items`,
             {data: apiData, translations: [
                 '$.data.items.*.name',
@@ -978,7 +1010,7 @@ class UpdateItemCacheJob extends DataJob {
             ]},
             {locale: this.itemsLocale.locale},
         );
-        await this.r2Put(`lang`, {data: Object.keys(this.itemsLocale.locale).sort(), translations: []});
+        //await this.r2Put(`lang`, {data: Object.keys(this.itemsLocale.locale).sort(), translations: []});
     }
 }
 
