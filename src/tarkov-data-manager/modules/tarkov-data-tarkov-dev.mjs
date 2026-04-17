@@ -82,15 +82,16 @@ const getFromFence = async (jsonName, options) => {
 
 const tarkovDevData = {
     fenceFetch: (path, options = {}) => {
-        if (!options) {
-            options = {};
-        }
-        if (!options.headers) {
-            options.headers = {};
-        }
+        options ??= {};
+        options.headers ??= {};
         options.headers.Authorization = `Basic ${process.env.FENCE_BASIC_AUTH}`;
         const url = new URL('https://fence.tarkov.dev');
         url.pathname = path;
+        if (options.searchParams) {
+            for (const paramName in options.searchParams) {
+                url.searchParams.set(paramName, options.searchParams[paramName]);
+            }
+        }
         return fetch(url, options);
     },
     fenceFetchImage: async (path, options = {}) => {
@@ -135,16 +136,6 @@ const tarkovDevData = {
                 }
             }
         }
-        /*let newJson = await webSocketServer.getJson(jsonName, gameMode);
-        if (newJson.elements) {
-            newJson = newJson.elements;
-        }
-        if (Array.isArray(newJson) && arrayToDictionary.includes(jsonName)) {
-            newJson = newJson.reduce((all, current) => {
-                all[current.id ?? current._id] = current;
-                return all;
-            }, {});
-        }*/
         const newJson = await getFromFence(jsonName, options);
         fs.writeFileSync(cachePath(filename), JSON.stringify(newJson, null, 4));
         return newJson;
@@ -190,6 +181,24 @@ const tarkovDevData = {
     },
     status: async (options = defaultOptions) => {
         return tarkovDevData.get('status', options);
+    },
+    scannersStatus: async () => {
+        const response = await tarkovDevData.fenceFetch('/status');
+        if (!response.ok) {
+            return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+        }
+        return response.json();
+    },
+    scannerStart: async (scannerDomain) => {
+        const response = await tarkovDevData.fenceFetch('/command/start', {
+            searchParams: {
+                scanner: scannerDomain,
+            },
+        });
+        if (!response.ok) {
+            return Promise.reject(new Error(`${response.status} ${response.statusText}`));
+        }
+        return response.text();
     },
     downloadAll: async(options = defaultOptions) => {
         options = {...merge(options), download: true};
