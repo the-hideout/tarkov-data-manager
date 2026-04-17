@@ -14,14 +14,13 @@ services:
     environment:
       DB_PASS: password
       NODE_ENV: dev
+    ports:
+      - 4000:4000
+      - 5000:5000
 
   backup:
     environment:
       DB_PASS: password
-
-  caddy:
-    environment:
-      DOMAIN: localhost
 
 volumes:
   db_data_dev:

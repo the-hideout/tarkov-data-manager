@@ -233,6 +233,7 @@ class UpdateHideoutJob extends DataJob {
             apiData[station.id] = station;
             delete station.tarkovDataId;
             for (const level of station.levels) {
+                delete level.tarkovDataId;
                 for (const req of level.traderRequirements) {
                     req.trader = req.trader_id;
                     delete req.trader_id;

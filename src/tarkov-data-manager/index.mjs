@@ -21,7 +21,6 @@ import webhookApi from './modules/webhook-api.mjs';
 import publicApi from './modules/public-api.mjs';
 import { uploadToS3, getImages, getLocalBucketContents, addFileToBucket, deleteFromBucket, renameFile, copyFile } from './modules/upload-s3.mjs';
 import { createAndUploadFromSource, regenerateFromExisting } from './modules/image-create.mjs';
-import webSocketServer from './modules/websocket-server.mjs';
 import jobManager from './jobs/index.mjs';
 import presetData from './modules/preset-data.mjs';
 import tarkovDevData from './modules/tarkov-data-tarkov-dev.mjs';
@@ -270,7 +269,8 @@ const getFooter = (req) => {
 };
 
 app.get('/', async (req, res) => {
-    const activeScanners = webSocketServer.connectedScanners();
+    const scannersStatus = await tarkovDevData.scannersStatus();
+    const activeScanners = Object.keys(scannersStatus).length;
     const imageFields = [
         'image_8x_link',
         'image_512_link',
@@ -311,7 +311,7 @@ app.get('/', async (req, res) => {
             <div class="section col s12">
                 <a href="/scanners" class="waves-effect waves-light btn filled"><i class="material-icons left">scanner</i>Scanners</a>
                 <ul class="browser-default">
-                    <li>Active: ${activeScanners.length}</li>
+                    <li>Active: ${activeScanners}</li>
                 </ul>
             </div>
             <div class="divider col s12"></div>
@@ -2167,7 +2167,6 @@ const server = app.listen(port, () => {
                 console.log('error closing database connection pool');
                 console.log(error);
             });
-            await webSocketServer.close();
         } catch (error) {
             console.log(error);
         }
