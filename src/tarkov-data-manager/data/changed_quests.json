@@ -2486,12 +2486,26 @@
         }
     },
     "5ae448f286f77448d73c0131": {
-        "name": "Collector",
+        "name": "The Blood of War - Part 1",
         "objectivesAdded": [
             {
                 "id": "6926fcc872a6499d1fa29327",
                 "description": "6926fcc872a6499d1fa29327",
-                "type": "mark"
+                "type": "mark",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Interchange"
+                ],
+                "map_ids": [
+                    "5714dbc024597771384a510d"
+                ],
+                "zoneKeys": [],
+                "zoneNames": [],
+                "item": "5991b51486f77447b112d44f",
+                "item_id": "5991b51486f77447b112d44f",
+                "item_name": "MS2000 Marker",
+                "zones": []
             }
         ],
         "locale": {
