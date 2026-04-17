@@ -643,6 +643,28 @@
     },
     "5c0bd94186f7747a727f09b2": {
         "name": "Test Drive - Part 1",
+        "locale": {
+            "en": {
+                "5c1b765d86f77413193fa4f2": "Eliminate PMC operatives using an SR-25 rifle with Hybrid 46 suppressor and Schmidt & Bender PM II 1-8x24 scope"
+            },
+            "zh": {
+                "5c1b765d86f77413193fa4f2": "使用装有 Hybrid 46 消音器和 PM II 1-8x24 瞄准镜的 SR-25 步枪消灭 PMC 行动人员"
+            }
+        },
+        "objectivesChanged": {
+            "5c1b765d86f77413193fa4f2": {
+                "count": 10,
+                "usingWeapon": [
+                    [
+                        {
+                            "id": "5df8ce05b11454561e39243b",
+                            "name": "Knight's Armament Company SR-25 7.62x51 marksman rifle",
+                            "shortName": "SR-25"
+                        }
+                    ]
+                ]
+            }
+        },
         "propertiesChanged": {
             "experience": 9100,
             "minPlayerLevel": 18,
@@ -659,6 +681,62 @@
     },
     "63a5cf262964a7488f5243ce": {
         "name": "Test Drive - Part 2",
+        "objectivePropertiesChanged": {
+            "63a5cf262964a7488f5243d1": {
+                "locationNames": [
+                    "Streets of Tarkov",
+                    "Ground Zero",
+					"Ground Zero 21+",
+                    "Interchange"
+                ],
+                "map_ids": [
+                    "5714dc692459777137212e12",
+                    "653e6760052c01c1c805532f",
+					"65b8d6f5cdde2479cb2a3125",
+                    "5714dbc024597771384a510d"
+                ]
+            }
+        },
+        "locale": {
+            "en": {
+                "63a5cf262964a7488f5243d1": "Eliminate PMCs using an MP5SD on Streets of Tarkov, Ground Zero, or Interchange"
+            },
+            "zh": {
+                "63a5cf262964a7488f5243d1": "在塔科夫街区、中心区或立交桥使用 MP5SD 消灭 PMC 行动人员"
+            }
+        },
+        "objectivesChanged": {
+            "63a5cf262964a7488f5243d1": {
+                "usingWeapon": [
+                    [
+                        {
+                            "id": "5926bb2186f7744b1c6c6e60",
+                            "name": "HK MP5 9x19 submachine gun (Navy 3 Round Burst)",
+                            "shortName": "MP5"
+                        }
+                    ]
+                ],
+                "usingWeaponMods": [
+                    [
+                        {
+                            "id": "5926f2e086f7745aae644231",
+                            "name": "HK MP5SD 9x19 upper receiver",
+                            "shortName": "MP5SD"
+                        },
+                        {
+                            "id": "5926d33d86f77410de68ebc0",
+                            "name": "HK MP5SD 9x19 sound suppressor",
+                            "shortName": "MP5SD supp."
+                        },
+                        {
+                            "id": "5926f34786f77469195bfe92",
+                            "name": "HK MP5SD polymer handguard",
+                            "shortName": "MP5SD HG"
+                        }
+                    ]
+                ]
+            }
+        },
         "propertiesChanged": {
             "experience": 12000,
             "minPlayerLevel": 22
@@ -739,6 +817,41 @@
     },
     "6574e0dedc0d635f633a5805": {
         "name": "Test Drive - Part 4",
+        "objectivePropertiesChanged": {
+            "6574e0dedc0d635f633a5807": {
+                "locationNames": [
+                    "Shoreline",
+                    "Interchange",
+                    "Woods"
+                ],
+                "map_ids": [
+                    "5704e554d2720bac5b8b456e",
+                    "5714dbc024597771384a510d",
+                    "5704e3c2d2720bac5b8b4567"
+                ]
+            }
+        },
+        "locale": {
+            "en": {
+                "6574e0dedc0d635f633a5807": "Eliminate any target while using an RPDN with EKP-1S-03 sight on Shoreline, Interchange, or Woods"
+            },
+            "zh": {
+                "6574e0dedc0d635f633a5807": "在海岸线、立交桥或森林使用带有 EKP-1S-03 瞄具的 RPDN 机枪消灭任意目标"
+            }
+        },
+        "objectivesChanged": {
+            "63a5cf262964a7488f5243d1": {
+                "usingWeaponMods": [
+                    [
+                        {
+                            "id": "6544d4187c5457729210d277",
+                            "name": "Axion Kobra EKP-1S-03 reflex sight (Dovetail)",
+                            "shortName": "EKP-1S-03"
+                        }
+                    ]
+                ]
+            }
+        },
         "propertiesChanged": {
             "experience": 20000,
             "minPlayerLevel": 28
@@ -746,6 +859,41 @@
     },
     "669fa3a40c828825de06d6a1": {
         "name": "Test Drive - Part 5",
+        "locale": {
+            "en": {
+                "66a0f5a7f9eae6761253114c": "Eliminate any target while using an SR-2M with suppressor and KP-SR2 sight on Factory"
+            },
+            "zh": {
+                "66a0f5a7f9eae6761253114c": "使用装有消音器和 KP-SR2 反射式瞄具的 SR-2M 在工厂消灭任意目标"
+            }
+        },
+        "objectivesChanged": {
+            "63a5cf262964a7488f5243d1": {
+                "usingWeapon": [
+                    [
+                        {
+                            "id": "62e14904c2699c0ec93adc47",
+                            "name": "SR-2M Veresk 9x21 submachine gun",
+                            "shortName": "SR-2M"
+                        }
+                    ]
+                ],
+                "usingWeaponMods": [
+                    [
+                        {
+                            "id": "62e2a7138e1ac9380579c122",
+                            "name": "SR-2M 9x21 SV-1381 sound suppressor",
+                            "shortName": "SV-1381"
+                        },
+                        {
+                            "id": "62ff9920fe938a24c90c10d2",
+                            "name": "SR-2M KP-SR2 reflex sight",
+                            "shortName": "KP-SR2"
+                        }
+                    ]
+                ]
+            }
+        },
         "propertiesChanged": {
             "experience": 23000,
             "minPlayerLevel": 32
@@ -1529,8 +1677,8 @@
         "propertiesChanged": {
             "taskRequirements": [
                 {
-                    "task": "673f2cd5d3346c2167020484",
-                    "name": "Shipping Delay - Part 2",
+                    "task": "673f348dd3346c21670217e7",
+                    "name": "Shipping Delay - Part 1",
                     "status": [
                         "complete"
                     ]
@@ -2217,6 +2365,178 @@
                 "608bd0c20637f21f9934b6e4": "检查储备站兵营东楼（黑兵）的第二个军械库",
                 "608bd136c61c4b541b381da3": "检查储备站兵营南楼（白兵）的第一个军械库",
                 "608bd149f597ad0a33574d74": "检查储备站兵营南楼（白兵）的第二个军械库"
+            }
+        }
+    },
+    "5c1234c286f77406fa13baeb": {
+        "name": "Setup",
+        "objectivesChanged": {
+            "5c1fa9c986f7740de474cb3d": {
+                "wearing": [
+                    [
+                        {
+                            "id": "59e7708286f7742cbd762753",
+                            "name": "Ushanka ear flap hat",
+                            "shortName": "Ushanka"
+                        },
+                        {
+                            "id": "572b7adb24597762ae139821",
+                            "name": "Scav Vest",
+                            "shortName": "Scav Vest"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "59e7708286f7742cbd762753",
+                            "name": "Ushanka ear flap hat",
+                            "shortName": "Ushanka"
+                        },
+                        {
+                            "id": "693fd1200ec97e98040bd3f9",
+                            "name": "Tac-Kek JayPC plate carrier (Black)",
+                            "shortName": "JayPC"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "59e7708286f7742cbd762753",
+                            "name": "Ushanka ear flap hat",
+                            "shortName": "Ushanka"
+                        },
+                        {
+                            "id": "693fd13aa490096a05028cc8",
+                            "name": "Tac-Kek JayPC plate carrier (OD Green)",
+                            "shortName": "JayPC"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "6937f02dfd6488bb27024839",
+                            "name": "Domontovich ushanka hat",
+                            "shortName": "Domont"
+                        },
+                        {
+                            "id": "572b7adb24597762ae139821",
+                            "name": "Scav Vest",
+                            "shortName": "Scav Vest"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "6937f02dfd6488bb27024839",
+                            "name": "Domontovich ushanka hat",
+                            "shortName": "Domont"
+                        },
+                        {
+                            "id": "693fd1200ec97e98040bd3f9",
+                            "name": "Tac-Kek JayPC plate carrier (Black)",
+                            "shortName": "JayPC"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "6937f02dfd6488bb27024839",
+                            "name": "Domontovich ushanka hat",
+                            "shortName": "Domont"
+                        },
+                        {
+                            "id": "693fd13aa490096a05028cc8",
+                            "name": "Tac-Kek JayPC plate carrier (OD Green)",
+                            "shortName": "JayPC"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "6937efd50543dcc2560a2c81",
+                            "name": "New Year ushanka hat",
+                            "shortName": "Ushanka"
+                        },
+                        {
+                            "id": "572b7adb24597762ae139821",
+                            "name": "Scav Vest",
+                            "shortName": "Scav Vest"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "6937efd50543dcc2560a2c81",
+                            "name": "New Year ushanka hat",
+                            "shortName": "Ushanka"
+                        },
+                        {
+                            "id": "693fd1200ec97e98040bd3f9",
+                            "name": "Tac-Kek JayPC plate carrier (Black)",
+                            "shortName": "JayPC"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "6937efd50543dcc2560a2c81",
+                            "name": "New Year ushanka hat",
+                            "shortName": "Ushanka"
+                        },
+                        {
+                            "id": "693fd13aa490096a05028cc8",
+                            "name": "Tac-Kek JayPC plate carrier (OD Green)",
+                            "shortName": "JayPC"
+                        }
+                    ]
+                ]
+            }
+        }
+    },
+    "5ae448f286f77448d73c0131": {
+        "name": "Collector",
+        "objectivesAdded": [
+            {
+                "id": "6926fcc872a6499d1fa29327",
+                "description": "6926fcc872a6499d1fa29327",
+                "type": "mark"
+            }
+        ],
+        "locale": {
+            "en": {
+                "6926fcc872a6499d1fa29327": "Locate and mark the fourth fuel tank with an MS2000 Marker on Interchange"
+            },
+            "zh": {
+                "6926fcc872a6499d1fa29327": "在立交桥使用 MS2000 指示器标记第四辆油罐车"
+            }
+        }
+    },
+    "66058cc5bb83da7ba474aba9": {
+        "name": "To Great Heights! - Part 3 [PVP ZONE]",
+        "locale": {
+            "en": {
+                "66a0f5a7f9eae6761253114c": "Win 2 matches while claiming at least 3rd place in TeamFight, BlastGang, or CheckPoint mode in Arena"
+            },
+            "zh": {
+                "66a0f5a7f9eae6761253114c": "在竞技场赢得两场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗，至少取得前三名的排名"
+            }
+        }
+    },
+    "6834202a186efa3c5b07f9a2": {
+        "name": "To Great Heights! - Part 3 [PVE ZONE]",
+        "locale": {
+            "en": {
+                "6834202a186efa3c5b07f9a5": "Win 2 matches while claiming at least 3rd place in TeamFight, BlastGang, or CheckPoint mode in Arena"
+            },
+            "zh": {
+                "6834202a186efa3c5b07f9a5": "在竞技场赢得两场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗，至少取得前三名的排名"
+            }
+        }
+    },
+    "66ab9da7eb102b9bcd08591c": {
+        "name": "Forester's Duty",
+        "locale": {
+            "en": {
+                "66ab9da7eb102b9bcd08591d": "Eliminate Scavs on Lighthouse (In one raid)",
+                "66ab9da7eb102b9bcd08591f": "Use the transit from Lighthouse to Shoreline (In one raid)",
+                "66ab9da7eb102b9bcd085922": "Eliminate Scavs on Shoreline (In one raid)"
+            },
+            "zh": {
+                "66ab9da7eb102b9bcd08591d": "在灯塔消灭 Scav（单场战局内完成）",
+                "66ab9da7eb102b9bcd08591f": "使用转移功能从灯塔转移到海岸线（在单次战局中）",
+                "66ab9da7eb102b9bcd085922": "在海岸线消灭 Scav（单场战局内完成）"
             }
         }
     }
