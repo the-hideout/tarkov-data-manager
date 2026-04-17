@@ -2380,10 +2380,72 @@
                             "shortName": "Ushanka"
                         },
                         {
+                            "id": "572b7adb24597762ae139821",
+                            "name": "Scav Vest",
+                            "shortName": "Scav Vest"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "59e7708286f7742cbd762753",
+                            "name": "Ushanka ear flap hat",
+                            "shortName": "Ushanka"
+                        },
+                        {
+                            "id": "693fd1200ec97e98040bd3f9",
+                            "name": "Tac-Kek JayPC plate carrier (Black)",
+                            "shortName": "JayPC"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "59e7708286f7742cbd762753",
+                            "name": "Ushanka ear flap hat",
+                            "shortName": "Ushanka"
+                        },
+                        {
+                            "id": "693fd13aa490096a05028cc8",
+                            "name": "Tac-Kek JayPC plate carrier (OD Green)",
+                            "shortName": "JayPC"
+                        }
+                    ],
+                    [
+                        {
                             "id": "6937f02dfd6488bb27024839",
                             "name": "Domontovich ushanka hat",
                             "shortName": "Domont"
                         },
+                        {
+                            "id": "572b7adb24597762ae139821",
+                            "name": "Scav Vest",
+                            "shortName": "Scav Vest"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "6937f02dfd6488bb27024839",
+                            "name": "Domontovich ushanka hat",
+                            "shortName": "Domont"
+                        },
+                        {
+                            "id": "693fd1200ec97e98040bd3f9",
+                            "name": "Tac-Kek JayPC plate carrier (Black)",
+                            "shortName": "JayPC"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "6937f02dfd6488bb27024839",
+                            "name": "Domontovich ushanka hat",
+                            "shortName": "Domont"
+                        },
+                        {
+                            "id": "693fd13aa490096a05028cc8",
+                            "name": "Tac-Kek JayPC plate carrier (OD Green)",
+                            "shortName": "JayPC"
+                        }
+                    ],
+                    [
                         {
                             "id": "6937efd50543dcc2560a2c81",
                             "name": "New Year ushanka hat",
@@ -2393,11 +2455,25 @@
                             "id": "572b7adb24597762ae139821",
                             "name": "Scav Vest",
                             "shortName": "Scav Vest"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "6937efd50543dcc2560a2c81",
+                            "name": "New Year ushanka hat",
+                            "shortName": "Ushanka"
                         },
                         {
                             "id": "693fd1200ec97e98040bd3f9",
                             "name": "Tac-Kek JayPC plate carrier (Black)",
                             "shortName": "JayPC"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "6937efd50543dcc2560a2c81",
+                            "name": "New Year ushanka hat",
+                            "shortName": "Ushanka"
                         },
                         {
                             "id": "693fd13aa490096a05028cc8",
