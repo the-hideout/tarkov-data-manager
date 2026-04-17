@@ -31,6 +31,7 @@ class UpdateHistoricalPricesJob extends DataJob {
                 this.logger.log(`Generating full ${gameMode.name} historical prices`);
                 return {};
             });
+            this.archivedPrices = await this.jobOutput('update-archived-prices', {gameMode: gameMode.name})
     
             // filter previously-processed prices to be within the window
             // also change the cutoff for new prices to be after the oldest price we already have
@@ -83,10 +84,39 @@ class UpdateHistoricalPricesJob extends DataJob {
     
             this.kvData[gameMode.name][this.apiType] = itemPriceData;
             await this.cloudflarePut(this.kvData[gameMode.name], this.kvName, gameMode.name);
+            await this.updateStaticApi(this.kvData[gameMode.name], gameMode.name).catch(error => {
+                this.logger.error(`Error updating JSON API: ${error}`);
+            });
             this.logger.log(`Uploaded ${gameMode.name} historical prices`);
         }
         this.logger.success('Done with historical prices');
         return this.kvData;
+    }
+
+    async updateStaticApi(data, gameMode) {
+        const itemIds = [...new Set([...Object.keys(data.historicalPricePoint), ...Object.keys(this.archivedPrices)])];
+        const puts = [];
+        const purgeUrls = [];
+        for (const id of itemIds) {
+            puts.push(this.r2Put(`${gameMode}/prices/${id}`, {
+                data: [
+                    ...this.archivedPrices[id] ?? [],
+                    ...data.historicalPricePoint[id] ?? [],
+                ],
+                translations: []
+            }, {skipPurge: true}).then(url => {
+                if (!url) {
+                    return;
+                }
+                purgeUrls.push(url);
+            }));
+            if (puts.length >= 100) {
+                await Promise.all(puts);
+                puts.length = 0;
+            }
+        }
+        await Promise.all(puts);
+        await this.purgeCachePrefix(purgeUrls);
     }
 }
 

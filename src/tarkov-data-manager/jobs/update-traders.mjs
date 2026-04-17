@@ -147,7 +147,7 @@ class UpdateTradersJob extends DataJob {
             this.logger.log(`Processed ${this.kvData[gameMode.name].Trader.length} ${gameMode.name} traders`);
 
             if (staleTraderCount > 0 && !gameUpdating) {
-                this.logger.warn(`${staleTraderCount} stale traders; triggering restart`);
+                this.logger.warn(`${staleTraderCount} stale traders`);
                 this.addJobSummary(`${staleTraderCount} stale ${gameMode.name} traders`);
                 /*if (process.env.TEST_JOB !== 'true') {
                     await tarkovChanges.restart().catch(error => {
@@ -161,8 +161,45 @@ class UpdateTradersJob extends DataJob {
                 kvName += `_${gameMode.name}`;
             }
             await this.cloudflarePut(this.kvData[gameMode.name], kvName);
+            await this.updateStaticApi(this.kvData[gameMode.name], gameMode.name);
         }
         return this.kvData;
+    }
+
+    async updateStaticApi(data, gameMode) {
+        const apiData = {};
+        for (const trader of structuredClone(data.Trader)) {
+            apiData[trader.id] = trader;
+            for (const level of trader.levels) {
+                delete level.name;
+                delete level.imageLink;
+                delete level.image4xLink;
+            }
+            for (const repLevel of trader.reputationLevels) {
+                delete repLevel.__typename;
+            }
+            delete trader.image4xLink;
+            trader.buyAllowed = trader.items_buy;
+            delete trader.items_buy;
+            trader.buyAllowed.items = trader.buyAllowed.id_list;
+            delete trader.buyAllowed.id_list;
+            trader.buyAllowed.categories = trader.buyAllowed.category;
+            delete trader.buyAllowed.categories;
+
+            trader.buyProhibited = trader.items_buy_prohibited;
+            delete trader.items_buy_prohibited;
+            trader.buyProhibited.items = trader.buyProhibited.id_list;
+            delete trader.buyProhibited.id_list;
+            trader.buyProhibited.categories = trader.buyProhibited.category;
+            delete trader.buyProhibited.categories;
+        }
+        await this.r2Put(`${gameMode}/traders`,
+            {data: apiData, translations: [
+            '$.data.*.name',
+            '$.data.*.description',
+            ]},
+            {locale: data.locale},
+        );
     }
 }
 

@@ -1,0 +1,65 @@
+{
+    "data": {
+        "endpoints": [
+            {
+                "name": "barters",
+                "path": "/{{gameMode}}/barters",
+                "description": "trader barter offers",
+                "translations": false
+            },
+            {
+                "name": "crafts",
+                "path": "/{{gameMode}}/crafts",
+                "description": "hideout crafts",
+                "translations": false
+            },
+            {
+                "name": "hideout",
+                "path": "/{{gameMode}}/hideout",
+                "description": "hideout stations",
+                "translations": true
+            },
+            {
+                "name": "items",
+                "path": "/{{gameMode}}/items",
+                "description": "items, categories, flea market, armor materials, player levels, mastering, skills",
+                "translations": true
+            },
+            {
+                "name": "maps",
+                "path": "/{{gameMode}}/maps",
+                "description": "maps, goon reports, mobs (bosses), loot containers, stationary weapons",
+                "translations": true
+            },
+            {
+                "name": "price history",
+                "path": "/{{gameMode}}/prices/{{itemId}}",
+                "description": "all flea market price history for an item",
+                "translations": false
+            },
+            {
+                "name": "status",
+                "path": "/status",
+                "description": "EFT server status",
+                "translations": false
+            },
+            {
+                "name": "tasks",
+                "path": "/{{gameMode}}/tasks",
+                "description": "tasks, quest items, achievements, prestige",
+                "translations": true
+            },
+            {
+                "name": "traders",
+                "path": "/{{gameMode}}/traders",
+                "description": "traders",
+                "translations": true
+            }
+        ],
+        "gameModes": [
+            "regular",
+            "pve"
+        ],
+        "languages": []
+    }
+}

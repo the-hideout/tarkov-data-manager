@@ -109,7 +109,7 @@ class UpdateHideoutJob extends DataJob {
                             stageData.itemRequirements.push({
                                 id: `${stationData.id}-${i}-${r}`,
                                 item: req.templateId,
-                                name: this.getTranslation(`${req.templateId} Name`),
+                                name: this.peekTranslation(`${req.templateId} Name`),
                                 count: req.count || 1,
                                 attributes: [{
                                     type: 'foundInRaid',
@@ -140,7 +140,7 @@ class UpdateHideoutJob extends DataJob {
                             stageData.traderRequirements.push({
                                 id: `${stationData.id}-${i}-${r}`,
                                 trader_id: req.traderId,
-                                name: this.getTranslation(`${req.traderId} Nickname`),
+                                name: this.peekTranslation(`${req.traderId} Nickname`),
                                 requirementType: 'level',
                                 compareMethod: '>=',
                                 value: req.loyaltyLevel,
@@ -180,6 +180,7 @@ class UpdateHideoutJob extends DataJob {
                 kvName += `_${gameMode.name}`;
             }
             await this.cloudflarePut(this.kvData[gameMode.name], kvName);
+            await this.updateStaticApi(this.kvData[gameMode.name], gameMode.name);
         }
         return this.kvData;
     }
@@ -224,6 +225,55 @@ class UpdateHideoutJob extends DataJob {
             return bonus.value;
         }
         return bonus.value / 100;
+    }
+
+    async updateStaticApi(data, gameMode) {
+        const apiData = {};
+        for (const station of structuredClone(data.HideoutStation)) {
+            apiData[station.id] = station;
+            delete station.tarkovDataId;
+            for (const level of station.levels) {
+                delete level.tarkovDataId;
+                for (const req of level.traderRequirements) {
+                    req.trader = req.trader_id;
+                    delete req.trader_id;
+                    delete req.name;
+                    delete req.level;
+                };
+                for (const req of level.stationLevelRequirements) {
+                    delete req.name;
+                };
+                for (const req of level.itemRequirements) {
+                    delete req.name;
+                    req.attributes = this.objectifyAttributes(req.attributes);
+                };
+                for (const req of level.skillRequirements) {
+                    req.skill = req.name;
+                    delete req.name;
+                };
+                for (const req of level.skillRequirements) {
+                    req.skill = req.name;
+                    delete req.name;
+                }
+                for (const bonus of level.bonuses) {
+                    if (!bonus.skillName) {
+                        continue;
+                    }
+                    bonus.skill = bonus.skillName;
+                    delete bonus.skillName;
+                }
+            };
+        }
+        await this.r2Put(`${gameMode}/hideout`,
+            {data: apiData, translations: [
+                '$.data.*.name',
+                '$.data.*.levels[*].description',
+                '$.data.*.levels[*].skillRequirements[*].skill',
+                '$.data.*.levels[*].bonuses[*].name',
+                '$.data.*.levels[*].bonuses[*].skill',
+            ]},
+            {locale: data.locale},
+        );
     }
 }
 

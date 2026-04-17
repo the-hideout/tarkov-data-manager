@@ -1,3 +1,6 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
 import sharp from 'sharp';
 
 import DataJob from '../modules/data-job.mjs';
@@ -37,6 +40,7 @@ class UpdateItemCacheJob extends DataJob {
             this.traders,
             this.s3Images,
             this.presetTranslations,
+            this.endpointsData,
         ] = await Promise.all([
             tarkovData.items(), 
             tarkovData.credits({gameMode: 'regular'}),
@@ -56,6 +60,7 @@ class UpdateItemCacheJob extends DataJob {
                 }
                 return translations;
             }),
+            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'json_api_endpoints.json')).then(json => JSON.parse(json)),
         ]);
         const itemData = {};
         const itemTypesSet = new Set();
@@ -442,6 +447,9 @@ class UpdateItemCacheJob extends DataJob {
         await this.fillTranslations(this.itemsLocale.locale);
         await this.cloudflarePut();
         await this.cloudflarePut(this.itemsLocale, `${this.kvName}_locale`);
+        await this.updateStaticApi(this.kvData, 'regular');
+        this.endpointsData.data.languages = Object.keys(this.itemsLocale.locale).sort();
+        await this.r2Put(`endpoints`, this.endpointsData);
 
         //this.logger.log('Uploading handbook data to cloudflare...');
         //handbookData.locale = await this.translationHelper.fillTranslations();
@@ -509,6 +517,7 @@ class UpdateItemCacheJob extends DataJob {
             this.logger.log(`Uploading ${gameMode.name} items data to cloudflare...`);
             await this.cloudflarePut(modeData, `${this.kvName}_${gameMode.name}`);
             await this.cloudflarePut(this.itemsLocale, `${this.kvName}_locale_${gameMode.name}`);
+            await this.updateStaticApi(modeData, gameMode.name);
 
             //this.logger.log(`Uploading ${gameMode.name} handbook data to cloudflare...`);
             //handbookData.locale = await this.translationHelper.fillTranslations();
@@ -881,6 +890,127 @@ class UpdateItemCacheJob extends DataJob {
             return Math.max(catLevel, getHighestHandbookLevel(this.handbook.Categories.find(c => c.Id === cat.ParentId)));
         };
         return Math.max(itemLevel, getHighestHandbookLevel(category));
+    }
+
+    async updateStaticApi(data, gameMode) {
+        const cashPrices = await this.jobOutput('update-trader-offers', {gameMode});
+        const apiData = {items: structuredClone(data.Item)};
+        for (const id in apiData.items) {
+            const item = apiData.items[id];
+            for (const ci of item.containsItems) {
+                ci.attributes = this.objectifyAttributes(ci.attributes);
+            }
+            item.buyFromTrader = [];
+            for (const offer of cashPrices[id] ?? []) {
+                item.buyFromTrader.push({
+                    trader: offer.vendor.trader,
+                    price: offer.price,
+                    priceRUB: offer.priceRUB,
+                    currency: offer.currency,
+                    currencyItem: offer.currencyItem,
+                    minTraderLevel: offer.vendor.traderLevel,
+                    taskUnlock: offer.quest_unlock_id,
+                    restockAmount: offer.restockAmount,
+                    buyLimit: offer.buyLimit
+                });
+            }
+            item.sellToTrader = item.traderPrices.map(sell => {
+                return {
+                    trader: sell.trader,
+                    price: sell.price,
+                    priceRUB: sell.priceRUB,
+                    currency: sell.currency,
+                    currencyItem: sell.currencyItem,
+                };
+            });
+            delete item.traderPrices;
+            delete item.accuracy;
+            delete item.bsgCategoryId;
+            if (!item.properties) {
+                continue;
+            }
+            if (item.properties.armor_material_id) {
+                item.properties.armorMaterial = item.properties.armor_material_id;
+                delete item.properties.armor_material_id;
+            }
+            if (item.properties.base_item_id) {
+                item.properties.baseItem = item.properties.base_item_id;
+                delete item.properties.base_item_id;
+            }
+            for (const slot of item.properties.armorSlots ?? []) {
+                slot.armorMaterial = slot.armor_material_id;
+                delete slot.armor_material_id;
+            }
+            for (const effect of item.properties.stimEffects ?? []) {
+                if (!effect.skillName) {
+                    continue;
+                }
+                effect.skill = effect.skillName;
+                delete effect.skillName;
+            }
+            if (item.properties.hasOwnProperty('default_ammo_id')) {
+                item.properties.defaultAmmo = item.properties.default_ammo_id;
+                delete item.properties.default_ammo_id;
+            }
+            if (item.properties.headZones) {
+                item.properties.zones = item.properties.headZones;
+                delete item.properties.headZones;
+            }
+            if (item.properties.armorMaterial) {
+                item.properties.material = item.properties.armorMaterial;
+                delete item.properties.armorMaterial;
+            }
+            delete item.properties.accuracy;
+            delete item.properties.recoil;
+        }
+        apiData.itemCategories = structuredClone(data.ItemCategory);
+        for (const id in apiData.itemCategories) {
+            const cat = apiData.itemCategories[id];
+            cat.parent = cat.parent_id;
+            delete cat.parent_id;
+            cat.children = cat.child_ids;
+            delete cat.child_ids;
+        }
+        apiData.handbookCategories = structuredClone(data.HandbookCategory);
+        for (const id in apiData.handbookCategories) {
+            const cat = apiData.handbookCategories[id];
+            cat.parent = cat.parent_id;
+            delete cat.parent_id;
+            cat.children = cat.child_ids;
+            delete cat.child_ids;
+        }
+        apiData.fleaMarket = structuredClone(data.FleaMarket);
+        apiData.armorMaterials = structuredClone(data.ArmorMaterial);
+        apiData.playerLevels = structuredClone(data.PlayerLevel);
+        apiData.mastering = structuredClone(data.Mastering);
+        apiData.skills = structuredClone(data.Skill);
+        apiData.specialItems = structuredClone(data.SpecialItems);
+        apiData.settings = {
+            scavCooldownSeconds: this.globals.config.SavagePlayCooldown,
+            globalMaxTraders: this.globals.config.MaxLoyaltyLevelForAll,
+        };
+        await this.r2Put(`${gameMode}/items`,
+            {data: apiData, translations: [
+                '$.data.items.*.name',
+                '$.data.items.*.shortName',
+                '$.data.items.*.description',
+                '$.data.items.*.properties.slots[*].name',
+                '$.data.items.*.properties.zones[*]',
+                '$.data.items.*.properties.armorType',
+                '$.data.items.*.properties.armorSlots[*].name',
+                '$.data.items.*.properties.armorSlots[*].zones[*]',
+                '$.data.items.*.properties.armorSlots[*].armorType',
+                '$.data.items.*.properties.stimEffects[*].type',
+                '$.data.items.*.properties.fireModes[*]',
+                '$.data.fleaMarket.*.name',
+                '$.data.armorMaterial.*.name',
+                '$.data.skills.*.name',
+                '$.data.itemCategories.*.name',
+                '$.data.handbookCategories.*.name',
+            ]},
+            {locale: this.itemsLocale.locale},
+        );
+        //await this.r2Put(`lang`, {data: Object.keys(this.itemsLocale.locale).sort(), translations: []});
     }
 }
 

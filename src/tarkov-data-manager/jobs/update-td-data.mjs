@@ -1,6 +1,5 @@
 import DataJob from '../modules/data-job.mjs';
 import tarkovDevData from '../modules/tarkov-data-tarkov-dev.mjs';
-import webSocketServer from '../modules/websocket-server.mjs';
 import gameModes from '../modules/game-modes.mjs';
 
 class UpdateTdDataJob extends DataJob {
@@ -15,7 +14,7 @@ class UpdateTdDataJob extends DataJob {
         });
 
         const tradingService = services.find(s => s.name === 'Trading');
-        if (tradingService?.status === 1 && webSocketServer.launchedScanners().length === 0) {
+        if (tradingService?.status === 1) {
             this.logger.log('Game is updating, skipping data update');
             return;
         }

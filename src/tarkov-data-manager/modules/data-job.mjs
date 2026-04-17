@@ -11,7 +11,6 @@ import TranslationHelper from './translation-helper.mjs';
 import dbConnection from'./db-connection.mjs';
 import JobLogger from './job-logger.mjs';
 import { alert, send as sendWebhook } from './webhook.mjs';
-import webSocketServer from './websocket-server.mjs';
 import tarkovData from'./tarkov-data.mjs';
 import normalizeName from './normalize-name.js';
 import gameModes from './game-modes.mjs';
@@ -224,11 +223,6 @@ class DataJob {
         if (this.name) {
             emitter.emit(`jobComplete_${this.name}`);
         }
-        if (!options?.parent) {
-            if (process.env.TEST_JOB === 'true') {
-                webSocketServer.close();
-            }
-        }
         if (throwError) {
             return Promise.reject(throwError);
         }
@@ -337,19 +331,97 @@ class DataJob {
         return totalResults;
     }
 
-    writeDump = (data = false, filename = false) => {
+    r2Put = async (key, data, options = {}) => {
+        const dataString = JSON.stringify(data);
+        const publicPath = `https://${cloudflare.bucketDomain}.tarkov.dev/${key}`;
+        const response = await fetch(publicPath);
+        if (response.ok) {
+            const currentValue = await response.text();
+            if (dataString === currentValue) {
+                this.logger.log(`Value of ${key} has not changed; skipping upload`);
+                return;
+            }
+        }
+        const start = new Date();
+        await cloudflare.r2Put({
+            Key: key,
+            ContentType: 'application/json',
+            Body: dataString,
+        });
+        const uploadTime = new Date() - start;
+        if (options.locale) {
+            await this.putStaticApiLocale(key, options.locale);
+        }
+        if (!options.skipPurge) {
+            await this.purgeCachePrefix(publicPath);
+        }
+        this.writeDump(data, `v2/${key}`, false);
+        this.logger.success(`Successful R2 put of ${key} in ${uploadTime} ms (${dataString.length.toLocaleString()} bytes)`);
+        return publicPath;
+    }
+
+    purgeCachePrefix = (urlPrefix) => {
+        return cloudflare.purgeCachePrefix(urlPrefix);
+    }
+
+    getStaticApiLocale = (locale) => {
+        const apiLocale = {};
+        for (const langCode in locale) {
+            apiLocale[langCode] = {...locale[langCode]};
+            if (langCode === 'en') {
+                continue;
+            }
+
+            for (const translationKey in locale.en) {
+                if (apiLocale[langCode][translationKey]) {
+                    continue;
+                }
+                apiLocale[langCode][translationKey] = apiLocale.en[translationKey];
+            }
+        }
+        return apiLocale;
+    }
+
+    putStaticApiLocale = async (key, locale) => {
+        const apiLocale = this.getStaticApiLocale(locale);
+        return Promise.all(Object.keys(apiLocale).map(langCode => {
+            return this.r2Put(`${key}_${langCode}`, {data: apiLocale[langCode]}, {skipPurge: true});
+        }));
+    }
+
+    objectifyAttributes = (attrArray = []) => {
+        if (!Array.isArray(attrArray)) {
+            return attrArray;
+        }
+        const atts = {};
+        for (const attr of attrArray) {
+            atts[attr.type ?? attr.name] = attr.value ?? attr.stringValue;
+            if (['true', 'false'].includes(attr.value)) {
+                atts[attr.type] = JSON.parse(attr.value);
+            }
+        }
+        return atts;
+    }
+
+    writeDump = (data = false, filename = false, saveOld = true) => {
         if (!data) {
             data = this.kvData;
         }
         if (!filename) {
             filename = this.kvName;
         }
-        const newName = path.join(import.meta.dirname, '..', 'dumps', `${filename.toLowerCase()}.json`);
+        const newName = path.join(import.meta.dirname, '..', this.writeFolder, `${filename.toLowerCase()}.json`);
         const oldName = newName.replace('.json', '_old.json');
+        const folderName = path.dirname(newName);
         try {
-            fs.renameSync(newName, oldName);
-        } catch (error) {
-            // do nothing
+            fs.mkdirSync(folderName, { recursive: true });
+        } catch {}
+        if (saveOld) {
+            try {
+                fs.renameSync(newName, oldName);
+            } catch (error) {
+                // do nothing
+            }
         }
         fs.writeFileSync(newName, JSON.stringify(data, null, 4));
         //fs.writeFileSync(newName, value);
@@ -379,6 +451,10 @@ class DataJob {
 
     getTranslation = (key, langCode = 'en', target) => {
         return this.translationHelper.getTranslation(key, langCode, target);
+    }
+
+    peekTranslation = (key, langCode = 'en') => {
+        return this.translationHelper.peekTranslation(key, langCode);
     }
 
     fillTranslations = async (target) => {

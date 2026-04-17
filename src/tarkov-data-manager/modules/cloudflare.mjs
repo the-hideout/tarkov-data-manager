@@ -1,6 +1,7 @@
 //import zlib from 'zlib';
 
 import Cloudflare from 'cloudflare';
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 import sleep from './sleep.js';
 
@@ -13,6 +14,19 @@ const client = new Cloudflare({
 const namespace = process.env.NODE_ENV === 'production' ? '2e6feba88a9e4097b6d2209191ed4ae5' : '17fd725f04984e408d4a70b37c817171';
 const accountId = '424ad63426a1ae47d559873f929eb9fc';
 //namespace = '2e6feba88a9e4097b6d2209191ed4ae5'; // force production
+
+const bucket = process.env.NODE_ENV === 'production' ? 'api' : 'api-dev';
+
+const bucketDomain = process.env.NODE_ENV === 'production' ? 'json' : 'json-dev';
+
+const s3Client = new S3Client({
+    region: "auto",
+    endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+    credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID,
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+    },
+});
 
 const doRequest = async (options = {}) => {
     if (!options.path) {
@@ -171,6 +185,17 @@ const deleteValues = async (keys) => {
     return response.json();
 };
 
+const chunkArray = (myArray, chunkSize) => {
+    const chunks = [];
+
+    for (let i = 0; i < myArray.length; i += chunkSize) {
+        const chunk = myArray.slice(i, i + chunkSize);
+        chunks.push(chunk);
+    }
+
+    return chunks;
+};
+
 export const purgeCache = async (urls) => {
     if (typeof urls === 'string') {
         urls = [urls];
@@ -201,13 +226,10 @@ const cloudflare = {
         } 
         //return doRequest('PUT', 'values', key, zlib.gzipSync(value).toString(encoding), false, {compression: 'gzip', encoding: encoding}).then(response => {
         //return doRequest({method: 'PUT', path: `values/${key}`, body: value, ...options});
-        return client.kv.namespaces.keys.bulkUpdate(namespace, {
+        return client.kv.namespaces.values.update(namespace, key, {
             account_id: accountId,
-            body: [{
-                key,
-                value,
-            }],
-        }).then(response => {
+            value,
+        }).then(error => {
             //console.log('put response', response);
             const result = {
                 result: {},
@@ -215,11 +237,8 @@ const cloudflare = {
                 errors: [],
                 messages: [],
             };
-            if (response.successful_key_count !== 1) {
-                result.success = false;
-                result.errors.push({
-                    message: 'Unsucessful put of '+key,
-                });
+            if (error) {
+                return error;
             }
             return result;
         }).catch(error => {
@@ -243,6 +262,39 @@ const cloudflare = {
     },
     getKeys: getKeys,
     purgeCache: purgeCache,
+    purgeCachePrefix: async (urlPrefixes) => {
+        if (typeof urlPrefixes === 'string') {
+            urlPrefixes = [urlPrefixes];
+        }
+        if (!urlPrefixes.length) {
+            return;
+        }
+        urlPrefixes = urlPrefixes.map(prefix => {
+            return prefix.replace('http://', '').replace('https://', '');
+        });
+        const prefixChunks = chunkArray(urlPrefixes, 100);
+        const responses = [];
+        for (const prefixes of prefixChunks) {
+            const requestOptions = {
+                method: 'POST',
+                headers: {
+                    'authorization': `Bearer ${process.env.CLOUDFLARE_TOKEN}`,
+                },
+                body: JSON.stringify({
+                    prefixes: prefixes
+                }),
+            };
+            const purgeResposne = await fetch(`${BASE_URL}zones/a17204c79af55fcf05e4975f66e2490e/purge_cache`, requestOptions).then(r => r.json()).then(response => {
+                if (response.success === false && response.errors) {
+                    //console.log(`Error purging ${urls.join(', ')}: ${response.errors.map(err => err.message).join(', ')}`);
+                    return Promise.reject(new Error(`${response.errors[0].message} (${response.errors[0].code}) purging ${urlPrefixes.join(', ')}: `));
+                }
+                return response;
+            });
+            responses.push(purgeResposne);
+        }
+        return responses;
+    },
     //getOldKeys: getOldKeys,
     //delete: deleteValue,
     //deleteBulk: deleteValues
@@ -298,6 +350,18 @@ const cloudflare = {
         }*/
         return response;
     },
+    r2Put: (uploadParams) => {
+        uploadParams.Bucket = bucket;
+        if (!uploadParams.Key) {
+            return Promise.reject(new Error('Key parameter missing'));
+        }
+        if (!uploadParams.Body) {
+            return Promise.reject(new Error('Body parameter missing'));
+        }
+        uploadParams.ContentType ??= 'text/html';
+        return s3Client.send(new PutObjectCommand(uploadParams));
+    },
+    bucketDomain,
 };
 
 export const { put } = cloudflare;
