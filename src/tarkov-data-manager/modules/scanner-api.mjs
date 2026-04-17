@@ -12,6 +12,7 @@ import { createAndUploadFromSource } from './image-create.mjs';
 import presetData from './preset-data.mjs';
 import emitter from './emitter.mjs';
 import gameModes from './game-modes.mjs';
+import tarkovDevData from './tarkov-data-tarkov-dev.mjs';
 
 const { imageSizes } = imgGen.imageFunctions;
 
@@ -1368,7 +1369,10 @@ const scannerApi = {
     },
     createPresetFromOffer: async (offer, presetImage = false) => {
         if (!presetImage) {
-            presetImage = await webSocketServer.getJsonImage(reward);
+            presetImage = await tarkovDevData.fenceFetchImage('/preset-image', {
+                method: 'POST',
+                body: JSON.stringify(reward),
+            });
         }
         const newPresetData = await presetData.addJsonPreset(offer);
         const newPreset = newPresetData.preset;
