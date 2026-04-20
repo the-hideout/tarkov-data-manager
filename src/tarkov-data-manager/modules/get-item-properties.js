@@ -153,7 +153,11 @@ const getArmorSlots = (item) => {
             ...slotInfo.armorPlateColliders.map(collider => `Armor Zone ${collider}`),
         ];
         if (slotInfo.locked) {
-            const plateItem = job.bsgItems[slotInfo.Plate];
+            const plateId = slotInfo.Plate || slotInfo.Filter[0];
+            const plateItem = job.bsgItems[plateId];
+            if (!plateItem) {
+                console.log('plate not found', slotInfo)
+            }
             //newSlot.name = translationHelper.addTranslation(plateItem._props.Name),
             newSlot.bluntThroughput = plateItem._props.BluntThroughput,
             newSlot.class = parseInt(plateItem._props.armorClass),
