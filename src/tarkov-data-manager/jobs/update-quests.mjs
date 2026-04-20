@@ -841,8 +841,7 @@ class UpdateQuestsJob extends DataJob {
                     method: 'POST',
                     body: JSON.stringify(reward),
                 });
-                const matchedPresetData = await presetData.addJsonPreset(reward);
-                matchedPreset = matchedPresetData.preset;
+                matchedPreset = await presetData.addJsonPreset(reward);
                 await createAndUploadFromSource(presetImage, matchedPreset.id);
             } catch (error) {
                 this.logger.error(`Error creating JSON preset: ${error.message}`);

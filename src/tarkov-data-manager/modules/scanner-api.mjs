@@ -1374,13 +1374,12 @@ const scannerApi = {
                 body: JSON.stringify(reward),
             });
         }
-        const newPresetData = await presetData.addJsonPreset(offer);
-        const newPreset = newPresetData.preset;
+        const newPreset = await presetData.addJsonPreset(offer);
         await createAndUploadFromSource(presetImage, newPreset.id);
         return {
             id: newPreset.id,
-            name: newPresetData.locale.en[newPreset.name],
-            shortName: newPresetData.locale.en[newPreset.shortName],
+            name: newPreset.name,
+            shortName: newPreset.short_name,
             types: newPreset.types,
             backgroundColor: newPreset.backgroundColor,
             width: newPreset.width,
