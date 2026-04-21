@@ -131,11 +131,11 @@ export async function regenerateFromExisting(id, backgroundOnly = false) {
     const item = itemFromDb(itemData);
     let regenSource = '8x';
     let sourceUrl = item.image8xLink;
-    if (item.image8xLink.includes('unknown-item')) {
-        if (item.baseImageLink.includes('unknown-item')) {
+    if (!sourceUrl || sourceUrl.includes('unknown-item')) {
+        if (!item.baseImageLink || item.baseImageLink.includes('unknown-item')) {
             return Promise.reject(new Error(`${item.name} does not have an 8x or base image to regnerate images from`));
         }
-        sourceUrl = `https://${process.env.S3_BUCKET}/${id}-base-image.png`;
+        sourceUrl = item.baseImageLink;
         regenSource = 'base';
     }
     const imageData = await fetch(sourceUrl).then(r => r.arrayBuffer());
