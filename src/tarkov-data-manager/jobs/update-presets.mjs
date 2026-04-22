@@ -196,10 +196,12 @@ class UpdatePresetsJob extends DataJob {
                 continue;
             }
             const p = this.presetsData[id];
-            if (!p && !item.types.includes('disabled')) {
-                this.logger.warn(`Preset ${item.name} ${id} is no longer valid; disabling`);
-                //queries.push(presetsHelper.deletePreset(id));
-                queries.push(remoteData.addType(id, 'disabled'));
+            if (!p) {
+                if (!item.types.includes('disabled')) {
+                    this.logger.warn(`Preset ${item.name} ${id} is no longer valid; disabling`);
+                    //queries.push(presetsHelper.deletePreset(id));
+                    queries.push(remoteData.addType(id, 'disabled'));
+                }
                 continue;
             }
             if (p.armorOnly) {
