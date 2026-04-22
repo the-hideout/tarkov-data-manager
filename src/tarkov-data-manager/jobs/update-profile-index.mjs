@@ -28,7 +28,7 @@ class UpdateProfileIndexJob extends DataJob {
         let offset = 0;
         while (true) {
             const queryResult = await this.d1Query(
-                'SELECT id, name, updated, updated_pve FROM eft_accounts LIMIT ?, ?',
+                'SELECT id, name, updated, updated_pve, updated_arena FROM eft_accounts LIMIT ?, ?',
                 [offset, batchSize],
                 {
                     maxRetries: 10,
