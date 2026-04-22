@@ -239,8 +239,8 @@ class UpdatePresetsJob extends DataJob {
                 },
             }).then(() => {
                 if (presetIsNewItem) {
-                    this.logger.log(`${p.name} added`);
-                    this.addJobSummary(`${p.name} ${presetId}`, 'Added Presets(s)');
+                    this.logger.log(`${this.getTranslation(p.name)} added`);
+                    this.addJobSummary(`${this.getTranslation(p.name)} ${presetId}`, 'Added Presets(s)');
                 }    
                 if (p.armorOnly) {
                     // this preset consists of only armor items
