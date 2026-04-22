@@ -2218,7 +2218,6 @@ class UpdateQuestsJob extends DataJob {
                 delete obj.map_ids;
                 delete obj.zoneKeys;
                 delete obj.item_name;
-                delete obj.item;
                 delete obj.locationNames;
                 delete obj.target;
                 delete obj.quest_name;
@@ -2287,6 +2286,9 @@ class UpdateQuestsJob extends DataJob {
                 }
                 if (obj.type === 'findQuestItem' || obj.type === 'giveQuestItem') {
                     obj.questItem = obj.item_id;
+                }
+                if (obj.type !== 'buildWeapon') {
+                    delete obj.item;
                 }
                 if (obj.trader_id) {
                     obj.trader = obj.trader_id;
