@@ -538,7 +538,7 @@ const presetData = {
     deletePreset: async (id) => {
         const items = await remoteData.get();
         const item = items.get(id);
-        if (item && !item.inclues('preset')) {
+        if (item && !item.types.inclues('preset')) {
             return Promise.reject(new Error(`Item ${item.name} ${id} is not a preset`));
         }
         const gamePresets = await presetData.getGamePresets();
