@@ -196,10 +196,12 @@ class UpdatePresetsJob extends DataJob {
                 continue;
             }
             const p = this.presetsData[id];
-            if (!p && !item.types.includes('disabled')) {
-                this.logger.warn(`Preset ${item.name} ${id} is no longer valid; disabling`);
-                //queries.push(presetsHelper.deletePreset(id));
-                queries.push(remoteData.addType(id, 'disabled'));
+            if (!p) {
+                if (!item.types.includes('disabled')) {
+                    this.logger.warn(`Preset ${item.name} ${id} is no longer valid; disabling`);
+                    //queries.push(presetsHelper.deletePreset(id));
+                    queries.push(remoteData.addType(id, 'disabled'));
+                }
                 continue;
             }
             if (p.armorOnly) {
@@ -237,8 +239,8 @@ class UpdatePresetsJob extends DataJob {
                 },
             }).then(() => {
                 if (presetIsNewItem) {
-                    this.logger.log(`${p.name} added`);
-                    this.addJobSummary(`${p.name} ${presetId}`, 'Added Presets(s)');
+                    this.logger.log(`${this.getTranslation(p.name)} added`);
+                    this.addJobSummary(`${this.getTranslation(p.name)} ${presetId}`, 'Added Presets(s)');
                 }    
                 if (p.armorOnly) {
                     // this preset consists of only armor items

@@ -841,8 +841,7 @@ class UpdateQuestsJob extends DataJob {
                     method: 'POST',
                     body: JSON.stringify(reward),
                 });
-                const matchedPresetData = await presetData.addJsonPreset(reward);
-                matchedPreset = matchedPresetData.preset;
+                matchedPreset = await presetData.addJsonPreset(reward);
                 await createAndUploadFromSource(presetImage, matchedPreset.id);
             } catch (error) {
                 this.logger.error(`Error creating JSON preset: ${error.message}`);
@@ -2219,7 +2218,6 @@ class UpdateQuestsJob extends DataJob {
                 delete obj.map_ids;
                 delete obj.zoneKeys;
                 delete obj.item_name;
-                delete obj.item;
                 delete obj.locationNames;
                 delete obj.target;
                 delete obj.quest_name;
@@ -2288,6 +2286,9 @@ class UpdateQuestsJob extends DataJob {
                 }
                 if (obj.type === 'findQuestItem' || obj.type === 'giveQuestItem') {
                     obj.questItem = obj.item_id;
+                }
+                if (obj.type !== 'buildWeapon') {
+                    delete obj.item;
                 }
                 if (obj.trader_id) {
                     obj.trader = obj.trader_id;

@@ -92,10 +92,7 @@ $(document).ready( async function () {
             data: 'image_link',
             render: (data, type, item) => {
                 if (type === 'display') {
-                    let imageLink = item.image_512_link;
-                    if (!imageLink) {
-                        imageLink = item.base_image_link || item.grid_image_link || item.icon_link;
-                    }
+                    const imageLink = item.image_512_link ?? item.base_image_link ?? item.grid_image_link ?? item.icon_link;
                     return `
                         ${imageLink ? `<div><img src="${imageLink}" loading="lazy" style="max-height: 200px" /></div>`: ''}
                         <div>
