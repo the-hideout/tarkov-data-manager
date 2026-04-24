@@ -300,7 +300,6 @@ const presetData = {
         return id;
     },
     addJsonPreset: async (json, logger) => {
-        return Promise.reject(new Error('CREATING NEW PRESET'));
         const items = json.items ?? json._items;
         const existingPreset = presetData.findPreset(items);
         if (existingPreset) {

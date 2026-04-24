@@ -253,6 +253,7 @@ class UpdateTraderOffersJob extends DataJob {
                     let preset = presetData.findPreset(offer.items);
                     if (!preset) {
                         preset = await presetData.addJsonPreset(offer, this.logger);
+                        this.addJobSummary(`${preset.name} ${preset.id}`, 'Created Preset');
                     } else {
                         presetData.presetUsed(preset.id);
                     }
