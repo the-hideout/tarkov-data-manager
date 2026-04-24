@@ -11,8 +11,8 @@
     },
     "license": "ISC",
     "dependencies": {
-        "@azure/storage-blob": "^12.17.0",
+        "@azure/storage-blob": "^12.31.0",
         "mysql2": "^3.9.8",
-        "node-cron": "^3.0.3"
+        "node-cron": "^4.2.1"
     }
 }
