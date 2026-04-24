@@ -837,6 +837,7 @@ class UpdateQuestsJob extends DataJob {
 
         if (!matchedPreset) {
             try {
+                throw new Error('Skipping preset creation');
                 const presetImage = await this.fenceFetchImage('/preset-image', {
                     method: 'POST',
                     body: JSON.stringify(reward),
