@@ -1110,7 +1110,7 @@ class UpdateMapsJob extends DataJob {
                             continue;
                         }
                         this.fillItemContents(item, render.data.Equipment.items, equipmentItem.contains);
-                        const preset = presetData.findPreset(this.buildPreset(item, render.data.Equipment.items));
+                        const preset = presetData.findPreset(this.buildPreset(item, render.data.Equipment.items)._items);
                         if (preset) {
                             equipmentItem.item = preset.id;
                             equipmentItem.item_name = preset.name;
