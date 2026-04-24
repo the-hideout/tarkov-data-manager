@@ -2521,10 +2521,10 @@
         "name": "To Great Heights! - Part 3 [PVP ZONE]",
         "locale": {
             "en": {
-                "66a0f5a7f9eae6761253114c": "Win 2 matches while claiming at least 3rd place in TeamFight, BlastGang, or CheckPoint mode in Arena"
+                "662ba61d3ed61b6b78187b71": "Win 2 matches while claiming at least 3rd place in TeamFight, BlastGang, or CheckPoint mode in Arena"
             },
             "zh": {
-                "66a0f5a7f9eae6761253114c": "在竞技场赢得两场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗，至少取得前三名的排名"
+                "662ba61d3ed61b6b78187b71": "在竞技场赢得两场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗，至少取得前三名的排名"
             }
         }
     },

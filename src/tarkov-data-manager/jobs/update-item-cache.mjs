@@ -98,7 +98,7 @@ class UpdateItemCacheJob extends DataJob {
             'updated',
         ];
         this.logger.log('Processing items...');
-        let itemImageDownloadError = false;
+        let itemImageDownloadErrorCount = 0;
         for (const [key, value] of this.itemMap.entries()) {
             if (value.types.includes('disabled') || value.types.includes('quest')){
                 continue;
@@ -111,7 +111,7 @@ class UpdateItemCacheJob extends DataJob {
                 continue;
             }                
 
-            if (!value.image_8x_link && !itemImageDownloadError) {
+            if (!value.image_8x_link && itemImageDownloadErrorCount < 10) {
                 try {
                     let image;
                     if (value.types.includes('preset')) {
@@ -129,8 +129,9 @@ class UpdateItemCacheJob extends DataJob {
                     }
                     await createAndUploadFromSource(image, key);
                     this.logger.success(`Created ${key} item image`);
+                    itemImageDownloadErrorCount = 0;
                 } catch (error) {
-                    itemImageDownloadError = true;
+                    itemImageDownloadErrorCount++;
                     this.logger.error(`Error creating ${key} item image ${error}`);
                 }
             }
