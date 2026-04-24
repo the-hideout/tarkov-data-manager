@@ -523,8 +523,14 @@ const presetData = {
         });
     },
     findPreset: (items) => {
+        if (!Array.isArray(items)) {
+            throw new Error('findPreset requires an array of items');
+        }
         const allPresets = remoteData.getPresets();
         for (const preset of Object.values(allPresets)) {
+            if (!Array.isArray(preset.properties.items)) {
+                throw new Error(`Preset ${preset.id} does not have valid properties.items`);
+            }
             if (presetData.itemsMatch(items, preset.properties.items)) {
                 return preset;
             }
