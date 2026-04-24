@@ -855,7 +855,7 @@ class UpdateQuestsJob extends DataJob {
             // calling here ensures that only prior-existing presets
             // are updated instead of updating a newly-created one
             await presetData.presetUsed(matchedPreset.id);
-            //this.logger.log('matched preset');
+            this.logger.log(`Matched reward preset ${matchedPreset.name}`);
             //this.logger.log(JSON.stringify(matchedPreset, null, 4));
         }
 
