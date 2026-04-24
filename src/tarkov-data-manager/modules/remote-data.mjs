@@ -501,7 +501,10 @@ const methods = {
         if (!myData.has(id)) {
             return Promise.reject(new Error(`Item ${id} not found`));
         }
-        const result = await db.query('DELETE FROM item_data WHERE id = ?', [id]);
+        const [result, typesResult] = await Promise.all([
+            db.query('DELETE FROM item_data WHERE id = ?', [id]),
+            db.query('DELETE FROM types WHERE item_id = ?', [id]),
+        ]);
         emitter.emit('itemRemoved', myData.get(id));
         myData.delete(id);
         return result;
