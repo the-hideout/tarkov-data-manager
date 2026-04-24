@@ -193,17 +193,22 @@ class UpdatePresetsJob extends DataJob {
         const regnerateImages = [];
         for (const [id, item] of this.dbItems.entries()) {
             if (!item.types.includes('preset')) {
+                // item isn't a preset
                 continue;
             }
             const p = this.presetsData[id];
-            if (!p && !item.types.includes('disabled')) {
-                this.logger.warn(`Preset ${item.name} ${id} is no longer valid; disabling`);
-                //queries.push(presetsHelper.deletePreset(id));
-                
-                queries.push(remoteData.addType(id, 'disabled'));
+            if (!p) {
+                // item is marked as preset, but there's no preset record for it
+                if (!item.types.includes('disabled')) {    
+                    this.logger.warn(`Preset ${item.name} ${id} is no longer valid; disabling`);
+                    //queries.push(presetsHelper.deletePreset(id));
+
+                    queries.push(remoteData.addType(id, 'disabled'));
+                }
                 continue;
             }
             if (p.armorOnly) {
+                // we don't have to regenerate images for armor presets
                 continue;
             }
             if (item.short_name !== this.getTranslation(p.shortName) || item.width !== p.width || item.height !== p.height || item.properties.backgroundColor !== p.backgroundColor) {
