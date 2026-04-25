@@ -34,7 +34,10 @@ class UpdatePresetsJob extends DataJob {
         const mergeCounts = {};
         const mergedPresets = [];
         const mergePromises = [];
-        for (const dbPreset of Object.values(dbPresets)) {
+        const dbPresetsArray = Object.values(dbPresets);
+        for (let i = 0; i < dbPresetsArray.length; i++) {
+            const dbPreset = dbPresetsArray[i];
+            // first, merge db presets into duplicate game presets
             for (const gamePreset of Object.values(this.presets)) {
                 const gamePresetItem = this.dbItems.get(gamePreset._id);
                 if (!gamePresetItem) {
@@ -49,11 +52,31 @@ class UpdatePresetsJob extends DataJob {
                 mergePromises.push(presetsHelper.mergePreset(dbPreset._id, gamePreset._id));
                 break;
             }
+            // next, find other duplicate presets and merge into this preset
+            // we compare working back from the end
+            for (let ii = dbPresetsArray.length - 1; ii > i; ii--) {
+                if (mergedPresets.includes(dbPreset._id)) {
+                    // this preset was already merged into another preset
+                    break;
+                }
+                const dbPresetCompare = dbPresetsArray[ii];
+                if (mergedPresets.includes(dbPresetCompare._id)) {
+                    // comparison already merged into another preset
+                    continue;
+                }
+                if (!presetsHelper.itemsMatch(dbPreset._items, dbPresetCompare._items)) {
+                    continue;
+                }
+                mergeCounts[dbPreset._id] ??= 0;
+                mergeCounts[dbPreset._id]++;
+                mergedPresets.push(dbPresetCompare._id);
+                mergePromises.push(presetsHelper.mergePreset(dbPresetCompare._id, dbPreset._id));
+            }
         }
         await Promise.all(mergePromises);
         for (const id in mergeCounts) {
             const item = this.dbItems.get(id);
-            this.addJobSummary(`${item.name} ${item.id} ${mergeCounts[id]}`, 'Merged into Game Presets');
+            this.addJobSummary(`${item.name} ${item.id}: ${mergeCounts[id]}`, 'Merged Identical Presets');
         }
 
         for (const p of Object.values(dbPresets)) {
