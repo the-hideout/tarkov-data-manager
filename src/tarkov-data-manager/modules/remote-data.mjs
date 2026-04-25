@@ -349,7 +349,7 @@ const methods = {
         myData.set(updateObject.id, currentItemData);
     },
     addType: async (id, type) => {
-        //console.log(`Adding ${type} for ${id}`);
+        console.log(`Adding ${type} for ${id}`);
         const [itemData, insertResult] = await Promise.all([
             methods.get(),
             db.query(`INSERT IGNORE INTO types (item_id, type) VALUES (?, ?)`, [id, type]),
@@ -479,14 +479,22 @@ const methods = {
         `, [...insertValues, ...updateValues]);
         //console.log('insertResult', insertResult);
         if (insertResult.affectedRows > 0) {
-            if (values.types) {
-                await methods.addTypes(values.id, values.types);
+            const newTypes = values.types ?? [];
+            delete values.types;
+            const currentItemData = myData.get(values.id) ?? {};
+            if (newTypes.length) {
+                await methods.addTypes(values.id, newTypes);
+                currentItemData.types ??= [];
+                for (const t of newTypes) {
+                    if (currentItemData.types.includes(t)) {
+                        continue;
+                    }
+                    currentItemData.types.push(t);
+                }
             }
-            const currentItemData = myData.get(values.id);
             myData.set(values.id, {
                 ...currentItemData,
                 ...values,
-                types: values.types ?? [],
                 updated: currentItemData?.updated ?? new Date(),
             });
             emitter.emit('itemAdded', myData.get(values.id));
