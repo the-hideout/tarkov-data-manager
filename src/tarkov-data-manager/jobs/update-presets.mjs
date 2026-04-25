@@ -43,7 +43,7 @@ class UpdatePresetsJob extends DataJob {
                 if (!gamePresetItem) {
                     continue;
                 }
-                if (!presetsHelper.itemsMatch(dbPreset._items, gamePreset._items)) {
+                if (!presetsHelper.itemsMatch(dbPreset._items, this.removeSoftArmor(gamePreset._items))) {
                     continue;
                 }
                 mergeCounts[gamePreset._id] ??= 0;
@@ -386,6 +386,13 @@ class UpdatePresetsJob extends DataJob {
         await Promise.allSettled(queries);
         presetsHelper.updatedPresets();
         return this.kvData;
+    }
+
+    removeSoftArmor(items) {
+        return items.filter(i => {
+            const tempalte = this.items[i._tpl];
+            return tempalte._parent !== '65649eb40bf0ed77b8044453';
+        });
     }
 }
 
