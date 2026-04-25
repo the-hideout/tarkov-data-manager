@@ -57,7 +57,7 @@ class UpdatePresetsJob extends DataJob {
         }
 
         for (const p of Object.values(dbPresets)) {
-            if (mergedPresets.includess(p._id)) {
+            if (mergedPresets.includes(p._id)) {
                 continue;
             }
             this.presets[p._id] = p;
