@@ -31,7 +31,35 @@ class UpdatePresetsJob extends DataJob {
 
         const dbPresets = await presetsHelper.getDatabasePresets();
 
+        const mergeCounts = {};
+        const mergedPresets = [];
+        const mergePromises = [];
+        for (const dbPreset of Object.values(dbPresets)) {
+            for (const gamePreset of Object.values(this.presets)) {
+                const gamePresetItem = this.dbItems.get(gamePreset._id);
+                if (!gamePresetItem) {
+                    continue;
+                }
+                if (!presetsHelper.itemsMatch(dbPreset._items, gamePreset._items)) {
+                    continue;
+                }
+                mergeCounts[gamePreset._id] ??= 0;
+                mergeCounts[gamePreset._id]++;
+                mergedPresets.push(dbPreset._id);
+                mergePromises.push(presetsHelper.mergePreset(dbPreset._id, gamePreset._id));
+                break;
+            }
+        }
+        await Promise.all(mergePromises);
+        for (const id in mergeCounts) {
+            const item = this.dbItems.get(id);
+            this.addJobSummary(`${item.name} ${item.id} ${mergeCounts[id]}`, 'Merged into Game Presets');
+        }
+
         for (const p of Object.values(dbPresets)) {
+            if (mergedPresets.includess(p._id)) {
+                continue;
+            }
             this.presets[p._id] = p;
         }
 
