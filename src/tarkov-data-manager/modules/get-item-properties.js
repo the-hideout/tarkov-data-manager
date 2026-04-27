@@ -683,6 +683,12 @@ const getItemProperties = async (tarkovDevItem) => {
             units: item._props.MaxResource,
         }
     }
+    if (item._props.DurabilityBurnModificator && item._props.DurabilityBurnModificator !== 1) {
+        properties.durabilityBurnFactor = item._props.DurabilityBurnModificator;
+    }
+    if (item._props.HeatFactor && item._props.HeatFactor !== 1) {
+        properties.heatFactor = item._props.HeatFactor;
+    }
     return properties;
 };
 
