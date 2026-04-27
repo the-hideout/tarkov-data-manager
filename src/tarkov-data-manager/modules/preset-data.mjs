@@ -523,8 +523,14 @@ const presetData = {
         });
     },
     findPreset: (items) => {
+        if (!Array.isArray(items)) {
+            throw new Error('findPreset requires an array of items');
+        }
         const allPresets = remoteData.getPresets();
         for (const preset of Object.values(allPresets)) {
+            if (!Array.isArray(preset.properties.items)) {
+                throw new Error(`Preset ${preset.id} does not have valid properties.items`);
+            }
             if (presetData.itemsMatch(items, preset.properties.items)) {
                 return preset;
             }
@@ -538,7 +544,7 @@ const presetData = {
     deletePreset: async (id) => {
         const items = await remoteData.get();
         const item = items.get(id);
-        if (item && !item.inclues('preset')) {
+        if (item && !item.types.includes('preset')) {
             return Promise.reject(new Error(`Item ${item.name} ${id} is not a preset`));
         }
         const gamePresets = await presetData.getGamePresets();

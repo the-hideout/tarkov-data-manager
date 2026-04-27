@@ -2020,12 +2020,11 @@ app.get('/presets/get/game', async (req, res) => {
         remoteData.get(),
     ]);
     const presets = [];
-    for (const presetId in items.keys()) {
+    for (const [presetId, p] of items) {
         if (!gamePresets[presetId]) {
             continue;
         }
-        const p = items.get(presetId);
-        if (!p) {
+        if (p.types.includes('disabled')) {
             continue;
         }
         const preset = {

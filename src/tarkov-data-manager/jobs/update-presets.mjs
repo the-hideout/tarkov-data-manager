@@ -31,7 +31,58 @@ class UpdatePresetsJob extends DataJob {
 
         const dbPresets = await presetsHelper.getDatabasePresets();
 
+        const mergeCounts = {};
+        const mergedPresets = [];
+        const mergePromises = [];
+        const dbPresetsArray = Object.values(dbPresets);
+        for (let i = 0; i < dbPresetsArray.length; i++) {
+            const dbPreset = dbPresetsArray[i];
+            // first, merge db presets into duplicate game presets
+            for (const gamePreset of Object.values(this.presets)) {
+                const gamePresetItem = this.dbItems.get(gamePreset._id);
+                if (!gamePresetItem) {
+                    continue;
+                }
+                if (!presetsHelper.itemsMatch(dbPreset._items, this.removeSoftArmor(gamePreset._items))) {
+                    continue;
+                }
+                mergeCounts[gamePreset._id] ??= 0;
+                mergeCounts[gamePreset._id]++;
+                mergedPresets.push(dbPreset._id);
+                mergePromises.push(presetsHelper.mergePreset(dbPreset._id, gamePreset._id));
+                break;
+            }
+            // next, find other duplicate presets and merge into this preset
+            // we compare working back from the end
+            for (let ii = dbPresetsArray.length - 1; ii > i; ii--) {
+                if (mergedPresets.includes(dbPreset._id)) {
+                    // this preset was already merged into another preset
+                    break;
+                }
+                const dbPresetCompare = dbPresetsArray[ii];
+                if (mergedPresets.includes(dbPresetCompare._id)) {
+                    // comparison already merged into another preset
+                    continue;
+                }
+                if (!presetsHelper.itemsMatch(dbPreset._items, dbPresetCompare._items)) {
+                    continue;
+                }
+                mergeCounts[dbPreset._id] ??= 0;
+                mergeCounts[dbPreset._id]++;
+                mergedPresets.push(dbPresetCompare._id);
+                mergePromises.push(presetsHelper.mergePreset(dbPresetCompare._id, dbPreset._id));
+            }
+        }
+        await Promise.all(mergePromises);
+        for (const id in mergeCounts) {
+            const item = this.dbItems.get(id);
+            this.addJobSummary(`${item.name} ${item.id}: ${mergeCounts[id]}`, 'Merged Identical Presets');
+        }
+
         for (const p of Object.values(dbPresets)) {
+            if (mergedPresets.includes(p._id)) {
+                continue;
+            }
             this.presets[p._id] = p;
         }
 
@@ -193,18 +244,22 @@ class UpdatePresetsJob extends DataJob {
         const regnerateImages = [];
         for (const [id, item] of this.dbItems.entries()) {
             if (!item.types.includes('preset')) {
+                // item isn't a preset
                 continue;
             }
             const p = this.presetsData[id];
             if (!p) {
-                if (!item.types.includes('disabled')) {
+                // item is marked as preset, but there's no preset record for it
+                if (!item.types.includes('disabled')) {    
                     this.logger.warn(`Preset ${item.name} ${id} is no longer valid; disabling`);
                     //queries.push(presetsHelper.deletePreset(id));
+
                     queries.push(remoteData.addType(id, 'disabled'));
                 }
                 continue;
             }
             if (p.armorOnly) {
+                // we don't have to regenerate images for armor presets
                 continue;
             }
             if (item.short_name !== this.getTranslation(p.shortName) || item.width !== p.width || item.height !== p.height || item.properties.backgroundColor !== p.backgroundColor) {
@@ -331,6 +386,13 @@ class UpdatePresetsJob extends DataJob {
         await Promise.allSettled(queries);
         presetsHelper.updatedPresets();
         return this.kvData;
+    }
+
+    removeSoftArmor(items) {
+        return items.filter(i => {
+            const tempalte = this.items[i._tpl];
+            return tempalte._parent !== '65649eb40bf0ed77b8044453';
+        });
     }
 }
 
