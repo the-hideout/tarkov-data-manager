@@ -326,6 +326,7 @@ const getItemProperties = async (tarkovDevItem) => {
         };
     } else if (!item) {
         // no properties to get if item not found
+        return null;
     } else if (item._parent === '5485a8684bdc2da71d8b4567') {
         // ammo
         properties = {
