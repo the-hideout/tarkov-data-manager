@@ -663,6 +663,14 @@
                 ]
             }
         },
+        "startRewardsChanged": {
+            "items": [
+                {
+                    "item": "5e03511086f7744ccb1fb6cf",
+                    "item_name": "Knight's Armament Company SR-25 7.62x51 marksman rifle Default"
+                }
+            ]
+        },
         "propertiesChanged": {
             "experience": 9100,
             "minPlayerLevel": 18,
@@ -706,13 +714,11 @@
         "objectivesChanged": {
             "63a5cf262964a7488f5243d1": {
                 "usingWeapon": [
-                    [
-                        {
-                            "id": "5926bb2186f7744b1c6c6e60",
-                            "name": "HK MP5 9x19 submachine gun (Navy 3 Round Burst)",
-                            "shortName": "MP5"
-                        }
-                    ]
+                    {
+                        "id": "5926bb2186f7744b1c6c6e60",
+                        "name": "HK MP5 9x19 submachine gun (Navy 3 Round Burst)",
+                        "shortName": "MP5"
+                    }
                 ],
                 "usingWeaponMods": [
                     [
@@ -868,13 +874,11 @@
         "objectivesChanged": {
             "63a5cf262964a7488f5243d1": {
                 "usingWeapon": [
-                    [
-                        {
-                            "id": "62e14904c2699c0ec93adc47",
-                            "name": "SR-2M Veresk 9x21 submachine gun",
-                            "shortName": "SR-2M"
-                        }
-                    ]
+                    {
+                        "id": "62e14904c2699c0ec93adc47",
+                        "name": "SR-2M Veresk 9x21 submachine gun",
+                        "shortName": "SR-2M"
+                    }
                 ],
                 "usingWeaponMods": [
                     [
