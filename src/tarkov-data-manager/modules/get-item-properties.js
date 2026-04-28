@@ -326,6 +326,7 @@ const getItemProperties = async (tarkovDevItem) => {
         };
     } else if (!item) {
         // no properties to get if item not found
+        return null;
     } else if (item._parent === '5485a8684bdc2da71d8b4567') {
         // ammo
         properties = {
@@ -682,6 +683,15 @@ const getItemProperties = async (tarkovDevItem) => {
             propertiesType: 'ItemPropertiesResource',
             units: item._props.MaxResource,
         }
+    }
+    if (item?._props?.DurabilityBurnModificator && item._props.DurabilityBurnModificator !== 1) {
+        properties.durabilityBurnFactor = item._props.DurabilityBurnModificator;
+    }
+    if (item?._props?.HeatFactor && item._props.HeatFactor !== 1) {
+        properties.heatFactor = item._props.HeatFactor;
+    }
+    if (item?._props?.CoolFactor && item._props.CoolFactor !== 1) {
+        properties.coolingFactor = item._props.CoolFactor;
     }
     return properties;
 };
