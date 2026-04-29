@@ -742,6 +742,15 @@
                 ]
             }
         },
+        "startRewardsChanged": {
+            "items": {
+                "63986a9ab483a550805be5ee": {
+                    "item": "59411abb86f77478f702b5d2",
+                    "item_name": "HK MP5 9x19 submachine gun (Navy 3 Round Burst) SD",
+                    "contains": []
+                }
+            }
+        },
         "propertiesChanged": {
             "experience": 12000,
             "minPlayerLevel": 22
