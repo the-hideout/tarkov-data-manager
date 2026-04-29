@@ -83,6 +83,13 @@ class UpdatePresetsJob extends DataJob {
             if (mergedPresets.includes(p._id)) {
                 continue;
             }
+            /*if (!presetsHelper.isNormalPresetId(p._id)) {
+                const newId = await presetsHelper.getNextPresetId();
+                await presetsHelper.changePresetId(p._id, newId);
+                this.logger.log(`Changed preset id ${p._id} to ${newId}`);
+                this.addJobSummary(`${p._id} -> ${newId}`, 'Changed Preset Id');
+                p._id = newId;
+            }*/
             this.presets[p._id] = p;
         }
 
