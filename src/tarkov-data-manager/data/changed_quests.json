@@ -664,12 +664,13 @@
             }
         },
         "startRewardsChanged": {
-            "items": [
-                {
+            "items": {
+                "m1ahybrid46archangel0001": {
                     "item": "5e03511086f7744ccb1fb6cf",
-                    "item_name": "Knight's Armament Company SR-25 7.62x51 marksman rifle Default"
+                    "item_name": "Knight's Armament Company SR-25 7.62x51 marksman rifle Default",
+                    "contains": []
                 }
-            ]
+            }
         },
         "propertiesChanged": {
             "experience": 9100,
