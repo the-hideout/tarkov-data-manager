@@ -693,6 +693,9 @@ const getItemProperties = async (tarkovDevItem) => {
     if (item?._props?.CoolFactor && item._props.CoolFactor !== 1) {
         properties.coolingFactor = item._props.CoolFactor;
     }
+    if (properties && item?._props?.CalibrationDistances?.length) {
+        properties.zeroingDistances = item._props.CalibrationDistances;
+    }
     return properties;
 };
 
