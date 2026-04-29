@@ -31,10 +31,18 @@ export async function createFromSource(sourceImage, id, overwrite = true) {
     if (typeof sourceImage === 'string') {
         sourceImage = sharp(sourceImage);
     }
-    if (!await imageFunctions.canCreate8xImage(sourceImage, item)) {
+    let sourceImageType;
+    if (await imageFunctions.canCreate8xImage(sourceImage, item)) {
+        sourceImageType = '8x';
+    }
+    if (!sourceImageType && await imageFunctions.canCreateBaseImage(sourceImage, item)) {
+        sourceImageType = 'base';
+    }
+    if (!sourceImageType) {
         const metadata = await sourceImage.metadata();
-        const neededSize = imageFunctions.get8xSize(item);
-        return Promise.reject(new Error(`Item ${id} needs image sized ${neededSize.width}x${neededSize.height}, provided ${metadata.width}x${metadata.height}`));
+        const neededSize = imageFunctions.getItemGridSize(item);
+        const neededSize8x = imageFunctions.get8xSize(item);
+        return Promise.reject(new Error(`Item ${id} needs image sized ${neededSize.width}x${neededSize.height} or ${neededSize8x.width}x${neededSize8x.height}, provided ${metadata.width}x${metadata.height}`));
     }
     /*const imageResults = await Promise.allSettled([
         imageFunctions.createIcon(sourceImage, item)
@@ -50,8 +58,20 @@ export async function createFromSource(sourceImage, id, overwrite = true) {
         imageFunctions.create8xImage(sourceImage, item)
             .then(result => {return {image: result, type: '8x'}}).catch(() => false),
     ]);*/
+    const baseImageSkip = [
+        '512',
+        '8x',
+    ];
     const images = [];
     for (const imageSizeKey in imageFunctions.imageSizes) {
+        if (sourceImageType === 'base') {
+            if (baseImageSkip.includes(imageSizeKey)) {
+                continue;
+            }
+            if (imageSizeKey === 'image' && !await imageFunctions.canCreateInspectImage(sourceImage)) {
+                continue;
+            }
+        }
         const imageSize = imageFunctions.imageSizes[imageSizeKey];
         const exists = !!itemData[imageSize.field];
         if (exists && !overwrite) {
@@ -111,11 +131,11 @@ export async function regenerateFromExisting(id, backgroundOnly = false) {
     const item = itemFromDb(itemData);
     let regenSource = '8x';
     let sourceUrl = item.image8xLink;
-    if (item.image8xLink.includes('unknown-item')) {
-        if (item.baseImageLink.includes('unknown-item')) {
+    if (!sourceUrl || sourceUrl.includes('unknown-item')) {
+        if (!item.baseImageLink || item.baseImageLink.includes('unknown-item')) {
             return Promise.reject(new Error(`${item.name} does not have an 8x or base image to regnerate images from`));
         }
-        sourceUrl = `https://${process.env.S3_BUCKET}/${id}-base-image.png`;
+        sourceUrl = item.baseImageLink;
         regenSource = 'base';
     }
     const imageData = await fetch(sourceUrl).then(r => r.arrayBuffer());

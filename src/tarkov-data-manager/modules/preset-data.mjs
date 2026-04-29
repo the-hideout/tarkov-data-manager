@@ -13,6 +13,8 @@ let items = false;
 let credits = false;
 let locales = false;
 
+const idPrefix = '707265736574';
+
 const defaultLogger = {
     log: console.log,
     warn: console.warn,
@@ -285,8 +287,10 @@ const presetData = {
             preset.normalized_name = normal;
         }
     },
+    isNormalPresetId: (id) => {
+        return id.startsWith(idPrefix);
+    },
     getNextPresetId: async () => {
-        const idPrefix = '707265736574';
         const dbPresets = await presetData.getDatabasePresets();
         let presetNum = 0;
         let id;
@@ -523,8 +527,14 @@ const presetData = {
         });
     },
     findPreset: (items) => {
+        if (!Array.isArray(items)) {
+            throw new Error('findPreset requires an array of items');
+        }
         const allPresets = remoteData.getPresets();
         for (const preset of Object.values(allPresets)) {
+            if (!Array.isArray(preset.properties.items)) {
+                throw new Error(`Preset ${preset.id} does not have valid properties.items`);
+            }
             if (presetData.itemsMatch(items, preset.properties.items)) {
                 return preset;
             }
@@ -538,7 +548,7 @@ const presetData = {
     deletePreset: async (id) => {
         const items = await remoteData.get();
         const item = items.get(id);
-        if (item && !item.inclues('preset')) {
+        if (item && !item.types.includes('preset')) {
             return Promise.reject(new Error(`Item ${item.name} ${id} is not a preset`));
         }
         const gamePresets = await presetData.getGamePresets();
@@ -604,10 +614,21 @@ const presetData = {
             dbConnection.query(`UPDATE IGNORE trader_offers SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
         ]);
         const allItems = await remoteData.get();
-        const item = allItems.get(sourceId);
+        const item = structuredClone(allItems.get(sourceId));
         item.id = targetId;
-        allItems.set(item.id, item);
-        allItems.delete(sourceId);
+        const columnResult = await dbConnection.query("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='tarkov' AND `TABLE_NAME`='item_data';");
+        const columns = columnResult.map(row => row.COLUMN_NAME);
+        for (const fieldName in item) {
+            if (fieldName === 'types') {
+                continue;
+            }
+            if (columns.includes(fieldName)) {
+                continue;
+            }
+            delete item[fieldName];
+        }
+        await remoteData.addItem(item);
+        await remoteData.removeItem(sourceId);
         emitter.emit('presetsUpdated', presets);
         return item;
     },

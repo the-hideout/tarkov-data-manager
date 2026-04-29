@@ -491,7 +491,7 @@ app.post('/items/edit/:id', async (req, res) => {
             
                 if (updated) {
                     response.success = true;
-                    response.message = `${currentItemData.name} updated.\nWill be live in < 4 hours.`;
+                    response.message = `${currentItemData.name} updated.`;
                 }
                 finish(files);
                 resolve();
@@ -2020,12 +2020,11 @@ app.get('/presets/get/game', async (req, res) => {
         remoteData.get(),
     ]);
     const presets = [];
-    for (const presetId in items.keys()) {
+    for (const [presetId, p] of items) {
         if (!gamePresets[presetId]) {
             continue;
         }
-        const p = items.get(presetId);
-        if (!p) {
+        if (p.types.includes('disabled')) {
             continue;
         }
         const preset = {

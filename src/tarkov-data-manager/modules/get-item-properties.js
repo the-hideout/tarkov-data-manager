@@ -153,7 +153,11 @@ const getArmorSlots = (item) => {
             ...slotInfo.armorPlateColliders.map(collider => `Armor Zone ${collider}`),
         ];
         if (slotInfo.locked) {
-            const plateItem = job.bsgItems[slotInfo.Plate];
+            const plateId = slotInfo.Plate || slotInfo.Filter[0];
+            const plateItem = job.bsgItems[plateId];
+            if (!plateItem) {
+                console.log('plate not found', slotInfo)
+            }
             //newSlot.name = translationHelper.addTranslation(plateItem._props.Name),
             newSlot.bluntThroughput = plateItem._props.BluntThroughput,
             newSlot.class = parseInt(plateItem._props.armorClass),
@@ -175,8 +179,8 @@ const getArmorSlots = (item) => {
             newSlot.ricochetX = plateItem._props.RicochetParams.x,
             newSlot.ricochetY = plateItem._props.RicochetParams.y,
             newSlot.ricochetZ = plateItem._props.RicochetParams.z,
-            newSlot.baseValue = job.credits[slotInfo.Plate];
-            newSlot.name = translationHelper.addTranslation(`${slotInfo.Plate} Name`);
+            newSlot.baseValue = job.credits[plateId];
+            newSlot.name = translationHelper.addTranslation(`${plateId} Name`);
         } else {
             newSlot.zones = translationHelper.addTranslation(zones);
             //newSlot.defaultPlate = slotInfo.Plate;
@@ -322,6 +326,7 @@ const getItemProperties = async (tarkovDevItem) => {
         };
     } else if (!item) {
         // no properties to get if item not found
+        return null;
     } else if (item._parent === '5485a8684bdc2da71d8b4567') {
         // ammo
         properties = {
@@ -678,6 +683,18 @@ const getItemProperties = async (tarkovDevItem) => {
             propertiesType: 'ItemPropertiesResource',
             units: item._props.MaxResource,
         }
+    }
+    if (item?._props?.DurabilityBurnModificator && item._props.DurabilityBurnModificator !== 1) {
+        properties.durabilityBurnFactor = item._props.DurabilityBurnModificator;
+    }
+    if (item?._props?.HeatFactor && item._props.HeatFactor !== 1) {
+        properties.heatFactor = item._props.HeatFactor;
+    }
+    if (item?._props?.CoolFactor && item._props.CoolFactor !== 1) {
+        properties.coolingFactor = item._props.CoolFactor;
+    }
+    if (properties && item?._props?.CalibrationDistances?.length) {
+        properties.zeroingDistances = item._props.CalibrationDistances;
     }
     return properties;
 };

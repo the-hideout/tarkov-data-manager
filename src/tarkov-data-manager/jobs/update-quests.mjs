@@ -837,12 +837,15 @@ class UpdateQuestsJob extends DataJob {
 
         if (!matchedPreset) {
             try {
+                throw new Error('Skipping preset creation');
                 const presetImage = await this.fenceFetchImage('/preset-image', {
                     method: 'POST',
                     body: JSON.stringify(reward),
                 });
-                const matchedPresetData = await presetData.addJsonPreset(reward);
-                matchedPreset = matchedPresetData.preset;
+                matchedPreset = await presetData.addJsonPreset(reward);
+                this.addJobSummary(`${matchedPreset.name} ${matchedPreset.id}`, 'Created Preset');
+                this.logger.log('Created preset');
+                this.logger.log(JSON.stringify(reward, null, 4));
                 await createAndUploadFromSource(presetImage, matchedPreset.id);
             } catch (error) {
                 this.logger.error(`Error creating JSON preset: ${error.message}`);
@@ -852,6 +855,8 @@ class UpdateQuestsJob extends DataJob {
             // calling here ensures that only prior-existing presets
             // are updated instead of updating a newly-created one
             await presetData.presetUsed(matchedPreset.id);
+            this.logger.log(`Matched reward preset ${matchedPreset.name}`);
+            //this.logger.log(JSON.stringify(matchedPreset, null, 4));
         }
 
         if (matchedPreset) {
@@ -2219,7 +2224,6 @@ class UpdateQuestsJob extends DataJob {
                 delete obj.map_ids;
                 delete obj.zoneKeys;
                 delete obj.item_name;
-                delete obj.item;
                 delete obj.locationNames;
                 delete obj.target;
                 delete obj.quest_name;
@@ -2288,6 +2292,9 @@ class UpdateQuestsJob extends DataJob {
                 }
                 if (obj.type === 'findQuestItem' || obj.type === 'giveQuestItem') {
                     obj.questItem = obj.item_id;
+                }
+                if (obj.type !== 'buildWeapon') {
+                    delete obj.item;
                 }
                 if (obj.trader_id) {
                     obj.trader = obj.trader_id;
