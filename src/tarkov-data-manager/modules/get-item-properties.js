@@ -179,8 +179,8 @@ const getArmorSlots = (item) => {
             newSlot.ricochetX = plateItem._props.RicochetParams.x,
             newSlot.ricochetY = plateItem._props.RicochetParams.y,
             newSlot.ricochetZ = plateItem._props.RicochetParams.z,
-            newSlot.baseValue = job.credits[slotInfo.Plate];
-            newSlot.name = translationHelper.addTranslation(`${slotInfo.Plate} Name`);
+            newSlot.baseValue = job.credits[plateId];
+            newSlot.name = translationHelper.addTranslation(`${plateId} Name`);
         } else {
             newSlot.zones = translationHelper.addTranslation(zones);
             //newSlot.defaultPlate = slotInfo.Plate;
@@ -692,6 +692,9 @@ const getItemProperties = async (tarkovDevItem) => {
     }
     if (item?._props?.CoolFactor && item._props.CoolFactor !== 1) {
         properties.coolingFactor = item._props.CoolFactor;
+    }
+    if (properties && item?._props?.CalibrationDistances?.length) {
+        properties.zeroingDistances = item._props.CalibrationDistances;
     }
     return properties;
 };

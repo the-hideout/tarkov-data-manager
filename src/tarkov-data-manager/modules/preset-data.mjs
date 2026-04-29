@@ -13,6 +13,8 @@ let items = false;
 let credits = false;
 let locales = false;
 
+const idPrefix = '707265736574';
+
 const defaultLogger = {
     log: console.log,
     warn: console.warn,
@@ -285,8 +287,10 @@ const presetData = {
             preset.normalized_name = normal;
         }
     },
+    isNormalPresetId: (id) => {
+        return id.startsWith(idPrefix);
+    },
     getNextPresetId: async () => {
-        const idPrefix = '707265736574';
         const dbPresets = await presetData.getDatabasePresets();
         let presetNum = 0;
         let id;
@@ -610,10 +614,21 @@ const presetData = {
             dbConnection.query(`UPDATE IGNORE trader_offers SET item_id = ? WHERE item_id = ?`, [targetId, sourceId]),
         ]);
         const allItems = await remoteData.get();
-        const item = allItems.get(sourceId);
+        const item = structuredClone(allItems.get(sourceId));
         item.id = targetId;
-        allItems.set(item.id, item);
-        allItems.delete(sourceId);
+        const columnResult = await dbConnection.query("SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` WHERE `TABLE_SCHEMA`='tarkov' AND `TABLE_NAME`='item_data';");
+        const columns = columnResult.map(row => row.COLUMN_NAME);
+        for (const fieldName in item) {
+            if (fieldName === 'types') {
+                continue;
+            }
+            if (columns.includes(fieldName)) {
+                continue;
+            }
+            delete item[fieldName];
+        }
+        await remoteData.addItem(item);
+        await remoteData.removeItem(sourceId);
         emitter.emit('presetsUpdated', presets);
         return item;
     },

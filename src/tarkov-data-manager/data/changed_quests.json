@@ -655,14 +655,21 @@
             "5c1b765d86f77413193fa4f2": {
                 "count": 10,
                 "usingWeapon": [
-                    [
-                        {
-                            "id": "5df8ce05b11454561e39243b",
-                            "name": "Knight's Armament Company SR-25 7.62x51 marksman rifle",
-                            "shortName": "SR-25"
-                        }
-                    ]
+                    {
+                        "id": "5df8ce05b11454561e39243b",
+                        "name": "Knight's Armament Company SR-25 7.62x51 marksman rifle",
+                        "shortName": "SR-25"
+                    }
                 ]
+            }
+        },
+        "startRewardsChanged": {
+            "items": {
+                "m1ahybrid46archangel0001": {
+                    "item": "5e03511086f7744ccb1fb6cf",
+                    "item_name": "Knight's Armament Company SR-25 7.62x51 marksman rifle Default",
+                    "contains": []
+                }
             }
         },
         "propertiesChanged": {
@@ -708,13 +715,11 @@
         "objectivesChanged": {
             "63a5cf262964a7488f5243d1": {
                 "usingWeapon": [
-                    [
-                        {
-                            "id": "5926bb2186f7744b1c6c6e60",
-                            "name": "HK MP5 9x19 submachine gun (Navy 3 Round Burst)",
-                            "shortName": "MP5"
-                        }
-                    ]
+                    {
+                        "id": "5926bb2186f7744b1c6c6e60",
+                        "name": "HK MP5 9x19 submachine gun (Navy 3 Round Burst)",
+                        "shortName": "MP5"
+                    }
                 ],
                 "usingWeaponMods": [
                     [
@@ -735,6 +740,15 @@
                         }
                     ]
                 ]
+            }
+        },
+        "startRewardsChanged": {
+            "items": {
+                "63986a9ab483a550805be5ee": {
+                    "item": "59411abb86f77478f702b5d2",
+                    "item_name": "HK MP5 9x19 submachine gun (Navy 3 Round Burst) SD",
+                    "contains": []
+                }
             }
         },
         "propertiesChanged": {
@@ -870,13 +884,11 @@
         "objectivesChanged": {
             "63a5cf262964a7488f5243d1": {
                 "usingWeapon": [
-                    [
-                        {
-                            "id": "62e14904c2699c0ec93adc47",
-                            "name": "SR-2M Veresk 9x21 submachine gun",
-                            "shortName": "SR-2M"
-                        }
-                    ]
+                    {
+                        "id": "62e14904c2699c0ec93adc47",
+                        "name": "SR-2M Veresk 9x21 submachine gun",
+                        "shortName": "SR-2M"
+                    }
                 ],
                 "usingWeaponMods": [
                     [
