@@ -2160,6 +2160,11 @@
     "64e7b9a4aac4cd0a726562cb": {
         "propertiesChanged": {
             "experience": 7500
+        },
+        "locale": {
+            "de": {
+                "64e7bd0c6393886f74119f41": "Eliminiere beliebige Gegner beim Rodina-Kino auf Streets of Tarkov mit SMGs"
+            }
         }
     },
     "64e7b99017ab941a6f7bf9d7": {
