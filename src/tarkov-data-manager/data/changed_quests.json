@@ -2731,6 +2731,58 @@
             }
         }
     },
+    "675c1570526ff496850895d9": {
+        "name": "Passion for Ergonomics",
+        "locale": {
+            "de": {
+                "675c1570526ff496850895d9 name": "Leidenschaft für Ergonomie",
+                "675c15916580a378dc0f012f": "Finde und beschaffe den angepassten Werkzeugsatz im Garagenkomplex in Customs",
+                "675c1595a4c063af74ee5279": "Übergib den gefundenen Gegenstand"
+            }
+        }
+    },
+    "67a09636b8725511260bc421": {
+        "name": "Shady Contractor",
+        "locale": {
+            "de": {
+                "67a09636b8725511260bc421 name": "Zwielichtiger Auftragnehmer",
+                "67a0a91f4681b4e43d13892b": "Finde das Auto des leitenden Managers von Knossos LLC auf Ground Zero",
+                "67a0ab610345d81cb3cbb24c": "Finde und beschaffe das Tagebuch des Managers",
+                "67a0ab83359e2d00cf9d6b06": "Übergib das Tagebuch"
+            }
+        }
+    },
+    "665eeacf5d86b6c8aa03c79b": {
+        "name": "Thirsty - Hounds",
+        "locale": {
+            "de": {
+                "665eeacf5d86b6c8aa03c79b name": "Thirsty - Jagdhunde",
+                "665eed28bdbf7b1f92394ecb": "Eliminiere Scavs im Zeitraum von 22:00 bis 07:00 Uhr auf Shoreline"
+            }
+        }
+    },
+    "665eec1f5e47a79f8605565a": {
+        "name": "Thirsty - Breadwinner",
+        "locale": {
+            "de": {
+                "665eec1f5e47a79f8605565a name": "Thirsty - Ernährer",
+                "665ef4d93bd11acd294ac48c": "Finde 5-Liter-Propantanks im Raid",
+                "665ef4f08f3a505364a8ab09": "Übergib die Gegenstände"
+            }
+        }
+    },
+    "665eec4a4dfc83b0ed0a9dca": {
+        "name": "Thirsty - Delivery",
+        "locale": {
+            "de": {
+                "665eec4a4dfc83b0ed0a9dca name": "Thirsty - Lieferung",
+                "6661a14545909ae2e92ca2d5": "Finde den angegebenen Ablageort in Woods",
+                "6661a170945719c63f28d9c6": "Verstaue den ersten 5-Liter-Propantank",
+                "6661a18a12e8457716d59f5d": "Finde den angegebenen Ablageort in Customs",
+                "6661a1a1b1953d6c96da8f0e": "Verstaue den zweiten 5-Liter-Propantank"
+            }
+        }
+    },
     "66ab9da7eb102b9bcd08591c": {
         "name": "Forester's Duty",
         "locale": {
