@@ -1,6 +1,6 @@
 import midmean from 'compute-midmean';
 
-import { imageFunctions } from 'tarkov-dev-image-generator';
+import imgGen from 'tarkov-dev-image-generator';
 
 import normalizeName from './normalize-name.js';
 import db from './db-connection.mjs';
@@ -61,8 +61,8 @@ const removeItemImages = async (item) => {
     if (!s3Bucket) {
         return;
     }
-    for (const imgKey in imageFunctions.imageSizes) {
-        const imgType = imageFunctions.imageSizes[imgKey];
+    for (const imgKey in imgGen.imageFunctions.imageSizes) {
+        const imgType = imgGen.imageFunctions.imageSizes[imgKey];
         if (!item[imgType.field]) {
             continue;
         }
