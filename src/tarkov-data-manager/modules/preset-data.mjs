@@ -303,7 +303,7 @@ const presetData = {
         }
         return id;
     },
-    addJsonPreset: async (json, logger) => {
+    addJsonPreset: async (json) => {
         const items = json.items ?? json._items;
         const existingPreset = presetData.findPreset(items);
         if (existingPreset) {
@@ -315,26 +315,28 @@ const presetData = {
 
         const id = await presetData.getNextPresetId();
 
-        let appendName = 'Stripped';
-        const slotNames = [
-            'mod_scope',
-            'mod_muzzle_001',
-            'mod_muzzle_000',
-            'mod_muzzle',
-            'mod_stock',
-            'mod_magazine',
-            'mod_handguard',
-            'mod_pistol_grip',
-            'mod_equipment',
-            'mod_equipment_001',
-            'mod_equipment_000',
-        ];
-        slotLoop: for (const slotName of slotNames) {
-            for (let i = items.length - 1; i > -1; i--) {
-                const part = items[i];
-                if (part.slotId === slotName) {
-                    appendName = `${part._tpl} ShortName`;
-                    break slotLoop;
+        let appendName = json.appendName ?? 'Stripped';
+        if (appendName === 'Stripped') {
+            const slotNames = [
+                'mod_scope',
+                'mod_muzzle_001',
+                'mod_muzzle_000',
+                'mod_muzzle',
+                'mod_stock',
+                'mod_magazine',
+                'mod_handguard',
+                'mod_pistol_grip',
+                'mod_equipment',
+                'mod_equipment_001',
+                'mod_equipment_000',
+            ];
+            slotLoop: for (const slotName of slotNames) {
+                for (let i = items.length - 1; i > -1; i--) {
+                    const part = items[i];
+                    if (part.slotId === slotName) {
+                        appendName = `${part._tpl} ShortName`;
+                        break slotLoop;
+                    }
                 }
             }
         }
