@@ -2196,6 +2196,15 @@
         ]
     },
     "665eeca92f7aedcc900b0437": {
+        "name": "Thirsty - Secrets",
+        "locale": {
+            "de": {
+                "665eeca92f7aedcc900b0437 name": "Thirsty - Geheimnisse",
+                "6661a28be2cdba6a469447c7": "Übergib die im Raid gefundenen Adrenalinspritzen",
+                "6661a2ae387c59056c822add": "Übergib die im Raid gefundenen OLOLO Multivitaminpräparate",
+                "6661a2bf4846fd2b6ba30f90": "Übergib die im Raid gefundenen Kochsalzlösungen"
+            }
+        },
         "finishRewardsAdded": {
             "items": [
                 {
@@ -2780,6 +2789,31 @@
                 "6661a170945719c63f28d9c6": "Verstaue den ersten 5-Liter-Propantank",
                 "6661a18a12e8457716d59f5d": "Finde den angegebenen Ablageort in Customs",
                 "6661a1a1b1953d6c96da8f0e": "Verstaue den zweiten 5-Liter-Propantank"
+            }
+        }
+    },
+    "665eeca45d86b6c8aa03c79d": {
+        "name": "Thirsty - Echo",
+        "locale": {
+            "de": {
+                "665eeca45d86b6c8aa03c79d name": "Thirsty - Widerhall",
+                "6660785fc37356435d193ae4": "Finde Informationen über Thirsty auf Shoreline",
+                "66607896f2ea02201517c203": "Beschaffe die Informationen in Thirstys Versteck",
+                "666078bee6ed30ab2294f593": "Übergib die gefundenen Informationen"
+            }
+        }
+    },
+    "67a0964e972c11a3f507731b": {
+        "name": "Needle in a Haystack",
+        "locale": {
+            "de": {
+                "67a0964e972c11a3f507731b name": "Nadel im Heuhaufen",
+                "67a0bc81fcbc1c559d09b58f": "Untersuche den Innenhofpark beim TerraGroup-HQ auf Ground Zero",
+                "67a0bc83182c4b0c71edd0ce": "Untersuche die Kartbahn auf Interchange",
+                "67a0bc84f19d5b1120a55762": "Untersuche den Kinderspielplatz auf Interchange",
+                "67a0bc87c60a93d7a3f28b23": "Untersuche den Kinderspielplatz bei Concordia auf Streets of Tarkov",
+                "67a0bc8848d9d2cbd274ffd9": "Untersuche die Baustelle an der Küste auf Shoreline",
+                "67a0bc8ab12fe4b1baa60e4c": "Untersuche den Kinderspielplatz beim Health Resort auf Shoreline"
             }
         }
     },
