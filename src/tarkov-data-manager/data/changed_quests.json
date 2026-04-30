@@ -1961,6 +1961,39 @@
             "minPlayerLevel": 10
         }
     },
+    "66058cb5ae4719735349b9e8": {
+        "name": "Easy Money - Part 2 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "6606bd2aa49db36b69b6dbf9": "Übergib im Raid gefundene Gegenstände aus der Getränke-Kategorie",
+                "6606bd6768f8018fffebd998": "Übergib im Raid gefundene Gegenstände aus der Lebensmittel-Kategorie"
+            }
+        }
+    },
+    "66058cb7c7f3584787181476": {
+        "name": "Balancing - Part 1 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "6606d133fcb99b9004aa2d1d": "Eliminiere Scavs mit einer Steyr AUG an einem beliebigen Ort"
+            }
+        }
+    },
+    "66058cb9e8e4f17985230805": {
+        "name": "Balancing - Part 2 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "660a9c99c650fa4d531f4c96": "Eliminiere PMCs an einem beliebigen Ort, während du eine PACA-Schutzweste trägst"
+            }
+        }
+    },
+    "66058cbd9f59e625462acc8e": {
+        "name": "Create a Distraction - Part 1 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "660a9dc64c0927ead4fcfeef": "Platziere TP-200 TNT-Sprengstoff im zweiten Stock des Cafés auf Ground Zero"
+            }
+        }
+    },
     "6864fcef9809a149400dd2ee": {
         "name": "Breathing Room",
         "propertiesChanged": {
@@ -1977,7 +2010,17 @@
     },
     "675c15fbf7da9792a4059871": {
         "name": "Provide Viewership",
-        "note": "added to trigger game mode change"
+        "note": "added to trigger game mode change",
+        "locale": {
+            "de": {
+                "675c15fbf7da9792a4059871 name": "Für Zuschauer sorgen",
+                "675c1c87caddcfa893af10e9": "Platziere die erste WiFi-Kamera in der Industrieanlage in Customs",
+                "676047054c9696a7d071bc08": "Platziere die zweite WiFi-Kamera in der Industrieanlage in Customs",
+                "6760470877d1b7790af5de11": "Platziere die dritte WiFi-Kamera in der Industrieanlage in Customs",
+                "6760470b7d65f702a6295820": "Platziere die vierte WiFi-Kamera in der Industrieanlage in Customs",
+                "675c1c980fd114390c638b89": "Eliminiere etwaige Gegner in der Industrieanlage in Customs"
+            }
+        }
     },
     "67af4c1d8c9482eca103e477": {
         "name": "Consolation Prize",
@@ -2551,6 +2594,38 @@
             },
             "zh": {
                 "6834202a186efa3c5b07f9a5": "在竞技场赢得两场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗，至少取得前三名的排名"
+            }
+        }
+    },
+    "6834158f2f0e2a7eb90b62c8": {
+        "name": "Easy Money - Part 2 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "6834158f2f0e2a7eb90b62cb": "Übergib im Raid gefundene Gegenstände aus der Getränke-Kategorie"
+            }
+        }
+    },
+    "68341846186efa3c5b07f989": {
+        "name": "Balancing - Part 1 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "68341846186efa3c5b07f98c": "Eliminiere Scavs mit einer Steyr AUG an einem beliebigen Ort"
+            }
+        }
+    },
+    "68341a0b2f0e2a7eb90b62d4": {
+        "name": "Balancing - Part 2 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "68341a0b2f0e2a7eb90b62d7": "Eliminiere PMCs an einem beliebigen Ort, während du eine PACA-Schutzweste trägst"
+            }
+        }
+    },
+    "68341c4babec72d95d0c1260": {
+        "name": "Create a Distraction - Part 1 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "68341c4babec72d95d0c1263": "Platziere TP-200 TNT-Sprengstoff im zweiten Stock des Cafés auf Ground Zero"
             }
         }
     },
