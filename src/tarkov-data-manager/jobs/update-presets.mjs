@@ -20,7 +20,7 @@ class UpdatePresetsJob extends DataJob {
 
     run = async () => {
         this.logger.log('Updating presets');
-        [this.presets, this.items, this.credits, this.dbItems] = await Promise.all([
+        [this.gamePresets, this.items, this.credits, this.dbItems] = await Promise.all([
             presetsHelper.getGamePresets(),
             tarkovData.items(),
             tarkovData.credits(),
@@ -29,16 +29,16 @@ class UpdatePresetsJob extends DataJob {
 
         presetsHelper.init(this.items, this.credits, this.locales);
 
-        const dbPresets = await presetsHelper.getDatabasePresets();
+        this.dbPresets = await presetsHelper.getDatabasePresets();
 
         const mergeCounts = {};
         const mergedPresets = [];
         const mergePromises = [];
-        const dbPresetsArray = Object.values(dbPresets);
+        const dbPresetsArray = Object.values(this.dbPresets);
         for (let i = 0; i < dbPresetsArray.length; i++) {
             const dbPreset = dbPresetsArray[i];
             // first, merge db presets into duplicate game presets
-            for (const gamePreset of Object.values(this.presets)) {
+            for (const gamePreset of Object.values(this.gamePresets)) {
                 const gamePresetItem = this.dbItems.get(gamePreset._id);
                 if (!gamePresetItem) {
                     continue;
@@ -79,7 +79,13 @@ class UpdatePresetsJob extends DataJob {
             this.addJobSummary(`${item.name} ${item.id}: ${mergeCounts[id]}`, 'Merged Identical Presets');
         }
 
-        for (const p of Object.values(dbPresets)) {
+        this.presets = {};
+
+        for (const p of (Object.values(this.gamePresets))) {
+            this.presets[p._id] = p;
+        }
+
+        for (const p of Object.values(this.dbPresets)) {
             if (mergedPresets.includes(p._id)) {
                 continue;
             }
@@ -92,6 +98,8 @@ class UpdatePresetsJob extends DataJob {
             }*/
             this.presets[p._id] = p;
         }
+
+        await this.x17PresetCheck();
 
         this.presetsData = {};
 
@@ -397,6 +405,41 @@ class UpdatePresetsJob extends DataJob {
             const tempalte = this.items[i._tpl];
             return tempalte._parent !== '65649eb40bf0ed77b8044453';
         });
+    }
+
+    async x17PresetCheck() {
+        const x17Id = '676176d362e0497044079f4c';
+        // find existing x-17 preset in either game or db presets
+        let x17Preset = Object.values(this.gamePresets).find(p => p._items[0]._tpl === x17Id) ??
+                        Object.values(this.dbPresets).find(p => p._items[0]._tpl === x17Id);
+        if (x17Preset) {
+            // there's already an x-17 preset
+            return;
+        }
+        // we use the SCAR-H LB preset as the base
+        x17Preset = structuredClone(this.gamePresets['6193e4a46bb904059c382295']);
+        x17Preset._id = await presetsHelper.getNextPresetId();
+        x17Preset._encyclopedia = x17Id;
+        x17Preset._name = 'X-17 Default';
+        x17Preset.appendName = 'Default';
+        x17Preset._changeWeaponName = true;
+
+        // use x-17 receiver
+        x17Preset._items[0]._tpl = x17Id;
+
+        // use 16" barrel instead of 20"
+        const barrel = x17Preset._items.find(i => i.slotId === 'mod_barrel');
+        barrel._tpl = '6183b0711cb55961fa0fdcad'; // FN SCAR-H 7.62x51 16 inch barrel
+
+        // magazine must be compatible with X-17
+        const mag = x17Preset._items.find(i => i.slotId === 'mod_magazine');
+        mag._tpl = '5a3501acc4a282000d72293a'; // AR-10 7.62x51 Magpul PMAG 20 SR-LR GEN M3 20-round magazine
+
+        // add the preset to the db
+        await presetsHelper.addJsonPreset(x17Preset);
+
+        // add the preset to the list of presets to process
+        this.presets[x17Preset._id] = x17Preset;
     }
 }
 
