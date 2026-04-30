@@ -2568,5 +2568,35 @@
                 "66ab9da7eb102b9bcd085922": "在海岸线消灭 Scav（单场战局内完成）"
             }
         }
+    },
+    "675c1cf4a757ddd00404f0a3": {
+        "name": "Work Smarter",
+        "locale": {
+            "de": {
+                "675c1cf4a757ddd00404f0a3 name": "Clever arbeiten",
+                "676ab31c058363b09072c78e": "Beschaffe den besonderen Gegenstand, um über den geheimen Ausgang zu entkommen",
+                "675c1cf4a757ddd00404f0a6": "Finde den geheimen Ausgang in Customs"
+            }
+        }
+    },
+    "675c1ec7a46173572a0bf20a": {
+        "name": "Rite of Passage",
+        "locale": {
+            "de": {
+                "675c1ec7a46173572a0bf20a name": "Initiationsritus",
+                "675c1f040a1128e59422a876": "Eliminiere Scavs bei der alten Tankstelle in Customs",
+                "675c1f17cf59d5433be7ae77": "Eliminiere Scavs bei der neuen Tankstelle in Customs",
+                "675c1f311bd716cdb87947d1": "Übergib die im Raid gefundenen Metall-Kraftstofftanks"
+            }
+        }
+    },
+    "675c3507a06634b5110e3c18": {
+        "name": "Belka and Strelka",
+        "locale": {
+            "de": {
+                "675c3507a06634b5110e3c18 name": "Belka und Strelka",
+                "675c3507a06634b5110e3c1a": "Überlebe und entkomme aus Customs über den Ausgang Railroad Passage"
+            }
+        }
     }
 }
