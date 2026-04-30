@@ -560,7 +560,7 @@ const methods = {
         return traderOffer[0].num !== 0;
     },
     dogtagIds: () => {
-        const dogtagPreset = [myData.values()].find(i => i.properties?.items?.some(i => i._tpl === dogtags.ids.bear));
+        const dogtagPreset = [...myData.values()].find(i => i.properties?.items?.some(i => i._tpl === dogtags.ids.bear));
         return {
             bear: dogtags.ids.bear,
             usec: dogtags.ids.usec,
