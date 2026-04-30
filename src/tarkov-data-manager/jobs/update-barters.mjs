@@ -89,11 +89,7 @@ class UpdateBartersJob extends DataJob {
             tarkovData.locale('en'),
             this.query(`SELECT * FROM trader_offer_requirements`),
         ]);
-        this.dogtags = [
-            '59f32bb586f774757e1e8442',
-            '59f32c3b86f77472a31742f0',
-            'customdogtags12345678910',
-        ];
+        this.dogtags = Object.values(remoteData.dogtagIds());
         const usedReplicas = new Set();
         for (const gameMode of this.gameModes) {
             [this.tasks, this.traders ] = await Promise.all([

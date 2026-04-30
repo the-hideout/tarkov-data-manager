@@ -662,7 +662,7 @@ class UpdateItemCacheJob extends DataJob {
     setTraderPrices(itemData) {
         this.logger.time('Add trader prices');
         for (const id in itemData) {
-            if (itemData[id].types.includes('preset') && id !== 'customdogtags12345678910') {
+            if (itemData[id].types.includes('preset') && id !== remoteData.dogtagIds().any) {
                 itemData[id].traderPrices = itemData[id].containsItems.reduce((traderPrices, part) => {
                     const partPrices = this.getTraderPrices(itemData[part.item]);
                     for (const partPrice of partPrices) {

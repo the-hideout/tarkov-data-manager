@@ -7,6 +7,7 @@ import db from './db-connection.mjs';
 import gameModes from './game-modes.mjs';
 import emitter from './emitter.mjs';
 import s3 from './upload-s3.mjs';
+import dogtags from './dogtags.mjs';
 
 const myData = new Map();
 let lastRefresh = new Date(0);
@@ -557,6 +558,17 @@ const methods = {
         }
         const traderOffer = await db.query('select count(id) as num from trader_offers where item_id = ?', [id]);
         return traderOffer[0].num !== 0;
+    },
+    dogtagIds: () => {
+        const dogtagPreset = [myData.values()].find(i => i.properties?.items?.some(i => i._tpl === dogtags.ids.bear));
+        return {
+            bear: dogtags.ids.bear,
+            usec: dogtags.ids.usec,
+            any: dogtagPreset.id,
+        };
+    },
+    isDogtag: (id) => {
+        return Object.values(methods.dogtagIds()).includes(id);
     },
     on: (event, listener) => {
         return emitter.on(event, listener);

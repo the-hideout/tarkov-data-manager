@@ -141,14 +141,11 @@ class UpdatePresetsJob extends DataJob {
                 return substr.toUpperCase();
             });
         };
-        this.presetsData[dogtagPresetId] = {
+        const dogtagPreset = {
             id: dogtagPresetId,
-            name: this.addTranslation('customdogtags12345678910 Name', getDogTagName),
-            shortName: this.addTranslation('customdogtags12345678910 ShortName', getDogTagName),
-            //name: getDogTagName(this.locales.en),
-            //shortName: getDogTagName(this.locales.en),
-            //description: en.templates[baseItem._id].Description,
-            normalized_name: this.normalizeName(this.getTranslation('customdogtags12345678910 Name')),
+            name: this.addTranslation(`${dogtagPresetId} Name`, getDogTagName),
+            shortName: this.addTranslation(`${dogtagPresetId} ShortName`, getDogTagName),
+            normalized_name: this.normalizeName(this.getTranslation(`${dogtagPresetId} Name`)),
             baseId: bearTag._id,
             width: bearTag._props.Width,
             height: bearTag._props.Height,
@@ -158,31 +155,34 @@ class UpdatePresetsJob extends DataJob {
             bsgCategoryId: bearTag._parent,
             types: ['preset', 'no-flea'],
             default: false,
-            containsItems: [
-                {
-                    item: {
-                        id: bearTag._id,
-                    },
-                    count: 1
-                },
-                {
-                    item: {
-                        id: usecTag._id,
-                    },
-                    count: 1
-                }
-            ],
-            items: [
-                {
-                    _id: '000000000000000000000001',
-                    _tpl: bearTag._id,
-                },
-                {
-                    _id: '000000000000000000000002',
-                    _tpl: usecTag._id,
-                }
-            ]
+            containsItems: [],
+            items: [],
         };
+        // get the dogtag case item and add all items that can fit inside
+        const dogtagCase = this.items['5c093e3486f77430cb02e593'];
+        for (const id of dogtagCase._props.Grids[0]._props.filters[0].Filter) {
+            const tagItem = this.dbItems.get(id);
+            if (!tagItem) {
+                continue;
+            }
+            if (tagItem.types.includes('quest') || tagItem.types.includes('disabled')) {
+                continue;
+            }
+            dogtagPreset.items.push({
+                _id: (dogtagPreset.items.length+1).toString().padStart(24, '0'),
+                _tpl: id,
+            });
+        }
+        dogtagPreset.containsItems = dogtagPreset.items.map(i => {
+            return {
+                item: {
+                    id: i._tpl,
+                },
+                count: 1,
+            };
+        });
+        
+        this.presetsData[dogtagPresetId] = dogtagPreset;
 
         // check for missing default presets
         for (const [id, item] of this.dbItems.entries()) {
