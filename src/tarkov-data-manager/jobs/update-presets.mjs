@@ -168,6 +168,9 @@ class UpdatePresetsJob extends DataJob {
             if (tagItem.types.includes('quest') || tagItem.types.includes('disabled')) {
                 continue;
             }
+            if (dogtagPreset.items.some(i => i._tpl === id)) {
+                continue;
+            }
             dogtagPreset.items.push({
                 _id: (dogtagPreset.items.length+1).toString().padStart(24, '0'),
                 _tpl: id,
