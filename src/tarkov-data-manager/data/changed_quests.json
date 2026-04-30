@@ -157,6 +157,12 @@
             "60e827faf09904268a4dbc52": "62a6ffbcec21e50cad3b6708"
         },
         "locale": {
+            "de": {
+                "693c3a908ad994118b846d63": "Übergib den im Raid gefundenen Gegenstand: Nut Sack Balaclava",
+                "693c3a9fc17c9edbfc58325a": "Übergib den im Raid gefundenen Gegenstand: goldene Mazoni-Hantel",
+                "693c3aacf0cd3ec97007f2c1": "Übergib den im Raid gefundenen Gegenstand: Tigzresq-Schiene",
+                "693c3ab82b0477e3de2b2312": "Übergib den im Raid gefundenen Gegenstand: Domontovich-Uschanka"
+            },
             "en": {
                 "693c3a908ad994118b846d63": "Hand over the found in raid item: Nut Sack balaclava",
                 "693c3a9fc17c9edbfc58325a": "Hand over the found in raid item: Mazoni golden dumbbell",
@@ -1950,7 +1956,14 @@
         "objectivesRemoved": [
             "66b0e57eddc25d8d17e3e3c0",
             "66aa5c8ba8c36eaef492ef92"
-        ]
+        ],
+        "locale": {
+            "de": {
+                "66aa5b2cecad9c067780924b": "Erkunde die Kreuzung von Mira Ave und der Überführung auf Ground Zero (in einem Raid)",
+                "66aa5bb281dff8466b076894": "Finde den Durchgang nach Streets of Tarkov auf Ground Zero (in einem Raid)",
+                "66aa5be8035c6a410dc570b2": "Benutze den Transit von Ground Zero nach Streets of Tarkov (in einem Raid)"
+            }
+        }
     },
     "_66058cbd9f59e625462acc8e": {
         "name": "Create a Distraction - Part 1",
@@ -2102,6 +2115,13 @@
                     "level": 1
                 }
             ]
+        },
+        "locale": {
+            "de": {
+                "67af4c1d8c9482eca103e477 name": "Trostpreis",
+                "67af727750e1b6f21d9f5511": "Überlebe und entkomme aus The Lab",
+                "67af730c69887224a61084ac": "Eliminiere Raider in The Lab"
+            }
         }
     },
     "5ae449c386f7744bde357697": {
@@ -2163,11 +2183,23 @@
     "666314b2a9290f9e0806cca3": {
         "propertiesChanged": {
             "experience": 16000
+        },
+        "locale": {
+            "de": {
+                "666314b2a9290f9e0806cca3 name": "Hölle auf Erden - Teil 2",
+                "66632deea5607d352f3aa844": "Eliminiere die vermummten Männer, während du die doppelläufige Schrotflinte benutzt"
+            }
         }
     },
     "666314b0acf8442f8b0531a1": {
         "propertiesChanged": {
             "experience": 2300
+        },
+        "locale": {
+            "de": {
+                "666314b0acf8442f8b0531a1 name": "Hölle auf Erden - Teil 1",
+                "66632cf3fbd7dedfa6153a9f": "Modifiziere eine MP-43-1C-Schrotflinte nach den vorgegebenen Spezifikationen"
+            }
         }
     },
     "639135e8c115f907b14700aa": {
@@ -2178,6 +2210,13 @@
     "675c3582f6ddc329a90f9c6d": {
         "propertiesChanged": {
             "experience": 11000
+        },
+        "locale": {
+            "de": {
+                "675c3582f6ddc329a90f9c6d name": "Privatclub",
+                "675c37d2da4b531ba8daaadd": "Finde und beschaffe Skiers Geldbörse auf Customs",
+                "675c37e07ac1a33fff170966": "Übergib den gefundenen Gegenstand"
+            }
         }
     },
     "658027799634223183395339": {
@@ -2203,6 +2242,11 @@
     "64e7b9a4aac4cd0a726562cb": {
         "propertiesChanged": {
             "experience": 7500
+        },
+        "locale": {
+            "de": {
+                "64e7bd0c6393886f74119f41": "Eliminiere beliebige Gegner beim Rodina-Kino auf Streets of Tarkov mit SMGs"
+            }
         }
     },
     "64e7b99017ab941a6f7bf9d7": {
@@ -2250,9 +2294,25 @@
                 "id": "67a0966817e34930e500754c",
                 "name": "Forced Alliance"
             }
-        ]
+        ],
+        "locale": {
+            "de": {
+                "67a0970744893b9f3f0d9b68 name": "Offensive Aufklärung",
+                "67dbe0f532ff08bfa13237a8": "Finde heraus, was sich hinter der Bunkertür des Health Resorts auf Shoreline befindet",
+                "67a0dc94a4d798e79853f2eb": "Beschaffe die Labrys-Zugangskarte"
+            }
+        }
     },
     "665eeca92f7aedcc900b0437": {
+        "name": "Thirsty - Secrets",
+        "locale": {
+            "de": {
+                "665eeca92f7aedcc900b0437 name": "Thirsty - Geheimnisse",
+                "6661a28be2cdba6a469447c7": "Übergib die im Raid gefundenen Adrenalinspritzen",
+                "6661a2ae387c59056c822add": "Übergib die im Raid gefundenen OLOLO Multivitaminpräparate",
+                "6661a2bf4846fd2b6ba30f90": "Übergib die im Raid gefundenen Kochsalzlösungen"
+            }
+        },
         "finishRewardsAdded": {
             "items": [
                 {
@@ -2399,6 +2459,11 @@
     "675c1d6d59b0575973008fc7": {
         "name": "Seizing the Initiative",
         "locale": {
+            "de": {
+                "675c1d6d59b0575973008fc7 name": "Die Initiative ergreifen",
+                "675c1d6d59b0575973008fc9": "Benutze den Transit von Customs nach Shoreline",
+                "675c1dbdcca03cb7f61fc735": "Überlebe und entkomme aus Shoreline"
+            },
             "zh": {
                 "675c1d6d59b0575973008fc7 name": "先声夺人"
             }
@@ -2425,6 +2490,12 @@
         "objectivesChanged": {
             "676418a60b9bcbe280972288": {
                 "count": 20
+            }
+        },
+        "locale": {
+            "de": {
+                "6764174c86addd02bc033d68 name": "Verbindungen im Norden",
+                "676418a60b9bcbe280972288": "Eliminiere PMC-Operatoren aus über 40 Metern Entfernung, während du ein Repetiergewehr mit Nacht- oder Wärmebildvisier benutzt"
             }
         }
     },
@@ -2581,6 +2652,9 @@
             }
         ],
         "locale": {
+            "de": {
+                "6926fcc872a6499d1fa29327": "Finde und markiere den vierten Kraftstofftank mit einem MS2000 Marker auf Interchange"
+            },
             "en": {
                 "6926fcc872a6499d1fa29327": "Locate and mark the fourth fuel tank with an MS2000 Marker on Interchange"
             },
@@ -2643,9 +2717,261 @@
             }
         }
     },
+    "66058cbb06ef1d50a60c1f46": {
+        "name": "Surprise [PVP ZONE]",
+        "locale": {
+            "de": {
+                "6606d08b4e2e27ca2d80085e": "Übergib im Raid gefundene ballistische Platten der Klasse 4 oder höher"
+            }
+        }
+    },
+    "68341b407559f4e6d50bc0ce": {
+        "name": "Surprise [PVE ZONE]",
+        "locale": {
+            "de": {
+                "68341b407559f4e6d50bc0d1": "Übergib im Raid gefundene ballistische Platten der Klasse 4 oder höher"
+            }
+        }
+    },
+    "66058cbf2f19c31a5a1337ec": {
+        "name": "Create a Distraction - Part 2 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "660d5effb318c171fb1ca234": "Eliminiere Kabans oder Kollontays Wachen auf Streets of Tarkov"
+            }
+        }
+    },
+    "68341d7d7559f4e6d50bc0db": {
+        "name": "Create a Distraction - Part 2 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "68341d7d7559f4e6d50bc0de": "Eliminiere Kabans oder Kollontays Wachen auf Streets of Tarkov"
+            }
+        }
+    },
+    "66058cc1da30b620a34e6e86": {
+        "name": "To Great Heights! - Part 1 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "662ba5a89d8041c264dd9673": "Gewinne ein Match im CheckPoint- oder LastHero-Modus in Arena"
+            }
+        }
+    },
+    "68341eb25619c8e2a9031501": {
+        "name": "To Great Heights! - Part 1 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "68341eb25619c8e2a9031504": "Gewinne ein Match im CheckPoint- oder LastHero-Modus in Arena"
+            }
+        }
+    },
+    "66058cc208308761cf390993": {
+        "name": "To Great Heights! - Part 2 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "662ba78e19c86d3199ae0a93": "Gewinne ein Match im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena"
+            }
+        }
+    },
+    "68341f6fe2e7ef70a3060a0a": {
+        "name": "To Great Heights! - Part 2 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "68341f6fe2e7ef70a3060a0d": "Gewinne ein Match im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena"
+            }
+        }
+    },
+    "66058cc72cee99303f1ba069": {
+        "name": "To Great Heights! - Part 4 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "662bb23200ae352a6d5a415d": "Gewinne drei von sechs Matches im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena",
+                "665493a649bd17856482ba77": "Die Aufgabe schlägt fehl, wenn du 4 Matches verlierst"
+            }
+        }
+    },
+    "683421515619c8e2a9031511": {
+        "name": "To Great Heights! - Part 4 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "683421515619c8e2a9031515": "Gewinne drei von sechs Matches im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena",
+                "683421515619c8e2a9031518": "Die Aufgabe schlägt fehl, wenn du 4 Matches verlierst"
+            }
+        }
+    },
+    "66058cc9ae4719735349b9ea": {
+        "name": "To Great Heights! - Part 5 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "662ba87106e44407b79e9ab2": "Gewinne zwei Matches in Folge im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena"
+            }
+        }
+    },
+    "68342265a8d674b5740b31f0": {
+        "name": "To Great Heights! - Part 5 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "68342265a8d674b5740b31f3": "Gewinne zwei Matches in Folge im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena"
+            }
+        }
+    },
+    "66058ccde8e4f17985230807": {
+        "name": "Against the Conscience - Part 2 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "663b9bb7fe7953705cb09114": "Eliminiere Gegner in einem beliebigen Spielmodus in Arena"
+            }
+        }
+    },
+    "68342446a8d674b5740b31fc": {
+        "name": "Against the Conscience - Part 2 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "68342446a8d674b5740b31ff": "Eliminiere Gegner in einem beliebigen Spielmodus in Arena"
+            }
+        }
+    },
+    "6834254f2f0e2a7eb90b62ef": {
+        "name": "Decisions, Decisions [PVE ZONE]",
+        "locale": {
+            "de": {
+                "6834254f2f0e2a7eb90b62f1": "Finde kompromittierende Informationen über Ref"
+            }
+        }
+    },
+    "66058ccbc7f3584787181478": {
+        "name": "Against the Conscience - Part 1 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "67e6b531ca71d03c35350b31": "Finde und beschaffe den Schlüssel bei der Schmugglerbasis auf Shoreline"
+            }
+        }
+    },
+    "6834233fecd5cf3a440d855b": {
+        "name": "Against the Conscience - Part 1 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "6834233fecd5cf3a440d855f": "Finde das Zimmer des alten Champions in Customs",
+                "6834233fecd5cf3a440d8567": "Finde und beschaffe den Schlüssel bei der Schmugglerbasis auf Shoreline"
+            }
+        }
+    },
+    "5a0327ba86f77456b9154236": {
+        "name": "Spa Tour - Part 3",
+        "locale": {
+            "de": {
+                "5a03289686f7745dbc6c5063": "Übergib im Raid gefundenes WD-40",
+                "5a0328cb86f77456b91543b8": "Übergib im Raid gefundene Clin Glasreiniger",
+                "5a03290586f774584d1594c4": "Übergib im Raid gefundene Wellschläuche",
+                "5a280b5486f7741f751bfeea": "Übergib im Raid gefundenes Ox Bleichmittel"
+            }
+        }
+    },
+    "66aa74571e5e199ecd094f18": {
+        "name": "Secrets of Polikhim",
+        "locale": {
+            "de": {
+                "66aa74571e5e199ecd094f1b": "Benutze den Transit von Customs nach Factory (in einem Raid)",
+                "66aa74571e5e199ecd094f1e": "Eliminiere Scavs auf Factory (in einem Raid)"
+            }
+        }
+    },
+    "66aba85403e0ee3101042877": {
+        "name": "Beneath The Streets",
+        "locale": {
+            "de": {
+                "66aba85403e0ee3101042878": "Finde den Durchgang nach The Lab auf Streets of Tarkov (in einem Raid)",
+                "66aba85403e0ee310104287a": "Benutze den Transit von Streets of Tarkov nach The Lab (in einem Raid)",
+                "66b090f5723e7bbe8b518ca8": "Erkunde den Serverraum in The Lab (in einem Raid)",
+                "66b0910951c5294b9d213918": "Erkunde die Gefahrenkuppel in The Lab (in einem Raid)",
+                "66b10eef0951e90ec383850b": "Erkunde den Kontrollraum in The Lab (in einem Raid)",
+                "66aba97b1000025218c82ea8": "Finde den Durchgang nach Streets of Tarkov in The Lab (in einem Raid)"
+            }
+        }
+    },
+    "675c1570526ff496850895d9": {
+        "name": "Passion for Ergonomics",
+        "locale": {
+            "de": {
+                "675c1570526ff496850895d9 name": "Leidenschaft für Ergonomie",
+                "675c15916580a378dc0f012f": "Finde und beschaffe den angepassten Werkzeugsatz im Garagenkomplex in Customs",
+                "675c1595a4c063af74ee5279": "Übergib den gefundenen Gegenstand"
+            }
+        }
+    },
+    "67a09636b8725511260bc421": {
+        "name": "Shady Contractor",
+        "locale": {
+            "de": {
+                "67a09636b8725511260bc421 name": "Zwielichtiger Auftragnehmer",
+                "67a0a91f4681b4e43d13892b": "Finde das Auto des leitenden Managers von Knossos LLC auf Ground Zero",
+                "67a0ab610345d81cb3cbb24c": "Finde und beschaffe das Tagebuch des Managers",
+                "67a0ab83359e2d00cf9d6b06": "Übergib das Tagebuch"
+            }
+        }
+    },
+    "665eeacf5d86b6c8aa03c79b": {
+        "name": "Thirsty - Hounds",
+        "locale": {
+            "de": {
+                "665eeacf5d86b6c8aa03c79b name": "Thirsty - Jagdhunde",
+                "665eed28bdbf7b1f92394ecb": "Eliminiere Scavs im Zeitraum von 22:00 bis 07:00 Uhr auf Shoreline"
+            }
+        }
+    },
+    "665eec1f5e47a79f8605565a": {
+        "name": "Thirsty - Breadwinner",
+        "locale": {
+            "de": {
+                "665eec1f5e47a79f8605565a name": "Thirsty - Ernährer",
+                "665ef4d93bd11acd294ac48c": "Finde 5-Liter-Propantanks im Raid",
+                "665ef4f08f3a505364a8ab09": "Übergib die Gegenstände"
+            }
+        }
+    },
+    "665eec4a4dfc83b0ed0a9dca": {
+        "name": "Thirsty - Delivery",
+        "locale": {
+            "de": {
+                "665eec4a4dfc83b0ed0a9dca name": "Thirsty - Lieferung",
+                "6661a14545909ae2e92ca2d5": "Finde den angegebenen Ablageort in Woods",
+                "6661a170945719c63f28d9c6": "Verstaue den ersten 5-Liter-Propantank",
+                "6661a18a12e8457716d59f5d": "Finde den angegebenen Ablageort in Customs",
+                "6661a1a1b1953d6c96da8f0e": "Verstaue den zweiten 5-Liter-Propantank"
+            }
+        }
+    },
+    "665eeca45d86b6c8aa03c79d": {
+        "name": "Thirsty - Echo",
+        "locale": {
+            "de": {
+                "665eeca45d86b6c8aa03c79d name": "Thirsty - Widerhall",
+                "6660785fc37356435d193ae4": "Finde Informationen über Thirsty auf Shoreline",
+                "66607896f2ea02201517c203": "Beschaffe die Informationen in Thirstys Versteck",
+                "666078bee6ed30ab2294f593": "Übergib die gefundenen Informationen"
+            }
+        }
+    },
+    "67a0964e972c11a3f507731b": {
+        "name": "Needle in a Haystack",
+        "locale": {
+            "de": {
+                "67a0964e972c11a3f507731b name": "Nadel im Heuhaufen",
+                "67a0bc81fcbc1c559d09b58f": "Untersuche den Innenhofpark beim TerraGroup-HQ auf Ground Zero",
+                "67a0bc83182c4b0c71edd0ce": "Untersuche die Kartbahn auf Interchange",
+                "67a0bc84f19d5b1120a55762": "Untersuche den Kinderspielplatz auf Interchange",
+                "67a0bc87c60a93d7a3f28b23": "Untersuche den Kinderspielplatz bei Concordia auf Streets of Tarkov",
+                "67a0bc8848d9d2cbd274ffd9": "Untersuche die Baustelle an der Küste auf Shoreline",
+                "67a0bc8ab12fe4b1baa60e4c": "Untersuche den Kinderspielplatz beim Health Resort auf Shoreline"
+            }
+        }
+    },
     "66ab9da7eb102b9bcd08591c": {
         "name": "Forester's Duty",
         "locale": {
+            "de": {
+                "66ab9da7eb102b9bcd08591f": "Benutze den Transit von Lighthouse nach Shoreline (in einem Raid)"
+            },
             "en": {
                 "66ab9da7eb102b9bcd08591d": "Eliminate Scavs on Lighthouse (In one raid)",
                 "66ab9da7eb102b9bcd08591f": "Use the transit from Lighthouse to Shoreline (In one raid)",
@@ -2685,6 +3011,822 @@
             "de": {
                 "675c3507a06634b5110e3c18 name": "Belka und Strelka",
                 "675c3507a06634b5110e3c1a": "Überlebe und entkomme aus Customs über den Ausgang Railroad Passage"
+            }
+        }
+    },
+    "67a096577e86e067eb045733": {
+        "name": "Hidden Layer",
+        "locale": {
+            "de": {
+                "67a096577e86e067eb045733 name": "Verborgene Ebene",
+                "67a0bf7103442ae640dba835": "Finde einen guten Hinweis zu Knossos LLC",
+                "67dbdd4d6a2e4b8e002b647d": "Finde einen Weg in die Knossos-LLC-Anlage",
+                "67dbdd819d8208bb2082480e": "Finde und beschaffe den Schlüssel zur Knossos-LLC-Anlage"
+            }
+        }
+    },
+    "67a0967c003a9986cb0f5ac1": {
+        "name": "Sensory Analysis - Part 1",
+        "locale": {
+            "de": {
+                "67a0967c003a9986cb0f5ac1 name": "Sensorische Analyse - Teil 1",
+                "67dc3861d5c0070b960c1bba": "Beschaffe den Gegenstand: Flasche Fierce Hatchling Moonshine",
+                "67dc393c6089aa48050efa02": "Begib dich nach Woods oder Streets of Tarkov",
+                "67dc294d681db91b2fa3b279": "Übergib die Flasche Fierce Hatchling Moonshine dem BTR-Fahrer"
+            }
+        }
+    },
+    "67a096ed77dd677f600804ba": {
+        "name": "Sensory Analysis - Part 2",
+        "locale": {
+            "de": {
+                "67a096ed77dd677f600804ba name": "Sensorische Analyse - Teil 2",
+                "683dbecbfc878c4569e892c2": "Finde eine Flasche Fierce Hatchling Moonshine",
+                "67a0da26a3b8d254347b8634": "Übergib eine Flasche Fierce Hatchling Moonshine"
+            }
+        }
+    },
+    "67a0970f05d1611ed90be75d": {
+        "name": "Hypotheses Testing",
+        "locale": {
+            "de": {
+                "67a0970f05d1611ed90be75d name": "Hypothesenprüfung",
+                "67dbe16ece16a02860ed9d33": "Finde den Laborbereich mit der Prototypwaffe im Labyrinth",
+                "67a0dcf4ff6f74931359b9f9": "Übergib die im Raid gefundenen Labrys-Forschungsnotizen"
+            }
+        }
+    },
+    "67a09724972c11a3f5077324": {
+        "name": "Confidential Info",
+        "locale": {
+            "de": {
+                "67a09724972c11a3f5077324 name": "Vertrauliche Informationen",
+                "67a0dd7a2519959b187db47f": "Finde und beschaffe das spezielle Speichermodul im Labyrinth",
+                "67a0de2750fdff39d267ea16": "Platziere eine Handgranate in der Montagewerkstatt im Labyrinth",
+                "67a0dda1370e2f877a6c8531": "Übergib die gefundenen Informationen"
+            }
+        }
+    },
+    "67a0972e77dd677f600804bd": {
+        "name": "This Tape Sucks",
+        "locale": {
+            "de": {
+                "67a0972e77dd677f600804bd name": "Dieses Band nervt",
+                "67a0de6954c67082e9148328": "Finde den Folterraum im Labyrinth",
+                "67a0de84e8e35296a13500c8": "Finde und beschaffe Beweise für Folter",
+                "67a0de9190545ec5612fdda5": "Übergib die gefundenen Informationen"
+            }
+        }
+    },
+    "67a097379f2068e74603c6ac": {
+        "name": "Indisputable Authority",
+        "locale": {
+            "de": {
+                "67a097379f2068e74603c6ac name": "Unangefochtene Autorität",
+                "67a0df619fb6c42b9a08e8e9": "Finde und neutralisiere den \"Minotaurus\" im Labyrinth",
+                "67a0df7f2cd4d4413cd29b45": "Eliminiere die Wachen des \"Minotaurus\" im Labyrinth"
+            }
+        }
+    },
+    "67d03be712fb5f8fd2096332": {
+        "name": "Vacate the Premises",
+        "locale": {
+            "de": {
+                "67d03be712fb5f8fd2096332 name": "Räumung des Geländes",
+                "67d03be712fb5f8fd2096334": "Eliminiere beliebige Ziele im Labyrinth"
+            }
+        }
+    },
+    "67a09761e720611a6a01f288": {
+        "name": "Keeper's Word",
+        "locale": {
+            "de": {
+                "67a09761e720611a6a01f288 name": "Wort des Hüters",
+                "67a0e4df8cddbe2df31dd1d9": "Verstaue ein Kultistenmesser am ersten speziellen Ort im Labyrinth",
+                "67a0e4e399e34c9ffcdc6e00": "Verstaue ein Kultistenmesser am zweiten speziellen Ort im Labyrinth",
+                "67a0e4e64cb065811d95c6d9": "Verstaue ein Kultistenmesser am dritten speziellen Ort im Labyrinth"
+            }
+        }
+    },
+    "676529af9c90953d090882e7": {
+        "name": "Gunsmith - Old Friend's Request",
+        "locale": {
+            "de": {
+                "676529af9c90953d090882e7 name": "Gunsmith - Bitte eines alten Freundes",
+                "676529e759261ce07bc47b62": "Modifiziere eine T-5000M gemäß den vorgegebenen Spezifikationen",
+                "676529af9c90953d090882ea": "Modifiziere eine PP-19-01 gemäß den vorgegebenen Spezifikationen",
+                "67652a2f4f75e1a9543289ed": "Modifiziere eine Glock 17 gemäß den vorgegebenen Spezifikationen"
+            }
+        }
+    },
+    "675c03d1f7da9792a405549a": {
+        "name": "Abandoned Cargo",
+        "locale": {
+            "de": {
+                "675c03d1f7da9792a405549a name": "Verlassene Fracht",
+                "675c0444db2b69f48942f37c": "Finde und markiere die erste spezielle TerraGroup-Fracht mit einem MS2000 Marker auf Customs",
+                "675c04497439eaed82b6dfeb": "Finde und markiere die zweite spezielle TerraGroup-Fracht mit einem MS2000 Marker auf Customs",
+                "675c044cc482cb252c5a92d4": "Finde und markiere die dritte spezielle TerraGroup-Fracht mit einem MS2000 Marker auf Customs",
+                "675c044e3691199fe911a641": "Finde und markiere die vierte spezielle TerraGroup-Fracht mit einem MS2000 Marker auf Customs",
+                "675c3fbeb402d4fa5589516f": "Finde und markiere die fünfte spezielle TerraGroup-Fracht mit einem MS2000 Marker auf Customs",
+                "675c3fd3a2c0bad5f70af01c": "Finde und markiere die sechste spezielle TerraGroup-Fracht mit einem MS2000 Marker auf Customs",
+                "675c3fdd5af984e99db7b4e1": "Finde und markiere die siebte spezielle TerraGroup-Fracht mit einem MS2000 Marker auf Customs"
+            }
+        }
+    },
+    "675c047fa46173572a0bd878": {
+        "name": "Shipment Tracking",
+        "locale": {
+            "de": {
+                "675c047fa46173572a0bd878 name": "Sendungsverfolgung",
+                "675c04b3fc6b273a36ed294a": "Finde und beschaffe die TerraGroup-Frachtlisten auf Customs",
+                "675c04c1b68cc8180efb38c6": "Übergib die gefundenen Informationen"
+            }
+        }
+    },
+    "675c04f4db8807b75d0f38e8": {
+        "name": "Closer to the People",
+        "locale": {
+            "de": {
+                "675c04f4db8807b75d0f38e8 name": "Näher an den Menschen",
+                "675c04f4db8807b75d0f38eb": "Finde und beschaffe die Liefernotizen der Liefercrew auf Customs",
+                "675c04f4db8807b75d0f38ec": "Übergib die gefundenen Informationen"
+            }
+        }
+    },
+    "675c085d59b0575973005f52": {
+        "name": "Break the Deal",
+        "locale": {
+            "de": {
+                "675c085d59b0575973005f52 name": "Den Deal platzen lassen",
+                "675c14f54662a2fae349dbb9": "Verstaue ein DVL-10-Scharfschützengewehr am angegebenen Ort auf Customs",
+                "675c152299549b5b62094f06": "Verstaue ein DVL-10-Magazin am angegebenen Ort auf Customs",
+                "675c153ae96d38136d02f670": "Verstaue ein ELCAN SpecterDR-Visier am angegebenen Ort auf Customs",
+                "67604476b1ae3717835ccaed": "Verstaue eine Packung beliebiger 7,62x51-Munition am angegebenen Ort auf Customs"
+            }
+        }
+    },
+    "6752f6d83038f7df520c83e8": {
+        "name": "A Helping Hand",
+        "locale": {
+            "de": {
+                "6752f6d83038f7df520c83e8 name": "Eine helfende Hand",
+                "6752f86d538945df8cc3fc3a": "Finde und beschaffe Prapors Paket auf Woods",
+                "6756bcb3f93f4c1fc2b2d685": "Überlebe und entkomme aus dem Gebiet",
+                "6752f85800c5b2c48240c45f": "Schließe die Aufgabe Verspätete Lieferung - Teil 1 ab"
+            }
+        }
+    },
+    "59ca29fb86f77445ab465c87": {
+        "name": "The Punisher - Part 5",
+        "locale": {
+            "de": {
+                "59ca293c86f77445a80ed147": "Finde ein beliebiges Kalashnikov AK-74-Sturmgewehr im Raid",
+                "59ca29ab86f77445ab133c86": "Übergib die AK-74"
+            }
+        }
+    },
+    "673f2cd5d3346c2167020484": {
+        "name": "Shipping Delay - Part 2",
+        "locale": {
+            "de": {
+                "673f2cd5d3346c2167020484 name": "Verspätete Lieferung - Teil 2",
+                "673f2d938504a2d993bc2e68": "Finde und erkunde die Lagerhäuser im Depot auf Woods",
+                "673f2d9a73ff76dd6d5a6344": "Finde und erkunde das Büro im Depot auf Woods",
+                "673f2da118e615f9f5550544": "Finde und erkunde die Garagen im Depot auf Woods",
+                "674eefb9b48df9e0cbba4e2f": "Schließe die Aufgabe Eine helfende Hand ab"
+            }
+        }
+    },
+    "673f348dd3346c21670217e7": {
+        "name": "Shipping Delay - Part 1",
+        "locale": {
+            "de": {
+                "673f348dd3346c21670217e7 name": "Verspätete Lieferung - Teil 1",
+                "673f34c674ec5bf80ea69eee": "Übergib das Paket aus dem Depot auf Woods"
+            }
+        }
+    },
+    "673f4e956f1b89c7bc0f56ef": {
+        "name": "Hot Wheels",
+        "locale": {
+            "de": {
+                "673f4e956f1b89c7bc0f56ef name": "Heiße Reifen",
+                "673f507029a1128d5c4d7498": "Finde und markiere die Ersatzräder des BTR mit einem MS2000 Marker"
+            }
+        }
+    },
+    "673f5a4976553f78350bdac1": {
+        "name": "Hot Wheels - Let's Try Again",
+        "locale": {
+            "de": {
+                "673f5a4976553f78350bdac1 name": "Heiße Reifen - Neuer Versuch",
+                "673f5a9537550b9d7fd30777": "Finde und markiere die Ersatzräder des BTR mit einem MS2000 Marker auf Reserve"
+            }
+        }
+    },
+    "673f6027352b4da8e00322d2": {
+        "name": "Inevitable Response",
+        "locale": {
+            "de": {
+                "673f6027352b4da8e00322d2 name": "Unvermeidliche Antwort",
+                "673f60910aed589d887b5ea1": "Eliminiere Scavs auf Woods",
+                "67499a4f03b8295863172dea": "Benutze den Transit von Woods nach Reserve",
+                "67499a61ddf14e140a675607": "Eliminiere Scavs auf Reserve"
+            }
+        }
+    },
+    "673f61a066e6a521aa04b62b": {
+        "name": "Order From Outside",
+        "locale": {
+            "de": {
+                "673f61a066e6a521aa04b62b name": "Befehl von außerhalb",
+                "673f61d9c2bc3dc676297fde": "Finde und beschaffe den elektronischen Störsender im elektromechanischen Lagerhaus auf Reserve",
+                "673f61ea87e01cfaf780a482": "Verstaue das Gerät am angegebenen Ort auf Woods"
+            }
+        }
+    },
+    "673f629c5b555b53460cf827": {
+        "name": "Building Foundations",
+        "locale": {
+            "de": {
+                "673f629c5b555b53460cf827 name": "Grundlagen schaffen",
+                "673f637a1fbc23a60a72b743": "Verkaufe beliebige Gegenstände an Ragman",
+                "67519696567b9773f0811bae": "Verkaufe beliebige Gegenstände an Prapor",
+                "675196dff77c0b8436ec1ef5": "Verkaufe beliebige Gegenstände an Peacekeeper"
+            }
+        }
+    },
+    "6740a02a69a58fceba0ff399": {
+        "name": "Natural Exchange",
+        "locale": {
+            "de": {
+                "6740a02a69a58fceba0ff399 name": "Natürlicher Austausch",
+                "6740a0c33c7152ccfe151146": "Verstaue den ersten Metall-Kraftstofftank bei der Schmugglerbasis auf Shoreline",
+                "6740a0d5b05fb787316fe7d5": "Verstaue den zweiten Metall-Kraftstofftank bei der Schmugglerbasis auf Shoreline"
+            }
+        }
+    },
+    "6740a2c17e3818d5bb0648b6": {
+        "name": "Half-Empty",
+        "locale": {
+            "de": {
+                "6740a2c17e3818d5bb0648b6 name": "Halb leer",
+                "6749aa9b1badcb1e8056d769": "Übergib die im Raid gefundenen militärischen Elektronikgegenstände",
+                "6740a33685a62f9581c2beaf": "Übergib die im Raid gefundenen PC-Komponenten"
+            }
+        }
+    },
+    "6740a3f4eca8acb2d2055159": {
+        "name": "Stick in the Wheel",
+        "locale": {
+            "de": {
+                "6740a3f4eca8acb2d2055159 name": "Stock im Rad",
+                "6740a42c508599fd5a066f19": "Eliminiere beliebige Ziele an einem beliebigen Ort"
+            }
+        }
+    },
+    "674492b6909d2013670a347a": {
+        "name": "Ask for Directions",
+        "locale": {
+            "de": {
+                "674492b6909d2013670a347a name": "Nach dem Weg fragen",
+                "674492e56e8d2d5239a3fd37": "Finde und markiere den ersten Abschnitt des Klippenpfads mit einem MS2000 Marker auf Lighthouse",
+                "674492ebf6f84f7d09ef1abb": "Finde und markiere den zweiten Abschnitt des Klippenpfads mit einem MS2000 Marker auf Lighthouse",
+                "674492f0636d0661476732f2": "Finde und markiere den dritten Abschnitt des Klippenpfads mit einem MS2000 Marker auf Lighthouse",
+                "674492f30f45cb752f21df39": "Finde und markiere den vierten Abschnitt des Klippenpfads mit einem MS2000 Marker auf Lighthouse"
+            }
+        }
+    },
+    "6744a4717e3818d5bb0680bb": {
+        "name": "Stabilize Business",
+        "locale": {
+            "de": {
+                "6744a4717e3818d5bb0680bb name": "Geschäfte stabilisieren",
+                "6744a4e6c8a456e74064e7d7": "Eliminiere Scavs in einem Raid auf Ground Zero",
+                "6744a6b96cefb76fd3f70555": "Überlebe und entkomme aus dem Gebiet"
+            }
+        }
+    },
+    "6744a728352b4da8e003eda9": {
+        "name": "Battery Change",
+        "locale": {
+            "de": {
+                "6744a728352b4da8e003eda9 name": "Batteriewechsel",
+                "683db718d1c3c712dac4b5c9": "Finde den Gegenstand: 6-STEN-140-M Militärbatterie",
+                "6744a964dc1b1e2ee134ffeb": "Übergib den Gegenstand: 6-STEN-140-M Militärbatterie"
+            }
+        }
+    },
+    "6744a9dfef61d56e020b5c4a": {
+        "name": "Battery Change",
+        "locale": {
+            "de": {
+                "6744a9dfef61d56e020b5c4a name": "Batteriewechsel",
+                "683db86c1090d855fb0f2c23": "Finde den Gegenstand: 6-STEN-140-M Militärbatterie",
+                "6744a9dfef61d56e020b5c54": "Übergib den Gegenstand: 6-STEN-140-M Militärbatterie"
+            }
+        }
+    },
+    "6744ab1def61d56e020b5c56": {
+        "name": "Protect the Sky",
+        "locale": {
+            "de": {
+                "6744ab1def61d56e020b5c56 name": "Den Himmel schützen",
+                "6744ab1def61d56e020b5c5f": "Finde das Paket am angegebenen Ort auf Woods",
+                "6744ab1def61d56e020b5c60": "Übergib das Paket"
+            }
+        }
+    },
+    "6744aca8d3346c216702c583": {
+        "name": "Discombobulate",
+        "locale": {
+            "de": {
+                "6744aca8d3346c216702c583 name": "Verwirrspiel",
+                "6744ae5cc771515803d615ec": "Verstaue eine VOG-25 Khattabka-Granate bei der ersten RPG-Munitionskiste auf Woods",
+                "6744ae63b3b4be24ffc607a4": "Verstaue eine VOG-25 Khattabka-Granate bei der zweiten RPG-Munitionskiste auf Woods",
+                "6744ae65f8c1438fb9374575": "Verstaue eine VOG-25 Khattabka-Granate bei der dritten RPG-Munitionskiste auf Woods"
+            }
+        }
+    },
+    "6745fae369a58fceba10343d": {
+        "name": "The Higher They Fly",
+        "locale": {
+            "de": {
+                "6745fae369a58fceba10343d name": "Je höher sie fliegen",
+                "6745fae369a58fceba103458": "Eliminiere PMCs auf Woods"
+            }
+        }
+    },
+    "6745fcded0fbbc74ca0f721d": {
+        "name": "Swift Retribution",
+        "locale": {
+            "de": {
+                "6745fcded0fbbc74ca0f721d name": "Schnelle Vergeltung",
+                "6745fd2e3d6070c3563039a9": "Eliminiere Scavs auf Woods"
+            }
+        }
+    },
+    "6745fdddd3346c216702e0bf": {
+        "name": "Simple Side Job",
+        "locale": {
+            "de": {
+                "6745fdddd3346c216702e0bf name": "Einfacher Nebenjob",
+                "6745fe81eae30b9fb3bb6166": "Finde und beschaffe Lightkeepers Frachtkiste auf dem Dach des Militärkrankenhauses auf Reserve",
+                "6745fe8d48cd7aeda7152b24": "Verstaue die Fracht beim Scav-Haus auf Woods"
+            }
+        }
+    },
+    "674600a366e6a521aa05eb66": {
+        "name": "Route Deviation",
+        "locale": {
+            "de": {
+                "674600a366e6a521aa05eb66 name": "Routenabweichung",
+                "67460118d3498f1b35e0a025": "Markiere die BTR-Haltestelle Collapsed Crane mit einem MS2000 Marker auf Streets of Tarkov",
+                "6746011dfd1dc9d0f502e55d": "Markiere die BTR-Haltestelle Old Scav Checkpoint mit einem MS2000 Marker auf Streets of Tarkov",
+                "674601247aa943781a1cf3fc": "Markiere die BTR-Haltestelle Pinewood Hotel mit einem MS2000 Marker auf Streets of Tarkov",
+                "674601282043d1ef3c6b2eec": "Markiere die BTR-Haltestelle City Center mit einem MS2000 Marker auf Streets of Tarkov",
+                "6746012a35218bb89951248e": "Markiere die BTR-Haltestelle Tram mit einem MS2000 Marker auf Streets of Tarkov",
+                "6746012d871e69a9abb5873d": "Markiere die BTR-Haltestelle Rodina Cinema mit einem MS2000 Marker auf Streets of Tarkov"
+            }
+        }
+    },
+    "674602307e3818d5bb069489": {
+        "name": "Hindsight 20/20",
+        "locale": {
+            "de": {
+                "674602307e3818d5bb069489 name": "Im Nachhinein ist man immer schlauer",
+                "674602682cb1c1f5999f27aa": "Finde den Bunker unter dem Berg auf Woods",
+                "674da90a45aa075a44b4d687": "Verstaue die erste russische panzerbrechende Munitionspackung im Bunker",
+                "674da90f96d4f32d517cb770": "Verstaue die zweite russische panzerbrechende Munitionspackung im Bunker",
+                "674da9141cc05673dc69e7e7": "Verstaue die dritte russische panzerbrechende Munitionspackung im Bunker"
+            }
+        }
+    },
+    "6746053b5b555b53460d9896": {
+        "name": "Key Partner",
+        "locale": {
+            "de": {
+                "6746053b5b555b53460d9896 name": "Wichtiger Partner",
+                "675197664e610fc2b88e0bf3": "Verkaufe beliebige Gegenstände an Peacekeeper"
+            }
+        }
+    },
+    "674605df60a98cad1b0ec799": {
+        "name": "Killer Argument",
+        "locale": {
+            "de": {
+                "674605df60a98cad1b0ec799 name": "Totschlagargument",
+                "6746061983996c4aa4765025": "Finde und beschaffe das Paket mit RPG-Munition auf Woods",
+                "674606266884ca9cfc83530e": "Übergib das Paket"
+            }
+        }
+    },
+    "6740a15566e6a521aa051b15": {
+        "name": "Forge a Friendship",
+        "locale": {
+            "de": {
+                "6740a15566e6a521aa051b15 name": "Eine Freundschaft schmieden",
+                "6740a202086cf3dbf687279a": "Finde und beschaffe Prapors Fracht auf Shoreline",
+                "6740a20cc6daae7f8f12a77d": "Übergib die gefundene Fracht"
+            }
+        }
+    },
+    "6740b60c60a98cad1b0e0aa0": {
+        "name": "Another Shipping Delay",
+        "locale": {
+            "de": {
+                "6740b60c60a98cad1b0e0aa0 name": "Noch eine Lieferverzögerung",
+                "6740b64f024f0e44fbed2c48": "Finde die vermisste Kuriercrew auf Woods",
+                "6740b66079ff8ea717dad584": "Überlebe und entkomme aus dem Gebiet"
+            }
+        }
+    },
+    "67460662d0fbbc74ca0f7229": {
+        "name": "Choose Your Friends Wisely",
+        "locale": {
+            "de": {
+                "67460662d0fbbc74ca0f7229 name": "Wähle deine Freunde mit Bedacht",
+                "674606bac840f707bea6242f": "Benutze den Transit von Customs nach Reserve",
+                "674606ccff406a9f6a28e26f": "Benutze den Transit von Reserve nach Woods",
+                "674606f1c63637e54bede3a6": "Benutze den Transit von Woods nach Lighthouse",
+                "6746071002dfd67c0629a379": "Überlebe und entkomme aus Lighthouse",
+                "674607317781508c405fb979": "Eliminiere PMCs, während du die anderen Ziele abschließt"
+            }
+        }
+    },
+    "6744af0969a58fceba101fed": {
+        "name": "The Price of Independence",
+        "locale": {
+            "de": {
+                "6744af0969a58fceba101fed name": "Der Preis der Unabhängigkeit",
+                "6745c8ccb4adeab3910332cc": "Finde und beschaffe den belastenden Brief auf Customs",
+                "6745c8ee54d6972417ad7bad": "Benutze den Transit von Customs nach Reserve",
+                "6745c8de22c7ee46e3319c34": "Verstaue den Brief im dritten Stock des Militärhauptquartiers auf Reserve",
+                "6745c90842db81af412eae97": "Benutze den Transit von Reserve nach Woods",
+                "6745c9482ac6bee79dca869a": "Eliminiere ein beliebiges Ziel auf Woods",
+                "6745c9623d362cd373b1de93": "Benutze den Transit von Woods nach Lighthouse",
+                "6745c986a3e10e0bf6472d8e": "Schieße eine gelbe Signalpatrone am Lagerhaus des Bahnhofs auf Lighthouse ab",
+                "6745c992bf76b3aeaf6370e0": "Schieße eine gelbe Signalpatrone am Pier auf Lighthouse ab",
+                "6745c9b89c84a273d4a2dc28": "Eliminiere Scavs, während du die anderen Ziele abschließt",
+                "6745c9a86086867a2c723e9d": "Überlebe und entkomme aus Lighthouse"
+            }
+        }
+    },
+    "6745cbee909d2013670a4a55": {
+        "name": "The Price of Independence",
+        "locale": {
+            "de": {
+                "6745cbee909d2013670a4a55 name": "Der Preis der Unabhängigkeit",
+                "6745cbee909d2013670a4a60": "Finde und beschaffe den belastenden Brief auf Customs",
+                "6745cbee909d2013670a4a61": "Benutze den Transit von Customs nach Reserve",
+                "6745cbee909d2013670a4a63": "Verstaue den Brief im dritten Stock des Militärhauptquartiers auf Reserve",
+                "6745cbee909d2013670a4a64": "Benutze den Transit von Reserve nach Woods",
+                "6745cbee909d2013670a4a66": "Eliminiere ein beliebiges Ziel auf Woods",
+                "6745cbee909d2013670a4a68": "Benutze den Transit von Woods nach Lighthouse",
+                "6745cbee909d2013670a4a6a": "Schieße eine gelbe Signalpatrone am Lagerhaus des Bahnhofs auf Lighthouse ab",
+                "6745cbee909d2013670a4a6c": "Schieße eine gelbe Signalpatrone am Pier auf Lighthouse ab",
+                "6745cbee909d2013670a4a6e": "Eliminiere Scavs, während du die anderen Ziele abschließt",
+                "6745cbee909d2013670a4a70": "Überlebe und entkomme aus Lighthouse"
+            }
+        }
+    },
+    "66d9cbb67b491f9d5304f6e6": {
+        "name": "Is This a Reference?",
+        "locale": {
+            "de": {
+                "66d9cbb67b491f9d5304f6e6 name": "Ist das eine Anspielung?",
+                "66d9cbb67b491f9d5304f6e9": "Platziere eine WiFi-Kamera beim Versteck der amphibischen Pizzaliebhaber auf Streets of Tarkov",
+                "66d9cbb67b491f9d5304f6ea": "Platziere eine WiFi-Kamera im Krankenzimmer des verbrannten Mädchens auf Streets of Tarkov",
+                "66d9cbb67b491f9d5304f6eb": "Platziere eine WiFi-Kamera bei der Leiche im Stacheldraht auf Streets of Tarkov",
+                "66dacf2a88c7001436a67390": "Platziere eine WiFi-Kamera bei dem wirklich gruseligen Loch in der Wand auf Streets of Tarkov",
+                "66dad1d7811532f53e472c13": "Platziere eine WiFi-Kamera beim Hochhaus, in dem ein hartgesottener Typ aufgeräumt hat, auf Ground Zero",
+                "66dad1d941756590432b0eaa": "Platziere eine WiFi-Kamera beim Computer mit einem Witz für Programmierer auf Ground Zero",
+                "66dad1dbb16caebe0e214d89": "Platziere eine WiFi-Kamera beim kleinen Stuhl, der von großen schwarzen Stühlen umgeben ist, auf Ground Zero",
+                "66dad1ddec53b0df3b10a1b9": "Platziere eine WiFi-Kamera bei deinem Freund Wilson auf Lighthouse",
+                "66dad1de93c8fcffd5790d89": "Platziere eine WiFi-Kamera beim entfachten Ruheplatz auf Lighthouse",
+                "66dad1e0703b718902451ee4": "Platziere eine WiFi-Kamera beim unheilvollen Willkommensschild auf Lighthouse",
+                "66dad1e21e7ef28d17a69a93": "Platziere eine WiFi-Kamera beim Sitz des supergenialen Wissenschaftlers auf Lighthouse",
+                "66dad1e607181e2f78a3a0a2": "Platziere eine WiFi-Kamera an dem Ort, an dem Rekruten eine sehr wichtige Aufgabe erledigt haben, auf Reserve",
+                "66dad1e843a718561db0fdd3": "Platziere eine WiFi-Kamera beim Zwei-Stühle-Rätsel auf Reserve",
+                "66dad1ebc5c8e6cd26dd1d31": "Platziere eine WiFi-Kamera beim ersten Videospiel eines jeden Panzerfahrers auf Reserve",
+                "66dad1edbc4fdd0c6eb38c5e": "Platziere eine WiFi-Kamera beim Eimerkopf-Bösewicht auf Customs",
+                "66dad1f00e049ac7abb6d801": "Platziere eine WiFi-Kamera am Hinrichtungsort eines Anvil-3-4-Crewmitglieds auf Customs",
+                "66dad1f22edc2103eb176de8": "Platziere eine WiFi-Kamera beim schlimmsten Albtraum jedes Indie-Entwicklers auf Customs",
+                "66db1f8d7539f4b4eb640aff": "Platziere eine WiFi-Kamera in dem Raum, in dem der Feuerwehrmann Bücher verbrannte, um glücklich zu werden, auf Factory",
+                "66db1f8f564045697071d934": "Platziere eine WiFi-Kamera an dem Ort, an dem einige Valve-Techniker ihr drittes Projekt nicht fertigstellen konnten, auf Factory",
+                "66db1f928d59a9fe511dfc25": "Platziere eine WiFi-Kamera bei der gefährlichen russischen Schokoladenschönheit auf Factory",
+                "66db1f94a147d9840ec0dfba": "Platziere eine WiFi-Kamera im Zimmer des Verschwörungstheoretikers auf Factory",
+                "66db1f98b8e22a92437fe5c6": "Platziere eine WiFi-Kamera nahe der Stelle, an der jemand dachte, er würde zur Zauberschule gebracht, auf Factory",
+                "66db1f9b4f7bf01d937eb150": "Platziere eine WiFi-Kamera bei der Mutter aller Strategiespiele auf Factory",
+                "66db1ff798d52a5a8e4ed1f8": "Platziere eine WiFi-Kamera bei der Treppe in den Himmel auf Factory",
+                "66debf2b9e4ce2ef233ee5b7": "Platziere eine WiFi-Kamera beim Bären, der sich in ein brennendes Auto gesetzt hat, auf Woods",
+                "66debf2e1e254957b82711ff": "Platziere eine WiFi-Kamera beim umgedrehten Stuhl auf Shoreline",
+                "66debf30802386a45d0adb60": "Platziere eine WiFi-Kamera beim nicht ganz so einsamen Badezimmer auf Shoreline"
+            }
+        }
+    },
+    "68ee1c18b4e5bc9a68018cd7": {
+        "name": "No Questions Asked",
+        "locale": {
+            "de": {
+                "68ee1c18b4e5bc9a68018cd7 name": "Keine Fragen",
+                "68ee1cc7e8b13097f525e6f2": "Übergib den im Raid gefundenen Gegenstand: Red Rebel Eispickel"
+            }
+        }
+    },
+    "5ae4496986f774459e77beb6": {
+        "name": "Sew it Good - Part 3",
+        "locale": {
+            "de": {
+                "5ae9bc6e86f7746e0026222c": "Übergib die 6B43-Sturmweste mit 0-75% Haltbarkeit",
+                "5ae9bea886f77468ab400e64": "Übergib die 6B43-Sturmweste mit 75-100% Haltbarkeit"
+            }
+        }
+    },
+    "666314b4d7f171c4c20226c3": {
+        "name": "The Good Times - Part 1",
+        "locale": {
+            "de": {
+                "666314b4d7f171c4c20226c3 name": "Die guten Zeiten - Teil 1",
+                "666333e93962787efd64004a": "Eliminiere PMC-Operatoren auf Factory, während du Colt M4A1, 6B43-Körperschutz und Kiver-M-Helm benutzt"
+            }
+        }
+    },
+    "666314b696a9349baa021bac": {
+        "name": "Quality Standard",
+        "locale": {
+            "de": {
+                "666314b696a9349baa021bac name": "Qualitätsstandard",
+                "6672e47f25ab92726912c3e5": "Finde und beschaffe die Spezialversion des LEDX Skin Transilluminators in The Lab",
+                "6672e49679243c500ec02c2e": "Übergib den gefundenen Gegenstand"
+            }
+        }
+    },
+    "666314b8312343839d032d24": {
+        "name": "Airmail",
+        "locale": {
+            "de": {
+                "666314b8312343839d032d24 name": "Luftpost",
+                "6672edebec0c3e2ad7d4e489": "Schieße eine rote Signalpatrone beim alten Sägewerk auf Woods ab"
+            }
+        }
+    },
+    "666314bc1d3ec95634095e77": {
+        "name": "Minute of Fame",
+        "locale": {
+            "de": {
+                "666314bc1d3ec95634095e77 name": "Minute des Ruhms",
+                "667a958eb30fe2e2938a6387": "Finde und beschaffe die Sonderausgabe des Gaming-Magazins auf Interchange",
+                "667a95972740eaeca1ecda21": "Übergib den gefundenen Gegenstand"
+            }
+        }
+    },
+    "666314bf1cd52e3d040a2e78": {
+        "name": "Serious Allegations",
+        "locale": {
+            "de": {
+                "666314bf1cd52e3d040a2e78 name": "Schwere Anschuldigungen",
+                "667571ad6889d3af44af7be2": "Finde und beschaffe die Festplatte im alten Haus auf Shoreline",
+                "667571cb7620e3041bad913c": "Übergib den gefundenen Gegenstand"
+            }
+        }
+    },
+    "666314c10aa5c7436c00908c": {
+        "name": "Camera, Action!",
+        "locale": {
+            "de": {
+                "666314c10aa5c7436c00908c name": "Kamera läuft!",
+                "66675a4567c0cf0989946e12": "Übergib den im Raid gefundenen Gegenstand: SSD-Laufwerk",
+                "66675a50f15c3daac1fcb57d": "Übergib den im Raid gefundenen Gegenstand: USB-Adapter",
+                "66675a5b89c89dbbf90361d5": "Übergib den im Raid gefundenen Gegenstand: tragbare Powerbank",
+                "66675a66e7b6dbc6ff88de91": "Übergib den im Raid gefundenen Gegenstand: wiederaufladbare Batterie",
+                "667c252898eab887725ef789": "Übergib den im Raid gefundenen Gegenstand: PC-Prozessor",
+                "667c25452c353b0176f883d1": "Übergib den im Raid gefundenen Gegenstand: elektronische Komponenten",
+                "667c257562774a862480925c": "Übergib den im Raid gefundenen Gegenstand: Kabelbündel",
+                "667c25970b2c3c93bfc0f204": "Übergib den im Raid gefundenen Gegenstand: Kondensatoren",
+                "667c25a8b3d49a2e3f4bd05c": "Übergib den im Raid gefundenen Gegenstand: NIXXOR-Objektiv",
+                "667c25b7b4419ddadbe352be": "Übergib den im Raid gefundenen Gegenstand: RAM-Riegel",
+                "667c26159bd3d32fb565578e": "Übergib den im Raid gefundenen Gegenstand: Glühbirne"
+            }
+        }
+    },
+    "666314c5a9290f9e0806cca5": {
+        "name": "Key to the City",
+        "locale": {
+            "de": {
+                "666314c5a9290f9e0806cca5 name": "Schlüssel zur Stadt",
+                "6679884cef969161e3e9d64d": "Finde und beschaffe den Souvenir-Schlüssel zur Stadt auf Streets of Tarkov",
+                "667988545af9f7082798b67d": "Übergib den gefundenen Gegenstand"
+            }
+        }
+    },
+    "66aa61663aa37705c5024277": {
+        "name": "Know Your Place!",
+        "locale": {
+            "de": {
+                "66aa61663aa37705c5024278": "Eliminiere ein beliebiges Ziel auf Streets of Tarkov (in einem Raid)",
+                "66aa61663aa37705c502427c": "Benutze den Transit von Streets of Tarkov nach Interchange (in einem Raid)",
+                "66aa61663aa37705c502427e": "Eliminiere ein beliebiges Ziel auf Interchange (in einem Raid)"
+            }
+        }
+    },
+    "67b45467814ab0ffa000c7e7": {
+        "name": "The Art of Explosion",
+        "locale": {
+            "de": {
+                "67b45467814ab0ffa000c7e7 name": "Die Kunst der Explosion",
+                "67b45467814ab0ffa000c7ea": "Eliminiere ein beliebiges Ziel, während du Granaten oder Granatwerfer benutzt"
+            }
+        }
+    },
+    "68db9c7557bc51a8c804c14b": {
+        "name": "Goals and Means",
+        "locale": {
+            "de": {
+                "68db9c7557bc51a8c804c14b name": "Ziele und Mittel",
+                "68db9ea0e6c69908254eceee": "Eliminiere PMC-Operatoren aus über 50 Metern Entfernung, während du eine beliebige Waffe im Kaliber 9x39 benutzt"
+            }
+        }
+    },
+    "683427418f5b18d29a05d9e3": {
+        "name": "Surprise Gift [PVE ZONE]",
+        "locale": {
+            "de": {
+                "683427418f5b18d29a05d9e3 name": "Überraschungsgeschenk [PVE ZONE]",
+                "683427418f5b18d29a05d9e5": "Kehre zum Versteck des alten Champions auf Customs zurück",
+                "683427418f5b18d29a05d9e7": "Finde und beschaffe die kompromittierenden Informationen über Ref",
+                "683427418f5b18d29a05d9e9": "Übergib die gefundenen Informationen"
+            }
+        }
+    },
+    "6663149f1d3ec95634095e75": {
+        "name": "Circulate",
+        "locale": {
+            "de": {
+                "6663149f1d3ec95634095e75 name": "In Umlauf bringen",
+                "666973ee1d80fbbbfeaf46c9": "Verkaufe beliebige Rucksäcke oder taktische Westen an Ragman"
+            }
+        }
+    },
+    "666314a1920800278d0f6746": {
+        "name": "Special Offer",
+        "locale": {
+            "de": {
+                "666314a1920800278d0f6746 name": "Sonderangebot",
+                "666976536518781b9feb2f28": "Finde Sanitars Tasche im Raid",
+                "6669766290442b8d8e0688b3": "Übergib die Ausrüstung",
+                "6669769ff0cb253ff7649f27": "Finde den Crye Precision AVS Plattenträger (Tagilla Edition) im Raid",
+                "666976ab1a6ef5fa7b813883": "Übergib die Ausrüstung",
+                "66697774640ec1284ed1621f": "Finde das LBT-1961A Load Bearing Chest Rig (Goons Edition) im Raid",
+                "666977849154974010adb5ec": "Übergib die Ausrüstung",
+                "666977bfe975ac480a8f914e": "Finde das Mystery Ranch NICE COMM 3 BVS Rahmensystem (Coyote) im Raid",
+                "666977ca5fa54985173f8e2c": "Übergib die Ausrüstung",
+                "666977f2dd6e511e9f33005a": "Finde den Crye Precision CPC Plattenträger (Goons Edition) im Raid",
+                "666978023255d2720cbdf76d": "Übergib die Ausrüstung"
+            }
+        }
+    },
+    "671a49f77d49aea42c029b5f": {
+        "name": "Irresistible",
+        "locale": {
+            "de": {
+                "671a49f77d49aea42c029b5f name": "Unwiderstehlich",
+                "671a5941cb557f8656561a12": "Finde und beschaffe die verlorene Waffenkiste auf Interchange",
+                "671a598e596272a846fa862a": "Übergib die geborgene Fracht"
+            }
+        }
+    },
+    "671a59e43d73dac1360765cc": {
+        "name": "Dangerous Props",
+        "locale": {
+            "de": {
+                "671a59e43d73dac1360765cc name": "Gefährliche Requisiten",
+                "671ac68e30609eb2c7e9a7f7": "Eliminiere ein beliebiges Ziel, während du die MPS Auto Assault-12-Schrotflinte benutzt"
+            }
+        }
+    },
+    "6834287b7559f4e6d50bc0fa": {
+        "name": "Postponed Reward [PVE ZONE]",
+        "locale": {
+            "de": {
+                "6834287b7559f4e6d50bc0fa name": "Aufgeschobene Belohnung [PVE ZONE]",
+                "6834287b7559f4e6d50bc0fd": "Übergib den Gegenstand: Lega-Medaille"
+            }
+        }
+    },
+    "6942b44f891369fc790e385a": {
+        "name": "Setting Priorities",
+        "locale": {
+            "de": {
+                "6942b44f891369fc790e385a name": "Prioritäten setzen",
+                "6942b48e6998a45a7b90cd5b": "Eliminiere PMC-Operatoren, während du ein aktives Headset benutzt und keine Rüstung trägst",
+                "6942b72980d7f587b5b3ca86": "Eliminiere PMC-Operatoren, während du den weichen Panzerfahrerhelm TSh-4M-L trägst und kein aktives Headset benutzt"
+            }
+        }
+    },
+    "684009026ceedc792c09b2a7": {
+        "name": "Hobby Club",
+        "locale": {
+            "de": {
+                "684009026ceedc792c09b2a7 name": "Hobbyclub",
+                "68406fd3b614b3db64e6097d": "Finde und beschaffe den AK-50-Lauf auf Reserve",
+                "684070a1a550c194cf2f833a": "Finde und beschaffe den AK-50-Gehäusedeckel an einem von Tarkovs Sicherheitskontrollpunkten",
+                "6840714469caa738cc1225c3": "Finde den Kontrollpunkt mit beschlagnahmter Fracht",
+                "6840711071516aad97bd9156": "Finde Glukhars Werkstatt auf Reserve",
+                "685e95c44b14e68996ad6590": "Verstaue das AK-50-Gehäuse am angegebenen Ort auf Customs",
+                "685e95d28ba62d57a3235675": "Verstaue den AK-50-Handschutz am angegebenen Ort auf Customs",
+                "685e95def338135da83ff978": "Verstaue den AK-50-Lauf am angegebenen Ort auf Customs",
+                "685e95f0ac5f975749f6c1f3": "Verstaue den AK-50-Gehäusedeckel am angegebenen Ort auf Customs",
+                "685e97f9892281cf7a89f39c": "Baue das AK-50-Gehäuse"
+            }
+        }
+    },
+    "68400926706e0a55e90b0007": {
+        "name": "Fair Price - Part 1",
+        "locale": {
+            "de": {
+                "68400926706e0a55e90b0007 name": "Fairer Preis - Teil 1",
+                "684180b0b22d582a57c5a8d7": "Übergib EUR"
+            }
+        }
+    },
+    "68400953506db3b4db0700e7": {
+        "name": "Fair Price - Part 2",
+        "locale": {
+            "de": {
+                "68400953506db3b4db0700e7 name": "Fairer Preis - Teil 2",
+                "6841815b3d5e6b08d1f6e474": "Finde den Versteckort",
+                "6841814c20c9a6c68800ab79": "Finde und beschaffe den AK-50-Handschutz beim alten Sägewerk auf Woods",
+                "684181808b21759f04e1c4ee": "Schließe die Aufgabe Hobbyclub ab"
+            }
+        }
+    },
+    "67af4c1405c58dc6f7056667": {
+        "name": "Profitable Venture",
+        "locale": {
+            "de": {
+                "67af4c1405c58dc6f7056667 name": "Profitables Geschäft",
+                "67af6dd0f5685508d9050158": "Übergib den Gegenstand: Trijicon REAP-IR Wärmebildvisier"
+            }
+        }
+    },
+    "67af4c169d95ad16e004fd86": {
+        "name": "Safety Guarantee",
+        "locale": {
+            "de": {
+                "67af4c169d95ad16e004fd86 name": "Sicherheitsgarantie",
+                "67af6e1ee67a772b14e08061": "Übergib den Gegenstand: BNTI Zhuk-Körperschutz (EMR)",
+                "67af6f1d268fd33c21524a02": "Übergib den Gegenstand: Vulkan-5 LShZ-5 kugelsicherer Helm",
+                "67af6f7961ee5d07d0c210c9": "Übergib den Gegenstand: Maska-1SCh-Gesichtsschutz (Killa Edition)"
+            }
+        }
+    },
+    "67af4c17f4f1fb58a907f8f6": {
+        "name": "Never Too Late To Learn",
+        "locale": {
+            "de": {
+                "67af4c17f4f1fb58a907f8f6 name": "Zum Lernen ist es nie zu spät",
+                "67af7037f7937389517f0569": "Übergib den Gegenstand: HK 416A5 5,56x45-Sturmgewehr",
+                "67af7055a7ffd02753b8c5bd": "Übergib den Gegenstand: 5,56x45 mm MK 318 Mod 0 (SOST)",
+                "67af70650fa4c937ca034063": "Übergib den Gegenstand: UVSR Taiga-1 Überlebensmachete"
+            }
+        }
+    },
+    "67af4c1991ee75c6d7060a16": {
+        "name": "Get a Foothold",
+        "locale": {
+            "de": {
+                "67af4c1991ee75c6d7060a16 name": "Fuß fassen",
+                "67af70d60ef31f2d26f1a4d5": "Übergib den Gegenstand: SJ6 TGLabs Kampfstimulans-Injektor",
+                "67af70e894e1096f325b8050": "Übergib den Gegenstand: Obdolbos 2 Cocktail-Injektor",
+                "67af70f3cfdf90b749b5eb36": "Übergib den Gegenstand: Propital regenerativer Stimulans-Injektor",
+                "67af70fe8c503a010078afd0": "Übergib den Gegenstand: M.U.L.E.-Stimulans-Injektor",
+                "67af710c5662b533d9f5b9ca": "Übergib den Gegenstand: eTG-change regenerativer Stimulans-Injektor",
+                "67af7117f8c948d02b632085": "Übergib den Gegenstand: SJ9 TGLabs Kampfstimulans-Injektor",
+                "67af7121aeed86a73d8653be": "Übergib den Gegenstand: SJ12 TGLabs Kampfstimulans-Injektor",
+                "67af712cf5f86ab56db8f198": "Übergib den Gegenstand: Meldonin-Injektor"
+            }
+        }
+    },
+    "67af4c1a6c3ebfd8e6034916": {
+        "name": "Profit Retention",
+        "locale": {
+            "de": {
+                "67af4c1a6c3ebfd8e6034916 name": "Gewinnsicherung",
+                "67af7168fab0681948d9ed8b": "Übergib den Gegenstand: Grafikkarte",
+                "67af7178ea4fed9c667abb17": "Übergib den Gegenstand: physischer Bitcoin"
+            }
+        }
+    },
+    "67af4c1cc0e59d55e2010b97": {
+        "name": "A Life Lesson",
+        "locale": {
+            "de": {
+                "67af4c1cc0e59d55e2010b97 name": "Eine Lektion fürs Leben",
+                "67af71c90036a462a17a72d3": "Übergib den Gegenstand: Flasche Tarkovskaya-Wodka",
+                "67af71d6a6e77337205f5bfe": "Übergib den Gegenstand: Flasche Dan-Jackiel-Whiskey",
+                "67af71f19ce81d8ebb21530f": "Übergib den Gegenstand: Flasche Fierce Hatchling Moonshine"
             }
         }
     }
