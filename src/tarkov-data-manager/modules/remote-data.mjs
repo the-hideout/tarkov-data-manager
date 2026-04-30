@@ -1,9 +1,12 @@
 import midmean from 'compute-midmean';
 
+import { imageFunctions } from 'tarkov-dev-image-generator';
+
 import normalizeName from './normalize-name.js';
 import db from './db-connection.mjs';
 import gameModes from './game-modes.mjs';
 import emitter from './emitter.mjs';
+import s3 from './upload-s3.mjs';
 
 const myData = new Map();
 let lastRefresh = new Date(0);
@@ -44,6 +47,31 @@ const getInterquartileMean = (validValues) => {
     // }
 
     // return Math.floor(sum / includedCount);
+};
+
+const removeItemImages = async (item) => {
+    if (!item) {
+        return;
+    }
+    if (!item.types.includes('preset')) {
+        return;
+    }
+    const files = [];
+    const s3Bucket = process.env.S3_BUCKET;
+    if (!s3Bucket) {
+        return;
+    }
+    for (const imgKey in imageFunctions.imageSizes) {
+        const imgType = imageFunctions.imageSizes[imgKey];
+        if (!item[imgType.field]) {
+            continue;
+        }
+        files.push(item[imgType.field].replace(`${s3Bucket}/`, ''));
+    }
+    if (!files.length) {
+        return;
+    }
+    await Promise.all(files.map(filename => s3.deleteFromBucket(filename)));
 };
 
 const methods = {
@@ -509,9 +537,10 @@ const methods = {
         if (!myData.has(id)) {
             return Promise.reject(new Error(`Item ${id} not found`));
         }
-        const [result, typesResult] = await Promise.all([
+        const [result, typesResult, imageResult] = await Promise.all([
             db.query('DELETE FROM item_data WHERE id = ?', [id]),
             db.query('DELETE FROM types WHERE item_id = ?', [id]),
+            removeItemImages(myData.get(id)),
         ]);
         emitter.emit('itemRemoved', myData.get(id));
         myData.delete(id);
