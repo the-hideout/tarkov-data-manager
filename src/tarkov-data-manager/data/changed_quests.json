@@ -2342,6 +2342,11 @@
     "675c1d6d59b0575973008fc7": {
         "name": "Seizing the Initiative",
         "locale": {
+            "de": {
+                "675c1d6d59b0575973008fc7 name": "Die Initiative ergreifen",
+                "675c1d6d59b0575973008fc9": "Benutze den Transit von Customs nach Shoreline",
+                "675c1dbdcca03cb7f61fc735": "Überlebe und entkomme aus Shoreline"
+            },
             "zh": {
                 "675c1d6d59b0575973008fc7 name": "先声夺人"
             }
@@ -2551,6 +2556,145 @@
             },
             "zh": {
                 "6834202a186efa3c5b07f9a5": "在竞技场赢得两场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗，至少取得前三名的排名"
+            }
+        }
+    },
+    "66058cbb06ef1d50a60c1f46": {
+        "name": "Surprise [PVP ZONE]",
+        "locale": {
+            "de": {
+                "6606d08b4e2e27ca2d80085e": "Übergib im Raid gefundene ballistische Platten der Klasse 4 oder höher"
+            }
+        }
+    },
+    "68341b407559f4e6d50bc0ce": {
+        "name": "Surprise [PVE ZONE]",
+        "locale": {
+            "de": {
+                "68341b407559f4e6d50bc0d1": "Übergib im Raid gefundene ballistische Platten der Klasse 4 oder höher"
+            }
+        }
+    },
+    "66058cbf2f19c31a5a1337ec": {
+        "name": "Create a Distraction - Part 2 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "660d5effb318c171fb1ca234": "Eliminiere Kabans oder Kollontays Wachen auf Streets of Tarkov"
+            }
+        }
+    },
+    "68341d7d7559f4e6d50bc0db": {
+        "name": "Create a Distraction - Part 2 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "68341d7d7559f4e6d50bc0de": "Eliminiere Kabans oder Kollontays Wachen auf Streets of Tarkov"
+            }
+        }
+    },
+    "66058cc1da30b620a34e6e86": {
+        "name": "To Great Heights! - Part 1 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "662ba5a89d8041c264dd9673": "Gewinne ein Match im CheckPoint- oder LastHero-Modus in Arena"
+            }
+        }
+    },
+    "68341eb25619c8e2a9031501": {
+        "name": "To Great Heights! - Part 1 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "68341eb25619c8e2a9031504": "Gewinne ein Match im CheckPoint- oder LastHero-Modus in Arena"
+            }
+        }
+    },
+    "66058cc208308761cf390993": {
+        "name": "To Great Heights! - Part 2 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "662ba78e19c86d3199ae0a93": "Gewinne ein Match im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena"
+            }
+        }
+    },
+    "68341f6fe2e7ef70a3060a0a": {
+        "name": "To Great Heights! - Part 2 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "68341f6fe2e7ef70a3060a0d": "Gewinne ein Match im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena"
+            }
+        }
+    },
+    "66058cc72cee99303f1ba069": {
+        "name": "To Great Heights! - Part 4 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "662bb23200ae352a6d5a415d": "Gewinne drei von sechs Matches im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena",
+                "665493a649bd17856482ba77": "Die Aufgabe schlägt fehl, wenn du 4 Matches verlierst"
+            }
+        }
+    },
+    "683421515619c8e2a9031511": {
+        "name": "To Great Heights! - Part 4 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "683421515619c8e2a9031515": "Gewinne drei von sechs Matches im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena",
+                "683421515619c8e2a9031518": "Die Aufgabe schlägt fehl, wenn du 4 Matches verlierst"
+            }
+        }
+    },
+    "66058cc9ae4719735349b9ea": {
+        "name": "To Great Heights! - Part 5 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "662ba87106e44407b79e9ab2": "Gewinne zwei Matches in Folge im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena"
+            }
+        }
+    },
+    "68342265a8d674b5740b31f0": {
+        "name": "To Great Heights! - Part 5 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "68342265a8d674b5740b31f3": "Gewinne zwei Matches in Folge im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena"
+            }
+        }
+    },
+    "66058ccde8e4f17985230807": {
+        "name": "Against the Conscience - Part 2 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "663b9bb7fe7953705cb09114": "Eliminiere Gegner in einem beliebigen Spielmodus in Arena"
+            }
+        }
+    },
+    "68342446a8d674b5740b31fc": {
+        "name": "Against the Conscience - Part 2 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "68342446a8d674b5740b31ff": "Eliminiere Gegner in einem beliebigen Spielmodus in Arena"
+            }
+        }
+    },
+    "6834254f2f0e2a7eb90b62ef": {
+        "name": "Decisions, Decisions [PVE ZONE]",
+        "locale": {
+            "de": {
+                "6834254f2f0e2a7eb90b62f1": "Finde kompromittierende Informationen über Ref"
+            }
+        }
+    },
+    "66058ccbc7f3584787181478": {
+        "name": "Against the Conscience - Part 1 [PVP ZONE]",
+        "locale": {
+            "de": {
+                "67e6b531ca71d03c35350b31": "Finde und beschaffe den Schlüssel bei der Schmugglerbasis auf Shoreline"
+            }
+        }
+    },
+    "6834233fecd5cf3a440d855b": {
+        "name": "Against the Conscience - Part 1 [PVE ZONE]",
+        "locale": {
+            "de": {
+                "6834233fecd5cf3a440d855f": "Finde das Zimmer des alten Champions in Customs",
+                "6834233fecd5cf3a440d8567": "Finde und beschaffe den Schlüssel bei der Schmugglerbasis auf Shoreline"
             }
         }
     },
