@@ -409,9 +409,11 @@ class UpdatePresetsJob extends DataJob {
 
     async x17PresetCheck() {
         const x17Id = '676176d362e0497044079f4c';
+        // find existing x-17 preset in either game or db presets
         let x17Preset = Object.values(this.gamePresets).find(p => p._items[0]._tpl === x17Id) ??
                         Object.values(this.dbPresets).find(p => p._items[0]._tpl === x17Id);
         if (x17Preset) {
+            // there's already an x-17 preset
             return;
         }
         // we use the SCAR-H LB preset as the base
@@ -433,8 +435,10 @@ class UpdatePresetsJob extends DataJob {
         const mag = x17Preset._items.find(i => i.slotId === 'mod_magazine');
         mag._tpl = '5a3501acc4a282000d72293a'; // AR-10 7.62x51 Magpul PMAG 20 SR-LR GEN M3 20-round magazine
 
+        // add the preset to the db
         await presetsHelper.addJsonPreset(x17Preset);
 
+        // add the preset to the list of presets to process
         this.presets[x17Preset._id] = x17Preset;
     }
 }
