@@ -708,6 +708,9 @@
             }
         },
         "locale": {
+            "de": {
+                "63a5cf262964a7488f5243d1": "Eliminiere PMCs mit einer MP5SD auf Streets of Tarkov, Ground Zero oder Interchange"
+            },
             "en": {
                 "63a5cf262964a7488f5243d1": "Eliminate PMCs using an MP5SD on Streets of Tarkov, Ground Zero, or Interchange"
             },
@@ -849,6 +852,9 @@
             }
         },
         "locale": {
+            "de": {
+                "6574e0dedc0d635f633a5807": "Eliminiere etwaige Gegner mit einem RPDN mit EKP-1S-03 Visier auf Shoreline, Interchange oder Woods"
+            },
             "en": {
                 "6574e0dedc0d635f633a5807": "Eliminate any target while using an RPDN with EKP-1S-03 sight on Shoreline, Interchange, or Woods"
             },
@@ -877,6 +883,9 @@
     "669fa3a40c828825de06d6a1": {
         "name": "Test Drive - Part 5",
         "locale": {
+            "de": {
+                "66a0f5a7f9eae6761253114c": "Eliminiere etwaige Gegner mit einer SR-2M mit Schalldämpfer und KP-SR2 Visier auf Factory"
+            },
             "en": {
                 "66a0f5a7f9eae6761253114c": "Eliminate any target while using an SR-2M with suppressor and KP-SR2 sight on Factory"
             },
@@ -916,6 +925,11 @@
     },
     "675c1ff1a757ddd00404f0aa": {
         "name": "Test Drive - Part 6",
+        "locale": {
+            "de": {
+                "675c1ff1a757ddd00404f0ae": "Eliminiere etwaige Gegner mit einem Aklys Defense Velociraptor auf Customs"
+            }
+        },
         "propertiesChanged": {
             "experience": 32000,
             "minPlayerLevel": 35
