@@ -2698,6 +2698,39 @@
             }
         }
     },
+    "5a0327ba86f77456b9154236": {
+        "name": "Spa Tour - Part 3",
+        "locale": {
+            "de": {
+                "5a03289686f7745dbc6c5063": "Übergib im Raid gefundenes WD-40",
+                "5a0328cb86f77456b91543b8": "Übergib im Raid gefundene Clin Glasreiniger",
+                "5a03290586f774584d1594c4": "Übergib im Raid gefundene Wellschläuche",
+                "5a280b5486f7741f751bfeea": "Übergib im Raid gefundenes Ox Bleichmittel"
+            }
+        }
+    },
+    "66aa74571e5e199ecd094f18": {
+        "name": "Secrets of Polikhim",
+        "locale": {
+            "de": {
+                "66aa74571e5e199ecd094f1b": "Benutze den Transit von Customs nach Factory (in einem Raid)",
+                "66aa74571e5e199ecd094f1e": "Eliminiere Scavs auf Factory (in einem Raid)"
+            }
+        }
+    },
+    "66aba85403e0ee3101042877": {
+        "name": "Beneath The Streets",
+        "locale": {
+            "de": {
+                "66aba85403e0ee3101042878": "Finde den Durchgang nach The Lab auf Streets of Tarkov (in einem Raid)",
+                "66aba85403e0ee310104287a": "Benutze den Transit von Streets of Tarkov nach The Lab (in einem Raid)",
+                "66b090f5723e7bbe8b518ca8": "Erkunde den Serverraum in The Lab (in einem Raid)",
+                "66b0910951c5294b9d213918": "Erkunde die Gefahrenkuppel in The Lab (in einem Raid)",
+                "66b10eef0951e90ec383850b": "Erkunde den Kontrollraum in The Lab (in einem Raid)",
+                "66aba97b1000025218c82ea8": "Finde den Durchgang nach Streets of Tarkov in The Lab (in einem Raid)"
+            }
+        }
+    },
     "66ab9da7eb102b9bcd08591c": {
         "name": "Forester's Duty",
         "locale": {
