@@ -418,7 +418,8 @@ class UpdatePresetsJob extends DataJob {
         x17Preset = structuredClone(this.gamePresets['6193e4a46bb904059c382295']);
         x17Preset._id = await presetsHelper.getNextPresetId();
         x17Preset._encyclopedia = x17Id;
-        x17Preset._name = 'Default';
+        x17Preset._name = 'X-17 Default';
+        x17Preset.appendName = 'Default';
         x17Preset._changeWeaponName = true;
 
         // use x-17 receiver
@@ -431,6 +432,8 @@ class UpdatePresetsJob extends DataJob {
         // magazine must be compatible with X-17
         const mag = x17Preset._items.find(i => i.slotId === 'mod_magazine');
         mag._tpl = '5a3501acc4a282000d72293a'; // AR-10 7.62x51 Magpul PMAG 20 SR-LR GEN M3 20-round magazine
+
+        await presetsHelper.addJsonPreset(x17Preset);
 
         this.presets[x17Preset._id] = x17Preset;
     }
