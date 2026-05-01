@@ -34,7 +34,9 @@ class UpdatePresetsJob extends DataJob {
         const mergeCounts = {};
         const mergedPresets = [];
         const mergePromises = [];
-        const dbPresetsArray = Object.values(this.dbPresets);
+        const dbPresetsArray = Object.values(this.dbPresets).sort((a, b) => {
+            return a._id - b._id;
+        });
         for (let i = 0; i < dbPresetsArray.length; i++) {
             const dbPreset = dbPresetsArray[i];
             // first, merge db presets into duplicate game presets
