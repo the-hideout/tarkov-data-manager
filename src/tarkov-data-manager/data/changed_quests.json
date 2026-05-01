@@ -238,6 +238,11 @@
             "location_id": "5714dc692459777137212e12",
             "locationName": "Streets of Tarkov"
         },
+        "locale": {
+            "de": {
+                "6396700fea19ac7ed845db32 name": "Spotter"
+            }
+        },
         "comment": "per Wiki 5/8/2023"
     },
     "__60e729cf5698ee7b05057439": {
@@ -933,6 +938,7 @@
         "name": "Test Drive - Part 6",
         "locale": {
             "de": {
+                "675c1ff1a757ddd00404f0aa name": "Testfahrt - Teil 6",
                 "675c1ff1a757ddd00404f0ae": "Eliminiere etwaige Gegner mit einem Aklys Defense Velociraptor auf Customs"
             }
         },
@@ -1226,6 +1232,11 @@
                     "level": 2
                 }
             ]
+        },
+        "locale": {
+            "de": {
+                "5c0d190cd09282029f5390d8 name": "Grenadier"
+            }
         }
     },
     "__5b4794cb86f774598100d5d4": {
@@ -1560,6 +1571,11 @@
                     "level": 3
                 }
             ]
+        },
+        "locale": {
+            "de": {
+                "60e71b62a0beca400d69efc4 name": "Eskorte"
+            }
         }
     },
     "59675d6c86f7740a842fc482": {
@@ -3827,6 +3843,271 @@
                 "67af71c90036a462a17a72d3": "Übergib den Gegenstand: Flasche Tarkovskaya-Wodka",
                 "67af71d6a6e77337205f5bfe": "Übergib den Gegenstand: Flasche Dan-Jackiel-Whiskey",
                 "67af71f19ce81d8ebb21530f": "Übergib den Gegenstand: Flasche Fierce Hatchling Moonshine"
+            }
+        }
+    },
+    "66631489acf8442f8b05319f": {
+        "name": "Friend Among Strangers",
+        "locale": {
+            "de": {
+                "66631489acf8442f8b05319f name": "Freund unter Fremden",
+                "6667193a41b0135d2df10fd9": "Eliminiere PMC-Operatoren, ohne Scavs zu töten"
+            }
+        }
+    },
+    "6663148ca9290f9e0806cca1": {
+        "name": "Immunity",
+        "locale": {
+            "de": {
+                "6663148ca9290f9e0806cca1 name": "Immunität",
+                "666719fc7c5ae40e6adcf43e": "Entkomme aus dem Ort mit dem Statuseffekt \"Unbekanntes Toxin\""
+            }
+        }
+    },
+    "6663148ed7f171c4c20226c1": {
+        "name": "Small Business - Part 1",
+        "locale": {
+            "de": {
+                "6663148ed7f171c4c20226c1 name": "Kleingewerbe - Teil 1",
+                "666729738d4b7a9182ad4a89": "Finde eine Ded-Moroz-Figur im Raid",
+                "66672a1a928cfea6db3ff6cb": "Übergib den Gegenstand",
+                "66672a99bf7a7a1fcee35af0": "Finde eine Politiker-Mutkevich-Figur im Raid",
+                "66672a9e351098ce6dee9d3e": "Übergib den Gegenstand",
+                "66672b010cf940754acb3a83": "Finde eine Killa-Figur im Raid",
+                "66672b18eba38faad31d29c3": "Übergib den Gegenstand",
+                "66672b3330d5ad1d58cc1e95": "Finde eine Reshala-Figur im Raid",
+                "66672b47d515c72d9075fe64": "Übergib den Gegenstand",
+                "66672b7dd70d15a60bb41e04": "Finde eine Ryzhy-Figur im Raid",
+                "66672b88a8236f9caf29c39e": "Übergib den Gegenstand",
+                "6667306ec19fb654f22fa05a": "Finde eine Scav-Figur im Raid",
+                "6667308a456e86f33c87437c": "Übergib den Gegenstand",
+                "666730b475bbbbfd5049b7da": "Finde eine Tagilla-Figur im Raid",
+                "666730d6386cf75012a431f2": "Übergib den Gegenstand",
+                "666730f88db8c7927a859959": "Finde eine Kultisten-Figur im Raid",
+                "6667310584936a1238607d39": "Übergib den Gegenstand",
+                "66673136b23cfc3ecab865d6": "Finde eine Den-Figur im Raid",
+                "6667314ae24cc783e69ad784": "Übergib den Gegenstand"
+            }
+        }
+    },
+    "6663149196a9349baa021baa": {
+        "name": "Small Business - Part 2",
+        "locale": {
+            "de": {
+                "6663149196a9349baa021baa name": "Kleingewerbe - Teil 2",
+                "666732298477f79f3f6ea229": "Eliminiere beliebige Scav-Boss-Wachen, ohne die Bosse zu töten"
+            }
+        }
+    },
+    "66631493312343839d032d22": {
+        "name": "Small Business - Part 3",
+        "locale": {
+            "de": {
+                "66631493312343839d032d22 name": "Kleingewerbe - Teil 3",
+                "666733e0c62a5c652f3c4b45": "Verstaue ein Kultistenmesser am markierten Kreis im versunkenen Dorf auf Shoreline",
+                "666733e3f2c2969cf600991b": "Verstaue ein Kultistenmesser am markierten Kreis beim Ostflügel des Health Resorts auf Shoreline",
+                "666733e565831d5bafa18bbb": "Verstaue ein Kultistenmesser am markierten Kreis im Flussdorf auf Woods",
+                "666733e7430c8972d6a5f438": "Verstaue ein Kultistenmesser am markierten Kreis beim Sägewerk auf Woods"
+            }
+        }
+    },
+    "6672d9def1c88688a707d042": {
+        "name": "Establish Contact",
+        "locale": {
+            "de": {
+                "6672d9def1c88688a707d042 name": "Kontakt herstellen",
+                "66813c01decf4560581ca0c0": "Erreiche Ansehen 5.0 bei Fence"
+            }
+        }
+    },
+    "67e993b1ac26bf29380a320b": {
+        "name": "Surprise Gift [PVP ZONE]",
+        "locale": {
+            "de": {
+                "67e993b1ac26bf29380a320b name": "Überraschungsgeschenk [PVP ZONE]",
+                "67e993b1ac26bf29380a320e": "Kehre zum Versteck des alten Champions auf Customs zurück",
+                "67e993b1ac26bf29380a3210": "Finde und beschaffe die kompromittierenden Informationen über Ref",
+                "67e993b1ac26bf29380a3212": "Übergib die gefundenen Informationen"
+            }
+        }
+    },
+    "67e993f5ed537409f009da75": {
+        "name": "Postponed Reward [PVP ZONE]",
+        "locale": {
+            "de": {
+                "67e993f5ed537409f009da75 name": "Aufgeschobene Belohnung [PVP ZONE]",
+                "67ebc5f501052193cdb4c9ac": "Übergib den Gegenstand: Lega-Medaille"
+            }
+        }
+    },
+    "6761f28a022f60bb320f3e95": {
+        "name": "New Beginning",
+        "locale": {
+            "de": {
+                "6761f28a022f60bb320f3e95 name": "Neuanfang",
+                "6848100b00afffa81f09e36b": "Benutze den Transit von Labs nach Streets of Tarkov",
+                "6761f93bc757eb8c228fa754": "Eliminiere Scavs",
+                "6761f6f1bacf72169272e381": "Übergib den Gegenstand: BEAR-Operator-Figur",
+                "6761f7d086fd2d9c941b8aa3": "Übergib den Gegenstand: Politiker-Mutkevich-Figur",
+                "6761f7f87b309912d6b5f2a9": "Übergib den Gegenstand: Killa-Figur",
+                "6761f80838201b0588f39a07": "Übergib den Gegenstand: Reshala-Figur",
+                "6761f817d42b2f3a242de658": "Übergib den Gegenstand: Ryzhy-Figur",
+                "6761f826d5b89d2d15b53eca": "Übergib den Gegenstand: Scav-Figur",
+                "6761f838d641d60f18a45e1f": "Übergib den Gegenstand: Tagilla-Figur",
+                "6761f85183d342080d39ca98": "Übergib den Gegenstand: USEC-Operator-Figur",
+                "6761f862c1ba6ee8e161d3d6": "Übergib den Gegenstand: Kultisten-Figur",
+                "6761f87227aeff895cef62c5": "Übergib den Gegenstand: Den-Figur"
+            }
+        }
+    },
+    "6761ff17cdc36bd66102e9d0": {
+        "name": "New Beginning",
+        "locale": {
+            "de": {
+                "6761ff17cdc36bd66102e9d0 name": "Neuanfang",
+                "6761f9d718fa62aac3264ff2": "Überlebe und entkomme aus Labs",
+                "6762015739c53fca8ac51336": "Eliminiere PMC-Operatoren",
+                "6761ff17cdc36bd66102e9d8": "Übergib den im Raid gefundenen Gegenstand: BEAR-Operator-Figur",
+                "6761ff17cdc36bd66102e9d9": "Übergib den im Raid gefundenen Gegenstand: Politiker-Mutkevich-Figur",
+                "6761ff17cdc36bd66102e9da": "Übergib den im Raid gefundenen Gegenstand: Killa-Figur",
+                "6761ff17cdc36bd66102e9db": "Übergib den im Raid gefundenen Gegenstand: Reshala-Figur",
+                "6761ff17cdc36bd66102e9dc": "Übergib den im Raid gefundenen Gegenstand: Ryzhy-Figur",
+                "6761ff17cdc36bd66102e9dd": "Übergib den im Raid gefundenen Gegenstand: Scav-Figur",
+                "6761ff17cdc36bd66102e9de": "Übergib den im Raid gefundenen Gegenstand: Tagilla-Figur",
+                "6761ff17cdc36bd66102e9df": "Übergib den im Raid gefundenen Gegenstand: USEC-Operator-Figur",
+                "6761ff17cdc36bd66102e9e0": "Übergib den im Raid gefundenen Gegenstand: Kultisten-Figur",
+                "6761ff17cdc36bd66102e9e1": "Übergib den im Raid gefundenen Gegenstand: Den-Figur"
+            }
+        }
+    },
+    "6848100b00afffa81f09e365": {
+        "name": "New Beginning",
+        "locale": {
+            "de": {
+                "6848100b00afffa81f09e365 name": "Neuanfang",
+                "6848100b00afffa81f09e369": "Eliminiere PMC-Operatoren",
+                "684812156189183883f13947": "Eliminiere Raider",
+                "6848116061809d65b8503617": "Überlebe und entkomme aus Streets of Tarkov",
+                "6848100b00afffa81f09e36d": "Übergib den im Raid gefundenen Gegenstand: BEAR-Operator-Figur",
+                "6848100b00afffa81f09e36e": "Übergib den im Raid gefundenen Gegenstand: Politiker-Mutkevich-Figur",
+                "6848100b00afffa81f09e36f": "Übergib den im Raid gefundenen Gegenstand: Killa-Figur",
+                "6848100b00afffa81f09e370": "Übergib den im Raid gefundenen Gegenstand: Reshala-Figur",
+                "6848100b00afffa81f09e371": "Übergib den im Raid gefundenen Gegenstand: Ryzhy-Figur",
+                "6848100b00afffa81f09e372": "Übergib den im Raid gefundenen Gegenstand: Scav-Figur",
+                "6848100b00afffa81f09e373": "Übergib den im Raid gefundenen Gegenstand: Tagilla-Figur",
+                "6848100b00afffa81f09e374": "Übergib den im Raid gefundenen Gegenstand: USEC-Operator-Figur",
+                "6848100b00afffa81f09e375": "Übergib den im Raid gefundenen Gegenstand: Kultisten-Figur",
+                "6848100b00afffa81f09e376": "Übergib den im Raid gefundenen Gegenstand: Den-Figur"
+            }
+        }
+    },
+    "68481881f43abfdda2058369": {
+        "name": "New Beginning",
+        "locale": {
+            "de": {
+                "68481881f43abfdda2058369 name": "Neuanfang",
+                "68481881f43abfdda205836d": "Eliminiere PMC-Operatoren",
+                "68481a8eda10b760b3b1a73f": "Eliminiere Rogues",
+                "68481881f43abfdda205836f": "Benutze den Transit von Labs nach Streets of Tarkov",
+                "68483a05801f8d9e40ac05b1": "Benutze den Transit von Streets of Tarkov nach Interchange",
+                "68481881f43abfdda2058371": "Übergib den im Raid gefundenen Gegenstand: BEAR-Operator-Figur",
+                "68481881f43abfdda2058372": "Übergib den im Raid gefundenen Gegenstand: Politiker-Mutkevich-Figur",
+                "68481881f43abfdda2058373": "Übergib den im Raid gefundenen Gegenstand: Killa-Figur",
+                "68481881f43abfdda2058374": "Übergib den im Raid gefundenen Gegenstand: Reshala-Figur",
+                "68481881f43abfdda2058375": "Übergib den im Raid gefundenen Gegenstand: Ryzhy-Figur",
+                "68481881f43abfdda2058376": "Übergib den im Raid gefundenen Gegenstand: Scav-Figur",
+                "68481881f43abfdda2058377": "Übergib den im Raid gefundenen Gegenstand: Tagilla-Figur",
+                "68481881f43abfdda2058378": "Übergib den im Raid gefundenen Gegenstand: USEC-Operator-Figur",
+                "68481881f43abfdda2058379": "Übergib den im Raid gefundenen Gegenstand: Kultisten-Figur",
+                "68481881f43abfdda205837a": "Übergib den im Raid gefundenen Gegenstand: Den-Figur"
+            }
+        }
+    },
+    "5ac3479086f7742880308199": {
+        "name": "Insider",
+        "locale": {
+            "de": {
+                "5ac3479086f7742880308199 name": "Insider"
+            }
+        }
+    },
+    "6086c852c945025d41566124": {
+        "name": "Revision - Reserve",
+        "locale": {
+            "de": {
+                "6086c852c945025d41566124 name": "Revision - Reserve"
+            }
+        }
+    },
+    "5d6fbc2886f77449d825f9d3": {
+        "name": "Mentor",
+        "locale": {
+            "de": {
+                "5d6fbc2886f77449d825f9d3 name": "Mentor"
+            }
+        }
+    },
+    "6179b4d1bca27a099552e04e": {
+        "name": "Revision - Lighthouse",
+        "locale": {
+            "de": {
+                "6179b4d1bca27a099552e04e name": "Revision - Lighthouse"
+            }
+        }
+    },
+    "639135f286e646067c176a87": {
+        "name": "Revision - Streets of Tarkov",
+        "locale": {
+            "de": {
+                "639135f286e646067c176a87 name": "Revision - Streets of Tarkov"
+            }
+        }
+    },
+    "5ae448bf86f7744d733e55ee": {
+        "name": "Make ULTRA Great Again",
+        "locale": {
+            "de": {
+                "5ae448bf86f7744d733e55ee name": "Make ULTRA Great Again"
+            }
+        }
+    },
+    "5b478d0f86f7744d190d91b5": {
+        "name": "Minibus",
+        "locale": {
+            "de": {
+                "5b478d0f86f7744d190d91b5 name": "Minibus"
+            }
+        }
+    },
+    "5c0bbaa886f7746941031d82": {
+        "name": "Bullshit",
+        "locale": {
+            "de": {
+                "5c0bbaa886f7746941031d82 name": "Bullshit"
+            }
+        }
+    },
+    "666314bafd5ca9577902e03a": {
+        "name": "The Good Times - Part 2",
+        "locale": {
+            "de": {
+                "666314bafd5ca9577902e03a name": "Die guten Zeiten - Teil 2"
+            }
+        }
+    },
+    "63966fccac6f8f3c677b9d89": {
+        "name": "Snatch",
+        "locale": {
+            "de": {
+                "63966fccac6f8f3c677b9d89 name": "Schnappen"
+            }
+        }
+    },
+    "6663149cfd5ca9577902e037": {
+        "name": "The Invisible Hand",
+        "locale": {
+            "de": {
+                "6663149cfd5ca9577902e037 name": "Die unsichtbare Hand"
             }
         }
     }
