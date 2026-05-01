@@ -27,6 +27,13 @@ class UpdateTraderAssortsJob extends DataJob {
             'USD': '5696686a4bdc2da3298b456a',
             'EUR': '569668774bdc2da2298b4568'
         };
+
+        const dogtagIds = remoteData.dogtagIds();
+        const dogTagSideMap = {
+            'Any': dogtagIds.any,
+            'Bear': dogtagIds.bear,
+            'Usec': dogtagIds.usec,
+        };
         const assorts = {};
         const traderAssortPromises = [];
         for (const trader of this.traders) {
@@ -170,11 +177,5 @@ class UpdateTraderAssortsJob extends DataJob {
         return Object.values(this.currencyId).includes(offer.cost[0].item);
     }
 }
-
-const dogTagSideMap = {
-    'Any': 'customdogtags12345678910',
-    'Bear': '59f32bb586f774757e1e8442',
-    'Usec': '59f32c3b86f77472a31742f0',
-};
 
 export default UpdateTraderAssortsJob;

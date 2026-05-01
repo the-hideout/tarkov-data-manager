@@ -6,7 +6,6 @@ import imgGen from 'tarkov-dev-image-generator';
 import remoteData from './remote-data.mjs';
 import { query } from './db-connection.mjs';
 import { dashToCamelCase } from './string-functions.mjs';
-import dogtags from './dogtags.mjs';
 import { uploadToS3 } from './upload-s3.mjs';
 import { createAndUploadFromSource } from './image-create.mjs';
 import presetData from './preset-data.mjs';
@@ -1163,13 +1162,13 @@ const scannerApi = {
                     for (const req of offer.requirements) {
                         let properties = null;
                         let itemId = req.item;
-                        if (req.level || dogtags.isDogtag(itemId)) {
+                        if (req.level || remoteData.isDogtag(itemId)) {
                             properties = JSON.stringify({
                                 level: req.level,
                             });
                         }
-                        if (dogtags.isDogtag(itemId) && req.side === 'Any') {
-                            itemId = dogtags.ids.any;
+                        if (remoteData.isDogtag(itemId) && req.side === 'Any') {
+                            itemId = remoteData.dogtagIds().any;
                         }
                         requirementActions.push(query(`
                             INSERT INTO trader_offer_requirements
