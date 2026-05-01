@@ -291,12 +291,15 @@ const presetData = {
         return id.startsWith(idPrefix);
     },
     getNextPresetId: async () => {
-        const dbPresets = await presetData.getDatabasePresets();
+        const [dbPresets, dbItems] = await Promise.all([
+            presetData.getDatabasePresets(),
+            remoteData.get(),
+        ]);
         let presetNum = 0;
         let id;
         while (true) {
             id = `${idPrefix}${presetNum.toString(16).padStart(12, '0')}`;
-            if (!dbPresets[id]) {
+            if (!dbPresets[id] && !dbItems.has(id)) {
                 break;
             }
             presetNum++;
