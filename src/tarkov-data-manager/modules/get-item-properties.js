@@ -704,15 +704,12 @@ const getItemProperties = async (tarkovDevItem) => {
     ];
     if (directions.some(dir => item?._props?.[`ExtraSize${dir}`])) {
         properties.increaseSizeForced = item._props.ExtraSizeForceAdd;
-        properties.increaseSize = directions.map(dir => {
-            if (!item?._props?.[`ExtraSize${dir}`]) {
-                return;
+        properties.increaseSize = directions.reduce((sizes, dir) => {
+            if (item?._props?.[`ExtraSize${dir}`]) {
+                sizes[dir.toLocaleLowerCase()] = item?._props?.[`ExtraSize${dir}`];
             }
-            return {
-                direction: dir.toLocaleLowerCase(),
-                size: item?._props?.[`ExtraSize${dir}`],
-            };
-        }).filter(Boolean);
+            return sizes;
+        }, {});
     }
     return properties;
 };
