@@ -41,6 +41,7 @@ class UpdateItemCacheJob extends DataJob {
             this.s3Images,
             this.presetTranslations,
             this.endpointsData,
+            this.changedItems,
         ] = await Promise.all([
             tarkovData.items(), 
             tarkovData.credits({gameMode: 'regular'}),
@@ -61,6 +62,7 @@ class UpdateItemCacheJob extends DataJob {
                 return translations;
             }),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'json_api_endpoints.json')).then(json => JSON.parse(json)),
+            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'changed_items.json')).then(json => JSON.parse(json)),
         ]);
         const itemData = {};
         const itemTypesSet = new Set();
@@ -259,6 +261,13 @@ class UpdateItemCacheJob extends DataJob {
                     return `${lang[tKey]} (${any}%)`;
                 });
                 itemData[key].description = this.addTranslation(`${value.properties.source} Description`);
+            }
+            if (this.changedItems[key]?.locale) {
+                for (const langCode in this.changedItems[key].locale) {
+                    for (const translationKey in this.changedItems[key].locale[langCode]) {
+                        this.addTranslation(translationKey, langCode, this.changedItems[key].locale[langCode][translationKey]);
+                    }
+                }
             }
 
             // add template categories
