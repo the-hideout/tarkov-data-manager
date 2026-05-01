@@ -5,7 +5,6 @@ import tarkovData from '../modules/tarkov-data.mjs';
 import remoteData from '../modules/remote-data.mjs';
 import spApi from '../modules/tarkov-data-sp.mjs';
 import presetData from '../modules/preset-data.mjs';
-import dogtags from '../modules/dogtags.mjs';
 
 const skipOffers = {
     '5c0647fdd443bc2504c2d371': { // jaeger
@@ -187,6 +186,7 @@ class UpdateTraderOffersJob extends DataJob {
             this.jobManager.jobOutput('update-trader-assorts', this, 'regular', true),
             remoteData.get(),
         ]);
+        const dogtagPreset = this.items.get(remoteData.dogtagIds().any);
         const cashOfferData = {};
         const barterData = {};
         for (const gameMode of this.gameModes) {
@@ -355,7 +355,7 @@ class UpdateTraderOffersJob extends DataJob {
                                 value: req.level,
                             });
                             if (req.side === 'Any') {
-                                reqItem = this.items.get(dogtags.ids.any);
+                                reqItem = dogtagPreset;
                             }
                         }
                         barter.requiredItems.push({
