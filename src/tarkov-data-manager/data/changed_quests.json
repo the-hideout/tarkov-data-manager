@@ -739,21 +739,23 @@
                     }
                 ],
                 "usingWeaponMods": [
-                    {
-                        "id": "5926f2e086f7745aae644231",
-                        "name": "HK MP5SD 9x19 upper receiver",
-                        "shortName": "MP5SD"
-                    },
-                    {
-                        "id": "5926d33d86f77410de68ebc0",
-                        "name": "HK MP5SD 9x19 sound suppressor",
-                        "shortName": "MP5SD supp."
-                    },
-                    {
-                        "id": "5926f34786f77469195bfe92",
-                        "name": "HK MP5SD polymer handguard",
-                        "shortName": "MP5SD HG"
-                    }
+                    [
+                        {
+                            "id": "5926f2e086f7745aae644231",
+                            "name": "HK MP5SD 9x19 upper receiver",
+                            "shortName": "MP5SD"
+                        },
+                        {
+                            "id": "5926d33d86f77410de68ebc0",
+                            "name": "HK MP5SD 9x19 sound suppressor",
+                            "shortName": "MP5SD supp."
+                        },
+                        {
+                            "id": "5926f34786f77469195bfe92",
+                            "name": "HK MP5SD polymer handguard",
+                            "shortName": "MP5SD HG"
+                        }
+                    ]
                 ]
             }
         },
@@ -874,11 +876,13 @@
         "objectivesChanged": {
             "63a5cf262964a7488f5243d1": {
                 "usingWeaponMods": [
-                    {
-                        "id": "6544d4187c5457729210d277",
-                        "name": "Axion Kobra EKP-1S-03 reflex sight (Dovetail)",
-                        "shortName": "EKP-1S-03"
-                    }
+                    [
+                        {
+                            "id": "6544d4187c5457729210d277",
+                            "name": "Axion Kobra EKP-1S-03 reflex sight (Dovetail)",
+                            "shortName": "EKP-1S-03"
+                        }
+                    ]
                 ]
             }
         },
@@ -919,16 +923,18 @@
                     }
                 ],
                 "usingWeaponMods": [
-                    {
-                        "id": "62e2a7138e1ac9380579c122",
-                        "name": "SR-2M 9x21 SV-1381 sound suppressor",
-                        "shortName": "SV-1381"
-                    },
-                    {
-                        "id": "62ff9920fe938a24c90c10d2",
-                        "name": "SR-2M KP-SR2 reflex sight",
-                        "shortName": "KP-SR2"
-                    }
+                    [
+                        {
+                            "id": "62e2a7138e1ac9380579c122",
+                            "name": "SR-2M 9x21 SV-1381 sound suppressor",
+                            "shortName": "SV-1381"
+                        },
+                        {
+                            "id": "62ff9920fe938a24c90c10d2",
+                            "name": "SR-2M KP-SR2 reflex sight",
+                            "shortName": "KP-SR2"
+                        }
+                    ]
                 ]
             }
         },
