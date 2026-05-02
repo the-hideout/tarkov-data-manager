@@ -696,6 +696,21 @@ const getItemProperties = async (tarkovDevItem) => {
     if (properties && item?._props?.CalibrationDistances?.length) {
         properties.zeroingDistances = item._props.CalibrationDistances;
     }
+    const directions = [
+        'Left',
+        'Right',
+        'Up',
+        'Down',
+    ];
+    if (directions.some(dir => item?._props?.[`ExtraSize${dir}`])) {
+        properties.increaseSizeForced = item._props.ExtraSizeForceAdd;
+        properties.increaseSize = directions.reduce((sizes, dir) => {
+            if (item?._props?.[`ExtraSize${dir}`]) {
+                sizes[dir.toLocaleLowerCase()] = item?._props?.[`ExtraSize${dir}`];
+            }
+            return sizes;
+        }, {});
+    }
     return properties;
 };
 
