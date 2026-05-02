@@ -335,28 +335,37 @@ class DataJob {
         const dataString = JSON.stringify(data);
         const publicPath = `https://${cloudflare.bucketDomain}.tarkov.dev/${key}`;
         const response = await fetch(publicPath);
+        let freshData = true;
         if (response.ok) {
             const currentValue = await response.text();
             if (dataString === currentValue) {
                 this.logger.log(`Value of ${key} has not changed; skipping upload`);
-                return;
+                freshData = false;
             }
         }
         const start = new Date();
-        await cloudflare.r2Put({
-            Key: key,
-            ContentType: 'application/json',
-            Body: dataString,
-        });
-        const uploadTime = new Date() - start;
-        if (options.locale) {
-            await this.putStaticApiLocale(key, options.locale);
+        if (freshData) {
+            await cloudflare.r2Put({
+                Key: key,
+                ContentType: 'application/json',
+                Body: dataString,
+            });
         }
-        if (!options.skipPurge) {
+        const uploadTime = new Date() - start;
+        let freshLocale = false;
+        if (options.locale) {
+            const localeResults = await this.putStaticApiLocale(key, options.locale);
+            freshLocale = localeResults.some(Boolean);
+        }
+        if (!options.skipPurge && (freshData || freshLocale)) {
             await this.purgeCachePrefix(publicPath);
         }
-        this.writeDump(data, `v2/${key}`, false);
-        this.logger.success(`Successful R2 put of ${key} in ${uploadTime} ms (${dataString.length.toLocaleString()} bytes)`);
+        if (freshData) {
+            this.writeDump(data, `v2/${key}`, false);
+            this.logger.success(`Successful R2 put of ${key} in ${uploadTime} ms (${dataString.length.toLocaleString()} bytes)`);
+        } else {
+            return;
+        }
         return publicPath;
     }
 
