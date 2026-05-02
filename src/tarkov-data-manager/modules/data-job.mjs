@@ -338,6 +338,14 @@ class DataJob {
         if (response.ok) {
             const currentValue = await response.text();
             if (dataString === currentValue) {
+                if (options.locale) {
+                    await this.putStaticApiLocale(key, options.locale);
+                    if (!options.skipPurge) {
+                        await this.purgeCachePrefix(publicPath);
+                    }
+                    this.logger.log(`Value of ${key} has not changed; updated locale files`);
+                    return;
+                }
                 this.logger.log(`Value of ${key} has not changed; skipping upload`);
                 return;
             }
