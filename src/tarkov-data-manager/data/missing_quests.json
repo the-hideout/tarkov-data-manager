@@ -3660,7 +3660,24 @@
         "restartable": false,
         "experience": 10000,
         "tarkovDataId": null,
-        "factionName": "Any"
+        "factionName": "Any",
+        "locale": {
+            "de": {
+                "6761f28a022f60bb320f3e95 name": "Neuanfang",
+                "6848100b00afffa81f09e36b": "Benutze den Transit von Labs nach Streets of Tarkov",
+                "6761f93bc757eb8c228fa754": "Eliminiere Scavs",
+                "6761f6f1bacf72169272e381": "Übergib den Gegenstand: BEAR-Operator-Figur",
+                "6761f7d086fd2d9c941b8aa3": "Übergib den Gegenstand: Politiker-Mutkevich-Figur",
+                "6761f7f87b309912d6b5f2a9": "Übergib den Gegenstand: Killa-Figur",
+                "6761f80838201b0588f39a07": "Übergib den Gegenstand: Reshala-Figur",
+                "6761f817d42b2f3a242de658": "Übergib den Gegenstand: Ryzhy-Figur",
+                "6761f826d5b89d2d15b53eca": "Übergib den Gegenstand: Scav-Figur",
+                "6761f838d641d60f18a45e1f": "Übergib den Gegenstand: Tagilla-Figur",
+                "6761f85183d342080d39ca98": "Übergib den Gegenstand: USEC-Operator-Figur",
+                "6761f862c1ba6ee8e161d3d6": "Übergib den Gegenstand: Kultisten-Figur",
+                "6761f87227aeff895cef62c5": "Übergib den Gegenstand: Den-Figur"
+            }
+        }
     },
     "6761ff17cdc36bd66102e9d0": {
         "id": "6761ff17cdc36bd66102e9d0",
@@ -3906,7 +3923,24 @@
         "restartable": false,
         "experience": 11000,
         "tarkovDataId": null,
-        "factionName": "Any"
+        "factionName": "Any",
+        "locale": {
+            "de": {
+                "6761ff17cdc36bd66102e9d0 name": "Neuanfang",
+                "6761f9d718fa62aac3264ff2": "Überlebe und entkomme aus Labs",
+                "6762015739c53fca8ac51336": "Eliminiere PMC-Operatoren",
+                "6761ff17cdc36bd66102e9d8": "Übergib den im Raid gefundenen Gegenstand: BEAR-Operator-Figur",
+                "6761ff17cdc36bd66102e9d9": "Übergib den im Raid gefundenen Gegenstand: Politiker-Mutkevich-Figur",
+                "6761ff17cdc36bd66102e9da": "Übergib den im Raid gefundenen Gegenstand: Killa-Figur",
+                "6761ff17cdc36bd66102e9db": "Übergib den im Raid gefundenen Gegenstand: Reshala-Figur",
+                "6761ff17cdc36bd66102e9dc": "Übergib den im Raid gefundenen Gegenstand: Ryzhy-Figur",
+                "6761ff17cdc36bd66102e9dd": "Übergib den im Raid gefundenen Gegenstand: Scav-Figur",
+                "6761ff17cdc36bd66102e9de": "Übergib den im Raid gefundenen Gegenstand: Tagilla-Figur",
+                "6761ff17cdc36bd66102e9df": "Übergib den im Raid gefundenen Gegenstand: USEC-Operator-Figur",
+                "6761ff17cdc36bd66102e9e0": "Übergib den im Raid gefundenen Gegenstand: Kultisten-Figur",
+                "6761ff17cdc36bd66102e9e1": "Übergib den im Raid gefundenen Gegenstand: Den-Figur"
+            }
+        }
     },
     "6848100b00afffa81f09e365": {
         "id": "6848100b00afffa81f09e365",
@@ -4180,7 +4214,25 @@
         "restartable": false,
         "experience": 11000,
         "tarkovDataId": null,
-        "factionName": "Any"
+        "factionName": "Any",
+        "locale": {
+            "de": {
+                "6848100b00afffa81f09e365 name": "Neuanfang",
+                "6848100b00afffa81f09e369": "Eliminiere PMC-Operatoren",
+                "684812156189183883f13947": "Eliminiere Raider",
+                "6848116061809d65b8503617": "Überlebe und entkomme aus Streets of Tarkov",
+                "6848100b00afffa81f09e36d": "Übergib den im Raid gefundenen Gegenstand: BEAR-Operator-Figur",
+                "6848100b00afffa81f09e36e": "Übergib den im Raid gefundenen Gegenstand: Politiker-Mutkevich-Figur",
+                "6848100b00afffa81f09e36f": "Übergib den im Raid gefundenen Gegenstand: Killa-Figur",
+                "6848100b00afffa81f09e370": "Übergib den im Raid gefundenen Gegenstand: Reshala-Figur",
+                "6848100b00afffa81f09e371": "Übergib den im Raid gefundenen Gegenstand: Ryzhy-Figur",
+                "6848100b00afffa81f09e372": "Übergib den im Raid gefundenen Gegenstand: Scav-Figur",
+                "6848100b00afffa81f09e373": "Übergib den im Raid gefundenen Gegenstand: Tagilla-Figur",
+                "6848100b00afffa81f09e374": "Übergib den im Raid gefundenen Gegenstand: USEC-Operator-Figur",
+                "6848100b00afffa81f09e375": "Übergib den im Raid gefundenen Gegenstand: Kultisten-Figur",
+                "6848100b00afffa81f09e376": "Übergib den im Raid gefundenen Gegenstand: Den-Figur"
+            }
+        }
     },
     "68481881f43abfdda2058369": {
         "id": "68481881f43abfdda2058369",
@@ -4473,7 +4525,26 @@
         "restartable": false,
         "experience": 11000,
         "tarkovDataId": null,
-        "factionName": "Any"
+        "factionName": "Any",
+        "locale": {
+            "de": {
+                "68481881f43abfdda2058369 name": "Neuanfang",
+                "68481881f43abfdda205836d": "Eliminiere PMC-Operatoren",
+                "68481a8eda10b760b3b1a73f": "Eliminiere Rogues",
+                "68481881f43abfdda205836f": "Benutze den Transit von Labs nach Streets of Tarkov",
+                "68483a05801f8d9e40ac05b1": "Benutze den Transit von Streets of Tarkov nach Interchange",
+                "68481881f43abfdda2058371": "Übergib den im Raid gefundenen Gegenstand: BEAR-Operator-Figur",
+                "68481881f43abfdda2058372": "Übergib den im Raid gefundenen Gegenstand: Politiker-Mutkevich-Figur",
+                "68481881f43abfdda2058373": "Übergib den im Raid gefundenen Gegenstand: Killa-Figur",
+                "68481881f43abfdda2058374": "Übergib den im Raid gefundenen Gegenstand: Reshala-Figur",
+                "68481881f43abfdda2058375": "Übergib den im Raid gefundenen Gegenstand: Ryzhy-Figur",
+                "68481881f43abfdda2058376": "Übergib den im Raid gefundenen Gegenstand: Scav-Figur",
+                "68481881f43abfdda2058377": "Übergib den im Raid gefundenen Gegenstand: Tagilla-Figur",
+                "68481881f43abfdda2058378": "Übergib den im Raid gefundenen Gegenstand: USEC-Operator-Figur",
+                "68481881f43abfdda2058379": "Übergib den im Raid gefundenen Gegenstand: Kultisten-Figur",
+                "68481881f43abfdda205837a": "Übergib den im Raid gefundenen Gegenstand: Den-Figur"
+            }
+        }
     },
     "67e993f5ed537409f009da75": {
         "id": "67e993f5ed537409f009da75",
@@ -4549,7 +4620,13 @@
         "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
-        "factionName": "Any"
+        "factionName": "Any",
+        "locale": {
+            "de": {
+                "67e993f5ed537409f009da75 name": "Aufgeschobene Belohnung [PVP ZONE]",
+                "67ebc5f501052193cdb4c9ac": "Übergib den Gegenstand: Lega-Medaille"
+            }
+        }
     },
     "6834287b7559f4e6d50bc0fa": {
         "id": "6834287b7559f4e6d50bc0fa",
@@ -4625,7 +4702,13 @@
         "restartable": false,
         "experience": 0,
         "tarkovDataId": null,
-        "factionName": "Any"
+        "factionName": "Any",
+        "locale": {
+            "de": {
+                "6834287b7559f4e6d50bc0fa name": "Aufgeschobene Belohnung [PVE ZONE]",
+                "6834287b7559f4e6d50bc0fd": "Übergib den Gegenstand: Lega-Medaille"
+            }
+        }
     },
     "68db9c7557bc51a8c804c14b": {
         "id": "68db9c7557bc51a8c804c14b",
@@ -4758,6 +4841,10 @@
             "zh": {
                 "68db9c7557bc51a8c804c14b name": "目标与手段",
                 "68db9ea0e6c69908254eceee": "使用 9x39 毫米口径的武器在 50 米开外消灭 PMC"
+            },
+            "de": {
+                "68db9c7557bc51a8c804c14b name": "Ziele und Mittel",
+                "68db9ea0e6c69908254eceee": "Eliminiere PMC-Operatoren aus über 50 Metern Entfernung, während du eine beliebige Waffe im Kaliber 9x39 benutzt"
             }
         }
     },
@@ -5849,6 +5936,11 @@
                 "6942b44f891369fc790e385a name": "轻重缓急",
                 "6942b48e6998a45a7b90cd5b": "佩戴有源耳机但不穿任何护甲的情况下消灭 PMC 行动人员",
                 "6942b72980d7f587b5b3ca86": "穿戴 TSH-4M-L 软质坦克乘员头盔消灭 PMC 行动人员"
+            },
+            "de": {
+                "6942b44f891369fc790e385a name": "Prioritäten setzen",
+                "6942b48e6998a45a7b90cd5b": "Eliminiere PMC-Operatoren, während du ein aktives Headset benutzt und keine Rüstung trägst",
+                "6942b72980d7f587b5b3ca86": "Eliminiere PMC-Operatoren, während du den weichen Panzerfahrerhelm TSh-4M-L trägst und kein aktives Headset benutzt"
             }
         }
     }
