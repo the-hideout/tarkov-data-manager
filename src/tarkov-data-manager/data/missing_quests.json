@@ -5943,5 +5943,508 @@
                 "6942b72980d7f587b5b3ca86": "Eliminiere PMC-Operatoren, während du den weichen Panzerfahrerhelm TSh-4M-L trägst und kein aktives Headset benutzt"
             }
         }
+    },
+    "697877e0c639962b2e0cf24f": {
+        "id": "697877e0c639962b2e0cf24f",
+        "name": "Arena Business [PVP ZONE]",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "gameMode": ["regular"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "66058cb7c7f3584787181476",
+                "name": "Balancing - Part 1 [PVP ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "69789727f9ef98d604a0a4eb",
+                "description": "69789727f9ef98d604a0a4eb",
+                "type": "taskStatus",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "task": "69788db3878a4385d10c0718",
+                "quest_name": "Professional Fitness - Part 2 [PVP ZONE]",
+                "status": [
+                    "complete"
+                ],
+                "zones": []
+            },
+            {
+                "id": "69789737271caeeb3db66e8d",
+                "description": "69789737271caeeb3db66e8d",
+                "type": "taskStatus",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "task": "69789418b2187365e70bb947",
+                "quest_name": "To Great Heights! - Part 6 [PVP ZONE]",
+                "status": [
+                    "complete"
+                ],
+                "zones": []
+            },
+            {
+                "id": "6978973c2834db5eb178fdc8",
+                "description": "6978973c2834db5eb178fdc8",
+                "type": "taskStatus",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "task": "697895b6c639962b2e0cf268",
+                "quest_name": "Hold the Lead[PVP ZONE]",
+                "status": [
+                    "complete"
+                ],
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.04
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 250,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "6656560053eaaa7a23349c86",
+                    "item_name": "Lega Medal",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "66572b3f6a723f7f005a066c",
+                    "item_name": "Locked weapon crate (Rare)",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "66572b88ac60f009f270d1dc",
+                    "item_name": "Locked supply crate (Rare)",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "66572bb3ac60f009f270d1df",
+                    "item_name": "Locked valuables crate (Rare)",
+                    "count": 2,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 19500,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "697877e0c639962b2e0cf24f name": "Arena Business [PVP ZONE]",
+                "69789727f9ef98d604a0a4eb": "Complete the task Professional Fitness - Part 2",
+                "69789737271caeeb3db66e8d": "Complete the task To Great Heights! - Part 6",
+                "6978973c2834db5eb178fdc8": "Complete the task Hold the Lead"
+            },
+            "zh": {
+                "697877e0c639962b2e0cf24f name": "竞技场差事（PVP）",
+                "69789727f9ef98d604a0a4eb": "完成任务：专业热身 - 2",
+                "69789737271caeeb3db66e8d": "完成任务：再创新高！- 6",
+                "6978973c2834db5eb178fdc8": "完成任务：保持领先"
+            }
+        }
+    },
+    "69788c2bac719606e40b4e77": {
+        "id": "69788c2bac719606e40b4e77",
+        "name": "Professional Fitness - Part 1 [PVP ZONE]",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "gameMode": ["regular"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "66058cb7c7f3584787181476",
+                "name": "Balancing - Part 1 [PVP ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "69788c6d403c43a13a7ba7c2",
+                "description": "69788c6d403c43a13a7ba7c2",
+                "type": "visit",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.01
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 10,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 1800,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "69788c2bac719606e40b4e77 name": "Professional Fitness - Part 1 [PVP ZONE]",
+                "69788c6d403c43a13a7ba7c2": "Play a match in CheckPoint or Last Hero mode in Arena"
+            },
+            "zh": {
+                "69788c2bac719606e40b4e77 name": "专业热身 - 1（PVP）",
+                "69788c6d403c43a13a7ba7c2": "在竞技场 LastHero 或 CheckPoint 模式进行一场游戏"
+            }
+        }
+    },
+    "69788db3878a4385d10c0718": {
+        "id": "69788db3878a4385d10c0718",
+        "name": "Professional Fitness - Part 2 [PVP ZONE]",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "gameMode": ["regular"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "69788c2bac719606e40b4e77",
+                "name": "Professional Fitness - Part 1 [PVP ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "69788fc3dc3074ce1c851e20",
+                "description": "69788fc3dc3074ce1c851e20",
+                "type": "visit",
+                "count": 20,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.01
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 15,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "6656560053eaaa7a23349c86",
+                    "item_name": "Lega Medal",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 2400,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "69788db3878a4385d10c0718 name": "Professional Fitness - Part 2 [PVP ZONE]",
+                "69788fc3dc3074ce1c851e20": "Eliminate 20 enemies in Arena"
+            },
+            "zh": {
+                "69788db3878a4385d10c0718 name": "专业热身 - 2（PVP）",
+                "69788fc3dc3074ce1c851e20": "在竞技场任意模式击杀 20 名敌人"
+            }
+        }
+    },
+    "69789418b2187365e70bb947": {
+        "id": "69789418b2187365e70bb947",
+        "name": "To Great Heights! - Part 6 [PVP ZONE]",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "gameMode": ["regular"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "66058cc9ae4719735349b9ea",
+                "name": "To Great Heights! - Part 5 [PVP ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "6978a28fe2bee676ada49c79",
+                "description": "6978a28fe2bee676ada49c79",
+                "type": "visit",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.04
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 55,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": [
+                {
+                    "id": "697877e0c639962b2e0cf24f-664a5428d5e33a713b622379",
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "trader_name": "Ref",
+                    "level": 2,
+                    "item": "664a5428d5e33a713b622379",
+                    "item_name": "APOK Tactical Wasteland Gladius",
+                    "count": 1
+                }
+            ]
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 7700,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "69789418b2187365e70bb947 name": "To Great Heights! - Part 6 [PVP ZONE]",
+                "6978a28fe2bee676ada49c79": "Win 2 matches in a row in TeamFight, BlastGang or CheckPoint mode in Arena"
+            },
+            "zh": {
+                "69789418b2187365e70bb947 name": "再创新高！- 6（PVP）",
+                "6978a28fe2bee676ada49c79": "在竞技场连续赢得两场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗"
+            }
+        }
+    },
+    "697895b6c639962b2e0cf268": {
+        "id": "697895b6c639962b2e0cf268",
+        "name": "Hold the Lead[PVP ZONE]",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "gameMode": ["regular"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "69789418b2187365e70bb947",
+                "name": "To Great Heights! - Part 6 [PVP ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "697895e700201d158bb28f22",
+                "description": "697895e700201d158bb28f22",
+                "type": "visit",
+                "count": 75,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.05
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 75,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "6656560053eaaa7a23349c86",
+                    "item_name": "Lega Medal",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 9100,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "697895b6c639962b2e0cf268 name": "Hold the Lead[PVP ZONE]",
+                "697895e700201d158bb28f22": "Eliminate 75 enemies in Arena"
+            },
+            "zh": {
+                "697895b6c639962b2e0cf268 name": "保持领先（PVP）",
+                "697895e700201d158bb28f22": "在竞技场任意模式击杀 75 名敌人"
+            }
+        }
     }
 }
