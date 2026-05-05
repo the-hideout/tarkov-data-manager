@@ -862,17 +862,6 @@
                 ]
             }
         },
-        "locale": {
-            "de": {
-                "6574e0dedc0d635f633a5807": "Eliminiere etwaige Gegner mit einem RPDN mit EKP-1S-03 Visier auf Shoreline, Interchange oder Woods"
-            },
-            "en": {
-                "6574e0dedc0d635f633a5807": "Eliminate any target while using an RPDN with EKP-1S-03 sight on Shoreline, Interchange, or Woods"
-            },
-            "zh": {
-                "6574e0dedc0d635f633a5807": "在海岸线、立交桥或森林使用带有 EKP-1S-03 瞄具的 RPDN 机枪消灭任意目标"
-            }
-        },
         "objectivesChanged": {
             "63a5cf262964a7488f5243d1": {
                 "usingWeaponMods": [
@@ -889,6 +878,26 @@
         "propertiesChanged": {
             "experience": 20000,
             "minPlayerLevel": 28
+        },
+        "startRewardsChanged": {
+            "items": {
+                "707265736574000000000044": {
+                    "item": "657eb30326f0eb0718056204",
+                    "item_name": "Degtyarev RPDN 7.62x39 machine gun Default",
+                    "contains": []
+                }
+            }
+        },
+        "locale": {
+            "de": {
+                "6574e0dedc0d635f633a5807": "Eliminiere etwaige Gegner mit einem RPDN mit EKP-1S-03 Visier auf Shoreline, Interchange oder Woods"
+            },
+            "en": {
+                "6574e0dedc0d635f633a5807": "Eliminate any target while using an RPDN with EKP-1S-03 sight on Shoreline, Interchange, or Woods"
+            },
+            "zh": {
+                "6574e0dedc0d635f633a5807": "在海岸线、立交桥或森林使用带有 EKP-1S-03 瞄具的 RPDN 机枪消灭任意目标"
+            }
         }
     },
     "669fa3a40c828825de06d6a1": {
@@ -932,6 +941,15 @@
         "propertiesChanged": {
             "experience": 23000,
             "minPlayerLevel": 32
+        },
+        "startRewardsChanged": {
+            "items": {
+                "707265736574000000000048": {
+                    "item": "63986a9ab483a550805be5ee",
+                    "item_name": "SR-2M Veresk 9x21 submachine gun FSB",
+                    "contains": []
+                }
+            }
         }
     },
     "675c1ff1a757ddd00404f0aa": {
