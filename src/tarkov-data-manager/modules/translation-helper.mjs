@@ -22,17 +22,13 @@ class TranslationHelper {
         if (typeof langCode === 'function') {
             if (typeof key === 'string') {
                 for (const langC in this.locales) {    
-                    if (!this.locale[langC]) {
-                        this.locale[langC] = {};
-                    }
+                    this.locale[langC] ??= {};
                     this.locale[langC][key] = langCode(this.locales[langC], langC);
                 }
             } else if (Array.isArray(key)) {
                 for (const k of key) {    
                     for (const langC in this.locales) {   
-                        if (!this.locale[langC]) {
-                            this.locale[langC] = {};
-                        }
+                        this.locale[langC] ??= {};
                         this.locale[langC][k] = langCode(k, this.locales[langC], langC);
                     }
                 }
@@ -44,9 +40,7 @@ class TranslationHelper {
         if (Array.isArray(key)) {
             for (const k of key) {
                 if (langCode && value) {
-                    if (!this.locale[langCode]) {
-                        this.locale[langCode] = {};
-                    }
+                    this.locale[langCode] ??= {};
                     this.locale[langCode][key] = value;
                 } else {
                     this.translationKeys.add(k);
@@ -56,9 +50,7 @@ class TranslationHelper {
         }
         if (langCode) {
             if (typeof value !== 'undefined') {
-                if (!this.locale[langCode]) {
-                    this.locale[langCode] = {};
-                }
+                this.locale[langCode] ??= {};
                 this.locale[langCode][key] = value;
             } else {
                 throw new Error(`Cannot assign undefined value to ${langCode} ${key}`);
