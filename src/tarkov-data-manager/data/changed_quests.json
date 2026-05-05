@@ -2993,6 +2993,24 @@
     },
     "66058ccbc7f3584787181478": {
         "name": "Against the Conscience - Part 1 [PVP ZONE]",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "66058cbd9f59e625462acc8e",
+                    "name": "Create a Distraction - Part 1 [PVP ZONE]",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "697895b6c639962b2e0cf268",
+                    "name": "Hold the Lead[PVP ZONE]",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        },
         "locale": {
             "de": {
                 "67e6b531ca71d03c35350b31": "Finde und beschaffe den Schlüssel bei der Schmugglerbasis auf Shoreline"
@@ -3001,6 +3019,24 @@
     },
     "6834233fecd5cf3a440d855b": {
         "name": "Against the Conscience - Part 1 [PVE ZONE]",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "68341c4babec72d95d0c1260",
+                    "name": "Create a Distraction - Part 1 [PVE ZONE]",
+                    "status": [
+                        "complete"
+                    ]
+                },
+                {
+                    "task": "69789660b2187365e70bb94a",
+                    "name": "Hold the Lead[PVE ZONE]",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        },
         "locale": {
             "de": {
                 "6834233fecd5cf3a440d855f": "Finde das Zimmer des alten Champions in Customs",
