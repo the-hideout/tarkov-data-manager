@@ -2881,6 +2881,17 @@
     },
     "66058cc1da30b620a34e6e86": {
         "name": "To Great Heights! - Part 1 [PVP ZONE]",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "69788db3878a4385d10c0718",
+                    "name": "Professional Fitness - Part 2 [PVP ZONE]",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        },
         "locale": {
             "de": {
                 "662ba5a89d8041c264dd9673": "Gewinne ein Match im CheckPoint- oder LastHero-Modus in Arena"
@@ -2889,6 +2900,17 @@
     },
     "68341eb25619c8e2a9031501": {
         "name": "To Great Heights! - Part 1 [PVE ZONE]",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "6978907718bd6d7cbd0e8b8e",
+                    "name": "Professional Fitness - Part 2 [PVE ZONE]",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        },
         "locale": {
             "de": {
                 "68341eb25619c8e2a9031504": "Gewinne ein Match im CheckPoint- oder LastHero-Modus in Arena"
