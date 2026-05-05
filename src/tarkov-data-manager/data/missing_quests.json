@@ -4880,6 +4880,10 @@
             "zh": {
                 "68ee1c18b4e5bc9a68018cd7 name": "不容置问",
                 "68ee1cc7e8b13097f525e6f2": "上交战局中找到的物品：Red Rebel 冰镐"
+            },
+            "de": {
+                "68ee1c18b4e5bc9a68018cd7 name": "Keine Fragen",
+                "68ee1cc7e8b13097f525e6f2": "Übergib den im Raid gefundenen Gegenstand: Red Rebel Eispickel"
             }
         }
     },
