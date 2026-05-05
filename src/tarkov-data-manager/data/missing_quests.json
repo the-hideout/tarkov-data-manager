@@ -6305,13 +6305,7 @@
             "traderUnlock": []
         },
         "finishRewards": {
-            "traderStanding": [
-                {
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "name": "Ref",
-                    "standing": 0.04
-                }
-            ],
+            "traderStanding": [],
             "items": [
                 {
                     "item": "5d235b4d86f7742e017bc88a",
@@ -6321,9 +6315,7 @@
                     "attributes": []
                 }
             ],
-            "offerUnlock": [],
-            "skillLevelReward": [],
-            "traderUnlock": [
+            "offerUnlock": [
                 {
                     "id": "697877e0c639962b2e0cf24f-664a5428d5e33a713b622379",
                     "trader_id": "6617beeaa9cfa777ca915b7c",
@@ -6333,7 +6325,9 @@
                     "item_name": "APOK Tactical Wasteland Gladius",
                     "count": 1
                 }
-            ]
+            ],
+            "skillLevelReward": [],
+            "traderUnlock": []
         },
         "failureOutcome": {
             "traderStanding": [],
