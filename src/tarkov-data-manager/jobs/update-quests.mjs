@@ -837,7 +837,6 @@ class UpdateQuestsJob extends DataJob {
 
         if (!matchedPreset) {
             try {
-                throw new Error('Skipping preset creation');
                 const presetImage = await this.fenceFetchImage('/preset-image', {
                     method: 'POST',
                     body: JSON.stringify(reward),
@@ -1351,6 +1350,9 @@ class UpdateQuestsJob extends DataJob {
             if (this.changedQuests[questData.id].locale) {
                 for (const langCode in this.changedQuests[questData.id].locale) {
                     for (const translationKey in this.changedQuests[questData.id].locale[langCode]) {
+                        if (questId === '68ee1c18b4e5bc9a68018cd7') {
+                            console.info(langCode, translationKey, this.changedQuests[questData.id].locale[langCode][translationKey]);
+                        }
                         this.addTranslation(translationKey, langCode, this.changedQuests[questData.id].locale[langCode][translationKey]);
                     }
                 }
