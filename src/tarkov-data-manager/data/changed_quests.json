@@ -3502,15 +3502,6 @@
             }
         }
     },
-    "68ee1c18b4e5bc9a68018cd7": {
-        "name": "No Questions Asked",
-        "locale": {
-            "de": {
-                "68ee1c18b4e5bc9a68018cd7 name": "Keine Fragen",
-                "68ee1cc7e8b13097f525e6f2": "Übergib den im Raid gefundenen Gegenstand: Red Rebel Eispickel"
-            }
-        }
-    },
     "5ae4496986f774459e77beb6": {
         "name": "Sew it Good - Part 3",
         "locale": {
