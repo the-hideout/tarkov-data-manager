@@ -60,13 +60,19 @@ class UpdateQuestImagesJob extends DataJob {
                 this.logger.error(`Task ${this.localeEn[`${id} name`]} ${id} was not found`);
                 continue;
             }
+            this.logger.log(`${this.localeEn[`${id} name`]} ${id}`);
             const questData = this.eftQuests[id];
-            let image = await this.getFromEFT(questData);
-            if (!image) {
-                image = await this.getFromFence(questData);
-            }
-            if (!image) {
-                image = await this.getFromSPT(questData);
+            let image;
+            if (questData?.image) {
+                image = await this.getFromEFT(questData);
+                if (!image) {
+                    image = await this.getFromFence(questData);
+                }
+                if (!image) {
+                    image = await this.getFromSPT(questData);
+                }
+            } else {
+                this.logger.log('No image attribute');
             }
             if (!image) {
                 image = await this.getFromWiki(task);
@@ -81,6 +87,7 @@ class UpdateQuestImagesJob extends DataJob {
     }
 
     async getFromEFT(questData) {
+        this.logger.log('Attempting to get image from EFT');
         if (!questData?.image) {
             return;
         }
@@ -98,6 +105,7 @@ class UpdateQuestImagesJob extends DataJob {
     }
 
     async getFromFence(questData) {
+        this.logger.log('Attempting to get image from Fence');
         if (!questData?.image) {
             return;
         }
@@ -118,6 +126,7 @@ class UpdateQuestImagesJob extends DataJob {
     }
 
     async getFromSPT(questData) {
+        this.logger.log('Attempting to get image from SPT');
         if (!questData?.image) {
             return;
         }
@@ -130,29 +139,43 @@ class UpdateQuestImagesJob extends DataJob {
     }
 
     async getFromWiki(task) {
+        this.logger.log('Attempting to get image from wiki');
         if (!task?.wikiLink) {
+            this.logger.log('No wiki link');
             return;
         }
         let wikiLink = task.wikiLink;
         if (this.localeEn[`${task.id} name`] === 'New Beginning') {
             wikiLink += '_(Prestige_1)';
         }
-        const pageResponse = await fetch(wikiLink).catch(error => {
+        const headers = {
+            'User-Agent': 'PostmanRuntime/7.51.1',
+        }
+        console.log(wikiLink);
+        const pageResponse = await fetch(wikiLink, {headers}).catch(error => {
             this.logger.error(`Error fetching wiki page for ${this.localeEn[`${task.id} name`]} ${this.task.id}: ${error}`);
-            return {
-                ok: false,
-            };
+            return new Response(error.message, {
+                status: 400,
+                statusText: error.message,
+            });
         });
         if (!pageResponse.ok) {
+            this.logger.log(`Error retrieving wiki page: ${pageResponse.status} ${pageResponse.statusText}`);
             return;
         }
         const $ = cheerio.load(await pageResponse.text());
-        const imageUrl = $('.va-infobox-mainimage-image img').first().attr('src');
-        if (!imageUrl) {
-            this.logger.warn(`Could not find wiki image for ${this.localeEn[`${task.id} name`]} ${task.id} at ${wikiLink}`);
+        const imageEle = $('.va-infobox-mainimage-image img').first()
+        if (!imageEle) {
+            this.logger.warn('Could not find image element');
             return;
         }
-        const imageResponse = await fetch(imageUrl);
+        const imageUrl = imageEle.attr('data-src') ?? imageEle.attr('src');
+        if (!imageUrl) {
+            this.logger.warn('Could not find image url');
+            return;
+        }
+        console.log(imageUrl);
+        const imageResponse = await fetch(imageUrl, {headers});
         if (!imageResponse.ok) {
             return;
         }

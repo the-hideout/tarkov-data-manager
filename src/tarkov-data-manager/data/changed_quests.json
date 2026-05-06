@@ -4356,28 +4356,7 @@
         }
     },
     "697895b6c639962b2e0cf268": {
-        "name": "Hold the Lead[PVP ZONE]",
-        "propertiesChanged": {
-            "finishRewards": {
-                "traderStanding": [],
-                "items": [
-                    {
-                        "item": "5d235b4d86f7742e017bc88a",
-                        "item_name": "GP Coin",
-                        "count": 75,
-                        "contains": [],
-                        "attributes": []
-                    }
-                ],
-                "offerUnlock": [],
-                "skillLevelReward": [],
-                "traderUnlock": [],
-                "craftUnlock": []
-            }
-        }
-    },
-    "69789660b2187365e70bb94a": {
-        "name": "Hold the Lead[PVE ZONE]",
+        "name": "Hold the Lead [PVP ZONE]",
         "propertiesChanged": {
             "finishRewards": {
                 "traderStanding": [],
