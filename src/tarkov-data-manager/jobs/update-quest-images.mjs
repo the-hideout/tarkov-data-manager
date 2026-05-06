@@ -171,7 +171,7 @@ class UpdateQuestImagesJob extends DataJob {
         }
         const imageUrl = imageEle.attr('data-src') ?? imageEle.attr('src');
         if (!imageUrl) {
-            this.logger.warn('Could not image url');
+            this.logger.warn('Could not find image url');
             return;
         }
         console.log(imageUrl);
