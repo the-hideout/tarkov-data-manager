@@ -28,7 +28,7 @@ class UpdateNewItemsJob extends DataJob {
             }
 
             // Removes shrapnel etc
-            if (bsgObject._props.StackMinRandom === 0) {
+            if (bsgObject._props.StackMinRandom === 0 && bsgObject._parent === '5485a8684bdc2da71d8b4567') {
                 return false;
             }
 
