@@ -524,6 +524,7 @@ const methods = {
             myData.set(values.id, {
                 ...currentItemData,
                 ...values,
+                types: currentItemData.types,
                 updated: currentItemData?.updated ?? new Date(),
             });
             emitter.emit('itemAdded', myData.get(values.id));
