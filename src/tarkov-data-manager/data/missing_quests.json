@@ -6354,7 +6354,7 @@
     },
     "697895b6c639962b2e0cf268": {
         "id": "697895b6c639962b2e0cf268",
-        "name": "Hold the Lead[PVP ZONE]",
+        "name": "Hold the Lead [PVP ZONE]",
         "trader": "6617beeaa9cfa777ca915b7c",
         "gameMode": ["regular"],
         "location_id": null,
@@ -6405,13 +6405,6 @@
                     "count": 75,
                     "contains": [],
                     "attributes": []
-                },
-                {
-                    "item": "6656560053eaaa7a23349c86",
-                    "item_name": "Lega Medal",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
                 }
             ],
             "offerUnlock": [],
@@ -6432,7 +6425,7 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "697895b6c639962b2e0cf268 name": "Hold the Lead[PVP ZONE]",
+                "697895b6c639962b2e0cf268 name": "Hold the Lead [PVP ZONE]",
                 "697895e700201d158bb28f22": "Eliminate 75 enemies in Arena"
             },
             "zh": {
@@ -6902,13 +6895,6 @@
                     "count": 75,
                     "contains": [],
                     "attributes": []
-                },
-                {
-                    "item": "6656560053eaaa7a23349c86",
-                    "item_name": "Lega Medal",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
                 }
             ],
             "offerUnlock": [],
@@ -6929,7 +6915,7 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "69789660b2187365e70bb94a name": "Hold the Lead[PVE ZONE]",
+                "69789660b2187365e70bb94a name": "Hold the Lead [PVE ZONE]",
                 "69789660b2187365e70bb94d": "Eliminate 75 enemies in Arena"
             },
             "zh": {
