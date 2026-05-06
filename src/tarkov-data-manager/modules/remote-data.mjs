@@ -508,24 +508,17 @@ const methods = {
         `, [...insertValues, ...updateValues]);
         //console.log('insertResult', insertResult);
         if (insertResult.affectedRows > 0) {
+            const currentItemData = myData.get(values.id) ?? {types: []};
             const newTypes = values.types ?? [];
             delete values.types;
-            const currentItemData = myData.get(values.id) ?? {};
-            if (newTypes.length) {
-                await methods.addTypes(values.id, newTypes);
-                currentItemData.types ??= [];
-                for (const t of newTypes) {
-                    if (currentItemData.types.includes(t)) {
-                        continue;
-                    }
-                    currentItemData.types.push(t);
-                }
-            }
             myData.set(values.id, {
                 ...currentItemData,
                 ...values,
                 updated: currentItemData?.updated ?? new Date(),
             });
+            if (newTypes.length) {
+                await methods.newTypes(values.id, newTypes);
+            }
             emitter.emit('itemAdded', myData.get(values.id));
         }
         return insertResult;
