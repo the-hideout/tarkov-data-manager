@@ -2805,28 +2805,36 @@
     "66058cc5bb83da7ba474aba9": {
         "name": "To Great Heights! - Part 3 [PVP ZONE]",
         "propertiesChanged": {
-            "experience": 4500
-        },
-        "finishRewardsChanged": {
-            "traderStanding": [
-                {
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "name": "Ref",
-                    "standing": 0.03
-                }
-            ],
-            "items": [
-                {
-                    "item": "5d235b4d86f7742e017bc88a",
-                    "item_name": "GP Coin",
-                    "count": 28
-                },
-                {
-                    "item": "66572bb3ac60f009f270d1df",
-                    "item_name": "Locked valuables crate (Rare)",
-                    "count": 1
-                }
-            ]
+            "experience": 4500,
+            "finishRewards": {
+                "traderStanding": [
+                    {
+                        "trader_id": "6617beeaa9cfa777ca915b7c",
+                        "name": "Ref",
+                        "standing": 0.03
+                    }
+                ],
+                "items": [
+                    {
+                        "item": "5d235b4d86f7742e017bc88a",
+                        "item_name": "GP Coin",
+                        "count": 28,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "66572bb3ac60f009f270d1df",
+                        "item_name": "Locked valuables crate (Rare)",
+                        "count": 1,
+                        "contains": [],
+                        "attributes": []
+                    }
+                ],
+                "offerUnlock": [],
+                "skillLevelReward": [],
+                "traderUnlock": [],
+                "craftUnlock": []
+            }
         },
         "locale": {
             "en": {
@@ -2840,28 +2848,36 @@
     "6834202a186efa3c5b07f9a2": {
         "name": "To Great Heights! - Part 3 [PVE ZONE]",
         "propertiesChanged": {
-            "experience": 4500
-        },
-        "finishRewardsChanged": {
-            "traderStanding": [
-                {
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "name": "Ref",
-                    "standing": 0.03
-                }
-            ],
-            "items": [
-                {
-                    "item": "5d235b4d86f7742e017bc88a",
-                    "item_name": "GP Coin",
-                    "count": 28
-                },
-                {
-                    "item": "66572bb3ac60f009f270d1df",
-                    "item_name": "Locked valuables crate (Rare)",
-                    "count": 1
-                }
-            ]
+            "experience": 4500,
+            "finishRewards": {
+                "traderStanding": [
+                    {
+                        "trader_id": "6617beeaa9cfa777ca915b7c",
+                        "name": "Ref",
+                        "standing": 0.03
+                    }
+                ],
+                "items": [
+                    {
+                        "item": "5d235b4d86f7742e017bc88a",
+                        "item_name": "GP Coin",
+                        "count": 28,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "66572bb3ac60f009f270d1df",
+                        "item_name": "Locked valuables crate (Rare)",
+                        "count": 1,
+                        "contains": [],
+                        "attributes": []
+                    }
+                ],
+                "offerUnlock": [],
+                "skillLevelReward": [],
+                "traderUnlock": [],
+                "craftUnlock": []
+            }
         },
         "locale": {
             "en": {
@@ -2948,23 +2964,29 @@
                         "complete"
                     ]
                 }
-            ]
-        },
-        "finishRewardsChanged": {
-            "traderStanding": [
-                {
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "name": "Ref",
-                    "standing": 0.02
-                }
             ],
-            "items": [
-                {
-                    "item": "5d235b4d86f7742e017bc88a",
-                    "item_name": "GP Coin",
-                    "count": 55
-                }
-            ]
+            "finishRewards": {
+                "traderStanding": [
+                    {
+                        "trader_id": "6617beeaa9cfa777ca915b7c",
+                        "name": "Ref",
+                        "standing": 0.02
+                    }
+                ],
+                "items": [
+                    {
+                        "item": "5d235b4d86f7742e017bc88a",
+                        "item_name": "GP Coin",
+                        "count": 55,
+                        "contains": [],
+                        "attributes": []
+                    }
+                ],
+                "offerUnlock": [],
+                "skillLevelReward": [],
+                "traderUnlock": [],
+                "craftUnlock": []
+            }
         },
         "locale": {
             "de": {
@@ -2984,23 +3006,29 @@
                         "complete"
                     ]
                 }
-            ]
-        },
-        "finishRewardsChanged": {
-            "traderStanding": [
-                {
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "name": "Ref",
-                    "standing": 0.02
-                }
             ],
-            "items": [
-                {
-                    "item": "5d235b4d86f7742e017bc88a",
-                    "item_name": "GP Coin",
-                    "count": 55
-                }
-            ]
+            "finishRewards": {
+                "traderStanding": [
+                    {
+                        "trader_id": "6617beeaa9cfa777ca915b7c",
+                        "name": "Ref",
+                        "standing": 0.02
+                    }
+                ],
+                "items": [
+                    {
+                        "item": "5d235b4d86f7742e017bc88a",
+                        "item_name": "GP Coin",
+                        "count": 55,
+                        "contains": [],
+                        "attributes": []
+                    }
+                ],
+                "offerUnlock": [],
+                "skillLevelReward": [],
+                "traderUnlock": [],
+                "craftUnlock": []
+            }
         },
         "locale": {
             "de": {
@@ -3011,28 +3039,36 @@
     "66058cc208308761cf390993": {
         "name": "To Great Heights! - Part 2 [PVP ZONE]",
         "propertiesChanged": {
-            "experience": 3500
-        },
-        "finishRewardsChanged": {
-            "traderStanding": [
-                {
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "name": "Ref",
-                    "standing": 0.02
-                }
-            ],
-            "items": [
-                {
-                    "item": "5d235b4d86f7742e017bc88a",
-                    "item_name": "GP Coin",
-                    "count": 32
-                },
-                {
-                    "item": "66572b3f6a723f7f005a066c",
-                    "item_name": "Locked weapon crate (Rare)",
-                    "count": 1
-                }
-            ]
+            "experience": 3500,
+            "finishRewards": {
+                "traderStanding": [
+                    {
+                        "trader_id": "6617beeaa9cfa777ca915b7c",
+                        "name": "Ref",
+                        "standing": 0.02
+                    }
+                ],
+                "items": [
+                    {
+                        "item": "5d235b4d86f7742e017bc88a",
+                        "item_name": "GP Coin",
+                        "count": 32,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "66572b3f6a723f7f005a066c",
+                        "item_name": "Locked weapon crate (Rare)",
+                        "count": 1,
+                        "contains": [],
+                        "attributes": []
+                    }
+                ],
+                "offerUnlock": [],
+                "skillLevelReward": [],
+                "traderUnlock": [],
+                "craftUnlock": []
+            }
         },
         "locale": {
             "de": {
@@ -3043,28 +3079,36 @@
     "68341f6fe2e7ef70a3060a0a": {
         "name": "To Great Heights! - Part 2 [PVE ZONE]",
         "propertiesChanged": {
-            "experience": 3500
-        },
-        "finishRewardsChanged": {
-            "traderStanding": [
-                {
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "name": "Ref",
-                    "standing": 0.02
-                }
-            ],
-            "items": [
-                {
-                    "item": "5d235b4d86f7742e017bc88a",
-                    "item_name": "GP Coin",
-                    "count": 32
-                },
-                {
-                    "item": "66572b3f6a723f7f005a066c",
-                    "item_name": "Locked weapon crate (Rare)",
-                    "count": 1
-                }
-            ]
+            "experience": 3500,
+            "finishRewards": {
+                "traderStanding": [
+                    {
+                        "trader_id": "6617beeaa9cfa777ca915b7c",
+                        "name": "Ref",
+                        "standing": 0.02
+                    }
+                ],
+                "items": [
+                    {
+                        "item": "5d235b4d86f7742e017bc88a",
+                        "item_name": "GP Coin",
+                        "count": 32,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "66572b3f6a723f7f005a066c",
+                        "item_name": "Locked weapon crate (Rare)",
+                        "count": 1,
+                        "contains": [],
+                        "attributes": []
+                    }
+                ],
+                "offerUnlock": [],
+                "skillLevelReward": [],
+                "traderUnlock": [],
+                "craftUnlock": []
+            }
         },
         "locale": {
             "de": {
@@ -3075,33 +3119,43 @@
     "66058cc72cee99303f1ba069": {
         "name": "To Great Heights! - Part 4 [PVP ZONE]",
         "propertiesChanged": {
-            "experience": 5600
-        },
-        "finishRewardsChanged": {
-            "traderStanding": [
-                {
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "name": "Ref",
-                    "standing": 0.05
-                }
-            ],
-            "items": [
-                {
-                    "item": "5449016a4bdc2d6f028b456f",
-                    "item_name": "Roubles",
-                    "count": 2500000
-                },
-                {
-                    "item": "5d235b4d86f7742e017bc88a",
-                    "item_name": "GP Coin",
-                    "count": 35
-                },
-                {
-                    "item": "665732f4464c4b4ba4670fa9",
-                    "item_name": "Unlocked supply crate (Rare)",
-                    "count": 1
-                }
-            ]
+            "experience": 5600,
+            "finishRewards": {
+                "traderStanding": [
+                    {
+                        "trader_id": "6617beeaa9cfa777ca915b7c",
+                        "name": "Ref",
+                        "standing": 0.05
+                    }
+                ],
+                "items": [
+                    {
+                        "item": "5449016a4bdc2d6f028b456f",
+                        "item_name": "Roubles",
+                        "count": 2500000,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "5d235b4d86f7742e017bc88a",
+                        "item_name": "GP Coin",
+                        "count": 35,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "665732f4464c4b4ba4670fa9",
+                        "item_name": "Unlocked supply crate (Rare)",
+                        "count": 1,
+                        "contains": [],
+                        "attributes": []
+                    }
+                ],
+                "offerUnlock": [],
+                "skillLevelReward": [],
+                "traderUnlock": [],
+                "craftUnlock": []
+            }
         },
         "locale": {
             "de": {
@@ -3113,33 +3167,43 @@
     "683421515619c8e2a9031511": {
         "name": "To Great Heights! - Part 4 [PVE ZONE]",
         "propertiesChanged": {
-            "experience": 5600
-        },
-        "finishRewardsChanged": {
-            "traderStanding": [
-                {
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "name": "Ref",
-                    "standing": 0.05
-                }
-            ],
-            "items": [
-                {
-                    "item": "5449016a4bdc2d6f028b456f",
-                    "item_name": "Roubles",
-                    "count": 2500000
-                },
-                {
-                    "item": "5d235b4d86f7742e017bc88a",
-                    "item_name": "GP Coin",
-                    "count": 35
-                },
-                {
-                    "item": "665732f4464c4b4ba4670fa9",
-                    "item_name": "Unlocked supply crate (Rare)",
-                    "count": 1
-                }
-            ]
+            "experience": 5600,
+            "finishRewards": {
+                "traderStanding": [
+                    {
+                        "trader_id": "6617beeaa9cfa777ca915b7c",
+                        "name": "Ref",
+                        "standing": 0.05
+                    }
+                ],
+                "items": [
+                    {
+                        "item": "5449016a4bdc2d6f028b456f",
+                        "item_name": "Roubles",
+                        "count": 2500000,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "5d235b4d86f7742e017bc88a",
+                        "item_name": "GP Coin",
+                        "count": 35,
+                        "contains": [],
+                        "attributes": []
+                    },
+                    {
+                        "item": "665732f4464c4b4ba4670fa9",
+                        "item_name": "Unlocked supply crate (Rare)",
+                        "count": 1,
+                        "contains": [],
+                        "attributes": []
+                    }
+                ],
+                "offerUnlock": [],
+                "skillLevelReward": [],
+                "traderUnlock": [],
+                "craftUnlock": []
+            }
         },
         "locale": {
             "de": {
@@ -3151,24 +3215,29 @@
     "66058cc9ae4719735349b9ea": {
         "name": "To Great Heights! - Part 5 [PVP ZONE]",
         "propertiesChanged": {
-            "experience": 6900
-        },
-        "finishRewardsChanged": {
-            "traderStanding": [
-                {
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "name": "Ref",
-                    "standing": 0.04
-                }
-            ],
-            "items": [
-                {
-                    "item": "5d235b4d86f7742e017bc88a",
-                    "item_name": "GP Coin",
-                    "count": 40
-                }
-            ],
-            "offerUnlock": []
+            "experience": 6900,
+            "finishRewards": {
+                "traderStanding": [
+                    {
+                        "trader_id": "6617beeaa9cfa777ca915b7c",
+                        "name": "Ref",
+                        "standing": 0.04
+                    }
+                ],
+                "items": [
+                    {
+                        "item": "5d235b4d86f7742e017bc88a",
+                        "item_name": "GP Coin",
+                        "count": 40,
+                        "contains": [],
+                        "attributes": []
+                    }
+                ],
+                "offerUnlock": [],
+                "skillLevelReward": [],
+                "traderUnlock": [],
+                "craftUnlock": []
+            }
         },
         "locale": {
             "de": {
@@ -3179,24 +3248,29 @@
     "68342265a8d674b5740b31f0": {
         "name": "To Great Heights! - Part 5 [PVE ZONE]",
         "propertiesChanged": {
-            "experience": 6900
-        },
-        "finishRewardsChanged": {
-            "traderStanding": [
-                {
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "name": "Ref",
-                    "standing": 0.04
-                }
-            ],
-            "items": [
-                {
-                    "item": "5d235b4d86f7742e017bc88a",
-                    "item_name": "GP Coin",
-                    "count": 40
-                }
-            ],
-            "offerUnlock": []
+            "experience": 6900,
+            "finishRewards": {
+                "traderStanding": [
+                    {
+                        "trader_id": "6617beeaa9cfa777ca915b7c",
+                        "name": "Ref",
+                        "standing": 0.04
+                    }
+                ],
+                "items": [
+                    {
+                        "item": "5d235b4d86f7742e017bc88a",
+                        "item_name": "GP Coin",
+                        "count": 40,
+                        "contains": [],
+                        "attributes": []
+                    }
+                ],
+                "offerUnlock": [],
+                "skillLevelReward": [],
+                "traderUnlock": [],
+                "craftUnlock": []
+            }
         },
         "locale": {
             "de": {
@@ -4283,28 +4357,44 @@
     },
     "697895b6c639962b2e0cf268": {
         "name": "Hold the Lead[PVP ZONE]",
-        "finishRewardsChanged": {
-            "traderStanding": [],
-            "items": [
-                {
-                    "item": "5d235b4d86f7742e017bc88a",
-                    "item_name": "GP Coin",
-                    "count": 75
-                }
-            ]
+        "propertiesChanged": {
+            "finishRewards": {
+                "traderStanding": [],
+                "items": [
+                    {
+                        "item": "5d235b4d86f7742e017bc88a",
+                        "item_name": "GP Coin",
+                        "count": 75,
+                        "contains": [],
+                        "attributes": []
+                    }
+                ],
+                "offerUnlock": [],
+                "skillLevelReward": [],
+                "traderUnlock": [],
+                "craftUnlock": []
+            }
         }
     },
     "69789660b2187365e70bb94a": {
         "name": "Hold the Lead[PVE ZONE]",
-        "finishRewardsChanged": {
-            "traderStanding": [],
-            "items": [
-                {
-                    "item": "5d235b4d86f7742e017bc88a",
-                    "item_name": "GP Coin",
-                    "count": 75
-                }
-            ]
+        "propertiesChanged": {
+            "finishRewards": {
+                "traderStanding": [],
+                "items": [
+                    {
+                        "item": "5d235b4d86f7742e017bc88a",
+                        "item_name": "GP Coin",
+                        "count": 75,
+                        "contains": [],
+                        "attributes": []
+                    }
+                ],
+                "offerUnlock": [],
+                "skillLevelReward": [],
+                "traderUnlock": [],
+                "craftUnlock": []
+            }
         }
     }
 }
