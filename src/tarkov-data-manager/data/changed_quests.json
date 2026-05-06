@@ -1786,6 +1786,15 @@
         "translationKeys": [
             "6745fcded0fbbc74ca0f7226"
         ],
+        "finishRewardsAdded": {
+            "items": [
+                {
+                    "item": "6939948dc2ceb9acd7082eb2",
+                    "item_name": "Old house toilet key",
+                    "count": 1
+                }
+            ]
+        },
         "locale": {
             "de": {
                 "6745fcded0fbbc74ca0f721d name": "Schnelle Vergeltung",
@@ -2795,6 +2804,30 @@
     },
     "66058cc5bb83da7ba474aba9": {
         "name": "To Great Heights! - Part 3 [PVP ZONE]",
+        "propertiesChanged": {
+            "experience": 4500
+        },
+        "finishRewardsChanged": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.03
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 28
+                },
+                {
+                    "item": "66572bb3ac60f009f270d1df",
+                    "item_name": "Locked valuables crate (Rare)",
+                    "count": 1
+                }
+            ]
+        },
         "locale": {
             "en": {
                 "662ba61d3ed61b6b78187b71": "Win 2 matches while claiming at least 3rd place in TeamFight, BlastGang, or CheckPoint mode in Arena"
@@ -2806,6 +2839,30 @@
     },
     "6834202a186efa3c5b07f9a2": {
         "name": "To Great Heights! - Part 3 [PVE ZONE]",
+        "propertiesChanged": {
+            "experience": 4500
+        },
+        "finishRewardsChanged": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.03
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 28
+                },
+                {
+                    "item": "66572bb3ac60f009f270d1df",
+                    "item_name": "Locked valuables crate (Rare)",
+                    "count": 1
+                }
+            ]
+        },
         "locale": {
             "en": {
                 "6834202a186efa3c5b07f9a5": "Win 2 matches while claiming at least 3rd place in TeamFight, BlastGang, or CheckPoint mode in Arena"
@@ -2882,6 +2939,7 @@
     "66058cc1da30b620a34e6e86": {
         "name": "To Great Heights! - Part 1 [PVP ZONE]",
         "propertiesChanged": {
+            "experience": 2800,
             "taskRequirements": [
                 {
                     "task": "69788db3878a4385d10c0718",
@@ -2889,6 +2947,22 @@
                     "status": [
                         "complete"
                     ]
+                }
+            ]
+        },
+        "finishRewardsChanged": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 55
                 }
             ]
         },
@@ -2901,6 +2975,7 @@
     "68341eb25619c8e2a9031501": {
         "name": "To Great Heights! - Part 1 [PVE ZONE]",
         "propertiesChanged": {
+            "experience": 2800,
             "taskRequirements": [
                 {
                     "task": "6978907718bd6d7cbd0e8b8e",
@@ -2908,6 +2983,22 @@
                     "status": [
                         "complete"
                     ]
+                }
+            ]
+        },
+        "finishRewardsChanged": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 55
                 }
             ]
         },
@@ -2919,6 +3010,30 @@
     },
     "66058cc208308761cf390993": {
         "name": "To Great Heights! - Part 2 [PVP ZONE]",
+        "propertiesChanged": {
+            "experience": 3500
+        },
+        "finishRewardsChanged": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 32
+                },
+                {
+                    "item": "66572b3f6a723f7f005a066c",
+                    "item_name": "Locked weapon crate (Rare)",
+                    "count": 1
+                }
+            ]
+        },
         "locale": {
             "de": {
                 "662ba78e19c86d3199ae0a93": "Gewinne ein Match im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena"
@@ -2927,6 +3042,30 @@
     },
     "68341f6fe2e7ef70a3060a0a": {
         "name": "To Great Heights! - Part 2 [PVE ZONE]",
+        "propertiesChanged": {
+            "experience": 3500
+        },
+        "finishRewardsChanged": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 32
+                },
+                {
+                    "item": "66572b3f6a723f7f005a066c",
+                    "item_name": "Locked weapon crate (Rare)",
+                    "count": 1
+                }
+            ]
+        },
         "locale": {
             "de": {
                 "68341f6fe2e7ef70a3060a0d": "Gewinne ein Match im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena"
@@ -2935,6 +3074,35 @@
     },
     "66058cc72cee99303f1ba069": {
         "name": "To Great Heights! - Part 4 [PVP ZONE]",
+        "propertiesChanged": {
+            "experience": 5600
+        },
+        "finishRewardsChanged": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.05
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 2500000
+                },
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 35
+                },
+                {
+                    "item": "665732f4464c4b4ba4670fa9",
+                    "item_name": "Unlocked supply crate (Rare)",
+                    "count": 1
+                }
+            ]
+        },
         "locale": {
             "de": {
                 "662bb23200ae352a6d5a415d": "Gewinne drei von sechs Matches im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena",
@@ -2944,6 +3112,35 @@
     },
     "683421515619c8e2a9031511": {
         "name": "To Great Heights! - Part 4 [PVE ZONE]",
+        "propertiesChanged": {
+            "experience": 5600
+        },
+        "finishRewardsChanged": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.05
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 2500000
+                },
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 35
+                },
+                {
+                    "item": "665732f4464c4b4ba4670fa9",
+                    "item_name": "Unlocked supply crate (Rare)",
+                    "count": 1
+                }
+            ]
+        },
         "locale": {
             "de": {
                 "683421515619c8e2a9031515": "Gewinne drei von sechs Matches im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena",
@@ -2953,6 +3150,26 @@
     },
     "66058cc9ae4719735349b9ea": {
         "name": "To Great Heights! - Part 5 [PVP ZONE]",
+        "propertiesChanged": {
+            "experience": 6900
+        },
+        "finishRewardsChanged": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.04
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 40
+                }
+            ],
+            "offerUnlock": []
+        },
         "locale": {
             "de": {
                 "662ba87106e44407b79e9ab2": "Gewinne zwei Matches in Folge im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena"
@@ -2961,6 +3178,26 @@
     },
     "68342265a8d674b5740b31f0": {
         "name": "To Great Heights! - Part 5 [PVE ZONE]",
+        "propertiesChanged": {
+            "experience": 6900
+        },
+        "finishRewardsChanged": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.04
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 40
+                }
+            ],
+            "offerUnlock": []
+        },
         "locale": {
             "de": {
                 "68342265a8d674b5740b31f3": "Gewinne zwei Matches in Folge im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena"
@@ -3011,6 +3248,15 @@
                 }
             ]
         },
+        "finishRewardsAdded": {
+            "items": [
+                {
+                    "item": "664a5480bfcc521bad3192ca",
+                    "item_name": "Armband (ARENA)",
+                    "count": 1
+                }
+            ]
+        },
         "locale": {
             "de": {
                 "67e6b531ca71d03c35350b31": "Finde und beschaffe den Schlüssel bei der Schmugglerbasis auf Shoreline"
@@ -3034,6 +3280,15 @@
                     "status": [
                         "complete"
                     ]
+                }
+            ]
+        },
+        "finishRewardsAdded": {
+            "items": [
+                {
+                    "item": "664a5480bfcc521bad3192ca",
+                    "item_name": "Armband (ARENA)",
+                    "count": 1
                 }
             ]
         },
@@ -4024,6 +4279,32 @@
             "de": {
                 "6663149cfd5ca9577902e037 name": "Die unsichtbare Hand"
             }
+        }
+    },
+    "697895b6c639962b2e0cf268": {
+        "name": "Hold the Lead[PVP ZONE]",
+        "finishRewardsChanged": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 75
+                }
+            ]
+        }
+    },
+    "69789660b2187365e70bb94a": {
+        "name": "Hold the Lead[PVE ZONE]",
+        "finishRewardsChanged": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 75
+                }
+            ]
         }
     }
 }
