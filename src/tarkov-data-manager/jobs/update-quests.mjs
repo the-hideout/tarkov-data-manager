@@ -401,7 +401,21 @@ class UpdateQuestsJob extends DataJob {
                 if (trader || map) {
                     wikiLinkSuffix = '_(quest)';
                 }
-                quest.wikiLink = this.getWikiLink(`${this.getTranslation(quest.name)}${wikiLinkSuffix}`);
+                const questName = this.getTranslation(quest.name);
+                if (questName === 'New Beginning') {
+                    wikiLinkSuffix = '_(Prestige_1)';
+                    if (quest.requiredPrestige) {
+                        const prestige = this.prestige.find(p => p.id === quest.requiredPrestige);
+                        if (prestige) {
+                            const prestigeName = this.locales.en[`${prestige.id} name`];
+                            if (prestigeName) {
+                                const prevPrestige = parseInt(prestigeName.split(' ')[1]);
+                                wikiLinkSuffix = `_(Prestige_${prevPrestige+1})`;
+                            }
+                        }
+                    }
+                }
+                quest.wikiLink = this.getWikiLink(`${questName}${wikiLinkSuffix}`);
 
                 quest.kappaRequired = false;
                 quest.lightkeeperRequired = false;
