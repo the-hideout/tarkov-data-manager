@@ -517,7 +517,7 @@ const methods = {
                 updated: currentItemData?.updated ?? new Date(),
             });
             if (newTypes.length) {
-                await methods.newTypes(values.id, newTypes);
+                await methods.addTypes(values.id, newTypes);
             }
             emitter.emit('itemAdded', myData.get(values.id));
         }
