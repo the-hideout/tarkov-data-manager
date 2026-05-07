@@ -145,9 +145,6 @@ class UpdateQuestImagesJob extends DataJob {
             return;
         }
         let wikiLink = task.wikiLink;
-        if (this.localeEn[`${task.id} name`] === 'New Beginning') {
-            wikiLink += '_(Prestige_1)';
-        }
         const headers = {
             'User-Agent': 'PostmanRuntime/7.51.1',
         }
