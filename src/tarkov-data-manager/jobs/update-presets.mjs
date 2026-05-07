@@ -191,8 +191,9 @@ class UpdatePresetsJob extends DataJob {
 
         // check for missing default presets
         for (const [id, item] of this.dbItems.entries()) {
-            if (!item.types.includes('gun') || item.types.includes('disabled'))
+            if (!item.types.includes('gun') || item.types.includes('disabled')) {
                 continue;
+            }
             
             const matchingPresets = [];
             let defaultId = false;
@@ -216,6 +217,21 @@ class UpdatePresetsJob extends DataJob {
                 this.logger.log(`${item.id} ${item.name} missing preset`);
             }
         }
+
+        // check for orphaned disabled presets
+        const removedItems = [];
+        for (const [id, item] of this.dbItems.entries()) {
+            if (!item.types.includes('preset') || !item.types.includes('disabled')) {
+                // not a preset or not disabled
+                continue;
+            }
+            if (this.presets[id]) {
+                // preset still exists
+                continue;
+            }
+            removedItems.push(remoteData.removeItem(id));
+        }
+        await Promise.all(removedItems);
 
         // add "Default" to the name of default presets to differentiate them from gun names
         for (const presetId in this.presetsData) {
