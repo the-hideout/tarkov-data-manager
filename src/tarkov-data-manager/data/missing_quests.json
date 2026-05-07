@@ -6092,6 +6092,12 @@
                 "69789727f9ef98d604a0a4eb": "完成任务：专业热身 - 2",
                 "69789737271caeeb3db66e8d": "完成任务：再创新高！- 6",
                 "6978973c2834db5eb178fdc8": "完成任务：保持领先"
+            },
+            "de": {
+                "697877e0c639962b2e0cf24f name": "Arena-Geschäft [PVP ZONE]",
+                "69789727f9ef98d604a0a4eb": "Schließe die Aufgabe Berufliche Fitness - Teil 2 ab",
+                "69789737271caeeb3db66e8d": "Schließe die Aufgabe Zu großen Höhen! - Teil 6 ab",
+                "6978973c2834db5eb178fdc8": "Schließe die Aufgabe In Führung bleiben ab"
             }
         }
     },
@@ -6174,6 +6180,10 @@
             "zh": {
                 "69788c2bac719606e40b4e77 name": "专业热身 - 1（PVP）",
                 "69788c6d403c43a13a7ba7c2": "在竞技场 LastHero 或 CheckPoint 模式进行一场游戏"
+            },
+            "de": {
+                "69788c2bac719606e40b4e77 name": "Berufliche Fitness - Teil 1 [PVP ZONE]",
+                "69788c6d403c43a13a7ba7c2": "Spiele ein Match im CheckPoint- oder Last Hero-Modus in der Arena"
             }
         }
     },
@@ -6263,6 +6273,10 @@
             "zh": {
                 "69788db3878a4385d10c0718 name": "专业热身 - 2（PVP）",
                 "69788fc3dc3074ce1c851e20": "在竞技场任意模式击杀 20 名敌人"
+            },
+            "de": {
+                "69788db3878a4385d10c0718 name": "Berufliche Fitness - Teil 2 [PVP ZONE]",
+                "69788fc3dc3074ce1c851e20": "Eliminiere 20 Gegner in der Arena"
             }
         }
     },
@@ -6349,6 +6363,10 @@
             "zh": {
                 "69789418b2187365e70bb947 name": "再创新高！- 6（PVP）",
                 "6978a28fe2bee676ada49c79": "在竞技场连续赢得两场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗"
+            },
+            "de": {
+                "69789418b2187365e70bb947 name": "Zu großen Höhen! - Teil 6 [PVP ZONE]",
+                "6978a28fe2bee676ada49c79": "Gewinne 2 Matches in Folge im TeamFight-, BlastGang- oder CheckPoint-Modus in der Arena"
             }
         }
     },
@@ -6438,6 +6456,10 @@
             "zh": {
                 "697895b6c639962b2e0cf268 name": "保持领先（PVP）",
                 "697895e700201d158bb28f22": "在竞技场任意模式击杀 75 名敌人"
+            },
+            "de": {
+                "697895b6c639962b2e0cf268 name": "In Führung bleiben[PVP ZONE]",
+                "697895e700201d158bb28f22": "Eliminiere 75 Gegner in der Arena"
             }
         }
     },
