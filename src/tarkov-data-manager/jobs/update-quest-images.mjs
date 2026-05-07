@@ -145,11 +145,10 @@ class UpdateQuestImagesJob extends DataJob {
             return;
         }
         let wikiLink = task.wikiLink;
-        const headers = {
-            'User-Agent': 'PostmanRuntime/7.51.1',
-        }
+        const wikiApiUrl = 'https://escapefromtarkov.fandom.com/api.php';
+        const pageName = wikiLink.split('/wiki/')[1];
         console.log(wikiLink);
-        const pageResponse = await fetch(wikiLink, {headers}).catch(error => {
+        const pageResponse = await fetch(`${wikiApiUrl}?action=parse&page=${pageName}&format=json`).catch(error => {
             this.logger.error(`Error fetching wiki page for ${this.localeEn[`${task.id} name`]} ${this.task.id}: ${error}`);
             return new Response(error.message, {
                 status: 400,
@@ -160,7 +159,8 @@ class UpdateQuestImagesJob extends DataJob {
             this.logger.log(`Error retrieving wiki page: ${pageResponse.status} ${pageResponse.statusText}`);
             return;
         }
-        const $ = cheerio.load(await pageResponse.text());
+        const jsonResponse = await pageResponse.json();
+        const $ = cheerio.load(jsonResponse.parse.text['*']);
         const imageEle = $('.va-infobox-mainimage-image img').first()
         if (!imageEle) {
             this.logger.warn('Could not find image element');
@@ -172,7 +172,7 @@ class UpdateQuestImagesJob extends DataJob {
             return;
         }
         console.log(imageUrl);
-        const imageResponse = await fetch(imageUrl, {headers});
+        const imageResponse = await fetch(imageUrl);
         if (!imageResponse.ok) {
             return;
         }
