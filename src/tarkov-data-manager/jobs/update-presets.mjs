@@ -147,7 +147,7 @@ class UpdatePresetsJob extends DataJob {
             id: dogtagPresetId,
             name: this.addTranslation(`${dogtagPresetId} Name`, getDogTagName),
             shortName: this.addTranslation(`${dogtagPresetId} ShortName`, getDogTagName),
-            normalized_name: this.normalizeName(this.getTranslation(`${dogtagPresetId} Name`)),
+            //normalized_name: this.normalizeName(this.getTranslation(`${dogtagPresetId} Name`)),
             baseId: bearTag._id,
             width: bearTag._props.Width,
             height: bearTag._props.Height,
@@ -254,7 +254,12 @@ class UpdatePresetsJob extends DataJob {
                     lang = this.locales.en;
                 }
                 return lang[`${preset.baseId} ShortName`] + ' ' + lang.Default;
-            })
+            });
+        }
+
+        // set normalized names
+        for (const presetId in this.presetsData) {
+            const preset = this.presetsData[presetId];
             preset.normalized_name = this.normalizeName(this.getTranslation(preset.name));
         }
 
@@ -263,8 +268,11 @@ class UpdatePresetsJob extends DataJob {
         for (let i = 0; i < presetsArray.length; i++) {
             const preset = presetsArray[i];
             let dupes = 0;
-            for (let ii = i + 1; i < presetsArray.length; i++) {
+            for (let ii = i + 1; ii < presetsArray.length; ii++) {
                 const p = presetsArray[ii];
+                if (!p) {
+                    continue;
+                }
                 if (p.normalized_name !== preset.normalized_name) {
                     continue;
                 }
@@ -272,7 +280,7 @@ class UpdatePresetsJob extends DataJob {
                 p.normalized_name += `-${(dupes + 1)}`;
             }
         }
-
+        
         const queries = [];
         const regnerateImages = [];
         for (const [id, item] of this.dbItems.entries()) {
