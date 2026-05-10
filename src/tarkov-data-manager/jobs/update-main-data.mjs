@@ -2,6 +2,7 @@ import DataJob from '../modules/data-job.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import tarkovDevData from '../modules/tarkov-data-tarkov-dev.mjs';
 import gameModes from '../modules/game-modes.mjs';
+import mData from '../modules/tarkov-data-md.mjs';
 
 class UpdateMainDataJob extends DataJob {
     constructor(options) {
@@ -56,6 +57,7 @@ class UpdateMainDataJob extends DataJob {
                 return results;
             }));
         }
+        reqs.push(mData.locales({download: true}));
         await Promise.all(reqs);
         this.logger.timeEnd('data-download');
         return returnValue;
