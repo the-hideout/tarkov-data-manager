@@ -57,7 +57,10 @@ class UpdateMainDataJob extends DataJob {
                 return results;
             }));
         }
-        reqs.push(mData.locales({download: true}));
+        this.logger.log('Downloading languages...');
+        reqs.push(mData.locales({download: true}).then(locales => {
+            this.logger.success(`Downloaded languages: ${Object.keys(locales).join(', ')}`);
+        }));
         await Promise.all(reqs);
         this.logger.timeEnd('data-download');
         return returnValue;
