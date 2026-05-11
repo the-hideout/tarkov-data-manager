@@ -911,8 +911,8 @@ class UpdateItemCacheJob extends DataJob {
                     currencyItem: offer.currencyItem,
                     minTraderLevel: offer.vendor.traderLevel,
                     taskUnlock: offer.quest_unlock_id,
-                    restockAmount: offer.restockAmount,
-                    buyLimit: offer.buyLimit
+                    restockAmount: offer.vendor.restockAmount,
+                    buyLimit: offer.vendor.buyLimit
                 });
             }
             item.sellToTrader = item.traderPrices.map(sell => {
