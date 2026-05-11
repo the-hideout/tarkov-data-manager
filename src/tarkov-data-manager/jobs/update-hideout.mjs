@@ -250,10 +250,6 @@ class UpdateHideoutJob extends DataJob {
                 for (const req of level.skillRequirements) {
                     req.skill = req.name;
                     delete req.name;
-                };
-                for (const req of level.skillRequirements) {
-                    req.skill = req.name;
-                    delete req.name;
                 }
                 for (const bonus of level.bonuses) {
                     if (!bonus.skillName) {
