@@ -6,6 +6,7 @@ import tarkovBot from './tarkov-bot.mjs';
 import spt from './tarkov-data-spt.mjs';
 import tarkovDevData from './tarkov-data-tarkov-dev.mjs';
 import sp from './tarkov-data-sp.mjs';
+import mData from './tarkov-data-md.mjs';
 import dataOptions from './data-options.mjs';
 
 const mainDataSource = tarkovChanges;
@@ -22,13 +23,20 @@ try {
 }
 
 function addManualTranslations(lang, langCode) {
-    if (!manualTranslations[langCode]) {
-        return lang;
+    try {
+        const legacyTranslation = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, '..', 'data', 'locale', `${langCode}.json`)));
+        lang = {
+            ...legacyTranslation,
+            ...lang,
+        };
+    } catch {}
+    if (manualTranslations[langCode]) {
+        lang = {
+            ...lang,
+            ...manualTranslations[langCode],
+        };
     }
-    return {
-        ...lang,
-        ...manualTranslations[langCode],
-    };
+    return lang;
 }
 
 const cachePath = (filename) => {
@@ -82,20 +90,19 @@ const dataFunctions = {
             return addManualTranslations(await mainDataSource.locale_en(options), lang);
         }
         //if (lang == 'ru') return tarkovBot.locale('ru', options);
-        return addManualTranslations(await spt.locale(lang, options), lang);
+        return addManualTranslations(await mData.locale(lang, options), lang);
     },
     locales: async (options = defaultOptions) => {
-        const oldLocales = await spt.localesOld(options);
         const [en, others] = await Promise.all([
             mainDataSource.locale_en(options).then(localeEn => {
-                return addManualTranslations({...oldLocales.en, ...localeEn}, 'en');
+                return addManualTranslations(localeEn, 'en');
             }),
             //addManualTranslations(tarkovBot.locale('ru', options), 'ru'),
-            spt.locales(options).then(async langs => {
+            mData.locales(options).then(async langs => {
                 const mergedLangs = {};
                 const langCodes = Object.keys(langs);
                 for (const langCode of langCodes) {
-                    mergedLangs[langCode] = addManualTranslations({...oldLocales[langCode], ...langs[langCode]}, langCode);
+                    mergedLangs[langCode] = addManualTranslations(langs[langCode], langCode);
                 }
                 return mergedLangs;
             }),

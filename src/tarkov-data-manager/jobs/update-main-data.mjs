@@ -2,6 +2,7 @@ import DataJob from '../modules/data-job.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import tarkovDevData from '../modules/tarkov-data-tarkov-dev.mjs';
 import gameModes from '../modules/game-modes.mjs';
+import mData from '../modules/tarkov-data-md.mjs';
 
 class UpdateMainDataJob extends DataJob {
     constructor(options) {
@@ -56,6 +57,10 @@ class UpdateMainDataJob extends DataJob {
                 return results;
             }));
         }
+        this.logger.log('Downloading languages...');
+        reqs.push(mData.locales({download: true}).then(locales => {
+            this.logger.success(`Downloaded languages: ${Object.keys(locales).join(', ')}`);
+        }));
         await Promise.all(reqs);
         this.logger.timeEnd('data-download');
         return returnValue;
