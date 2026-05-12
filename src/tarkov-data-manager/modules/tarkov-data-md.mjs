@@ -67,7 +67,7 @@ const jsonRequest = async (pathname, options) => {
         }
         options.attempt++;
         await sleep(1000, options.signal);
-        return jsonRequest(filename, options);
+        return jsonRequest(pathname, options);
     }
 };
 
