@@ -307,7 +307,10 @@ const presetData = {
         return id;
     },
     addJsonPreset: async (json) => {
-        const items = json.items ?? json._items;
+        const items = structuredClone(json.items ?? json._items);
+        if (items[0].upd?.StackObjectsCount) {
+            delete items[0].upd.StackObjectsCount;
+        }
         const existingPreset = presetData.findPreset(items);
         if (existingPreset) {
             return Promise.reject(new Error(`Specified preset already exists as ${existingPreset.id}`));
@@ -408,6 +411,9 @@ const presetData = {
         const results = await dbConnection.query('SELECT * from manual_preset');
         const dbPresets = {};
         results.forEach(p => {
+            if (p.items[0].upd?.StackObjectsCount) {
+                delete p.items[0].upd.StackObjectsCount;
+            }
             dbPresets[p.id] =  {
                 _id: p.id,
                 appendName: p.append_name,
@@ -534,6 +540,10 @@ const presetData = {
     findPreset: (items) => {
         if (!Array.isArray(items)) {
             throw new Error('findPreset requires an array of items');
+        }
+        items = structuredClone(items);
+        if (items[0].upd?.StackObjectsCount) {
+            delete items[0].upd.StackObjectsCount;
         }
         const allPresets = remoteData.getPresets();
         for (const preset of Object.values(allPresets)) {
