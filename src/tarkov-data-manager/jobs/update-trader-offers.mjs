@@ -1,5 +1,8 @@
 // updates trader barters and cash offers
 
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
 import DataJob from '../modules/data-job.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import remoteData from '../modules/remote-data.mjs';
@@ -182,9 +185,14 @@ class UpdateTraderOffersJob extends DataJob {
                 code: 'EUR',
             },
         };
-        [this.traderAssorts, this.items, this.credits] = await Promise.all([
+        [
+            this.traderAssorts,
+            this.items,
+            this.arenaSeasons,
+        ] = await Promise.all([
             this.jobManager.jobOutput('update-trader-assorts', this, 'regular', true),
             remoteData.get(),
+            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'arena-season-items.json')).then(json => JSON.parse(json)),
         ]);
         const dogtagPreset = this.items.get(remoteData.dogtagIds().any);
         const cashOfferData = {};
@@ -242,6 +250,7 @@ class UpdateTraderOffersJob extends DataJob {
                         this.logger.error(`Error checking quest unlock: ${error.message}`);
                     }
                 }
+                const arenaSeason = this.getArenaSeason(offer);
                 offer.items = offer.items.filter(offerItem => {
                     const bsgItem = this.bsgItems[offerItem._tpl];
                     if (!bsgItem) {
@@ -299,6 +308,12 @@ class UpdateTraderOffersJob extends DataJob {
                             stringValue: questUnlock.id,
                         });
                     }
+                    if (arenaSeason) {
+                        cashPrice.requirements.push({
+                            type: 'arenaSeason',
+                            value: arenaSeason,
+                        });
+                    }
                     if (!cashOffers[item.id]) {
                         cashOffers[item.id] = [];
                     }
@@ -336,6 +351,12 @@ class UpdateTraderOffersJob extends DataJob {
                             type: 'questCompleted',
                             value: questUnlock.tarkovDataId,
                             stringValue: questUnlock.id,
+                        });
+                    }
+                    if (arenaSeason) {
+                        barter.requirements.push({
+                            type: 'arenaSeason',
+                            value: arenaSeason,
                         });
                     }
                     for (const req of offer.requirements) {
@@ -481,6 +502,18 @@ class UpdateTraderOffersJob extends DataJob {
             return true;
         }
         return false;
+    }
+
+    getArenaSeason = (offer) => {
+        if (offer.user.id !== '6617beeaa9cfa777ca915b7c') {
+            // not ref
+            return;
+        }
+        for (const seasonString in this.arenaSeasons) {
+            if (this.arenaSeasons[seasonString].some(ids => ids.includes(offer.items[0]._tpl))) {
+                return parseInt(seasonString);
+            }
+        }
     }
 
     async updateStaticApi(cashData, barterData, gameMode) {
