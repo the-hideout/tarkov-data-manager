@@ -308,7 +308,7 @@ class UpdateTraderOffersJob extends DataJob {
                             stringValue: questUnlock.id,
                         });
                     }
-                    if (arenaSeason) {
+                    if (Number.isInteger(arenaSeason)) {
                         cashPrice.requirements.push({
                             type: 'arenaSeason',
                             value: arenaSeason,
@@ -353,7 +353,7 @@ class UpdateTraderOffersJob extends DataJob {
                             stringValue: questUnlock.id,
                         });
                     }
-                    if (arenaSeason) {
+                    if (Number.isInteger(arenaSeason)) {
                         barter.requirements.push({
                             type: 'arenaSeason',
                             value: arenaSeason,

@@ -206,7 +206,8 @@ class UpdateItemCacheJob extends DataJob {
                         count: count,
                         attributes: []
                     });
-                    if (!itemData[key].types.includes('noFlea')) {
+                    const roundItem = this.bsgItems[round];
+                    if (!roundItem._props.CanSellOnRagfair && !itemData[key].types.includes('noFlea')) {
                         itemData[key].types.push('noFlea');
                     }
                 }
