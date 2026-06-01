@@ -2383,6 +2383,7 @@ class UpdateQuestsJob extends DataJob {
                 '$.data.prestige[*].name',
                 '$.data.prestige[*].conditions[*].description',
                 '$.data.prestige[*].transferSettings[*].name',
+                '$data.prestige.*.rewards.customization.*.name',
             ]},
             {locale: data.locale},
         );
