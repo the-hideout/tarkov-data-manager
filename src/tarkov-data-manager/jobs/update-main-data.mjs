@@ -16,7 +16,10 @@ class UpdateMainDataJob extends DataJob {
         });
 
         const tradingService = services.find(s => s.name === 'Trading');
-        const scannersStatus = await tarkovDevData.scannersStatus();
+        const scannersStatus = await tarkovDevData.scannersStatus().catch(error => {
+            this.logger.error(`Error getting scanenrs status: ${error.message}`);
+            return {};
+        });
         const launchedScanners = Object.values(scannersStatus).reduce((total, scanner) => {
             const availableStatuses = [
                 'scanning',
