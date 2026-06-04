@@ -16,7 +16,10 @@ class UpdateMainDataJob extends DataJob {
         });
 
         const tradingService = services.find(s => s.name === 'Trading');
-        const scannersStatus = await tarkovDevData.scannersStatus();
+        const scannersStatus = await tarkovDevData.scannersStatus().catch(error => {
+            this.logger.error(`Error getting scanenrs status: ${error.message}`);
+            return {};
+        });
         const launchedScanners = Object.values(scannersStatus).reduce((total, scanner) => {
             const availableStatuses = [
                 'scanning',
@@ -60,6 +63,9 @@ class UpdateMainDataJob extends DataJob {
         this.logger.log('Downloading languages...');
         reqs.push(mData.locales({download: true}).then(locales => {
             this.logger.success(`Downloaded languages: ${Object.keys(locales).join(', ')}`);
+        }).catch(error => {
+            this.logger.error(`Error downloading languages: ${error.message}`);
+            this.addJobSummary(`Error downloading languages: ${error.message}`);
         }));
         await Promise.all(reqs);
         this.logger.timeEnd('data-download');
