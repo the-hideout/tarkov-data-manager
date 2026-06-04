@@ -363,5 +363,9 @@
     "67ee76bcfed6a800d605710c ShortName": "HDD",
     "67eebdbb48ccc289e30e692c Name": "武器涂装套件（绿系虎纹迷彩）",
     "67eebdbb48ccc289e30e692c Description": "包含喷漆罐与模板等全套涂装工具，可将武器喷涂成绿系虎纹迷彩。使用方法也相当简单：一贴、二喷、三剥！",
-    "67eebdbb48ccc289e30e692c ShortName": "绿系虎纹迷彩"
+    "67eebdbb48ccc289e30e692c ShortName": "绿系虎纹迷彩",
+    "bossBullyBlackDiv": "Black Div. Boss",
+    "bossWedge": "The Wedge",
+    "pmcBotBlackDiv": "Black Div. Raider",
+    "Polymer": "Polymer"
 }
