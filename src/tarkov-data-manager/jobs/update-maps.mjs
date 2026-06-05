@@ -10,7 +10,8 @@ import npcImageMaker from '../modules/npc-image-maker.mjs';
 import presetData from '../modules/preset-data.mjs';
 
 const enableMaps = [
-    '59fc81d786f774390775787e', // night factory
+    '55f2d3fd4bdc2d5f408b4567', // Factory
+    '59fc81d786f774390775787e', // Night Factory
     '6733700029c367a3d40b02af', // Labyrinth
     '5714dbc024597771384a510d', // Interchange
     '5704e4dad2720bb55b8b4567', // Lighthouse
@@ -21,6 +22,7 @@ const enableMaps = [
     '5b0fc42d86f7744a585f9105', // Labs
     //'65cc8f81a9aac3e77d0cfd3e', // Terminal with all bosses
     '6925a2c38bdebd9e2302692e', // Terminal with rotating bosses
+    '69af492a4819ea4ba10a69c5', // Icebreaker
 ];
 
 class UpdateMapsJob extends DataJob {
