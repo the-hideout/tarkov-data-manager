@@ -6953,9 +6953,7 @@
         "location_id": "69af492a4819ea4ba10a69c5",
         "locationName": "Icebreaker",
         "minPlayerLevel": 0,
-        "taskRequirements": [
-            []
-        ],
+        "taskRequirements": [],
         "traderRequirements": [],
         "objectives": [
             {
