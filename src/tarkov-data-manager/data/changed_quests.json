@@ -137,10 +137,80 @@
                 "minDurability": 0,
                 "foundInRaid": true,
                 "zones": []
+            },
+            {
+                "id": "6a084bc9ce9c4801ea14c706",
+                "description": "6a084bc9ce9c4801ea14c706",
+                "type": "giveItem",
+                "count": 1,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "item_id": "69f9d60b5de6674f08060f2a",
+                "item_name": "Dunduk floppy disk",
+                "item": "69f9d60b5de6674f08060f2a",
+                "items": [
+                    "69f9d60b5de6674f08060f2a"
+                ],
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true,
+                "zones": []
+            },
+            {
+                "id": "6a084c37c6b1ebf9df80c786",
+                "description": "6a084c37c6b1ebf9df80c786",
+                "type": "giveItem",
+                "count": 1,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "item_id": "69f9d547b98cc4120608692a",
+                "item_name": "DesmondPilak CD",
+                "item": "69f9d547b98cc4120608692a",
+                "items": [
+                    "69f9d547b98cc4120608692a"
+                ],
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true,
+                "zones": []
+            },
+            {
+                "id": "6a084c7cb25ea24598c24753",
+                "description": "6a084c7cb25ea24598c24753",
+                "type": "giveItem",
+                "count": 1,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "item_id": "69f9d319c906cd16da03b374",
+                "item_name": "SheefGG piggy bank",
+                "item": "69f9d319c906cd16da03b374",
+                "items": [
+                    "69f9d319c906cd16da03b374"
+                ],
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true,
+                "zones": []
             }
         ],
-        "__objectivesRemoved": [
-            "60d9d34e8a6f9a3731773f93"
+        "objectivesRemoved": [
+            "5c52da1086f7742fbb42a814",
+            "5c51c04286f77478be4009f5",
+            "5cb5df5586f7746ef82c17e8",
+            "5cb5df8486f7746ef82c17ea",
+            "5cb5de9c86f7746ef55dbc86",
+            "5c51c23a86f77478bb033466",
+            "5c51c25c86f77478bf5632af",
+            "5c51bf9a86f77478bf5632aa"
         ],
         "___objectiveIdsChanged": {
             "60e827faf09904268a4dbc41": "62a6ff004de19a4c3422ea5d",
@@ -167,13 +237,19 @@
                 "693c3a908ad994118b846d63": "Hand over the found in raid item: Nut Sack balaclava",
                 "693c3a9fc17c9edbfc58325a": "Hand over the found in raid item: Mazoni golden dumbbell",
                 "693c3aacf0cd3ec97007f2c1": "Hand over the found in raid item: Tigzresq splint",
-                "693c3ab82b0477e3de2b2312": "Hand over the found in raid item: Domontovich ushanka hat"
+                "693c3ab82b0477e3de2b2312": "Hand over the found in raid item: Domontovich ushanka hat",
+                "6a084bc9ce9c4801ea14c706": "Hand over the found in raid item: Dunduk floppy disk",
+                "6a084c37c6b1ebf9df80c786": "Hand over the found in raid item: DesmondPilak CD",
+                "6a084c7cb25ea24598c24753": "Hand over the found in raid item: SheefGG piggy bank"
             },
             "zh": {
                 "693c3a908ad994118b846d63": "上交战局中找到的物品：Nut Sack 巴拉克拉瓦头套",
                 "693c3a9fc17c9edbfc58325a": "上交战局中找到的物品：Mazoni 金色哑铃",
                 "693c3aacf0cd3ec97007f2c1": "上交战局中找到的物品：Tigzresq 夹板",
-                "693c3ab82b0477e3de2b2312": "上交战局中找到的物品：Domontovich 毛帽"
+                "693c3ab82b0477e3de2b2312": "上交战局中找到的物品：Domontovich 毛帽",
+                "6a084bc9ce9c4801ea14c706": "上交战局中找到的物品：Dunduk 软盘",
+                "6a084c37c6b1ebf9df80c786": "上交战局中找到的物品：DesmondPilak CD 专辑",
+                "6a084c7cb25ea24598c24753": "上交战局中找到的物品：SheefGG 存钱罐"
             }
         }
     },

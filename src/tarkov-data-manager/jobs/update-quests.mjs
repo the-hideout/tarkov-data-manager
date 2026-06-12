@@ -253,7 +253,7 @@ class UpdateQuestsJob extends DataJob {
                     quests.Task.push(quest);
                 } catch (error) {
                     this.logger.error(error);
-                    this.addJobSummary(`${quest.name} ${questId}\n${error.stack}`, 'Error Adding Missing Quest');
+                    this.addJobSummary(`${this.locales.en[quest.name]} ${questId}\n${error.stack}`, 'Error Adding Missing Quest');
                 }
             }
 
