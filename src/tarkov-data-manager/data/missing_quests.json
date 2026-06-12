@@ -6945,5 +6945,1176 @@
                 "69789660b2187365e70bb94d": "在竞技场任意模式击杀 75 名敌人"
             }
         }
+    },
+    "69ce1de03e15cd80bd06f6c9": {
+        "id": "69ce1de03e15cd80bd06f6c9",
+        "name": "Oil Change",
+        "trader": "54cb50c76803fa8b248b4571",
+        "location_id": "69af492a4819ea4ba10a69c5",
+        "locationName": "Icebreaker",
+        "minPlayerLevel": 0,
+        "taskRequirements": [],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "69ce1e2614b1a16885f61da4",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "699f09de81a6c812900a77b7",
+                "item_name": " AMG-10 hydraulic fluid",
+                "count": 2,
+                "item": "699f09de81a6c812900a77b7",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 330000,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [
+                {
+                    "id": "68aee763130c00663d08aea8-707265736574000000000021",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 1,
+                    "item": "707265736574000000000021",
+                    "item_name": "Kalashnikov AK-308 7.62x51 assault rifle RMR",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": [],
+                    "base_item_id": "68aee763130c00663d08aea8"
+                }
+            ],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 32000,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "69ce1e2614b1a16885f61da4": "Find the item in raid: AMG-10 hydraulic fluid"
+            },
+            "zh": {
+                "69ce1de03e15cd80bd06f6c9 name": "油料交换",
+                "69ce1e2614b1a16885f61da4": "在战局中找到物品：AMG-10 液压油"
+            }
+        }
+    },
+    "69ce204c8702b378f9091e4b": {
+        "id": "69ce204c8702b378f9091e4b",
+        "name": "War Never Changes",
+        "trader": "54cb57776803fa99248b456e",
+        "location_id": "69af492a4819ea4ba10a69c5",
+        "locationName": "Icebreaker",
+        "minPlayerLevel": 0,
+        "taskRequirements": [],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "69ce204c8702b378f9091e4d",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "69bb43df99f3fda8f1072483",
+                "item_name": "Nooby Shield potassium iodide tablets",
+                "count": 10,
+                "item": "69bb43df99f3fda8f1072483",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "637b620db7afa97bfc3d7009",
+                    "item_name": "Trimadol stimulant injector",
+                    "count": 5,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5d02797c86f774203f38e30a",
+                    "item_name": "Surv12 field surgical kit",
+                    "count": 2,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 250000,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 27000,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "69ce204c8702b378f9091e4d": "Find the item in raid: Nooby Shield potassium iodide tablets"
+            },
+            "zh": {
+                "69ce204c8702b378f9091e4b name": "战争从未改变",
+                "69ce204c8702b378f9091e4d": "在战局中找到物品：Nooby Shield 碘化钾片"
+            }
+        }
+    },
+    "69ce21e990144e437802b1e0": {
+        "id": "69ce21e990144e437802b1e0",
+        "name": "Fresh Stock",
+        "trader": "5ac3b934156ae10c4430e83c",
+        "location_id": "69af492a4819ea4ba10a69c5",
+        "locationName": "Icebreaker",
+        "minPlayerLevel": 0,
+        "taskRequirements": [],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "69ce21e990144e437802b1e2",
+                "type": "giveItem",
+                "optional": true,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "689479cb47e5acd1e10be986",
+                "item_name": "Ferro Concepts FCPC V5 Plate Carrier (Black Division)",
+                "count": 5,
+                "item": "689479cb47e5acd1e10be986",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "69ce21e990144e437802b1e2",
+                "type": "giveItem",
+                "optional": true,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "689479eb30cc5ba7be00f5ff",
+                "item_name": "Spiritus Systems LV-119 Plate Carrier (Black Division V2)",
+                "count": 5,
+                "item": "689479eb30cc5ba7be00f5ff",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "69ce21e990144e437802b1e2",
+                "type": "giveItem",
+                "optional": true,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "69e2441a18cb3157560855ec",
+                "item_name": "Spiritus Systems LV-119 Plate Carrier (MultiCam Black)",
+                "count": 5,
+                "item": "69e2441a18cb3157560855ec",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            },
+            {
+                "id": "69ce21e990144e437802b1e2",
+                "type": "giveItem",
+                "optional": true,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "68947a4be4bf255d1b0ca746",
+                "item_name": "First Spear Siege-R Optimized M.A.S.S. Plate Carrier (Black Division)",
+                "count": 5,
+                "item": "68947a4be4bf255d1b0ca746",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 300000,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [
+                {
+                    "id": "5f60c74e3b85f6263c145586-5ac3b934156ae10c4430e83c",
+                    "trader_id": "5ac3b934156ae10c4430e83c",
+                    "trader_name": "Ragman",
+                    "level": 1,
+                    "item": "5f60c74e3b85f6263c145586",
+                    "item_name": "Rys-T bulletproof helmet (Black)",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": [],
+                    "base_item_id": null
+                }
+            ],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 25000,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "69ce21e990144e437802b1e2": "Find the item in raid: Black Division plate carrier"
+            },
+            "zh": {
+                "69ce21e990144e437802b1e0 name": "新鲜到货",
+                "69ce21e990144e437802b1e2": "在战局中找到物品：黑色军团插板胸挂"
+            }
+        }
+    },
+    "69ce1cfb298a6529b30d712b": {
+        "id": "69ce1cfb298a6529b30d712b",
+        "name": "A Wedge Between Us",
+        "trader": "5c0647fdd443bc2504c2d371",
+        "location_id": "69af492a4819ea4ba10a69c5",
+        "locationName": "Icebreaker",
+        "minPlayerLevel": 0,
+        "taskRequirements": [],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "69ce1cfb298a6529b30d712d",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [
+                    "Icebreaker"
+                ],
+                "map_ids": [
+                    "69af492a4819ea4ba10a69c5"
+                ],
+                "target": "bossWedge",
+                "count": 4,
+                "shotType": "kill",
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            },
+            {
+                "id": "6a03343990ee160507db2294",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "69e2441a18cb3157560855ec",
+                "item_name": "Spiritus Systems LV-119 Plate Carrier (MultiCam Black)",
+                "count": 1,
+                "item": "69e2441a18cb3157560855ec",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "62973e474bb5ab23071c2a70",
+                    "item_name": "Accuracy International AXMC .338 LM bolt-action sniper rifle",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "657023ccbfc87b3a3409320a",
+                    "item_name": ".338 Lapua Magnum FMJ ammo pack (20 pcs)",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "628120fd5631d45211793c9f",
+                    "item_name": "AI AXMC .338 LM 10-round magazine",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 450000,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 52000,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "69ce1cfb298a6529b30d712d": "Locate and neutralize The Wedge's squad",
+                "6a03343990ee160507db2294": "Claim a trophy from The Wedge"
+            },
+            "zh": {
+                "69ce1cfb298a6529b30d712b name": "如楔在侧",
+                "69ce1cfb298a6529b30d712d": "找到并消灭 Wedge 小队",
+                "6a03343990ee160507db2294": "从 Wedge 身上取得战利品"
+            }
+        }
+    },
+    "69ce213a298a6529b30d7134": {
+        "id": "69ce213a298a6529b30d7134",
+        "name": "Biochemistry",
+        "trader": "54cb57776803fa99248b456e",
+        "location_id": "69af492a4819ea4ba10a69c5",
+        "locationName": "Icebreaker",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "69ce204c8702b378f9091e4b",
+                "name": "War Never Changes",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "69ce213a298a6529b30d7136",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "69bb435ff609db77390b0e25",
+                "item_name": "Aceso Xpress semi-automatic biochemical analyzer",
+                "count": 3,
+                "item": "69bb435ff609db77390b0e25",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": true
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 360000,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [
+                {
+                    "id": "59fb016586f7746d0d4b423a-54cb57776803fa99248b456e",
+                    "trader_id": "54cb57776803fa99248b456e",
+                    "trader_name": "PrTherapistapor",
+                    "level": 1,
+                    "item": "59fb016586f7746d0d4b423a",
+                    "item_name": "Money case",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": [],
+                    "base_item_id": null
+                }
+            ],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 32000,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "69ce213a298a6529b30d7136": "Find the item in raid: Aceso Xpress semi-automatic biochemical analyzer"
+            },
+            "zh": {
+                "69ce213a298a6529b30d7134 name": "生化分析",
+                "69ce213a298a6529b30d7136": "在战局中找到物品：Aceso Xpress 半自动生化分析仪"
+            }
+        }
+    },
+    "69ce1f84ebbdbf36a200627c": {
+        "id": "69ce1f84ebbdbf36a200627c",
+        "name": "Peaceful Atom",
+        "trader": "5935c25fb3acc3127c3d8cd9",
+        "location_id": "69af492a4819ea4ba10a69c5",
+        "locationName": "Icebreaker",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "69ce1de03e15cd80bd06f6c9",
+                "name": "Oil Change",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "69ce1f84ebbdbf36a200627e",
+                "type": "findQuestItem",
+                "optional": false,
+                "locationNames": [
+                    "Icebreaker"
+                ],
+                "map_ids": [
+                    "69af492a4819ea4ba10a69c5"
+                ],
+                "item_id": "69bb42b9ce2b96840302b92b",
+                "item_name": "Nuclear power unit control log",
+                "count": 1
+            },
+            {
+                "id": "69ce1f84ebbdbf36a200627f",
+                "type": "giveQuestItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "69bb42b9ce2b96840302b92b",
+                "item_name": "Nuclear power unit control log",
+                "count": 1
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "6193e590069d61205d490dd8",
+                    "item_name": "HK G28 7.62x51 marksman rifle",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "6769b8e3c1a1466c850658a8",
+                    "item_name": "7.62x51mm M80A1 ammo pack (20 pcs)",
+                    "count": 5,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "617131a4568c120fdd29482d",
+                    "item_name": "HK417/G28 7.62x51 20-round magazine",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5696686a4bdc2da3298b456a",
+                    "item_name": "Dollars",
+                    "count": 3600,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 24000,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "69ce1f84ebbdbf36a200627e": "Locate and obtain the nuclear power unit control log on Icebreaker",
+                "69ce1f84ebbdbf36a200627f": "Hand over the found item"
+            },
+            "zh": {
+                "69ce1f84ebbdbf36a200627c name": "和平原子",
+                "69ce1f84ebbdbf36a200627e": "在破冰船上找到并获取核反应单元控制日志",
+                "69ce1f84ebbdbf36a200627f": "上交找到的物品"
+            }
+        }
+    },
+    "69e5583240c3e6c8ba0edbd5": {
+        "id": "69e5583240c3e6c8ba0edbd5",
+        "name": "Wiring the Vessel",
+        "trader": "5935c25fb3acc3127c3d8cd9",
+        "location_id": "69af492a4819ea4ba10a69c5",
+        "locationName": "Icebreaker",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "69ce1f84ebbdbf36a200627c",
+                "name": "Peaceful Atom",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "69e5593e3f425636f1d762d9",
+                "type": "repair",
+                "optional": false,
+                "locationNames": [
+                    "Icebreaker"
+                ],
+                "map_ids": [
+                    "69af492a4819ea4ba10a69c5"
+                ],
+                "item": "590c2e1186f77425357b6124",
+                "item_name": "Toolset",
+                "count": 1,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "69e5594c6dd4d9e12fa3de0d",
+                "type": "repair",
+                "optional": false,
+                "locationNames": [
+                    "Icebreaker"
+                ],
+                "map_ids": [
+                    "69af492a4819ea4ba10a69c5"
+                ],
+                "item": "590c2e1186f77425357b6124",
+                "item_name": "Toolset",
+                "count": 1,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "69e559525afcf4e746e98e33",
+                "type": "repair",
+                "optional": false,
+                "locationNames": [
+                    "Icebreaker"
+                ],
+                "map_ids": [
+                    "69af492a4819ea4ba10a69c5"
+                ],
+                "item": "590c2e1186f77425357b6124",
+                "item_name": "Toolset",
+                "count": 1,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "69e559bf4b53b554a2779130",
+                "type": "plantItem",
+                "optional": false,
+                "locationNames": [
+                    "Icebreaker"
+                ],
+                "map_ids": [
+                    "69af492a4819ea4ba10a69c5"
+                ],
+                "item": "590c2e1186f77425357b6124",
+                "item_name": "Toolset",
+                "count": 1,
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "68e63a53371639e1e4004b6e",
+                    "item_name": "Local network hacking device",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "5696686a4bdc2da3298b456a",
+                    "item_name": "Dollars",
+                    "count": 5400,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [
+                {
+                    "id": "5d235bb686f77443f4331278-5935c25fb3acc3127c3d8cd9",
+                    "trader_id": "5935c25fb3acc3127c3d8cd9",
+                    "trader_name": "Peacekeeper",
+                    "level": 4,
+                    "item": "5d235bb686f77443f4331278",
+                    "item_name": "S I C C organizational pouch",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": [],
+                    "base_item_id": null
+                }
+            ],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 30000,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "69e5593e3f425636f1d762d9": "Repair the equipment in the automation room leading to the engine room on Icebreaker",
+                "69e5594c6dd4d9e12fa3de0d": "Repair the equipment in the automation room under the engine room on Icebreaker",
+                "69e559525afcf4e746e98e33": "Repair the equipment in the automation room near the storage room on Icebreaker",
+                "69e559bf4b53b554a2779130": "Install the hacking device in the central control station room on Icebreaker"
+            },
+            "zh": {
+                "69e5583240c3e6c8ba0edbd5 name": "窃听风暴",
+                "69e5593e3f425636f1d762d9": "修复破冰船通往轮机舱路上自动化控制室内的设备",
+                "69e5594c6dd4d9e12fa3de0d": "修复破冰船轮机舱下方自动化控制室内的设备",
+                "69e559525afcf4e746e98e33": "修复破冰船靠近货舱位置自动化控制室内的设备",
+                "69e559bf4b53b554a2779130": "在破冰船主控室内安放黑客入侵装置"
+            }
+        }
+    },
+    "69c26c07683c9831020018c7": {
+        "id": "69c26c07683c9831020018c7",
+        "name": "Stick to It",
+        "trader": "656f0f98d80a697f855d34b1",
+        "location_id": null,
+        "locationName": "any",
+        "minPlayerLevel": 0,
+        "taskRequirements": [],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "69c26dfeaa4283497aab0d36",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse",
+                    "Icebreaker"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567",
+                    "69af492a4819ea4ba10a69c5"
+                ],
+                "target": "Rogues",
+                "count": 30,
+                "shotType": "kill",
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "5d1b385e86f774252167b98a",
+                    "item_name": "Water filter",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 100000,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 25000,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "69c26dfeaa4283497aab0d36": "Eliminate Rogues"
+            },
+            "zh": {
+                "69c26c07683c9831020018c7 name": "坚持到底",
+                "69c26dfeaa4283497aab0d36": "消灭游荡者"
+            }
+        }
+    },
+    "69c27158e350f01390049e77": {
+        "id": "69c27158e350f01390049e77",
+        "name": "Saving Private Roman",
+        "trader": "656f0f98d80a697f855d34b1",
+        "location_id": null,
+        "locationName": "any",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "69c26c07683c9831020018c7",
+                "name": "Stick to It",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "69c2740bdbeade0b8e55eeea",
+                "type": "mark",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Woods"
+                ],
+                "map_ids": [
+                    "5704e3c2d2720bac5b8b4567"
+                ],
+                "zoneNames": [],
+                "item": "5991b51486f77447b112d44f",
+                "item_id": "5991b51486f77447b112d44f",
+                "item_name": "MS2000 Marker"
+            },
+            {
+                "id": "69c27425f79e528d73ed4b2e",
+                "type": "visit",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ]
+            },
+            {
+                "id": "69c2745137b8de0e367891c6",
+                "type": "mark",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "zoneNames": [],
+                "item": "5991b51486f77447b112d44f",
+                "item_id": "5991b51486f77447b112d44f",
+                "item_name": "MS2000 Marker"
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 42000,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "69c2740bdbeade0b8e55eeea": "Mark the transit to Lighthouse with an MS2000 Marker on Woods",
+                "69c27425f79e528d73ed4b2e": "Use the transit from Woods to Lighthouse",
+                "69c2745137b8de0e367891c6": "Mark the transit to Woods with an MS2000 Marker on Lighthouse"
+            },
+            "zh": {
+                "69c27158e350f01390049e77 name": "拯救大兵罗曼",
+                "69c2740bdbeade0b8e55eeea": "在森林使用 MS2000 指示器标记前往灯塔的转移点",
+                "69c27425f79e528d73ed4b2e": "使用转移功能从森林转移到灯塔",
+                "69c2745137b8de0e367891c6": "在灯塔使用 MS2000 指示器标记前往森林的转移点"
+            }
+        }
+    },
+    "69c277f3ea6da9c23e07f8d2": {
+        "id": "69c277f3ea6da9c23e07f8d2",
+        "name": "A Bitter Victory",
+        "trader": "656f0f98d80a697f855d34b1",
+        "location_id": null,
+        "locationName": "any",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "69c27158e350f01390049e77",
+                "name": "Saving Private Roman",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "69c27887c921a0bbeb1889f5",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5d1b376e86f774252519444e",
+                "item_name": "Bottle of Fierce Hatchling moonshine",
+                "count": 2,
+                "item": "5d1b376e86f774252519444e",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "69c27909f96f171f6982c4c7",
+                "type": "giveItem",
+                "optional": true,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "57347d3d245977448f7b7f61",
+                "item_name": "Rye croutons",
+                "count": 4,
+                "item": "57347d3d245977448f7b7f61",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "69c27909f96f171f6982c4c7",
+                "type": "giveItem",
+                "optional": true,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5751487e245977207e26a315",
+                "item_name": "Emelya rye croutons",
+                "count": 4,
+                "item": "5751487e245977207e26a315",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "69c278fff569bda0e2652705",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "5d40407c86f774318526545a",
+                "item_name": "Bottle of Tarkovskaya vodka",
+                "count": 4,
+                "item": "5d40407c86f774318526545a",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "69c278f14dc0363079d5bb40",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "635a758bfefc88a93f021b8a",
+                "item_name": "Salty Dog beef sausage",
+                "count": 2,
+                "item": "635a758bfefc88a93f021b8a",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [], 
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 30000,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "69c27887c921a0bbeb1889f5": "Hand over the item: Bottle of Fierce Hatchling moonshine",
+                "69c27909f96f171f6982c4c7": "Hand over the item: Rye croutons",
+                "69c278fff569bda0e2652705": "Hand over the item: Bottle of Tarkovskaya vodka",
+                "69c278f14dc0363079d5bb40": "Hand over the item: Salty Dog beef sausage",
+                "69c294f2bffe2159a3e4d56a": "Talk to the BTR Driver",
+                "6a102713a973fbe02db53bf1": "Survive and extract from the location"
+            },
+            "zh": {
+                "69c277f3ea6da9c23e07f8d2 name": "苦涩的胜利",
+                "69c27887c921a0bbeb1889f5": "获得物品：“凶狠跑刀崽”私酒",
+                "69c27909f96f171f6982c4c7": "上交物品：黑麦面包块",
+                "69c278fff569bda0e2652705": "上交物品：Tarkovskaya瓶装伏特加",
+                "69c278f14dc0363079d5bb40": "上交物品：咸狗牛肉肠",
+                "69c294f2bffe2159a3e4d56a": "与 BTR 司机对话",
+                "6a102713a973fbe02db53bf1": "以幸存状态撤离该区域"
+            }
+        }
+    },
+    "69c2a2d004de49c8f0055a3d": {
+        "id": "69c2a2d004de49c8f0055a3d",
+        "name": "Hangover",
+        "trader": "656f0f98d80a697f855d34b1",
+        "location_id": null,
+        "locationName": "any",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "69c277f3ea6da9c23e07f8d2",
+                "name": "A Bitter Victory",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "69c2a5ba8d7f2db5aff26bd2",
+                "type": "visit",
+                "optional": false,
+                "locationNames": [
+                    "Woods",
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5704e3c2d2720bac5b8b4567",
+                    "5714dc692459777137212e12"
+                ]
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 60000,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "69c2a5ba8d7f2db5aff26bd2": "Return to the BTR Driver and ask about the negotiations with the smugglers"
+            },
+            "zh": {
+                "69c2a2d004de49c8f0055a3d name": "宿醉",
+                "69c2a5ba8d7f2db5aff26bd2": "返回 BTR 司机处，了解司机和走私者的谈判情况"
+            }
+        }
     }
 }
