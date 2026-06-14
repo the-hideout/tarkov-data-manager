@@ -240,6 +240,11 @@ class UpdateTraderOffersJob extends DataJob {
                     this.logger.warn(`Skipping disabled item ${item.name} ${item.id} in offer ${offer._id}`);
                     continue;
                 }
+                if (offerIsStale(offer)) {
+                    const costItems = [...this.items.values()].filter(i => offer.requirements.some(r => r._tpl === i.id));
+                    this.logger.warn(`Stale offer (${offer._id}): ${item.name} for ${costItems.map(r => `${r.name}`).join(', ')}`);
+                    continue;
+                }
                 let questUnlock = null;
                 try {
                     questUnlock = this.getQuestUnlock(offer);
@@ -571,6 +576,19 @@ const unlockMatches = (offer, rewards) => {
         if (unlock.base_item_id && unlock.base_item_id === offer.items[0]._tpl) return unlock;
     }
     return false;
+};
+
+const offerIsStale = (offer) => {
+    const endTime = new Date(offer.endTime * 1000);
+    const now = new Date();
+    if (offer.requirements[0]._tpl === '57347baf24597738002c6178') {
+        //console.log(endTime, now, offer);
+    }
+    if (endTime > now) {
+        return false;
+    }
+    const maxDiff = 1000 * 60 * 60 * 12; // 12 hours
+    return now - endTime >= maxDiff;
 };
 
 export default UpdateTraderOffersJob;
