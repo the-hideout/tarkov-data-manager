@@ -587,7 +587,7 @@ const offerIsStale = (offer) => {
     if (endTime > now) {
         return false;
     }
-    const maxDiff = 1000 * 60 * 60 * 12; // 12 hours
+    const maxDiff = 1000 * 60 * 60 * 2; // 2 hours
     return now - endTime >= maxDiff;
 };
 
