@@ -240,6 +240,11 @@ class UpdateTraderOffersJob extends DataJob {
                     this.logger.warn(`Skipping disabled item ${item.name} ${item.id} in offer ${offer._id}`);
                     continue;
                 }
+                if (this.offerIsStale(offer)) {
+                    const costItems = [...this.items.values()].filter(i => offer.requirements.some(r => r._tpl === i.id));
+                    this.logger.warn(`Stale offer (${offer._id}): ${item.name} for ${costItems.map(r => `${r.name}`).join(', ')}`);
+                    continue;
+                }
                 let questUnlock = null;
                 try {
                     questUnlock = this.getQuestUnlock(offer);
@@ -559,6 +564,16 @@ class UpdateTraderOffersJob extends DataJob {
             delete barter.requirements;
         }
         await this.r2Put(`${gameMode}/barters`, {data: apiBarterData, translations: []});
+    }
+
+    offerIsStale(offer) {
+        const endTime = new Date(offer.endTime * 1000);
+        const scanTime = new Date(this.traderOffers.lastScannedEpoch * 1000);
+        if (endTime > scanTime) {
+            return false;
+        }
+        const maxDiff = 1000 * 60 * 60 * 2; // 2 hours
+        return scanTime - endTime >= maxDiff;
     }
 }
 

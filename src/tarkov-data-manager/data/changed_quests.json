@@ -4451,5 +4451,71 @@
                 "craftUnlock": []
             }
         }
+    },
+    "59c50a9e86f7745fef66f4ff": {
+        "name": "The Punisher - Part 1",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "655b78e3975a7f3c734661aa",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 3,
+                    "item": "5656d7c34bdc2d9d198b4587",
+                    "item_name": "7.62x39mm PS gzh",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "id": "5ac65e0c86f77403dd390d1a",
+                    "trader_id": "54cb50c76803fa8b248b4571",
+                    "trader_name": "Prapor",
+                    "level": 2,
+                    "item": "58414a16245977599247970a",
+                    "item_name": "SV-98 7.62x54R bolt-action sniper rifle Default",
+                    "count": 1,
+                    "contains": [
+                        {
+                            "item": "55801eed4bdc2d89578b4588",
+                            "count": 1,
+                            "attributes": []
+                        },
+                        {
+                            "item": "559ba5b34bdc2d1f1a8b4582",
+                            "count": 1,
+                            "attributes": []
+                        },
+                        {
+                            "item": "56083e1b4bdc2dc8488b4572",
+                            "count": 1,
+                            "attributes": []
+                        },
+                        {
+                            "item": "56083eab4bdc2d26448b456a",
+                            "count": 1,
+                            "attributes": []
+                        },
+                        {
+                            "item": "560e620e4bdc2d724b8b456b",
+                            "count": 1,
+                            "attributes": []
+                        },
+                        {
+                            "item": "61faa91878830f069b6b7967",
+                            "count": 1,
+                            "attributes": []
+                        },
+                        {
+                            "item": "56ea8222d2720b69698b4567",
+                            "count": 1,
+                            "attributes": []
+                        }
+                    ],
+                    "attributes": [],
+                    "base_item_id": "55801eed4bdc2d89578b4588"
+                }
+            ]
+        }
     }
 }

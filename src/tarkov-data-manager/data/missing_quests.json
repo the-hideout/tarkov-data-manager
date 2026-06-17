@@ -7578,7 +7578,7 @@
         "objectives": [
             {
                 "id": "69e5593e3f425636f1d762d9",
-                "type": "repair",
+                "type": "plantItem",
                 "optional": false,
                 "locationNames": [
                     "Icebreaker"
@@ -7596,7 +7596,7 @@
             },
             {
                 "id": "69e5594c6dd4d9e12fa3de0d",
-                "type": "repair",
+                "type": "plantItem",
                 "optional": false,
                 "locationNames": [
                     "Icebreaker"
@@ -7614,7 +7614,7 @@
             },
             {
                 "id": "69e559525afcf4e746e98e33",
-                "type": "repair",
+                "type": "plantItem",
                 "optional": false,
                 "locationNames": [
                     "Icebreaker"
@@ -7640,8 +7640,8 @@
                 "map_ids": [
                     "69af492a4819ea4ba10a69c5"
                 ],
-                "item": "590c2e1186f77425357b6124",
-                "item_name": "Toolset",
+                "item": "68e63a53371639e1e4004b6e",
+                "item_name": "Local network hacking device",
                 "count": 1,
                 "dogTagLevel": 0,
                 "maxDurability": 100,
@@ -7680,7 +7680,7 @@
                     "id": "5d235bb686f77443f4331278-5935c25fb3acc3127c3d8cd9",
                     "trader_id": "5935c25fb3acc3127c3d8cd9",
                     "trader_name": "Peacekeeper",
-                    "level": 4,
+                    "level": 1,
                     "item": "5d235bb686f77443f4331278",
                     "item_name": "S I C C organizational pouch",
                     "count": 1,
