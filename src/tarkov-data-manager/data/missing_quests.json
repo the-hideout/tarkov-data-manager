@@ -3424,27 +3424,10 @@
         "gameMode": ["regular"],
         "location_id": "5b0fc42d86f7744a585f9105",
         "locationName": "The Lab",
-        "minPlayerLevel": 55,
+        "minPlayerLevel": 25,
         "taskRequirements": [],
         "traderRequirements": [],
         "objectives": [
-            {
-                "id": "6848100b00afffa81f09e36b",
-                "type": "extract",
-                "count": 1,
-                "optional": false,
-                "locationNames": [
-                    "The Lab"
-                ],
-                "map_ids": [
-                    "5b0fc42d86f7744a585f9105"
-                ],
-                "zoneNames": [],
-                "exitStatus": [
-                    "Survived"
-                ],
-                "zones": []
-            },
             {
                 "id": "6761f93bc757eb8c228fa754",
                 "type": "shoot",
@@ -3465,19 +3448,47 @@
                 "playerHealthEffect": null
             },
             {
+                "id": "6848100b00afffa81f09e36b",
+                "type": "extract",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "The Lab"
+                ],
+                "map_ids": [
+                    "5b0fc42d86f7744a585f9105"
+                ],
+                "zoneNames": [],
+                "exitStatus": [
+                    "Survived"
+                ],
+                "zones": []
+            },
+            {
                 "id": "6761f6f1bacf72169272e381",
                 "type": "giveItem",
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
+                "zoneNames": [],
                 "item_id": "655c652d60d0ac437100fed7",
                 "item_name": "BEAR operative figurine",
-                "count": 1,
+				"count": 1,
                 "item": "655c652d60d0ac437100fed7",
+                "items": [
+                    "655c652d60d0ac437100fed7",
+					"655c663a6689c676ce57af85",
+                    "66572b8d80b1cd4b6a67847f",
+                    "68f26124b84c6e1f8a09cfff",
+                    "6841b6b674a3c16f5e03d653",
+                    "68f11224197b61ffe703b16f",
+                    "697cddb414e932098005748d"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": false
+                "foundInRaid": false,
+                "zones": []
             },
             {
                 "id": "6761f7d086fd2d9c941b8aa3",
@@ -3485,14 +3496,24 @@
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
-                "item_id": "655c66e40b2de553b618d4b8",
-                "item_name": "Politician Mutkevich figurine",
-                "count": 1,
-                "item": "655c66e40b2de553b618d4b8",
+                "zoneNames": [],
+                "item_id": "655c673673a43e23e857aebd",
+                "item_name": "Scav figurine",
+				"count": 1,
+                "item": "655c673673a43e23e857aebd",
+                "items": [
+                    "655c673673a43e23e857aebd",
+					"655c67782a1356436041c9c5",
+                    "655c66e40b2de553b618d4b8",
+                    "68f261f6928cd23ddf0471fd",
+                    "690c70a2a1461a01d605a1bd",
+                    "68f260d7b84c6e1f8a09cffd"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": false
+                "foundInRaid": false,
+                "zones": []
             },
             {
                 "id": "6761f7f87b309912d6b5f2a9",
@@ -3500,104 +3521,23 @@
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
+                "zoneNames": [],
                 "item_id": "66572c82ad599021091c6118",
                 "item_name": "Killa figurine",
-                "count": 1,
+				"count": 1,
                 "item": "66572c82ad599021091c6118",
+                "items": [
+                    "66572c82ad599021091c6118",
+					"66572cbdad599021091c611a",
+                    "66572be36a723f7f005a066e",
+                    "655c67ab0d37ca5135388f4b",
+                    "655c669103999d3c810c025b"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": false
-            },
-            {
-                "id": "6761f80838201b0588f39a07",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "66572be36a723f7f005a066e",
-                "item_name": "Reshala figurine",
-                "count": 1,
-                "item": "66572be36a723f7f005a066e",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": false
-            },
-            {
-                "id": "6761f817d42b2f3a242de658",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c67782a1356436041c9c5",
-                "item_name": "Ryzhy figurine",
-                "count": 1,
-                "item": "655c67782a1356436041c9c5",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": false
-            },
-            {
-                "id": "6761f826d5b89d2d15b53eca",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c673673a43e23e857aebd",
-                "item_name": "Scav figurine",
-                "count": 1,
-                "item": "655c673673a43e23e857aebd",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": false
-            },
-            {
-                "id": "6761f838d641d60f18a45e1f",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "66572cbdad599021091c611a",
-                "item_name": "Tagilla figurine",
-                "count": 1,
-                "item": "66572cbdad599021091c611a",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": false
-            },
-            {
-                "id": "6761f85183d342080d39ca98",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c663a6689c676ce57af85",
-                "item_name": "USEC operative figurine",
-                "count": 1,
-                "item": "655c663a6689c676ce57af85",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": false
-            },
-            {
-                "id": "6761f862c1ba6ee8e161d3d6",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c669103999d3c810c025b",
-                "item_name": "Cultist figurine",
-                "count": 1,
-                "item": "655c669103999d3c810c025b",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": false
+                "foundInRaid": false,
+                "zones": []
             },
             {
                 "id": "6761f87227aeff895cef62c5",
@@ -3605,14 +3545,29 @@
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
-                "item_id": "66572b8d80b1cd4b6a67847f",
-                "item_name": "Den figurine",
-                "count": 1,
-                "item": "66572b8d80b1cd4b6a67847f",
+                "zoneNames": [],
+                "item_id": "68f25c64b2b53abd200b954f",
+                "item_name": "Prapor figurine",
+				"count": 1,
+                "item": "68f25c64b2b53abd200b954f",
+                "items": [
+                    "68f25c64b2b53abd200b954f",
+					"68f25ce9b2b53abd200b9551",
+                    "68f25da3b84c6e1f8a09cffb",
+                    "68f25eba19a2b503d70dc28f",
+                    "68f25eef19a2b503d70dc291",
+                    "68f25f1201fb9de974058be4",
+                    "68f25f3a5d977110860c3350",
+                    "68f25faa22c8979ee308f4da",
+                    "68f25fdf928cd23ddf0471fb",
+                    "68f26063b2b53abd200b9553",
+                    "68f2608301fb9de974058be6"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": false
+                "foundInRaid": false,
+                "zones": []
             }
         ],
         "startRewards": {
@@ -3662,20 +3617,23 @@
         "tarkovDataId": null,
         "factionName": "Any",
         "locale": {
-            "de": {
+            "en": {
                 "6761f28a022f60bb320f3e95 name": "Neuanfang",
-                "6848100b00afffa81f09e36b": "Benutze den Transit von Labs nach Streets of Tarkov",
-                "6761f93bc757eb8c228fa754": "Eliminiere Scavs",
-                "6761f6f1bacf72169272e381": "Übergib den Gegenstand: BEAR-Operator-Figur",
-                "6761f7d086fd2d9c941b8aa3": "Übergib den Gegenstand: Politiker-Mutkevich-Figur",
-                "6761f7f87b309912d6b5f2a9": "Übergib den Gegenstand: Killa-Figur",
-                "6761f80838201b0588f39a07": "Übergib den Gegenstand: Reshala-Figur",
-                "6761f817d42b2f3a242de658": "Übergib den Gegenstand: Ryzhy-Figur",
-                "6761f826d5b89d2d15b53eca": "Übergib den Gegenstand: Scav-Figur",
-                "6761f838d641d60f18a45e1f": "Übergib den Gegenstand: Tagilla-Figur",
-                "6761f85183d342080d39ca98": "Übergib den Gegenstand: USEC-Operator-Figur",
-                "6761f862c1ba6ee8e161d3d6": "Übergib den Gegenstand: Kultisten-Figur",
-                "6761f87227aeff895cef62c5": "Übergib den Gegenstand: Den-Figur"
+                "6761f93bc757eb8c228fa754": "Eliminate Scavs",
+                "6761f9d718fa62aac3264ff2": "Survive and extract from The Lab",
+                "6761f6f1bacf72169272e381": "Hand over any PMC figurine",
+                "6761f7d086fd2d9c941b8aa3": "Hand over any Scav figurine",
+                "6761f7f87b309912d6b5f2a9": "Hand over any Boss figurine",
+                "6761f87227aeff895cef62c5": "Hand over any Trader figurine"
+            },
+            "zh": {
+                "6761f28a022f60bb320f3e95 name": "新起点",
+                "6761f93bc757eb8c228fa754": "消灭 Scav",
+                "6761f9d718fa62aac3264ff2": "以幸存状态撤离实验室",
+                "6761f6f1bacf72169272e381": "上交任意样式的 PMC 玩偶",
+                "6761f7d086fd2d9c941b8aa3": "上交任意 Scav 玩偶",
+                "6761f7f87b309912d6b5f2a9": "上交任意 Boss 玩偶",
+                "6761f87227aeff895cef62c5": "上交任意 商人 玩偶"
             }
         }
     },
@@ -3686,13 +3644,32 @@
         "gameMode": ["regular"],
         "location_id": "5b0fc42d86f7744a585f9105",
         "locationName": "The Lab",
-        "minPlayerLevel": 55,
+        "minPlayerLevel": 30,
         "requiredPrestige": "672df12f97f0469cea52f55e",
         "taskRequirements": [],
         "traderRequirements": [],
         "objectives": [
             {
-                "id": "6761f9d718fa62aac3264ff2",
+                "id": "6762015739c53fca8ac51336",
+                "type": "shoot",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "target": "AnyPmc",
+                "count": 10,
+                "shotType": "kill",
+                "usingWeapon": [],
+                "usingWeaponMods": [],
+                "zoneNames": [],
+                "distance": null,
+                "wearing": [],
+                "notWearing": [],
+                "healthEffect": null,
+                "enemyHealthEffect": null,
+                "playerHealthEffect": null
+            },
+            {
+                "id": "6761ff17cdc36bd66102e9d6",
                 "type": "extract",
                 "count": 1,
                 "optional": false,
@@ -3709,38 +3686,30 @@
                 "zones": []
             },
             {
-                "id": "6762015739c53fca8ac51336",
-                "type": "shoot",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "target": "AnyPmc",
-                "count": 15,
-                "shotType": "kill",
-                "usingWeapon": [],
-                "usingWeaponMods": [],
-                "zoneNames": [],
-                "distance": null,
-                "wearing": [],
-                "notWearing": [],
-                "healthEffect": null,
-                "enemyHealthEffect": null,
-                "playerHealthEffect": null
-            },
-            {
                 "id": "6761ff17cdc36bd66102e9d8",
                 "type": "giveItem",
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
+                "zoneNames": [],
                 "item_id": "655c652d60d0ac437100fed7",
                 "item_name": "BEAR operative figurine",
-                "count": 1,
+				"count": 2,
                 "item": "655c652d60d0ac437100fed7",
+                "items": [
+                    "655c652d60d0ac437100fed7",
+					"655c663a6689c676ce57af85",
+                    "66572b8d80b1cd4b6a67847f",
+                    "68f26124b84c6e1f8a09cfff",
+                    "6841b6b674a3c16f5e03d653",
+                    "68f11224197b61ffe703b16f",
+                    "697cddb414e932098005748d"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": true
+                "foundInRaid": true,
+                "zones": []
             },
             {
                 "id": "6761ff17cdc36bd66102e9d9",
@@ -3748,14 +3717,24 @@
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
-                "item_id": "655c66e40b2de553b618d4b8",
-                "item_name": "Politician Mutkevich figurine",
-                "count": 1,
-                "item": "655c66e40b2de553b618d4b8",
+                "zoneNames": [],
+                "item_id": "655c673673a43e23e857aebd",
+                "item_name": "Scav figurine",
+				"count": 2,
+                "item": "655c673673a43e23e857aebd",
+                "items": [
+                    "655c673673a43e23e857aebd",
+					"655c67782a1356436041c9c5",
+                    "655c66e40b2de553b618d4b8",
+                    "68f261f6928cd23ddf0471fd",
+                    "690c70a2a1461a01d605a1bd",
+                    "68f260d7b84c6e1f8a09cffd"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": true
+                "foundInRaid": true,
+                "zones": []
             },
             {
                 "id": "6761ff17cdc36bd66102e9da",
@@ -3763,104 +3742,23 @@
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
+                "zoneNames": [],
                 "item_id": "66572c82ad599021091c6118",
                 "item_name": "Killa figurine",
-                "count": 1,
+				"count": 2,
                 "item": "66572c82ad599021091c6118",
+                "items": [
+                    "66572c82ad599021091c6118",
+					"66572cbdad599021091c611a",
+                    "66572be36a723f7f005a066e",
+                    "655c67ab0d37ca5135388f4b",
+                    "655c669103999d3c810c025b"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "6761ff17cdc36bd66102e9db",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "66572be36a723f7f005a066e",
-                "item_name": "Reshala figurine",
-                "count": 1,
-                "item": "66572be36a723f7f005a066e",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "6761ff17cdc36bd66102e9dc",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c67782a1356436041c9c5",
-                "item_name": "Ryzhy figurine",
-                "count": 1,
-                "item": "655c67782a1356436041c9c5",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "6761ff17cdc36bd66102e9dd",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c673673a43e23e857aebd",
-                "item_name": "Scav figurine",
-                "count": 1,
-                "item": "655c673673a43e23e857aebd",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "6761ff17cdc36bd66102e9de",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "66572cbdad599021091c611a",
-                "item_name": "Tagilla figurine",
-                "count": 1,
-                "item": "66572cbdad599021091c611a",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "6761ff17cdc36bd66102e9df",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c663a6689c676ce57af85",
-                "item_name": "USEC operative figurine",
-                "count": 1,
-                "item": "655c663a6689c676ce57af85",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "6761ff17cdc36bd66102e9e0",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c669103999d3c810c025b",
-                "item_name": "Cultist figurine",
-                "count": 1,
-                "item": "655c669103999d3c810c025b",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
+                "foundInRaid": true,
+                "zones": []
             },
             {
                 "id": "6761ff17cdc36bd66102e9e1",
@@ -3868,14 +3766,29 @@
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
-                "item_id": "66572b8d80b1cd4b6a67847f",
-                "item_name": "Den figurine",
-                "count": 1,
-                "item": "66572b8d80b1cd4b6a67847f",
+                "zoneNames": [],
+                "item_id": "68f25c64b2b53abd200b954f",
+                "item_name": "Prapor figurine",
+				"count": 2,
+                "item": "68f25c64b2b53abd200b954f",
+                "items": [
+                    "68f25c64b2b53abd200b954f",
+					"68f25ce9b2b53abd200b9551",
+                    "68f25da3b84c6e1f8a09cffb",
+                    "68f25eba19a2b503d70dc28f",
+                    "68f25eef19a2b503d70dc291",
+                    "68f25f1201fb9de974058be4",
+                    "68f25f3a5d977110860c3350",
+                    "68f25faa22c8979ee308f4da",
+                    "68f25fdf928cd23ddf0471fb",
+                    "68f26063b2b53abd200b9553",
+                    "68f2608301fb9de974058be6"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": true
+                "foundInRaid": true,
+                "zones": []
             }
         ],
         "startRewards": {
@@ -3925,20 +3838,23 @@
         "tarkovDataId": null,
         "factionName": "Any",
         "locale": {
-            "de": {
+            "en": {
                 "6761ff17cdc36bd66102e9d0 name": "Neuanfang",
-                "6761f9d718fa62aac3264ff2": "Überlebe und entkomme aus Labs",
-                "6762015739c53fca8ac51336": "Eliminiere PMC-Operatoren",
-                "6761ff17cdc36bd66102e9d8": "Übergib den im Raid gefundenen Gegenstand: BEAR-Operator-Figur",
-                "6761ff17cdc36bd66102e9d9": "Übergib den im Raid gefundenen Gegenstand: Politiker-Mutkevich-Figur",
-                "6761ff17cdc36bd66102e9da": "Übergib den im Raid gefundenen Gegenstand: Killa-Figur",
-                "6761ff17cdc36bd66102e9db": "Übergib den im Raid gefundenen Gegenstand: Reshala-Figur",
-                "6761ff17cdc36bd66102e9dc": "Übergib den im Raid gefundenen Gegenstand: Ryzhy-Figur",
-                "6761ff17cdc36bd66102e9dd": "Übergib den im Raid gefundenen Gegenstand: Scav-Figur",
-                "6761ff17cdc36bd66102e9de": "Übergib den im Raid gefundenen Gegenstand: Tagilla-Figur",
-                "6761ff17cdc36bd66102e9df": "Übergib den im Raid gefundenen Gegenstand: USEC-Operator-Figur",
-                "6761ff17cdc36bd66102e9e0": "Übergib den im Raid gefundenen Gegenstand: Kultisten-Figur",
-                "6761ff17cdc36bd66102e9e1": "Übergib den im Raid gefundenen Gegenstand: Den-Figur"
+                "6762015739c53fca8ac51336": "Eliminate PMC operatives",
+                "6761ff17cdc36bd66102e9d6": "Survive and extract from The Lab",
+                "6761ff17cdc36bd66102e9d8": "Hand over any found in raid PMC figurine",
+                "6761ff17cdc36bd66102e9d9": "Hand over any found in raid Scav figurine",
+                "6761ff17cdc36bd66102e9da": "Hand over any found in raid Boss figurine",
+                "6761ff17cdc36bd66102e9e1": "Hand over any found in raid Trader figurine"
+            },
+            "zh": {
+                "6761ff17cdc36bd66102e9d0 name": "新起点",
+                "6762015739c53fca8ac51336": "消灭 PMC 行动人员",
+                "6761ff17cdc36bd66102e9d6": "以幸存状态撤离实验室",
+                "6761ff17cdc36bd66102e9d8": "上交任意在战局中找到的 PMC 玩偶",
+                "6761ff17cdc36bd66102e9d9": "上交任意在战局中找到的 Scav 玩偶",
+                "6761ff17cdc36bd66102e9da": "上交任意在战局中找到的 Boss 玩偶",
+                "6761ff17cdc36bd66102e9e1": "上交任意在战局中找到的 商人 玩偶"
             }
         }
     },
@@ -3949,7 +3865,7 @@
         "gameMode": ["regular"],
         "location_id": null,
         "locationName": "any",
-        "minPlayerLevel": 55,
+        "minPlayerLevel": 35,
         "requiredPrestige": "672df4281ab8d9c8849a0c88",
         "taskRequirements": [],
         "traderRequirements": [],
@@ -3961,7 +3877,7 @@
                 "locationNames": [],
                 "map_ids": [],
                 "target": "AnyPmc",
-                "count": 25,
+                "count": 15,
                 "shotType": "kill",
                 "usingWeapon": [],
                 "usingWeaponMods": [],
@@ -3980,7 +3896,7 @@
                 "locationNames": [],
                 "map_ids": [],
                 "target": "PmcBot",
-                "count": 50,
+                "count": 20,
                 "shotType": "kill",
                 "usingWeapon": [],
                 "usingWeaponMods": [],
@@ -3993,7 +3909,7 @@
                 "playerHealthEffect": null
             },
             {
-                "id": "6848116061809d65b8503617",
+                "id": "6848100b00afffa81f09e36b",
                 "type": "extract",
                 "count": 1,
                 "optional": false,
@@ -4002,13 +3918,26 @@
                     "Strets of Tarkov"
                 ],
                 "map_ids": [
-                    "5714dc692459777137212e12",
+                    "5b0fc42d86f7744a585f9105",
                     "5714dc692459777137212e12"
                 ],
                 "zoneNames": [],
-                "exitStatus": [
-                    "marathon Name"
+                "exitStatus": [],
+                "zones": []
+            },
+            {
+                "id": "6848116061809d65b8503617",
+                "type": "extract",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Strets of Tarkov"
                 ],
+                "map_ids": [
+                    "5714dc692459777137212e12"
+                ],
+                "zoneNames": [],
+                "exitStatus": [],
                 "zones": []
             },
             {
@@ -4017,14 +3946,25 @@
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
+                "zoneNames": [],
                 "item_id": "655c652d60d0ac437100fed7",
                 "item_name": "BEAR operative figurine",
-                "count": 1,
+				"count": 3,
                 "item": "655c652d60d0ac437100fed7",
+                "items": [
+                    "655c652d60d0ac437100fed7",
+					"655c663a6689c676ce57af85",
+                    "66572b8d80b1cd4b6a67847f",
+                    "68f26124b84c6e1f8a09cfff",
+                    "6841b6b674a3c16f5e03d653",
+                    "68f11224197b61ffe703b16f",
+                    "697cddb414e932098005748d"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": true
+                "foundInRaid": true,
+                "zones": []
             },
             {
                 "id": "6848100b00afffa81f09e36e",
@@ -4032,14 +3972,24 @@
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
-                "item_id": "655c66e40b2de553b618d4b8",
-                "item_name": "Politician Mutkevich figurine",
-                "count": 1,
-                "item": "655c66e40b2de553b618d4b8",
+                "zoneNames": [],
+                "item_id": "655c673673a43e23e857aebd",
+                "item_name": "Scav figurine",
+				"count": 3,
+                "item": "655c673673a43e23e857aebd",
+                "items": [
+                    "655c673673a43e23e857aebd",
+					"655c67782a1356436041c9c5",
+                    "655c66e40b2de553b618d4b8",
+                    "68f261f6928cd23ddf0471fd",
+                    "690c70a2a1461a01d605a1bd",
+                    "68f260d7b84c6e1f8a09cffd"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": true
+                "foundInRaid": true,
+                "zones": []
             },
             {
                 "id": "6848100b00afffa81f09e36f",
@@ -4047,104 +3997,23 @@
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
+                "zoneNames": [],
                 "item_id": "66572c82ad599021091c6118",
                 "item_name": "Killa figurine",
-                "count": 1,
+				"count": 3,
                 "item": "66572c82ad599021091c6118",
+                "items": [
+                    "66572c82ad599021091c6118",
+					"66572cbdad599021091c611a",
+                    "66572be36a723f7f005a066e",
+                    "655c67ab0d37ca5135388f4b",
+                    "655c669103999d3c810c025b"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "6848100b00afffa81f09e370",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "66572be36a723f7f005a066e",
-                "item_name": "Reshala figurine",
-                "count": 1,
-                "item": "66572be36a723f7f005a066e",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "6848100b00afffa81f09e371",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c67782a1356436041c9c5",
-                "item_name": "Ryzhy figurine",
-                "count": 1,
-                "item": "655c67782a1356436041c9c5",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "6848100b00afffa81f09e372",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c673673a43e23e857aebd",
-                "item_name": "Scav figurine",
-                "count": 1,
-                "item": "655c673673a43e23e857aebd",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "6848100b00afffa81f09e373",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "66572cbdad599021091c611a",
-                "item_name": "Tagilla figurine",
-                "count": 1,
-                "item": "66572cbdad599021091c611a",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "6848100b00afffa81f09e374",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c663a6689c676ce57af85",
-                "item_name": "USEC operative figurine",
-                "count": 1,
-                "item": "655c663a6689c676ce57af85",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "6848100b00afffa81f09e375",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c669103999d3c810c025b",
-                "item_name": "Cultist figurine",
-                "count": 1,
-                "item": "655c669103999d3c810c025b",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
+                "foundInRaid": true,
+                "zones": []
             },
             {
                 "id": "6848100b00afffa81f09e376",
@@ -4152,14 +4021,29 @@
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
-                "item_id": "66572b8d80b1cd4b6a67847f",
-                "item_name": "Den figurine",
-                "count": 1,
-                "item": "66572b8d80b1cd4b6a67847f",
+                "zoneNames": [],
+                "item_id": "68f25c64b2b53abd200b954f",
+                "item_name": "Prapor figurine",
+				"count": 3,
+                "item": "68f25c64b2b53abd200b954f",
+                "items": [
+                    "68f25c64b2b53abd200b954f",
+					"68f25ce9b2b53abd200b9551",
+                    "68f25da3b84c6e1f8a09cffb",
+                    "68f25eba19a2b503d70dc28f",
+                    "68f25eef19a2b503d70dc291",
+                    "68f25f1201fb9de974058be4",
+                    "68f25f3a5d977110860c3350",
+                    "68f25faa22c8979ee308f4da",
+                    "68f25fdf928cd23ddf0471fb",
+                    "68f26063b2b53abd200b9553",
+                    "68f2608301fb9de974058be6"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": true
+                "foundInRaid": true,
+                "zones": []
             }
         ],
         "startRewards": {
@@ -4216,21 +4100,27 @@
         "tarkovDataId": null,
         "factionName": "Any",
         "locale": {
-            "de": {
+            "en": {
                 "6848100b00afffa81f09e365 name": "Neuanfang",
-                "6848100b00afffa81f09e369": "Eliminiere PMC-Operatoren",
-                "684812156189183883f13947": "Eliminiere Raider",
-                "6848116061809d65b8503617": "Überlebe und entkomme aus Streets of Tarkov",
-                "6848100b00afffa81f09e36d": "Übergib den im Raid gefundenen Gegenstand: BEAR-Operator-Figur",
-                "6848100b00afffa81f09e36e": "Übergib den im Raid gefundenen Gegenstand: Politiker-Mutkevich-Figur",
-                "6848100b00afffa81f09e36f": "Übergib den im Raid gefundenen Gegenstand: Killa-Figur",
-                "6848100b00afffa81f09e370": "Übergib den im Raid gefundenen Gegenstand: Reshala-Figur",
-                "6848100b00afffa81f09e371": "Übergib den im Raid gefundenen Gegenstand: Ryzhy-Figur",
-                "6848100b00afffa81f09e372": "Übergib den im Raid gefundenen Gegenstand: Scav-Figur",
-                "6848100b00afffa81f09e373": "Übergib den im Raid gefundenen Gegenstand: Tagilla-Figur",
-                "6848100b00afffa81f09e374": "Übergib den im Raid gefundenen Gegenstand: USEC-Operator-Figur",
-                "6848100b00afffa81f09e375": "Übergib den im Raid gefundenen Gegenstand: Kultisten-Figur",
-                "6848100b00afffa81f09e376": "Übergib den im Raid gefundenen Gegenstand: Den-Figur"
+                "6848100b00afffa81f09e369": "Eliminate PMC operatives",
+                "684812156189183883f13947": "Eliminate Raiders",
+                "6848100b00afffa81f09e36b": "Use the transit from The Lab to Streets of Tarkov",
+                "6848116061809d65b8503617": "Survive and extract from Streets of Tarkov",
+                "6848100b00afffa81f09e36d": "Hand over any found in raid PMC figurine",
+                "6848100b00afffa81f09e36e": "Hand over any found in raid Scav figurine",
+                "6848100b00afffa81f09e36f": "Hand over any found in raid Boss figurine",
+                "6848100b00afffa81f09e376": "Hand over any found in raid Trader figurine"
+            },
+            "zh": {
+                "6848100b00afffa81f09e365 name": "新起点",
+                "6848100b00afffa81f09e369": "消灭 PMC 行动人员",
+                "684812156189183883f13947": "消灭 掠夺者",
+                "6848100b00afffa81f09e36b": "使用转移功能从实验室转移到塔科夫街区",
+                "6848116061809d65b8503617": "以幸存状态撤离塔科夫街区",
+                "6848100b00afffa81f09e36d": "上交任意在战局中找到的 PMC 玩偶",
+                "6848100b00afffa81f09e36e": "上交任意在战局中找到的 Scav 玩偶",
+                "6848100b00afffa81f09e36f": "上交任意在战局中找到的 Boss 玩偶",
+                "6848100b00afffa81f09e376": "上交任意在战局中找到的 商人 玩偶"
             }
         }
     },
@@ -4241,7 +4131,7 @@
         "gameMode": ["regular"],
         "location_id": null,
         "locationName": "any",
-        "minPlayerLevel": 55,
+        "minPlayerLevel": 40,
         "requiredPrestige": "683da91d6f472cfa738c52f2",
         "taskRequirements": [],
         "traderRequirements": [],
@@ -4253,7 +4143,7 @@
                 "locationNames": [],
                 "map_ids": [],
                 "target": "AnyPmc",
-                "count": 40,
+                "count": 20,
                 "shotType": "kill",
                 "usingWeapon": [],
                 "usingWeaponMods": [],
@@ -4272,7 +4162,7 @@
                 "locationNames": [],
                 "map_ids": [],
                 "target": "ExUsec",
-                "count": 100,
+                "count": 30,
                 "shotType": "kill",
                 "usingWeapon": [],
                 "usingWeaponMods": [],
@@ -4294,13 +4184,11 @@
                     "Strets of Tarkov"
                 ],
                 "map_ids": [
-                    "5714dc692459777137212e12",
+                    "5b0fc42d86f7744a585f9105",
                     "5714dc692459777137212e12"
                 ],
                 "zoneNames": [],
-                "exitStatus": [
-                    "marathon Name"
-                ],
+                "exitStatus": [],
                 "zones": []
             },
             {
@@ -4317,9 +4205,22 @@
                     "5714dbc024597771384a510d"
                 ],
                 "zoneNames": [],
-                "exitStatus": [
-                    "marathon Name"
+                "exitStatus": [],
+                "zones": []
+            },
+            {
+                "id": "68486a0eda4828c0772e337b",
+                "type": "extract",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Interchange"
                 ],
+                "map_ids": [
+                    "5714dbc024597771384a510d"
+                ],
+                "zoneNames": [],
+                "exitStatus": [],
                 "zones": []
             },
             {
@@ -4328,14 +4229,25 @@
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
+                "zoneNames": [],
                 "item_id": "655c652d60d0ac437100fed7",
                 "item_name": "BEAR operative figurine",
-                "count": 1,
+				"count": 3,
                 "item": "655c652d60d0ac437100fed7",
+                "items": [
+                    "655c652d60d0ac437100fed7",
+					"655c663a6689c676ce57af85",
+                    "66572b8d80b1cd4b6a67847f",
+                    "68f26124b84c6e1f8a09cfff",
+                    "6841b6b674a3c16f5e03d653",
+                    "68f11224197b61ffe703b16f",
+                    "697cddb414e932098005748d"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": true
+                "foundInRaid": true,
+                "zones": []
             },
             {
                 "id": "68481881f43abfdda2058372",
@@ -4343,14 +4255,24 @@
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
-                "item_id": "655c66e40b2de553b618d4b8",
-                "item_name": "Politician Mutkevich figurine",
-                "count": 1,
-                "item": "655c66e40b2de553b618d4b8",
+                "zoneNames": [],
+                "item_id": "655c673673a43e23e857aebd",
+                "item_name": "Scav figurine",
+				"count": 3,
+                "item": "655c673673a43e23e857aebd",
+                "items": [
+                    "655c673673a43e23e857aebd",
+					"655c67782a1356436041c9c5",
+                    "655c66e40b2de553b618d4b8",
+                    "68f261f6928cd23ddf0471fd",
+                    "690c70a2a1461a01d605a1bd",
+                    "68f260d7b84c6e1f8a09cffd"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": true
+                "foundInRaid": true,
+                "zones": []
             },
             {
                 "id": "68481881f43abfdda2058373",
@@ -4358,104 +4280,23 @@
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
+                "zoneNames": [],
                 "item_id": "66572c82ad599021091c6118",
                 "item_name": "Killa figurine",
-                "count": 1,
+				"count": 3,
                 "item": "66572c82ad599021091c6118",
+                "items": [
+                    "66572c82ad599021091c6118",
+					"66572cbdad599021091c611a",
+                    "66572be36a723f7f005a066e",
+                    "655c67ab0d37ca5135388f4b",
+                    "655c669103999d3c810c025b"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "68481881f43abfdda2058374",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "66572be36a723f7f005a066e",
-                "item_name": "Reshala figurine",
-                "count": 1,
-                "item": "66572be36a723f7f005a066e",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "68481881f43abfdda2058375",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c67782a1356436041c9c5",
-                "item_name": "Ryzhy figurine",
-                "count": 1,
-                "item": "655c67782a1356436041c9c5",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "68481881f43abfdda2058376",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c673673a43e23e857aebd",
-                "item_name": "Scav figurine",
-                "count": 1,
-                "item": "655c673673a43e23e857aebd",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "68481881f43abfdda2058377",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "66572cbdad599021091c611a",
-                "item_name": "Tagilla figurine",
-                "count": 1,
-                "item": "66572cbdad599021091c611a",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "68481881f43abfdda2058378",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c663a6689c676ce57af85",
-                "item_name": "USEC operative figurine",
-                "count": 1,
-                "item": "655c663a6689c676ce57af85",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "68481881f43abfdda2058379",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "655c669103999d3c810c025b",
-                "item_name": "Cultist figurine",
-                "count": 1,
-                "item": "655c669103999d3c810c025b",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
+                "foundInRaid": true,
+                "zones": []
             },
             {
                 "id": "68481881f43abfdda205837a",
@@ -4463,14 +4304,29 @@
                 "optional": false,
                 "locationNames": [],
                 "map_ids": [],
-                "item_id": "66572b8d80b1cd4b6a67847f",
-                "item_name": "Den figurine",
-                "count": 1,
-                "item": "66572b8d80b1cd4b6a67847f",
+                "zoneNames": [],
+                "item_id": "68f25c64b2b53abd200b954f",
+                "item_name": "Prapor figurine",
+				"count": 3,
+                "item": "68f25c64b2b53abd200b954f",
+                "items": [
+                    "68f25c64b2b53abd200b954f",
+					"68f25ce9b2b53abd200b9551",
+                    "68f25da3b84c6e1f8a09cffb",
+                    "68f25eba19a2b503d70dc28f",
+                    "68f25eef19a2b503d70dc291",
+                    "68f25f1201fb9de974058be4",
+                    "68f25f3a5d977110860c3350",
+                    "68f25faa22c8979ee308f4da",
+                    "68f25fdf928cd23ddf0471fb",
+                    "68f26063b2b53abd200b9553",
+                    "68f2608301fb9de974058be6"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": true
+                "foundInRaid": true,
+                "zones": []
             }
         ],
         "startRewards": {
@@ -4527,22 +4383,29 @@
         "tarkovDataId": null,
         "factionName": "Any",
         "locale": {
-            "de": {
+            "en": {
                 "68481881f43abfdda2058369 name": "Neuanfang",
-                "68481881f43abfdda205836d": "Eliminiere PMC-Operatoren",
-                "68481a8eda10b760b3b1a73f": "Eliminiere Rogues",
-                "68481881f43abfdda205836f": "Benutze den Transit von Labs nach Streets of Tarkov",
-                "68483a05801f8d9e40ac05b1": "Benutze den Transit von Streets of Tarkov nach Interchange",
-                "68481881f43abfdda2058371": "Übergib den im Raid gefundenen Gegenstand: BEAR-Operator-Figur",
-                "68481881f43abfdda2058372": "Übergib den im Raid gefundenen Gegenstand: Politiker-Mutkevich-Figur",
-                "68481881f43abfdda2058373": "Übergib den im Raid gefundenen Gegenstand: Killa-Figur",
-                "68481881f43abfdda2058374": "Übergib den im Raid gefundenen Gegenstand: Reshala-Figur",
-                "68481881f43abfdda2058375": "Übergib den im Raid gefundenen Gegenstand: Ryzhy-Figur",
-                "68481881f43abfdda2058376": "Übergib den im Raid gefundenen Gegenstand: Scav-Figur",
-                "68481881f43abfdda2058377": "Übergib den im Raid gefundenen Gegenstand: Tagilla-Figur",
-                "68481881f43abfdda2058378": "Übergib den im Raid gefundenen Gegenstand: USEC-Operator-Figur",
-                "68481881f43abfdda2058379": "Übergib den im Raid gefundenen Gegenstand: Kultisten-Figur",
-                "68481881f43abfdda205837a": "Übergib den im Raid gefundenen Gegenstand: Den-Figur"
+                "68481881f43abfdda205836d": "Eliminate PMC operatives",
+                "68481a8eda10b760b3b1a73f": "Eliminate Rogues",
+                "68481881f43abfdda205836f": "Use the transit from The Lab to Streets of Tarkov",
+                "68483a05801f8d9e40ac05b1": "Use the transit from Streets of Tarkov to Interchange",
+                "68486a0eda4828c0772e337b": "Survive and extract from Interchange",
+                "68481881f43abfdda2058371": "Hand over any found in raid PMC figurine",
+                "68481881f43abfdda2058372": "Hand over any found in raid Scav figurine",
+                "68481881f43abfdda2058373": "Hand over any found in raid Boss figurine",
+                "68481881f43abfdda205837a": "Hand over any found in raid Trader figurine"
+            },
+            "zh": {
+                "68481881f43abfdda2058369 name": "新起点",
+                "68481881f43abfdda205836d": "消灭 PMC 行动人员",
+                "68481a8eda10b760b3b1a73f": "消灭 游荡者",
+                "68481881f43abfdda205836f": "使用转移功能从实验室转移到塔科夫街区",
+                "68483a05801f8d9e40ac05b1": "使用转移功能从塔科夫街区转移到立交桥",
+                "68486a0eda4828c0772e337b": "以幸存状态撤离立交桥",
+                "68481881f43abfdda2058371": "上交任意在战局中找到的 PMC 玩偶",
+                "68481881f43abfdda2058372": "上交任意在战局中找到的 Scav 玩偶",
+                "68481881f43abfdda2058373": "上交任意在战局中找到的 Boss 玩偶",
+                "68481881f43abfdda205837a": "上交任意在战局中找到的 商人 玩偶"
             }
         }
     },
@@ -6964,7 +6827,7 @@
                 "map_ids": [],
                 "item_id": "699f09de81a6c812900a77b7",
                 "item_name": " AMG-10 hydraulic fluid",
-                "count": 2,
+                "count": 5,
                 "item": "699f09de81a6c812900a77b7",
                 "dogTagLevel": 0,
                 "maxDurability": 100,
@@ -7945,32 +7808,23 @@
             {
                 "id": "69c27909f96f171f6982c4c7",
                 "type": "giveItem",
-                "optional": true,
+                "optional": false,
                 "locationNames": [],
                 "map_ids": [],
+                "zoneNames": [],
                 "item_id": "57347d3d245977448f7b7f61",
                 "item_name": "Rye croutons",
-                "count": 4,
+				"count": 4,
                 "item": "57347d3d245977448f7b7f61",
+                "items": [
+                    "57347d3d245977448f7b7f61",
+					"5751487e245977207e26a315"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": false
-            },
-            {
-                "id": "69c27909f96f171f6982c4c7",
-                "type": "giveItem",
-                "optional": true,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "5751487e245977207e26a315",
-                "item_name": "Emelya rye croutons",
-                "count": 4,
-                "item": "5751487e245977207e26a315",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": false
+                "foundInRaid": false,
+                "zones": []
             },
             {
                 "id": "69c278fff569bda0e2652705",
@@ -8001,6 +7855,23 @@
                 "maxDurability": 100,
                 "minDurability": 0,
                 "foundInRaid": false
+            },
+            {
+                "id": "6a102713a973fbe02db53bf1",
+                "type": "extract",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Woods",
+                    "Streets of Tarkov"
+                ],
+                "map_ids": [
+                    "5704e3c2d2720bac5b8b4567",
+                    "5714dc692459777137212e12"
+                ],
+                "zoneNames": [],
+                "exitStatus": [],
+                "zones": []
             }
         ],
         "startRewards": {
