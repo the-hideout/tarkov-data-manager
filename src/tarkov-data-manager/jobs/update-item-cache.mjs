@@ -897,6 +897,7 @@ class UpdateItemCacheJob extends DataJob {
 
     async updateStaticApi(data, gameMode) {
         const cashPrices = await this.jobOutput('update-trader-offers', {gameMode});
+        const barters = await this.jobOutput('update-trader-offers', {gameMode, kvName: 'barter_data'});
         const apiData = {items: structuredClone(data.Item)};
         for (const id in apiData.items) {
             const item = apiData.items[id];
@@ -992,6 +993,39 @@ class UpdateItemCacheJob extends DataJob {
             scavCooldownSeconds: this.globals.config.SavagePlayCooldown,
             globalMaxTraders: this.globals.config.MaxLoyaltyLevelForAll,
         };
+        
+        let gpValue = 0;
+        for (const barter of barters) {
+            if (barter.requiredItems.length !== 1) {
+                continue;
+            }
+            const reqItem = apiData.items[barter.requiredItems[0].item];
+            if (reqItem.id !== '5d235b4d86f7742e017bc88a') {
+                continue;
+            }
+            const coinCount = barter.requiredItems[0].count;
+            const rewardItem = apiData.items[barter.rewardItems[0].item];
+            if (!rewardItem) {
+                continue;
+            }
+            if (rewardItem.types.includes('noFlea')) {
+                continue;
+            }
+            const lastOfferCount = rewardItem.lastOfferCount ?? 0;
+            if (lastOfferCount < 10) {
+                continue;
+            }
+            const rewardCount = barter.rewardItems[0].count;
+            const unitCost = coinCount / rewardCount;
+            const rewardValue = rewardItem.lastLowPrice;
+            if (!rewardValue) {
+                continue;
+            }
+            const coinValue = rewardValue / unitCost;
+            gpValue = Math.max(gpValue, coinValue);
+        }
+        apiData.settings.gpCoinValue = Math.round(gpValue);
+
         await this.r2Put(`${gameMode}/items`,
             {data: apiData, translations: [
                 '$.data.items.*.name',
