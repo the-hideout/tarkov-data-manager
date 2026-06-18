@@ -993,7 +993,7 @@ class UpdateItemCacheJob extends DataJob {
             scavCooldownSeconds: this.globals.config.SavagePlayCooldown,
             globalMaxTraders: this.globals.config.MaxLoyaltyLevelForAll,
         };
-        
+
         let gpValue = 0;
         for (const barter of barters) {
             if (barter.requiredItems.length !== 1) {
@@ -1017,7 +1017,7 @@ class UpdateItemCacheJob extends DataJob {
             }
             const rewardCount = barter.rewardItems[0].count;
             const unitCost = coinCount / rewardCount;
-            const rewardValue = rewardItem.lastLowPrice;
+            const rewardValue = Math.min(rewardItem.lastLowPrice, rewardItem.avg24hPrice);
             if (!rewardValue) {
                 continue;
             }
