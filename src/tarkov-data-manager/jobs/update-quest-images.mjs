@@ -27,8 +27,8 @@ class UpdateQuestImagesJob extends DataJob {
             tarkovData.quests(),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'pvp_ref_quests.json')).then(json => JSON.parse(json)),
             tarkovData.locale('en'),
-            this.jobManager.jobOutput('update-quests', this),
-            this.jobManager.jobOutput('update-quests', this, 'pve'),
+            this.jobOutput('update-quests'),
+            this.jobOutput('update-quests', {gameMode: 'pve'}),
             fs.readFile('./cache/quests_missing_images.json').then(fileString => {
                 return JSON.parse(fileString);
             }).catch(error => {
