@@ -6855,7 +6855,7 @@
             ],
             "offerUnlock": [
                 {
-                    "id": "68aee763130c00663d08aea8-707265736574000000000021",
+                    "id": "69ce1de03e15cd80bd06f6c9-707265736574000000000021",
                     "trader_id": "54cb50c76803fa8b248b4571",
                     "trader_name": "Prapor",
                     "level": 1,
@@ -6864,7 +6864,7 @@
                     "count": 1,
                     "contains": [],
                     "attributes": [],
-                    "base_item_id": "68aee763130c00663d08aea8"
+                    "base_item_id": "689166b6c2d6fa42e7044756"
                 }
             ],
             "skillLevelReward": [],

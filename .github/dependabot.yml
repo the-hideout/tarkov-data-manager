@@ -14,7 +14,9 @@ updates:
     cooldown:
       default-days: 45
   - package-ecosystem: npm
-    directory: "./src/tarkov-data-manager"
+    directories:
+      - "/"
+      - "./src/tarkov-data-manager"
     groups:
       npm-dependencies:
         patterns:
@@ -23,15 +25,9 @@ updates:
       interval: monthly
     cooldown:
       default-days: 45
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-    cooldown:
-      default-days: 45
   - package-ecosystem: "terraform"
     directory: "/terraform"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     cooldown:
       default-days: 45
