@@ -15,7 +15,7 @@ class UpdateTraderAssortsJob extends DataJob {
 
     async run() {
         [this.tasks, this.traders, this.presets, this.items, this.bsgItems, this.en] = await Promise.all([
-            this.jobManager.jobOutput('update-quests', this),
+            this.jobOutput('update-quests'),
             tarkovData.traders(),
             presetData.getAllPresets(),
             remoteData.get(),

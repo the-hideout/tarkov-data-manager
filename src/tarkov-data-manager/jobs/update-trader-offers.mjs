@@ -169,7 +169,7 @@ class UpdateTraderOffersJob extends DataJob {
     constructor(options) {
         super({...options, name: 'update-trader-offers'});
         this.writeFolder = 'cache';
-        this.kvName = 'trader_price_data';
+        this.kvName = ['trader_price_data', 'barter_data'];
     }
 
     async run() {
@@ -190,7 +190,7 @@ class UpdateTraderOffersJob extends DataJob {
             this.items,
             this.arenaSeasons,
         ] = await Promise.all([
-            this.jobManager.jobOutput('update-trader-assorts', this, 'regular', true),
+            this.jobOutput('update-trader-assorts', {gameMode: 'regular', rawOutput: true}),
             remoteData.get(),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'arena-season-items.json')).then(json => JSON.parse(json)),
         ]);
@@ -219,7 +219,7 @@ class UpdateTraderOffersJob extends DataJob {
                 tarkovData.credits({gameMode: gameMode.name}),
                 tarkovData.locale('en', {gameMode: gameMode.name}),
                 spApi.traderPrices(gameMode.name),
-                this.jobManager.jobOutput('update-quests', this, gameMode.name),
+                this.jobOutput('update-quests', {gameMode: gameMode.name}),
             ]);
             //this.offerRequirements = await this.query(`SELECT * FROM trader_offer_requirements`);
             this.getCurrencyValues(this.traderOffers.data);

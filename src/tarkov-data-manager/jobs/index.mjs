@@ -280,23 +280,28 @@ const jobManager = {
         }
         return jobs[jobName].start(options);
     },
-    jobOutput: async (jobName, parentJob, gameMode = 'regular', rawOutput = false) => {
+    jobOutput: async (jobName, options = {}) => {
+        options.gameMode ??= 'regular';
         const job = jobs[jobName];
         if (!job) {
             return Promise.reject(new Error(`Job ${jobName} is not a valid job`));
         }
         let suffix = '';
-        if (gameMode !== 'regular') {
-            suffix = `_${gameMode}`;
+        if (options.gameMode !== 'regular') {
+            suffix = `_${options.gameMode}`;
         }
-        const outputFile = `./${job.writeFolder}/${job.kvName}${suffix}.json`;
+        let kvName = options.kvName ?? job.kvName;
+        if (Array.isArray(kvName)) {
+            kvName = kvName[0];
+        }
+        const outputFile = `./${job.writeFolder}/${kvName}${suffix}.json`;
         let logger = false;
-        if (parentJob && parentJob.logger) {
-            logger = parentJob.logger;
+        if (options.parent && options.parent.logger) {
+            logger = options.parent.logger;
         }
         try {
             const json = JSON.parse(fs.readFileSync(outputFile));
-            if (!rawOutput) return json[Object.keys(json).find(key => key !== 'updated' && key !== 'locale')];
+            if (!options.rawOutput) return json[Object.keys(json).find(key => key !== 'updated' && key !== 'locale')];
             return json;
         } catch (error) {
             if (logger) {
@@ -305,12 +310,12 @@ const jobManager = {
                 console.log(`Output ${outputFile} missing; running ${jobName} job`);
             }
         }
-        return jobManager.runJob(jobName, {parent: parentJob}).then(result => {
+        return jobManager.runJob(jobName, {parent: options.parent}).then(result => {
             let returnResult = result;
-            if (returnResult[gameMode]) {
-                returnResult = returnResult[gameMode];
+            if (returnResult[options.gameMode]) {
+                returnResult = returnResult[options.gameMode];
             }
-            if (!rawOutput) {
+            if (!options.rawOutput) {
                 returnResult = returnResult[Object.keys(result).find(key => key !== 'updated')];
             }
             return returnResult;

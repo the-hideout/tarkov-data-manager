@@ -245,6 +245,9 @@ class DataJob {
         if (!kvName) {
             return Promise.reject(new Error('Must set kvName property before calling cloudflarePut'));
         }
+        if (Array.isArray(kvName)) {
+            kvName = kvName[0];
+        }
         data.updated = new Date();
         const nextInvocation = this.parent ? this.parent.nextInvocation : this.nextInvocation;
         if (nextInvocation) {
@@ -418,6 +421,9 @@ class DataJob {
         }
         if (!filename) {
             filename = this.kvName;
+            if (Array.isArray(filename)) {
+                filename = filename[0];
+            }
         }
         const newName = path.join(import.meta.dirname, '..', this.writeFolder, `${filename.toLowerCase()}.json`);
         const oldName = newName.replace('.json', '_old.json');
@@ -528,16 +534,8 @@ class DataJob {
     }
 
     jobOutput = (jobName, options = {}) => {
-        const defaultOptions = {
-            gameMode: 'regular',
-            rawOutput: false,
-        };
-        options = {
-            ...defaultOptions,
-            ...options,
-            parentJob: this,
-        };
-        return this.jobManager.jobOutput(jobName, options.parentJob, options.gameMode, options.rawOutput);
+        options.parent = this;
+        return this.jobManager.jobOutput(jobName, options);
     }
 
     addJobSummary = (text, category = 'general') => {
