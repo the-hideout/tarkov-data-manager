@@ -143,7 +143,7 @@ class DataJob {
         try {
             if (verbose) {
                 activeJobs.add(this.name);
-                alert({
+                this.discordAlert({
                     title: `Starting ${this.name} job`,
                     message: `Running jobs: ${[...activeJobs].join(', ')}`,
                 });
@@ -152,7 +152,7 @@ class DataJob {
             returnValue = await this.running;
             if (verbose) {
                 activeJobs.delete(this.name);
-                alert({
+                this.discordAlert({
                     title: `Finished ${this.name} job`,
                     message: `Running jobs: ${[...activeJobs].join(', ')}`,
                 });
@@ -161,7 +161,7 @@ class DataJob {
             if (this.parent) {
                 if (verbose) {
                     activeJobs.delete(this.name);
-                    alert({
+                    this.discordAlert({
                         title: `Error running ${this.name} job as child of ${this.parent.name}`,
                         message: `Running jobs: ${[...activeJobs].join(', ')}`,
                     });
@@ -169,7 +169,7 @@ class DataJob {
                 throwError = error;
             } else {
                 this.logger.error(error);
-                alert({
+                this.discordAlert({
                     title: `Error running ${this.name} job`,
                     message: error.stack
                 });
