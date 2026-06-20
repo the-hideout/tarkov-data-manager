@@ -737,8 +737,10 @@ class DataJob {
                 image[imageType](imageOptions);
             }
         }
-        const metadata = await image.metadata();
-        if (metadata.width <= 1 || metadata.height <= 1) {
+        const metadata = await image.metadata().catch(error => {
+            this.logger.log(`Error downloading image: ${error.message}`);
+        });
+        if (!metadata || metadata.width <= 1 || metadata.height <= 1) {
             return fallback;
         }
         this.logger.log(`Downloaded image ${s3FileName}`);
