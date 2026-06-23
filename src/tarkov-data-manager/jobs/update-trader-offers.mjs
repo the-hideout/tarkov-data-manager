@@ -238,8 +238,8 @@ class UpdateTraderOffersJob extends DataJob {
                     continue;
                 }
                 if (this.offerIsStale(offer)) {
-                    const costItems = [...this.items.values()].filter(i => offer.requirements.some(r => r._tpl === i.id));
-                    this.logger.warn(`Stale offer (${offer._id}): ${item.name} for ${costItems.map(r => `${r.name}`).join(', ')}`);
+                    //const costItems = [...this.items.values()].filter(i => offer.requirements.some(r => r._tpl === i.id));
+                    //this.logger.warn(`Stale offer (${offer._id}): ${item.name} for ${costItems.map(r => `${r.name}`).join(', ')}`);
                     continue;
                 }
                 const arenaSeason = this.getArenaSeason(offer);
@@ -249,7 +249,12 @@ class UpdateTraderOffersJob extends DataJob {
                         questUnlock = this.getQuestUnlock(offer);
                     } catch (error) {
                         if (error.code === 'UNKNOWN_QUEST_UNLOCK') {
-                            this.logger.warn(`Unknown quest unlock for trader offer ${offer._id}: ${error.trader} ${offer.loyaltyLevel} ${error.item} ${offer.items[0]._tpl}`);
+                            //this.logger.warn(`Unknown quest unlock for trader offer ${offer._id}: ${error.trader} ${offer.loyaltyLevel} ${error.item} ${offer.items[0]._tpl}`);
+                            this.logger.warn(`${error.message}`);
+                            for(const req of offer.requirements) {
+                                const reqItem = this.items.get(req._tpl);
+                                this.logger.warn(`  • ${req.count} x ${reqItem.name} ${req._tpl}`);
+                            }
                         } else {
                             this.logger.error(`Error checking quest unlock: ${error.message}`);
                         }
