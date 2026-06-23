@@ -29,6 +29,10 @@ class GameDataJob extends DataJob {
         for (const jobName of subJobs) {
             await this.jobManager.runJob(jobName, {parent: this}).catch(error => {
                 this.logger.error(`Error running ${jobName}: ${error.message}`);
+                this.discordAlert({
+                    title: `Error running ${jobName}`,
+                    message: error.stack
+                });
             });
         }
     }
