@@ -4517,5 +4517,41 @@
                 }
             ]
         }
+    },
+    "596760e186f7741e11214d58": {
+        "name": "Postman Pat - Part 2",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "5ac664a886f774066f04bd47",
+                    "trader_id": "54cb57776803fa99248b456e",
+                    "trader_name": "Therapist",
+                    "level": 1,
+                    "item": "544fb45d4bdc2dee738b4568",
+                    "item_name": "Salewa first aid kit",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
+    },
+    "639135bbc115f907b14700a6": {
+        "name": "Audiophile",
+        "finishRewardsChanged": {
+            "offerUnlock": [
+                {
+                    "id": "655b89b7975a7f3c734661ab",
+                    "trader_id": "5ac3b934156ae10c4430e83c",
+                    "trader_name": "Ragman",
+                    "level": 3,
+                    "item": "657194c0289dc422160e08d1",
+                    "item_name": "CQC Osprey MK4A plate carrier (Assault, MTP) Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ]
+        }
     }
 }
