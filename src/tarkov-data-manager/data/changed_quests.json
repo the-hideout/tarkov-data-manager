@@ -4549,7 +4549,8 @@
                     "item_name": "CQC Osprey MK4A plate carrier (Assault, MTP) Default",
                     "count": 1,
                     "contains": [],
-                    "attributes": []
+                    "attributes": [],
+                    "base_item_id": "60a3c70cde5f453f634816a3"
                 }
             ]
         }
