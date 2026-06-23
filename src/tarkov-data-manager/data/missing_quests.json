@@ -6989,62 +6989,23 @@
             {
                 "id": "69ce21e990144e437802b1e2",
                 "type": "giveItem",
-                "optional": true,
+                "optional": false,
                 "locationNames": [],
                 "map_ids": [],
+                "zoneNames": [],
                 "item_id": "689479cb47e5acd1e10be986",
                 "item_name": "Ferro Concepts FCPC V5 Plate Carrier (Black Division)",
-                "count": 5,
+				"count": 5,
                 "item": "689479cb47e5acd1e10be986",
+                "items": [
+                    "689479cb47e5acd1e10be986",
+					"689479eb30cc5ba7be00f5ff"
+                ],
                 "dogTagLevel": 0,
                 "maxDurability": 100,
                 "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "69ce21e990144e437802b1e2",
-                "type": "giveItem",
-                "optional": true,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "689479eb30cc5ba7be00f5ff",
-                "item_name": "Spiritus Systems LV-119 Plate Carrier (Black Division V2)",
-                "count": 5,
-                "item": "689479eb30cc5ba7be00f5ff",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "69ce21e990144e437802b1e2",
-                "type": "giveItem",
-                "optional": true,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "69e2441a18cb3157560855ec",
-                "item_name": "Spiritus Systems LV-119 Plate Carrier (MultiCam Black)",
-                "count": 5,
-                "item": "69e2441a18cb3157560855ec",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
-            },
-            {
-                "id": "69ce21e990144e437802b1e2",
-                "type": "giveItem",
-                "optional": true,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "68947a4be4bf255d1b0ca746",
-                "item_name": "First Spear Siege-R Optimized M.A.S.S. Plate Carrier (Black Division)",
-                "count": 5,
-                "item": "68947a4be4bf255d1b0ca746",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": true
+                "foundInRaid": true,
+                "zones": []
             }
         ],
         "startRewards": {
