@@ -4517,21 +4517,5 @@
                 }
             ]
         }
-    },
-    "596760e186f7741e11214d58": {
-        "name": "Postman Pat - Part 2",
-        "finishRewardsChanged": [
-            {
-                "id": "5ac664a886f774066f04bd47",
-                "trader_id": "54cb57776803fa99248b456e",
-                "trader_name": "Therapist",
-                "level": 1,
-                "item": "544fb45d4bdc2dee738b4568",
-                "item_name": "Salewa first aid kit",
-                "count": 1,
-                "contains": [],
-                "attributes": []
-            }
-        ]
     }
 }
