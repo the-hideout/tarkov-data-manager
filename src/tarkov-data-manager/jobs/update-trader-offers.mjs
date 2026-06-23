@@ -242,17 +242,19 @@ class UpdateTraderOffersJob extends DataJob {
                     this.logger.warn(`Stale offer (${offer._id}): ${item.name} for ${costItems.map(r => `${r.name}`).join(', ')}`);
                     continue;
                 }
+                const arenaSeason = this.getArenaSeason(offer);
                 let questUnlock = null;
-                try {
-                    questUnlock = this.getQuestUnlock(offer);
-                } catch (error) {
-                    if (error.code === 'UNKNOWN_QUEST_UNLOCK') {
-                        this.logger.warn(`Unknown quest unlock for trader offer ${offer._id}: ${error.trader} ${offer.loyaltyLevel} ${error.item} ${offer.items[0]._tpl}`);
-                    } else {
-                        this.logger.error(`Error checking quest unlock: ${error.message}`);
+                if (!Number.isInteger(arenaSeason)) {
+                    try {
+                        questUnlock = this.getQuestUnlock(offer);
+                    } catch (error) {
+                        if (error.code === 'UNKNOWN_QUEST_UNLOCK') {
+                            this.logger.warn(`Unknown quest unlock for trader offer ${offer._id}: ${error.trader} ${offer.loyaltyLevel} ${error.item} ${offer.items[0]._tpl}`);
+                        } else {
+                            this.logger.error(`Error checking quest unlock: ${error.message}`);
+                        }
                     }
                 }
-                const arenaSeason = this.getArenaSeason(offer);
                 offer.items = offer.items.filter(offerItem => {
                     const bsgItem = this.bsgItems[offerItem._tpl];
                     if (!bsgItem) {
@@ -465,7 +467,7 @@ class UpdateTraderOffersJob extends DataJob {
         }
         const itemId = offer.items[0]._tpl;
         for (const quest of this.tasks) {
-            const match = unlockMatches(offer, quest.startRewards) || unlockMatches(offer, quest.finishRewards);
+            const match = this.unlockMatches(offer, quest.startRewards) || this.unlockMatches(offer, quest.finishRewards);
             const forcedBarter = forceBarterUnlocks[quest.id]?.[itemId];
             if (forcedBarter && !forcedBarter.every(reqId => offer.requirements.some(offerReq => offerReq._tpl === reqId))) {
                 continue;
@@ -572,17 +574,21 @@ class UpdateTraderOffersJob extends DataJob {
         const maxDiff = 1000 * 60 * 60 * 2; // 2 hours
         return scanTime - endTime >= maxDiff;
     }
-}
 
-const unlockMatches = (offer, rewards) => {
-    if (!rewards || !rewards.offerUnlock) return false;
-    for (const unlock of rewards.offerUnlock) {
-        if (unlock.trader_id !== offer.user.id) continue;
-        if (unlock.level !== offer.loyaltyLevel) continue;
-        if (unlock.item === offer.items[0]._tpl) return unlock;
-        if (unlock.base_item_id && unlock.base_item_id === offer.items[0]._tpl) return unlock;
+    unlockMatches(offer, rewards) {
+        if (!rewards || !rewards.offerUnlock) return false;
+        for (const unlock of rewards.offerUnlock) {
+            if (unlock.trader_id !== offer.user.id) continue;
+            if (unlock.level !== offer.loyaltyLevel) continue;
+            if (unlock.item === offer.items[0]._tpl) return unlock;
+            const rewardItem = this.items.get(unlock.item);
+            if (!rewardItem || !rewardItem.types.includes('preset')) {
+                continue;
+            }
+            if (rewardItem.properties.items[0]._tpl === offer.items[0]._tpl) return unlock;
+        }
+        return false;
     }
-    return false;
-};
+}
 
 export default UpdateTraderOffersJob;
