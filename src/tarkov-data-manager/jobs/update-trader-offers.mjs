@@ -145,9 +145,6 @@ const skipOffers = {
                     '5c052e6986f7746b207bc3c9', // defib
                 ]
             },
-            {
-                reward: '544fb45d4bdc2dee738b4568' // Salewa
-            }
         ],
     },
 };
