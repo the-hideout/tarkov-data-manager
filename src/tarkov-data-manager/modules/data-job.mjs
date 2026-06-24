@@ -559,7 +559,32 @@ class DataJob {
 
     getWikiLink = (pageName) => {
         pageName = pageName.replace(/ \[\w+ ZONE\]$/, '');
+        pageName = pageName.replace(/^\//, ''); // remove leading forward slash
         return `https://escapefromtarkov.fandom.com/wiki/${encodeURIComponent(pageName.replaceAll(' ', '_').replaceAll('#', ''))}`;
+    }
+
+    async getWikiApiPage (pageName) {
+        const wikiApiUrl = 'https://escapefromtarkov.fandom.com/api.php';
+        const pageResponse = await fetch(`${wikiApiUrl}?action=parse&page=${pageName}&format=json`).catch(error => {
+            return new Response(error.message, {
+                status: 400,
+                statusText: error.message,
+            });
+        });
+        if (!pageResponse.ok) {
+            const error = new Error(`${pageResponse.status} ${pageResponse.statusText}`);
+            error.code = 'httpstatus';
+            error.status = pageResponse.status;
+            error.statusText = pageResponse.statusText;
+            return Promise.reject(error);
+        }
+        const jsonResponse = pageResponse.json();
+        if (jsonResponse.error) {
+            const error = new Error(jsonResponse.error.info);
+            error.code = jsonResponse.error.code;
+            return Promise.reject(error);
+        }
+        return jsonResponse;
     }
 
     customizationTypes() {

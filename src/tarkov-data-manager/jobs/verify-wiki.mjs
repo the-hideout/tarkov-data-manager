@@ -30,29 +30,32 @@ class VerifyWikiJob extends DataJob {
 
                     if (item.wiki_link) {
                         try {
-                            const response = await fetch(item.wiki_link);
-                            if (!response.ok) {
-                                if (response.status === 404) {
+                            const pageName = item.wiki_link.split('/wiki/')[1];
+                            const response = await this.getWikiApiPage(pageName).catch(error => {
+                                if (error.code === 'missingtitle') {
                                     shouldRemoveCurrentLink = true;
-                                } else {
-                                    // request wasn't successful but wasn't a 404
-                                    // don't change anything
-                                    return resolve();
+                                    return Promise.reject(new Error('bad link'));
                                 }
-                                throw new Error('bad link');
+                                // request wasn't successful but wasn't a 404
+                                // don't change anything
+                                console.log('error checking wiki link', item.wiki_link);
+                                console.log(error.code, error.status, error.statusText);
+                                return {resolve: true};
+                            });
+                            if (response.resolve) {
+                                return resolve();
                             }
-                            const pageBody = await response.text();
-                            const matches = pageBody.match(/rel="canonical" href="(?<canonical>.+)"/);
+                            const pageContent = cheerio.load(response.parse.text['*']);
+                            const redirect = pageContent('.mw-parser-output .redirectText li a').first().prop('href');
 
                             // We have the right link. Move on
-                            if (matches.groups.canonical === item.wiki_link) {
+                            if (!redirect) {
                                 return resolve();
                             }
 
                             // We don't have the right link, but there's a redirect
-                            newWikiLink = matches.groups.canonical;
+                            newWikiLink = this.getWikiLink(redirect);
                         } catch (error) {
-
                         }
                     }
 
@@ -63,16 +66,13 @@ class VerifyWikiJob extends DataJob {
                             if (item.types.includes('preset')) {
                                 itemId = item.properties.items[0]._tpl;
                             }
-                            const response = await fetch(this.getWikiLink(`Template:${itemId}`));
-                            if (!response.ok) {
-                                throw new Error('bad wiki link');
-                            }
-                            const pageContent = cheerio.load(await response.text());
+                            const response = await this.getWikiApiPage(`Template:${itemId}`);
+                            const pageContent = cheerio.load(response.parse.text['*']);
                             const pathName = pageContent('.mw-parser-output p a').first().prop('href');
                             if (pathName) {
                                 newWikiLink = `https://escapefromtarkov.fandom.com${pathName}`;
                             }
-                        } catch (error){
+                        } catch (error) {
                             // nothing to do
                         }
                     }
@@ -87,9 +87,13 @@ class VerifyWikiJob extends DataJob {
                         }
 
                         try {
-                            const response = await fetch(newWikiLink, {method: 'HEAD'});
-                            if (!response.ok) {
-                                throw new Error('bad wiki link');
+                            const pageName = newWikiLink.split('/wiki/')[1];
+                            const response = await this.getWikiApiPage(pageName);
+                            const pageContent = cheerio.load(response.parse.text['*']);
+                            const redirect = pageContent('.mw-parser-output .redirectText li a').first().prop('href');
+
+                            if (redirect) {
+                                newWikiLink = this.getWikiLink(redirect);
                             }
                         } catch (error) {
                             missingWikiLinkCount = missingWikiLinkCount + 1;
