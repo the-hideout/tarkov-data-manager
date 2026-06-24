@@ -64,7 +64,7 @@ class VerifyWikiJob extends DataJob {
                     }
 
                     // We don't have the right link, but there's a redirect
-                    newWikiLink = this.getWikiLink(redirect);
+                    newWikiLink = this.getWikiLink(redirect.replace('/wiki/', ''));
                 } catch (error) {
                 }
             }
@@ -103,7 +103,7 @@ class VerifyWikiJob extends DataJob {
                     const redirect = pageContent('.mw-parser-output .redirectText li a').first().prop('href');
 
                     if (redirect) {
-                        newWikiLink = this.getWikiLink(redirect);
+                        newWikiLink = this.getWikiLink(redirect.replace('/wiki/', ''));
                     }
                 } catch (error) {
                     this.missingWikiLinkCount++;
