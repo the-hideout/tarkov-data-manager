@@ -2187,9 +2187,18 @@
         }
     },
     "66058cb22cee99303f1ba067": {
-        "name": "Easy Money - Part 1",
+        "name": "Easy Money - Part 1 [PVP ZONE]",
         "propertiesChanged": {
             "minPlayerLevel": 10
+        },
+        "locale": {
+            "en": {
+                "6606b709f7ce34bb26221cab": "Plant the Arena advertisement poster in the living quarters at the Scav base on Customs"
+            },
+            "zh": {
+                "66058cb22cee99303f1ba067 name": "赚点快钱 - 1（PVP）",
+                "6606b709f7ce34bb26221cab": "将竞技场广告海报安放在海关 Scav 营地"
+            }
         }
     },
     "66058cb5ae4719735349b9e8": {
@@ -2923,50 +2932,27 @@
     },
     "6834202a186efa3c5b07f9a2": {
         "name": "To Great Heights! - Part 3 [PVE ZONE]",
-        "propertiesChanged": {
-            "experience": 4500,
-            "finishRewards": {
-                "traderStanding": [
-                    {
-                        "trader_id": "6617beeaa9cfa777ca915b7c",
-                        "name": "Ref",
-                        "standing": 0.03
-                    }
-                ],
-                "items": [
-                    {
-                        "item": "5d235b4d86f7742e017bc88a",
-                        "item_name": "GP Coin",
-                        "count": 28,
-                        "contains": [],
-                        "attributes": []
-                    },
-                    {
-                        "item": "66572bb3ac60f009f270d1df",
-                        "item_name": "Locked valuables crate (Rare)",
-                        "count": 1,
-                        "contains": [],
-                        "attributes": []
-                    }
-                ],
-                "offerUnlock": [],
-                "skillLevelReward": [],
-                "traderUnlock": [],
-                "craftUnlock": []
-            }
-        },
         "locale": {
             "en": {
                 "6834202a186efa3c5b07f9a5": "Win 2 matches while claiming at least 3rd place in TeamFight, BlastGang, or CheckPoint mode in Arena"
-            },
-            "zh": {
-                "6834202a186efa3c5b07f9a5": "在竞技场赢得两场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗，至少取得前三名的排名"
             }
         }
     },
     "6834158f2f0e2a7eb90b62c8": {
-        "name": "Easy Money - Part 2 [PVE ZONE]",
+        "name": "Easy Money - Part 1 [PVP ZONE]",
+        "propertiesChanged": {
+            "minPlayerLevel": 10
+        },
         "locale": {
+            "en": {
+                "6834158f2f0e2a7eb90b62cb": "Hand over the found in raid items from the Drinks category",
+                "6834158f2f0e2a7eb90b62cc": "Hand over the found in raid items from the Food category"
+            },
+            "zh": {
+                "6834158f2f0e2a7eb90b62c8 name": "赚点快钱 - 2（PVE）",
+                "6834158f2f0e2a7eb90b62cb": "上交战局中找到的物品：饮料",
+                "6834158f2f0e2a7eb90b62cc": "上交战局中找到的物品：食物"
+            },
             "de": {
                 "6834158f2f0e2a7eb90b62cb": "Übergib im Raid gefundene Gegenstände aus der Getränke-Kategorie"
             }
@@ -2975,6 +2961,13 @@
     "68341846186efa3c5b07f989": {
         "name": "Balancing - Part 1 [PVE ZONE]",
         "locale": {
+            "en": {
+                "68341846186efa3c5b07f98c": "Eliminate Scavs while using a Steyr AUG on any location"
+            },
+            "zh": {
+                "68341846186efa3c5b07f989 name": "平衡之力 - 1（PVE）",
+                "68341846186efa3c5b07f98c": "在任意地图使用 Steyr AUG 消灭 Scav"
+            },
             "de": {
                 "68341846186efa3c5b07f98c": "Eliminiere Scavs mit einer Steyr AUG an einem beliebigen Ort"
             }
@@ -2983,6 +2976,13 @@
     "68341a0b2f0e2a7eb90b62d4": {
         "name": "Balancing - Part 2 [PVE ZONE]",
         "locale": {
+            "en": {
+                "68341a0b2f0e2a7eb90b62d7": "Eliminate PMC operatives while wearing a PACA Soft Armor on any location"
+            },
+            "zh": {
+                "68341a0b2f0e2a7eb90b62d4 name": "平衡之力 - 2（PVE）",
+                "68341a0b2f0e2a7eb90b62d7": "在任意地图穿戴 PACA 防弹衣击杀 PMC 行动人员"
+            },
             "de": {
                 "68341a0b2f0e2a7eb90b62d7": "Eliminiere PMCs an einem beliebigen Ort, während du eine PACA-Schutzweste trägst"
             }
@@ -2991,6 +2991,13 @@
     "68341c4babec72d95d0c1260": {
         "name": "Create a Distraction - Part 1 [PVE ZONE]",
         "locale": {
+            "en": {
+                "68341c4babec72d95d0c1263": "Plant TP-200 TNT bricks on the second floor of the cafe on Ground Zero"
+            },
+            "zh": {
+                "68341c4babec72d95d0c1260 name": "声东击西 - 1（PVE）",
+                "68341c4babec72d95d0c1263": "在中心区区域的咖啡馆二楼安放 TP-200 砖型 TNT"
+            },
             "de": {
                 "68341c4babec72d95d0c1263": "Platziere TP-200 TNT-Sprengstoff im zweiten Stock des Cafés auf Ground Zero"
             }
@@ -3007,6 +3014,13 @@
     "68341b407559f4e6d50bc0ce": {
         "name": "Surprise [PVE ZONE]",
         "locale": {
+            "en": {
+                "68341b407559f4e6d50bc0d1": "Hand over the found in raid items: Class 4 or higher ballistic plates"
+            },
+            "zh": {
+                "68341b407559f4e6d50bc0ce name": "平衡之力 - 2（PVE）",
+                "68341b407559f4e6d50bc0d1": "上交战局中找到的物品：四级及以上护甲插板"
+            },
             "de": {
                 "68341b407559f4e6d50bc0d1": "Übergib im Raid gefundene ballistische Platten der Klasse 4 oder höher"
             }
@@ -3023,8 +3037,18 @@
     "68341d7d7559f4e6d50bc0db": {
         "name": "Create a Distraction - Part 2 [PVE ZONE]",
         "locale": {
+            "en": {
+                "68341d7d7559f4e6d50bc0de": "Eliminate Kaban's or Kollontay's guards on Streets of Tarkov",
+                "68341d7d7559f4e6d50bc0e0": "You must not kill Kaban or Kollontay while the task is active"
+            },
+            "zh": {
+                "68341d7d7559f4e6d50bc0db name": "声东击西 - 2（PVE）",
+                "68341d7d7559f4e6d50bc0de": "在塔科夫街区消灭 Kaban 或 Kollontay 的保镖",
+                "68341d7d7559f4e6d50bc0e0": "任务进行期间不得杀死 Kaban 或 Kollontay"
+            },
             "de": {
-                "68341d7d7559f4e6d50bc0de": "Eliminiere Kabans oder Kollontays Wachen auf Streets of Tarkov"
+                "68341d7d7559f4e6d50bc0de": "Eliminiere Kabans oder Kollontays Wachen auf Streets of Tarkov",
+                "68341d7d7559f4e6d50bc0e0": "You must not kill Kaban or Kollontay while the task is active"
             }
         }
     },
@@ -3072,40 +3096,6 @@
     },
     "68341eb25619c8e2a9031501": {
         "name": "To Great Heights! - Part 1 [PVE ZONE]",
-        "propertiesChanged": {
-            "experience": 2800,
-            "taskRequirements": [
-                {
-                    "task": "6978907718bd6d7cbd0e8b8e",
-                    "name": "Professional Fitness - Part 2 [PVE ZONE]",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ],
-            "finishRewards": {
-                "traderStanding": [
-                    {
-                        "trader_id": "6617beeaa9cfa777ca915b7c",
-                        "name": "Ref",
-                        "standing": 0.02
-                    }
-                ],
-                "items": [
-                    {
-                        "item": "5d235b4d86f7742e017bc88a",
-                        "item_name": "GP Coin",
-                        "count": 55,
-                        "contains": [],
-                        "attributes": []
-                    }
-                ],
-                "offerUnlock": [],
-                "skillLevelReward": [],
-                "traderUnlock": [],
-                "craftUnlock": []
-            }
-        },
         "locale": {
             "de": {
                 "68341eb25619c8e2a9031504": "Gewinne ein Match im CheckPoint- oder LastHero-Modus in Arena"
@@ -3154,38 +3144,6 @@
     },
     "68341f6fe2e7ef70a3060a0a": {
         "name": "To Great Heights! - Part 2 [PVE ZONE]",
-        "propertiesChanged": {
-            "experience": 3500,
-            "finishRewards": {
-                "traderStanding": [
-                    {
-                        "trader_id": "6617beeaa9cfa777ca915b7c",
-                        "name": "Ref",
-                        "standing": 0.02
-                    }
-                ],
-                "items": [
-                    {
-                        "item": "5d235b4d86f7742e017bc88a",
-                        "item_name": "GP Coin",
-                        "count": 32,
-                        "contains": [],
-                        "attributes": []
-                    },
-                    {
-                        "item": "66572b3f6a723f7f005a066c",
-                        "item_name": "Locked weapon crate (Rare)",
-                        "count": 1,
-                        "contains": [],
-                        "attributes": []
-                    }
-                ],
-                "offerUnlock": [],
-                "skillLevelReward": [],
-                "traderUnlock": [],
-                "craftUnlock": []
-            }
-        },
         "locale": {
             "de": {
                 "68341f6fe2e7ef70a3060a0d": "Gewinne ein Match im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena"
@@ -3234,6 +3192,14 @@
             }
         },
         "locale": {
+            "en": {
+                "6633a85e347a2a2b4051a26b": "Hand over Roubles",
+                "665493a649bd17856482ba77": "Win three out of six matches in TeamFight, BlastGang, or CheckPoint mode in Arena"
+            },
+            "zh": {
+                "6633a85e347a2a2b4051a26b": "上交卢布",
+                "665493a649bd17856482ba77": "在竞技场进行六场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗，至少赢得其中三场"
+            },
             "de": {
                 "662bb23200ae352a6d5a415d": "Gewinne drei von sechs Matches im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena",
                 "665493a649bd17856482ba77": "Die Aufgabe schlägt fehl, wenn du 4 Matches verlierst"
@@ -3242,45 +3208,6 @@
     },
     "683421515619c8e2a9031511": {
         "name": "To Great Heights! - Part 4 [PVE ZONE]",
-        "propertiesChanged": {
-            "experience": 5600,
-            "finishRewards": {
-                "traderStanding": [
-                    {
-                        "trader_id": "6617beeaa9cfa777ca915b7c",
-                        "name": "Ref",
-                        "standing": 0.05
-                    }
-                ],
-                "items": [
-                    {
-                        "item": "5449016a4bdc2d6f028b456f",
-                        "item_name": "Roubles",
-                        "count": 2500000,
-                        "contains": [],
-                        "attributes": []
-                    },
-                    {
-                        "item": "5d235b4d86f7742e017bc88a",
-                        "item_name": "GP Coin",
-                        "count": 35,
-                        "contains": [],
-                        "attributes": []
-                    },
-                    {
-                        "item": "665732f4464c4b4ba4670fa9",
-                        "item_name": "Unlocked supply crate (Rare)",
-                        "count": 1,
-                        "contains": [],
-                        "attributes": []
-                    }
-                ],
-                "offerUnlock": [],
-                "skillLevelReward": [],
-                "traderUnlock": [],
-                "craftUnlock": []
-            }
-        },
         "locale": {
             "de": {
                 "683421515619c8e2a9031515": "Gewinne drei von sechs Matches im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena",
@@ -3323,31 +3250,6 @@
     },
     "68342265a8d674b5740b31f0": {
         "name": "To Great Heights! - Part 5 [PVE ZONE]",
-        "propertiesChanged": {
-            "experience": 6900,
-            "finishRewards": {
-                "traderStanding": [
-                    {
-                        "trader_id": "6617beeaa9cfa777ca915b7c",
-                        "name": "Ref",
-                        "standing": 0.04
-                    }
-                ],
-                "items": [
-                    {
-                        "item": "5d235b4d86f7742e017bc88a",
-                        "item_name": "GP Coin",
-                        "count": 40,
-                        "contains": [],
-                        "attributes": []
-                    }
-                ],
-                "offerUnlock": [],
-                "skillLevelReward": [],
-                "traderUnlock": [],
-                "craftUnlock": []
-            }
-        },
         "locale": {
             "de": {
                 "68342265a8d674b5740b31f3": "Gewinne zwei Matches in Folge im TeamFight-, BlastGang- oder CheckPoint-Modus in Arena"
@@ -3415,33 +3317,6 @@
     },
     "6834233fecd5cf3a440d855b": {
         "name": "Against the Conscience - Part 1 [PVE ZONE]",
-        "propertiesChanged": {
-            "taskRequirements": [
-                {
-                    "task": "68341c4babec72d95d0c1260",
-                    "name": "Create a Distraction - Part 1 [PVE ZONE]",
-                    "status": [
-                        "complete"
-                    ]
-                },
-                {
-                    "task": "69789660b2187365e70bb94a",
-                    "name": "Hold the Lead[PVE ZONE]",
-                    "status": [
-                        "complete"
-                    ]
-                }
-            ]
-        },
-        "finishRewardsAdded": {
-            "items": [
-                {
-                    "item": "664a5480bfcc521bad3192ca",
-                    "item_name": "Armband (ARENA)",
-                    "count": 1
-                }
-            ]
-        },
         "locale": {
             "de": {
                 "6834233fecd5cf3a440d855f": "Finde das Zimmer des alten Champions in Customs",
@@ -4553,6 +4428,21 @@
                     "base_item_id": "60a3c70cde5f453f634816a3"
                 }
             ]
+        }
+    },
+    "6834145ebc1f443d7603c8a7": {
+        "name": "Easy Money - Part 1 [PVE ZONE]",
+        "propertiesChanged": {
+            "minPlayerLevel": 10
+        },
+        "locale": {
+            "en": {
+                "6834145ebc1f443d7603c8ab": "Plant the Arena advertisement poster in the living quarters at the Scav base on Customs"
+            },
+            "zh": {
+                "6834145ebc1f443d7603c8a7 name": "赚点快钱 - 1（PVE）",
+                "6834145ebc1f443d7603c8ab": "将竞技场广告海报安放在海关 Scav 营地"
+            }
         }
     }
 }

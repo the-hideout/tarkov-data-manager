@@ -3448,7 +3448,7 @@
                 "playerHealthEffect": null
             },
             {
-                "id": "6848100b00afffa81f09e36b",
+                "id": "6761f9d718fa62aac3264ff2",
                 "type": "extract",
                 "count": 1,
                 "optional": false,
@@ -4488,88 +4488,6 @@
             "de": {
                 "67e993f5ed537409f009da75 name": "Aufgeschobene Belohnung [PVP ZONE]",
                 "67ebc5f501052193cdb4c9ac": "Übergib den Gegenstand: Lega-Medaille"
-            }
-        }
-    },
-    "6834287b7559f4e6d50bc0fa": {
-        "id": "6834287b7559f4e6d50bc0fa",
-        "name": "Postponed Reward [PVE ZONE]",
-        "trader": "6617beeaa9cfa777ca915b7c",
-        "gameMode": ["pve"],
-        "location_id": null,
-        "locationName": null,
-        "minPlayerLevel": 0,
-        "taskRequirements": [
-            {
-                "task": "683427418f5b18d29a05d9e3",
-                "name": "Surprise Gift [PVE ZONE]",
-                "status": [
-                    "complete"
-                ]
-            }
-        ],
-        "traderRequirements": [],
-        "objectives": [
-            {
-                "id": "6834287b7559f4e6d50bc0fd",
-                "type": "giveItem",
-                "optional": false,
-                "locationNames": [],
-                "map_ids": [],
-                "item_id": "6656560053eaaa7a23349c86",
-                "item_name": "Lega Medal",
-                "count": 1,
-                "item": "6656560053eaaa7a23349c86",
-                "dogTagLevel": 0,
-                "maxDurability": 100,
-                "minDurability": 0,
-                "foundInRaid": false
-            }
-        ],
-        "startRewards": {
-            "traderStanding": [],
-            "items": [],
-            "offerUnlock": [],
-            "skillLevelReward": [],
-            "traderUnlock": []
-        },
-        "finishRewards": {
-            "traderStanding": [
-                {
-                    "trader_id": "6617beeaa9cfa777ca915b7c",
-                    "name": "Ref",
-                    "standing": 0.01
-                }
-            ],
-            "items": [
-                {
-                    "item": "664a55d84a90fc2c8a6305c9",
-                    "item_name": "Secure Container Theta",
-                    "count": 1,
-                    "contains": [],
-                    "attributes": []
-                }
-            ],
-            "offerUnlock": [],
-            "skillLevelReward": [],
-            "traderUnlock": []
-        },
-        "failureOutcome": {
-            "traderStanding": [],
-            "items": [],
-            "offerUnlock": [],
-            "skillLevelReward": [],
-            "traderUnlock": []
-        },
-        "failConditions": [],
-        "restartable": false,
-        "experience": 0,
-        "tarkovDataId": null,
-        "factionName": "Any",
-        "locale": {
-            "de": {
-                "6834287b7559f4e6d50bc0fa name": "Aufgeschobene Belohnung [PVE ZONE]",
-                "6834287b7559f4e6d50bc0fd": "Übergib den Gegenstand: Lega-Medaille"
             }
         }
     },
@@ -6323,7 +6241,7 @@
         "id": "697878057aa1273126030fb0",
         "name": "Arena Business [PVE ZONE]",
         "trader": "6617beeaa9cfa777ca915b7c",
-        "gameMode": ["regular"],
+        "gameMode": ["pve"],
         "location_id": null,
         "locationName": null,
         "minPlayerLevel": 0,
@@ -6468,7 +6386,7 @@
         "id": "69788d4e963f08d9140bce19",
         "name": "Professional Fitness - Part 1 [PVE ZONE]",
         "trader": "6617beeaa9cfa777ca915b7c",
-        "gameMode": ["regular"],
+        "gameMode": ["pve"],
         "location_id": null,
         "locationName": null,
         "minPlayerLevel": 0,
@@ -6550,7 +6468,7 @@
         "id": "6978907718bd6d7cbd0e8b8e",
         "name": "Professional Fitness - Part 2 [PVE ZONE]",
         "trader": "6617beeaa9cfa777ca915b7c",
-        "gameMode": ["regular"],
+        "gameMode": ["pve"],
         "location_id": null,
         "locationName": null,
         "minPlayerLevel": 0,
@@ -6639,7 +6557,7 @@
         "id": "697895277d31587eab080266",
         "name": "To Great Heights! - Part 6 [PVE ZONE]",
         "trader": "6617beeaa9cfa777ca915b7c",
-        "gameMode": ["regular"],
+        "gameMode": ["pve"],
         "location_id": null,
         "locationName": null,
         "minPlayerLevel": 0,
@@ -6731,7 +6649,7 @@
         "id": "69789660b2187365e70bb94a",
         "name": "Hold the Lead[PVE ZONE]",
         "trader": "6617beeaa9cfa777ca915b7c",
-        "gameMode": ["regular"],
+        "gameMode": ["pve"],
         "location_id": null,
         "locationName": null,
         "minPlayerLevel": 0,
@@ -7946,6 +7864,1259 @@
             "zh": {
                 "69c2a2d004de49c8f0055a3d name": "宿醉",
                 "69c2a5ba8d7f2db5aff26bd2": "返回 BTR 司机处，了解司机和走私者的谈判情况"
+            }
+        }
+    },
+    "68341eb25619c8e2a9031501": {
+        "id": "68341eb25619c8e2a9031501",
+        "name": "To Great Heights! - Part 1 [PVE ZONE]",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "gameMode": ["pve"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "6978907718bd6d7cbd0e8b8e",
+                "name": "Professional Fitness - Part 2 [PVE ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "68341eb25619c8e2a9031504",
+                "description": "68341eb25619c8e2a9031504",
+                "type": "visit",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 55,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 2800,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "68341eb25619c8e2a9031501 name": "To Great Heights! - Part 1 [PVE ZONE]",
+                "68341eb25619c8e2a9031504": "Win a match in CheckPoint or LastHero mode in Arena"
+            },
+            "zh": {
+                "68341eb25619c8e2a9031501 name": "再创新高！- 1（PVE）",
+                "68341eb25619c8e2a9031504": "在竞技场 CheckPoint 或 LastHero 模式下赢得一场战斗"
+            }
+        }
+    },
+    "68341f6fe2e7ef70a3060a0a": {
+        "id": "68341f6fe2e7ef70a3060a0a",
+        "name": "To Great Heights! - Part 2 [PVE ZONE]",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "gameMode": ["pve"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "68341eb25619c8e2a9031501",
+                "name": "To Great Heights! - Part 1 [PVE ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "68341f6fe2e7ef70a3060a0d",
+                "description": "68341f6fe2e7ef70a3060a0d",
+                "type": "visit",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.02
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 32,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "66572b3f6a723f7f005a066c",
+                    "item_name": "Locked weapon crate (Rare)",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 3500,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "68341f6fe2e7ef70a3060a0a name": "To Great Heights! - Part 2 [PVE ZONE]",
+                "68341f6fe2e7ef70a3060a0d": "Win a match in TeamFight, BlastGang, or CheckPoint mode in Arena"
+            },
+            "zh": {
+                "68341f6fe2e7ef70a3060a0a name": "再创新高！- 2（PVE）",
+                "68341f6fe2e7ef70a3060a0d": "在竞技场赢得一场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗"
+            }
+        }
+    },
+    "6834202a186efa3c5b07f9a2": {
+        "id": "6834202a186efa3c5b07f9a2",
+        "name": "To Great Heights! - Part 3 [PVE ZONE]",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "gameMode": ["pve"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "68341f6fe2e7ef70a3060a0a",
+                "name": "To Great Heights! - Part 2 [PVE ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "68341f6fe2e7ef70a3060a0d",
+                "description": "68341f6fe2e7ef70a3060a0d",
+                "type": "visit",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.03
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 28,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "66572bb3ac60f009f270d1df",
+                    "item_name": "Locked valuables crate (Rare)",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 4500,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "6834202a186efa3c5b07f9a2 name": "To Great Heights! - Part 3 [PVE ZONE]",
+                "6834202a186efa3c5b07f9a5": "Win 2 matches while claiming at least 3rd place in TeamFight, BlastGang, or CheckPoint mode in Arena"
+            },
+            "zh": {
+                "6834202a186efa3c5b07f9a2 name": "再创新高！- 3（PVE）",
+                "6834202a186efa3c5b07f9a5": "在竞技场赢得两场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗，至少取得前三名的排名"
+            }
+        }
+    },
+    "683421515619c8e2a9031511": {
+        "id": "683421515619c8e2a9031511",
+        "name": "To Great Heights! - Part 4 [PVE ZONE]",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "gameMode": ["pve"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "6834202a186efa3c5b07f9a2",
+                "name": "To Great Heights! - Part 3 [PVE ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "683421515619c8e2a9031514",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "item_id": "5449016a4bdc2d6f028b456f",
+                "item_name": "Roubles",
+				"count": 1000000,
+                "item": "5449016a4bdc2d6f028b456f",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false,
+                "zones": []
+            },
+            {
+                "id": "683421515619c8e2a9031515",
+                "description": "683421515619c8e2a9031515",
+                "type": "visit",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.05
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 2500000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 28,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "665732f4464c4b4ba4670fa9",
+                    "item_name": "Unlocked supply crate (Rare)",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [
+            {
+                "id": "683421515619c8e2a9031518",
+                "description": "683421515619c8e2a9031518",
+                "type": "visit",
+                "count": null,
+                "optional": true,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "zones": []
+            }
+        ],
+        "restartable": false,
+        "experience": 5600,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "683421515619c8e2a9031511 name": "To Great Heights! - Part 4 [PVE ZONE]",
+                "683421515619c8e2a9031514": "Hand over Roubles",
+                "683421515619c8e2a9031515": "Win three out of six matches in TeamFight, BlastGang, or CheckPoint mode in Arena",
+                "683421515619c8e2a9031518": "Failure Condition: Lose 4 matches"
+            },
+            "zh": {
+                "683421515619c8e2a9031511 name": "再创新高！- 4（PVE）",
+                "683421515619c8e2a9031514": "上交卢布",
+                "683421515619c8e2a9031515": "在竞技场进行六场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗，至少赢得其中三场",
+                "683421515619c8e2a9031518": "失败条件：在 4 场比赛中落败"
+            }
+        }
+    },
+    "68342265a8d674b5740b31f0": {
+        "id": "68342265a8d674b5740b31f0",
+        "name": "To Great Heights! - Part 5 [PVE ZONE]",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "gameMode": ["pve"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "683421515619c8e2a9031511",
+                "name": "To Great Heights! - Part 4 [PVE ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "68342265a8d674b5740b31f3",
+                "description": "68342265a8d674b5740b31f3",
+                "type": "visit",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.04
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 40,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 6900,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "68342265a8d674b5740b31f0 name": "To Great Heights! - Part 5 [PVE ZONE]",
+                "68342265a8d674b5740b31f3": "Win two matches in a row in TeamFight, BlastGang, or CheckPoint mode in Arena"
+            },
+            "zh": {
+                "68342265a8d674b5740b31f0 name": "再创新高！- 5（PVE）",
+                "68342265a8d674b5740b31f3": "在竞技场连续赢得两场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗"
+            }
+        }
+    },
+    "6834233fecd5cf3a440d855b": {
+        "id": "6834233fecd5cf3a440d855b",
+        "name": "Against the Conscience - Part 1 [PVE ZONE]",
+        "trader": "579dc571d53a0658a154fbec",
+        "gameMode": ["pve"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "68341c4babec72d95d0c1260",
+                "name": "Create a Distraction - Part 1 [PVE ZONE]",
+                "status": [
+                    "complete"
+                ]
+            },
+            {
+                "task": "69789660b2187365e70bb94a",
+                "name": "Hold the Lead[PVE ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "6834233fecd5cf3a440d855f",
+                "description": "6834233fecd5cf3a440d855f",
+                "type": "visit",
+                "count": null,
+                "optional": false,
+                "locationNames": [
+                    "Customs"
+                ],
+                "map_ids": [
+                    "56f40101d2720b2a4d8b45d6"
+                ],
+                "zoneNames": [],
+                "zones": []
+            },
+            {
+                "id": "6834233fecd5cf3a440d8561",
+                "description": "6834233fecd5cf3a440d8561",
+                "type": "visit",
+                "count": null,
+                "optional": false,
+                "locationNames": [
+                    "Customs"
+                ],
+                "map_ids": [
+                    "56f40101d2720b2a4d8b45d6"
+                ],
+                "zoneNames": [],
+                "zones": []
+            },
+            {
+                "id": "6834233fecd5cf3a440d8564",
+                "type": "extract",
+                "count": 1,
+                "optional": false,
+                "locationNames": [
+                    "Customs"
+                ],
+                "map_ids": [
+                    "56f40101d2720b2a4d8b45d6"
+                ],
+                "zoneNames": [],
+                "exitStatus": [
+                    "Survived"
+                ],
+                "zones": []
+            },
+            {
+                "id": "6834233fecd5cf3a440d8567",
+                "description": "6834233fecd5cf3a440d8567",
+                "type": "visit",
+                "count": null,
+                "optional": true,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [],
+            "items": [
+                {
+                    "item": "657194c0289dc422160e08d1",
+                    "item_name": "CQC Osprey MK4A plate carrier (Assault, MTP) Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5c0d1e9386f77440120288b7",
+                    "item_name": "HK 416A5 5.56x45 assault rifle Default",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "5c05413a0db834001c390617",
+                    "item_name": "AR-15 5.56x45 HK Steel Maritime STANAG 30-round magazine",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "657024f9bfc87b3a3409323b",
+                    "item_name": "5.56x45mm MK 318 Mod 0 (SOST) ammo pack (50 pcs)",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "664a5480bfcc521bad3192ca",
+                    "item_name": "Armband (ARENA)",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 11700,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "6834233fecd5cf3a440d855b name": "Against the Conscience - Part 1 [PVE ZONE]",
+                "6834233fecd5cf3a440d855f": "Locate the old champion's room on Customs",
+                "6834233fecd5cf3a440d8561": "Find out what happened to the champion",
+                "6834233fecd5cf3a440d8564": "Survive and extract from the location",
+                "6834233fecd5cf3a440d856": "Locate and obtain the key at the smugglers' base on Shoreline"
+            },
+            "zh": {
+                "6834233fecd5cf3a440d855b name": "良心作祟 - 1（PVE）",
+                "6834233fecd5cf3a440d855f": "在海关找到前冠军的房间",
+                "6834233fecd5cf3a440d8561": "调查前任冠军的遭遇",
+                "6834233fecd5cf3a440d8564": "以幸存状态撤离该区域",
+                "6834233fecd5cf3a440d856": "在海岸线的走私者营地找到并获取钥匙"
+            }
+        }
+    },
+    "68342446a8d674b5740b31fc": {
+        "id": "68342446a8d674b5740b31fc",
+        "name": "Against the Conscience - Part 2 [PVE ZONE]",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "gameMode": ["pve"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "6834233fecd5cf3a440d855b",
+                "name": "Against the Conscience - Part 1 [PVE ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "68342446a8d674b5740b31ff",
+                "description": "68342446a8d674b5740b31ff",
+                "type": "visit",
+                "count": 75,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.04
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 100,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 23000,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "68342446a8d674b5740b31fc name": "Against the Conscience - Part 2 [PVE ZONE]",
+                "68342446a8d674b5740b31ff": "Eliminate enemies in any game mode in Arena"
+            },
+            "zh": {
+                "68342446a8d674b5740b31fc name": "良心作祟 - 2（PVE）",
+                "68342446a8d674b5740b31ff": "在竞技场任意游戏模式中消灭敌人"
+            }
+        }
+    },
+    "6834254f2f0e2a7eb90b62ef": {
+        "id": "6834254f2f0e2a7eb90b62ef",
+        "name": "Decisions, Decisions [PVE ZONE]",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "gameMode": ["pve"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "68342446a8d674b5740b31fc",
+                "name": "Against the Conscience - Part 2 [PVE ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "6834254f2f0e2a7eb90b62f1",
+                "type": "findQuestItem",
+                "optional": false,
+                "locationNames": [
+                    "Customs"
+                ],
+                "map_ids": [
+                    "56f40101d2720b2a4d8b45d6"
+                ],
+                "item_id": "664fce7a90294949fe2d81cb",
+                "item_name": "Ref dirt",
+                "count": 1
+            },
+            {
+                "id": "6834254f2f0e2a7eb90b62f2",
+                "type": "giveQuestItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "664fce7a90294949fe2d81cb",
+                "item_name": "Ref dirt",
+                "count": 1
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.15
+                }
+            ],
+            "items": [
+                {
+                    "item": "5d235b4d86f7742e017bc88a",
+                    "item_name": "GP Coin",
+                    "count": 72,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "664a55d84a90fc2c8a6305c9",
+                    "item_name": "Secure container Theta",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [
+                {
+                    "trader_id": "579dc571d53a0658a154fbec",
+                    "name": "Fence",
+                    "standing": 0.15
+                }
+            ],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [
+            {
+                "id": "6834254f2f0e2a7eb90b62ef-683425dd8f5b18d29a05d9d1",
+                "description": "6834254f2f0e2a7eb90b62ef-683425dd8f5b18d29a05d9d1",
+                "type": "taskStatus",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "task": "683425dd8f5b18d29a05d9d1",
+                "quest_name": "Between Two Fires [PVE ZONE]",
+                "status": [
+                    "complete"
+                ],
+                "zones": []
+            },
+            {
+                "id": "6834254f2f0e2a7eb90b62ef-683427418f5b18d29a05d9e3",
+                "description": "6834254f2f0e2a7eb90b62ef-683427418f5b18d29a05d9e3",
+                "type": "taskStatus",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "task": "683427418f5b18d29a05d9e3",
+                "quest_name": "Surprise Gift [PVE ZONE]",
+                "status": [
+                    "complete"
+                ],
+                "zones": []
+            }
+        ],
+        "restartable": false,
+        "experience": 18500,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "6834254f2f0e2a7eb90b62ef name": "Decisions, Decisions [PVE ZONE]",
+                "6834254f2f0e2a7eb90b62f1": "Locate and obtain the compromising information on Ref",
+                "6834254f2f0e2a7eb90b62f2": "Hand over the found info"
+            },
+            "zh": {
+                "6834254f2f0e2a7eb90b62ef name": "两难抉择（PVE）",
+                "6834254f2f0e2a7eb90b62f1": "找到并获取竞技场裁判的黑料",
+                "6834254f2f0e2a7eb90b62f2": "上交找到的信息"
+            }
+        }
+    },
+    "683425dd8f5b18d29a05d9d1": {
+        "id": "683425dd8f5b18d29a05d9d1",
+        "name": "Between Two Fires [PVE ZONE]",
+        "trader": "579dc571d53a0658a154fbec",
+        "gameMode": ["pve"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "68342446a8d674b5740b31fc",
+                "name": "Against the Conscience - Part 2 [PVE ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "683425dd8f5b18d29a05d9d4",
+                "description": "683425dd8f5b18d29a05d9d4",
+                "type": "visit",
+                "count": null,
+                "optional": false,
+                "locationNames": [
+                    "Customs"
+                ],
+                "map_ids": [
+                    "56f40101d2720b2a4d8b45d6"
+                ],
+                "zoneNames": [],
+                "zones": []
+            },
+            {
+                "id": "683425dd8f5b18d29a05d9d6",
+                "type": "findQuestItem",
+                "optional": false,
+                "locationNames": [
+                    "Customs"
+                ],
+                "map_ids": [
+                    "56f40101d2720b2a4d8b45d6"
+                ],
+                "item_id": "664fce7a90294949fe2d81cb",
+                "item_name": "Ref dirt",
+                "count": 1
+            },
+            {
+                "id": "683425dd8f5b18d29a05d9d8",
+                "type": "giveQuestItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "664fce7a90294949fe2d81cb",
+                "item_name": "Ref dirt",
+                "count": 1
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "579dc571d53a0658a154fbec",
+                    "name": "Fence",
+                    "standing": 0.2
+                }
+            ],
+            "items": [
+                {
+                    "item": "5449016a4bdc2d6f028b456f",
+                    "item_name": "Roubles",
+                    "count": 165000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "664a55d84a90fc2c8a6305c9",
+                    "item_name": "Secure container Theta",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [
+            {
+                "id": "683425dd8f5b18d29a05d9d1-6834254f2f0e2a7eb90b62ef",
+                "description": "683425dd8f5b18d29a05d9d1-6834254f2f0e2a7eb90b62ef",
+                "type": "taskStatus",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "task": "6834254f2f0e2a7eb90b62ef",
+                "quest_name": "Decisions, Decisions [PVE ZONE]",
+                "status": [
+                    "complete"
+                ],
+                "zones": []
+            },
+            {
+                "id": "683425dd8f5b18d29a05d9d1-683427418f5b18d29a05d9e3",
+                "description": "683425dd8f5b18d29a05d9d1-683427418f5b18d29a05d9e3",
+                "type": "taskStatus",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "task": "683427418f5b18d29a05d9e3",
+                "quest_name": "Surprise Gift [PVE ZONE]",
+                "status": [
+                    "complete"
+                ],
+                "zones": []
+            }
+        ],
+        "restartable": false,
+        "experience": 18500,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "683425dd8f5b18d29a05d9d1 name": "Between Two Fires [PVE ZONE]",
+                "683425dd8f5b18d29a05d9d4": "Return to the old champion's hideout on Customs",
+                "683425dd8f5b18d29a05d9d6": "Locate and obtain the compromising information on Ref",
+                "683425dd8f5b18d29a05d9d8": "Hand over the found info"
+            },
+            "zh": {
+                "683425dd8f5b18d29a05d9d1 name": "两难抉择（PVE）",
+                "683425dd8f5b18d29a05d9d4": "返回海关的前冠军藏身处",
+                "683425dd8f5b18d29a05d9d6": "找到并获取竞技场裁判的黑料",
+                "683425dd8f5b18d29a05d9d8": "上交找到的信息"
+            }
+        }
+    },
+    "683427418f5b18d29a05d9e3": {
+        "id": "683427418f5b18d29a05d9e3",
+        "name": "Surprise Gift [PVE ZONE]",
+        "trader": "638f541a29ffd1183d187f57",
+        "gameMode": ["pve"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 35,
+        "taskRequirements": [
+            {
+                "task": "68342446a8d674b5740b31fc",
+                "name": "Against the Conscience - Part 2 [PVE ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "683427418f5b18d29a05d9e5",
+                "description": "683427418f5b18d29a05d9e5",
+                "type": "visit",
+                "count": null,
+                "optional": false,
+                "locationNames": [
+                    "Customs"
+                ],
+                "map_ids": [
+                    "56f40101d2720b2a4d8b45d6"
+                ],
+                "zoneNames": [],
+                "zones": []
+            },
+            {
+                "id": "683427418f5b18d29a05d9e7",
+                "type": "findQuestItem",
+                "optional": false,
+                "locationNames": [
+                    "Customs"
+                ],
+                "map_ids": [
+                    "56f40101d2720b2a4d8b45d6"
+                ],
+                "item_id": "664fce7a90294949fe2d81cb",
+                "item_name": "Ref dirt",
+                "count": 1
+            },
+            {
+                "id": "683427418f5b18d29a05d9e9",
+                "type": "giveQuestItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "item_id": "664fce7a90294949fe2d81cb",
+                "item_name": "Ref dirt",
+                "count": 1
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "638f541a29ffd1183d187f57",
+                    "name": "Lightkeeper",
+                    "standing": 0.01
+                }
+            ],
+            "items": [
+                {
+                    "item": "5696686a4bdc2da3298b456a",
+                    "item_name": "Dollars",
+                    "count": 1187,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [
+            {
+                "id": "683427418f5b18d29a05d9e3-6834254f2f0e2a7eb90b62ef",
+                "description": "683427418f5b18d29a05d9e3-6834254f2f0e2a7eb90b62ef",
+                "type": "taskStatus",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "task": "6834254f2f0e2a7eb90b62ef",
+                "quest_name": "Decisions, Decisions [PVE ZONE]",
+                "status": [
+                    "complete"
+                ],
+                "zones": []
+            },
+            {
+                "id": "683427418f5b18d29a05d9e3-683425dd8f5b18d29a05d9d1",
+                "description": "683427418f5b18d29a05d9e3-683425dd8f5b18d29a05d9d1",
+                "type": "taskStatus",
+                "count": null,
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "task": "683425dd8f5b18d29a05d9d1",
+                "quest_name": "Between Two Fires [PVE ZONE]",
+                "status": [
+                    "complete"
+                ],
+                "zones": []
+            }
+        ],
+        "restartable": false,
+        "experience": 25500,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "683427418f5b18d29a05d9e3 name": "Surprise Gift [PVE ZONE]",
+                "683427418f5b18d29a05d9e5": "Return to the old champion's hideout on Customs",
+                "683427418f5b18d29a05d9e7": "Locate and obtain the compromising information on Ref",
+                "683427418f5b18d29a05d9e9": "Hand over the found info"
+            },
+            "zh": {
+                "683427418f5b18d29a05d9e3 name": "两难抉择（PVE）",
+                "683427418f5b18d29a05d9e5": "返回海关的前冠军藏身处",
+                "683427418f5b18d29a05d9e7": "找到并获取竞技场裁判的黑料",
+                "683427418f5b18d29a05d9e9": "上交找到的信息"
+            }
+        }
+    },
+    "6834287b7559f4e6d50bc0fa": {
+        "id": "6834287b7559f4e6d50bc0fa",
+        "name": "Postponed Reward [PVE ZONE]",
+        "trader": "6617beeaa9cfa777ca915b7c",
+        "gameMode": ["pve"],
+        "location_id": null,
+        "locationName": null,
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "683427418f5b18d29a05d9e3",
+                "name": "Surprise Gift [PVE ZONE]",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "6834287b7559f4e6d50bc0fd",
+                "type": "giveItem",
+                "optional": false,
+                "locationNames": [],
+                "map_ids": [],
+                "zoneNames": [],
+                "item_id": "6656560053eaaa7a23349c86",
+                "item_name": "Lega Medal",
+				"count": 1,
+                "item": "6656560053eaaa7a23349c86",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false,
+                "zones": []
+            }
+        ],
+        "startRewards": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "finishRewards": {
+            "traderStanding": [
+                {
+                    "trader_id": "6617beeaa9cfa777ca915b7c",
+                    "name": "Ref",
+                    "standing": 0.01
+                }
+            ],
+            "items": [
+                {
+                    "item": "664a55d84a90fc2c8a6305c9",
+                    "item_name": "Secure container Theta",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failureOutcome": {
+            "traderStanding": [],
+            "items": [],
+            "offerUnlock": [],
+            "skillLevelReward": [],
+            "traderUnlock": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": null,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "6834287b7559f4e6d50bc0fa name": "Postponed Reward [PVE ZONE]",
+                "6834287b7559f4e6d50bc0fd": "Hand over the item: Lega Medal"
+            },
+            "zh": {
+                "6834287b7559f4e6d50bc0fa name": "迟来的奖励（PVE）",
+                "6834287b7559f4e6d50bc0fd": "上交物品：传奇奖章"
+            },
+            "de": {
+                "6834287b7559f4e6d50bc0fa name": "Aufgeschobene Belohnung [PVE ZONE]",
+                "6834287b7559f4e6d50bc0fd": "Übergib den Gegenstand: Lega-Medaille"
             }
         }
     }
