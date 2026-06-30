@@ -696,6 +696,10 @@ const getItemProperties = async (tarkovDevItem) => {
     if (properties && item?._props?.CalibrationDistances?.length) {
         properties.zeroingDistances = item._props.CalibrationDistances;
     }
+    if (properties && ['ItemPropertiesHelmet', 'ItemPropertiesArmorAttachment'].includes(properties.propertiesType)) {
+        properties.blocksEyewear = item?._props?.BlocksEyewear;
+        properties.blocksHeadwear = item?._props?.BlocksHeadwear;
+    }
     const directions = [
         'Left',
         'Right',
