@@ -5,6 +5,7 @@ import { setMaxListeners } from 'node:events';
 import  { EmbedBuilder } from 'discord.js';
 import { DateTime } from 'luxon';
 import sharp from 'sharp';
+import { JsonStreamStringify } from 'json-stream-stringify';
 
 import cloudflare from './cloudflare.mjs';
 import TranslationHelper from './translation-helper.mjs';
@@ -269,7 +270,7 @@ class DataJob {
         }
         const uploadTime = new Date() - uploadStart;
         if (response.success) {
-            this.writeDump(data, kvName);
+            await this.writeDump(data, kvName);
             this.logger.success(`Successful Cloudflare put of ${kvName} in ${uploadTime} ms (${JSON.stringify(data).length.toLocaleString()} bytes)`);
             //stellate.purge(kvName, this.logger);
         } else {
@@ -310,7 +311,7 @@ class DataJob {
             if (gameMode && gameMode !== 'regular') {
                 idKey += `_${gameMode}`;
             }
-            this.writeDump(partData, idKey);
+            await this.writeDump(partData, idKey);
             uploads.push(cloudflare.put(idKey, partData, {signal: this.abortController.signal}).catch(error => {
                 this.logger.error(JSON.stringify(error));
                 return {success: false, errors: [], messages: []};
@@ -364,7 +365,7 @@ class DataJob {
             await this.purgeCachePrefix(publicPath);
         }
         if (freshData) {
-            this.writeDump(data, `v2/${key}`, false);
+            await this.writeDump(data, `v2/${key}`, false);
             this.logger.success(`Successful R2 put of ${key} in ${uploadTime} ms (${dataString.length.toLocaleString()} bytes)`);
         } else {
             return;
@@ -438,8 +439,20 @@ class DataJob {
                 // do nothing
             }
         }
-        fs.writeFileSync(newName, JSON.stringify(data, null, 4));
-        //fs.writeFileSync(newName, value);
+        if (process.env.NODE_ENV !== 'production') {
+            fs.writeFileSync(newName, JSON.stringify(data, null, 4));
+            return Promise.resolve();
+        }
+        return new Promise((resolve, reject) => {
+            try {
+                const writeStream = fs.createWriteStream(newName);
+                new JsonStreamStringify(data).pipe(writeStream);
+                writeStream.on('finish', resolve);
+                writeStream.on('error', reject);
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
 
     discordAlert = async (options) => {

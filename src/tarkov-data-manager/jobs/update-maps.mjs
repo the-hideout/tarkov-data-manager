@@ -20,8 +20,8 @@ const enableMaps = [
     '5714dc692459777137212e12', // Streets of Tarkov
     '5704e3c2d2720bac5b8b4567', // Woods
     '5b0fc42d86f7744a585f9105', // Labs
-    //'65cc8f81a9aac3e77d0cfd3e', // Terminal with all bosses (old?)
-    '6925a2c38bdebd9e2302692e', // Terminal with rotating bosses (new?)
+    '65cc8f81a9aac3e77d0cfd3e', // Terminal used in quests
+    //'6925a2c38bdebd9e2302692e', // Terminal shown in UI
     '69af492a4819ea4ba10a69c5', // Icebreaker
 ];
 
