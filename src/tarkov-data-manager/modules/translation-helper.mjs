@@ -177,7 +177,7 @@ class TranslationHelper {
             assaultTutorial: 'Savage',
             sentry: 'Sentry',
         };
-        return keySubs[enemy] || enemy;
+        return keySubs[enemy] ?? enemy;
     }
 
     addMobTranslation = (key) => {
@@ -211,7 +211,7 @@ class TranslationHelper {
             }
             
             if (key.includes('follower') && !key.includes('BigPipe') && !key.includes('BirdEye')) {
-                this.translationKeyMap[key] = (key, langCode, lang) => {    
+                this.translationKeyMap[key] = (key, langCode, lang) => {
                     const nameParts = [];
                     const guardTypePattern = /Assault|Security|Scout|Snipe|Close1|Close2/;
                     const bossKey = key.replace('follower', 'boss').replace(guardTypePattern, '');

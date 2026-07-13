@@ -33,6 +33,7 @@
     "express": "^5.2.1",
     "filenamify": "^7.0.1",
     "formidable": "^3.5.4",
+    "json-stream-stringify": "^3.1.7",
     "luxon": "^3.7.2",
     "mysql2": "^3.22.3",
     "node-schedule": "^2.1.1",

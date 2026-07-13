@@ -48,8 +48,9 @@ class VerifyWikiJob extends DataJob {
                         }
                         // request wasn't successful but wasn't a 404
                         // don't change anything
-                        console.log('error checking wiki link', item.wiki_link);
-                        console.log(error.code, error.status, error.statusText);
+                        this.logger.log(`Error checking wiki link: ${error.status} ${error.statusText}`);
+                        this.logger.log(`\t${item.name} ${item.id}`);
+                        this.logger.log(`\t${item.wiki_link}`);
                         return {resolve: true};
                     });
                     if (response.resolve) {
@@ -64,7 +65,10 @@ class VerifyWikiJob extends DataJob {
                     }
 
                     // We don't have the right link, but there's a redirect
-                    newWikiLink = this.getWikiLink(redirect.replace('/wiki/', ''));
+                    newWikiLink = `https://escapefromtarkov.fandom.com${redirect}`;
+                    this.logger.log(`Link redirect: ${item.name} ${item.id}: ${newWikiLink}`);
+                    this.logger.log(`\tOld: ${item.wiki_link}`);
+                    this.logger.log(`\tNew: ${newWikiLink}`);
                 } catch (error) {
                 }
             }
@@ -76,11 +80,13 @@ class VerifyWikiJob extends DataJob {
                     if (item.types.includes('preset')) {
                         itemId = item.properties.items[0]._tpl;
                     }
-                    const response = await this.getWikiApiPage(`Template:${itemId}`);
+                    const response = await this.getWikiApiPage(`Template%3A${itemId}`);
                     const pageContent = cheerio.load(response.parse.text['*']);
                     const pathName = pageContent('.mw-parser-output p a').first().prop('href');
                     if (pathName) {
                         newWikiLink = `https://escapefromtarkov.fandom.com${pathName}`;
+                        this.logger.log(`Link from ID: ${item.name} ${item.id}: ${newWikiLink}`);
+                        this.logger.log(`\tNew: ${newWikiLink}`);
                     }
                 } catch (error) {
                     // nothing to do
@@ -101,10 +107,14 @@ class VerifyWikiJob extends DataJob {
                     const response = await this.getWikiApiPage(pageName);
                     const pageContent = cheerio.load(response.parse.text['*']);
                     const redirect = pageContent('.mw-parser-output .redirectText li a').first().prop('href');
-
+                
                     if (redirect) {
                         newWikiLink = this.getWikiLink(redirect.replace('/wiki/', ''));
+                        this.logger.log(`Link from name +redirect: ${item.name} ${item.id}: ${newWikiLink}`);
+                    } else {
+                        this.logger.log(`Link from name: ${item.name} ${item.id}: ${newWikiLink}`);
                     }
+                    this.logger.log(`\tNew: ${newWikiLink}`);
                 } catch (error) {
                     this.missingWikiLinkCount++;
                     newWikiLink = false;
@@ -123,6 +133,7 @@ class VerifyWikiJob extends DataJob {
 
             if (newWikiLink) {
                 this.addJobSummary(item.name, 'Updated Wiki Link');
+                //this.logger.log(`Updated link: ${item.name} ${item.id}: ${newWikiLink}`);
                 remoteData.setProperty(item.id, 'wiki_link', newWikiLink);
             }
         } catch (error) {
