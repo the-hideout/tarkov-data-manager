@@ -160,6 +160,11 @@ class UpdateMapsJob extends DataJob {
                     this.logger.log(`❌ Map ${map.Id} ${id} has no translation`);
                     continue;
                 }
+                let mapDetails = this.mapDetails[id];
+                if (id === '6a294a5b5eb5f9a1700417b7') {
+                    // Dark labs; copy stuff from regular labs
+                    mapDetails = structuredClone(this.mapDetails['6a294a5b5eb5f9a1700417b7']);
+                }
                 const mapData = {
                     id: id,
                     tarkovDataId: null,
@@ -195,7 +200,7 @@ class UpdateMapsJob extends DataJob {
                     raidDuration: map.EscapeTimeLimit,
                     players: map.MinPlayers+'-'+map.MaxPlayers,
                     bosses: [],
-                    coordinateToCardinalRotation: this.mapDetails[id]?.north_rotation ?? 180,
+                    coordinateToCardinalRotation: mapDetails?.north_rotation ?? 180,
                     spawns: map.SpawnPointParams.map(spawn => {
                         if (spawn.Sides.includes('Usec') && spawn.Sides.includes('Bear')) {
                             spawn.Sides = spawn.Sides.filter(side => !['Usec', 'Bear', 'Pmc'].includes(side));
@@ -210,8 +215,8 @@ class UpdateMapsJob extends DataJob {
                             categories.push('sniper');
                         }
                         let zoneName = spawn.BotZoneName;
-                        if (!zoneName && this.mapDetails[id]) {
-                            for (const zone of this.mapDetails[id].spawns) {
+                        if (!zoneName && mapDetails) {
+                            for (const zone of mapDetails.spawns) {
                                 if (zone.spawnPoints.some(p => p.id === spawn.Id)) {
                                     zoneName = zone.name;
                                     break;
@@ -233,7 +238,7 @@ class UpdateMapsJob extends DataJob {
                             zoneName,
                         };
                     }).filter(Boolean),
-                    extracts: this.mapDetails[id]?.extracts.map(extract => {
+                    extracts: mapDetails?.extracts.map(extract => {
                         let transferItem;
                         const extractData = map.exits.find(e => e.Name === extract.settings.Name);
                         if (extractData?.PassageRequirement === 'TransferItem') {
@@ -253,7 +258,7 @@ class UpdateMapsJob extends DataJob {
                             id: this.getId(id, extract),
                             name: this.addTranslation(extract.settings.Name),
                             faction: exfilFactions[extract.exfilType],
-                            switch: this.mapDetails[id].switches.reduce((found, current) => {
+                            switch: mapDetails?.switches.reduce((found, current) => {
                                 if (found) {
                                     return found;
                                 }
@@ -266,7 +271,7 @@ class UpdateMapsJob extends DataJob {
                                 return found;
                             }, false),
                             switches: extract.exfilSwitchIds.map(switchId => {
-                                const foundSwitch = this.mapDetails[id].switches.find(sw => sw.id === switchId && sw.hasCollider);
+                                const foundSwitch = mapDetails?.switches.find(sw => sw.id === switchId && sw.hasCollider);
                                 return foundSwitch ? this.getId(id, foundSwitch) : false;
                             }).filter(Boolean),
                             transferItem,
@@ -277,7 +282,7 @@ class UpdateMapsJob extends DataJob {
                         if (!transit.active) {
                             return false;
                         }
-                        const locationData = this.mapDetails[id]?.transits.find(t => t.id === transit.id);
+                        const locationData = mapDetails?.transits.find(t => t.id === transit.id);
                         if (!locationData) {
                             this.logger.warn(`Could not find location data for ${this.locales.en[transit.description]}`);
                             return false;
@@ -294,7 +299,7 @@ class UpdateMapsJob extends DataJob {
                             ...locationData.location,
                         };
                     }).filter(Boolean) ?? [],
-                    locks: this.mapDetails[id]?.locks.map(lock => {
+                    locks: mapDetails?.locks.map(lock => {
                         const keyItem = this.items.get(lock.key);
                         if (!keyItem || keyItem.types.includes('disabled')) {
                             this.logger.warn(`Skipping lock for key ${lock.key}`)
@@ -308,7 +313,7 @@ class UpdateMapsJob extends DataJob {
                             ...lock.location,
                         }
                     }).filter(Boolean) ?? [],
-                    hazards: this.mapDetails[id]?.hazards.map(hazard => {
+                    hazards: mapDetails?.hazards.map(hazard => {
                         if (!hazardMap[hazard.hazardType]) {
                             this.logger.warn(`Unknown hazard type: ${hazard.hazardType}`);
                         }
@@ -321,7 +326,7 @@ class UpdateMapsJob extends DataJob {
                             ...hazard.location,
                         };
                     }) ?? [],
-                    lootContainers: this.mapDetails[id]?.loot_containers.map(container => {
+                    lootContainers: mapDetails?.loot_containers.map(container => {
                         if (!container.lootParameters.Enabled) {
                             return false;
                         }
@@ -343,7 +348,7 @@ class UpdateMapsJob extends DataJob {
                             items: itemIds,
                         };
                     }).filter(Boolean) ?? [],
-                    /*lootPoints: this.mapDetails[id].loot_points.reduce((allLoot, rawLoot) => {
+                    /*lootPoints: mapDetails.loot_points.reduce((allLoot, rawLoot) => {
                         const duplicateLootPoint = allLoot.find(l => l.position.x === rawLoot.lootParameters.Position.x && l.position.y === rawLoot.lootParameters.Position.y && l.position.z === rawLoot.lootParameters.Position.z);
                         if (duplicateLootPoint) {
                             for (const id of rawLoot.lootParameters.FilterInclusive) {
@@ -367,7 +372,7 @@ class UpdateMapsJob extends DataJob {
                         });
                         return allLoot;
                     }, []),*/
-                    switches: this.mapDetails[id]?.switches.map(sw => {
+                    switches: mapDetails?.switches.map(sw => {
                         if (!sw.hasCollider) {
                             return false;
                         }
@@ -382,7 +387,7 @@ class UpdateMapsJob extends DataJob {
                             name: this.addTranslation(switchId),
                             door: sw.doorId,
                             switchType: sw.interactionType,
-                            activatedBy: this.mapDetails[id].switches.reduce((found, current) => {
+                            activatedBy: mapDetails.switches.reduce((found, current) => {
                                 if (found) {
                                     return found;
                                 }
@@ -398,7 +403,7 @@ class UpdateMapsJob extends DataJob {
                                 ...sw.nextSwitches.map(so => {
                                     return {
                                         operation: so.operation,
-                                        switch: this.mapDetails[id].switches.reduce((found, current) => {
+                                        switch: mapDetails.switches.reduce((found, current) => {
                                             if (found) {
                                                 return found;
                                             }
@@ -412,7 +417,7 @@ class UpdateMapsJob extends DataJob {
                                         }, false),
                                     }
                                 }).filter(so => so.switch),
-                                this.mapDetails[id].extracts.reduce((found, extract) => {
+                                mapDetails.extracts.reduce((found, extract) => {
                                     if (found || !sw.extractId) {
                                         return found;
                                     }
@@ -428,7 +433,7 @@ class UpdateMapsJob extends DataJob {
                             ...sw.location,
                         };
                     }).filter(Boolean) ?? [],
-                    stationaryWeapons: this.mapDetails[id]?.stationary_weapons.map(sw => {
+                    stationaryWeapons: mapDetails?.stationary_weapons.map(sw => {
                         return {
                             stationaryWeapon: this.getStationaryWeapon(sw.weaponItemId),
                             position: sw.location.position,
@@ -641,7 +646,7 @@ class UpdateMapsJob extends DataJob {
                     }
     
                     if (spawn.TriggerId && spawn.TriggerName === 'interactObject') {
-                        const switchId = this.mapDetails[id].switches.reduce((found, current) => {
+                        const switchId = mapDetails.switches.reduce((found, current) => {
                             if (found) {
                                 return found;
                             }
@@ -717,10 +722,10 @@ class UpdateMapsJob extends DataJob {
                 }
 
                 const getWaypoint = (waypointId) => {
-                    return this.mapDetails[id].path_destinations.find(pd => pd.id === waypointId)?.location.position;
+                    return mapDetails.path_destinations.find(pd => pd.id === waypointId)?.location.position;
                 };
 
-                if (globals.config.BTRSettings.MapsConfigs[map.Id] && this.mapDetails[id]) {
+                if (globals.config.BTRSettings.MapsConfigs[map.Id] && mapDetails) {
                     const pathPoints = new Set();
                     for (const pathConfig of globals.config.BTRSettings.MapsConfigs[map.Id].pathsConfigurations) {
                         if (!pathConfig.active) {
