@@ -25,9 +25,3 @@ updates:
       interval: monthly
     cooldown:
       default-days: 45
-  - package-ecosystem: "terraform"
-    directory: "/terraform"
-    schedule:
-      interval: "monthly"
-    cooldown:
-      default-days: 45
