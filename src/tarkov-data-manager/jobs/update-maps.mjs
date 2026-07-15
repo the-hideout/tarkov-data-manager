@@ -195,6 +195,7 @@ class UpdateMapsJob extends DataJob {
                     normalizedName: '', // set below using the EN translation of name
                     nameId: map.Id,
                     description: this.addTranslation(`${id} Description`),
+                    scenePath: map.Scene.path,
                     wiki: this.getWikiLink(this.locales.en[`${id} Name`]),
                     enemies: [],
                     raidDuration: map.EscapeTimeLimit,
