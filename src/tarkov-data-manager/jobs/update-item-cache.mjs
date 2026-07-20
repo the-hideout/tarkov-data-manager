@@ -8,7 +8,7 @@ import dataMaps from '../modules/data-map.js';
 import remoteData from '../modules/remote-data.mjs';
 import tarkovData from '../modules/tarkov-data.mjs';
 import { dashToCamelCase, camelCaseToTitleCase } from '../modules/string-functions.mjs';
-import { setItemPropertiesOptions, getSpecialItemProperties } from '../modules/get-item-properties.js';
+import { setItemPropertiesOptions, getSpecialItemProperties } from '../modules/get-item-properties.mjs';
 import { createAndUploadFromSource } from '../modules/image-create.mjs';
 import TranslationHelper from '../modules/translation-helper.mjs';
 import { getLocalBucketContents, uploadAnyImage } from '../modules/upload-s3.mjs';
@@ -38,6 +38,7 @@ class UpdateItemCacheJob extends DataJob {
             this.itemMap,
             this.handbook,
             this.traders,
+            this.tapeList,
             this.s3Images,
             this.presetTranslations,
             this.endpointsData,
@@ -51,6 +52,7 @@ class UpdateItemCacheJob extends DataJob {
             }),
             tarkovData.handbook(),
             tarkovData.traders({gameMode: 'regular'}),
+            tarkovData.tapeList(),
             getLocalBucketContents(),
             this.query('SELECT * FROM preset_locale').then(records => {
                 const translations = [];
@@ -1039,6 +1041,7 @@ class UpdateItemCacheJob extends DataJob {
                 '$.data.items.*.properties.armorSlots[*].armorType',
                 '$.data.items.*.properties.stimEffects[*].type',
                 '$.data.items.*.properties.fireModes[*]',
+                '$.data.items.*.properties.content[*]',
                 '$.data.fleaMarket.*.name',
                 '$.data.armorMaterial.*.name',
                 '$.data.skills.*.name',

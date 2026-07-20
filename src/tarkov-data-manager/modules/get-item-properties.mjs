@@ -1,3 +1,5 @@
+import unityRichTextToHtml from './urt-to-html.mjs'
+
 let itemIds = false;
 let disabledItemIds = false;
 let job = false;
@@ -715,11 +717,42 @@ const getItemProperties = async (tarkovDevItem) => {
             return sizes;
         }, {});
     }
+    const tape = job?.tapeList.find(t => t.id === tarkovDevItem.id);
+    if (tape) {
+        properties = {
+            propertiesType: 'ItemPropertiesInfoContent',
+            content: translationHelper.addTranslation(tape.subtitles.map(sub => sub.id)),
+        };
+    }
+    if (!properties && translationHelper.locales.en[`${tarkovDevItem.id}_Note_Page1_Text1`]) {
+        properties = {
+            propertiesType: 'ItemPropertiesInfoContent',
+            content: [],
+        };
+        for (const key of Object.keys(translationHelper.locales.en)) {
+            if (!key.startsWith(`${tarkovDevItem.id}_Note_`)) {
+                continue;
+            }
+            properties.content.push(translationHelper.addTranslation(key, (lang => {
+                return unityRichTextToHtml(lang[key]);
+            })));
+        }
+    }
     return properties;
 };
 
-module.exports = {
+const exportObj = {
     setItemPropertiesOptions: setAll,
     getSpecialItemProperties: getItemProperties,
     topCategories: topCategories
 };
+
+export default exportObj;
+
+export const setItemPropertiesOptions = async (options) => {
+    return setAll(options);
+}
+
+export const getSpecialItemProperties = async (...args) => {
+    return getItemProperties(...args);
+}

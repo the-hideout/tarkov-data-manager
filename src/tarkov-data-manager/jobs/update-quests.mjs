@@ -26,21 +26,21 @@ class UpdateQuestsJob extends DataJob {
             this.locations,
             this.mapLoot,
             this.mapDetails,
-            this.locales,
             this.itemResults,
-            this.pvpRefQuests,
             this.missingQuests,
             this.changedQuestsOriginal,
             this.changedQuestsGameMode,
             this.removedQuests,
             this.neededKeys,
+            this.globalVariables,
             this.questConfig,
             this.s3Images,
             this.customization,
             this.prestige,
+            this.storyChapters,
         ] = await Promise.all([
             fetch('https://tarkovtracker.github.io/tarkovdata/quests.json').then(r => r.json()),
-            tarkovData.quests(true).catch(error => {
+            tarkovData.quests({download: true}).catch(error => {
                 this.logger.error('Error getting quests');
                 this.logger.error(error);
                 return tarkovData.quests(false);
@@ -54,18 +54,18 @@ class UpdateQuestsJob extends DataJob {
                 return all;
             }, {})),
             tarkovData.mapDetails(),
-            tarkovData.locales(),
             remoteData.get(),
-            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'pvp_ref_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'missing_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'changed_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'changed_quests_game_mode.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'removed_quests.json')).then(json => JSON.parse(json)),
             fs.readFile(path.join(import.meta.dirname, '..', 'data', 'needed_keys.json')).then(json => JSON.parse(json)),
+            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'global_variables.json')).then(json => JSON.parse(json)),
             tarkovData.questConfig(),
             getLocalBucketContents(),
             tarkovData.customization(),
             tarkovData.prestige(),
+            tarkovData.storyChapters({download: true}).then(data => data.chapters),
         ]);
         this.maps = await this.jobOutput('update-maps');
         this.hideout = await this.jobOutput('update-hideout');
@@ -80,6 +80,12 @@ class UpdateQuestsJob extends DataJob {
             }
             return valid;
         }, {});
+        this.locations.locations = Object.keys(this.locations.locations).reduce((valid, mapId) => {
+            if (this.maps.some(m => m.id === mapId)) {
+                valid[mapId] = this.locations.locations[mapId];
+            }
+            return valid;
+        }, {});
 
         // only keep loot for active maps
         this.mapLoot = Object.keys(this.mapLoot).reduce((valid, mapId) => {
@@ -89,20 +95,11 @@ class UpdateQuestsJob extends DataJob {
             return valid;
         }, {});
 
-        for (const id in this.pvpRefQuests) {
-            if (!this.rawQuestData[id]) {
-                this.rawQuestData[id] = this.pvpRefQuests[id];
-            }
-        }
-
         const missingImages = new Set();
 
         const allQuests = {};
         for (const gameMode of this.gameModes) {
-            if (gameMode.name !== 'regular') {
-                this.locales = await tarkovData.locales({gameMode: gameMode.name});
-            }
-            this.locales = await tarkovData.locales();
+            this.questMode = 'tasks';
             this.changedQuests = {};
             for (const id in this.changedQuestsOriginal) {
                 this.changedQuests[id] = {
@@ -121,47 +118,53 @@ class UpdateQuestsJob extends DataJob {
             this.questItems = {};
             const quests = {
                 Task: [],
+                Story: [],
             };
             this.Tasks = quests.Task;
             allQuests[gameMode.name] = quests;
 
             for (const questId in this.rawQuestData) {
                 if (this.removedQuests[questId]) {
-                    this.logger.warn(`Skipping removed quest ${this.locales.en[`${questId} name`]} ${questId}`);
+                    this.logger.warn(`Skipping quest ${this.locales.en[`${questId} name`]} ${questId} - removed`);
                     continue;
                 }
                 const eventQuestConfig = this.questConfig.eventQuests[questId];
                 if (new Date() >= eventQuestConfig?.endTimestamp) {
-                    this.logger.warn(`Skipping event quest ${this.locales.en[`${questId} name`]} ${questId}`);
+                    this.logger.warn(`Skipping quest ${this.locales.en[`${questId} name`]} ${questId} - event quest`);
+                    continue;
+                }
+                this.addQuestLocalizations(this.rawQuestData[questId]);
+                if (this.rawQuestData[questId].isStoryQuest || this.rawQuestData[questId].notDisplayedQuest) {
+                    //this.logger.warn(`Skipping story quest ${this.locales.en[`${questId} name`]} ${questId}`);
                     continue;
                 }
                 if (!this.locales.en[`${questId} name`]) {
-                    this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - localization not found`);
+                    this.logger.warn(`Skipping quest ${this.locales.en[`${questId} name`]} ${questId} - localization not found`);
                     continue;
                 }
                 if (skipQuests.includes(questId)) {
-                    this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - manual skip`);
+                    this.logger.warn(`Skipping quest ${this.locales.en[`${questId} name`]} ${questId} - manual skip`);
                     continue;
                 }
                 const giver = this.rawTraders.find(t => t._id === this.rawQuestData[questId].traderId);
                 if (!giver) {
-                    this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - invalid quest giver`);
+                    this.logger.warn(`Skipping quest ${this.locales.en[`${questId} name`]} ${questId} - invalid quest giver`);
                     continue;
                 }
                 const missingTraderForRequiredLevel = this.rawQuestData[questId].conditions.AvailableForStart.some(cond => cond.conditionType === 'TraderLoyalty' && !this.rawTraders.find(t => t._id === cond.target));
                 if (missingTraderForRequiredLevel) {
-                    this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - invalid trader for required loyalty level`);
+                    this.logger.warn(`Skipping quest ${this.locales.en[`${questId} name`]} ${questId} - invalid trader for required loyalty level`);
                     continue;
                 }
                 //const missingTraderForUnlock = this.rawQuestData[questId].rewards.Success.some(r => r.type === 'TraderUnlock' && !this.rawTraders.find(t => t._id === r.target));
                 const missingTraderForUnlock = Object.keys(this.rawQuestData[questId].rewards).some(rcat => this.rawQuestData[questId].rewards[rcat].some(r => r.type === 'TraderUnlock' && !this.rawTraders.find(t => t._id === r.target)));
                 if (missingTraderForUnlock) {
-                    this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - invalid trader unlock`);
+                    this.logger.warn(`Skipping quest ${this.locales.en[`${questId} name`]} ${questId} - invalid trader unlock`);
                     continue;
                 }
                 const lockedToGameMode = this.lockedToGameMode(questId);
                 if (lockedToGameMode && lockedToGameMode !== gameMode.name) {
-                    this.logger.warn(`Skipping quest ${this.rawQuestData[questId].QuestName} ${questId} - locked to ${lockedToGameMode}`);
+                    this.logger.warn(`Skipping quest ${this.locales.en[`${questId} name`]} ${questId} - locked to ${lockedToGameMode}`);
                     continue;
                 }
                 quests.Task.push(await this.formatRawQuest(this.rawQuestData[questId]));
@@ -254,6 +257,45 @@ class UpdateQuestsJob extends DataJob {
                 } catch (error) {
                     this.logger.error(error);
                     this.addJobSummary(`${this.locales.en[quest.name]} ${questId}\n${error.stack}`, 'Error Adding Missing Quest');
+                }
+            }
+
+            this.questMode = 'story';
+            for (const ch of this.storyChapters) {
+                const chapterId = ch.ChapterId;
+                if (!this.locales.en[`${chapterId} name`]) {
+                    this.logger.warn(`Skipping chapter ${chapterId}; no name found`);
+                    continue;
+                }
+                const chapter = {
+                    id: chapterId,
+                    name: this.addTranslation(`${chapterId} name`),
+                    _name: this.getTranslation(`${chapterId} name`),
+                    taskRequirements: [],
+                    traderRequirements: [],
+                    tasks: [],
+                };
+                quests.Story.push(chapter);
+                const chapterData = this.rawQuestData[chapterId];
+                if (!chapterData) {
+                    this.logger.warn(`Skipping chapter ${chapterId}; chapter task found`);
+                    continue;
+                }
+                this.logger.log(`Processing story chapter ${this.getTranslation(`${chapterId} name`)}`);
+                this.loadStartConditions(chapter, chapterData);
+                for (const req of this.sortObjectives(chapterData.conditions.AvailableForFinish)) {
+                    if (req.conditionType === 'Quest') {
+                        const storyTask = this.rawQuestData[req.target];
+                        if (!storyTask) {
+                            this.logger.warn(`Skipping story task ${req.target}, quest not found`);
+                            continue;
+                        }
+                        this.addQuestLocalizations(storyTask);
+                        const formattedTask = await this.formatRawQuest(storyTask, {chapter: chapterId});
+                        chapter.tasks.push(formattedTask);
+                    } else {
+                        this.logger.log(`Weird finish condition type for ${req.id}: ${req.conditionType}`)
+                    }
                 }
             }
 
@@ -695,6 +737,21 @@ class UpdateQuestsJob extends DataJob {
         return undefined;
     }
 
+    getMapFromTransitName = transitName => {
+        for (const mapData of this.maps) {
+            for (const transit of this.locations.locations[mapData.id].transits) {
+                if (transit.name === transitName) {
+                    return mapData.id;
+                }
+            }
+        }
+        return undefined;
+    }
+
+    getMapFromExtractOrTransitName = exitName => {
+        return this.getMapFromExtractName(exitName) ?? this.getMapFromTransitName(exitName);
+    }
+
     getMapFromNameId = nameId => {
         for (const map of this.maps) {
             if (map.nameId === nameId) {
@@ -886,6 +943,16 @@ class UpdateQuestsJob extends DataJob {
     }
 
     loadRewards = async (questData, rewardsType, sourceRewards) => {
+        questData[rewardsType].traderStanding ??= [];
+        questData[rewardsType].items ??= [];
+        questData[rewardsType].offerUnlock ??= [];
+        questData[rewardsType].skillLevelReward ??= [];
+        questData[rewardsType].traderUnlock ??= [];
+        questData[rewardsType].traderDialogueUnlock ??= [];
+        questData[rewardsType].craftUnlock ??= [];
+        questData[rewardsType].achievement ??= [];
+        questData[rewardsType].customization ??= [];
+        questData[rewardsType].locationUnlock ??= [];
         for (const reward of sourceRewards) {
             const ignoreRewardTypes = [
                 'NotificationPopup',
@@ -962,6 +1029,13 @@ class UpdateQuestsJob extends DataJob {
                     trader_id: reward.target,
                     trader_name: this.locales.en[`${reward.target} Nickname`]
                 });
+            } else if (reward.type === 'TraderDialogueUnlock') {
+                if (!this.rawTraders.find(t => t._id === reward.target)) {
+                    continue;
+                }
+                questData[rewardsType].traderDialogueUnlock.push(reward.target);
+            } else if (reward.type === 'LocationUnlock') {
+                questData[rewardsType].locationUnlock.push(reward.target);
             } else if (reward.type === 'ProductionScheme') {
                 const station = this.hideout.find(s => s.areaType == reward.traderId);
                 if (!station) {
@@ -1065,7 +1139,7 @@ class UpdateQuestsJob extends DataJob {
         }
     }
 
-    formatRawQuest = async (quest) => {
+    formatRawQuest = async (quest, options = {}) => {
         const questId = quest._id;
         this.logger.log(`Processing ${this.locales.en[`${questId} name`]} ${questId}`);
         /*if (!en.locations[quest.location]) {
@@ -1147,20 +1221,20 @@ class UpdateQuestsJob extends DataJob {
             availableDelaySecondsMin: 0,
             availableDelaySecondsMax: 0,
         };
-        for (const objective of quest.conditions.AvailableForFinish) {
-            const obj = this.formatObjective(questData.id, objective, 'complete');
+        for (const objective of this.sortObjectives(quest.conditions.AvailableForFinish)) {
+            const obj = this.formatObjective(questData.id, objective, {type: 'complete'});
             if (!obj) {
                 continue;
             }
             questData.objectives.push(obj);
         }
         for (const objective of quest.conditions.Fail) {
-            const obj = this.formatObjective(questData.id, objective, 'fail');
+            const obj = this.formatObjective(questData.id, objective, {type: 'fail'});
             if (obj) {
                 questData.failConditions.push(obj);
             }
         }
-        for (const req of quest.conditions.AvailableForStart) {
+        /*for (const req of quest.conditions.AvailableForStart) {
             if (req.conditionType === 'Level') {
                 questData.minPlayerLevel = parseInt(req.value);
             } else if (req.conditionType === 'Quest') {
@@ -1200,9 +1274,10 @@ class UpdateQuestsJob extends DataJob {
                     level: parseInt(req.value),
                 });
             } else {
-                this.logger.warn(`Unrecognized quest prerequisite type ${req.conditionType} for quest requirement ${req.id} of ${questData.name}`)
+                this.logger.warn(`Unrecognized quest prerequisite type ${req.conditionType} for quest requirement ${req.id} of ${this.locales.en[questData.name]}`)
             }
-        }
+        }*/
+       this.loadStartConditions(questData, quest, options);
         await this.loadRewards(questData, 'finishRewards', quest.rewards.Success);
         await this.loadRewards(questData, 'startRewards', quest.rewards.Started);
         await this.loadRewards(questData, 'failureOutcome', quest.rewards.Fail);
@@ -1390,14 +1465,15 @@ class UpdateQuestsJob extends DataJob {
         return questData;
     }
 
-    formatObjective(questId, objective, objectiveType = 'complete') {
+    formatObjective(questId, objective, options = {}) {
+        options.type ??= 'complete';
         if (this.changedQuests[questId]?.objectivesRemoved?.includes(objective.id)) {
             return false;
         }
         if (!objective.id) {
             return false;
         }
-        if (objectiveType !== 'fail' && objective.zoneId && this.rawQuestData[questId].conditions.Fail?.some(f => f.zoneId === objective.zoneId)) {
+        if (options.type !== 'fail' && objective.zoneId && this.rawQuestData[questId].conditions.Fail?.some(f => f.zoneId === objective.zoneId)) {
             return false;
         }
         let objectiveId = objective.id;
@@ -1408,9 +1484,16 @@ class UpdateQuestsJob extends DataJob {
             objectiveId = objectiveIdChanged;
         }
 
+        let descriptionKey = objectiveId;
+        let hasDescription = !!this.locales.en[descriptionKey];
+        if (!hasDescription && objective.questNodeId) {
+            descriptionKey = `${objective.questNodeId} questNoteText`;
+            hasDescription = !!this.locales.en[descriptionKey];
+        }
+
         const obj = {
             id: objectiveId,
-            description: (objectiveType === 'complete' || this.locales.en[objectiveId]) ? this.addTranslation(objectiveId) : this.addTranslation(objectiveId, 'en', ''),
+            description: hasDescription ? this.addTranslation(descriptionKey) : this.addTranslation(objectiveId, 'en', ''),
             type: null,
             count: isNaN(objective.value) ? null : parseInt(objective.value),
             optional: Boolean((objective.parentId)),
@@ -1545,6 +1628,7 @@ class UpdateQuestsJob extends DataJob {
                             'assault',
                             'cursedAssault',
                             'followerStormtrooper',
+                            'followerTest',
                         ];
                         const allowedRoles = cond.savageRole.filter(role => !ignoreRoles.includes(role)).reduce((roles, role) => {
                             const key = this.getMobKey(role);
@@ -1585,12 +1669,9 @@ class UpdateQuestsJob extends DataJob {
                 } else if (cond.conditionType === 'ExitName') {
                     obj.exitName = this.addTranslation(cond.exitName)
                     if (cond.exitName && obj.map_ids.length === 0) {
-                        const mapIdWithExtract = Object.keys(this.mapDetails).find(mapId => {
-                            const extracts = this.mapDetails[mapId].extracts;
-                            return extracts.some(e => e.settings.Name === cond.exitName);
-                        });
-                        if (mapIdWithExtract) {
-                            obj.map_ids.push(mapIdWithExtract);
+                        const mapIdWithExit = this.getMapFromExtractOrTransitName(cond.exitName);
+                        if (mapIdWithExit) {
+                            obj.map_ids.push(mapIdWithExit);
                         } else {
                             this.logger.warn(`No map found for extract ${cond.exitName}`);
                         }
@@ -1832,6 +1913,25 @@ class UpdateQuestsJob extends DataJob {
             }
             obj.station = hideoutStation.id;
             obj.stationLevel = objective.value;
+        } else if (objective.conditionType === 'GlobalVariableValue') {
+            const gvObj = this.getGlobalVariableObjective(objective.target);
+            if (gvObj) {
+                Object.assign(obj, gvObj);
+            } else {    
+                this.logger.warn(`Objective ${objective.id} is GlobalVariableValue ${objective.target} ${objective.compareMethod} ${objective.value}`);
+                obj.type = 'globalVariable';
+                obj.globalVariable = {
+                    value: objective.value,
+                    compareMethod: objective.compareMethod,
+                    id: objective.target,
+                };
+            }
+        } else if (objective.conditionType === 'CompletableItem') {
+            obj.type = 'studyItems';
+            obj.items = [objective.target];
+        } else if (objective.conditionType === 'LocationTrigger') {
+            obj.type = 'visit';
+            obj.zoneKeys.push(objective.target);
         } else {
             this.logger.warn(`Unrecognized type "${objective.conditionType}" for objective ${objective.id}`);
             return;
@@ -1857,6 +1957,150 @@ class UpdateQuestsJob extends DataJob {
         return obj;
     }
 
+    loadStartConditions(questData, quest, options = {}) {
+        const startConditions = structuredClone(quest.conditions.AvailableForStart);
+        for (const cond of quest.conditions.AutoStart ?? []) {
+            let duplicate;
+            if (cond.conditionType === 'CompletableItem') {
+                duplicate = startConditions.some(c => c.target === cond.target);
+            }
+            if (duplicate) {
+                continue;
+            }
+            startConditions.push(cond);
+        }
+        questData.taskRequirements ??= [];
+        questData.traderRequirements ??= [];
+        questData.otherRequirements ??= [];
+        for (const req of startConditions) {
+            if (req.conditionType === 'Level') {
+                questData.minPlayerLevel = parseInt(req.value);
+            } else if (req.conditionType === 'Quest') {
+                if (req === options.chapter && req.status.includes(2)) {
+                    continue;
+                }
+                const questReq = {
+                    task: req.target,
+                    name: this.locales.en[`${req.target} name`],
+                    status: []
+                };
+                for (const statusCode of req.status) {
+                    if (!questStatusMap[statusCode]) {
+                        this.logger.warn(`Unrecognized quest status "${statusCode}" for quest requirement ${this.locales.en[req.target]} ${req.target} of ${questData.name}`);
+                        continue;
+                    }
+                    questReq.status.push(questStatusMap[statusCode]);
+                }
+                questData.taskRequirements.push(questReq);
+                if (req.availableAfter && req.availableAfter !== 15) {
+                    if (!questData.availableDelaySecondsMin || req.availableAfter < questData.availableDelaySecondsMin) {
+                        questData.availableDelaySecondsMin = req.availableAfter;
+                    }
+                    if (req.availableAfter + req.dispersion > questData.availableDelaySecondsMax) {
+                        questData.availableDelaySecondsMax = req.availableAfter + req.dispersion;
+                    }
+                }
+            } else if (req.conditionType === 'TraderLoyalty' || req.conditionType === 'TraderStanding') {
+                const requirementTypes = {
+                    TraderLoyalty: 'level',
+                    TraderStanding: 'reputation',
+                };
+                questData.traderRequirements.push({
+                    id: req.id,
+                    trader_id: req.target,
+                    name: this.locales.en[`${req.target} Nickname`],
+                    requirementType: requirementTypes[req.conditionType],
+                    compareMethod: req.compareMethod,
+                    value: parseInt(req.value),
+                    level: parseInt(req.value),
+                });
+            } else if (req.conditionType === 'CompletableItem') {
+                questData.otherRequirements.push({
+                    id: req.id,
+                    type: 'studyItems',
+                    items: [req.target],
+                });
+            } else if (req.conditionType === 'GlobalVariableValue') {
+                const gvObj = this.getGlobalVariableObjective(req.target);
+                if (gvObj) {
+                    questData.otherRequirements.push({
+                        id: req.id,
+                        ...gvObj,
+                    });
+                    continue;
+                }
+                questData.otherRequirements.push({
+                    id: req.id,
+                    type: 'globalVariable',
+                    variableId: req.target,
+                    compareMethod: req.compareMethod,
+                    value: req.value,
+                });
+            } else {
+                this.logger.warn(`Unrecognized quest prerequisite type ${req.conditionType} for quest requirement ${req.id} of ${this.locales.en[questData.name]}`)
+            }
+        }
+    }
+
+    sortObjectives(objectives) {
+        const parentIds = objectives.filter(parent => objectives.some(objective => objective.visibilityConditions?.find(cond => cond.target === parent.id))).map(objective => objective.id);
+        const getIndex = (objectiveId) => {
+            const obj = objectives.find(o => o.id === objectiveId);
+            let ind = obj.index;
+            const isParent = parentIds.includes(obj.id);
+            if (isParent) {
+                ind -= 100;
+            }
+            if (obj.parentId) {
+                const parentIndex = getIndex(obj.parentId);
+                ind = parentIndex + ((ind + 1) / 10);
+            }
+            return ind;
+        };
+        return objectives.sort((a, b) => {
+            const ind = {
+                a: {
+                    index: a.index,
+                    parent: a.parentId,
+                    objective: a,
+                },
+                b: {
+                    index: b.index,
+                    parent: b.parentId,
+                    objective: b,
+                },
+            };
+            for (const i in ind) {
+                ind[i].index = getIndex(ind[i].objective.id);
+            }
+            return ind.a.index - ind.b.index;
+        });
+    }
+
+    getGlobalVariableTraderDialogue(id) {
+        const traders = [];
+        for (const trader of this.globalVariables.traders) {
+            if (trader.ids.includes(id)) {
+                traders.push(trader.id);
+            }
+        }
+        return traders;
+    }
+
+    getGlobalVariableObjective(id) {
+        const manualObjective = this.globalVariables.manual[id];
+        if (manualObjective) {
+            return manualObjective;
+        }
+        const traderDialogue = this.getGlobalVariableTraderDialogue(id);
+        if (traderDialogue.length) {
+            return {
+                type: 'dialogue',
+                traders: traderDialogue,
+            }
+        }
+    }
+
     async processAchievement(ach) {
         return {
             id: ach.id,
@@ -1868,7 +2112,6 @@ class UpdateQuestsJob extends DataJob {
             normalizedSide: this.normalizeName(this.getTranslation(ach.side)),
             rarity: this.addTranslation(`Achievements/Tab/${ach.rarity}Rarity`),
             normalizedRarity: this.normalizeName(this.getTranslation(`Achievements/Tab/${ach.rarity}Rarity`)),
-            //conditions: ach.conditions.availableForFinish.map(c => this.formatObjective(ach.id, c, true)),
             playersCompletedPercent: this.achievementStats[ach.id] || 0,
             adjustedPlayersCompletedPercent: parseFloat((((this.achievementStats[ach.id] || 0) / this.achievementStats['65141c30ec10ff011f17cc3b']) * 100).toFixed(2)),
             imageLink: await this.retrieveImage({
@@ -1885,7 +2128,7 @@ class UpdateQuestsJob extends DataJob {
             id: prestige.id,
             name: this.addTranslation(`${prestige.id} name`),
             prestigeLevel: prestigeIndex+1,
-            conditions: prestige.conditions.map(condition => this.formatObjective(prestige.id, condition, 'prestige')),
+            conditions: prestige.conditions.map(condition => this.formatObjective(prestige.id, condition, {type: 'prestige'})),
             rewards: {
                 traderStanding: [],
                 items: [],
@@ -2085,7 +2328,12 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
             if (obj.zones.length === 0) {
-                this.logger.warn(`Zone key ${zoneId} is not associated with a map`);
+                const forcedMap = forceObjectiveMap[obj.id];
+                if (forcedMap || obj.map_ids.length) {
+                    this.logger.warn(`Zone key ${zoneId} precise location is unknown`);
+                } else {
+                    this.logger.warn(`Zone key ${zoneId} is not associated with a map`);
+                }
             }
         });
         // add objective map from zone
@@ -2192,11 +2440,26 @@ class UpdateQuestsJob extends DataJob {
         return itemIds;
     }
 
+    addQuestLocalizations(quest) {
+        if (!quest.localization) {
+            return;
+        }
+        for (const locale in this.locales) {
+            if (!quest.localization[locale]) {
+                continue;
+            }
+            for (const translationKey in quest.localization[locale]) {
+                this.locales[locale][translationKey] = quest.localization[locale][translationKey];
+            }
+        }
+    }
+
     async updateStaticApi(data, gameMode) {
         const apiData = {
             tasks: {},
             questItems: {},
             achievements: {},
+            story: [],
         };
         const fixRewards = (rewards) => {
             for (const rew of rewards.traderStanding) {
@@ -2323,8 +2586,7 @@ class UpdateQuestsJob extends DataJob {
                 delete obj.item_id;
             }
         };
-        for (const task of structuredClone(data.Task)) {
-            apiData.tasks[task.id] = task;
+        const fixTask = (task) => {
             delete task.traderName;
             task.map = task.location_id;
             delete task.location_id;
@@ -2351,7 +2613,68 @@ class UpdateQuestsJob extends DataJob {
                 delete nk.map_id;
                 delete nk.key_ids;
             }
+            return task;
+        };
+        for (const task of structuredClone(data.Task)) {
+            apiData.tasks[task.id] = fixTask(task);
         }
+        for (const chapter of structuredClone(data.Story)) {
+            apiData.story.push(chapter);
+            chapter.tasks = chapter.tasks.map(task => fixTask(task));
+        }
+        // not ready for prime time
+        if (process.env.NODE_ENV === 'production') {
+            delete apiData.story;
+        }
+        /*let storySummary = '';
+        for (const chapter of apiData.story) {
+            storySummary += `\nChapter: ${this.getTranslation(`${chapter.id} name`)} ${chapter.id}`;
+            if (chapter.taskRequirements.length || chapter.traderRequirements.length || chapter.otherRequirements.length) {
+                storySummary += `\n\t- Requirements`;
+                for (const req of chapter.taskRequirements) {
+                    storySummary += `\n\t\t- Task: ${this.getTranslation(`${req.task} name`)} ${req.task}: ${req.status.join(', ')}`;
+                }
+                for (const req of chapter.traderRequirements) {
+                    storySummary += `\n\t\t- Trader level: ${this.getTranslation(`${req.trader} Nickname`)}: ${req.requirementType} ${req.compareMethod} ${req.value}`;
+                }
+                for (const req of chapter.otherRequirements) {
+                    if (req.type === 'studyItems') {
+                        storySummary += `\n\t\t- Study items: ${req.items.map(id => this.getTranslation(`${id} Name`) + ` ${id}`).join(', ')}`;
+                    }
+                    if (req.type === 'globalVariable') {
+                        storySummary += `\n\t\t- Global variable: ${req.variableId} ${req.compareMethod} ${req.value}`;
+                    }
+                }
+            }
+            for (const storyTask of chapter.tasks) {
+                storySummary += `\n\t- Section ${storyTask.id}`;
+                if (storyTask.taskRequirements.length || storyTask.traderRequirements.length || storyTask.otherRequirements.length) {
+                    storySummary += `\n\t\t- Requirements`;
+                    for (const req of storyTask.taskRequirements) {
+                        storySummary += `\n\t\t\t- Task: ${this.getTranslation(`${req.task} name`)} ${req.task}: ${req.status.join(', ')}`;
+                    }
+                    for (const req of storyTask.traderRequirements) {
+                        storySummary += `\n\t\t\t- Trader level: ${this.getTranslation(`${req.trader} Nickname`)}: ${req.requirementType} ${req.compareMethod} ${req.value}`;
+                    }
+                    for (const req of storyTask.otherRequirements) {
+                        if (req.type === 'studyItems') {
+                            storySummary += `\n\t\t\t- Study items: ${req.items.map(id => this.getTranslation(`${id} Name`) + ` ${id}`).join(', ')}`;
+                        }
+                        if (req.type === 'globalVariable') {
+                            storySummary += `\n\t\t\t- Global variable: ${req.variableId} ${req.compareMethod} ${req.value}`;
+                        }
+                    }
+                }
+                storySummary += `\n\t\t- Objectives`;
+                for (const obj of storyTask.objectives) {
+                    storySummary += `\n\t\t\t- ${this.getTranslation(`${obj.id}`)} ${obj.id}`;
+                    if (obj.globalVariable) {
+                        storySummary += `\n\t\t\t\t- Global variable ${obj.globalVariable.id} ${obj.globalVariable.compareMethod} ${obj.globalVariable.value}`;
+                    }
+                }
+            }
+        }
+        await fs.writeFile(path.join(import.meta.dirname, '..', this.writeFolder, 'story_quests_outline.txt'), storySummary);*/
         apiData.questItems = structuredClone(data.QuestItem);
         for (const ach of structuredClone(data.Achievement)) {
             apiData.achievements[ach.id] = ach;
@@ -2385,6 +2708,17 @@ class UpdateQuestsJob extends DataJob {
                 '$.data.prestige[*].transferSettings[*].name',
                 '$.data.prestige.*.rewards.customization.*.name',
                 '$.data.prestige.*.rewards.customization.*.customizationTypeName',
+                '$.data.story.*.name',
+                '$.data.story.*.tasks.*.name',
+                '$.data.story.*.tasks.*.objectives[*].description',
+                '$.data.story.*.tasks.*.objectives[*].exitName',
+                '$.data.story.*.tasks.*.objectives[*].exitStatus[*]',
+                '$.data.story.*.tasks.*.objectives[*].zones[*].name',
+                '$.data.story.*.tasks.*.objectives[*].targetNames[*]',
+                '$.data.story.*.tasks.*.objectives[*]..bodyParts[*]',
+                "$.data.story.*.tasks.*.objectives[*]['healthEffect','playerHealthEffect','enemyHealthEffect'].effects[*]",
+                "$.data.story.*.tasks.*['startRewards','finishRewards','failureOutcome'][*].customization[*].name",
+                "$.data.story.*.tasks.*['startRewards','finishRewards','failureOutcome'][*].customization[*].customizationTypeName",
             ]},
             {locale: data.locale},
         );
@@ -2481,6 +2815,10 @@ const forceObjectiveMap = {
     '5a2819c886f77460ba564f38': '5704e554d2720bac5b8b456e', // Cargo X - Part 2
     '5979fc2686f77426d702a0f2': '56f40101d2720b2a4d8b45d6', // Chemical - Part 1
     '5a3fbe3a86f77414422e0d9b': '5704e3c2d2720bac5b8b4567', // Ice Cream Cones
+    '6926fcc872a6499d1fa29327': '5714dbc024597771384a510d', // The Blood of War - Part 1
+    '66aba85403e0ee3101042878': '5714dc692459777137212e12', // Beneath the Streets
+    '6840714469caa738cc1225c3': '56f40101d2720b2a4d8b45d6', // Hobby Club
+    '6840711071516aad97bd9156': '5704e5fad2720bc05b8b4567', // Hobby Club
 };
 
 const questStatusMap = {
