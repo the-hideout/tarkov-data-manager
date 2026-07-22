@@ -36,8 +36,30 @@ const defaultOptions = dataOptions.default;
 const merge = dataOptions.merge;
 
 const cachePath = (filename) => {
-    return path.join(import.meta.dirname, '..', 'cache', filename);   
+    const pathParts = [
+        import.meta.dirname,
+        '..',
+        'cache',
+        'fence',
+    ];
+    if (filename) {
+        pathParts.push(filename);
+    }
+    return path.join(...pathParts);   
 }
+
+const ensureCachePath = () => {
+    const path = cachePath();
+    if (fs.existsSync(path)) {
+        return;
+    }
+    fs.mkdirSync(path, { recursive: true });
+};
+
+const writeToCache = (filename, content) => {
+    ensureCachePath();
+    fs.writeFileSync(cachePath(filename), content);
+};
 
 const getFromFence = async (jsonName, options) => {
     if (!process.env.FENCE_BASIC_AUTH) {
@@ -123,7 +145,7 @@ const tarkovDevData = {
     },
     get: async (jsonName, options = defaultOptions) => {
         const { download, gameMode } = merge(options);
-        const suffix = gameMode === 'regular' ? '' : `_${gameMode}`;
+        const suffix = ''; // gameMode === 'regular' ? '' : `_${gameMode}`;
         const filename = `${jsonName}${suffix}.json`;
         if (!download) {
             try {
@@ -137,7 +159,7 @@ const tarkovDevData = {
             }
         }
         const newJson = await getFromFence(jsonName, options);
-        fs.writeFileSync(cachePath(filename), JSON.stringify(newJson, null, 4));
+        writeToCache(filename, JSON.stringify(newJson, null, 4));
         return newJson;
     },
     achievements: async (options = defaultOptions) => {
@@ -178,6 +200,9 @@ const tarkovDevData = {
     },
     prestige: async (options = defaultOptions) => {
         return tarkovDevData.get('prestige', options);
+    },
+    quests: async (options = defaultOptions) => {
+        return tarkovDevData.get('quests', options);
     },
     status: async (options = defaultOptions) => {
         return tarkovDevData.get('status', options);

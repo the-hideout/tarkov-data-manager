@@ -1,0 +1,159 @@
+{
+    "manual": {
+        "68fcc1ccf1cc4436d71471b8": {
+            "type": "experience",
+            "maps": ["5b0fc42d86f7744a585f9105"],
+            "healthEffect": {
+                "bodyparts": [],
+                "effects": [],
+                "time": 1800
+            }
+        },
+        "68ffe42328fa5f98ef56e06a": {
+            "type": "studyItems",
+            "items": [
+                "68d2fa3abe7c1493b90cd3f9",
+                "68d2fa6d4aae290cf704e371",
+                "68d2fa9b691b7c7b34046367",
+                "68d2fac7c8305ec7c900296c",
+                "68d2faf191c2fa84e2044a0b"
+            ]
+        }
+    },
+    "tasks": [
+        {
+
+        }
+    ],
+    "traders": [
+        {
+            "name": "BTR Driver",
+            "id": "656f0f98d80a697f855d34b1",
+            "ids": [
+                "69b04d3fbc760f3c922c4e74",
+                "69b4186dcebfc4e679bf4662",
+                "69c1561ed0c7ead3d7ee426d",
+                "69c2a5ac4520be7a834bfbe8"
+            ]
+        },
+        {
+            "name": "Fence",
+            "id": "579dc571d53a0658a154fbec",
+            "ids": [
+                "68ead74c91136c4082f64ef9",
+                "68f6c46e8a03d09357b2afa0"
+            ]
+        },
+        {
+            "name": "Jaeger",
+            "id": "5c0647fdd443bc2504c2d371",
+            "ids": [
+                "68ffd2c918e0a1aac6ca2132",
+                "68c01c6c954650cf2b48bbea",
+                "68d96f8797f3439c318f25ee",
+                "68e3aa4730c2423922caa660"
+            ]
+        },
+        {
+            "name": "Lightkeeper",
+            "id": "638f541a29ffd1183d187f57",
+            "ids": [
+                "68dabce36e6d41f08eebb9e1",
+                "68daca95b3559bc8e8d139c2",
+                "68dc03b8268b407e084754d2"
+            ]
+        },
+        {
+            "name": "Mechanic",
+            "id": "5a7c2eca46aef81a7ca2145d",
+            "ids": [
+                "68c41b22c5e8a18a3692d395",
+                "68dad2ef4f4b42dd0f2ccf6b",
+                "68dc00620fae9d3ed5ae617e",
+                "68ee262707bb584efb6abe37",
+                "68e7904534f2769b308cfdd5",
+                "6900112a720f1388eef21d4c",
+                "68bc47a532ea6c34529b52dc",
+                "68bc6fb7a34b5486d59cdb99",
+                "69a9b5915bd6119a0570259a",
+                "69aaf0845ccbccd4f7921f46",
+                "69b41c73f6489965d31f35d4",
+                "69ba9579bf4a9df5050a56a0",
+                "69bab61391f688cf61254b8c",
+                "69bbd7fad473c929c90daf47",
+                "68c01c6c954650cf2b48bbea",
+                "69a05ee6c4586038e00119db"
+            ]
+        },
+        {
+            "name": "Mr. Kerman",
+            "id": "688246518448b05efd61d461",
+            "ids": [
+                "68d921789fcc9649951a975a",
+                "68daae113d5ecca0430f5ef4",
+                "68dc255a8d8c1b4d15d35d83",
+                "68eff7ac366b99d2fba579f7",
+                "68e7f5b31005ee5e080a9809",
+                "68f0179b10c4d133d6e4b439",
+                "68f277484c062a84f027f939",
+                "68f174873fc55e268e4bdc0e"
+            ]
+        },
+        {
+            "name": "Prapor",
+            "id": "54cb50c76803fa8b248b4571",
+            "ids": [
+                "68c014bd600f94deec424779",
+                "68dbfecfae6f08ced6a36439",
+                "69aafc3835a7419ccff9e3ba",
+                "69ba9579bf4a9df5050a56a0",
+                "68c01c6c954650cf2b48bbea",
+                "68d82af444abe9f4e6f8fbaf"
+            ]
+        },
+        {
+            "name": "Ragman",
+            "id": "5ac3b934156ae10c4430e83c",
+            "ids": [
+                "68c15c231582be58295e06b6",
+                "68f3ba2cbd0c1a04d2a705bf"
+            ]
+        },
+        {
+            "name": "Skier",
+            "id": "58330581ace78e27b8b10cee",
+            "ids": [
+                "68c2bf4f8c7b5c191d5ec0df",
+                "68f3b7c566e5b94e80e90402",
+                "68f3c30647e313a1a6e2de75",
+                "68c01c6c954650cf2b48bbea",
+                "68f114eab051f4c089f478f4"
+            ]
+        },
+        {
+            "name": "Survivor (Icebreaker scientist)",
+            "id": "69e0d6cc77b63940375b9173",
+            "ids": [
+                "69c6abc8521747cde598af90",
+                "69ca6703484bddc9c784c347"
+            ]
+        },
+        {
+            "name": "Therapist",
+            "id": "54cb57776803fa99248b456e",
+            "ids": [
+                "68c81cf8d242d0b184959530",
+                "68e3aa575b34d2400ae4549f",
+                "68c01c6c954650cf2b48bbea"
+            ]
+        },
+        {
+            "name": "Voevoda",
+            "id": "688246958448b05efd61d462",
+            "ids": [
+                "68dbfb5a485262de24e5ae4c",
+                "68d52959fa3303fd125baabe"
+            ]
+        }
+    ]
+}

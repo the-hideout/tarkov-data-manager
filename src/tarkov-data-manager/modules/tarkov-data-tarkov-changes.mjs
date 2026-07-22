@@ -78,6 +78,7 @@ const availableFiles = {
     prestige: {
         requestName: 'prestige_list',
     },
+    tapeList: {},
     traders: {},
 };
 
@@ -152,6 +153,12 @@ const tarkovChanges = {
     },
     traders: async (options = defaultOptions) => {
         return tarkovChanges.get('traders', merge(options));
+    },
+    storyChapters: async (options = defaultOptions) => {
+        return tarkovChanges.get('main_quests_list', merge(options));
+    },
+    tapeList: async (options = defaultOptions) => {
+        return tarkovChanges.get('tape_list', merge(options));
     },
     downloadAll: async (options = defaultOptions) => {
         options = {...merge(options), download: true};

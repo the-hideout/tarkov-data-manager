@@ -53,7 +53,7 @@
                 "name": "The Survivalist Path - Zhivchik"
             }
         ],
-        "objectivesAdded": [
+        "___objectivesAdded": [
             {
                 "id": "693c3a908ad994118b846d63",
                 "description": "693c3a908ad994118b846d63",
@@ -728,7 +728,7 @@
             "64b694c8a857ea477002a408"
         ]
     },
-    "5c0bd94186f7747a727f09b2": {
+    "_5c0bd94186f7747a727f09b2": {
         "name": "Test Drive - Part 1",
         "locale": {
             "de": {
@@ -776,7 +776,7 @@
             ]
         }
     },
-    "63a5cf262964a7488f5243ce": {
+    "_63a5cf262964a7488f5243ce": {
         "name": "Test Drive - Part 2",
         "objectivePropertiesChanged": {
             "63a5cf262964a7488f5243d1": {
@@ -922,7 +922,7 @@
             "minPlayerLevel": 25
         }
     },
-    "6574e0dedc0d635f633a5805": {
+    "_6574e0dedc0d635f633a5805": {
         "name": "Test Drive - Part 4",
         "objectivePropertiesChanged": {
             "6574e0dedc0d635f633a5807": {
@@ -976,7 +976,7 @@
             }
         }
     },
-    "669fa3a40c828825de06d6a1": {
+    "_669fa3a40c828825de06d6a1": {
         "name": "Test Drive - Part 5",
         "locale": {
             "de": {
@@ -1291,7 +1291,7 @@
             }
         }
     },
-    "5c0d190cd09282029f5390d8": {
+    "_5c0d190cd09282029f5390d8": {
         "name": "Grenadier",
         "propertiesChanged": {
             "minPlayerLevel": 10,
@@ -2513,12 +2513,6 @@
                 ]
             }
         ],
-        "taskRequirementsRemoved": [
-            {
-                "id": "67a0966817e34930e500754c",
-                "name": "Forced Alliance"
-            }
-        ],
         "locale": {
             "de": {
                 "67a0970744893b9f3f0d9b68 name": "Offensive Aufklärung",
@@ -2852,7 +2846,7 @@
             }
         }
     },
-    "5ae448f286f77448d73c0131": {
+    "_5ae448f286f77448d73c0131": {
         "name": "The Blood of War - Part 1",
         "objectivesAdded": [
             {
@@ -4444,5 +4438,67 @@
                 "6834145ebc1f443d7603c8ab": "将竞技场广告海报安放在海关 Scav 营地"
             }
         }
+    },
+    "67bc6acd21692c74e700bc66": {
+        "name": "The ticket - case given to Prapor in Falling Skies",
+        "taskRequirementsAdded": [
+            {
+                "task": "68cd7d6d9510d63fdb05a76a",
+                "name": "Falling Skies - Keep the case yourself",
+                "status": [
+                    "complete"
+                ]
+            }
+        ]
+    },
+    "68cbcdc4c964ab83cc0c928e": {
+        "name": "Falling Skies (story chapter)",
+        "taskRequirementsAdded": [
+            {
+                "task": "6895bf42a3de8e8f1d0426a8",
+                "name": "Tour - deal with Mechanic",
+                "status": [
+                    "active",
+                    "complete"
+                ]
+            }
+        ]
+    },
+    "68e2d8d52a2449612b06ac9b": {
+        "name": "The Ticket - case obtained",
+        "taskRequirementsAdded": [
+            {
+                "task": "68dac755bf449210f60f0e6e",
+                "name": "The Ticket - get case from Lightkeeper",
+                "status": [
+                    "complete",
+                    "failed"
+                ]
+            }
+        ]
+    },
+    "67bc801c7801bf5c41017b6d": {
+        "name": "The Ticket - ask Mechanic for help",
+        "taskRequirementsAdded": [
+            {
+                "task": "68e2ecfeb88d405a420774f5",
+                "name": "The Ticket - obtain the ticket",
+                "status": [
+                    "complete"
+                ]
+            }
+        ]
+    },
+    "67bc86024e7dbc3aa202431b": {
+        "name": "The Ticket - get stuff for Mechanic",
+        "taskRequirementsAdded": [
+            {
+                "task": "67bc801c7801bf5c41017b6d",
+                "name": "The Ticket - ask Mechanic for help",
+                "status": [
+                    "complete"
+                ]
+            }
+        ]
     }
 }

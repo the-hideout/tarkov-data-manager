@@ -115,6 +115,12 @@ const dataFunctions = {
     locations: (options = defaultOptions) => {
         return mainDataSource.locations(options);
     },
+    storyChapters: (options = defaultOptions) => {
+        return mainDataSource.storyChapters(options);
+    },
+    tapeList: (options = defaultOptions) => {
+        return mainDataSource.tapeList(options);
+    },
     mapDetails: async () => {
         const emptyData = {
             extracts: [],
@@ -261,47 +267,7 @@ const dataFunctions = {
         return mainDataSource.prestige(options);
     },
     quests: async (options = defaultOptions) => {
-        const mainQuests = await spt.quests(options);
-        try {
-            const partialQuests = JSON.parse(fs.readFileSync(cachePath('quests_partial.json')));
-            for (const quest of partialQuests) {
-                if (mainQuests[quest._id]) {
-                    continue;
-                }
-                /*quest.conditions.AvailableForFinish = quest.conditions.AvailableForFinish.map(obj => {
-                    const newObj = {
-                        _props: {
-                            ...obj,
-                            type: obj.type || obj.conditionType,
-                        },
-                        _parent: obj.conditionType,
-                    };
-                    if (newObj._props.counter?.conditions) {
-                        newObj._props.counter.conditions = newObj._props.counter.conditions.map(cond => {
-                            return {
-                                _parent: cond.conditionType,
-                                _props: {...cond},
-                            };
-                        });
-                    }
-                    return newObj;
-                });
-                quest.conditions.AvailableForStart = quest.conditions.AvailableForStart.map(cond => {
-                    return {
-                        _parent: cond.conditionType,
-                        _props: {
-                            ...cond,
-                        },
-                    }
-                });*/
-                mainQuests[quest._id] = quest;
-            }
-        } catch (error) {
-            if (error.code !== 'ENOENT') {
-                return Promise.reject(error);
-            }
-        }
-        return mainQuests;
+        return tarkovDevData.quests(options);
     },
     questConfig: (options = defaultOptions) => {
         return spt.questConfig(options);
