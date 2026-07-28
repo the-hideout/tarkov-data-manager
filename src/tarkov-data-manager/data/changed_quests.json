@@ -1862,15 +1862,6 @@
         "translationKeys": [
             "6745fcded0fbbc74ca0f7226"
         ],
-        "finishRewardsAdded": {
-            "items": [
-                {
-                    "item": "6939948dc2ceb9acd7082eb2",
-                    "item_name": "Old house toilet key",
-                    "count": 1
-                }
-            ]
-        },
         "locale": {
             "de": {
                 "6745fcded0fbbc74ca0f721d name": "Schnelle Vergeltung",
