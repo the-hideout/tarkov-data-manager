@@ -2537,6 +2537,7 @@ class UpdateQuestsJob extends DataJob {
                     delete obj.zones;
                 }
                 if (obj.type === 'plantQuestItem') {
+                    obj.questItem = obj.item_id;
                 }
                 if (obj.type === 'giveQuestItem') {
                     delete obj.zones;
