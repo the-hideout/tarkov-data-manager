@@ -6,6 +6,14 @@ import sharp from 'sharp';
 
 import scannerApi from './scanner-api.mjs';
 
+const uploadCacheDir = path.join(import.meta.dirname, '..', 'cache', 'image-uploads');
+
+try {
+    fs.mkdirSync(uploadCacheDir, { recursive: true });
+} catch (error) {
+    console.log(error);
+}
+
 const getJson = (options) => {
     const response = {errors: [], warnings: [], data: {}};
     try {
@@ -29,22 +37,21 @@ const getJson = (options) => {
 };
 
 const submitImage = async (request, user) => {
-    const response = {errors: [], warnings: [], data: []};
-    const form = formidable({
-        uploadDir: path.join(import.meta.dirname, '..', 'cache'),
-    });
-
-    console.log(`User ${user.username} submitting image`);
-
-    if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-        response.errors.push('aws variables not configured; image upload disabled');
-        return response;
-    }
-
     let fields;
     let files;
+    const response = {errors: [], warnings: [], data: []};
 
     try {
+        const form = formidable({
+            uploadDir: uploadCacheDir,
+        });
+
+        console.log(`User ${user.username} submitting image`);
+
+        if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+            response.errors.push('aws variables not configured; image upload disabled');
+            return response;
+        }
         [fields, files] = await form.parse(request);
         const imagePaths = {};
         for (const itemId of fields.id[0].split(',')) {
@@ -60,16 +67,16 @@ const submitImage = async (request, user) => {
     } catch (error) {
         console.error(error);
         response.errors.push(String(error));
-    }
-
-    if (files) {
-        for (const key in files) {
-            for (const file of files[key]) {
-                fs.rm(file.filepath, error => {
-                    if (error) {
-                        console.log(`Error deleting ${file.filepath}`, error);
-                    }
-                });
+    } finally {
+        if (files) {
+            for (const key in files) {
+                for (const file of files[key]) {
+                    fs.rm(file.filepath, error => {
+                        if (error) {
+                            console.log(`Error deleting ${file.filepath}`, error);
+                        }
+                    });
+                }
             }
         }
     }

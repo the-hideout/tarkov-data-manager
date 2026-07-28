@@ -4500,5 +4500,11 @@
                 ]
             }
         ]
+    },
+    "69c26c07683c9831020018c7": {
+        "name": "Stick to It",
+        "propertiesChanged": {
+            "taskRequirements": []
+        }
     }
 }
