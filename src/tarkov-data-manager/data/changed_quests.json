@@ -4503,6 +4503,7 @@
     },
     "69c26c07683c9831020018c7": {
         "name": "Stick to It",
+        "note": "depends on story quest to be available",
         "propertiesChanged": {
             "taskRequirements": []
         }
