@@ -22,7 +22,7 @@
     "@aws-sdk/client-s3": "^3.1057.0",
     "@aws-sdk/credential-providers": "^3.1057.0",
     "adm-zip": "^0.5.17",
-    "body-parser": "^2.2.2",
+    "body-parser": "^2.3.0",
     "chalk": "^5.6.2",
     "cheerio": "^1.2.0",
     "cloudflare": "^6.3.0",
@@ -38,7 +38,7 @@
     "luxon": "^3.7.2",
     "mysql2": "^3.22.4",
     "node-schedule": "^2.1.1",
-    "sharp": "^0.34.3",
+    "sharp": "^0.35.3",
     "tarkov-dev-image-generator": "^2.4.0",
     "unidecode": "^1.1.0",
     "ws": "^8.21.0"
