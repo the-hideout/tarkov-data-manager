@@ -1680,7 +1680,7 @@
             }
         }
     },
-    "639872fc93ae507d5858c3a6": {
+    "_639872fc93ae507d5858c3a6": {
         "name": "Gunsmith - Part 11",
         "finishRewardsAdded": {
             "offerUnlock": [
@@ -1696,7 +1696,7 @@
             ]
         }
     },
-    "6179b3bdc7560e13d23eeb8d": {
+    "_6179b3bdc7560e13d23eeb8d": {
         "name": "Corporate Secrets",
         "finishRewardsAdded": {
             "offerUnlock": [
@@ -1712,7 +1712,7 @@
             ]
         }
     },
-    "6179b3a12153c15e937d52bc": {
+    "_6179b3a12153c15e937d52bc": {
         "name": "Energy Crisis",
         "finishRewardsAdded": {
             "offerUnlock": [
@@ -1728,7 +1728,7 @@
             ]
         }
     },
-    "639872f9decada40426d3447": {
+    "_639872f9decada40426d3447": {
         "name": "Gunsmith - Part 4",
         "finishRewardsAdded": {
             "offerUnlock": [
@@ -1744,7 +1744,7 @@
             ]
         }
     },
-    "5b47891f86f7744d1b23c571": {
+    "_5b47891f86f7744d1b23c571": {
         "name": "Living High Is Not a Crime - Part 1",
         "finishRewardsAdded": {
             "offerUnlock": [
@@ -1862,15 +1862,6 @@
         "translationKeys": [
             "6745fcded0fbbc74ca0f7226"
         ],
-        "finishRewardsAdded": {
-            "items": [
-                {
-                    "item": "6939948dc2ceb9acd7082eb2",
-                    "item_name": "Old house toilet key",
-                    "count": 1
-                }
-            ]
-        },
         "locale": {
             "de": {
                 "6745fcded0fbbc74ca0f721d name": "Schnelle Vergeltung",
@@ -2541,7 +2532,7 @@
             ]
         }
     },
-    "59674cd986f7744ab26e32f2": {
+    "_59674cd986f7744ab26e32f2": {
         "name": "Shootout Picnic",
         "finishRewardsAdded": {
             "items": [
@@ -2571,7 +2562,7 @@
             ]
         }
     },
-    "5a27bc8586f7741b543d8ea4": {
+    "_5a27bc8586f7741b543d8ea4": {
         "name": "Wet Job - Part 6",
         "finishRewardsAdded": {
             "craftUnlock": [
@@ -2590,7 +2581,7 @@
             ]
         }       
     },
-    "5b47825886f77468074618d3": {
+    "_5b47825886f77468074618d3": {
         "name": "Gunsmith - Part 22",
         "finishRewardsAdded": {
             "craftUnlock": [
