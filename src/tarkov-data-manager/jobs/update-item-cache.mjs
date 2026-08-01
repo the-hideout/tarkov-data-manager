@@ -111,31 +111,6 @@ class UpdateItemCacheJob extends DataJob {
             }
             if (!this.bsgItems[key] && !value.types.includes('preset')) {
                 continue;
-            }                
-
-            if (!value.image_8x_link && itemImageDownloadErrorCount < 10) {
-                try {
-                    let image;
-                    if (value.types.includes('preset')) {
-                        image = await this.fenceFetchImage('/preset-image', {
-                            method: 'POST',
-                            body: JSON.stringify({
-                                id: key,
-                                items: value.properties.items,
-                            }),
-                        });
-                    } else if (value.types.includes('replica')) {
-                        image = await this.fenceFetchImage(`/item-image/${value.properties.source}`);
-                    } else {
-                        image = await this.fenceFetchImage(`/item-image/${key}`);
-                    }
-                    await createAndUploadFromSource(image, key);
-                    this.logger.success(`Created ${key} item image`);
-                    itemImageDownloadErrorCount = 0;
-                } catch (error) {
-                    itemImageDownloadErrorCount++;
-                    this.logger.error(`Error creating ${key} item image ${error}`);
-                }
             }
 
             itemData[key] = {
