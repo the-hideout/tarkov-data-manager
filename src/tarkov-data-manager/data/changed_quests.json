@@ -4498,5 +4498,61 @@
         "propertiesChanged": {
             "taskRequirements": []
         }
+    },
+    "69ce1de03e15cd80bd06f6c9": {
+        "name": "Oil Change",
+        "note": "depends on story quest to be available",
+        "propertiesChanged": {
+            "taskRequirements": []
+        }
+    },
+    "69ce204c8702b378f9091e4b": {
+        "name": "War Never Changes",
+        "note": "depends on story quest to be available",
+        "propertiesChanged": {
+            "taskRequirements": []
+        }
+    },
+    "69ce21e990144e437802b1e0": {
+        "name": "Fresh stock",
+        "note": "depends on story quest to be available",
+        "propertiesChanged": {
+            "taskRequirements": []
+        }
+    },
+    "69ce1cfb298a6529b30d712b": {
+        "name": "A Wedge Between Us",
+        "note": "depends on story quest to be available",
+        "propertiesChanged": {
+            "taskRequirements": []
+        }
+    },
+    "69c277f3ea6da9c23e07f8d2": {
+        "name": "A Bitter Victory",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "69c27158e350f01390049e77",
+                    "name": "Saving Private Roman",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
+    },
+    "69c2a2d004de49c8f0055a3d": {
+        "name": "Hangover",
+        "propertiesChanged": {
+            "taskRequirements": [
+                {
+                    "task": "69c277f3ea6da9c23e07f8d2",
+                    "name": "A Bitter Victory",
+                    "status": [
+                        "complete"
+                    ]
+                }
+            ]
+        }
     }
 }
