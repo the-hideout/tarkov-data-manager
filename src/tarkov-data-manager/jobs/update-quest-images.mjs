@@ -91,7 +91,7 @@ class UpdateQuestImagesJob extends DataJob {
         if (!questData?.image) {
             return;
         }
-        const imageResponse = await fetch(`https://prod.escapefromtarkov.com${questData.image}`);
+        const imageResponse = await fetch(`https://s3-prod.escapefromtarkov.com/regular${questData.image}`);
         if (!imageResponse.ok) {
             return;
         }
@@ -112,7 +112,7 @@ class UpdateQuestImagesJob extends DataJob {
         if (!process.env.FENCE_BASIC_AUTH) {
             return;
         }
-        const imageResponse = await this.fencePassthrough(`https://prod.escapefromtarkov.com${questData.image}`);
+        const imageResponse = await this.fencePassthrough(`https://s3-prod.escapefromtarkov.com/regular${questData.image}`);
         if (!imageResponse.ok) {
             return;
         }

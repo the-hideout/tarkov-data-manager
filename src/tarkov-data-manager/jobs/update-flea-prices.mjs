@@ -16,6 +16,7 @@ class UpdateFleaPricesJob extends DataJob {
         const updateGameModes = [
             'regular',
             'pve',
+            'pvp-season',
         ];
         for (const gameModeInfo of gameModes) {
             if (!updateGameModes.includes(gameModeInfo.name)) {

@@ -58,7 +58,8 @@
         ],
         "gameModes": [
             "regular",
-            "pve"
+            "pve",
+            "pvp-season"
         ],
         "languages": []
     }

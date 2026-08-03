@@ -14,6 +14,16 @@ const gameModes = [
             'prestige',
         ],
     },
+    {
+        name: 'pvp-season',
+        value: 2,
+        skipData: [
+            'achievements',
+            'achievementStats',
+            'customization',
+            'prestige',
+        ],
+    },
 ];
 
 export const getGameMode = (gameModeName) => {

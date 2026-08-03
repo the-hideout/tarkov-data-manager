@@ -60,7 +60,7 @@ class UpdateTradersJob extends DataJob {
                         filename: `${trader._id}.webp`,
                         fallback: 'unknown-trader.webp',
                         fetch: () => {
-                            return this.fencePassthrough(`https://prod.escapefromtarkov.com${trader.avatar}`);
+                            return this.fencePassthrough(`https://s3-prod.escapefromtarkov.com/regular${trader.avatar}`);
                         },
                     }),
                     image4xLink: `https://${process.env.S3_BUCKET}/unknown-trader-4x.webp`,
