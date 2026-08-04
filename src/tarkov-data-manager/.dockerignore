@@ -1,7 +1,15 @@
 node_modules
+build
+*.tsbuildinfo
 dumps
 cache
 .env
 .env.example
+creds.env
+credsbpk.env
+*.pem
 .gitkeep
 node-logs
+logs
+settings
+test
