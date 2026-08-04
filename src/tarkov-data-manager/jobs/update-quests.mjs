@@ -8,6 +8,7 @@ import { getLocalBucketContents } from '../modules/upload-s3.mjs';
 import presetData from '../modules/preset-data.mjs';
 import tarkovDevData from '../modules/tarkov-data-tarkov-dev.mjs';
 import { createAndUploadFromSource } from '../modules/image-create.mjs';
+import { loadQuestCorrectionSources } from '../modules/quest-correction-data.mjs';
 
 class UpdateQuestsJob extends DataJob {
     constructor(options) {
@@ -27,12 +28,7 @@ class UpdateQuestsJob extends DataJob {
             this.mapLoot,
             this.mapDetails,
             this.itemResults,
-            this.missingQuests,
-            this.changedQuestsOriginal,
-            this.changedQuestsGameMode,
-            this.removedQuests,
-            this.neededKeys,
-            this.globalVariables,
+            this.questCorrectionData,
             this.questConfig,
             this.s3Images,
             this.customization,
@@ -55,18 +51,21 @@ class UpdateQuestsJob extends DataJob {
             }, {})),
             tarkovData.mapDetails(),
             remoteData.get(),
-            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'missing_quests.json')).then(json => JSON.parse(json)),
-            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'changed_quests.json')).then(json => JSON.parse(json)),
-            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'changed_quests_game_mode.json')).then(json => JSON.parse(json)),
-            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'removed_quests.json')).then(json => JSON.parse(json)),
-            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'needed_keys.json')).then(json => JSON.parse(json)),
-            fs.readFile(path.join(import.meta.dirname, '..', 'data', 'global_variables.json')).then(json => JSON.parse(json)),
+            loadQuestCorrectionSources(),
             tarkovData.questConfig(),
             getLocalBucketContents(),
             tarkovData.customization(),
             tarkovData.prestige(),
             tarkovData.storyChapters({download: true}).then(data => data.chapters),
         ]);
+        ({
+            missingQuests: this.missingQuests,
+            changedQuestsOriginal: this.changedQuestsOriginal,
+            changedQuestsGameMode: this.changedQuestsGameMode,
+            removedQuests: this.removedQuests,
+            neededKeys: this.neededKeys,
+            globalVariables: this.globalVariables,
+        } = this.questCorrectionData);
         this.maps = await this.jobOutput('update-maps');
         this.hideout = await this.jobOutput('update-hideout');
         this.traders = (await this.jobOutput('update-traders'));
