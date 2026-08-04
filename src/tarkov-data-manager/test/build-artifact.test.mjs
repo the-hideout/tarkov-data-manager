@@ -91,6 +91,49 @@ const artifactServerFiles = async () => {
     return files.sort();
 };
 
+const relativeSpecifiers = source => {
+    const specifiers = [];
+    const code = source
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .split(/\r?\n/)
+        .filter(line => !line.trimStart().startsWith('//'))
+        .join('\n');
+    const patterns = [
+        /\b(?:import|export)\s+(?:[^;\r\n]*?\s+from\s+)?['"](\.{1,2}\/[^'"]+)['"]/g,
+        /\bimport\s*\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g,
+        /\brequire\s*\(\s*['"](\.{1,2}\/[^'"]+)['"]\s*\)/g,
+    ];
+    for (const pattern of patterns) {
+        for (const match of code.matchAll(pattern)) {
+            specifiers.push(match[1]);
+        }
+    }
+    return [...new Set(specifiers)].sort();
+};
+
+const resolvesFrom = async (sourceFile, specifier) => {
+    const cleanSpecifier = specifier.split(/[?#]/, 1)[0];
+    const target = path.resolve(path.dirname(sourceFile), cleanSpecifier);
+    const candidates = [
+        target,
+        `${target}.cjs`,
+        `${target}.mjs`,
+        `${target}.js`,
+        path.join(target, 'index.cjs'),
+        path.join(target, 'index.mjs'),
+        path.join(target, 'index.js'),
+    ];
+    for (const candidate of candidates) {
+        try {
+            await fs.access(candidate);
+            return true;
+        } catch {
+            // Try the next Node-compatible literal target.
+        }
+    }
+    return false;
+};
+
 test('artifact rebuilds remove stale output', async () => {
     const staleFile = path.join(artifactRoot, 'stale-output.txt');
     await fs.writeFile(staleFile, 'stale');
@@ -138,6 +181,24 @@ test('compiled artifact exposes the runnable application layout', async () => {
 test('emitted server files exactly mirror server sources', async () => {
     const expectedFiles = [...(await serverSourceMap()).keys()].sort();
     assert.deepEqual(await artifactServerFiles(), expectedFiles);
+});
+
+test('emitted literal relative imports resolve without TypeScript extensions', async () => {
+    let checkedSpecifiers = 0;
+    for (const relativePath of await artifactServerFiles()) {
+        const sourceFile = path.join(artifactRoot, relativePath);
+        const source = await fs.readFile(sourceFile, 'utf8');
+        for (const specifier of relativeSpecifiers(source)) {
+            checkedSpecifiers += 1;
+            assert.doesNotMatch(specifier, /\.(?:cts|mts|ts)(?:[?#]|$)/, `${relativePath} retained ${specifier}`);
+            assert.equal(
+                await resolvesFrom(sourceFile, specifier),
+                true,
+                `${relativePath} references missing ${specifier}`,
+            );
+        }
+    }
+    assert.ok(checkedSpecifiers > 0, 'No literal relative imports were checked');
 });
 
 test('emitted jobs preserve dynamic-loader parity', async () => {
