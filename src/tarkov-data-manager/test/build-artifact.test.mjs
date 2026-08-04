@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import test from 'node:test';
+import { pathToFileURL } from 'node:url';
 
 const execFileAsync = promisify(execFile);
 const applicationRoot = path.resolve(import.meta.dirname, '..');
@@ -201,6 +202,19 @@ test('emitted literal relative imports resolve without TypeScript extensions', a
     assert.ok(checkedSpecifiers > 0, 'No literal relative imports were checked');
 });
 
+test('compiled TypeScript helpers preserve their runtime contracts', async () => {
+    const dogtags = (await import(pathToFileURL(path.join(artifactRoot, 'modules', 'dogtags.mjs')))).default;
+    const fixWikiName = (await import(pathToFileURL(path.join(artifactRoot, 'modules', 'wiki-replacements.cjs')))).default;
+
+    assert.deepEqual(dogtags.ids, {
+        bear: '59f32bb586f774757e1e8442',
+        usec: '59f32c3b86f77472a31742f0',
+    });
+    assert.equal(fixWikiName('Immobilizing splint (alu)'), 'Aluminum splint');
+    assert.equal(fixWikiName('Yellow keycard barter'), 'TerraGroup Labs keycard (Yellow)');
+    assert.equal(fixWikiName('Unknown item'), 'Unknown item');
+});
+
 test('emitted jobs preserve dynamic-loader parity', async () => {
     const sourceJobs = (await listFiles(path.join(applicationRoot, 'jobs')))
         .filter(filename => ['.mjs', '.mts'].includes(path.extname(filename)))
@@ -213,8 +227,9 @@ test('emitted jobs preserve dynamic-loader parity', async () => {
 
     const loader = await fs.readFile(path.join(artifactRoot, 'jobs', 'index.mjs'), 'utf8');
     assert.match(loader, /readdirSync\(import\.meta\.dirname\)/);
-    assert.match(loader, /endsWith\(['"]\.mjs['"]\)/);
-    assert.ok(loader.includes('await import(`./${file}`)'));
+    assert.ok(loader.includes("['.mjs', '.mts'].includes(path.extname(file))"));
+    assert.ok(loader.includes('const jobName = path.basename(file, path.extname(file));'));
+    assert.match(loader, /await import\((?:__rewriteRelativeImportExtension\()?`\.\/\$\{file\}`/);
 });
 
 test('runtime assets are exact copies', async () => {

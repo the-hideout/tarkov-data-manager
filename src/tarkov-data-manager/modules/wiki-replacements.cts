@@ -1,9 +1,8 @@
 // The strings that look the same probably has a russian A instead of a real one
-const REPLACEMENTS = {
+const REPLACEMENTS: Readonly<Record<string, string>> = {
     'MRE': 'MRE lunch box',
     'Frameless': 'Red Rebel Ice pick',
     'Team Wendy EXFIL Ballistic Helmet': 'Team Wendy EXFIL Ballistic Helmet Black',
-    'Immobilizing splint (alu)': 'Immobilizing splint',
     'AK-74 5.45x39 assault rifle': 'АK-74 5.45x39 assault rifle',
     '60-round 6L31 5.45x39 magazine for AK-74 and compatibles': '60-round 6L31 5.45x39 magazine for АК-74 and compatibles',
     '6L18 45-round 5.45x39 magazine for AK-74 and compatible weapons': '6L18 45-round 5.45x39 magazine for АК-74 and compatible weapons',
@@ -41,11 +40,11 @@ const REPLACEMENTS = {
     'MSA Sordin Supreme PRO-X/L active headset': 'MSA Sordin Supreme PRO-X/L headset'
 };
 
-const PARTIAL_REPLACEMENTS = {
+const PARTIAL_REPLACEMENTS: Readonly<Record<string, string>> = {
     'Yellow keycard': 'TerraGroup Labs keycard (Yellow)',
 };
 
-module.exports = (name) => {
+const fixName = (name: string | null | undefined): string | null | undefined => {
     if(!name){
         return name;
     }
@@ -62,3 +61,5 @@ module.exports = (name) => {
 
     return name;
 };
+
+module.exports = fixName;

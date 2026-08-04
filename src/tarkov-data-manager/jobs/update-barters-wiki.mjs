@@ -4,7 +4,7 @@ import path from 'node:path';
 import * as cheerio from 'cheerio';
 
 import remoteData from '../modules/remote-data.mjs';
-import fixName from '../modules/wiki-replacements.js';
+import fixName from '../modules/wiki-replacements.cts';
 import tarkovData from '../modules/tarkov-data.mjs';
 import DataJob from '../modules/data-job.mjs';
 import presetData from '../modules/preset-data.mjs';

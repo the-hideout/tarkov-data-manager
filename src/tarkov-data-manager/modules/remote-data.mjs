@@ -7,7 +7,7 @@ import db from './db-connection.mjs';
 import gameModes from './game-modes.mjs';
 import emitter from './emitter.mjs';
 import s3 from './upload-s3.mjs';
-import dogtags from './dogtags.mjs';
+import dogtags from './dogtags.mts';
 
 const myData = new Map();
 let lastRefresh = new Date(0);
