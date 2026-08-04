@@ -15,7 +15,7 @@ After changing quest correction data, run the credential-free validation from `s
 npm run test:data
 ```
 
-The test suite parses and validates every approved source and detects unintended changes to their normalized values. Update the recorded parity digest only when a correction-data change is intentional and reviewed.
+The test suite parses and validates every approved source so malformed correction data fails early with a source-specific error.
 
 It is a web application that allows you to do the following:
 
