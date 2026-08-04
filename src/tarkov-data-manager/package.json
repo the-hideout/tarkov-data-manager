@@ -11,8 +11,10 @@
     "test:data": "node --test test/quest-correction-data.test.mjs",
     "typecheck": "tsc -p tsconfig.json",
     "build:code": "tsc -p tsconfig.build.json",
+    "build": "node scripts/build-artifact.mjs",
     "dev": "nodemon -r dotenv/config --trace-warnings index.mjs",
-    "start": "node --max-old-space-size=3000 index.mjs",
+    "start": "node --enable-source-maps --max-old-space-size=3000 index.mjs",
+    "start:build": "node scripts/start-build.mjs",
     "job": "node -r dotenv/config --trace-warnings test-job.mjs",
     "put-kvs": "node -r dotenv/config --trace-warnings populate-kvs.mjs",
     "kv-locale": "node -r dotenv/config --trace-warnings ./scripts/generate-kv-locale.mjs"
@@ -60,6 +62,7 @@
       "logs",
       "node-logs",
       "public",
+      "build",
       "script",
       "scripts"
     ],

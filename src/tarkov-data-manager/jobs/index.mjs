@@ -46,7 +46,7 @@ const startupJobs = [
 const nonDevStartupJobs = [];
 
 const jobClasses = {};
-const jobFiles = fs.readdirSync('./jobs').filter(file => file.endsWith('.mjs'));
+const jobFiles = fs.readdirSync(import.meta.dirname).filter(file => file.endsWith('.mjs'));
 for (const file of jobFiles) {
     if (file === 'index.mjs') {
         continue;
