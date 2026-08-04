@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { access, copyFile, cp, mkdir, writeFile } from 'node:fs/promises';
+import { access, copyFile, cp, mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const applicationRoot = path.resolve(import.meta.dirname, '..');
@@ -11,6 +11,8 @@ try {
 } catch {
     throw new Error('TypeScript is not installed. Install the pinned development dependencies before building.');
 }
+
+await rm(artifactRoot, {recursive: true, force: true});
 
 const compileResult = spawnSync(process.execPath, [compilerPath, '--project', 'tsconfig.build.json'], {
     cwd: applicationRoot,

@@ -8,6 +8,7 @@ import test from 'node:test';
 const execFileAsync = promisify(execFile);
 const applicationRoot = path.resolve(import.meta.dirname, '..');
 const artifactRoot = path.join(applicationRoot, 'build', 'app');
+const buildScript = path.join(applicationRoot, 'scripts', 'build-artifact.mjs');
 const serverDirectories = ['jobs', 'modules', 'script', 'scripts'];
 const assetDirectories = ['data', 'public', 'translations'];
 const mutableDirectories = ['cache', 'dumps', 'logs', 'node-logs', 'settings'];
@@ -89,6 +90,18 @@ const artifactServerFiles = async () => {
     }
     return files.sort();
 };
+
+test('artifact rebuilds remove stale output', async () => {
+    const staleFile = path.join(artifactRoot, 'stale-output.txt');
+    await fs.writeFile(staleFile, 'stale');
+
+    await execFileAsync(process.execPath, [buildScript], {
+        cwd: applicationRoot,
+        windowsHide: true,
+    });
+
+    await assert.rejects(fs.access(staleFile));
+});
 
 test('compiled artifact exposes the runnable application layout', async () => {
     const requiredPaths = [
