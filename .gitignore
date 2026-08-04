@@ -18,6 +18,8 @@ src/tarkov-data-manager/generated-images
 src/tarkov-data-manager/generated-images/*
 src/tarkov-data-manager/public/data/*.json
 src/tarkov-data-manager/dumps/*
+src/tarkov-data-manager/build/
+src/tarkov-data-manager/*.tsbuildinfo
 
 # Terraform
 terraform.auto.tfvars.json
