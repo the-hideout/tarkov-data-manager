@@ -30,4 +30,4 @@ RUN npm ci --omit=dev --no-audit --no-fund \
 
 USER node
 
-CMD ["sh", "-c", "./script/wait-for-it.sh database:3306 -- node script/wait-for-db.mjs && npm run start"]
+CMD ["sh", "-c", "./script/wait-for-it.sh database:3306 -- node script/wait-for-db.mjs && exec node --enable-source-maps --max-old-space-size=3000 index.mjs"]

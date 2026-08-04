@@ -75,6 +75,7 @@ jobs:
           docker run --rm --entrypoint sh tarkov-data-manager:ci -c '
             test -x script/wait-for-it.sh
             test ! -e .env
+            test ! -e .npmrc
             test ! -e creds.env
             test ! -e credsbpk.env
             test ! -d build

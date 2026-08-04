@@ -28,8 +28,9 @@ test('production image installs and runs only the compiled artifact', () => {
     assert.match(runtime, /npm ci --omit=dev --no-audit --no-fund/);
     assert.match(runtime, /chmod \+x script\/wait-for-it\.sh/);
     assert.doesNotMatch(runtime, /COPY \. \./);
+    assert.doesNotMatch(runtime, /npm run start/);
     assert.match(runtime, /^USER node$/m);
-    assert.match(runtime, /wait-for-it\.sh database:3306 -- node script\/wait-for-db\.mjs && npm run start/);
+    assert.match(runtime, /wait-for-it\.sh database:3306 -- node script\/wait-for-db\.mjs && exec node --enable-source-maps --max-old-space-size=3000 index\.mjs/);
 });
 
 test('Docker context excludes credentials, mutable state, and stale output', () => {
@@ -42,6 +43,7 @@ test('Docker context excludes credentials, mutable state, and stale output', () 
         'build',
         '*.tsbuildinfo',
         '.env',
+        '.npmrc',
         'creds.env',
         'credsbpk.env',
         '*.pem',

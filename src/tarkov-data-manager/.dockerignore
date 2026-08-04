@@ -5,6 +5,7 @@ dumps
 cache
 .env
 .env.example
+.npmrc
 creds.env
 credsbpk.env
 *.pem
