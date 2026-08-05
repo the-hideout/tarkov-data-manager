@@ -53,6 +53,9 @@ const dataFunctions = {
         return mainDataSource.achievementStats(options);
     },
     areas: (options = defaultOptions) => {
+        /*if (options.gameMode === 'pvp-season') {
+            return sp.areas(options);
+        }*/
         return mainDataSource.areas(options);
     },
     botInfo: (botKey, options = defaultOptions) => {
@@ -68,21 +71,37 @@ const dataFunctions = {
         return sp.botGroups();
     },
     crafts: (options = defaultOptions) => {
+        /*if (options.gameMode === 'pvp-season') {
+            return sp.crafts(options);
+        }*/
         return mainDataSource.crafts(options);
     },
     credits: (options = defaultOptions) => {
+        /*if (options.gameMode === 'pvp-season') {
+            return sp.credits(options);
+        }*/
         return mainDataSource.credits(options);
     },
     customization: (options = defaultOptions) => {
         return mainDataSource.customization(options);
     },
     globals: (options = defaultOptions) => {
+        /*if (options.gameMode === 'pvp-season') {
+            return sp.globals(options);
+        }*/
         return mainDataSource.globals(options);
     },
     handbook: (options = defaultOptions) => {
+        if (options.gameMode === 'pvp-season') {
+            //return sp.handbook(options);
+            options.gameMode = 'regular';
+        }
         return mainDataSource.handbook(options);
     },
     items: (options = defaultOptions) => {
+        /*if (options.gameMode === 'pvp-season') {
+            return sp.items(options);
+        }*/
         return mainDataSource.items(options);
     },
     locale: async (lang = 'en', options = defaultOptions) => {
@@ -113,12 +132,21 @@ const dataFunctions = {
         };
     },
     locations: (options = defaultOptions) => {
+        /*if (options.gameMode === 'pvp-season') {
+            return sp.locations(options);
+        }*/
         return mainDataSource.locations(options);
     },
     storyChapters: (options = defaultOptions) => {
+        /*if (options.gameMode === 'pvp-season') {
+            return sp.storyChapters(options);
+        }*/
         return mainDataSource.storyChapters(options);
     },
     tapeList: (options = defaultOptions) => {
+        /*if (options.gameMode === 'pvp-season') {
+            return sp.tapeList(options);
+        }*/
         return mainDataSource.tapeList(options);
     },
     mapDetails: async () => {
@@ -276,6 +304,9 @@ const dataFunctions = {
         return tarkovDevData.status(options);
     },
     traders: (options = defaultOptions) => {
+        /*if (options.gameMode === 'pvp-season') {
+            return sp.traders(options);
+        }*/
         return mainDataSource.traders(options);
     },
     traderAssorts: async (traderId, options = defaultOptions) => {
@@ -285,6 +316,9 @@ const dataFunctions = {
         return spt.traderQuestAssorts(traderId, options);
     },
     downloadAll: (options = defaultOptions) => {
+        /*if (options.gameMode === 'pvp-season') {
+            return sp.downloadAll(options);
+        }*/
         return mainDataSource.downloadAll(options);
     },
 };

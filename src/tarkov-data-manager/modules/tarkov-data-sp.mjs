@@ -1,9 +1,8 @@
 
-const ApiRequest = async (path, options = {}) => {
-    if (!path) {
-        throw new Error('No path specified');
+const ApiRequest = async (url, options = {}) => {
+    if (!url) {
+        throw new Error('No url specified');
     }
-    const url = new URL(`https://publicfleaapi.asoloproject.xyz/api/v2${path}`);
     const method = options.method ?? 'GET';
     const body = options.body ? JSON.stringify(options.body) : undefined;
     if (options.params) {
@@ -22,48 +21,50 @@ const ApiRequest = async (path, options = {}) => {
     return response.json();
 };
 
+const FleaApiRequest = async (path, options = {}) => {
+    const gameType = getGameType(options.gameMode ?? 'regular');
+    const url = new URL(`https://publicfleaapi.asoloproject.xyz/api/v2/flea-advanced/${gameType}${path}`);
+    return ApiRequest(url, options);
+};
+
+const BotApiRequest = async (path, options) => {
+    const url = new URL(`https://tarkovbotroleapi.asoloproject.xyz/api${path}`);
+    return ApiRequest(url, options);
+};
+
 const getGameType = (gameMode) => {
     if (gameMode === 'regular') {
         return 'eft';
+    }
+    if (gameMode === 'pvp-season') {
+        return 'season';
     }
     return gameMode;
 }
 
 const spApi = {
     itemsOverview: async (gameMode = 'regular') => {
-        const apiResponse = await ApiRequest(`/flea-advanced/${getGameType(gameMode)}/items-overview`);
+        const apiResponse = await FleaApiRequest(`/items-overview`, {gameMode});
         if (!apiResponse.items) {
             return Promise.reject(new Error('Response missing items attribute'));
         }
         return apiResponse.items;
     },
     traderPrices: async (gameMode = 'regular') => {
-        const apiResponse = await ApiRequest(`/flea-advanced/${getGameType(gameMode)}/traders/offers`);
+        const apiResponse = await FleaApiRequest(`/traders/offers`, {gameMode});
         if (!apiResponse.data) {
             return Promise.reject(new Error('Response missing data attribute'));
         }
         return apiResponse;
     },
     botsHealth: async () => {
-        const response = await fetch('https://tarkovbotroleapi.asoloproject.xyz/api/bot-health');
-        if (!response.ok) {
-            return Promise.reject(new Error(`${response.statusText} ${response.status}`));
-        }
-        return response.json();
+        return BotApiRequest('/bot-health');
     },
     botRender: async () => {
-        const response = await fetch('https://tarkovbotroleapi.asoloproject.xyz/api/bot-render');
-        if (!response.ok) {
-            return Promise.reject(new Error(`${response.statusText} ${response.status}`));
-        }
-        return response.json();
+        return BotApiRequest('/bot-render');
     },
     botGroups: async () => {
-        const response = await fetch('https://tarkovbotroleapi.asoloproject.xyz/api/bot-groups');
-        if (!response.ok) {
-            return Promise.reject(new Error(`${response.statusText} ${response.status}`));
-        }
-        return response.json();
+        return BotApiRequest('/bot-groups');
     },
 };
 

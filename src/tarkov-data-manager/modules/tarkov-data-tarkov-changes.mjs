@@ -17,8 +17,11 @@ const jsonRequest = async (filename, options) => {
     const { gameMode } = options;
     const timeout = options.timeout ?? 20000;
     let path = process.env.TC_LATEST_URL;
-    if (gameMode !== 'regular') {
+    if (gameMode === 'pve') {
         path += '/pve';
+    }
+    if (gameMode === 'pvp-season') {
+        //path += '';
     }
     path += '/latest/';
     try {
@@ -83,7 +86,16 @@ const availableFiles = {
 };
 
 const cachePath = (filename) => {
-    return path.join(import.meta.dirname, '..', 'cache', filename);   
+    const pathParts = [
+        import.meta.dirname,
+        '..',
+        'cache',
+        'tarkov-changes'
+    ];
+    if (filename) {
+        pathParts.push(filename);
+    }
+    return path.join(...pathParts);
 }
 
 const convertToArray = [
@@ -103,6 +115,7 @@ const tarkovChanges = {
             if (convertToArray.includes(file) && !Array.isArray(returnValue)) {
                 returnValue = Object.values(returnValue);
             }
+            fs.mkdirSync(cachePath(), { recursive: true });
             fs.writeFileSync(cachePath(saveFileName), JSON.stringify(returnValue, null, 4));
             return returnValue;
         }

@@ -2209,7 +2209,7 @@ class UpdateQuestsJob extends DataJob {
             reward.imageLink = await this.retrieveImage({
                 filename: `customization-${reward.id}.webp`,
                 fetch: () => {
-                    return this.fencePassthrough(`https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`);
+                    return this.fencePassthrough(`https://s3-prod.escapefromtarkov.com/regular${rawReward.illustrationConfig.image}`);
                 },
             });
         }
@@ -2221,7 +2221,7 @@ class UpdateQuestsJob extends DataJob {
             reward.imageLink = await this.retrieveImage({
                 filename: `customization-${reward.id}.webp`,
                 fetch: () => {
-                    return this.fencePassthrough(`https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`);
+                    return this.fencePassthrough(`https://s3-prod.escapefromtarkov.com/regular${rawReward.illustrationConfig.image}`);
                 },
             });
         }
@@ -2233,20 +2233,20 @@ class UpdateQuestsJob extends DataJob {
             reward.imageLink = await this.retrieveImage({
                 filename: `customization-${reward.id}.webp`,
                 fetch: () => {
-                    return this.fencePassthrough(`https://prod.escapefromtarkov.com${rawReward.illustrationConfig.image}`);
+                    return this.fencePassthrough(`https://s3-prod.escapefromtarkov.com/regular${rawReward.illustrationConfig.image}`);
                 },
             });
         }
         prestigeData.iconLink = await this.retrieveImage({
             filename: `prestige-${prestigeIndex+1}-icon.webp`,
             fetch: () => {
-                return this.fencePassthrough(`https://prod.escapefromtarkov.com${prestige.image}`);
+                return this.fencePassthrough(`https://s3-prod.escapefromtarkov.com/regular${prestige.image}`);
             },
         });
         prestigeData.imageLink = await this.retrieveImage({
             filename: `prestige-${prestigeIndex+1}-image.webp`,
             fetch: () => {
-                return this.fencePassthrough(`https://prod.escapefromtarkov.com${prestige.bigImage}`);
+                return this.fencePassthrough(`https://s3-prod.escapefromtarkov.com/regular${prestige.bigImage}`);
             },
         });
         return prestigeData;
