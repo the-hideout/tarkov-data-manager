@@ -20,3 +20,18 @@ jobs:
         uses: GrantBirki/json-yaml-validate@3ff75979f3b21171f2e8a44705f0ff4bed30bbc0 # pin@v5.0.0
         with:
           comment: "true"
+
+  quest-correction-data:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/tarkov-data-manager
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # pin@v6
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # pin@v4.4.0
+        with:
+          node-version: 24.11.1
+          cache: npm
+          cache-dependency-path: src/tarkov-data-manager/package-lock.json
+      - run: npm ci
+      - run: npm run test:data

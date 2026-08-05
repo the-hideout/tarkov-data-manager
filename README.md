@@ -5,6 +5,18 @@
 
 The Tarkov Data Manager, which is forked from kokarn's original creation, is a tool to manage the Tarkov item data.
 
+## Quest correction data
+
+The six human-maintained quest correction sources in `src/tarkov-data-manager/data` use JSON5. Comments, trailing commas, and quoted or unquoted keys are supported. Keep generated files, public API artifacts, translations, and every other JSON file as strict JSON.
+
+After changing quest correction data, run the credential-free validation from `src/tarkov-data-manager`:
+
+```sh
+npm run test:data
+```
+
+The test suite parses and validates every approved source so malformed correction data fails early with a source-specific error.
+
 It is a web application that allows you to do the following:
 
 - Start, stop, and interact with scanners
