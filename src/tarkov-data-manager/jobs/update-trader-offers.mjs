@@ -267,6 +267,10 @@ class UpdateTraderOffersJob extends DataJob {
                     }
                     return bsgItem._parent !== '65649eb40bf0ed77b8044453'; // no soft armor inserts
                 });
+                if (offer.items.length > 1 && !offer.items.some(i => !i.parentId)) {
+                    // preset is missing base item
+                    continue;
+                }
                 if (offer.items.length > 1 && !item.types.includes('ammo-box')) {
                     let preset = presetData.findPreset(offer.items);
                     if (!preset) {

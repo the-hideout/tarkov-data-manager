@@ -29,7 +29,7 @@ class UpdateFleaPricesJob extends DataJob {
                 items,
                 scannerOptions,
             ] = await Promise.all([
-                spApi.itemsOverview(gameMode),
+                spApi.fleaPrices(gameMode),
                 db.query(`
                     SELECT
                         a.item_id,
