@@ -20,3 +20,67 @@ jobs:
         uses: GrantBirki/json-yaml-validate@3ff75979f3b21171f2e8a44705f0ff4bed30bbc0 # pin@v5.0.0
         with:
           comment: "true"
+
+  quest-correction-data:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/tarkov-data-manager
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # pin@v6
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # pin@v4.4.0
+        with:
+          node-version: 24.11.1
+          cache: npm
+          cache-dependency-path: src/tarkov-data-manager/package-lock.json
+      - run: npm ci
+      - run: npm run test:data
+
+  typescript-build:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/tarkov-data-manager
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # pin@v6
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # pin@v4.4.0
+        with:
+          node-version: 24.11.1
+          cache: npm
+          cache-dependency-path: src/tarkov-data-manager/package-lock.json
+      - run: npm ci
+      - run: npm run validate:build
+
+  docker-runtime:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # pin@v6
+      - name: Build compiled runtime image
+        run: docker build --tag tarkov-data-manager:ci src/tarkov-data-manager
+      - name: Validate runtime image metadata
+        shell: bash
+        run: |
+          test "$(docker image inspect --format '{{.Config.User}}' tarkov-data-manager:ci)" = "node"
+          test "$(docker image inspect --format '{{.Config.WorkingDir}}' tarkov-data-manager:ci)" = "/app"
+      - name: Validate runtime image contents
+        shell: bash
+        run: |
+          docker run --rm --entrypoint node tarkov-data-manager:ci --check index.mjs
+          docker run --rm --entrypoint npm tarkov-data-manager:ci ls --omit=dev
+          docker run --rm --entrypoint node tarkov-data-manager:ci --input-type=module -e "await Promise.all([import('sharp'), import('mysql2')])"
+          docker run --rm --entrypoint sh tarkov-data-manager:ci -c '
+            test -x script/wait-for-it.sh
+            test ! -e .env
+            test ! -e .npmrc
+            test ! -e creds.env
+            test ! -e credsbpk.env
+            test ! -d build
+            test ! -d test
+            test ! -d node_modules/typescript
+            test ! -d node_modules/nodemon
+            test -z "$(find . -path ./node_modules -prune -o -type f \( -name "*.ts" -o -name "*.mts" -o -name "*.cts" \) -print -quit)"
+          '

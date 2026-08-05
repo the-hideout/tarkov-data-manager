@@ -8,8 +8,17 @@
   },
   "scripts": {
     "test": "node -r dotenv/config --trace-warnings test.mjs",
+    "test:data": "node --test test/quest-correction-data.test.mjs",
+    "test:build": "node --test test/build-artifact.test.mjs",
+    "test:docker": "node --test test/docker-contract.test.mjs",
+    "test:unit": "node --test test/typescript-modules.test.mjs",
+    "typecheck": "tsc -p tsconfig.json",
+    "build:code": "tsc -p tsconfig.build.json",
+    "build": "node scripts/build-artifact.mjs",
+    "validate:build": "npm run build && npm run test:build && npm run test:unit && npm run test:docker && npm run test:data",
     "dev": "nodemon -r dotenv/config --trace-warnings index.mjs",
-    "start": "node --max-old-space-size=3000 index.mjs",
+    "start": "node --enable-source-maps --max-old-space-size=3000 index.mjs",
+    "start:build": "node scripts/start-build.mjs",
     "job": "node -r dotenv/config --trace-warnings test-job.mjs",
     "put-kvs": "node -r dotenv/config --trace-warnings populate-kvs.mjs",
     "kv-locale": "node -r dotenv/config --trace-warnings ./scripts/generate-kv-locale.mjs"
@@ -18,9 +27,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "adm-zip": "^0.6.0",
     "@aws-sdk/client-s3": "^3.1070.0",
     "@aws-sdk/credential-providers": "^3.1070.0",
+    "adm-zip": "^0.6.0",
     "body-parser": "^2.3.0",
     "chalk": "^5.6.2",
     "cheerio": "^1.2.0",
@@ -34,6 +43,7 @@
     "filenamify": "^7.0.2",
     "formidable": "^3.5.4",
     "json-stream-stringify": "^3.1.7",
+    "json5": "^2.2.3",
     "luxon": "^3.7.2",
     "mysql2": "^3.22.5",
     "node-schedule": "^2.1.1",
@@ -43,9 +53,12 @@
     "ws": "^8.21.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "@types/node": "24.10.1",
+    "nodemon": "^3.1.14",
+    "typescript": "5.9.3"
   },
   "nodemonConfig": {
+    "ext": "js,mjs,cjs,ts,mts,cts,json",
     "ignore": [
       "package.json",
       "dumps",
@@ -54,6 +67,7 @@
       "logs",
       "node-logs",
       "public",
+      "build",
       "script",
       "scripts"
     ],

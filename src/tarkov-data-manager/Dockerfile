@@ -1,25 +1,33 @@
-FROM node:24.11.1-slim
+FROM node:24.11.1-slim AS base
 
 WORKDIR /app
 
-RUN chown -R node:node /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && update-ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# this line is needed to ensure sharp installs correctly
-RUN chown -R node:node /root
+RUN mkdir -p /home/node/.npm \
+    && chown -R node:node /app /home/node/.npm
 
-# permissions for node-logs volume
-RUN mkdir -p /home/node/.npm
-RUN chown -R 1000:1000 "/home/node/.npm"
+FROM base AS builder
 
-# Update certificate store
-RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 
-COPY --chown=node:node . .
+COPY . .
+RUN npm run build
 
-RUN npm install
+FROM base AS runtime
 
-# RUN node script/7z-chmod.mjs
+ENV NODE_ENV=production
+
+COPY --from=builder --chown=node:node /app/build/app/ ./
+
+RUN npm ci --omit=dev --no-audit --no-fund \
+    && chmod +x script/wait-for-it.sh \
+    && chown -R node:node /app
 
 USER node
 
-CMD ./script/wait-for-it.sh database:3306 -- node script/wait-for-db.mjs && npm run start
+CMD ["sh", "-c", "./script/wait-for-it.sh database:3306 -- node script/wait-for-db.mjs && exec node --enable-source-maps --max-old-space-size=3000 index.mjs"]

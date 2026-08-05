@@ -5,6 +5,34 @@
 
 The Tarkov Data Manager, which is forked from kokarn's original creation, is a tool to manage the Tarkov item data.
 
+## Quest correction data
+
+The six human-maintained quest correction sources in `src/tarkov-data-manager/data` use JSON5. Comments, trailing commas, and quoted or unquoted keys are supported. Keep generated files, public API artifacts, translations, and every other JSON file as strict JSON.
+
+After changing quest correction data, run the credential-free validation from `src/tarkov-data-manager`:
+
+```sh
+npm run test:data
+```
+
+The test suite parses and validates every approved source so malformed correction data fails early with a source-specific error.
+
+## TypeScript build and compiled runtime
+
+The application toolchain is pinned to Node.js 24.11.1 in CI and Docker. From `src/tarkov-data-manager`, install the locked dependencies and run the credential-free build checks with:
+
+```sh
+npm ci
+npm run typecheck
+npm run validate:build
+```
+
+`npm run build` creates the ignored `build/app` artifact from a clean output directory. `npm run validate:build` verifies the compiled layout, emitted imports, source maps, typed helper behavior, quest correction data, and the static Docker contract without starting the application, Docker, or a database.
+
+TypeScript source imports use their source extensions. Relative `.mts` imports are rewritten to `.mjs`, and relative `.cts` imports are rewritten to `.cjs` in `build/app`. Existing JavaScript remains supported during the staged migration.
+
+To launch the compiled application, run `npm run start:build`. This is an operational command and requires the same credentials and database access as the source application. The production Docker image builds `build/app` in a builder stage, copies only that artifact into the runtime stage, and installs production dependencies only.
+
 It is a web application that allows you to do the following:
 
 - Start, stop, and interact with scanners
@@ -34,7 +62,7 @@ The Tarkov Data Manager can be run locally without Docker by running the followi
 1. Install dependencies:
 
     ```bash
-    npm install
+    npm ci
     ```
 
 1. Run the application:

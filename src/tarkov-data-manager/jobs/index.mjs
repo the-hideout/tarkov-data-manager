@@ -46,13 +46,15 @@ const startupJobs = [
 const nonDevStartupJobs = [];
 
 const jobClasses = {};
-const jobFiles = fs.readdirSync('./jobs').filter(file => file.endsWith('.mjs'));
+const jobFiles = fs.readdirSync(import.meta.dirname)
+    .filter(file => ['.mjs', '.mts'].includes(path.extname(file)));
 for (const file of jobFiles) {
-    if (file === 'index.mjs') {
+    const jobName = path.basename(file, path.extname(file));
+    if (jobName === 'index') {
         continue;
     }
     await import(`./${file}`).then(jobClass => {
-        jobClasses[file.replace('.mjs', '')] = jobClass.default;
+        jobClasses[jobName] = jobClass.default;
     });
 }
 
