@@ -132,7 +132,7 @@ const BotApiRequest = (path, options) => {
 const limiter = new Bottleneck({
     reservoir: 30, // initial value
     reservoirRefreshAmount: 30,
-    reservoirRefreshInterval: 15 * 1000, // must be divisible by 250
+    reservoirRefreshInterval: 10 * 1000, // must be divisible by 250
     maxConcurrent: 30,
     //minTime: 333 // pick a value that makes sense for your use case
 });

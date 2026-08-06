@@ -52,7 +52,7 @@ class UpdateItemCacheJob extends DataJob {
             }),
             tarkovData.handbook(),
             tarkovData.traders({gameMode: 'regular'}),
-            tarkovData.tapeList({gameMode: 'pvp-season'}),
+            tarkovData.tapeList(),
             getLocalBucketContents(),
             this.query('SELECT * FROM preset_locale').then(records => {
                 const translations = [];
