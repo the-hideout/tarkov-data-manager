@@ -153,7 +153,7 @@ const tarkovChanges = {
         return tarkovChanges.get('handbook', merge(options));
     },
     items: async (options = defaultOptions) => {
-        return tarkovChanges.get('items', merge({...options, timeout: 40000}));
+        return tarkovChanges.get('items', merge(options));
     },
     locale_en: async (options = defaultOptions) => {
         return tarkovChanges.get('locale_en', merge(options));
@@ -200,7 +200,7 @@ const tarkovChanges = {
             values.errors = errors;
             return values;
         }
-        if (errors.length > 0) {
+        if (Object.keys(errors).length > 0) {
             return Promise.reject(new Error(Object.keys(errors).map(file => `${file}: ${errors[file].message}`).join('; ')));
         }
         return values;

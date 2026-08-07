@@ -2,7 +2,10 @@ const gameModes = [
     {
         name: 'regular',
         value: 0,
-        skipData: [],
+        skipData: [
+            'tapeList',
+            'storyChapters',
+        ],
     },
     {
         name: 'pve',
@@ -12,6 +15,8 @@ const gameModes = [
             'achievementStats',
             'customization',
             'prestige',
+            'tapeList',
+            'storyChapters',
         ],
     },
     {
