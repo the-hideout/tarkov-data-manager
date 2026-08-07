@@ -28,7 +28,7 @@ class UpdateProfileIndexJob extends DataJob {
         let offset = 0;
         while (true) {
             const queryResult = await this.d1Query(
-                'SELECT id, name, updated, updated_pve, updated_arena FROM eft_accounts LIMIT ?, ?',
+                'SELECT id, name, updated, updated_pve, updated_pvp_season, updated_arena FROM eft_accounts LIMIT ?, ?',
                 [offset, batchSize],
                 {
                     maxRetries: 10,
@@ -40,7 +40,7 @@ class UpdateProfileIndexJob extends DataJob {
                 for (const gameMode of gameModes) {
                     let updatedField = 'updated';
                     if (gameMode.name !== 'regular') {
-                        updatedField += `_${gameMode.name}`;
+                        updatedField += `_${gameMode.name.replaceAll('-', '_')}`;
                     }
                     if (r[updatedField]) {
                         profiles[gameMode.name][r.id] = r.name;
