@@ -20,15 +20,19 @@ class UpdateProfileIndexJob extends DataJob {
         ];
         const profiles = {};
         const updated = {};
+        const updatedFields = [];
         for (const gameMode of gameModes) {
             profiles[gameMode.name] = {};
             updated[gameMode.name] = {};
+            if (gameMode.name !== 'regular') {
+                updatedFields.push('`' + `updated_${gameMode.name}` + '`')
+            }
         }
         const batchSize = 1000000;
         let offset = 0;
         while (true) {
             const queryResult = await this.d1Query(
-                'SELECT id, name, updated, updated_pve, updated_arena FROM eft_accounts LIMIT ?, ?',
+                `SELECT id, name, updated, ${updatedFields.join(', ')} FROM eft_accounts LIMIT ?, ?`,
                 [offset, batchSize],
                 {
                     maxRetries: 10,
