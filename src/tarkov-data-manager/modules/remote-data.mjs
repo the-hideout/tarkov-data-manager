@@ -215,9 +215,7 @@ const methods = {
                 GROUP BY
                     item_id, game_mode
             `).then(results => results.reduce((all, resultRow) => {
-                if (!all[resultRow.game_mode]) {
-                    all[resultRow.game_mode] = {};
-                }
+                all[resultRow.game_mode] ??= {};
                 all[resultRow.game_mode][resultRow.item_id] = resultRow.priceYesterday;
                 return all;
             }, {})).finally(() => {
@@ -236,16 +234,11 @@ const methods = {
                 WHERE
                     timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)
             `).then(results => results.reduce((all, resultRow) => {
-                if (!all[resultRow.game_mode]) {
-                    all[resultRow.game_mode] = {};
-                }
-                if (!all[resultRow.game_mode][resultRow.item_id]) {
-                    all[resultRow.game_mode][resultRow.item_id] = [];
-                }
-                if (!all[resultRow.game_mode][resultRow.item_id].min) {
-                    all[resultRow.game_mode][resultRow.item_id].min = [];
-                    all[resultRow.game_mode][resultRow.item_id].avg = [];
-                }
+                all[resultRow.game_mode] ??= {};
+                all[resultRow.game_mode][resultRow.item_id] ??= {
+                    min: [],
+                    avg: [],
+                };
                 all[resultRow.game_mode][resultRow.item_id].min.push(resultRow.price_min);
                 all[resultRow.game_mode][resultRow.item_id].avg.push(resultRow.price_avg);
                 return all;
@@ -268,9 +261,7 @@ const methods = {
                 GROUP BY
                     item_id, game_mode
             `).then(results => results.reduce((all, resultRow) => {
-                if (!all[resultRow.game_mode]) {
-                    all[resultRow.game_mode] = {};
-                }
+                all[resultRow.game_mode] ??= {};
                 all[resultRow.game_mode][resultRow.item_id] = resultRow.priceYesterday;
                 return all;
             }, {})).finally(() => {
