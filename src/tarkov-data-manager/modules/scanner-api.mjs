@@ -737,7 +737,7 @@ const scannerApi = {
         }
     
         if (itemScanned && itemId && !skipInsert) {
-            scanned = `, ${prefix}last_scan = ?`;
+            scanned = `, \`${prefix}last_scan\` = ?`;
             escapedValues.push(options.timestamp ?? new Date());
             if (options.offerCount && options.offersFrom !== 1) {
                 scanned += `, \`${prefix}last_offer_count\` = ?`;
