@@ -332,8 +332,7 @@ const methods = {
                     const lastData = itemLastPrices[gameMode.value]?.[itemId];
                     if (lastData) {
                         item[`${fieldPrefix}lastLowPrice`] = lastData.price;
-                        const updatedField = `${fieldPrefix}updated`;
-                        item[updatedField] = lastData.timestamp;
+                        item[`${fieldPrefix}lastScan`] = lastData.timestamp;
                     }
 
                     let item24hPriceMin = item24hPrices[gameMode.value]?.[itemId];
@@ -579,7 +578,7 @@ const methods = {
             'changeLast48h',
             'changeLast48hPercent',
             'lastOfferCount',
-            'updated',
+            'lastScan',
         ];
     },
     on: (event, listener) => {
