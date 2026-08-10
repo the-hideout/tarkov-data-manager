@@ -88,17 +88,7 @@ class UpdateItemCacheJob extends DataJob {
             job: this,
             translationHelper: this.translationHelper,
         });
-            
-        const priceFields = [
-            'lastLowPrice',
-            'avg24hPrice',
-            'low24hPrice',
-            'high24hPrice',
-            'changeLast48h',
-            'changeLast48hPercent',
-            'lastOfferCount',
-            'updated',
-        ];
+        
         this.logger.log('Processing items...');
         let itemImageDownloadErrorCount = 0;
         for (const [key, value] of this.itemMap.entries()) {
@@ -140,7 +130,7 @@ class UpdateItemCacheJob extends DataJob {
                 handbookCategories: [],
             };
 
-            for (const fieldName of priceFields) {
+            for (const fieldName of remoteData.priceFields()) {
                 itemData[key][fieldName] = value[fieldName];
             }
 
@@ -463,7 +453,7 @@ class UpdateItemCacheJob extends DataJob {
                     //traderPrices: item.traderPrices.filter(tp => tp.trader !== '6617beeaa9cfa777ca915b7c'),
                 };
                 const dbItem = this.itemMap.get(id);
-                for (const fieldName of priceFields) {
+                for (const fieldName of remoteData.priceFields()) {
                     modeData.Item[id][fieldName] = dbItem[`${gameMode.name}_${fieldName}`];
                 }
                 modeData.Item[id].updated = dbItem.updated;
@@ -487,7 +477,7 @@ class UpdateItemCacheJob extends DataJob {
                 if (!dbItem) {
                     continue;
                 }
-                for (const fieldName of priceFields) {
+                for (const fieldName of remoteData.priceFields()) {
                     item[fieldName] = dbItem[`${gameMode.name}_${fieldName}`];
                 }
             }

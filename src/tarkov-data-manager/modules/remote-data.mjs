@@ -8,6 +8,7 @@ import gameModes from './game-modes.mjs';
 import emitter from './emitter.mjs';
 import s3 from './upload-s3.mjs';
 import dogtags from './dogtags.mjs';
+import { camelCaseToSnakeCase } from './string-functions.mjs';
 
 const myData = new Map();
 let lastRefresh = new Date(0);
@@ -113,6 +114,11 @@ const methods = {
 
             const currentItems = new Map();
 
+            const gameModeFields = [
+                'lastOfferCount',
+                'lastScan',
+            ];
+
             for (const result of results) {
                 Reflect.deleteProperty(result, 'item_id');
                 Reflect.deleteProperty(result, 'base_price');
@@ -132,11 +138,21 @@ const methods = {
                     pve_changeLast48h: null,
                     pve_changeLast48hPercent: null,
                     lastOfferCount: result.last_offer_count,
-                    pve_lastOfferCount: result.pve_last_offer_count,
+                    //pve_lastOfferCount: result.pve_last_offer_count,
+                    //'pvp-season_lastOfferCount': result['pvp-season_last_offer_count'],
                     lastScan: result.last_scan,
-                    pve_lastScan: result.pve_last_scan,
+                    //pve_lastScan: result.pve_last_scan,
+                    //'pvp-season_lastScan': result['pvp-season_last_scan'],
                 };
-                if (!preparedData.properties) preparedData.properties = {};
+                for (const gameModeField of gameModeFields) {
+                    for (const gameMode of gameModes) {
+                        if (gameMode.name === 'regular') {
+                            continue;
+                        }
+                        preparedData[`${gameMode.name}_${gameModeField}`] = result[`${gameMode.name}_${camelCaseToSnakeCase(gameModeField)}`];
+                    }
+                }
+                preparedData.properties ??= {};
                 currentItems.set(result.id, preparedData);
                 myData.set(result.id, preparedData);
             }
@@ -553,6 +569,18 @@ const methods = {
     },
     isDogtag: (id) => {
         return Object.values(methods.dogtagIds()).includes(id);
+    },
+    priceFields: () => {
+        return [
+            'lastLowPrice',
+            'avg24hPrice',
+            'low24hPrice',
+            'high24hPrice',
+            'changeLast48h',
+            'changeLast48hPercent',
+            'lastOfferCount',
+            'updated',
+        ];
     },
     on: (event, listener) => {
         return emitter.on(event, listener);

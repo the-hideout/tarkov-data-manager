@@ -9,8 +9,11 @@ const stringFunctions = {
             .replace(/^./, (match) => match.toUpperCase())
             .trim();
     },
+    camelCaseToSnakeCase: input => {
+        return input.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+    },
 }
 
-export const { dashToCamelCase, camelCaseToTitleCase } = stringFunctions;
+export const { dashToCamelCase, camelCaseToTitleCase, camelCaseToSnakeCase } = stringFunctions;
 
 export default stringFunctions;
