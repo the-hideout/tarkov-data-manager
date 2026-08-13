@@ -734,6 +734,9 @@ const getItemProperties = async (tarkovDevItem) => {
                 continue;
             }
             properties.content.push(translationHelper.addTranslation(key, (lang => {
+                if (!lang[key]) {
+                    return unityRichTextToHtml(translationHelper.locales.en[key]);
+                }
                 return unityRichTextToHtml(lang[key]);
             })));
         }

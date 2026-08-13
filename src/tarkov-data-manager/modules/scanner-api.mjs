@@ -732,20 +732,20 @@ const scannerApi = {
         if (options.offersFrom === 1) {
             prefix = 'trader_'
         }
-        if (options.sessionMode === 'pve') {
-            prefix = 'pve_' + prefix;
+        if (options.sessionMode !== 'regular') {
+            prefix = `${options.sessionMode}_` + prefix;
         }
     
         if (itemScanned && itemId && !skipInsert) {
-            scanned = `, ${prefix}last_scan = ?`;
+            scanned = `, \`${prefix}last_scan\` = ?`;
             escapedValues.push(options.timestamp ?? new Date());
             if (options.offerCount && options.offersFrom !== 1) {
-                scanned += `, ${prefix}last_offer_count = ?`;
+                scanned += `, \`${prefix}last_offer_count\` = ?`;
                 escapedValues.push(options.offerCount);
             }
             setLastScan = true;
         } else if (!itemScanned || skipInsert) {
-            where.push(`item_data.${prefix}checkout_scanner_id = ?`);
+            where.push(`item_data.\`${prefix}checkout_scanner_id\` = ?`);
             escapedValues.push(options.scanner.id);
         }
         if (itemId) {
@@ -754,7 +754,7 @@ const scannerApi = {
         }
         let sql = `
             UPDATE item_data
-            SET ${prefix}checkout_scanner_id = NULL${scanned}
+            SET \`${prefix}checkout_scanner_id\` = NULL${scanned}
             WHERE ${where.join(' AND ')}
         `;
         try {
@@ -762,7 +762,7 @@ const scannerApi = {
                 if (setLastScan) {
                     query(`
                         UPDATE scanner
-                        SET ${prefix}last_scan = now()
+                        SET \`${prefix}last_scan\` = now()
                         WHERE id = ?
                     `, [options.scanner.id]);
                 }

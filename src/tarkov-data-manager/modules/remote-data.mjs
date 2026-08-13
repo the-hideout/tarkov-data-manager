@@ -8,6 +8,7 @@ import gameModes from './game-modes.mjs';
 import emitter from './emitter.mjs';
 import s3 from './upload-s3.mjs';
 import dogtags from './dogtags.mjs';
+import { camelCaseToSnakeCase } from './string-functions.mjs';
 
 const myData = new Map();
 let lastRefresh = new Date(0);
@@ -113,6 +114,11 @@ const methods = {
 
             const currentItems = new Map();
 
+            const gameModeFields = [
+                'lastOfferCount',
+                'lastScan',
+            ];
+
             for (const result of results) {
                 Reflect.deleteProperty(result, 'item_id');
                 Reflect.deleteProperty(result, 'base_price');
@@ -132,11 +138,21 @@ const methods = {
                     pve_changeLast48h: null,
                     pve_changeLast48hPercent: null,
                     lastOfferCount: result.last_offer_count,
-                    pve_lastOfferCount: result.pve_last_offer_count,
+                    //pve_lastOfferCount: result.pve_last_offer_count,
+                    //'pvp-season_lastOfferCount': result['pvp-season_last_offer_count'],
                     lastScan: result.last_scan,
-                    pve_lastScan: result.pve_last_scan,
+                    //pve_lastScan: result.pve_last_scan,
+                    //'pvp-season_lastScan': result['pvp-season_last_scan'],
                 };
-                if (!preparedData.properties) preparedData.properties = {};
+                for (const gameModeField of gameModeFields) {
+                    for (const gameMode of gameModes) {
+                        if (gameMode.name === 'regular') {
+                            continue;
+                        }
+                        preparedData[`${gameMode.name}_${gameModeField}`] = result[`${gameMode.name}_${camelCaseToSnakeCase(gameModeField)}`];
+                    }
+                }
+                preparedData.properties ??= {};
                 currentItems.set(result.id, preparedData);
                 myData.set(result.id, preparedData);
             }
@@ -215,9 +231,7 @@ const methods = {
                 GROUP BY
                     item_id, game_mode
             `).then(results => results.reduce((all, resultRow) => {
-                if (!all[resultRow.game_mode]) {
-                    all[resultRow.game_mode] = {};
-                }
+                all[resultRow.game_mode] ??= {};
                 all[resultRow.game_mode][resultRow.item_id] = resultRow.priceYesterday;
                 return all;
             }, {})).finally(() => {
@@ -236,16 +250,11 @@ const methods = {
                 WHERE
                     timestamp > DATE_SUB(NOW(), INTERVAL 1 DAY)
             `).then(results => results.reduce((all, resultRow) => {
-                if (!all[resultRow.game_mode]) {
-                    all[resultRow.game_mode] = {};
-                }
-                if (!all[resultRow.game_mode][resultRow.item_id]) {
-                    all[resultRow.game_mode][resultRow.item_id] = [];
-                }
-                if (!all[resultRow.game_mode][resultRow.item_id].min) {
-                    all[resultRow.game_mode][resultRow.item_id].min = [];
-                    all[resultRow.game_mode][resultRow.item_id].avg = [];
-                }
+                all[resultRow.game_mode] ??= {};
+                all[resultRow.game_mode][resultRow.item_id] ??= {
+                    min: [],
+                    avg: [],
+                };
                 all[resultRow.game_mode][resultRow.item_id].min.push(resultRow.price_min);
                 all[resultRow.game_mode][resultRow.item_id].avg.push(resultRow.price_avg);
                 return all;
@@ -268,9 +277,7 @@ const methods = {
                 GROUP BY
                     item_id, game_mode
             `).then(results => results.reduce((all, resultRow) => {
-                if (!all[resultRow.game_mode]) {
-                    all[resultRow.game_mode] = {};
-                }
+                all[resultRow.game_mode] ??= {};
                 all[resultRow.game_mode][resultRow.item_id] = resultRow.priceYesterday;
                 return all;
             }, {})).finally(() => {
@@ -325,8 +332,7 @@ const methods = {
                     const lastData = itemLastPrices[gameMode.value]?.[itemId];
                     if (lastData) {
                         item[`${fieldPrefix}lastLowPrice`] = lastData.price;
-                        const updatedField = `${fieldPrefix}updated`;
-                        item[updatedField] = lastData.timestamp;
+                        item[`${fieldPrefix}lastScan`] = lastData.timestamp;
                     }
 
                     let item24hPriceMin = item24hPrices[gameMode.value]?.[itemId];
@@ -562,6 +568,18 @@ const methods = {
     },
     isDogtag: (id) => {
         return Object.values(methods.dogtagIds()).includes(id);
+    },
+    priceFields: () => {
+        return [
+            'lastLowPrice',
+            'avg24hPrice',
+            'low24hPrice',
+            'high24hPrice',
+            'changeLast48h',
+            'changeLast48hPercent',
+            'lastOfferCount',
+            'lastScan',
+        ];
     },
     on: (event, listener) => {
         return emitter.on(event, listener);

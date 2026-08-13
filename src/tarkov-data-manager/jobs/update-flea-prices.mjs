@@ -29,7 +29,7 @@ class UpdateFleaPricesJob extends DataJob {
                 items,
                 scannerOptions,
             ] = await Promise.all([
-                spApi.itemsOverview(gameMode),
+                spApi.fleaPrices(gameMode),
                 db.query(`
                     SELECT
                         a.item_id,
@@ -105,7 +105,7 @@ class UpdateFleaPricesJob extends DataJob {
                 if (lastPriceDate < latestPriceDate) {
                     let minPrice = itemPrice.latestPriceSample.minPrice;
                     let listingCount = itemPrice.latestPriceSample.listingCount;
-                    const latestSupplyPressure = itemPrice.latestPriceSample.latestSupplyPressure.map(s => [s[0], [...s[1]]]);
+                    const latestSupplyPressure = structuredClone(itemPrice.latestPriceSample.latestSupplyPressure);
                     // we need to add preset prices back into the base weapon
                     const presets = item.types.includes('gun') ? this.presets[item.id] ?? [] : [];
                     for (const preset of presets) {
@@ -113,23 +113,26 @@ class UpdateFleaPricesJob extends DataJob {
                         if (!presetPrice) {
                             continue;
                         }
+                        // there are prices for this preset
                         if (!presetPrice.latestPriceSample.minPrice) {
                             continue;
                         }
+                        // there is a minimum price
                         if (presetPrice.latestPriceSample.minPrice < minPrice) {
                             minPrice = presetPrice.latestPriceSample.minPrice;
+                            // update minimum price
                         }
                         listingCount += presetPrice.latestPriceSample.listingCount;
                         for (const scan of presetPrice.latestPriceSample.latestSupplyPressure) {
-                            const existingScan = latestSupplyPressure.find(s => s[0] === scan[0]);
+                            const existingScan = latestSupplyPressure.find(s => s.price === scan.price);
                             if (existingScan) {
-                                existingScan[1].push(...scan[1]);
+                                existingScan.offers.push(...scan.offers);
                             } else {
-                                latestSupplyPressure.push([scan[0], [...scan[1]]]);
+                                latestSupplyPressure.push(scan);
                             }
                         }
                     }
-                    latestSupplyPressure.sort((a, b) => a[0] - b[0]);
+                    latestSupplyPressure.sort((a, b) => a.price - b.price);
                     options.timestamp = latestPriceDate;
                     // price data is new
                     if (minPrice) {
@@ -137,11 +140,10 @@ class UpdateFleaPricesJob extends DataJob {
                         newPrices++;
                         options.offerCount = listingCount;
                         for (const scanned of latestSupplyPressure) {
-                            const price = scanned[0];
-                            for (let i = 0; i < scanned[1].length; i++) {
+                            for (let i = 0; i < scanned.offers.length; i++) {
                                 options.itemPrices.push({
                                     seller: 'Player',
-                                    price,
+                                    price: scanned.price,
                                     currency: 'RUB',
                                 });
                             }
