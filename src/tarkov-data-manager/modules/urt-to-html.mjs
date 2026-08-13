@@ -128,8 +128,7 @@ function unityRichTextToHtml(input, options = {}) {
   const { convertNewlines = true, keepUnknownTags = false } = options;
 
   if (typeof input !== 'string') {
-    throw new TypeError('unityRichTextToHtml: input must be a string');
-  }
+    throw new TypeError(`unityRichTextToHtml: input must be a string, received ${typeof input}`);  }
 
   // Normalize escaped newlines (\\n as two chars) as well as real ones.
   let source = input.replace(/\\n/g, '\n');
