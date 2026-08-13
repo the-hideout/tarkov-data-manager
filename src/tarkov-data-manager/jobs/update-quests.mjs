@@ -2807,7 +2807,7 @@ const skipQuests = [
     '67f3eab9a33cd296b20ee695', // Staff Shortage
     '67f3eacef649e7bceb0bb455', // Fearless Beast
     '67a096f605d1611ed90be75a', // Hot Zone
-    '67a09673972c11a3f507731d', // The Tarkov Butcher
+    //'67a09673972c11a3f507731d', // The Tarkov Butcher
 ];
 
 // Secure Folder 0013 appears on multiple maps
