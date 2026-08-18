@@ -1473,7 +1473,7 @@ class UpdateQuestsJob extends DataJob {
         if (!objective.id) {
             return false;
         }
-        if (options.type !== 'fail' && objective.zoneId && this.rawQuestData[questId].conditions.Fail?.some(f => f.zoneId === objective.zoneId)) {
+        if (options.type !== 'fail' && objective.zoneIds && this.rawQuestData[questId].conditions.Fail?.some(f => objective.zoneIds?.includes(f.zoneId))) {
             return false;
         }
         let objectiveId = objective.id;
@@ -1761,10 +1761,10 @@ class UpdateQuestsJob extends DataJob {
             obj.item = objective.target[0];
             obj.item_id = objective.target[0];
             obj.item_name = this.locales.en[`${objective.target[0]} Name`];
-            obj.zoneKeys = [objective.zoneId];
+            obj.zoneKeys = [...objective.zoneIds];
         } else if (objective.conditionType === 'LeaveItemAtLocation') {
             obj.count = parseInt(objective.value);
-            obj.zoneKeys = [objective.zoneId];
+            obj.zoneKeys = [...objective.zoneIds];
             if (this.items[objective.target[0]]._props.QuestItem) {
                 obj.type = 'plantQuestItem';
                 obj.item_id = objective.target[0];
