@@ -3,8 +3,7 @@ const gameModes = [
         name: 'regular',
         value: 0,
         skipData: [
-            'tapeList',
-            'storyChapters',
+            'seasonalPerks',
         ],
     },
     {
@@ -14,9 +13,8 @@ const gameModes = [
             'achievements',
             'achievementStats',
             'customization',
+            'seasonalPerks',
             'prestige',
-            'tapeList',
-            'storyChapters',
         ],
     },
     {
