@@ -6,9 +6,19 @@ import filenamify from 'filenamify';
 import dataOptions from './data-options.mjs';
 import gameModes, { getGameMode } from './game-modes.mjs';
 import sleep from './sleep.js';
+import ApiClient from './api-client.mjs';
 
 const defaultOptions = dataOptions.default;
 const merge = dataOptions.merge;
+
+const mdClient = new ApiClient({
+    cacheFolder: 'mdata',
+    urlBase: `${process.env.MD_URL}/data/raw/`,
+    headers: {
+        'Accept': 'application/json',
+        'X-API-KEY': process.env.MD_KEY,
+    },
+});
 
 const requests = {
     locale_cs: 'languages/cz.json',
@@ -32,89 +42,13 @@ const requests = {
     locale_zh: 'languages/ch.json',
 };
 
-const jsonRequest = async (pathname, options) => {
-    if (!process.env.MD_URL || !process.env.MD_KEY) {
-        return Promise.reject(new Error('MD_URL or MD_KEY not set'));
-    }
-    options.attempt ??= 0;
-    options.retryLimit ??= 10;
-    const timeout = options.timeout ?? 20000;
-    const url = new URL(process.env.MD_URL);
-    url.pathname = pathname;
-    try {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'X-API-KEY': process.env.MD_KEY,
-            },
-            signal: AbortSignal.any([
-                options.signal,
-                AbortSignal.timeout(timeout),
-            ].filter(Boolean)),
-        });
-        if (!response.ok) {
-            throw new Error(`${response.status} ${response.statusText}`);
-        }
-        const apiResponse = await response.json();
-        if (!apiResponse) {
-            throw new Error('MD returned null result');
-        }
-        return apiResponse;
-    } catch (error) {
-        if (options.attempt >= options.retryLimit) {
-            return Promise.reject(error);
-        }
-        options.attempt++;
-        await sleep(1000, options.signal);
-        return jsonRequest(pathname, options);
-    }
-};
-
-const cachePath = (filename) => {
-    const pathParts = [
-        import.meta.dirname,
-        '..',
-        'cache',
-        'mdata',
-    ];
-    if (filename) {
-        pathParts.push(filename);
-    }
-    return path.join(...pathParts);   
-}
-
-const ensureCachePath = () => {
-    const path = cachePath();
-    if (fs.existsSync(path)) {
-        return;
-    }
-    fs.mkdirSync(path, { recursive: true });
-};
-
-const writeToCache = (filename, content) => {
-    ensureCachePath();
-    fs.writeFileSync(cachePath(filename), content);
-};
-
 const mData = {
     get: async (path, options) => {
-        const { download } = merge(options);
-        const saveFileName = filenamify(path, {replacement: '_'});
-
-        if (download) {
-            const returnValue = await jsonRequest(path, options);
-            writeToCache(saveFileName, JSON.stringify(returnValue, null, 4));
-            return returnValue;
-        }
-        try {
-            return JSON.parse(fs.readFileSync(cachePath(saveFileName)));
-        } catch (error) {
-            if (error.code === 'ENOENT') {
-                return mData.get(path, {...options, download: true});
-            }
-            return Promise.reject(error);
-        }
+        return mdClient.get({
+            pathname: path,
+            refresh: options.download,
+            ...options
+        });
     },
     locales: async (options = defaultOptions) => {
         const locales = {};
@@ -123,7 +57,7 @@ const mData = {
             if (!request.startsWith('locale_')) {
                 continue;
             }
-            localeRequests.push(mData.get(`/data/raw/${requests[request]}`, options).then(data => {
+            localeRequests.push(mData.get(requests[request], structuredClone(options)).then(data => {
                 locales[request.replace('locale_', '')] = data;
             }));
         }
@@ -135,7 +69,7 @@ const mData = {
         if (!path) {
             return Promise.reject(new Error(`${locale} is not a valid locale value`));
         }
-        return mData.get(`/data/raw/${path}`, options);
+        return mData.get(path, options);
     },
 }
 
