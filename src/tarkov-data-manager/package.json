@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "node -r dotenv/config --trace-warnings test.mjs",
+    "test:data": "node --test test/quest-correction-data.test.mjs",
     "dev": "nodemon -r dotenv/config --trace-warnings index.mjs",
     "start": "node --max-old-space-size=3000 index.mjs",
     "job": "node -r dotenv/config --trace-warnings test-job.mjs",
@@ -35,6 +36,7 @@
     "filenamify": "^7.0.2",
     "formidable": "^3.5.4",
     "json-stream-stringify": "^3.1.7",
+    "json5": "^2.2.3",
     "luxon": "^3.7.2",
     "mysql2": "^3.22.5",
     "node-schedule": "^2.1.1",
