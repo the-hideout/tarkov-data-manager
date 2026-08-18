@@ -45,6 +45,37 @@ const cachePath = (filename) => {
 
 const defaultOptions = dataOptions.default;
 
+const addLocation = (obj) => {
+    obj.location = {
+        position: {
+            x: obj.pos[0],
+            y: obj.pos[1],
+            z: obj.pos[2],
+        },
+    };
+    if (obj.outline) {
+        obj.location.outline = obj.outline?.reduce((points, point) => {
+            if (!points.some(p => p[0] === point[0] && p[2] === point[2])) {
+                points.push(point);
+            }
+            return points;
+        }, []);
+    }
+    return obj;
+};
+
+const filterOutline = (obj) => {
+    return {
+        ...obj,
+        outline: obj.outline?.reduce((points, point) => {
+            if (!points.some(p => p[0] === point[0] && p[2] === point[2])) {
+                points.push(point);
+            }
+            return points;
+        }, []),
+    };
+};
+
 const dataFunctions = {
     achievements: async (options = defaultOptions) => {
         return mainDataSource.achievements(options);
@@ -53,9 +84,6 @@ const dataFunctions = {
         return mainDataSource.achievementStats(options);
     },
     areas: (options = defaultOptions) => {
-        /*if (options.gameMode === 'pvp-season') {
-            return sp.areas(options);
-        }*/
         return mainDataSource.areas(options);
     },
     botInfo: (botKey, options = defaultOptions) => {
@@ -71,24 +99,15 @@ const dataFunctions = {
         return sp.botGroups();
     },
     crafts: (options = defaultOptions) => {
-        /*if (options.gameMode === 'pvp-season') {
-            return sp.crafts(options);
-        }*/
         return mainDataSource.crafts(options);
     },
     credits: (options = defaultOptions) => {
-        /*if (options.gameMode === 'pvp-season') {
-            return sp.credits(options);
-        }*/
         return mainDataSource.credits(options);
     },
     customization: (options = defaultOptions) => {
         return mainDataSource.customization(options);
     },
     globals: (options = defaultOptions) => {
-        /*if (options.gameMode === 'pvp-season') {
-            return sp.globals(options);
-        }*/
         return mainDataSource.globals(options);
     },
     handbook: (options = defaultOptions) => {
@@ -137,6 +156,9 @@ const dataFunctions = {
         }*/
         return mainDataSource.locations(options);
     },
+    seasonalPerks: (options) => {
+        return mainDataSource.seasonalPerks({...options, gameMode: 'pvp-season'});
+    },
     storyChapters: (options = defaultOptions) => {
         /*if (options.gameMode === 'pvp-season') {
             return sp.storyChapters(options);
@@ -149,7 +171,7 @@ const dataFunctions = {
         }*/
         return mainDataSource.tapeList(options);
     },
-    mapDetails: async () => {
+    mapDetails: async (options = defaultOptions) => {
         const emptyData = {
             extracts: [],
             transits: [],
@@ -181,12 +203,12 @@ const dataFunctions = {
                 { // new Scav Checkpoint
                     name:'E6_new',
                 },
-                { // old Crash Site
+                /*{ // old Crash Site
                     name: 'Exit_E4_new',
                     requirements: {
                         status: 'Pending',
                     }
-                }
+                }*/
             ]
         };
         const excludedZones = {
@@ -195,7 +217,14 @@ const dataFunctions = {
             ],
         };
         const details = {};
-        const locations = await dataFunctions.locations();
+        const [locations, items] = await Promise.all([
+            dataFunctions.locations(),
+            dataFunctions.items(),
+        ]);
+        const duplicateMaps = {
+            'factory4_day': Object.values(locations).find(m => m.Id === 'factory4_night'),
+            'laboratory': Object.values(locations).find(m => m.Id === 'laboratory_dark'),
+        };
         const en = await dataFunctions.locale('en');
         for (const id in locations.locations) {
             const map = locations.locations[id];
@@ -205,18 +234,24 @@ const dataFunctions = {
             if (!en[`${id} Name`]) {
                 continue;
             }
+            details[id] = {};
             try {
-                details[id] = JSON.parse(fs.readFileSync(`./cache/${map.Id}.json`));
-                details[id].extracts = details[id].extracts.reduce((extracts, extract) => {
-                    if (extract.location.size.x <= 1 && extract.location.size.y <= 1 && extract.location.size.z <= 1) {
-                        return extracts;
+                const mapData = await tarkovDevData.mapData(map.Id, options).catch(error => {
+                    if (error.message === '404 Not Found') {
+                        return structuredClone(emptyData);
                     }
+                });
+                continue;
+                details[id].extracts = mapData.exfils.reduce((extracts, extract) => {
+                    /*if (extract.location.size.x <= 1 && extract.location.size.y <= 1 && extract.location.size.z <= 1) {
+                        return extracts;
+                    }*/
                     const excludeTest = excludedExtracts[map.Id]?.find(e => e.name === extract.name);
                     if (excludeTest) {
                         if (!excludeTest.requirements) {
                             return extracts;
                         }
-                        let matched = true;
+                        /*let matched = true;
                         for (const property in excludeTest.requirements) {
                             if (excludeTest.requirements[property] !== extract[property]) {
                                 matched = false;
@@ -225,33 +260,76 @@ const dataFunctions = {
                         }
                         if (matched) {
                             return extracts;
-                        }
+                        }*/
                     }
                     let duplicateExtract = extracts.find(e => {
-                        if (e.settings.Name !== extract.settings.Name) {
+                        if (e.name !== extract.name) {
                             return false;
                         }
-                        if (e.location.position.x !== extract.location.position.x || e.location.position.z !== extract.location.position.z) {
+                        if (e.pos[0] !== extract.pos[0] || e.pos[2] !== extract.pos[2]) {
                             return false;
                         }
                         return true;
                     });
                     if (duplicateExtract) {
-                        if (duplicateExtract.exfilType === 'ExfiltrationPoint') {
-                            duplicateExtract.exfilType = 'SharedExfiltrationPoint';
+                        if (duplicateExtract.faction === 'pmc') {
+                            duplicateExtract.faction = 'shared';
                             return extracts;
                         }
                         extracts = extracts.filter(e => e !== duplicateExtract);
-                        extract.exfilType = 'SharedExfiltrationPoint';
+                        extract.faction = 'shared';
                     }
                     extracts.push(extract);
                     return extracts;
-                }, []);
-                details[id].zones = details[id].zones.filter(z => !excludedZones[map.Id]?.includes(z.id));
+                }, []).map(extract => {
+                    switch (extract.faction){
+                        case 'scav':
+                            extract.exfilType = 'ScavExfiltrationPoint';
+                            break;
+                        case 'shared':
+                            extract.exfilType = 'SharedExfiltrationPoint';
+                            break;
+                        default:
+                            extract.exfilType = 'ExfiltrationPoint';
+                    }
+
+                    return extract;
+                }).map(extract => addLocation(extract));
+
+                details[id].transits = mapData.transit_points.map(transit => addLocation(transit));
+
+                details[id].doors = mapData.doors.map(door => addLocation(door));
+
+                details[id].zones = mapData.quest_triggers.filter(z => !excludedZones[map.Id]?.includes(z.name)).map(zone => addLocation(zone));
+
+                details[id].hazards = [
+                    ...mapData.minefields.map(hazard => {
+                        return {
+                            ...hazard,
+                            type: 'Minefield',
+                        };
+                    }),
+                    ...mapData.mines_directional.map(hazard => {
+                        return {
+                            ...hazard,
+                            type: 'Minefield',
+                        };
+                    }),
+                    ...mapData.sniper_zones.map(hazard => {
+                        return {
+                            ...hazard,
+                            type: 'SniperFiringZone',
+                        };
+                    }),
+                ].map(hazard => addLocation(hazard));
                 
-                details[id].locks = details[id].locks.map(l => {
-                    return {
-                        ...l,
+                details[id].locks = mapData.doors.map(door => {
+                    if (!door.key_id) {
+                        return;
+                    }
+                    return door;
+                    /*return {
+                        ...door,
                         needsPower: details[id].no_power?.some(pow => {
                             if (pow.location.position.x !== l.location.position.x) {
                                 return false;
@@ -264,17 +342,37 @@ const dataFunctions = {
                             }
                             return true;
                         }),
-                    }
+                    }*/
+                }).filter(Boolean).map(lock => addLocation(lock));
+                details[id].loot_points = mapData.loose_points.map(point => addLocation(point));
+                details[id].loot_containers = [];
+                details[id].stationary_weapons = mapData.stationary?.map(stationary => addLocation(stationary)) ?? [];
+
+                details[id].switches = mapData.interaction_switches.map(sw => {
+
                 });
-                details[id].stationary_weapons = details[id].stationary_weapons || [];
-                details[id].quest_items = details[id].quest_items?.reduce((all, current) => {
+                details[id].quest_items = mapData.loose_points.map(point => {
+                    const questPoint = structuredClone(point);
+                    questPoint.items = questPoint.items.filter(i => {
+                        const item = items[i.tpl];
+                        if (!item) {
+                            return false;
+                        }
+                        return item._props.QuestItem;
+                    });
+                    if (!questPoint.items.length) {
+                        return;
+                    }
+                    return questPoint;
+                }).filter(Boolean).map(point => addLocation(point)); /* mapData.quest_items?.reduce((all, current) => {
                     const p = current.location.position;
                     if (p.x || p.y || p.z) {
                         all.push(current);
                     }
                     return all;
-                }, []) || [];
-                details[id].path_destinations = details[id].path_destinations || [];
+                }, []) || [];*/
+                details[id].spawns = mapData.spawn_points.map(spawn => addLocation(spawn));
+                details[id].path_destinations = mapData.path_destinations || [];
             } catch (error) {
                 if (error.code === 'ENOENT') {
                     details[id] = emptyData;
@@ -284,6 +382,16 @@ const dataFunctions = {
                     continue;
                 }
                 return Promise.reject(error);
+            }
+            for (const sourceId in duplicateMaps) {
+                if (sourceId !== map.Id) {
+                    continue;
+                }
+                const targetMap = duplicateMaps[sourceId];
+                if (!targetMap) {
+                    continue;
+                }
+                details[targetMap._Id] ??= structuredClone(details[id]);
             }
         }
         return details;

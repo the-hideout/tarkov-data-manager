@@ -4,6 +4,7 @@ import path from 'node:path';
 import sharp from 'sharp';
 
 import dataOptions from './data-options.mjs';
+import sleep from './sleep.js';
 
 const availableFiles = {
     'achievements': {},
@@ -72,7 +73,11 @@ const getFromFence = async (jsonName, options) => {
     options.attempt ??= 0;
     options.retryLimit ??= 10;
     const timeout = options.timeout ?? 60000;
-    const requestURL = new URL(`https://fence.tarkov.dev/json/${jsonRequest}`);
+    let urlBase = 'https://fence.tarkov.dev';
+    if (process.env.LOCAL_FENCE) {
+        urlBase = process.env.LOCAL_FENCE;
+    }
+    const requestURL = new URL(`${urlBase}/json/${jsonRequest}`);
     requestURL.searchParams.set('m', options.gameMode ?? 'regular');
     try {
         const response = await fetch(requestURL, {
@@ -89,6 +94,9 @@ const getFromFence = async (jsonName, options) => {
             ].filter(Boolean)),
         });
         if (!response.ok) {
+            if (response.status === 404) {
+                options.retryLimit = 0;
+            }
             return Promise.reject(new Error(`${response.status} ${response.statusText}`));
         }
         return await response.json();
@@ -206,6 +214,9 @@ const tarkovDevData = {
     },
     status: async (options = defaultOptions) => {
         return tarkovDevData.get('status', options);
+    },
+    mapData: async (map, options = defaultOptions) => {
+        return tarkovDevData.get(`map-data_${map}`, options);
     },
     scannersStatus: async () => {
         const response = await tarkovDevData.fenceFetch('/status');

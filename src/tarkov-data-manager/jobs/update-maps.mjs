@@ -160,11 +160,7 @@ class UpdateMapsJob extends DataJob {
                     this.logger.log(`❌ Map ${map.Id} ${id} has no translation`);
                     continue;
                 }
-                let mapDetails = this.mapDetails[id];
-                if (id === '6a294a5b5eb5f9a1700417b7') {
-                    // Dark labs; copy stuff from regular labs
-                    mapDetails = structuredClone(this.mapDetails['6a294a5b5eb5f9a1700417b7']);
-                }
+                const mapDetails = this.mapDetails[id];
                 const mapData = {
                     id: id,
                     tarkovDataId: null,
@@ -217,9 +213,9 @@ class UpdateMapsJob extends DataJob {
                         }
                         let zoneName = spawn.BotZoneName;
                         if (!zoneName && mapDetails) {
-                            for (const zone of mapDetails.spawns) {
-                                if (zone.spawnPoints.some(p => p.id === spawn.Id)) {
-                                    zoneName = zone.name;
+                            for (const point of mapDetails.spawns) {
+                                if (point.id === spawn.Id) {
+                                    zoneName = point.zone;
                                     break;
                                 }
                             }
@@ -241,14 +237,14 @@ class UpdateMapsJob extends DataJob {
                     }).filter(Boolean),
                     extracts: mapDetails?.extracts.map(extract => {
                         let transferItem;
-                        const extractData = map.exits.find(e => e.Name === extract.settings.Name);
+                        const extractData = map.exits.find(e => e.Name === extract.name);
                         if (extractData?.PassageRequirement === 'TransferItem') {
                             transferItem = {
                                 item: extractData.Id,
                                 count: extractData.Count,
                             };
                         }
-                        const secretExit = map.secretExits?.find(s => s.Name === extract.settings.Name);
+                        const secretExit = map.secretExits?.find(s => s.Name === extract.name);
                         if (secretExit) {
                             transferItem = {
                                 item: secretExit.Id,
@@ -257,8 +253,8 @@ class UpdateMapsJob extends DataJob {
                         }
                         return {
                             id: this.getId(id, extract),
-                            name: this.addTranslation(extract.settings.Name),
-                            faction: exfilFactions[extract.exfilType],
+                            name: this.addTranslation(extract.name),
+                            faction: extract.faction,
                             switch: mapDetails?.switches.reduce((found, current) => {
                                 if (found) {
                                     return found;
