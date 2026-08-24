@@ -48,7 +48,7 @@ class UpdateMapsJob extends DataJob {
             remoteData.get(),
             tarkovData.botsInfo(),
             tarkovData.botGroups(),
-            tarkovData.mapDetails(),
+            tarkovData.mapDetails({download: true}),
             tarkovData.mapLoot(),
             tarkovData.items(),
             tarkovData.areas(),

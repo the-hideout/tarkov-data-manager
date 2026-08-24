@@ -5,6 +5,7 @@ import sharp from 'sharp';
 
 import dataOptions from './data-options.mjs';
 import sleep from './sleep.js';
+import ApiClient from './api-client.mjs';
 
 const availableFiles = {
     'achievements': {},
@@ -36,79 +37,13 @@ const failedHosts = [];
 const defaultOptions = dataOptions.default;
 const merge = dataOptions.merge;
 
-const cachePath = (filename) => {
-    const pathParts = [
-        import.meta.dirname,
-        '..',
-        'cache',
-        'fence',
-    ];
-    if (filename) {
-        pathParts.push(filename);
-    }
-    return path.join(...pathParts);   
-}
-
-const ensureCachePath = () => {
-    const path = cachePath();
-    if (fs.existsSync(path)) {
-        return;
-    }
-    fs.mkdirSync(path, { recursive: true });
-};
-
-const writeToCache = (filename, content) => {
-    ensureCachePath();
-    fs.writeFileSync(cachePath(filename), content);
-};
-
-const getFromFence = async (jsonName, options) => {
-    if (!process.env.FENCE_BASIC_AUTH) {
-        return Promise.reject(new Error('FENCE_BASIC_AUTH not set'));
-    }
-    let jsonRequest = jsonName;
-    if (availableFiles[jsonName]?.requestName) {
-        jsonRequest = availableFiles[jsonName].requestName;
-    }
-    options.attempt ??= 0;
-    options.retryLimit ??= 10;
-    const timeout = options.timeout ?? 60000;
-    let urlBase = 'https://fence.tarkov.dev';
-    if (process.env.LOCAL_FENCE) {
-        urlBase = process.env.LOCAL_FENCE;
-    }
-    const requestURL = new URL(`${urlBase}/json/${jsonRequest}`);
-    requestURL.searchParams.set('m', options.gameMode ?? 'regular');
-    try {
-        const response = await fetch(requestURL, {
-            method: options.method ?? 'GET',
-            headers: {
-                'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
-            },
-            timeout: {
-                request: 60000,
-            },
-            signal: AbortSignal.any([
-                options.signal,
-                AbortSignal.timeout(timeout),
-            ].filter(Boolean)),
-        });
-        if (!response.ok) {
-            if (response.status === 404) {
-                options.retryLimit = 0;
-            }
-            return Promise.reject(new Error(`${response.status} ${response.statusText}`));
-        }
-        return await response.json();
-    } catch (error) {
-        if (options.attempt >= options.retryLimit) {
-            return Promise.reject(error);
-        }
-        options.attempt++;
-        await sleep(1000, options.signal);
-        return getFromFence(jsonName, options);
-    }
-};
+const fenceClient = new ApiClient({
+    cacheFolder: 'fence',
+    urlBase: 'https://fence.tarkov.dev',
+    headers: {
+        'Authorization': `Basic ${process.env.FENCE_BASIC_AUTH}`,
+    },
+});
 
 const tarkovDevData = {
     fenceFetch: (path, options = {}) => {
@@ -153,22 +88,16 @@ const tarkovDevData = {
     },
     get: async (jsonName, options = defaultOptions) => {
         const { download, gameMode } = merge(options);
-        const suffix = ''; // gameMode === 'regular' ? '' : `_${gameMode}`;
-        const filename = `${jsonName}${suffix}.json`;
-        if (!download) {
-            try {
-                return JSON.parse(fs.readFileSync(cachePath(filename)));
-            } catch (error) {
-                if (error.code !== 'ENOENT' && 
-                    !error.message.includes('Unexpected end of JSON input')
-                ) {
-                    return Promise.reject(error);
-                }
-            }
+        const cachedName = `${jsonName}_${gameMode}.json`;
+        let jsonRequest = jsonName;
+        if (availableFiles[jsonName]?.requestName) {
+            jsonRequest = availableFiles[jsonName].requestName;
         }
-        const newJson = await getFromFence(jsonName, options);
-        writeToCache(filename, JSON.stringify(newJson, null, 4));
-        return newJson;
+        return fenceClient.get({
+            cachedName,
+            pathname: `/json/${jsonName}`,
+            refresh: options.download,
+        });
     },
     achievements: async (options = defaultOptions) => {
         return tarkovDevData.get('achievements', options);
@@ -217,6 +146,9 @@ const tarkovDevData = {
     },
     mapData: async (map, options = defaultOptions) => {
         return tarkovDevData.get(`map-data_${map}`, options);
+    },
+    mapDataLegacy: async (map, options = defaultOptions) => {
+        return tarkovDevData.get(`map-data-legacy_${map}`, options);
     },
     scannersStatus: async () => {
         const response = await tarkovDevData.fenceFetch('/status');
