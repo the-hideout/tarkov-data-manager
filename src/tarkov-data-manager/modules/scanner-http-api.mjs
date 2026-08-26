@@ -131,6 +131,9 @@ const scannerHttpApi = {
                 return res.json({errors: ['You are not authorized to perform that action'], warnings: [], data: {}});
             }
         }
+        if (resource === 'bp-document-report') {
+            return res.json(await scannerApi.submitBpDocumentReport(req.body));
+        }
         try {
             let response = false;
             let options = req.body;
