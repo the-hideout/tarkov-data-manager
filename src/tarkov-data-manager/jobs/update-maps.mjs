@@ -236,6 +236,9 @@ class UpdateMapsJob extends DataJob {
                         };
                     }).filter(Boolean),
                     extracts: mapDetails?.extracts.map(extract => {
+                        if (!this.locales.en[extract.name]) {
+                            return;
+                        }
                         let transferItem;
                         const extractData = map.exits.find(e => e.Name === extract.name);
                         if (extractData?.PassageRequirement === 'TransferItem') {
@@ -274,7 +277,7 @@ class UpdateMapsJob extends DataJob {
                             transferItem,
                             ...extract.location,
                         };
-                    }) ?? [],
+                    }).filter(Boolean) ?? [],
                     transits: map.transits?.map(transit => {
                         if (!transit.active) {
                             return false;
