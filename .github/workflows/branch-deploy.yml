@@ -27,6 +27,7 @@ jobs:
           admins: GrantBirki,Razzmatazzz
           environment_targets: production
           sticky_locks: "true"
+          allow_forks: "true"
 
       - name: checkout
         if: ${{ steps.branch-deploy.outputs.continue == 'true' }}
