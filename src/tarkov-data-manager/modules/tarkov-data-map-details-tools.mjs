@@ -56,17 +56,22 @@ const extractFactionReplacement = {
 };
 
 const addLocation = (obj) => {
+    // for the new data, we have to negate the x value
     obj.location = {
         position: {
-            x: obj.pos[0],
+            x: obj.pos[0]*-1,
             y: obj.pos[1],
             z: obj.pos[2],
         },
     };
     if (obj.outline) {
         obj.location.outline = obj.outline?.reduce((points, point) => {
-            if (!points.some(p => p[0] === point[0] && p[2] === point[2])) {
-                points.push(point);
+            if (!points.some(p => p[0]*-1 === point[0] && p[2] === point[2])) {
+                points.push({
+                    x: point[0]*-1,
+                    y: point[1],
+                    z: point[2],
+                });
             }
             return points;
         }, []);
