@@ -1253,6 +1253,53 @@ const scannerApi = {
         }
         return response;
     },
+    submitBpDocumentReport: async (report) => {
+        const response = {errors: [], warnings: [], data: {}};
+        try {
+            if (!report) {
+                throw new Error('No message body provided');
+            }
+            if (!report.reporter) {
+                throw new Error('Report must include reporter attribute');
+            }
+            if (!report.map) {
+                throw new Error('Report must include "map" attribute');
+            }
+            if (!report.item) {
+                throw new Error('Report must include "item" attribute');
+            }
+            if (!report.location?.x || !report.location?.y || !report.location.z) {
+                throw new Error('Report must include "location" attribute with x, y, z attributes');
+            }
+            const hVar = 2;
+            const vVar = 1;
+            const duplicateReport = await query(
+                `SELECT * FROM bp_document_reports 
+                WHERE map = ? AND item = ?
+                AND x BETWEEN ? and ?
+                AND y BETWEEN ? and ?
+                AND z BETWEEN ? and ?`,
+                [
+                    report.map, report.item,
+                    report.location.x - hVar, report.location.x + hVar,
+                    report.location.y - vVar, report.location.y + vVar,
+                    report.location.z - hVar, report.location.z + hVar,
+                ]
+            );
+            if (duplicateReport.length) {
+                response.data = 'duplicate';
+                return response;
+            }
+            await query(
+                'INSERT INTO bp_document_reports (map, item, x, y, z, discord_user_id) VALUES (?, ?, ?, ?, ?, ?)',
+                [report.map, report.item, report.location.x, report.location.y, report.location.z, report.reporter],
+            );
+            response.data = 'recorded';
+        } catch (error) {
+            response.errors.push(String(error));
+        }
+        return response;
+    },
     /* options has the format:
     {
         images: { ... }, // id:image collection of all images
