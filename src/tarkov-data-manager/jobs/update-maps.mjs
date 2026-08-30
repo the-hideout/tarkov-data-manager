@@ -1685,6 +1685,7 @@ const looseLootWhitelistCategories = [
     '5d650c3e815116009f6201d2', // Fuel
     '5448ecbe4bdc2d60728b4568', // Info Items
     '6759673c76e93d8eb20b2080', // Posters
+    '6a28212a0368f4438b0d0a45', // BattlePass Documents
 ];
 
 const looseLootWhitelistItems = [

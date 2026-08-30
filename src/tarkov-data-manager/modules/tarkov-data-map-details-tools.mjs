@@ -131,8 +131,8 @@ const mapDetailsTools = {
             }
             // keep old switch data
             returnData[id].switches = mapDetailsLegacy[id].switches;
-            // new stationary weapon ids are wrong
-            //returnData[id].stationary_weapons = mapDetailsLegacy[id].stationary_weapons;
+
+            // keep old extract switch data
             for (const extract of returnData[id].extracts) {
                 const legacyExtract = mapDetailsLegacy[id]?.extracts.find(e => e.name === e.settings.Name);
                 if (!extract.exfilSwitchId) {
@@ -142,6 +142,21 @@ const mapDetailsTools = {
                     extract.exfilSwitchIds = legacyExtract?.exfilSwitchIds ?? [];
                 }
             }
+
+            // keep missing legacy zones
+            for (const id in returnData) {
+                const legacyData = mapDetailsLegacy[id];
+                if (!legacyData) {
+                    continue;
+                }
+                for (const zone of legacyData.zones) {
+                    if (returnData[id].zones.some(z => z.id === zone.id)) {
+                        continue;
+                    }
+                    returnData[id].zones.push(zone);
+                }
+            }
+
             for (const sourceId in duplicateMaps) {
                 if (sourceId !== id) {
                     continue;
@@ -229,7 +244,13 @@ const mapDetailsTools = {
 
         returnData.doors = mapData.doors.map(door => addLocation(door));
 
-        returnData.zones = mapData.quest_triggers.filter(z => !excludedZones[map.Id]?.includes(z.name)).map(zone => addLocation(zone));
+        returnData.zones = mapData.quest_triggers
+            .filter(z => !excludedZones[map.Id]?.includes(z.id))
+            .map(zone => {
+                addLocation(zone);
+                zone.id = zone.name;
+                return zone;
+            });
 
         returnData.hazards = [
             ...mapData.minefields.map(hazard => {

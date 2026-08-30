@@ -9,6 +9,7 @@ import sp from './tarkov-data-sp.mjs';
 import mData from './tarkov-data-md.mjs';
 import dataOptions from './data-options.mjs';
 import mapDetailsTools from './tarkov-data-map-details-tools.mjs';
+import dbConnection from './db-connection.mjs';
 
 const mainDataSource = sp;
 
@@ -150,8 +151,37 @@ const dataFunctions = {
         ]);
         return mapDetailsTools.getAllMapDetails(locations, items, en, options);
     },
-    mapLoot: (options = defaultOptions) => {
-        return spt.mapLoot(options);
+    mapLoot: async (options = defaultOptions) => {
+        const [locData, sptLoot, bpDocs] = await Promise.all([
+            dataFunctions.locations(),
+            spt.mapLoot(options),
+            dbConnection.query('SELECT * FROM bp_document_reports'),
+        ]);
+        const locations = {};
+        for (const loc of Object.values(locData.locations)) {
+            locations[loc.Id] = loc;
+        }
+        for (const report of bpDocs) {
+            const map = locations[report.map];
+            if (!map) {
+                continue;
+            }
+            sptLoot[map._Id] ??= {spawnpoints: []};
+            const spawnPoint = {
+                template: {
+                    Items: [{
+                        _tpl: report.item,
+                    }],
+                    Position: {
+                        x: Number(report.x),
+                        y: Number(report.y),
+                        z: Number(report.z),
+                    }
+                },
+            };
+            sptLoot[map._Id].spawnpoints.push(spawnPoint);
+        }
+        return sptLoot;
     },
     prestige: (options = defaultOptions) => {
         return mainDataSource.prestige(options);
