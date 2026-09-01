@@ -19,13 +19,13 @@
   "license": "ISC",
   "dependencies": {
     "adm-zip": "^0.6.0",
-    "@aws-sdk/client-s3": "^3.1070.0",
-    "@aws-sdk/credential-providers": "^3.1070.0",
+    "@aws-sdk/client-s3": "^3.1090.0",
+    "@aws-sdk/credential-providers": "^3.1090.0",
     "body-parser": "^2.3.0",
     "bottleneck": "^2.19.5",
     "chalk": "^5.6.2",
     "cheerio": "^1.2.0",
-    "cloudflare": "^6.4.0",
+    "cloudflare": "^7.0.0",
     "compute-midmean": "^1.0.3",
     "cookie-session": "^2.1.1",
     "cron-validator": "^1.4.0",
@@ -36,12 +36,12 @@
     "formidable": "^3.5.4",
     "json-stream-stringify": "^3.1.7",
     "luxon": "^3.7.2",
-    "mysql2": "^3.22.5",
+    "mysql2": "^3.23.0",
     "node-schedule": "^2.1.1",
     "sharp": "^0.35.3",
     "tarkov-dev-image-generator": "^2.4.0",
     "unidecode": "^1.1.0",
-    "ws": "^8.21.0"
+    "ws": "^8.21.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
