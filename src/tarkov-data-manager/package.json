@@ -36,7 +36,7 @@
     "formidable": "^3.5.4",
     "json-stream-stringify": "^3.1.7",
     "luxon": "^3.7.2",
-    "mysql2": "^3.23.0",
+    "mysql2": "^3.23.1",
     "node-schedule": "^2.1.1",
     "sharp": "^0.35.3",
     "tarkov-dev-image-generator": "^2.4.0",
