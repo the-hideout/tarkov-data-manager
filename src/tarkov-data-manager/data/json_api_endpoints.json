@@ -54,6 +54,12 @@
                 "path": "/{{gameMode}}/traders",
                 "description": "traders",
                 "translations": true
+            },
+            {
+                "name": "traders",
+                "path": "/pvp-season/info",
+                "description": "info on current season",
+                "translations": true
             }
         ],
         "gameModes": [

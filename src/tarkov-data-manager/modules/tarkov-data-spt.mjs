@@ -7,16 +7,16 @@ import tarkovChanges from './tarkov-data-tarkov-changes.mjs';
 import discordWebhook from './webhook.mjs';
 import dataOptions from './data-options.mjs';
 
-const sptPath = 'https://github.com/sp-tarkov/server-csharp/raw/refs/heads/{branch}/';
-const sptAssetsPathStub = 'Libraries/SPTarkov.Server.Assets/SPT_Data/';
+const sptPath = 'https://github.com/SP-Tushonka/server-csharp/raw/refs/heads/{branch}/';
+const sptAssetsPathStub = 'Libraries/SPTushonka.Server.Assets/SPT_Data/';
 const sptDataPathStub = `${sptAssetsPathStub}database/`;
 const sptConfigPathStub = `${sptAssetsPathStub}configs/`;
 const sptDataPath = `${sptPath}${sptDataPathStub}`;
 const sptConfigPath = `${sptPath}${sptConfigPathStub}`;
 
-const sptApiPath = 'https://api.github.com/repos/sp-tarkov/server-csharp/';
+const sptApiPath = 'https://api.github.com/repos/SP-Tushonka/server-csharp/';
 
-const lfsPath = 'https://spt-lfs.sp-tarkov.com/sp-tarkov/server-csharp/';
+const lfsPath = 'https://lfs.sp-tushonka.com/sp-tushonka/server-csharp/';
 const lfsPointerRegEx = /version https:\/\/git-lfs\.github\.com\/spec\/v[0-9]\Woid sha256:(?<oid>[a-z0-9]+)\Wsize (?<size>[0-9]+)/;
 
 const sptLangs = {
@@ -39,7 +39,7 @@ const sptLangs = {
 }
 
 const branches = [
-    '4.1.x-dev',
+    '4.1x-dev',
     'develop',
     'main',
 ];
@@ -410,7 +410,7 @@ const tarkovSpt = {
         if (path.startsWith('/files/')) {
             path = path.replace('/files/', '/');
         }
-        const fileInfo = await apiRequest(`contents/Libraries/SPTarkov.Server.Assets/SPT_Data/images${path}`).catch(error => {
+        const fileInfo = await apiRequest(`contents/Libraries/SPTushonka.Server.Assets/SPT_Data/images${path}`).catch(error => {
             if (error.code === 404 || error.code === 403) {
                 return null;
             }
