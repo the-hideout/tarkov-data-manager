@@ -148,7 +148,7 @@ class ApiClient {
                 try {
                     return this.getCached(options);
                 } catch (cachedError) {
-                    await clearEtag(url.toString());
+                    await clearEtag(requestURL.toString());
                     return this.request(options);
                 }
             }
