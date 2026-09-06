@@ -128,6 +128,7 @@ class ApiClient {
         const etag = await getEtag(requestURL.toString());
         //console.log(requestURL.toString(), etag);
         options.headers ??= {};
+        delete options.headers['If-None-Match'];
         if (etag) {
             options.headers['If-None-Match'] = etag;
         }
