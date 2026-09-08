@@ -107,6 +107,9 @@ const endpointList = {
     prestige: {
         path: 'client/prestige/list/response.json',
     },
+    seasonalPerks: {
+        path: 'client/seasonal-perks/list/response.json',
+    },
     traders: {
         path: 'client/trading/api/traderSettings/response.json',
     },

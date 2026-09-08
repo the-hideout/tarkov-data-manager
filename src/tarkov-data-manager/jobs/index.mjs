@@ -30,6 +30,7 @@ const defaultJobTriggers = {
     'update-game-status': '*/15 * * * *',
     //'start-trader-scan': '30 9,21 * * *',
     'update-profile-index': '0 0 * * *',
+    'update-seasonal-data': '0 * * * *',
 };
 
 // these jobs only run on the given schedule when not in dev mode

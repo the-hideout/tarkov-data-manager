@@ -128,6 +128,7 @@ class ApiClient {
         const etag = await getEtag(requestURL.toString());
         //console.log(requestURL.toString(), etag);
         options.headers ??= {};
+        delete options.headers['If-None-Match'];
         if (etag) {
             options.headers['If-None-Match'] = etag;
         }
@@ -148,7 +149,7 @@ class ApiClient {
                 try {
                     return this.getCached(options);
                 } catch (cachedError) {
-                    await clearEtag(url.toString());
+                    await clearEtag(requestURL.toString());
                     return this.request(options);
                 }
             }

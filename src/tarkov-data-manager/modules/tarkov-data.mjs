@@ -8,6 +8,8 @@ import tarkovDevData from './tarkov-data-tarkov-dev.mjs';
 import sp from './tarkov-data-sp.mjs';
 import mData from './tarkov-data-md.mjs';
 import dataOptions from './data-options.mjs';
+import mapDetailsTools from './tarkov-data-map-details-tools.mjs';
+import dbConnection from './db-connection.mjs';
 
 const mainDataSource = sp;
 
@@ -53,9 +55,6 @@ const dataFunctions = {
         return mainDataSource.achievementStats(options);
     },
     areas: (options = defaultOptions) => {
-        /*if (options.gameMode === 'pvp-season') {
-            return sp.areas(options);
-        }*/
         return mainDataSource.areas(options);
     },
     botInfo: (botKey, options = defaultOptions) => {
@@ -71,24 +70,15 @@ const dataFunctions = {
         return sp.botGroups();
     },
     crafts: (options = defaultOptions) => {
-        /*if (options.gameMode === 'pvp-season') {
-            return sp.crafts(options);
-        }*/
         return mainDataSource.crafts(options);
     },
     credits: (options = defaultOptions) => {
-        /*if (options.gameMode === 'pvp-season') {
-            return sp.credits(options);
-        }*/
         return mainDataSource.credits(options);
     },
     customization: (options = defaultOptions) => {
         return mainDataSource.customization(options);
     },
     globals: (options = defaultOptions) => {
-        /*if (options.gameMode === 'pvp-season') {
-            return sp.globals(options);
-        }*/
         return mainDataSource.globals(options);
     },
     handbook: (options = defaultOptions) => {
@@ -137,6 +127,9 @@ const dataFunctions = {
         }*/
         return mainDataSource.locations(options);
     },
+    seasonalPerks: (options) => {
+        return mainDataSource.seasonalPerks({...options, gameMode: 'pvp-season'});
+    },
     storyChapters: (options = defaultOptions) => {
         /*if (options.gameMode === 'pvp-season') {
             return sp.storyChapters(options);
@@ -149,147 +142,46 @@ const dataFunctions = {
         }*/
         return mainDataSource.tapeList(options);
     },
-    mapDetails: async () => {
-        const emptyData = {
-            extracts: [],
-            transits: [],
-            doors: [],
-            zones: [],
-            hazards: [],
-            locks: [],
-            loot_points: [],
-            loot_containers: [],
-            stationary_weapons: [],
-            switches: [],
-            quest_items: [],
-            spawns: [],
-            path_destinations: [],
-        };
-        const excludedExtracts = {
-            Shoreline: [
-                {
-                    name: 'exit_ALL_alpinist_shoreline',
-                }
-            ],
-            TarkovStreets: [
-                { // Old Stylobate Building Elevator
-                    name: 'Exit_E1',
-                },
-                { // Old Scav Checkpoint
-                    name: 'Exit_E6',
-                },
-                { // new Scav Checkpoint
-                    name:'E6_new',
-                },
-                { // old Crash Site
-                    name: 'Exit_E4_new',
-                    requirements: {
-                        status: 'Pending',
-                    }
-                }
-            ]
-        };
-        const excludedZones = {
-            RezervBase: [
-                'fuel4',
-            ],
-        };
+    mapDetails: async (options = defaultOptions) => {
         const details = {};
-        const locations = await dataFunctions.locations();
-        const en = await dataFunctions.locale('en');
-        for (const id in locations.locations) {
-            const map = locations.locations[id];
-            /*if (id !== '59fc81d786f774390775787e' && (!map.Enabled || map.Locked)) {
-                continue;
-            }*/
-            if (!en[`${id} Name`]) {
-                continue;
-            }
-            try {
-                details[id] = JSON.parse(fs.readFileSync(`./cache/${map.Id}.json`));
-                details[id].extracts = details[id].extracts.reduce((extracts, extract) => {
-                    if (extract.location.size.x <= 1 && extract.location.size.y <= 1 && extract.location.size.z <= 1) {
-                        return extracts;
-                    }
-                    const excludeTest = excludedExtracts[map.Id]?.find(e => e.name === extract.name);
-                    if (excludeTest) {
-                        if (!excludeTest.requirements) {
-                            return extracts;
-                        }
-                        let matched = true;
-                        for (const property in excludeTest.requirements) {
-                            if (excludeTest.requirements[property] !== extract[property]) {
-                                matched = false;
-                                break;
-                            }
-                        }
-                        if (matched) {
-                            return extracts;
-                        }
-                    }
-                    let duplicateExtract = extracts.find(e => {
-                        if (e.settings.Name !== extract.settings.Name) {
-                            return false;
-                        }
-                        if (e.location.position.x !== extract.location.position.x || e.location.position.z !== extract.location.position.z) {
-                            return false;
-                        }
-                        return true;
-                    });
-                    if (duplicateExtract) {
-                        if (duplicateExtract.exfilType === 'ExfiltrationPoint') {
-                            duplicateExtract.exfilType = 'SharedExfiltrationPoint';
-                            return extracts;
-                        }
-                        extracts = extracts.filter(e => e !== duplicateExtract);
-                        extract.exfilType = 'SharedExfiltrationPoint';
-                    }
-                    extracts.push(extract);
-                    return extracts;
-                }, []);
-                details[id].zones = details[id].zones.filter(z => !excludedZones[map.Id]?.includes(z.id));
-                
-                details[id].locks = details[id].locks.map(l => {
-                    return {
-                        ...l,
-                        needsPower: details[id].no_power?.some(pow => {
-                            if (pow.location.position.x !== l.location.position.x) {
-                                return false;
-                            }
-                            if (pow.location.position.y !== l.location.position.y) {
-                                return false;
-                            }
-                            if (pow.location.position.z !== l.location.position.z) {
-                                return false;
-                            }
-                            return true;
-                        }),
-                    }
-                });
-                details[id].stationary_weapons = details[id].stationary_weapons || [];
-                details[id].quest_items = details[id].quest_items?.reduce((all, current) => {
-                    const p = current.location.position;
-                    if (p.x || p.y || p.z) {
-                        all.push(current);
-                    }
-                    return all;
-                }, []) || [];
-                details[id].path_destinations = details[id].path_destinations || [];
-            } catch (error) {
-                if (error.code === 'ENOENT') {
-                    details[id] = emptyData;
-                    if (!map.Enabled && !map.Locked) {
-                        console.warn(`No map details data for ${map.Id} ${id}`);
-                    }
-                    continue;
-                }
-                return Promise.reject(error);
-            }
-        }
-        return details;
+        const [locations, items, en] = await Promise.all([
+            dataFunctions.locations(),
+            dataFunctions.items(),
+            dataFunctions.locale('en'),
+        ]);
+        return mapDetailsTools.getAllMapDetails(locations, items, en, options);
     },
-    mapLoot: (options = defaultOptions) => {
-        return spt.mapLoot(options);
+    mapLoot: async (options = defaultOptions) => {
+        const [locData, sptLoot, bpDocs] = await Promise.all([
+            dataFunctions.locations(),
+            spt.mapLoot(options),
+            dbConnection.query('SELECT * FROM bp_document_reports'),
+        ]);
+        const locations = {};
+        for (const loc of Object.values(locData.locations)) {
+            locations[loc.Id] = loc;
+        }
+        for (const report of bpDocs) {
+            const map = locations[report.map];
+            if (!map) {
+                continue;
+            }
+            sptLoot[map._Id] ??= {spawnpoints: []};
+            const spawnPoint = {
+                template: {
+                    Items: [{
+                        _tpl: report.item,
+                    }],
+                    Position: {
+                        x: Number(report.x),
+                        y: Number(report.y),
+                        z: Number(report.z),
+                    }
+                },
+            };
+            sptLoot[map._Id].spawnpoints.push(spawnPoint);
+        }
+        return sptLoot;
     },
     prestige: (options = defaultOptions) => {
         return mainDataSource.prestige(options);

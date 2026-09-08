@@ -48,7 +48,7 @@ class UpdateMapsJob extends DataJob {
             remoteData.get(),
             tarkovData.botsInfo(),
             tarkovData.botGroups(),
-            tarkovData.mapDetails(),
+            tarkovData.mapDetails({download: true}),
             tarkovData.mapLoot(),
             tarkovData.items(),
             tarkovData.areas(),
@@ -160,11 +160,7 @@ class UpdateMapsJob extends DataJob {
                     this.logger.log(`❌ Map ${map.Id} ${id} has no translation`);
                     continue;
                 }
-                let mapDetails = this.mapDetails[id];
-                if (id === '6a294a5b5eb5f9a1700417b7') {
-                    // Dark labs; copy stuff from regular labs
-                    mapDetails = structuredClone(this.mapDetails['6a294a5b5eb5f9a1700417b7']);
-                }
+                const mapDetails = this.mapDetails[id];
                 const mapData = {
                     id: id,
                     tarkovDataId: null,
@@ -217,9 +213,9 @@ class UpdateMapsJob extends DataJob {
                         }
                         let zoneName = spawn.BotZoneName;
                         if (!zoneName && mapDetails) {
-                            for (const zone of mapDetails.spawns) {
-                                if (zone.spawnPoints.some(p => p.id === spawn.Id)) {
-                                    zoneName = zone.name;
+                            for (const point of mapDetails.spawns) {
+                                if (point.id === spawn.Id) {
+                                    zoneName = point.zone;
                                     break;
                                 }
                             }
@@ -240,15 +236,18 @@ class UpdateMapsJob extends DataJob {
                         };
                     }).filter(Boolean),
                     extracts: mapDetails?.extracts.map(extract => {
+                        if (!this.locales.en[extract.name]) {
+                            return;
+                        }
                         let transferItem;
-                        const extractData = map.exits.find(e => e.Name === extract.settings.Name);
+                        const extractData = map.exits.find(e => e.Name === extract.name);
                         if (extractData?.PassageRequirement === 'TransferItem') {
                             transferItem = {
                                 item: extractData.Id,
                                 count: extractData.Count,
                             };
                         }
-                        const secretExit = map.secretExits?.find(s => s.Name === extract.settings.Name);
+                        const secretExit = map.secretExits?.find(s => s.Name === extract.name);
                         if (secretExit) {
                             transferItem = {
                                 item: secretExit.Id,
@@ -257,8 +256,8 @@ class UpdateMapsJob extends DataJob {
                         }
                         return {
                             id: this.getId(id, extract),
-                            name: this.addTranslation(extract.settings.Name),
-                            faction: exfilFactions[extract.exfilType],
+                            name: this.addTranslation(extract.name),
+                            faction: extract.faction,
                             switch: mapDetails?.switches.reduce((found, current) => {
                                 if (found) {
                                     return found;
@@ -278,7 +277,7 @@ class UpdateMapsJob extends DataJob {
                             transferItem,
                             ...extract.location,
                         };
-                    }) ?? [],
+                    }).filter(Boolean) ?? [],
                     transits: map.transits?.map(transit => {
                         if (!transit.active) {
                             return false;
@@ -1686,6 +1685,7 @@ const looseLootWhitelistCategories = [
     '5d650c3e815116009f6201d2', // Fuel
     '5448ecbe4bdc2d60728b4568', // Info Items
     '6759673c76e93d8eb20b2080', // Posters
+    '6a28212a0368f4438b0d0a45', // BattlePass Documents
 ];
 
 const looseLootWhitelistItems = [
