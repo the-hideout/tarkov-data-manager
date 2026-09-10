@@ -212,16 +212,16 @@ class UpdateMapsJob extends DataJob {
                             categories.push('sniper');
                         }
                         let zoneName = spawn.BotZoneName;
-                        if (!zoneName && mapDetails) {
-                            for (const point of mapDetails.spawns) {
-                                if (point.id === spawn.Id) {
+                        if (mapDetails) {
+                            for (const point of mapDetails.spawn_points) {
+                                if (point.core === spawn.CorePointId) {
                                     zoneName = point.zone;
                                     break;
                                 }
                             }
-                            if (!zoneName) {
-                                zoneName = spawn.Id;
-                            }
+                        }
+                        if (!zoneName) {
+                            zoneName = spawn.Id;
                         }
                         return {
                             position: spawn.Position,
