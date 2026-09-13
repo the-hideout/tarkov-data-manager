@@ -1,4 +1,14 @@
 {
+    "5b478d0f86f7744d190d91b5": {
+        "name": "Minibus",
+        "objectivesRemoved": [
+            {
+                "id": "6a60b0d2b5ca989d33e5b7e0",
+                "type": "giveItem",
+                "notes": "Per wiki - Minibus only requires marking 3 yellow minibuses with MS2000 Markers. The wrench hand-over objective does not exist in-game. Verified 2026-09-13."
+            }
+        ]
+    },
     "5c51aac186f77432ea65c552": {
         "name": "Collector",
         "taskRequirementsAdded": [
