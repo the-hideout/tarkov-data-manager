@@ -213,7 +213,7 @@ class UpdateMapsJob extends DataJob {
                         }
                         let zoneName = spawn.BotZoneName;
                         if (mapDetails) {
-                            for (const point of mapDetails.spawn_points) {
+                            for (const point of mapDetails.spawns) {
                                 if (point.core === spawn.CorePointId) {
                                     zoneName = point.zone;
                                     break;
