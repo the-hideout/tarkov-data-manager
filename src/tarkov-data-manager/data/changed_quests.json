@@ -4217,6 +4217,9 @@
     },
     "5b478d0f86f7744d190d91b5": {
         "name": "Minibus",
+		"objectivesRemoved": [
+			"6a60b0d2b5ca989d33e5b7e0"
+		],
         "locale": {
             "de": {
                 "5b478d0f86f7744d190d91b5 name": "Minibus"
