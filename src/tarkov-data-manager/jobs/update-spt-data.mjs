@@ -7,10 +7,10 @@ class UpdateLangJob extends DataJob {
     }
 
     run = async () => {
-        this.logger.log('Downloading language data...');
+        /*this.logger.log('Downloading language data...');
         this.logger.time('lang-download');
         this.logger.log(`Downloaded locales: ${Object.keys(await spt.locales({download: true})).join(', ')}`);
-        this.logger.timeEnd('lang-download');
+        this.logger.timeEnd('lang-download');*/
 
         this.logger.log('Downloading bot data...');
         this.logger.time('bot-download');
