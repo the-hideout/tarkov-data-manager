@@ -292,7 +292,8 @@ class DataJob {
         if (!this.idSuffixLength) {
             return cloudflare.put(kvName, data, {signal: this.abortController.signal}).catch(error => {
                 this.logger.error(error);
-                return {success: false, errors: [], messages: []};
+                this.addJobSummary(`${kvName}: ${error.message}`, 'Error uploading KV(s)');
+                return {success: false, errors: [], messages: [error.message]};
             });
         }
         const uploads = [];
