@@ -3618,7 +3618,7 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "6761f28a022f60bb320f3e95 name": "Neuanfang",
+                "6761f28a022f60bb320f3e95 name": "New Beginning",
                 "6761f93bc757eb8c228fa754": "Eliminate Scavs",
                 "6761f9d718fa62aac3264ff2": "Survive and extract from The Lab",
                 "6761f6f1bacf72169272e381": "Hand over any PMC figurine",
@@ -3839,7 +3839,7 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "6761ff17cdc36bd66102e9d0 name": "Neuanfang",
+                "6761ff17cdc36bd66102e9d0 name": "New Beginning",
                 "6762015739c53fca8ac51336": "Eliminate PMC operatives",
                 "6761ff17cdc36bd66102e9d6": "Survive and extract from The Lab",
                 "6761ff17cdc36bd66102e9d8": "Hand over any found in raid PMC figurine",
@@ -4101,7 +4101,7 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "6848100b00afffa81f09e365 name": "Neuanfang",
+                "6848100b00afffa81f09e365 name": "New Beginning",
                 "6848100b00afffa81f09e369": "Eliminate PMC operatives",
                 "684812156189183883f13947": "Eliminate Raiders",
                 "6848100b00afffa81f09e36b": "Use the transit from The Lab to Streets of Tarkov",
@@ -4384,7 +4384,7 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "68481881f43abfdda2058369 name": "Neuanfang",
+                "68481881f43abfdda2058369 name": "New Beginning",
                 "68481881f43abfdda205836d": "Eliminate PMC operatives",
                 "68481a8eda10b760b3b1a73f": "Eliminate Rogues",
                 "68481881f43abfdda205836f": "Use the transit from The Lab to Streets of Tarkov",
