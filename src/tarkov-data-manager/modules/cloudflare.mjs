@@ -226,8 +226,9 @@ const cloudflare = {
         } 
         //return doRequest('PUT', 'values', key, zlib.gzipSync(value).toString(encoding), false, {compression: 'gzip', encoding: encoding}).then(response => {
         //return doRequest({method: 'PUT', path: `values/${key}`, body: value, ...options});
-        return client.kv.namespaces.values.update(namespace, key, {
+        return client.kv.namespaces.values.update(key, {
             account_id: accountId,
+            namespace_id: namespace,
             value,
         }).then(error => {
             //console.log('put response', response);

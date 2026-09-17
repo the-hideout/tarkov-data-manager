@@ -3618,7 +3618,6 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "6761f28a022f60bb320f3e95 name": "Neuanfang",
                 "6761f93bc757eb8c228fa754": "Eliminate Scavs",
                 "6761f9d718fa62aac3264ff2": "Survive and extract from The Lab",
                 "6761f6f1bacf72169272e381": "Hand over any PMC figurine",
@@ -3627,7 +3626,6 @@
                 "6761f87227aeff895cef62c5": "Hand over any Trader figurine"
             },
             "zh": {
-                "6761f28a022f60bb320f3e95 name": "新起点",
                 "6761f93bc757eb8c228fa754": "消灭 Scav",
                 "6761f9d718fa62aac3264ff2": "以幸存状态撤离实验室",
                 "6761f6f1bacf72169272e381": "上交任意样式的 PMC 玩偶",
@@ -3839,7 +3837,6 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "6761ff17cdc36bd66102e9d0 name": "Neuanfang",
                 "6762015739c53fca8ac51336": "Eliminate PMC operatives",
                 "6761ff17cdc36bd66102e9d6": "Survive and extract from The Lab",
                 "6761ff17cdc36bd66102e9d8": "Hand over any found in raid PMC figurine",
@@ -3848,7 +3845,6 @@
                 "6761ff17cdc36bd66102e9e1": "Hand over any found in raid Trader figurine"
             },
             "zh": {
-                "6761ff17cdc36bd66102e9d0 name": "新起点",
                 "6762015739c53fca8ac51336": "消灭 PMC 行动人员",
                 "6761ff17cdc36bd66102e9d6": "以幸存状态撤离实验室",
                 "6761ff17cdc36bd66102e9d8": "上交任意在战局中找到的 PMC 玩偶",
@@ -4101,7 +4097,6 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "6848100b00afffa81f09e365 name": "Neuanfang",
                 "6848100b00afffa81f09e369": "Eliminate PMC operatives",
                 "684812156189183883f13947": "Eliminate Raiders",
                 "6848100b00afffa81f09e36b": "Use the transit from The Lab to Streets of Tarkov",
@@ -4112,7 +4107,6 @@
                 "6848100b00afffa81f09e376": "Hand over any found in raid Trader figurine"
             },
             "zh": {
-                "6848100b00afffa81f09e365 name": "新起点",
                 "6848100b00afffa81f09e369": "消灭 PMC 行动人员",
                 "684812156189183883f13947": "消灭 掠夺者",
                 "6848100b00afffa81f09e36b": "使用转移功能从实验室转移到塔科夫街区",
@@ -4384,7 +4378,6 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "68481881f43abfdda2058369 name": "Neuanfang",
                 "68481881f43abfdda205836d": "Eliminate PMC operatives",
                 "68481a8eda10b760b3b1a73f": "Eliminate Rogues",
                 "68481881f43abfdda205836f": "Use the transit from The Lab to Streets of Tarkov",
@@ -4396,7 +4389,6 @@
                 "68481881f43abfdda205837a": "Hand over any found in raid Trader figurine"
             },
             "zh": {
-                "68481881f43abfdda2058369 name": "新起点",
                 "68481881f43abfdda205836d": "消灭 PMC 行动人员",
                 "68481a8eda10b760b3b1a73f": "消灭 游荡者",
                 "68481881f43abfdda205836f": "使用转移功能从实验室转移到塔科夫街区",
@@ -4486,7 +4478,6 @@
         "factionName": "Any",
         "locale": {
             "de": {
-                "67e993f5ed537409f009da75 name": "Aufgeschobene Belohnung [PVP ZONE]",
                 "67ebc5f501052193cdb4c9ac": "Übergib den Gegenstand: Lega-Medaille"
             }
         }
@@ -4620,11 +4611,9 @@
                 "68db9ea0e6c69908254eceee": "Eliminate PMC operatives from over 50 meters away while using any 9x39 caliber weapon"
             },
             "zh": {
-                "68db9c7557bc51a8c804c14b name": "目标与手段",
                 "68db9ea0e6c69908254eceee": "使用 9x39 毫米口径的武器在 50 米开外消灭 PMC"
             },
             "de": {
-                "68db9c7557bc51a8c804c14b name": "Ziele und Mittel",
                 "68db9ea0e6c69908254eceee": "Eliminiere PMC-Operatoren aus über 50 Metern Entfernung, während du eine beliebige Waffe im Kaliber 9x39 benutzt"
             }
         }
@@ -4746,11 +4735,9 @@
                 "68ee1cc7e8b13097f525e6f2": "Hand over the found in raid item: Red Rebel ice pick"
             },
             "zh": {
-                "68ee1c18b4e5bc9a68018cd7 name": "不容置问",
                 "68ee1cc7e8b13097f525e6f2": "上交战局中找到的物品：Red Rebel 冰镐"
             },
             "de": {
-                "68ee1c18b4e5bc9a68018cd7 name": "Keine Fragen",
                 "68ee1cc7e8b13097f525e6f2": "Übergib den im Raid gefundenen Gegenstand: Red Rebel Eispickel"
             }
         }
@@ -5714,12 +5701,10 @@
                 "6942b72980d7f587b5b3ca86": "Eliminate PMC operatives while wearing the TSh-4M-L soft tank crew helmet without wearing any active headset"
             },
             "zh": {
-                "6942b44f891369fc790e385a name": "轻重缓急",
                 "6942b48e6998a45a7b90cd5b": "佩戴有源耳机但不穿任何护甲的情况下消灭 PMC 行动人员",
                 "6942b72980d7f587b5b3ca86": "穿戴 TSH-4M-L 软质坦克乘员头盔消灭 PMC 行动人员"
             },
             "de": {
-                "6942b44f891369fc790e385a name": "Prioritäten setzen",
                 "6942b48e6998a45a7b90cd5b": "Eliminiere PMC-Operatoren, während du ein aktives Headset benutzt und keine Rüstung trägst",
                 "6942b72980d7f587b5b3ca86": "Eliminiere PMC-Operatoren, während du den weichen Panzerfahrerhelm TSh-4M-L trägst und kein aktives Headset benutzt"
             }
@@ -5863,19 +5848,16 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "697877e0c639962b2e0cf24f name": "Arena Business [PVP ZONE]",
                 "69789727f9ef98d604a0a4eb": "Complete the task Professional Fitness - Part 2",
                 "69789737271caeeb3db66e8d": "Complete the task To Great Heights! - Part 6",
                 "6978973c2834db5eb178fdc8": "Complete the task Hold the Lead"
             },
             "zh": {
-                "697877e0c639962b2e0cf24f name": "竞技场差事（PVP）",
                 "69789727f9ef98d604a0a4eb": "完成任务：专业热身 - 2",
                 "69789737271caeeb3db66e8d": "完成任务：再创新高！- 6",
                 "6978973c2834db5eb178fdc8": "完成任务：保持领先"
             },
             "de": {
-                "697877e0c639962b2e0cf24f name": "Arena-Geschäft [PVP ZONE]",
                 "69789727f9ef98d604a0a4eb": "Schließe die Aufgabe Berufliche Fitness - Teil 2 ab",
                 "69789737271caeeb3db66e8d": "Schließe die Aufgabe Zu großen Höhen! - Teil 6 ab",
                 "6978973c2834db5eb178fdc8": "Schließe die Aufgabe In Führung bleiben ab"
@@ -5955,15 +5937,12 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "69788c2bac719606e40b4e77 name": "Professional Fitness - Part 1 [PVP ZONE]",
                 "69788c6d403c43a13a7ba7c2": "Play a match in CheckPoint or Last Hero mode in Arena"
             },
             "zh": {
-                "69788c2bac719606e40b4e77 name": "专业热身 - 1（PVP）",
                 "69788c6d403c43a13a7ba7c2": "在竞技场 LastHero 或 CheckPoint 模式进行一场游戏"
             },
             "de": {
-                "69788c2bac719606e40b4e77 name": "Berufliche Fitness - Teil 1 [PVP ZONE]",
                 "69788c6d403c43a13a7ba7c2": "Spiele ein Match im CheckPoint- oder Last Hero-Modus in der Arena"
             }
         }
@@ -6048,15 +6027,12 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "69788db3878a4385d10c0718 name": "Professional Fitness - Part 2 [PVP ZONE]",
                 "69788fc3dc3074ce1c851e20": "Eliminate 20 enemies in Arena"
             },
             "zh": {
-                "69788db3878a4385d10c0718 name": "专业热身 - 2（PVP）",
                 "69788fc3dc3074ce1c851e20": "在竞技场任意模式击杀 20 名敌人"
             },
             "de": {
-                "69788db3878a4385d10c0718 name": "Berufliche Fitness - Teil 2 [PVP ZONE]",
                 "69788fc3dc3074ce1c851e20": "Eliminiere 20 Gegner in der Arena"
             }
         }
@@ -6138,15 +6114,12 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "69789418b2187365e70bb947 name": "To Great Heights! - Part 6 [PVP ZONE]",
                 "6978a28fe2bee676ada49c79": "Win 2 matches in a row in TeamFight, BlastGang or CheckPoint mode in Arena"
             },
             "zh": {
-                "69789418b2187365e70bb947 name": "再创新高！- 6（PVP）",
                 "6978a28fe2bee676ada49c79": "在竞技场连续赢得两场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗"
             },
             "de": {
-                "69789418b2187365e70bb947 name": "Zu großen Höhen! - Teil 6 [PVP ZONE]",
                 "6978a28fe2bee676ada49c79": "Gewinne 2 Matches in Folge im TeamFight-, BlastGang- oder CheckPoint-Modus in der Arena"
             }
         }
@@ -6224,15 +6197,12 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "697895b6c639962b2e0cf268 name": "Hold the Lead [PVP ZONE]",
                 "697895e700201d158bb28f22": "Eliminate 75 enemies in Arena"
             },
             "zh": {
-                "697895b6c639962b2e0cf268 name": "保持领先（PVP）",
                 "697895e700201d158bb28f22": "在竞技场任意模式击杀 75 名敌人"
             },
             "de": {
-                "697895b6c639962b2e0cf268 name": "In Führung bleiben[PVP ZONE]",
                 "697895e700201d158bb28f22": "Eliminiere 75 Gegner in der Arena"
             }
         }
@@ -6369,13 +6339,11 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "697878057aa1273126030fb0 name": "Arena Business [PVE ZONE]",
                 "69789903c30426685c9f3080": "Complete the task Professional Fitness - Part 2",
                 "6978990cbe971818240c2d7f": "Complete the task To Great Heights! - Part 6",
                 "697899167ed646e5d6187fea": "Complete the task Hold the Lead"
             },
             "zh": {
-                "697878057aa1273126030fb0 name": "竞技场差事（PVE）",
                 "69789903c30426685c9f3080": "完成任务：专业热身 - 2",
                 "6978990cbe971818240c2d7f": "完成任务：再创新高！- 6",
                 "697899167ed646e5d6187fea": "完成任务：保持领先"
@@ -6455,11 +6423,9 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "69788d4e963f08d9140bce19 name": "Professional Fitness - Part 1 [PVE ZONE]",
                 "69788d4e963f08d9140bce1c": "Play a match in CheckPoint or Last Hero mode in Arena"
             },
             "zh": {
-                "69788d4e963f08d9140bce19 name": "专业热身 - 1（PVE）",
                 "69788d4e963f08d9140bce1c": "在竞技场 LastHero 或 CheckPoint 模式进行一场游戏"
             }
         }
@@ -6544,11 +6510,9 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "6978907718bd6d7cbd0e8b8e name": "Professional Fitness - Part 2 [PVE ZONE]",
                 "6978907718bd6d7cbd0e8b91": "Eliminate 20 enemies in Arena"
             },
             "zh": {
-                "6978907718bd6d7cbd0e8b8e name": "专业热身 - 2（PVE）",
                 "6978907718bd6d7cbd0e8b91": "在竞技场任意模式击杀 20 名敌人"
             }
         }
@@ -6636,11 +6600,9 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "697895277d31587eab080266 name": "To Great Heights! - Part 6 [PVE ZONE]",
                 "6978a2bc18130b67d9156d7a": "Win 2 matches in a row in TeamFight, BlastGang or CheckPoint mode in Arena"
             },
             "zh": {
-                "697895277d31587eab080266 name": "再创新高！- 6（PVE）",
                 "6978a2bc18130b67d9156d7a": "在竞技场连续赢得两场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗"
             }
         }
@@ -6718,11 +6680,9 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "69789660b2187365e70bb94a name": "Hold the Lead [PVE ZONE]",
                 "69789660b2187365e70bb94d": "Eliminate 75 enemies in Arena"
             },
             "zh": {
-                "69789660b2187365e70bb94a name": "保持领先（PVE）",
                 "69789660b2187365e70bb94d": "在竞技场任意模式击杀 75 名敌人"
             }
         }
@@ -6805,7 +6765,6 @@
                 "69ce1e2614b1a16885f61da4": "Find the item in raid: AMG-10 hydraulic fluid"
             },
             "zh": {
-                "69ce1de03e15cd80bd06f6c9 name": "油料交换",
                 "69ce1e2614b1a16885f61da4": "在战局中找到物品：AMG-10 液压油"
             }
         }
@@ -6889,7 +6848,6 @@
                 "69ce204c8702b378f9091e4d": "Find the item in raid: Nooby Shield potassium iodide tablets"
             },
             "zh": {
-                "69ce204c8702b378f9091e4b name": "战争从未改变",
                 "69ce204c8702b378f9091e4d": "在战局中找到物品：Nooby Shield 碘化钾片"
             }
         }
@@ -6978,7 +6936,6 @@
                 "69ce21e990144e437802b1e2": "Find the item in raid: Black Division plate carrier"
             },
             "zh": {
-                "69ce21e990144e437802b1e0 name": "新鲜到货",
                 "69ce21e990144e437802b1e2": "在战局中找到物品：黑色军团插板胸挂"
             }
         }
@@ -7093,7 +7050,6 @@
                 "6a03343990ee160507db2294": "Claim a trophy from The Wedge"
             },
             "zh": {
-                "69ce1cfb298a6529b30d712b name": "如楔在侧",
                 "69ce1cfb298a6529b30d712d": "找到并消灭 Wedge 小队",
                 "6a03343990ee160507db2294": "从 Wedge 身上取得战利品"
             }
@@ -7185,7 +7141,6 @@
                 "69ce213a298a6529b30d7136": "Find the item in raid: Aceso Xpress semi-automatic biochemical analyzer"
             },
             "zh": {
-                "69ce213a298a6529b30d7134 name": "生化分析",
                 "69ce213a298a6529b30d7136": "在战局中找到物品：Aceso Xpress 半自动生化分析仪"
             }
         }
@@ -7294,7 +7249,6 @@
                 "69ce1f84ebbdbf36a200627f": "Hand over the found item"
             },
             "zh": {
-                "69ce1f84ebbdbf36a200627c name": "和平原子",
                 "69ce1f84ebbdbf36a200627e": "在破冰船上找到并获取核反应单元控制日志",
                 "69ce1f84ebbdbf36a200627f": "上交找到的物品"
             }
@@ -7454,7 +7408,6 @@
                 "69e559bf4b53b554a2779130": "Install the hacking device in the central control station room on Icebreaker"
             },
             "zh": {
-                "69e5583240c3e6c8ba0edbd5 name": "窃听风暴",
                 "69e5593e3f425636f1d762d9": "修复破冰船通往轮机舱路上自动化控制室内的设备",
                 "69e5594c6dd4d9e12fa3de0d": "修复破冰船轮机舱下方自动化控制室内的设备",
                 "69e559525afcf4e746e98e33": "修复破冰船靠近货舱位置自动化控制室内的设备",
@@ -7544,7 +7497,6 @@
                 "69c26dfeaa4283497aab0d36": "Eliminate Rogues"
             },
             "zh": {
-                "69c26c07683c9831020018c7 name": "坚持到底",
                 "69c26dfeaa4283497aab0d36": "消灭游荡者"
             }
         }
@@ -7644,7 +7596,6 @@
                 "69c2745137b8de0e367891c6": "Mark the transit to Woods with an MS2000 Marker on Lighthouse"
             },
             "zh": {
-                "69c27158e350f01390049e77 name": "拯救大兵罗曼",
                 "69c2740bdbeade0b8e55eeea": "在森林使用 MS2000 指示器标记前往灯塔的转移点",
                 "69c27425f79e528d73ed4b2e": "使用转移功能从森林转移到灯塔",
                 "69c2745137b8de0e367891c6": "在灯塔使用 MS2000 指示器标记前往森林的转移点"
@@ -7789,7 +7740,6 @@
                 "6a102713a973fbe02db53bf1": "Survive and extract from the location"
             },
             "zh": {
-                "69c277f3ea6da9c23e07f8d2 name": "苦涩的胜利",
                 "69c27887c921a0bbeb1889f5": "获得物品：“凶狠跑刀崽”私酒",
                 "69c27909f96f171f6982c4c7": "上交物品：黑麦面包块",
                 "69c278fff569bda0e2652705": "上交物品：Tarkovskaya瓶装伏特加",
@@ -7862,7 +7812,6 @@
                 "69c2a5ba8d7f2db5aff26bd2": "Return to the BTR Driver and ask about the negotiations with the smugglers"
             },
             "zh": {
-                "69c2a2d004de49c8f0055a3d name": "宿醉",
                 "69c2a5ba8d7f2db5aff26bd2": "返回 BTR 司机处，了解司机和走私者的谈判情况"
             }
         }
@@ -7940,11 +7889,9 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "68341eb25619c8e2a9031501 name": "To Great Heights! - Part 1 [PVE ZONE]",
                 "68341eb25619c8e2a9031504": "Win a match in CheckPoint or LastHero mode in Arena"
             },
             "zh": {
-                "68341eb25619c8e2a9031501 name": "再创新高！- 1（PVE）",
                 "68341eb25619c8e2a9031504": "在竞技场 CheckPoint 或 LastHero 模式下赢得一场战斗"
             }
         }
@@ -8029,11 +7976,9 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "68341f6fe2e7ef70a3060a0a name": "To Great Heights! - Part 2 [PVE ZONE]",
                 "68341f6fe2e7ef70a3060a0d": "Win a match in TeamFight, BlastGang, or CheckPoint mode in Arena"
             },
             "zh": {
-                "68341f6fe2e7ef70a3060a0a name": "再创新高！- 2（PVE）",
                 "68341f6fe2e7ef70a3060a0d": "在竞技场赢得一场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗"
             }
         }
@@ -8118,11 +8063,9 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "6834202a186efa3c5b07f9a2 name": "To Great Heights! - Part 3 [PVE ZONE]",
                 "6834202a186efa3c5b07f9a5": "Win 2 matches while claiming at least 3rd place in TeamFight, BlastGang, or CheckPoint mode in Arena"
             },
             "zh": {
-                "6834202a186efa3c5b07f9a2 name": "再创新高！- 3（PVE）",
                 "6834202a186efa3c5b07f9a5": "在竞技场赢得两场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗，至少取得前三名的排名"
             }
         }
@@ -8243,13 +8186,11 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "683421515619c8e2a9031511 name": "To Great Heights! - Part 4 [PVE ZONE]",
                 "683421515619c8e2a9031514": "Hand over Roubles",
                 "683421515619c8e2a9031515": "Win three out of six matches in TeamFight, BlastGang, or CheckPoint mode in Arena",
                 "683421515619c8e2a9031518": "Failure Condition: Lose 4 matches"
             },
             "zh": {
-                "683421515619c8e2a9031511 name": "再创新高！- 4（PVE）",
                 "683421515619c8e2a9031514": "上交卢布",
                 "683421515619c8e2a9031515": "在竞技场进行六场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗，至少赢得其中三场",
                 "683421515619c8e2a9031518": "失败条件：在 4 场比赛中落败"
@@ -8329,11 +8270,9 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "68342265a8d674b5740b31f0 name": "To Great Heights! - Part 5 [PVE ZONE]",
                 "68342265a8d674b5740b31f3": "Win two matches in a row in TeamFight, BlastGang, or CheckPoint mode in Arena"
             },
             "zh": {
-                "68342265a8d674b5740b31f0 name": "再创新高！- 5（PVE）",
                 "68342265a8d674b5740b31f3": "在竞技场连续赢得两场 TeamFight 或 BlastGang 或 CheckPoint 模式的战斗"
             }
         }
@@ -8487,14 +8426,12 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "6834233fecd5cf3a440d855b name": "Against the Conscience - Part 1 [PVE ZONE]",
                 "6834233fecd5cf3a440d855f": "Locate the old champion's room on Customs",
                 "6834233fecd5cf3a440d8561": "Find out what happened to the champion",
                 "6834233fecd5cf3a440d8564": "Survive and extract from the location",
                 "6834233fecd5cf3a440d856": "Locate and obtain the key at the smugglers' base on Shoreline"
             },
             "zh": {
-                "6834233fecd5cf3a440d855b name": "良心作祟 - 1（PVE）",
                 "6834233fecd5cf3a440d855f": "在海关找到前冠军的房间",
                 "6834233fecd5cf3a440d8561": "调查前任冠军的遭遇",
                 "6834233fecd5cf3a440d8564": "以幸存状态撤离该区域",
@@ -8575,11 +8512,9 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "68342446a8d674b5740b31fc name": "Against the Conscience - Part 2 [PVE ZONE]",
                 "68342446a8d674b5740b31ff": "Eliminate enemies in any game mode in Arena"
             },
             "zh": {
-                "68342446a8d674b5740b31fc name": "良心作祟 - 2（PVE）",
                 "68342446a8d674b5740b31ff": "在竞技场任意游戏模式中消灭敌人"
             }
         }
@@ -8716,12 +8651,10 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "6834254f2f0e2a7eb90b62ef name": "Decisions, Decisions [PVE ZONE]",
                 "6834254f2f0e2a7eb90b62f1": "Locate and obtain the compromising information on Ref",
                 "6834254f2f0e2a7eb90b62f2": "Hand over the found info"
             },
             "zh": {
-                "6834254f2f0e2a7eb90b62ef name": "两难抉择（PVE）",
                 "6834254f2f0e2a7eb90b62f1": "找到并获取竞技场裁判的黑料",
                 "6834254f2f0e2a7eb90b62f2": "上交找到的信息"
             }
@@ -8868,13 +8801,11 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "683425dd8f5b18d29a05d9d1 name": "Between Two Fires [PVE ZONE]",
                 "683425dd8f5b18d29a05d9d4": "Return to the old champion's hideout on Customs",
                 "683425dd8f5b18d29a05d9d6": "Locate and obtain the compromising information on Ref",
                 "683425dd8f5b18d29a05d9d8": "Hand over the found info"
             },
             "zh": {
-                "683425dd8f5b18d29a05d9d1 name": "两难抉择（PVE）",
                 "683425dd8f5b18d29a05d9d4": "返回海关的前冠军藏身处",
                 "683425dd8f5b18d29a05d9d6": "找到并获取竞技场裁判的黑料",
                 "683425dd8f5b18d29a05d9d8": "上交找到的信息"
@@ -9015,13 +8946,11 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "683427418f5b18d29a05d9e3 name": "Surprise Gift [PVE ZONE]",
                 "683427418f5b18d29a05d9e5": "Return to the old champion's hideout on Customs",
                 "683427418f5b18d29a05d9e7": "Locate and obtain the compromising information on Ref",
                 "683427418f5b18d29a05d9e9": "Hand over the found info"
             },
             "zh": {
-                "683427418f5b18d29a05d9e3 name": "两难抉择（PVE）",
                 "683427418f5b18d29a05d9e5": "返回海关的前冠军藏身处",
                 "683427418f5b18d29a05d9e7": "找到并获取竞技场裁判的黑料",
                 "683427418f5b18d29a05d9e9": "上交找到的信息"
@@ -9107,15 +9036,12 @@
         "factionName": "Any",
         "locale": {
             "en": {
-                "6834287b7559f4e6d50bc0fa name": "Postponed Reward [PVE ZONE]",
                 "6834287b7559f4e6d50bc0fd": "Hand over the item: Lega Medal"
             },
             "zh": {
-                "6834287b7559f4e6d50bc0fa name": "迟来的奖励（PVE）",
                 "6834287b7559f4e6d50bc0fd": "上交物品：传奇奖章"
             },
             "de": {
-                "6834287b7559f4e6d50bc0fa name": "Aufgeschobene Belohnung [PVE ZONE]",
                 "6834287b7559f4e6d50bc0fd": "Übergib den Gegenstand: Lega-Medaille"
             }
         }
