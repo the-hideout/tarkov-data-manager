@@ -35,10 +35,10 @@ class UpdateMainDataJob extends DataJob {
             }
             return total;
         }, 0);
-        if (tradingService?.status === 1 && launchedScanners === 0) {
+        /*if (tradingService?.status === 1 && launchedScanners === 0) {
             this.logger.log('Game is updating, skipping data update');
             return;
-        }
+        }*/
 
         const returnValue = {};
         this.logger.time('data-download');
