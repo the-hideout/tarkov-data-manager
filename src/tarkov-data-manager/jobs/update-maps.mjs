@@ -238,7 +238,7 @@ class UpdateMapsJob extends DataJob {
                     extracts: mapDetails?.extracts.map(extract => {
                         const extractName = this.peekTranslationNoCase(extract.name);
                         if (!extractName) {
-                            console.error(`Missing translation for extract ${extract.name} on map ${id}`);
+                            //this.logger.log(`Missing translation for extract ${extract.name} on map ${id}`);
                             return;
                         }
                         let transferItem;
