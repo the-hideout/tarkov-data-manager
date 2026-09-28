@@ -57,24 +57,27 @@ class TranslationHelper {
             }
         } else {
             if (typeof this.locales.en[key] !== 'undefined') {
+                // simple translation
                 this.translationKeys.add(key);
-            } else if (!this.translationKeyMap[key]) {
-                if (typeof this.locales.en[key] === 'undefined') {
-                    for (const dictKey in this.locales.en) {
-                        if (dictKey.toLowerCase() === key.toLowerCase()) {
-                            this.translationKeyMap[key] = dictKey;
-                            if (this.warnOnKeySubstitution) {
-                                this.logger.warn(`Translation key substition for ${key}: ${dictKey}`);
-                            }
-                            //return dictKey;
-                            break;
+            } else if (this.translationKeyMap[key]) {
+                // known key substitution
+                this.translationKeys.add(key);
+            } else {
+                // attempt to find key substitution
+                const lcKey = key.toLowerCase();
+                for (const dictKey in this.locales.en) {
+                    if (dictKey.toLowerCase() === lcKey) {
+                        this.translationKeyMap[key] = dictKey;
+                        if (this.warnOnKeySubstitution) {
+                            this.logger.warn(`Translation key substition for ${key}: ${dictKey}`);
                         }
+                        this.translationKeys.add(key);
+                        break;
                     }
                 }
                 if (!this.translationKeyMap[key]) {
                     this.logger.warn(`Translation key not found: ${key}`);
                 }
-                this.translationKeys.add(key);
             }
         }
         return key;
@@ -107,16 +110,12 @@ class TranslationHelper {
     }
 
     getTranslation = (key, langCode = 'en', target) => {
-        if (!target) {
-            target = this.locale;
-        }
-        if (!target[langCode]) {
-            target[langCode] = {};
-        }
+        target ??= this.locale;
+        target[langCode] ??= {};
         if (typeof target[langCode][key] !== 'undefined') {
             return target[langCode][key];
         }
-        const usedKey = this.translationKeyMap[key] ? this.translationKeyMap[key] : key;
+        const usedKey = this.translationKeyMap[key] ?? key;
         if (typeof usedKey === 'function') {
             target[langCode][key] = usedKey(key, langCode, this.locales[langCode]);
             return target[langCode][key];
@@ -137,14 +136,24 @@ class TranslationHelper {
         return this.locales[langCode][usedKey];
     }
 
-    fillTranslations = async (target) => {
-        if (!target) {
-            target = this.locale;
+    peekTranslationNoCase = (key, langCode = 'en') => {
+        const usedKey = this.translationKeyMap[key] ?? key;
+        if (this.locales[langCode][usedKey]) {
+            return this.locales[langCode][usedKey];
         }
-        for (const langCode in this.locales) {
-            if (!target[langCode]) {
-                target[langCode] = {};
+        const lcKey = key.toLowerCase();
+        for (const k in this.locales[langCode]) {
+            if (k.toLowerCase() === lcKey) {
+                this.translationKeyMap[key] = k;
+                return this.locales[langCode][k];
             }
+        }
+    }
+
+    fillTranslations = async (target) => {
+        target ??= this.locale;
+        for (const langCode in this.locales) {
+            target[langCode] ??= {};
             for (const key of this.translationKeys) {
                 this.getTranslation(key, langCode, target);
             }
@@ -184,11 +193,8 @@ class TranslationHelper {
         if (typeof this.locales.en[key] !== 'undefined') {
             this.translationKeys.add(key);
         } else if (typeof this.translationKeyMap[key] === 'undefined') {
-            let foundKey = this.getMobKey(key);
+            let foundKey = enemyKeyMap[key] ?? this.getMobKey(key);
             let found = false;
-            if (enemyKeyMap[key]) {
-                foundKey = enemyKeyMap[key];
-            }
             if (this.locales.en[foundKey]) {
                 this.translationKeyMap[key] = foundKey;
                 found = true;
@@ -253,9 +259,10 @@ class TranslationHelper {
                 if (found) {
                     break;
                 }
-                for (const key in this.locales.en) {
-                    if (key.toLowerCase() === enemyKey.toLowerCase()) {
-                        this.translationKeyMap[key] = enemyKey;
+                const lcEnemyKey = enemyKey.toLowerCase();
+                for (const tKey in this.locales.en) {
+                    if (tKey.toLowerCase() === lcEnemyKey) {
+                        this.translationKeyMap[key] = tKey;
                         found = true;
                         break;
                     }
@@ -297,8 +304,12 @@ const enemyKeyMap = {
     'sniper': 'Marksman',
     'sectantWarrior': 'cursedAssault',
     'bossZryachiy': '63626d904aa74b8fe30ab426 ShortName',
+    'exUsecFree': 'ExUsec',
     'pmcBEAR': 'BEAR',
     'pmcUSEC': 'USEC',
+    'bossBullyBlackDiv': 'BlackDivision',
+    'pmcBotBlackDiv': 'BlackDivision',
+    'pmcBotBlackDivSeason': 'BlackDivision',
     'civilian': 'CIVILIAN',
     'blackDivision': 'BlackDivision',
     'sniperBlackDivision': 'SniperBlackDivision',

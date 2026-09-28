@@ -236,7 +236,9 @@ class UpdateMapsJob extends DataJob {
                         };
                     }).filter(Boolean),
                     extracts: mapDetails?.extracts.map(extract => {
-                        if (!this.locales.en[extract.name]) {
+                        const extractName = this.peekTranslationNoCase(extract.name);
+                        if (!extractName) {
+                            //this.logger.log(`Missing translation for extract ${extract.name} on map ${id}`);
                             return;
                         }
                         let transferItem;
