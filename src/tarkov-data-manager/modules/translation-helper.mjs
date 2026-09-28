@@ -71,14 +71,13 @@ class TranslationHelper {
                         if (this.warnOnKeySubstitution) {
                             this.logger.warn(`Translation key substition for ${key}: ${dictKey}`);
                         }
-                        //return dictKey;
+                        this.translationKeys.add(key);
                         break;
                     }
                 }
                 if (!this.translationKeyMap[key]) {
                     this.logger.warn(`Translation key not found: ${key}`);
                 }
-                this.translationKeys.add(key);
             }
         }
         return key;
