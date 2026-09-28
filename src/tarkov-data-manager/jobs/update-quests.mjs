@@ -2821,6 +2821,7 @@ const forceObjectiveMap = {
     '66aba85403e0ee3101042878': '5714dc692459777137212e12', // Beneath the Streets
     '6840714469caa738cc1225c3': '56f40101d2720b2a4d8b45d6', // Hobby Club
     '6840711071516aad97bd9156': '5704e5fad2720bc05b8b4567', // Hobby Club
+    '6a5ab1920a2a6d86771ee14a': '56f40101d2720b2a4d8b45d6', // Supplements
 };
 
 const questStatusMap = {
