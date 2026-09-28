@@ -117,10 +117,10 @@ class TranslationHelper {
         }
         const usedKey = this.translationKeyMap[key] ?? key;
         if (typeof usedKey === 'function') {
-            target[langCode][key] = usedKey(key, langCode, this.locales[langCode]);
+            target[langCode][key] = usedKey(key, langCode, this.locales[langCode])?.trim();
             return target[langCode][key];
         }
-        target[langCode][key] = this.locales[langCode][usedKey];
+        target[langCode][key] = this.locales[langCode][usedKey]?.trim();
         if (typeof target[langCode][key] === 'undefined' && langCode === 'en') {
             target[langCode][key] = usedKey;
             //return Promise.reject(new Error(`Missing translation for ${key}`));
