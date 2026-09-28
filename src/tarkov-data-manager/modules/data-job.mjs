@@ -486,6 +486,10 @@ class DataJob {
         return this.translationHelper.peekTranslation(key, langCode);
     }
 
+    peekTranslationNoCase(key, langCode = 'en') {
+        return this.translationHelper.peekTranslationNoCase(key, langCode);
+    }
+
     fillTranslations = async (target) => {
         return this.translationHelper.fillTranslations(target);
     }

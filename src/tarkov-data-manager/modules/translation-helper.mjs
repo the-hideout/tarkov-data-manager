@@ -116,7 +116,7 @@ class TranslationHelper {
         if (typeof target[langCode][key] !== 'undefined') {
             return target[langCode][key];
         }
-        const usedKey = this.translationKeyMap[key] ? this.translationKeyMap[key] : key;
+        const usedKey = this.translationKeyMap[key] ?? key;
         if (typeof usedKey === 'function') {
             target[langCode][key] = usedKey(key, langCode, this.locales[langCode]);
             return target[langCode][key];
@@ -135,6 +135,20 @@ class TranslationHelper {
             return usedKey(key, langCode, this.locales[langCode]);
         }
         return this.locales[langCode][usedKey];
+    }
+
+    peekTranslationNoCase = (key, langCode = 'en') => {
+        const usedKey = this.translationKeyMap[key] ?? key;
+        if (this.locales[langCode][usedKey]) {
+            return this.locales[langCode][usedKey];
+        }
+        const lcKey = key.toLowerCase();
+        for (const k in this.locales[langCode]) {
+            if (k.toLowerCase() === lcKey) {
+                this.translationKeyMap[key] = k;
+                return this.locales[langCode][k];
+            }
+        }
     }
 
     fillTranslations = async (target) => {
