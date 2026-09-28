@@ -57,18 +57,22 @@ class TranslationHelper {
             }
         } else {
             if (typeof this.locales.en[key] !== 'undefined') {
+                // simple translation
                 this.translationKeys.add(key);
-            } else if (!this.translationKeyMap[key]) {
-                if (typeof this.locales.en[key] === 'undefined') {
-                    for (const dictKey in this.locales.en) {
-                        if (dictKey.toLowerCase() === key.toLowerCase()) {
-                            this.translationKeyMap[key] = dictKey;
-                            if (this.warnOnKeySubstitution) {
-                                this.logger.warn(`Translation key substition for ${key}: ${dictKey}`);
-                            }
-                            //return dictKey;
-                            break;
+            } else if (this.translationKeyMap[key]) {
+                // known key substitution
+                this.translationKeys.add(key);
+            } else {
+                // attempt to find key substitution
+                const lcKey = key.toLowerCase();
+                for (const dictKey in this.locales.en) {
+                    if (dictKey.toLowerCase() === lcKey) {
+                        this.translationKeyMap[key] = dictKey;
+                        if (this.warnOnKeySubstitution) {
+                            this.logger.warn(`Translation key substition for ${key}: ${dictKey}`);
                         }
+                        //return dictKey;
+                        break;
                     }
                 }
                 if (!this.translationKeyMap[key]) {
