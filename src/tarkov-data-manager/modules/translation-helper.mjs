@@ -184,11 +184,8 @@ class TranslationHelper {
         if (typeof this.locales.en[key] !== 'undefined') {
             this.translationKeys.add(key);
         } else if (typeof this.translationKeyMap[key] === 'undefined') {
-            let foundKey = this.getMobKey(key);
+            let foundKey = enemyKeyMap[key] ?? this.getMobKey(key);
             let found = false;
-            if (enemyKeyMap[key]) {
-                foundKey = enemyKeyMap[key];
-            }
             if (this.locales.en[foundKey]) {
                 this.translationKeyMap[key] = foundKey;
                 found = true;
@@ -297,8 +294,11 @@ const enemyKeyMap = {
     'sniper': 'Marksman',
     'sectantWarrior': 'cursedAssault',
     'bossZryachiy': '63626d904aa74b8fe30ab426 ShortName',
+    'exUsecFree': 'ExUsec',
     'pmcBEAR': 'BEAR',
     'pmcUSEC': 'USEC',
+    'pmcBotBlackDiv': 'BlackDivision',
+    'pmcBotBlackDivSeason': 'BlackDivision',
     'civilian': 'CIVILIAN',
     'blackDivision': 'BlackDivision',
     'sniperBlackDivision': 'SniperBlackDivision',
