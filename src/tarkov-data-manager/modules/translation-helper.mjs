@@ -297,6 +297,7 @@ const enemyKeyMap = {
     'exUsecFree': 'ExUsec',
     'pmcBEAR': 'BEAR',
     'pmcUSEC': 'USEC',
+    'bossBullyBlackDiv': 'BlackDivision',
     'pmcBotBlackDiv': 'BlackDivision',
     'pmcBotBlackDivSeason': 'BlackDivision',
     'civilian': 'CIVILIAN',
