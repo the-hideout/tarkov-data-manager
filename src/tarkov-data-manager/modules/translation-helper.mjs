@@ -107,12 +107,8 @@ class TranslationHelper {
     }
 
     getTranslation = (key, langCode = 'en', target) => {
-        if (!target) {
-            target = this.locale;
-        }
-        if (!target[langCode]) {
-            target[langCode] = {};
-        }
+        target ??= this.locale;
+        target[langCode] ??= {};
         if (typeof target[langCode][key] !== 'undefined') {
             return target[langCode][key];
         }
@@ -152,13 +148,9 @@ class TranslationHelper {
     }
 
     fillTranslations = async (target) => {
-        if (!target) {
-            target = this.locale;
-        }
+        target ??= this.locale;
         for (const langCode in this.locales) {
-            if (!target[langCode]) {
-                target[langCode] = {};
-            }
+            target[langCode] ??= {};
             for (const key of this.translationKeys) {
                 this.getTranslation(key, langCode, target);
             }
@@ -264,9 +256,10 @@ class TranslationHelper {
                 if (found) {
                     break;
                 }
-                for (const key in this.locales.en) {
-                    if (key.toLowerCase() === enemyKey.toLowerCase()) {
-                        this.translationKeyMap[key] = enemyKey;
+                const lcEnemyKey = enemyKey.toLowerCase();
+                for (const tKey in this.locales.en) {
+                    if (tKey.toLowerCase() === lcEnemyKey) {
+                        this.translationKeyMap[key] = tKey;
                         found = true;
                         break;
                     }
