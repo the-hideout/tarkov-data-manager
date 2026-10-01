@@ -56,8 +56,8 @@
                 "translations": true
             },
             {
-                "name": "traders",
-                "path": "/pvp-season/info",
+                "name": "season",
+                "path": "/pvp-season/season",
                 "description": "info on current season",
                 "translations": true
             }
