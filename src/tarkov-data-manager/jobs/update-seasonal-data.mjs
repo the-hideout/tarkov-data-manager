@@ -10,18 +10,25 @@ class UpdateSeasonalDataJob extends DataJob {
     }
 
     run = async () => {
+        const [season, perks] = await Promise.all([
+            tarkovData.season({download: true}).then(data => data.season),
+            tarkovData.seasonalPerks({download: true}),
+        ]);
         const apiData = {
+            id: season.id,
+            name: this.addTranslation(`${season.id} name`),
+            start: season.startTs,
+            end: season.endTs,
             perks: {
                 common: [],
                 personal: [],
             },
         };
-        const perks = await tarkovData.seasonalPerks({download: true});
         this.s3Images = getLocalBucketContents();
         this.imageActions = [];
         for (const perkType in apiData.perks) {
             for (const perk of perks[perkType]) {
-                apiData.perks[perkType].push(await this.processPerk(perk));
+                apiData.perks[perkType].push(this.processPerk(perk));
             }
         }
         const imageResults = await Promise.allSettled(this.imageActions);
@@ -33,6 +40,7 @@ class UpdateSeasonalDataJob extends DataJob {
         }
         await this.r2Put(`pvp-season/season`,
             {data: apiData, translations: [
+                '$.data.name',
                 '$.data.perks.*.*.name',
                 '$.data.perks.*.*.description',
             ]},
