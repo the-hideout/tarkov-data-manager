@@ -17,8 +17,8 @@ class UpdateSeasonalDataJob extends DataJob {
         const apiData = {
             id: season.id,
             name: this.addTranslation(`${season.id} name`),
-            start: season.startTs,
-            end: season.endTs,
+            start: season.startTs * 1000,
+            end: season.endTs * 1000,
             perks: {
                 common: [],
                 personal: [],
