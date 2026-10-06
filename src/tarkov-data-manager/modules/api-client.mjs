@@ -5,9 +5,13 @@ import crypto from 'node:crypto';
 import sleep from './sleep.js';
 import dbConnection from './db-connection.mjs';
 
+const getEnv = () => {
+    return process.env.NODE_ENV ?? 'development';
+};
+
 const getEtag = async (url) => {
     const hash = crypto.hash('sha256', url);
-    const results = await dbConnection.query('SELECT * FROM resource_etag WHERE path_hash = ?', [hash]);
+    const results = await dbConnection.query('SELECT * FROM resource_etag WHERE path_hash = ? AND env = ?', [hash, getEnv()]);
     if (!results.length) {
         return;
     }
@@ -17,17 +21,17 @@ const getEtag = async (url) => {
 const setEtag = async (url, etag) => {
     const hash = crypto.hash('sha256', url);
     const result = await dbConnection.query(`
-        INSERT INTO resource_etag (path_hash, etag)
-        VALUES (?, ?)
+        INSERT INTO resource_etag (path_hash, etag, env)
+        VALUES (?, ?, ?)
         ON DUPLICATE KEY UPDATE
             etag = ?
-    `, [hash, etag, etag]);
+    `, [hash, etag, getEnv(), etag]);
     //console.log('setEtag', result);
 };
 
 const clearEtag = async (url) => {
     const hash = crypto.hash('sha256', url);
-    const result = await dbConnection.query('DELETE FROM resource_etag WHERE path_hash = ?', [hash]);
+    const result = await dbConnection.query('DELETE FROM resource_etag WHERE path_hash = ? AND env = ?', [hash, getEnv()]);
     //console.log('clearEtag', result);
 };
 
