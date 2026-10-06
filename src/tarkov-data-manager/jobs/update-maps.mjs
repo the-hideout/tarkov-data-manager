@@ -238,7 +238,7 @@ class UpdateMapsJob extends DataJob {
                     extracts: mapDetails?.extracts.map(extract => {
                         const extractName = this.peekTranslationNoCase(extract.name);
                         if (!extractName) {
-                            //this.logger.log(`Missing translation for extract ${extract.name} on map ${id}`);
+                            this.logger.log(`Missing translation for extract ${extract.name} on map ${id}`);
                             return;
                         }
                         let transferItem;
@@ -286,7 +286,7 @@ class UpdateMapsJob extends DataJob {
                         }
                         const locationData = mapDetails?.transits.find(t => t.id === transit.id);
                         if (!locationData) {
-                            this.logger.warn(`Could not find location data for ${this.locales.en[transit.description]}`);
+                            this.logger.warn(`Could not find transit location data for ${this.locales.en[transit.description] ?? transit.description}`);
                             return false;
                         }
                         let conditions;
