@@ -14,7 +14,6 @@ const gameModes = [
             'achievements',
             'achievementStats',
             'customization',
-            'prestige',
             'season',
             'seasonalPerks',
         ],
