@@ -198,259 +198,260 @@ class UpdateMapsJob extends DataJob {
                     players: map.MinPlayers+'-'+map.MaxPlayers,
                     bosses: [],
                     coordinateToCardinalRotation: mapDetails?.north_rotation ?? 180,
-                    spawns: map.SpawnPointParams.map(spawn => {
-                        if (spawn.Sides.includes('Usec') && spawn.Sides.includes('Bear')) {
-                            spawn.Sides = spawn.Sides.filter(side => !['Usec', 'Bear', 'Pmc'].includes(side));
-                            spawn.Sides.push('Pmc');
-                        }
-                        spawn.Categories = spawn.Categories.filter(cat => !['Coop', 'Opposite', 'Group'].includes(cat));
-                        if (spawn.Categories.length === 0) {
-                            return false;
-                        }
-                        const categories = spawn.Categories.map(cat => cat.toLowerCase());
-                        if (map.waves.some(w => w.SpawnPoints.split(',').includes(spawn.BotZoneName) && w.WildSpawnType === 'marksman')) {
-                            categories.push('sniper');
-                        }
-                        let zoneName = spawn.BotZoneName;
-                        if (mapDetails) {
-                            for (const point of mapDetails.spawns) {
-                                if (point.core === spawn.CorePointId) {
-                                    zoneName = point.zone;
-                                    break;
-                                }
-                            }
-                        }
-                        if (!zoneName) {
-                            zoneName = spawn.Id;
-                        }
-                        return {
-                            position: spawn.Position,
-                            sides: spawn.Sides.map(side => {
-                                if (side === 'Savage') {
-                                    return 'scav';
-                                }
-                                return side.toLowerCase();
-                            }),
-                            categories: categories,
-                            zoneName,
-                        };
-                    }).filter(Boolean),
-                    extracts: mapDetails?.extracts.map(extract => {
-                        const extractName = this.peekTranslationNoCase(extract.name);
-                        if (!extractName) {
-                            this.logger.log(`Missing translation for extract ${extract.name} on map ${id}`);
-                            return;
-                        }
-                        let transferItem;
-                        const extractData = map.exits.find(e => e.Name === extract.name);
-                        if (extractData?.PassageRequirement === 'TransferItem') {
-                            transferItem = {
-                                item: extractData.Id,
-                                count: extractData.Count,
-                            };
-                        }
-                        const secretExit = map.secretExits?.find(s => s.Name === extract.name);
-                        if (secretExit) {
-                            transferItem = {
-                                item: secretExit.Id,
-                                count: 1,
-                            };
-                        }
-                        return {
-                            id: this.getId(id, extract),
-                            name: this.addTranslation(extract.name),
-                            faction: extract.faction,
-                            switch: mapDetails?.switches.reduce((found, current) => {
-                                if (found) {
-                                    return found;
-                                }
-                                if (!extract.exfilSwitchId) {
-                                    return found;
-                                }
-                                if (current.id === extract.exfilSwitchId) {
-                                    found = this.getId(id, current);
-                                }
-                                return found;
-                            }, false),
-                            switches: extract.exfilSwitchIds.map(switchId => {
-                                const foundSwitch = mapDetails?.switches.find(sw => sw.id === switchId && sw.hasCollider);
-                                return foundSwitch ? this.getId(id, foundSwitch) : false;
-                            }).filter(Boolean),
-                            transferItem,
-                            ...extract.location,
-                        };
-                    }).filter(Boolean) ?? [],
-                    transits: map.transits?.map(transit => {
-                        if (!transit.active) {
-                            return false;
-                        }
-                        const locationData = mapDetails?.transits.find(t => t.id === transit.id);
-                        if (!locationData) {
-                            this.logger.warn(`Could not find transit location data for ${this.locales.en[transit.description] ?? transit.description}`);
-                            return false;
-                        }
-                        let conditions;
-                        if (this.locales.en[transit.conditions ?? '']?.trim()) {
-                            conditions = this.addTranslation(transit.conditions);
-                        }
-                        return {
-                            id: `${transit.id}`,
-                            description: this.addTranslation(`${transit.name}_DESC`),
-                            map: transit.target,
-                            conditions,
-                            ...locationData.location,
-                        };
-                    }).filter(Boolean) ?? [],
-                    locks: mapDetails?.locks.map(lock => {
-                        const keyItem = this.items.get(lock.key);
-                        if (!keyItem || keyItem.types.includes('disabled')) {
-                            this.logger.warn(`Skipping lock for key ${lock.key}`)
-                            return false;
-                        }
-                        return {
-                            id: this.getId(id, lock),
-                            lockType: lock.lockType,
-                            key: lock.key,
-                            needsPower: lock.needsPower || false,
-                            ...lock.location,
-                        }
-                    }).filter(Boolean) ?? [],
-                    hazards: mapDetails?.hazards.map(hazard => {
-                        if (!hazardMap[hazard.hazardType]) {
-                            this.logger.warn(`Unknown hazard type: ${hazard.hazardType}`);
-                        }
-                        let hazardType = hazardMap[hazard.hazardType]?.id || hazard.hazardType;
-                        let hazardName = hazardMap[hazard.hazardType]?.name || hazard.hazardType;
-                        return {
-                            id: this.getId(id, hazard),
-                            hazardType: hazardType,
-                            name: this.addTranslation(hazardName),
-                            ...hazard.location,
-                        };
-                    }) ?? [],
-                    lootContainers: mapDetails?.loot_containers.map(container => {
-                        if (!container.lootParameters.Enabled) {
-                            return false;
-                        }
-                        if (container.template === '67614e3a6a90e4f10b0b140d') {
-                            return false; // skip festive air drops
-                        }
-                        return {
-                            lootContainer: this.getLootContainer(container),
-                            position: container.location.position,
-                        };
-                    }).filter(Boolean) ?? [],
-                    lootLoose: this.mapLooseLoot[id]?.map(point => {
-                        const itemIds = point.template.Items.map(i => i._tpl).filter(id => this.items.has(id) && !this.items.get(id).types.includes('disabled') && !this.items.get(id).types.includes('quest'));
-                        if (itemIds.length === 0) {
-                            return false;
-                        }
-                        return {
-                            position: point.position,
-                            items: itemIds,
-                        };
-                    }).filter(Boolean) ?? [],
-                    /*lootPoints: mapDetails.loot_points.reduce((allLoot, rawLoot) => {
-                        const duplicateLootPoint = allLoot.find(l => l.position.x === rawLoot.lootParameters.Position.x && l.position.y === rawLoot.lootParameters.Position.y && l.position.z === rawLoot.lootParameters.Position.z);
-                        if (duplicateLootPoint) {
-                            for (const id of rawLoot.lootParameters.FilterInclusive) {
-                                if (!duplicateLootPoint.items.includes(id)) {
-                                    duplicateLootPoint.items.push(id);
-                                }
-                            }
-                            return allLoot;
-                        }
-                        allLoot.push({
-                            //enabled: rawLoot.lootParameters.Enabled,
-                            chanceModifier: rawLoot.lootParameters.ChanceModifier,
-                            rarity: rawLoot.lootParameters.Rarity,
-                            items: rawLoot.lootParameters.FilterInclusive,
-                            position: rawLoot.lootParameters.Position,
-                            //selectedFilters: rawLoot.selectedFilters, // always null
-                            //spawnChance: rawLoot.lootParameters.SpawnChance, // always 0
-                            //alwaysSpawn: rawLoot.lootParameters.IsAlwaysSpawn, // always false
-                            //alwaysTrySpawnLoot: rawLoot.lootParameters.isAlwaysTrySpawnLoot, // always false
-                            //static: rawLoot.lootParameters.IsStatic, // always false
-                        });
-                        return allLoot;
-                    }, []),*/
-                    switches: mapDetails?.switches.map(sw => {
-                        if (!sw.hasCollider) {
-                            return false;
-                        }
-                        const switchId = `${sw.id}_${sw.name}`.replace(/^(?:switch_)?/i, 'switch_');
-                        if (switchId.startsWith('switch_custom_Light') || switchId.startsWith('switch_develop_00000')) {
-                            return false;
-                        }
-                        return {
-                            id: this.getId(id, sw),
-                            object_id: sw.id,
-                            object_name: sw.name,
-                            name: this.addTranslation(switchId),
-                            door: sw.doorId,
-                            switchType: sw.interactionType,
-                            activatedBy: mapDetails.switches.reduce((found, current) => {
-                                if (found) {
-                                    return found;
-                                }
-                                if (!sw.previousSwitchId || !current.hasCollider) {
-                                    return found;
-                                }
-                                if (current.id === sw.previousSwitchId) {
-                                    found = this.getId(id, current);
-                                }
-                                return found;
-                            }, false),
-                            activates: [
-                                ...sw.nextSwitches.map(so => {
-                                    return {
-                                        operation: so.operation,
-                                        switch: mapDetails.switches.reduce((found, current) => {
-                                            if (found) {
-                                                return found;
-                                            }
-                                            if (!current.hasCollider) {
-                                                return found;
-                                            }
-                                            if (current.id === so.targetSwitchId) {
-                                                found = this.getId(id, current);
-                                            }
-                                            return found;
-                                        }, false),
-                                    }
-                                }).filter(so => so.switch),
-                                mapDetails.extracts.reduce((found, extract) => {
-                                    if (found || !sw.extractId) {
-                                        return found;
-                                    }
-                                    if (extract.name === sw.extractId && extract.exfilSwitchIds.includes(sw.id)) {
-                                        found = {
-                                            operation: "Unlock",
-                                            extract: this.getId(id, extract)
-                                        };
-                                    }
-                                    return found;
-                                }, null)
-                            ].filter(Boolean),
-                            ...sw.location,
-                        };
-                    }).filter(Boolean) ?? [],
-                    stationaryWeapons: mapDetails?.stationary_weapons.map(sw => {
-                        return {
-                            stationaryWeapon: this.getStationaryWeapon(sw.weaponItemId),
-                            position: sw.location.position,
-                        }
-                    }) ?? [],
-                    btrRoutes: [],
-                    btrStops: [],
-                    minPlayerLevel: map.RequiredPlayerLevelMin,
-                    maxPlayerLevel: map.RequiredPlayerLevelMax,
-                    accessKeys: map.AccessKeys,
-                    accessKeysMinPlayerLevel: map.MinPlayerLvlAccessKeys,
                 };
                 this.logger.log(`✔️ ${this.getTranslation(mapData.name)} ${id}`);
-                //console.log(mapData.lootLoose.length);
                 mapData.normalizedName = this.normalizeName(this.getTranslation(mapData.name));
+                mapData.spawns = map.SpawnPointParams.map(spawn => {
+                    if (spawn.Sides.includes('Usec') && spawn.Sides.includes('Bear')) {
+                        spawn.Sides = spawn.Sides.filter(side => !['Usec', 'Bear', 'Pmc'].includes(side));
+                        spawn.Sides.push('Pmc');
+                    }
+                    spawn.Categories = spawn.Categories.filter(cat => !['Coop', 'Opposite', 'Group'].includes(cat));
+                    if (spawn.Categories.length === 0) {
+                        return false;
+                    }
+                    const categories = spawn.Categories.map(cat => cat.toLowerCase());
+                    if (map.waves.some(w => w.SpawnPoints.split(',').includes(spawn.BotZoneName) && w.WildSpawnType === 'marksman')) {
+                        categories.push('sniper');
+                    }
+                    let zoneName = spawn.BotZoneName;
+                    if (mapDetails) {
+                        for (const point of mapDetails.spawns) {
+                            if (point.core === spawn.CorePointId) {
+                                zoneName = point.zone;
+                                break;
+                            }
+                        }
+                    }
+                    if (!zoneName) {
+                        zoneName = spawn.Id;
+                    }
+                    return {
+                        position: spawn.Position,
+                        sides: spawn.Sides.map(side => {
+                            if (side === 'Savage') {
+                                return 'scav';
+                            }
+                            return side.toLowerCase();
+                        }),
+                        categories: categories,
+                        zoneName,
+                    };
+                }).filter(Boolean);
+                this.logger.log(' - Extracts');
+                mapData.extracts = mapDetails?.extracts.map(extract => {
+                    const extractName = this.peekTranslationNoCase(extract.name);
+                    if (!extractName) {
+                        this.logger.log(`Missing translation for extract ${extract.name} on map ${id}`);
+                        return;
+                    }
+                    this.logger.log(`    - ${extractName}`);
+                    let transferItem;
+                    const extractData = map.exits.find(e => e.Name === extract.name);
+                    if (extractData?.PassageRequirement === 'TransferItem') {
+                        transferItem = {
+                            item: extractData.Id,
+                            count: extractData.Count,
+                        };
+                    }
+                    const secretExit = map.secretExits?.find(s => s.Name === extract.name);
+                    if (secretExit) {
+                        transferItem = {
+                            item: secretExit.Id,
+                            count: 1,
+                        };
+                    }
+                    return {
+                        id: this.getId(id, extract),
+                        name: this.addTranslation(extract.name),
+                        faction: extract.faction,
+                        switch: mapDetails?.switches.reduce((found, current) => {
+                            if (found) {
+                                return found;
+                            }
+                            if (!extract.exfilSwitchId) {
+                                return found;
+                            }
+                            if (current.id === extract.exfilSwitchId) {
+                                found = this.getId(id, current);
+                            }
+                            return found;
+                        }, false),
+                        switches: extract.exfilSwitchIds.map(switchId => {
+                            const foundSwitch = mapDetails?.switches.find(sw => sw.id === switchId && sw.hasCollider);
+                            return foundSwitch ? this.getId(id, foundSwitch) : false;
+                        }).filter(Boolean),
+                        transferItem,
+                        ...extract.location,
+                    };
+                }).filter(Boolean) ?? [];
+                mapData.transits = map.transits?.map(transit => {
+                    if (!transit.active) {
+                        return false;
+                    }
+                    const locationData = mapDetails?.transits.find(t => t.id === transit.id);
+                    if (!locationData) {
+                        this.logger.warn(`Could not find transit location data for ${this.locales.en[transit.description] ?? transit.description}`);
+                        return false;
+                    }
+                    let conditions;
+                    if (this.locales.en[transit.conditions ?? '']?.trim()) {
+                        conditions = this.addTranslation(transit.conditions);
+                    }
+                    return {
+                        id: `${transit.id}`,
+                        description: this.addTranslation(`${transit.name}_DESC`),
+                        map: transit.target,
+                        conditions,
+                        ...locationData.location,
+                    };
+                }).filter(Boolean) ?? [];
+                mapData.locks = mapDetails?.locks.map(lock => {
+                    const keyItem = this.items.get(lock.key);
+                    if (!keyItem || keyItem.types.includes('disabled')) {
+                        this.logger.warn(`Skipping lock for key ${lock.key}`)
+                        return false;
+                    }
+                    return {
+                        id: this.getId(id, lock),
+                        lockType: lock.lockType,
+                        key: lock.key,
+                        needsPower: lock.needsPower || false,
+                        ...lock.location,
+                    }
+                }).filter(Boolean) ?? [];
+                mapData.hazards = mapDetails?.hazards.map(hazard => {
+                    if (!hazardMap[hazard.hazardType]) {
+                        this.logger.warn(`Unknown hazard type: ${hazard.hazardType}`);
+                    }
+                    let hazardType = hazardMap[hazard.hazardType]?.id || hazard.hazardType;
+                    let hazardName = hazardMap[hazard.hazardType]?.name || hazard.hazardType;
+                    return {
+                        id: this.getId(id, hazard),
+                        hazardType: hazardType,
+                        name: this.addTranslation(hazardName),
+                        ...hazard.location,
+                    };
+                }) ?? [];
+                mapData.lootContainers = mapDetails?.loot_containers.map(container => {
+                    if (!container.lootParameters.Enabled) {
+                        return false;
+                    }
+                    if (container.template === '67614e3a6a90e4f10b0b140d') {
+                        return false; // skip festive air drops
+                    }
+                    return {
+                        lootContainer: this.getLootContainer(container),
+                        position: container.location.position,
+                    };
+                }).filter(Boolean) ?? [];
+                mapData.lootLoose = this.mapLooseLoot[id]?.map(point => {
+                    const itemIds = point.template.Items.map(i => i._tpl).filter(id => this.items.has(id) && !this.items.get(id).types.includes('disabled') && !this.items.get(id).types.includes('quest'));
+                    if (itemIds.length === 0) {
+                        return false;
+                    }
+                    return {
+                        position: point.position,
+                        items: itemIds,
+                    };
+                }).filter(Boolean) ?? [];
+                /*mapData.lootPoints = mapDetails.loot_points.reduce((allLoot, rawLoot) => {
+                    const duplicateLootPoint = allLoot.find(l => l.position.x === rawLoot.lootParameters.Position.x && l.position.y === rawLoot.lootParameters.Position.y && l.position.z === rawLoot.lootParameters.Position.z);
+                    if (duplicateLootPoint) {
+                        for (const id of rawLoot.lootParameters.FilterInclusive) {
+                            if (!duplicateLootPoint.items.includes(id)) {
+                                duplicateLootPoint.items.push(id);
+                            }
+                        }
+                        return allLoot;
+                    }
+                    allLoot.push({
+                        //enabled: rawLoot.lootParameters.Enabled,
+                        chanceModifier: rawLoot.lootParameters.ChanceModifier,
+                        rarity: rawLoot.lootParameters.Rarity,
+                        items: rawLoot.lootParameters.FilterInclusive,
+                        position: rawLoot.lootParameters.Position,
+                        //selectedFilters: rawLoot.selectedFilters, // always null
+                        //spawnChance: rawLoot.lootParameters.SpawnChance, // always 0
+                        //alwaysSpawn: rawLoot.lootParameters.IsAlwaysSpawn, // always false
+                        //alwaysTrySpawnLoot: rawLoot.lootParameters.isAlwaysTrySpawnLoot, // always false
+                        //static: rawLoot.lootParameters.IsStatic, // always false
+                    });
+                    return allLoot;
+                }, []);*/
+                mapData.switches = mapDetails?.switches.map(sw => {
+                    if (!sw.hasCollider) {
+                        return false;
+                    }
+                    const switchId = `${sw.id}_${sw.name}`.replace(/^(?:switch_)?/i, 'switch_');
+                    if (switchId.startsWith('switch_custom_Light') || switchId.startsWith('switch_develop_00000')) {
+                        return false;
+                    }
+                    return {
+                        id: this.getId(id, sw),
+                        object_id: sw.id,
+                        object_name: sw.name,
+                        name: this.addTranslation(switchId),
+                        door: sw.doorId,
+                        switchType: sw.interactionType,
+                        activatedBy: mapDetails.switches.reduce((found, current) => {
+                            if (found) {
+                                return found;
+                            }
+                            if (!sw.previousSwitchId || !current.hasCollider) {
+                                return found;
+                            }
+                            if (current.id === sw.previousSwitchId) {
+                                found = this.getId(id, current);
+                            }
+                            return found;
+                        }, false),
+                        activates: [
+                            ...sw.nextSwitches.map(so => {
+                                return {
+                                    operation: so.operation,
+                                    switch: mapDetails.switches.reduce((found, current) => {
+                                        if (found) {
+                                            return found;
+                                        }
+                                        if (!current.hasCollider) {
+                                            return found;
+                                        }
+                                        if (current.id === so.targetSwitchId) {
+                                            found = this.getId(id, current);
+                                        }
+                                        return found;
+                                    }, false),
+                                }
+                            }).filter(so => so.switch),
+                            mapDetails.extracts.reduce((found, extract) => {
+                                if (found || !sw.extractId) {
+                                    return found;
+                                }
+                                if (extract.name === sw.extractId && extract.exfilSwitchIds.includes(sw.id)) {
+                                    found = {
+                                        operation: "Unlock",
+                                        extract: this.getId(id, extract)
+                                    };
+                                }
+                                return found;
+                            }, null)
+                        ].filter(Boolean),
+                        ...sw.location,
+                    };
+                }).filter(Boolean) ?? [];
+                mapData.stationaryWeapons = mapDetails?.stationary_weapons.map(sw => {
+                    return {
+                        stationaryWeapon: this.getStationaryWeapon(sw.weaponItemId),
+                        position: sw.location.position,
+                    }
+                }) ?? [];
+                mapData.btrRoutes = [];
+                mapData.btrStops = [];
+                mapData.minPlayerLevel = map.RequiredPlayerLevelMin;
+                mapData.maxPlayerLevel = map.RequiredPlayerLevelMax;
+                mapData.accessKeys = map.AccessKeys;
+                mapData.accessKeysMinPlayerLevel = map.MinPlayerLvlAccessKeys;
     
                 if (this.mapRotationData[id]) {
                     mapData.coordinateToCardinalRotation = this.mapRotationData[id].rotation;
@@ -493,6 +494,7 @@ class UpdateMapsJob extends DataJob {
                         map.BossLocationSpawn.push(newBossInfo);
                     }
                 }
+                this.logger.log(' - Bosses');
                 for (const spawn of map.BossLocationSpawn) {
                     if (spawn.BossName === 'tagillaHelperAgro') {
                         enemySet.add('scavs');
@@ -521,7 +523,7 @@ class UpdateMapsJob extends DataJob {
                             }], 
                         });
                         if (newMob) {
-                            this.logger.log(` - ${this.getTranslation(enemyData.name)}`);
+                            this.logger.log(`    - ${this.getTranslation(enemyData.name)}`);
                         }
                         continue;
                     }
@@ -547,7 +549,7 @@ class UpdateMapsJob extends DataJob {
                     }
                     enemySet.add(bossData.id);
                     if (newBoss) {
-                        this.logger.log(` - ${this.getTranslation(bossInfo.name)}`);
+                        this.logger.log(`    - ${this.getTranslation(bossInfo.name)}`);
                     }
                     const locationCount = {};
                     const spawnKeys = spawn.BossZone.split(',').filter(Boolean);
@@ -620,7 +622,7 @@ class UpdateMapsJob extends DataJob {
                                 amount: getChances(support.BossEscortAmount, 'count', true), 
                             });
                             if (newMob) {
-                                this.logger.log(` - ${this.getTranslation(enemyData.name)}`);
+                                this.logger.log(`    - ${this.getTranslation(enemyData.name)}`);
                             }
                         }
                     }
@@ -643,7 +645,7 @@ class UpdateMapsJob extends DataJob {
                             amount: getChances(followerSpawn.BossEscortAmount, 'count', true), 
                         });
                         if (newMob) {
-                            this.logger.log(` - ${this.getTranslation(enemyData.name)}`);
+                            this.logger.log(`    - ${this.getTranslation(enemyData.name)}`);
                         }
                     }
     
