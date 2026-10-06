@@ -3,6 +3,7 @@ const gameModes = [
         name: 'regular',
         value: 0,
         skipData: [
+            'season',
             'seasonalPerks',
         ],
     },
@@ -13,8 +14,9 @@ const gameModes = [
             'achievements',
             'achievementStats',
             'customization',
-            'seasonalPerks',
             'prestige',
+            'season',
+            'seasonalPerks',
         ],
     },
     {

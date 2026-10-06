@@ -127,6 +127,9 @@ const dataFunctions = {
         }*/
         return mainDataSource.locations(options);
     },
+    season: (options) => {
+        return mainDataSource.season({...options, gameMode: 'pvp-season'});
+    },
     seasonalPerks: (options) => {
         return mainDataSource.seasonalPerks({...options, gameMode: 'pvp-season'});
     },
