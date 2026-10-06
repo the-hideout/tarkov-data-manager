@@ -556,6 +556,10 @@ class UpdateQuestsJob extends DataJob {
                     neededSet.add(taskId);
                 }
                 const task = quests.Task.find(task => task.id === taskId);
+                if (!task) {
+                    this.logger.warn(`Task ${taskId} not found for previous requirements`);
+                    return;
+                }
                 for (const failOn of task.failConditions) {
                     if (failOn.type !== 'taskStatus' || failOn.status[0] !== 'complete') {
                         continue;
@@ -739,6 +743,9 @@ class UpdateQuestsJob extends DataJob {
 
     getMapFromTransitName = transitName => {
         for (const mapData of this.maps) {
+            if (!this.locations.locations[mapData.id]?.transits) {
+                continue;
+            }
             for (const transit of this.locations.locations[mapData.id].transits) {
                 if (transit.name === transitName) {
                     return mapData.id;
