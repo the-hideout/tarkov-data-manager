@@ -14,6 +14,7 @@ class UpdateSeasonalDataJob extends DataJob {
             tarkovData.season({download: true}).then(data => data.season),
             tarkovData.seasonalPerks({download: true}),
         ]);
+        
         const apiData = {
             id: season.id,
             name: this.addTranslation(`${season.id} name`),
