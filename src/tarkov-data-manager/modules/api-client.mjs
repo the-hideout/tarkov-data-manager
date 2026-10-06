@@ -6,7 +6,7 @@ import sleep from './sleep.js';
 import dbConnection from './db-connection.mjs';
 
 const getEnv = () => {
-    return process.env.NODE_ENV ?? 'development';
+    return process.env.NODE_ENV ?? 'dev';
 };
 
 const getEtag = async (url) => {
