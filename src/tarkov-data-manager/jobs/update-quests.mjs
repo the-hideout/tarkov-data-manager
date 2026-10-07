@@ -36,7 +36,6 @@ class UpdateQuestsJob extends DataJob {
             this.questConfig,
             this.s3Images,
             this.customization,
-            this.prestige,
             this.storyChapters,
         ] = await Promise.all([
             fetch('https://tarkovtracker.github.io/tarkovdata/quests.json').then(r => r.json()),
@@ -64,7 +63,6 @@ class UpdateQuestsJob extends DataJob {
             tarkovData.questConfig(),
             getLocalBucketContents(),
             tarkovData.customization(),
-            tarkovData.prestige(),
             tarkovData.storyChapters({download: true}).then(data => data.chapters),
         ]);
         this.maps = await this.jobOutput('update-maps');
@@ -114,7 +112,17 @@ class UpdateQuestsJob extends DataJob {
                 }
             }
 
-            this.rawTraders = await tarkovData.traders({gameMode: gameMode.name});
+            let prestigeGameMode = gameMode.name;
+            if (prestigeGameMode === 'pvp-season') {
+                prestigeGameMode = 'regular';
+            }
+            [
+                this.rawTraders,
+                this.prestige,
+            ] = await Promise.all([
+                tarkovData.traders({gameMode: gameMode.name}),
+                tarkovData.prestige({gameMode: prestigeGameMode}),
+            ]);
             this.questItems = {};
             const quests = {
                 Task: [],
@@ -556,6 +564,10 @@ class UpdateQuestsJob extends DataJob {
                     neededSet.add(taskId);
                 }
                 const task = quests.Task.find(task => task.id === taskId);
+                if (!task) {
+                    this.logger.warn(`Task ${taskId} not found for previous requirements`);
+                    return;
+                }
                 for (const failOn of task.failConditions) {
                     if (failOn.type !== 'taskStatus' || failOn.status[0] !== 'complete') {
                         continue;
@@ -652,7 +664,7 @@ class UpdateQuestsJob extends DataJob {
             quests.Achievement = await Promise.all(this.achievements.map(a => this.processAchievement(a)));
 
             quests.Prestige = [];
-            if (gameMode.name === 'regular') {
+            if (gameMode.name !== 'pvp-season') {
                 quests.Prestige = await Promise.all(this.prestige.map((p, i) => this.processPrestige(p, i)));;
             }
 
@@ -739,6 +751,9 @@ class UpdateQuestsJob extends DataJob {
 
     getMapFromTransitName = transitName => {
         for (const mapData of this.maps) {
+            if (!this.locations.locations[mapData.id]?.transits) {
+                continue;
+            }
             for (const transit of this.locations.locations[mapData.id].transits) {
                 if (transit.name === transitName) {
                     return mapData.id;
