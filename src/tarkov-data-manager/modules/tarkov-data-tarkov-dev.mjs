@@ -95,6 +95,7 @@ const tarkovDevData = {
         }
         return fenceClient.get({
             cachedName,
+            searchParams: {m: gameMode},
             pathname: `/json/${jsonName}`,
             refresh: options.download,
         });
