@@ -22,12 +22,6 @@ const availableFiles = {
     //'status',
 };
 
-const arrayToDictionary = [
-    'areas',
-    'crafts',
-    'traders',
-];
-
 const failedHosts = [];
 
 const defaultOptions = dataOptions.default;
