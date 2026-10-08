@@ -1,10 +1,6 @@
-import fs from 'node:fs';
-import path from 'node:path';
-
 import sharp from 'sharp';
 
 import dataOptions from './data-options.mjs';
-import sleep from './sleep.js';
 import ApiClient from './api-client.mjs';
 
 const availableFiles = {
