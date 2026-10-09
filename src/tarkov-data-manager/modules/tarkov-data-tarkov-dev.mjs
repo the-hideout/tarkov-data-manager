@@ -1,10 +1,6 @@
-import fs from 'node:fs';
-import path from 'node:path';
-
 import sharp from 'sharp';
 
 import dataOptions from './data-options.mjs';
-import sleep from './sleep.js';
 import ApiClient from './api-client.mjs';
 
 const availableFiles = {
@@ -25,12 +21,6 @@ const availableFiles = {
     'handbook': {},
     //'status',
 };
-
-const arrayToDictionary = [
-    'areas',
-    'crafts',
-    'traders',
-];
 
 const failedHosts = [];
 
@@ -95,6 +85,7 @@ const tarkovDevData = {
         }
         return fenceClient.get({
             cachedName,
+            searchParams: {m: gameMode},
             pathname: `/json/${jsonName}`,
             refresh: options.download,
         });

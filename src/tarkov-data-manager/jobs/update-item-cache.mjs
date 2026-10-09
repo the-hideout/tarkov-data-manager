@@ -437,11 +437,13 @@ class UpdateItemCacheJob extends DataJob {
                 this.traders,
                 this.globals,
                 this.bsgItems,
+                this.handbook,
             ] = await Promise.all([
                 tarkovData.credits({gameMode: gameMode.name}),
                 tarkovData.traders({gameMode: gameMode.name}),
                 tarkovData.globals({gameMode: gameMode.name}),
                 tarkovData.items({gameMode: gameMode.name}),
+                tarkovData.handbook({gameMode: gameMode.name}),
             ]);
             this.logger.log(`Preparing ${gameMode.name} mode items data...`);
             const modeData = {
@@ -589,6 +591,10 @@ class UpdateItemCacheJob extends DataJob {
         }
     }
 
+    getSingleItemBaseValue(id) {
+        return this.credits[id] ?? this.handbook.Items.find(hb => hb.Id === id)?.Price ?? 0;
+    }
+
     setBaseValue(item, replica) {
         const ignoreMissingBaseValueCategories = [
             '62f109593b54472778797866', // RandomLootContainer
@@ -605,28 +611,31 @@ class UpdateItemCacheJob extends DataJob {
         };
         if (this.presets[item.id]) {
             item.basePrice = this.presets[item.id].properties.baseValue;
-        } else if (item.types.includes('replica')) {
+            return;
+        }
+        if (item.types.includes('replica')) {
             if (!replica?.properties?.source) {
                 return;
             }
-            item.basePrice = this.credits[replica.properties.source];
-        } else if (this.credits[item.id] !== undefined) {
-            item.basePrice = this.credits[item.id];
-            // add base value for built-in armor pieces
-            this.bsgItems[item.id]?._props.Slots?.forEach(slot => {
-                slot._props?.filters?.forEach(filter => {
-                    if (!filter.Plate || !filter.locked) {
-                        return;
-                    }
-                    item.basePrice += this.credits[filter.Plate];
-                });
-            });
-            /*if (item.types.includes('ammoBox') && this.bsgItems[item.id]) {
-                for (const stackSlot of this.bsgItems[item.id]._props.StackSlots) {
-                    item.basePrice += this.credits[stackSlot._props.filters[0].Filter[0]] * stackSlot._max_count;
+            item.basePrice = this.getSingleItemBaseValue(replica.properties.source);
+            return;
+        }
+        item.basePrice = this.getSingleItemBaseValue(item.id);
+        // add base value for built-in armor pieces
+        this.bsgItems[item.id]?._props.Slots?.forEach(slot => {
+            slot._props?.filters?.forEach(filter => {
+                if (!filter.Plate || !filter.locked) {
+                    return;
                 }
-            }*/
-        }  else if (this.bsgItems[item.id] && !ignoreMissingBaseValue(item)) {
+                item.basePrice += this.getSingleItemBaseValue(filter.Plate);
+            });
+        });
+        /*if (item.types.includes('ammoBox') && this.bsgItems[item.id]) {
+            for (const stackSlot of this.bsgItems[item.id]._props.StackSlots) {
+                item.basePrice += this.getSingleItemBaseValue(stackSlot._props.filters[0].Filter[0]) * stackSlot._max_count;
+            }
+        }*/
+        if (!item.basePrice && this.bsgItems[item.id] && !ignoreMissingBaseValue(item)) {
             this.logger.warn(`Unknown base value for ${this.getTranslation(item.name)} ${item.id}`);
         }
     }
@@ -671,10 +680,10 @@ class UpdateItemCacheJob extends DataJob {
         }
         const currenciesNow = {
             'RUB': 1,
-            'USD': this.credits['5696686a4bdc2da3298b456a'],
-            'EUR': this.credits['569668774bdc2da2298b4568']
-            //'USD': Math.round(this.credits['5696686a4bdc2da3298b456a'] * 1.1045104510451),
-            //'EUR': Math.round(this.credits['569668774bdc2da2298b4568'] * 1.1530984204131)
+            'USD': this.getSingleItemBaseValue('5696686a4bdc2da3298b456a'),
+            'EUR': this.getSingleItemBaseValue('569668774bdc2da2298b4568'),
+            //'USD': Math.round(this.getSingleItemBaseValue('5696686a4bdc2da3298b456a') * 1.1045104510451),
+            //'EUR': Math.round(this.getSingleItemBaseValue('569668774bdc2da2298b4568') * 1.1530984204131)
         };
         const currencyId = dataMaps.currencyIsoId;
 

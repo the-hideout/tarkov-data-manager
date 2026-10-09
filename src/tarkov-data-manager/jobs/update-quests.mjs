@@ -19,7 +19,6 @@ class UpdateQuestsJob extends DataJob {
         this.logger.log('Processing quests...');
         [
             this.tdQuests,
-            this.rawQuestData,
             this.achievements,
             this.achievementStats,
             this.items,
@@ -39,11 +38,6 @@ class UpdateQuestsJob extends DataJob {
             this.storyChapters,
         ] = await Promise.all([
             fetch('https://tarkovtracker.github.io/tarkovdata/quests.json').then(r => r.json()),
-            tarkovData.quests({download: true}).catch(error => {
-                this.logger.error('Error getting quests');
-                this.logger.error(error);
-                return tarkovData.quests(false);
-            }),
             tarkovData.achievements(),
             tarkovData.achievementStats(),
             tarkovData.items(),
@@ -117,9 +111,15 @@ class UpdateQuestsJob extends DataJob {
                 prestigeGameMode = 'regular';
             }
             [
+                this.rawQuestData,
                 this.rawTraders,
                 this.prestige,
             ] = await Promise.all([
+                tarkovData.quests({gameMode: gameMode.name, download: true}).catch(error => {
+                    this.logger.error('Error getting quests');
+                    this.logger.error(error);
+                    return tarkovData.quests({gameMode: gameMode.name, download: false});
+                }),
                 tarkovData.traders({gameMode: gameMode.name}),
                 tarkovData.prestige({gameMode: prestigeGameMode}),
             ]);
