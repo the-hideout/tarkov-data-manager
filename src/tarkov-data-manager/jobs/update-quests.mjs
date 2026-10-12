@@ -2837,6 +2837,7 @@ const forceObjectiveMap = {
     '6840714469caa738cc1225c3': '56f40101d2720b2a4d8b45d6', // Hobby Club
     '6840711071516aad97bd9156': '5704e5fad2720bc05b8b4567', // Hobby Club
     '6a5ab1920a2a6d86771ee14a': '56f40101d2720b2a4d8b45d6', // Supplements
+    '59c128b986f77415037680df': '56f40101d2720b2a4d8b45d6', // Oil Run
 };
 
 const questStatusMap = {
