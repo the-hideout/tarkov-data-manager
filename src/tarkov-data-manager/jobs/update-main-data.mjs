@@ -7,6 +7,11 @@ import mData from '../modules/tarkov-data-md.mjs';
 class UpdateMainDataJob extends DataJob {
     constructor(options) {
         super({...options, name: 'update-main-data'});
+        this.saveFields.push('failedLastRun');
+        this.failedLastRun = {};
+        for (const gameMode of gameModes) {
+            this.failedLastRun[gameMode.name] = new Set();
+        }
     }
 
     async run() {
@@ -50,11 +55,20 @@ class UpdateMainDataJob extends DataJob {
                 const errors = results.errors;
                 results.errors = undefined;
                 if (Object.keys(results).length > 0) {
-                    this.logger.success(`Downloaded ${gameMode.name}: ${Object.keys(results).filter(key => key !== 'errors').join(', ')}`);
+                    this.logger.success(`Downloaded ${gameMode.name}: ${Object.keys(results).filter(key => key !== 'errors').map(file => {
+                        this.failedLastRun[gameMode.name].delete(file);
+                        return file;
+                    }).join(', ')}`);
                 }
                 if (errors) {
                     this.logger.warn(`Error downloading ${gameMode.name} data: ${Object.keys(errors).map(file => `${file}: ${errors[file].message}`).join(', ')}`);
-                    Object.keys(errors).forEach(file => this.addJobSummary(`${file}: ${errors[file].message}`, `Error(s) updating ${gameMode.name} data`));
+                    Object.keys(errors).forEach(file => {
+                        if (this.failedLastRun[gameMode.name].has(file)) {
+                            this.addJobSummary(`${file}: ${errors[file].message}`, `Error(s) updating ${gameMode.name} data`);
+                        } else {
+                            this.failedLastRun[gameMode.name].add(file);
+                        }
+                    });
                 }
                 returnValue[gameMode.name] = results;
                 return results;
