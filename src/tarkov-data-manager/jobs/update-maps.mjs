@@ -158,7 +158,7 @@ class UpdateMapsJob extends DataJob {
                     this.logger.log(`❌ ${this.locales.en[`${id} Name`] || ''} ${id}`);
                     continue;
                 }
-                if (!this.locales.en[`${id} Name`] && !enableMaps.includes(id)) {
+                if (!this.locales.en[`${id} Name`]) {
                     this.logger.log(`❌ Map ${map.Id} ${id} has no translation`);
                     continue;
                 }
