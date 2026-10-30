@@ -24,6 +24,8 @@ const enableMaps = [
     '65cc8f81a9aac3e77d0cfd3e', // Terminal used in quests
     //'6925a2c38bdebd9e2302692e', // Terminal shown in UI
     '69af492a4819ea4ba10a69c5', // Icebreaker
+    '6a8dd1325e15a5ea2e010820', // Factory (Infected)
+    '6a8dd0941fc6ba7a9505908f', // Labs (Infected)
 ];
 
 class UpdateMapsJob extends DataJob {
@@ -156,7 +158,7 @@ class UpdateMapsJob extends DataJob {
                     this.logger.log(`❌ ${this.locales.en[`${id} Name`] || ''} ${id}`);
                     continue;
                 }
-                if (!this.locales.en[`${id} Name`]) {
+                if (!this.locales.en[`${id} Name`] && !enableMaps.includes(id)) {
                     this.logger.log(`❌ Map ${map.Id} ${id} has no translation`);
                     continue;
                 }
@@ -186,6 +188,14 @@ class UpdateMapsJob extends DataJob {
                             // Labs (Dark)
                             return lang['6a294a5b5eb5f9a1700417b7 Name']+' (Dark)';
                         }
+                        /*if (id === '6a8dd1325e15a5ea2e010820') {
+                            // Infected Factory
+                            return lang.factory_event;
+                        }
+                        if (id === '6a8dd0941fc6ba7a9505908f') {
+                            // Infected Labs
+                            return lang.laboratory_event;
+                        }*/
                         return lang[`${id} Name`];
                     }),
                     normalizedName: '', // set below using the EN translation of name
