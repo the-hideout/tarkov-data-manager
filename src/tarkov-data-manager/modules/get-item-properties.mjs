@@ -536,6 +536,24 @@ const getItemProperties = async (tarkovDevItem) => {
             fireModes: translationHelper.addTranslation(item._props.weapFireType),
             presets: Object.values(job.presets).filter(preset => preset.properties.items[0]._tpl === item._id).map(preset => preset.id),
         };
+        if (!properties.allowedAmmo.length) {
+            for (const ammoId in job.bsgItems) {
+                const ammoItem = job.bsgItems[ammoId];
+                if (!ammoItem || disabledItemIds.includes(ammoId)) {
+                    // item doesn't exist or is disabled
+                    continue;
+                }
+                if (ammoItem._parent !== '5485a8684bdc2da71d8b4567') {
+                    //not ammo
+                    continue;
+                }
+                if (ammoItem._props.Caliber !== item._props.ammoCaliber) {
+                    // wrong caliber
+                    continue;
+                }
+                properties.allowedAmmo.push(ammoId);
+            }
+        }
         const preset = Object.values(job.presets).find(preset => preset.properties.default && preset.properties.items[0]._tpl === item._id);
         properties.defaultWidth = preset?.width ?? null;
         properties.defaultHeight = preset?.height ?? null;
