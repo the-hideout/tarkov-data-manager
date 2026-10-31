@@ -21,7 +21,7 @@
     "adm-zip": "^0.6.0",
     "@aws-sdk/client-s3": "^3.1111.0",
     "@aws-sdk/credential-providers": "^3.1111.0",
-    "body-parser": "^2.3.0",
+    "body-parser": "^2.4.0",
     "bottleneck": "^2.19.5",
     "chalk": "^6.0.0",
     "cheerio": "^1.2.0",
