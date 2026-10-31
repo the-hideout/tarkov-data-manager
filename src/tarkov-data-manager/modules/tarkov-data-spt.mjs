@@ -6,6 +6,7 @@ import sharp from 'sharp';
 import tarkovChanges from './tarkov-data-tarkov-changes.mjs';
 import discordWebhook from './webhook.mjs';
 import dataOptions from './data-options.mjs';
+import getIsoLocale from './get-iso-locale.mjs';
 
 const sptPath = 'https://github.com/SP-Tushonka/server-csharp/raw/refs/heads/{branch}/';
 const sptAssetsPathStub = 'Libraries/SPTushonka.Server.Assets/SPT_Data/';
@@ -317,7 +318,26 @@ const tarkovSpt = {
     },
     quests: (options = defaultOptions) => {
         const { download } = merge(options);
-        return downloadJson('quests.json', `${sptDataPath}templates/quests.json`, download);
+        return downloadJson('quests.json', `${sptDataPath}templates/quests.json`, download).then(data =>{
+            for (const quest of Object.values(data)) {
+                for (const conditionType in quest.conditions) {
+                    for (const condition in quest.conditions[conditionType]) {
+                        if (condition.zoneId) {
+                            condition.zoneIds = [condition.zoneId];
+                            delete condition.zoneId;
+                        }
+                    }
+                }
+                for (const eftLocale in quest.localization) {
+                    const isoLocale = getIsoLocale(eftLocale);
+                    if (isoLocale === eftLocale) {
+                        continue;
+                    }
+                    quest.localization[isoLocale] = quest.localization[eftLocale];
+                    delete quest.localization[eftLocale];
+                }
+            }
+        });
     },
     questConfig: (options = defaultOptions) => {
         const { download } = merge(options);
