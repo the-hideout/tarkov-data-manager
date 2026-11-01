@@ -190,7 +190,15 @@ const dataFunctions = {
         return mainDataSource.prestige(options);
     },
     quests: async (options = defaultOptions) => {
-        return tarkovDevData.quests(options);
+        const promises = [tarkovDevData.quests(options)];
+        if (options.gameMode === 'pve') {
+            promises.push(spt.quests(options));
+        } else {
+            promises.push(Promise.resolve({}));
+        }
+        const results = await Promise.all(promises);
+        const [devQuests, sptQuests] = results;
+        return Object.assign(devQuests, sptQuests);
     },
     questConfig: (options = defaultOptions) => {
         return spt.questConfig(options);
