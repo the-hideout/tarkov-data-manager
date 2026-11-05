@@ -28,7 +28,7 @@ class UpdateProfileIndexJob extends DataJob {
                 updatedFields.push('`' + `updated_${gameMode.name}` + '`')
             }
         }
-        const batchSize = 1000000;
+        const batchSize = 300000;
         let offset = 0;
         while (true) {
             const queryResult = await this.d1Query(
