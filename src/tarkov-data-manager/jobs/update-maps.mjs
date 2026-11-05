@@ -550,7 +550,7 @@ class UpdateMapsJob extends DataJob {
                     const bossInfo = await this.getBossInfo(spawn.BossName);
                     bossData.id = bossInfo.id;
                     const newBoss = !enemySet.has(bossData.id);
-                    if (bossData.spawnChance === 0) {
+                    if (bossData.spawnChance === 0 && spawn.TriggetId !== 'PARTISAN_TRIGGER') {
                         continue;
                     }
                     if (spawn.TriggerName === 'botEvent' && spawn.TriggerId === 'BossBoarBorn') {
