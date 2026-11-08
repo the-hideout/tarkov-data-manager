@@ -8,6 +8,11 @@ import gameModes from '../modules/game-modes.mjs';
 class UpdateFleaPricesJob extends DataJob {
     constructor(options) {
         super({...options, name: 'update-flea-prices'});
+        this.saveFields.push('failedLastRun');
+        this.failedLastRun = {};
+        for (const gameMode of gameModes) {
+            this.failedLastRun[gameMode.name] = new Set();
+        }
     }
 
     async run() {
@@ -29,7 +34,16 @@ class UpdateFleaPricesJob extends DataJob {
                 items,
                 scannerOptions,
             ] = await Promise.all([
-                spApi.fleaPrices(gameMode),
+                spApi.fleaPrices(gameMode).then(fleaData => {
+                    this.failedLastRun[gameMode].delete(`flea-data-${gameMode}`);
+                    return fleaData;
+                }).catch(error => {
+                    if (this.failedLastRun[gameMode].has(`flea-data-${gameMode}`)) {
+                        return Promise.reject(error);
+                    }
+                    this.failedLastRun[gameMode].add(`flea-data-${gameMode}`);
+                    return [];
+                }),
                 db.query(`
                     SELECT
                         a.item_id,
