@@ -39,7 +39,7 @@ class UpdateFleaPricesJob extends DataJob {
                     return fleaData;
                 }).catch(error => {
                     if (this.failedLastRun[gameMode].has(`flea-data-${gameMode}`)) {
-                        return Promise.reject(error);
+                        return Promise.reject(new Error(`Error retrieving ${gameMode} flea prices: ${error}`));
                     }
                     this.failedLastRun[gameMode].add(`flea-data-${gameMode}`);
                     return [];
