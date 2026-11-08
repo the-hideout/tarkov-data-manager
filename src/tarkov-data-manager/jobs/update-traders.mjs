@@ -16,7 +16,7 @@ class UpdateTradersJob extends DataJob {
     async run() {
         this.logger.log('Loading TarkovData traders.json and services status...');
         [this.tdTraders, this.services] = await Promise.all([
-            fetch('https://github.com/TarkovTracker/tarkovdata/raw/master/traders.json').then(r => r.json()),
+            Promise.resolve({}),
             tarkovData.status().then(status => status.services).catch(error => {
                 this.logger.error(`Error getting EFT services status: ${error.message}`);
                 return [];
