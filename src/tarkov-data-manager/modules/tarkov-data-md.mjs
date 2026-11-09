@@ -25,6 +25,7 @@ const requests = {
     locale_de: 'languages/ge.json',
     //locale_en: 'languages/en.json',
     locale_es: 'languages/es.json',
+    'locale_es-mx': 'languages/es-mx.json',
     locale_fr: 'languages/fr.json',
     locale_hu: 'languages/hu.json',
     locale_id: 'languages/in.json',
