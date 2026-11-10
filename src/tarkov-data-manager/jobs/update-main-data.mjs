@@ -12,6 +12,7 @@ class UpdateMainDataJob extends DataJob {
         for (const gameMode of gameModes) {
             this.failedLastRun[gameMode.name] = new Set();
         }
+        this.failedLastRun.global = new Set();
     }
 
     async run() {
@@ -47,7 +48,19 @@ class UpdateMainDataJob extends DataJob {
 
         const returnValue = {};
         this.logger.time('data-download');
-        const reqs = [];
+        const reqs = [
+            tarkovData.mapDetails({download: true}).then(mapDetails => {
+                this.failedLastRun.global.delete('map-details');
+                this.logger.success(`Downloaded map details: ${Object.keys(mapDetails).join(', ')}`);
+            }).catch(error => {
+                this.logger.error(`Error downloading map-details: ${error.message}`);
+                if (this.failedLastRun.global.has('map-details')) {
+                    this.addJobSummary(`map-details: ${error.message}`, 'Error(s) updating data');
+                } else {
+                    this.failedLastRun.global.add('map-details');
+                }
+            }),
+        ];
         for (const gameMode of gameModes) {
             this.logger.log(`Downloading ${gameMode.name} data...`);
             
@@ -76,10 +89,15 @@ class UpdateMainDataJob extends DataJob {
         }
         this.logger.log('Downloading languages...');
         reqs.push(mData.locales({download: true}).then(locales => {
+            this.failedLastRun.global.delete('locales');
             this.logger.success(`Downloaded languages: ${Object.keys(locales).join(', ')}`);
         }).catch(error => {
             this.logger.error(`Error downloading languages: ${error.message}`);
-            this.addJobSummary(`Error downloading languages: ${error.message}`);
+            if (this.failedLastRun.global.has('locales')) {
+                this.addJobSummary(`locales: ${error.message}`, 'Error(s) updating data');
+            } else {
+                this.failedLastRun.global.add('locales');
+            }
         }));
         await Promise.all(reqs);
         this.logger.timeEnd('data-download');

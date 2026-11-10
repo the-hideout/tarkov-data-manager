@@ -57,7 +57,7 @@ class UpdateQuestsJob extends DataJob {
             tarkovData.questConfig(),
             getLocalBucketContents(),
             tarkovData.customization(),
-            tarkovData.storyChapters({download: true}).then(data => data.chapters),
+            tarkovData.storyChapters().then(data => data.chapters),
         ]);
         this.maps = await this.jobOutput('update-maps');
         this.hideout = await this.jobOutput('update-hideout');
