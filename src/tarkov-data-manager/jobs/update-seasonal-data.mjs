@@ -11,8 +11,8 @@ class UpdateSeasonalDataJob extends DataJob {
 
     run = async () => {
         const [season, perks] = await Promise.all([
-            tarkovData.season({download: true}).then(data => data.season),
-            tarkovData.seasonalPerks({download: true}),
+            tarkovData.season().then(data => data.season),
+            tarkovData.seasonalPerks(),
         ]);
         
         const apiData = {
