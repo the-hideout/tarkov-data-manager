@@ -137,7 +137,7 @@ const endpointList = {
 const FleaApiRequest = (jsonName, options = {}) => {
     const { download, gameMode } = merge(options);
     const gameType = getGameType(gameMode);
-    const cachedName = `${jsonName}_${gameMode}.json`;
+    const cachedName = `${jsonName.replace('/', '-')}_${gameMode}.json`;
     return spFleaClient.get({
         cachedName,
         pathname: `${gameType}/${jsonName}`,
