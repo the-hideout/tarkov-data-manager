@@ -64,10 +64,10 @@ const dataFunctions = {
         return sp.botRender(options);
     },
     botsHealth: async (options = defaultOptions) => {
-        return sp.botsHealth();
+        return sp.botsHealth(options);
     },
     botGroups: async (options = defaultOptions) => {
-        return sp.botGroups();
+        return sp.botGroups(options);
     },
     crafts: (options = defaultOptions) => {
         return mainDataSource.crafts(options);

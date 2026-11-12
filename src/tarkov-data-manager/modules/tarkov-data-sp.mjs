@@ -1,14 +1,24 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { EventEmitter } from 'node:events';
 
 import Bottleneck from 'bottleneck';
 
 import gameModes from './game-modes.mjs';
 import dataOptions from './data-options.mjs';
+import ApiClient from './api-client.mjs';
 
 const defaultOptions = dataOptions.default;
 const merge = dataOptions.merge;
+
+const spFleaClient = new ApiClient({
+    cacheFolder: 'sp',
+    urlBase: 'https://publicfleaapi.asoloproject.xyz/api/v2/flea-advanced/',
+});
+
+const spBotsClient = new ApiClient({
+    cacheFolder: 'sp',
+    urlBase: 'https://tarkovbotroleapi.asoloproject.xyz/api/',
+});
 
 const cachePath = (filename) => {
     const pathParts = [
@@ -124,15 +134,25 @@ const endpointList = {
     },
 };
 
-const FleaApiRequest = (path, options = {}) => {
-    const gameType = getGameType(options.gameMode ?? 'regular');
-    const url = new URL(`https://publicfleaapi.asoloproject.xyz/api/v2/flea-advanced/${gameType}${path}`);
-    return ApiRequest(url, options);
+const FleaApiRequest = (jsonName, options = {}) => {
+    const { download, gameMode } = merge(options);
+    const gameType = getGameType(gameMode);
+    const cachedName = `${jsonName}_${gameMode}.json`;
+    return spFleaClient.get({
+        cachedName,
+        pathname: `${gameType}/${jsonName}`,
+        refresh: download,
+    });
 };
 
-const BotApiRequest = (path, options) => {
-    const url = new URL(`https://tarkovbotroleapi.asoloproject.xyz/api${path}`);
-    return ApiRequest(url, options);
+const BotApiRequest = (jsonName, options = {}) => {
+    const { download, gameMode } = merge(options);
+    const cachedName = `${jsonName}_${gameMode}.json`;
+    return spBotsClient.get({
+        cachedName,
+        pathname: jsonName,
+        refresh: download,
+    });
 };
 
 const limiter = new Bottleneck({
@@ -164,36 +184,35 @@ const DumpsApiRequest = async (jsonName, options = {}) => {
 };
 
 const spApi = {
-    fleaPrices: async (gameMode = 'regular') => {
-        const apiResponse = await FleaApiRequest(`/items-overview`, {gameMode});
+    fleaPrices: async (options = {}) => {
+        const apiResponse = await FleaApiRequest(`items-overview`, options);
         if (!apiResponse.items) {
             return Promise.reject(new Error('Response missing items attribute'));
         }
         return apiResponse.items;
     },
-    traderPrices: async (gameMode = 'regular') => {
-        const apiResponse = await FleaApiRequest(`/traders/offers`, {gameMode});
+    traderPrices: async (options = {}) => {
+        const apiResponse = await FleaApiRequest(`traders/offers`, options);
         if (!apiResponse.data) {
             return Promise.reject(new Error('Response missing data attribute'));
         }
         return apiResponse;
     },
-    botsHealth: async () => {
-        return BotApiRequest('/bot-health');
+    botsHealth: async (options = {}) => {
+        return BotApiRequest('bot-health', options);
     },
-    botRender: async () => {
-        return BotApiRequest('/bot-render');
+    botRender: async (options = {}) => {
+        return BotApiRequest('bot-render', options);
     },
-    botGroups: async () => {
-        return BotApiRequest('/bot-groups');
+    botGroups: async (options = {}) => {
+        return BotApiRequest('bot-groups', options);
     },
     get: async (jsonName, options) => {
         const { download, gameMode } = merge(options);
         const saveFileName = `${jsonName}_${gameMode}.json`;
         if (download) {
             const returnValue = await limiter.schedule(() => DumpsApiRequest(jsonName, merge(options)));
-            fs.mkdirSync(cachePath(), { recursive: true });
-            fs.writeFileSync(cachePath(saveFileName), JSON.stringify(returnValue, null, 4));
+            writeToCache(saveFileName, JSON.stringify(returnValue, null, 4));
             return returnValue;
         }
         try {

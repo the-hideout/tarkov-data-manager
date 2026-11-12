@@ -34,7 +34,7 @@ class UpdateFleaPricesJob extends DataJob {
                 items,
                 scannerOptions,
             ] = await Promise.all([
-                spApi.fleaPrices(gameMode).then(fleaData => {
+                spApi.fleaPrices({gameMode, download: true}).then(fleaData => {
                     this.failedLastRun[gameMode].delete(`flea-data-${gameMode}`);
                     return fleaData;
                 }).catch(error => {
