@@ -215,7 +215,7 @@ class UpdateTraderOffersJob extends DataJob {
                 tarkovData.traders({gameMode: gameMode.name}),
                 tarkovData.credits({gameMode: gameMode.name}),
                 tarkovData.locale('en', {gameMode: gameMode.name}),
-                spApi.traderPrices(gameMode.name),
+                spApi.traderPrices({gameMode: gameMode.name, download: true}),
                 this.jobOutput('update-quests', {gameMode: gameMode.name}),
             ]);
             //this.offerRequirements = await this.query(`SELECT * FROM trader_offer_requirements`);

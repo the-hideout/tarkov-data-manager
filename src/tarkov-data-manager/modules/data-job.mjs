@@ -339,7 +339,17 @@ class DataJob {
     r2Put = async (key, data, options = {}) => {
         const dataString = JSON.stringify(data);
         const publicPath = `https://${cloudflare.bucketDomain}.tarkov.dev/${key}`;
-        const response = await fetch(publicPath);
+        let response;
+        try {
+            response = await fetch(publicPath);
+        } catch (error) {
+            options.publicTries ??= 0;
+            if (options.publicTries < 5) {
+                options.publicTries++;
+                return this.r2Put(key, data, options);
+            }
+            throw error;
+        }
         let freshData = true;
         if (response.ok) {
             const currentValue = await response.text();
