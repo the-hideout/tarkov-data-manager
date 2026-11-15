@@ -60,6 +60,39 @@ class UpdateMainDataJob extends DataJob {
                     this.failedLastRun.global.add('map-details');
                 }
             }),
+            tarkovData.botsHealth({download: true}).then(botsHealth => {
+                this.failedLastRun.global.delete('bots-health');
+                this.logger.success(`Downloaded bots health: ${botsHealth.groups.length}`);
+            }).catch(error => {
+                this.logger.error(`Error downloading bots-health: ${error.message}`);
+                if (this.failedLastRun.global.has('bots-health')) {
+                    this.addJobSummary(`bots-health: ${error.message}`, 'Error(s) updating data');
+                } else {
+                    this.failedLastRun.global.add('bots-health');
+                }
+            }),
+            tarkovData.botsInfo({download: true}).then(botsInfo => {
+                this.failedLastRun.global.delete('bots-info');
+                this.logger.success(`Downloaded bots info: ${botsInfo.groups.length}`);
+            }).catch(error => {
+                this.logger.error(`Error downloading bots-info: ${error.message}`);
+                if (this.failedLastRun.global.has('bots-info')) {
+                    this.addJobSummary(`bots-info: ${error.message}`, 'Error(s) updating data');
+                } else {
+                    this.failedLastRun.global.add('bots-info');
+                }
+            }),
+            tarkovData.botGroups({download: true}).then(botGroups => {
+                this.failedLastRun.global.delete('bot-groups');
+                this.logger.success(`Downloaded bot groups: ${botGroups.groups.length}`);
+            }).catch(error => {
+                this.logger.error(`Error downloading bot-groups: ${error.message}`);
+                if (this.failedLastRun.global.has('bot-groups')) {
+                    this.addJobSummary(`bot-groups: ${error.message}`, 'Error(s) updating data');
+                } else {
+                    this.failedLastRun.global.add('bot-groups');
+                }
+            }),
         ];
         for (const gameMode of gameModes) {
             this.logger.log(`Downloading ${gameMode.name} data...`);
