@@ -1,11 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { setMaxListeners } from 'node:events';
+import crypto from 'node:crypto';
 
 import  { EmbedBuilder } from 'discord.js';
 import { DateTime } from 'luxon';
 import sharp from 'sharp';
 import { JsonStreamStringify } from 'json-stream-stringify';
+import { JSONPath } from 'jsonpath-plus';
 
 import cloudflare from './cloudflare.mjs';
 import TranslationHelper from './translation-helper.mjs';
@@ -289,13 +291,14 @@ class DataJob {
     }
 
     cloudflareUpload = async (kvName, data, gameMode) => {
+        return {success: true, errors: [], messages: []};
         if (!this.idSuffixLength) {
             return cloudflare.put(kvName, data, {signal: this.abortController.signal}).catch(error => {
                 this.logger.error(error);
                 this.addJobSummary(`${kvName}: ${error.message}`, 'Error uploading KV(s)');
                 return {success: false, errors: [], messages: [error.message]};
             });
-        }
+        }        
         const uploads = [];
         for (const hexKey of this.getIdSuffixKeys()) {
             const partData = {
@@ -336,12 +339,20 @@ class DataJob {
         return totalResults;
     }
 
+    getEtag = (value) => {
+        if (typeof value === 'string') {
+            return `W/"${crypto.createHash('md5').update(value).digest('hex')}"`;
+        }
+        throw new Error(`Unsupported type for etag generation: ${typeof value}`);
+    }
+
     r2Put = async (key, data, options = {}) => {
         const dataString = JSON.stringify(data);
         const publicPath = `https://${cloudflare.bucketDomain}.tarkov.dev/${key}`;
         let response;
+        const etag = this.getEtag(dataString);
         try {
-            response = await fetch(publicPath);
+            response = await fetch(publicPath, { headers: { 'If-None-Match': etag }});
         } catch (error) {
             options.publicTries ??= 0;
             if (options.publicTries < 5) {
@@ -351,7 +362,10 @@ class DataJob {
             throw error;
         }
         let freshData = true;
-        if (response.ok) {
+        if (response.status === 304) {
+            this.logger.log(`Value of ${key} etag has not changed; skipping upload`);
+            freshData = false;
+        } else if (response.ok) {
             const currentValue = await response.text();
             if (dataString === currentValue) {
                 this.logger.log(`Value of ${key} has not changed; skipping upload`);
@@ -367,9 +381,31 @@ class DataJob {
             });
         }
         const uploadTime = new Date() - start;
+        let locale;
+        if (data.translations?.length) {
+            locale = {};
+            const translationHelper = options.translationHelper ?? this.translationHelper;
+            for (const jPath of data.translations) {
+                try {
+                    JSONPath({
+                        path: jPath,
+                        json: data,
+                        resultType: "all",
+                        callback: (result) => {
+                            for (const langCode in translationHelper.locales) { 
+                                locale[langCode] ??= {};
+                                locale[langCode][result.value] = translationHelper.getTranslation(result.value, langCode);
+                            }
+                        },
+                    });
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        }
         let freshLocale = false;
-        if (options.locale) {
-            const localeResults = await this.putStaticApiLocale(key, options.locale);
+        if (locale) {
+            const localeResults = await this.putStaticApiLocale(key, locale);
             freshLocale = localeResults.some(Boolean);
         }
         if (!options.skipPurge && (freshData || freshLocale)) {

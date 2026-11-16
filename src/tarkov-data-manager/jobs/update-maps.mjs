@@ -1619,7 +1619,6 @@ class UpdateMapsJob extends DataJob {
                 '$.data.stationaryWeapons.*.name',
                 '$.data.stationaryWeapons.*.shortName',
             ]},
-            {locale: data.locale},
         );
     }
 }
