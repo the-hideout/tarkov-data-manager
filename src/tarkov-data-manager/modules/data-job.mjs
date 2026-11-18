@@ -352,7 +352,7 @@ class DataJob {
         let response;
         const etag = this.getEtag(dataString);
         try {
-            response = await fetch(publicPath, { headers: { 'If-None-Match': etag }});
+            response = await fetch(publicPath, { method: 'HEAD', headers: { 'If-None-Match': etag }});
         } catch (error) {
             options.publicTries ??= 0;
             if (options.publicTries < 5) {
