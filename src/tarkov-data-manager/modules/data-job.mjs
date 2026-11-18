@@ -365,13 +365,13 @@ class DataJob {
         if (response.status === 304) {
             this.logger.log(`Value of ${key} etag has not changed; skipping upload`);
             freshData = false;
-        } else if (response.ok) {
+        }/* else if (response.ok) {
             const currentValue = await response.text();
             if (dataString === currentValue) {
                 this.logger.log(`Value of ${key} has not changed; skipping upload`);
                 freshData = false;
             }
-        }
+        }*/
         const start = new Date();
         if (freshData) {
             await cloudflare.r2Put({
