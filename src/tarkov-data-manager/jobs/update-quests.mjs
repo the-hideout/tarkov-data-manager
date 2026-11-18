@@ -2736,7 +2736,6 @@ class UpdateQuestsJob extends DataJob {
                 "$.data.story.*.tasks.*['startRewards','finishRewards','failureOutcome'][*].customization[*].name",
                 "$.data.story.*.tasks.*['startRewards','finishRewards','failureOutcome'][*].customization[*].customizationTypeName",
             ]},
-            {locale: data.locale},
         );
     }
 }

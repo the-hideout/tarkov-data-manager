@@ -198,7 +198,6 @@ class UpdateTradersJob extends DataJob {
             '$.data.*.name',
             '$.data.*.description',
             ]},
-            {locale: data.locale},
         );
     }
 }
