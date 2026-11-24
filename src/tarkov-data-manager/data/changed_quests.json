@@ -893,7 +893,6 @@
             }
         },
         "propertiesChanged": {
-            "experience": 18000,
             "location_id": null,
             "locationName": "any",
             "minPlayerLevel": 25
@@ -1014,7 +1013,6 @@
             }
         },
         "propertiesChanged": {
-            "experience": 32000,
             "minPlayerLevel": 35
         }
     },
@@ -1351,7 +1349,6 @@
     "60e71c48c1bfa3050473b8e5": {
         "name": "Crisis",
         "propertiesChanged": {
-            "experience": 34000,
             "minPlayerLevel": 38
         }
     },
@@ -1574,7 +1571,6 @@
     "60e71b62a0beca400d69efc4": {
         "name": "Escort",
         "propertiesChanged": {
-            "experience": 155000,
             "minPlayerLevel": 46
         },
         "finishRewardsChanged": {
@@ -2290,45 +2286,12 @@
             }
         }
     },
-    "65734c186dc1e402c80dc19e": {
-        "propertiesChanged": {
-            "experience": 11000
-        }
-    },
-    "5edac34d0bb72a50635c2bfa": {
-        "propertiesChanged": {
-            "experience": 27500
-        }
-    },
-    "5c0d1c4cd0928202a02a6f5c": {
-        "propertiesChanged": {
-            "experience": 12500
-        }
-    },
-    "639dbaf17c898a131e1cffff": {
-        "propertiesChanged": {
-            "experience": 13200
-        }
-    },
     "5c0d0d5086f774363760aef2": {
         "propertiesChanged": {
             "experience": 3500
         }
     },
-    "5c112d7e86f7740d6f647486": {
-        "propertiesChanged": {
-            "experience": 10000
-        }
-    },
-    "6572e876dc0d635f633a5714": {
-        "propertiesChanged": {
-            "experience": 12400
-        }
-    },
     "666314b2a9290f9e0806cca3": {
-        "propertiesChanged": {
-            "experience": 16000
-        },
         "locale": {
             "de": {
                 "666314b2a9290f9e0806cca3 name": "Hölle auf Erden - Teil 2",
@@ -2337,9 +2300,6 @@
         }
     },
     "666314b0acf8442f8b0531a1": {
-        "propertiesChanged": {
-            "experience": 2300
-        },
         "locale": {
             "de": {
                 "666314b0acf8442f8b0531a1 name": "Hölle auf Erden - Teil 1",
@@ -2347,15 +2307,7 @@
             }
         }
     },
-    "639135e8c115f907b14700aa": {
-        "propertiesChanged": {
-            "experience": 12000
-        }
-    },
     "675c3582f6ddc329a90f9c6d": {
-        "propertiesChanged": {
-            "experience": 11000
-        },
         "locale": {
             "de": {
                 "675c3582f6ddc329a90f9c6d name": "Privatclub",
@@ -2365,23 +2317,10 @@
         }
     },
     "658027799634223183395339": {
-        "propertiesChanged": {
-            "experience": 12000
-        },
         "objectivesChanged": {
             "65802779963422318339533c": {
                 "count": 10
             }
-        }
-    },
-    "6573397ef3f8344c4575cd87": {
-        "propertiesChanged": {
-            "experience": 6600
-        }
-    },
-    "64e7b9bffd30422ed03dad38": {
-        "propertiesChanged": {
-            "experience": 8300
         }
     },
     "64e7b9a4aac4cd0a726562cb": {
@@ -2399,21 +2338,8 @@
             "experience": 7100
         }
     },
-    "626bd75c71bd851e971b82a5": {
-        "propertiesChanged": {
-            "experience": 7500
-        }
-    },
-    "5c0bde0986f77479cf22c2f8": {
-        "propertiesChanged": {
-            "experience": 55000
-        }
-    },
     "66aba85403e0ee3101042877": {
         "name": "Beneath The Streets",
-        "propertiesChanged": {
-            "experience": 24000
-        },
         "locale": {
             "de": {
                 "66aba85403e0ee3101042878": "Finde den Durchgang nach The Lab auf Streets of Tarkov (in einem Raid)",
