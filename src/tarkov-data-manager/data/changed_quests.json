@@ -2292,27 +2292,6 @@
             }
         }
     },
-    "5ae449c386f7744bde357697": {
-        "objectivesChanged": {
-            "5bb60cbc88a45011a8235cc5": {
-                "count": 7
-            }
-        }
-    },
-    "6179acbdc760af5ad2053585": {
-        "objectivesChanged": {
-            "617bd94c5a52d2390a2630c7": {
-                "count": 10
-            }
-        }
-    },
-    "6193850f60b34236ee0483de": {
-        "objectivesChanged": {
-            "6193dabd5f6468204470571f": {
-                "count": 4
-            }
-        }
-    },
     "65734c186dc1e402c80dc19e": {
         "propertiesChanged": {
             "experience": 11000
@@ -2390,11 +2369,6 @@
     "658027799634223183395339": {
         "propertiesChanged": {
             "experience": 12000
-        },
-        "objectivesChanged": {
-            "65802779963422318339533c": {
-                "count": 10
-            }
         }
     },
     "6573397ef3f8344c4575cd87": {
@@ -2660,11 +2634,6 @@
     },
     "6764174c86addd02bc033d68": {
         "name": "Connections Up North",
-        "objectivesChanged": {
-            "676418a60b9bcbe280972288": {
-                "count": 20
-            }
-        },
         "locale": {
             "de": {
                 "6764174c86addd02bc033d68 name": "Verbindungen im Norden",
