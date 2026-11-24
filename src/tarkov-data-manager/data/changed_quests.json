@@ -232,24 +232,6 @@
                 "693c3a9fc17c9edbfc58325a": "Übergib den im Raid gefundenen Gegenstand: goldene Mazoni-Hantel",
                 "693c3aacf0cd3ec97007f2c1": "Übergib den im Raid gefundenen Gegenstand: Tigzresq-Schiene",
                 "693c3ab82b0477e3de2b2312": "Übergib den im Raid gefundenen Gegenstand: Domontovich-Uschanka"
-            },
-            "en": {
-                "693c3a908ad994118b846d63": "Hand over the found in raid item: Nut Sack balaclava",
-                "693c3a9fc17c9edbfc58325a": "Hand over the found in raid item: Mazoni golden dumbbell",
-                "693c3aacf0cd3ec97007f2c1": "Hand over the found in raid item: Tigzresq splint",
-                "693c3ab82b0477e3de2b2312": "Hand over the found in raid item: Domontovich ushanka hat",
-                "6a084bc9ce9c4801ea14c706": "Hand over the found in raid item: Dunduk floppy disk",
-                "6a084c37c6b1ebf9df80c786": "Hand over the found in raid item: DesmondPilak CD",
-                "6a084c7cb25ea24598c24753": "Hand over the found in raid item: SheefGG piggy bank"
-            },
-            "zh": {
-                "693c3a908ad994118b846d63": "上交战局中找到的物品：Nut Sack 巴拉克拉瓦头套",
-                "693c3a9fc17c9edbfc58325a": "上交战局中找到的物品：Mazoni 金色哑铃",
-                "693c3aacf0cd3ec97007f2c1": "上交战局中找到的物品：Tigzresq 夹板",
-                "693c3ab82b0477e3de2b2312": "上交战局中找到的物品：Domontovich 毛帽",
-                "6a084bc9ce9c4801ea14c706": "上交战局中找到的物品：Dunduk 软盘",
-                "6a084c37c6b1ebf9df80c786": "上交战局中找到的物品：DesmondPilak CD 专辑",
-                "6a084c7cb25ea24598c24753": "上交战局中找到的物品：SheefGG 存钱罐"
             }
         }
     },
@@ -313,11 +295,6 @@
         "propertiesChanged": {
             "location_id": "5714dc692459777137212e12",
             "locationName": "Streets of Tarkov"
-        },
-        "locale": {
-            "de": {
-                "6396700fea19ac7ed845db32 name": "Spotter"
-            }
         },
         "comment": "per Wiki 5/8/2023"
     },
@@ -2565,67 +2542,11 @@
             ]
         }
     },
-    "5d25e46e86f77409453bce7c": {
-        "name": "Ambulance",
-        "locale": {
-            "zh": {
-                "5d25e46e86f77409453bce7c name": "急救措施"
-            }
-        }
-    },
-    "5d25e48d86f77408251c4bfb": {
-        "name": "Shady Business",
-        "locale": {
-            "zh": {
-                "5d25e48d86f77408251c4bfb name": "黑幕交易"
-            }
-        }
-    },
     "5d25e44f86f77443e625e385": {
         "name": "The Huntsman Path - Eraser - Part 1",
         "locale": {
             "zh": {
                 "5d25e44f86f77443e625e385 name": "猎人之路 - 蒸发密令 - 1"
-            }
-        }
-    },
-    "5d25e2c386f77443e7549029": {
-        "name": "The Huntsman Path - Trophy",
-        "locale": {
-            "zh": {
-                "5d25e2c386f77443e7549029 name": "猎人之路 - 战利品"
-            }
-        }
-    },
-    "6613f3007f6666d56807c929": {
-        "name": "Drip-Out - Part 1",
-        "locale": {
-            "zh": {
-                "6613f3007f6666d56807c929 name": "人靠衣装 - 1"
-            }
-        }
-    },
-    "66151401efb0539ae10875ae": {
-        "name": "Drip-Out - Part 1",
-        "locale": {
-            "zh": {
-                "66151401efb0539ae10875ae name": "人靠衣装 - 1"
-            }
-        }
-    },
-    "6613f307fca4f2f386029409": {
-        "name": "Drip-Out - Part 1",
-        "locale": {
-            "zh": {
-                "6613f307fca4f2f386029409 name": "人靠衣装 - 2"
-            }
-        }
-    },
-    "6615141bfda04449120269a7": {
-        "name": "Drip-Out - Part 1",
-        "locale": {
-            "zh": {
-                "6615141bfda04449120269a7 name": "人靠衣装 - 2"
             }
         }
     },
@@ -2636,25 +2557,6 @@
                 "675c1d6d59b0575973008fc7 name": "Die Initiative ergreifen",
                 "675c1d6d59b0575973008fc9": "Benutze den Transit von Customs nach Shoreline",
                 "675c1dbdcca03cb7f61fc735": "Überlebe und entkomme aus Shoreline"
-            },
-            "zh": {
-                "675c1d6d59b0575973008fc7 name": "先声夺人"
-            }
-        }
-    },
-    "669fa38fad7f1eac2607ed46": {
-        "name": "One Less Loose End",
-        "locale": {
-            "zh": {
-                "669fa38fad7f1eac2607ed46 name": "悬结已解"
-            }
-        }
-    },
-    "669fa3910c828825de06d69f": {
-        "name": "A Healthy Alternative",
-        "locale": {
-            "zh": {
-                "669fa3910c828825de06d69f name": "健全替代"
             }
         }
     },
@@ -2669,18 +2571,6 @@
             "de": {
                 "6764174c86addd02bc033d68 name": "Verbindungen im Norden",
                 "676418a60b9bcbe280972288": "Eliminiere PMC-Operatoren aus über 40 Metern Entfernung, während du ein Repetiergewehr mit Nacht- oder Wärmebildvisier benutzt"
-            }
-        }
-    },
-    "608974af4b05530f55550c21": {
-        "name": "Inventory Check",
-        "locale": {
-            "zh": {
-                "608bd0a053b9dd01a116f474": "检查储备站兵营东楼（黑兵）的第一个军械库",
-                "608bd2465e0ef91ab810f98a": "检查储备站兵营东楼（黑兵）的值班室",
-                "608bd0c20637f21f9934b6e4": "检查储备站兵营东楼（黑兵）的第二个军械库",
-                "608bd136c61c4b541b381da3": "检查储备站兵营南楼（白兵）的第一个军械库",
-                "608bd149f597ad0a33574d74": "检查储备站兵营南楼（白兵）的第二个军械库"
             }
         }
     },
@@ -2893,15 +2783,6 @@
             "minPlayerLevel": 10
         },
         "locale": {
-            "en": {
-                "6834158f2f0e2a7eb90b62cb": "Hand over the found in raid items from the Drinks category",
-                "6834158f2f0e2a7eb90b62cc": "Hand over the found in raid items from the Food category"
-            },
-            "zh": {
-                "6834158f2f0e2a7eb90b62c8 name": "赚点快钱 - 2（PVE）",
-                "6834158f2f0e2a7eb90b62cb": "上交战局中找到的物品：饮料",
-                "6834158f2f0e2a7eb90b62cc": "上交战局中找到的物品：食物"
-            },
             "de": {
                 "6834158f2f0e2a7eb90b62cb": "Übergib im Raid gefundene Gegenstände aus der Getränke-Kategorie"
             }
@@ -2910,13 +2791,6 @@
     "68341846186efa3c5b07f989": {
         "name": "Balancing - Part 1 [PVE ZONE]",
         "locale": {
-            "en": {
-                "68341846186efa3c5b07f98c": "Eliminate Scavs while using a Steyr AUG on any location"
-            },
-            "zh": {
-                "68341846186efa3c5b07f989 name": "平衡之力 - 1（PVE）",
-                "68341846186efa3c5b07f98c": "在任意地图使用 Steyr AUG 消灭 Scav"
-            },
             "de": {
                 "68341846186efa3c5b07f98c": "Eliminiere Scavs mit einer Steyr AUG an einem beliebigen Ort"
             }
@@ -2925,13 +2799,6 @@
     "68341a0b2f0e2a7eb90b62d4": {
         "name": "Balancing - Part 2 [PVE ZONE]",
         "locale": {
-            "en": {
-                "68341a0b2f0e2a7eb90b62d7": "Eliminate PMC operatives while wearing a PACA Soft Armor on any location"
-            },
-            "zh": {
-                "68341a0b2f0e2a7eb90b62d4 name": "平衡之力 - 2（PVE）",
-                "68341a0b2f0e2a7eb90b62d7": "在任意地图穿戴 PACA 防弹衣击杀 PMC 行动人员"
-            },
             "de": {
                 "68341a0b2f0e2a7eb90b62d7": "Eliminiere PMCs an einem beliebigen Ort, während du eine PACA-Schutzweste trägst"
             }
@@ -2940,13 +2807,6 @@
     "68341c4babec72d95d0c1260": {
         "name": "Create a Distraction - Part 1 [PVE ZONE]",
         "locale": {
-            "en": {
-                "68341c4babec72d95d0c1263": "Plant TP-200 TNT bricks on the second floor of the cafe on Ground Zero"
-            },
-            "zh": {
-                "68341c4babec72d95d0c1260 name": "声东击西 - 1（PVE）",
-                "68341c4babec72d95d0c1263": "在中心区区域的咖啡馆二楼安放 TP-200 砖型 TNT"
-            },
             "de": {
                 "68341c4babec72d95d0c1263": "Platziere TP-200 TNT-Sprengstoff im zweiten Stock des Cafés auf Ground Zero"
             }
@@ -2963,12 +2823,8 @@
     "68341b407559f4e6d50bc0ce": {
         "name": "Surprise [PVE ZONE]",
         "locale": {
-            "en": {
-                "68341b407559f4e6d50bc0d1": "Hand over the found in raid items: Class 4 or higher ballistic plates"
-            },
             "zh": {
-                "68341b407559f4e6d50bc0ce name": "平衡之力 - 2（PVE）",
-                "68341b407559f4e6d50bc0d1": "上交战局中找到的物品：四级及以上护甲插板"
+                "68341b407559f4e6d50bc0ce name": "平衡之力 - 2（PVE）"
             },
             "de": {
                 "68341b407559f4e6d50bc0d1": "Übergib im Raid gefundene ballistische Platten der Klasse 4 oder höher"
@@ -2987,12 +2843,9 @@
         "name": "Create a Distraction - Part 2 [PVE ZONE]",
         "locale": {
             "en": {
-                "68341d7d7559f4e6d50bc0de": "Eliminate Kaban's or Kollontay's guards on Streets of Tarkov",
                 "68341d7d7559f4e6d50bc0e0": "You must not kill Kaban or Kollontay while the task is active"
             },
             "zh": {
-                "68341d7d7559f4e6d50bc0db name": "声东击西 - 2（PVE）",
-                "68341d7d7559f4e6d50bc0de": "在塔科夫街区消灭 Kaban 或 Kollontay 的保镖",
                 "68341d7d7559f4e6d50bc0e0": "任务进行期间不得杀死 Kaban 或 Kollontay"
             },
             "de": {
@@ -3375,16 +3228,6 @@
         "locale": {
             "de": {
                 "66ab9da7eb102b9bcd08591f": "Benutze den Transit von Lighthouse nach Shoreline (in einem Raid)"
-            },
-            "en": {
-                "66ab9da7eb102b9bcd08591d": "Eliminate Scavs on Lighthouse (In one raid)",
-                "66ab9da7eb102b9bcd08591f": "Use the transit from Lighthouse to Shoreline (In one raid)",
-                "66ab9da7eb102b9bcd085922": "Eliminate Scavs on Shoreline (In one raid)"
-            },
-            "zh": {
-                "66ab9da7eb102b9bcd08591d": "在灯塔消灭 Scav（单场战局内完成）",
-                "66ab9da7eb102b9bcd08591f": "使用转移功能从灯塔转移到海岸线（在单次战局中）",
-                "66ab9da7eb102b9bcd085922": "在海岸线消灭 Scav（单场战局内完成）"
             }
         }
     },
@@ -4167,72 +4010,11 @@
             }
         }
     },
-    "5ac3479086f7742880308199": {
-        "name": "Insider",
-        "locale": {
-            "de": {
-                "5ac3479086f7742880308199 name": "Insider"
-            }
-        }
-    },
-    "6086c852c945025d41566124": {
-        "name": "Revision - Reserve",
-        "locale": {
-            "de": {
-                "6086c852c945025d41566124 name": "Revision - Reserve"
-            }
-        }
-    },
-    "5d6fbc2886f77449d825f9d3": {
-        "name": "Mentor",
-        "locale": {
-            "de": {
-                "5d6fbc2886f77449d825f9d3 name": "Mentor"
-            }
-        }
-    },
-    "6179b4d1bca27a099552e04e": {
-        "name": "Revision - Lighthouse",
-        "locale": {
-            "de": {
-                "6179b4d1bca27a099552e04e name": "Revision - Lighthouse"
-            }
-        }
-    },
-    "639135f286e646067c176a87": {
-        "name": "Revision - Streets of Tarkov",
-        "locale": {
-            "de": {
-                "639135f286e646067c176a87 name": "Revision - Streets of Tarkov"
-            }
-        }
-    },
-    "5ae448bf86f7744d733e55ee": {
-        "name": "Make ULTRA Great Again",
-        "locale": {
-            "de": {
-                "5ae448bf86f7744d733e55ee name": "Make ULTRA Great Again"
-            }
-        }
-    },
     "5b478d0f86f7744d190d91b5": {
         "name": "Minibus",
 		"objectivesRemoved": [
 			"6a60b0d2b5ca989d33e5b7e0"
-		],
-        "locale": {
-            "de": {
-                "5b478d0f86f7744d190d91b5 name": "Minibus"
-            }
-        }
-    },
-    "5c0bbaa886f7746941031d82": {
-        "name": "Bullshit",
-        "locale": {
-            "de": {
-                "5c0bbaa886f7746941031d82 name": "Bullshit"
-            }
-        }
+		]
     },
     "666314bafd5ca9577902e03a": {
         "name": "The Good Times - Part 2",
@@ -4392,7 +4174,6 @@
                 "6834145ebc1f443d7603c8ab": "Plant the Arena advertisement poster in the living quarters at the Scav base on Customs"
             },
             "zh": {
-                "6834145ebc1f443d7603c8a7 name": "赚点快钱 - 1（PVE）",
                 "6834145ebc1f443d7603c8ab": "将竞技场广告海报安放在海关 Scav 营地"
             }
         }
