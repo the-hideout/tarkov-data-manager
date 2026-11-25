@@ -682,7 +682,7 @@ const getItemProperties = async (tarkovDevItem) => {
             stabDamage: item._props.knifeHitStabDam,
             hitRadius: item._props.knifeHitRadius
         };
-    } else if (item._parent === '5645bcb74bdc2ded0b8b4578') {
+    } else if (hasCategory(item, '5645bcb74bdc2ded0b8b4578')) {
         properties = {
             propertiesType: 'ItemPropertiesHeadphone',
             ambientVolume: item._props.AmbientVolume,
