@@ -2265,27 +2265,6 @@
             }
         }
     },
-    "5ae449c386f7744bde357697": {
-        "objectivesChanged": {
-            "5bb60cbc88a45011a8235cc5": {
-                "count": 7
-            }
-        }
-    },
-    "6179acbdc760af5ad2053585": {
-        "objectivesChanged": {
-            "617bd94c5a52d2390a2630c7": {
-                "count": 10
-            }
-        }
-    },
-    "6193850f60b34236ee0483de": {
-        "objectivesChanged": {
-            "6193dabd5f6468204470571f": {
-                "count": 4
-            }
-        }
-    },
     "5c0d0d5086f774363760aef2": {
         "propertiesChanged": {
             "experience": 3500
@@ -2313,13 +2292,6 @@
                 "675c3582f6ddc329a90f9c6d name": "Privatclub",
                 "675c37d2da4b531ba8daaadd": "Finde und beschaffe Skiers Geldbörse auf Customs",
                 "675c37e07ac1a33fff170966": "Übergib den gefundenen Gegenstand"
-            }
-        }
-    },
-    "658027799634223183395339": {
-        "objectivesChanged": {
-            "65802779963422318339533c": {
-                "count": 10
             }
         }
     },
@@ -2488,11 +2460,6 @@
     },
     "6764174c86addd02bc033d68": {
         "name": "Connections Up North",
-        "objectivesChanged": {
-            "676418a60b9bcbe280972288": {
-                "count": 20
-            }
-        },
         "locale": {
             "de": {
                 "6764174c86addd02bc033d68 name": "Verbindungen im Norden",
