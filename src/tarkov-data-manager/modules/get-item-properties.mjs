@@ -374,7 +374,7 @@ const getItemProperties = async (tarkovDevItem) => {
         };
         if (item._parent === '5448e54d4bdc2dcc718b4568') {
             properties.propertiesType = 'ItemPropertiesArmor';
-        } else if (item._parent === '5448e5284bdc2dcb718b4567') {
+        } else if (hasCategory(item, '5448e5284bdc2dcb718b4567')) {
             properties.propertiesType = 'ItemPropertiesChestRig';
             properties = {
                 ...properties,
