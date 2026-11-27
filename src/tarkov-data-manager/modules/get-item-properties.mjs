@@ -481,14 +481,14 @@ const getItemProperties = async (tarkovDevItem) => {
                 properties.propertiesType = 'ItemPropertiesHelmet';
                 properties.deafening = item._props.DeafStrength;
                 properties.blocksHeadset = item._props.BlocksEarpiece;
-            } else if (item._parent === '57bef4c42459772e8d35a53b') {
+            } else if (hasCategory(item, '57bef4c42459772e8d35a53b')) {
                 // armored equipment
                 properties.propertiesType = 'ItemPropertiesArmorAttachment';
             } else if (item._parent === '65649eb40bf0ed77b8044453') {
                 // built-in inserts
                 properties.propertiesType = 'ItemPropertiesArmorAttachment';
-            } else if (item._parent === '644120aa86ffbe10ee032b6f') {
-                // armor plate
+            } else if (item._parent === '6ae86bbbcaa9da06590fca6d') {
+                // plates
                 properties.propertiesType = 'ItemPropertiesArmorAttachment';
             } 
         } else if (item._parent === '5a341c4086f77401f2541505') {
@@ -675,7 +675,7 @@ const getItemProperties = async (tarkovDevItem) => {
             propertiesType: 'ItemPropertiesKey',
             uses: item._props.MaximumNumberOfUsage
         };
-    } else if (item._parent === '5447e1d04bdc2dff2f8b4567') {
+    } else if (hasCategory(item, '5447e1d04bdc2dff2f8b4567')) {
         properties = {
             propertiesType: 'ItemPropertiesMelee',
             slashDamage: item._props.knifeHitSlashDam,
