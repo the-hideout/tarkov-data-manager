@@ -15,11 +15,5 @@
                 ]
             }
         }
-    },
-    "5b478d0f86f7744d190d91b5": {
-        "name": "Minibus",
-        "pve": {
-            "objectivesRemoved": []
-        }
     }
 }
