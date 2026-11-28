@@ -4189,5 +4189,14 @@
                 }
             ]
         }
+    },
+    "6a763df2161e4b45b1015663": {
+        "name": "A Familiar Face...",
+        "taskRequirementsRemoved": [
+            {
+                "id": "6895bbb0e7dac53c7c08797b",
+                "name": "Hidden story prerequisite"
+            }
+        ]
     }
 }

@@ -422,7 +422,8 @@ class UpdateQuestsJob extends DataJob {
             const filteredPrerequisiteTasks = {};
             const normalizedNames = {};
             for (const quest of quests.Task) {
-                quest.normalizedName = this.normalizeName(this.locales.en[quest.name])+(quest.factionName !== 'Any' ? `-${this.normalizeName(quest.factionName)}` : '');
+                const nameForNormalization = this.locales.en[quest.name] ?? this.getTranslation(quest.name);
+                quest.normalizedName = this.normalizeName(nameForNormalization)+(quest.factionName !== 'Any' ? `-${this.normalizeName(quest.factionName)}` : '');
                 if (!normalizedNames[quest.normalizedName]) {
                     normalizedNames[quest.normalizedName] = 1;
                 } else {

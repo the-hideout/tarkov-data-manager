@@ -9045,5 +9045,332 @@
                 "6834287b7559f4e6d50bc0fd": "Übergib den Gegenstand: Lega-Medaille"
             }
         }
+    },
+    "6a763df2161e4b45b1015663": {
+        "id": "6a763df2161e4b45b1015663",
+        "name": "A Familiar Face...",
+        "trader": "58330581ace78e27b8b10cee",
+        "location_id": "5704e4dad2720bb55b8b4567",
+        "locationName": "Lighthouse",
+        "minPlayerLevel": 0,
+        "taskRequirements": [],
+        "traderRequirements": [
+            {
+                "id": "6ae3200ac11e11de972d874b",
+                "trader_id": "58330581ace78e27b8b10cee",
+                "name": "Skier",
+                "requirementType": "level",
+                "compareMethod": ">=",
+                "value": 2,
+                "level": 2
+            }
+        ],
+        "objectives": [
+            {
+                "id": "6a763e19bd8de85aeadb9ae9",
+                "type": "extract",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "count": 1,
+                "exitName": "EXFIL_Train",
+                "exitStatus": [
+                    "Survived",
+                    "Runner"
+                ],
+                "wearing": [
+                    [
+                        {
+                            "id": "5b44d22286f774172b0c9de8",
+                            "name": "BNTI Kirasa-N body armor"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "67ab2f28dafe3b22670c9116",
+                            "name": "BNTI Kirasa-N body armor (Green)"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "68a89146212dbbeead0d5636",
+                            "name": "NFM THOR Concealable Reinforced Vest body armor (Head Eyes)"
+                        }
+                    ],
+                    [
+                        {
+                            "id": "609e8540d5c319764c2bc2e9",
+                            "name": "NFM THOR Concealable Reinforced Vest body armor"
+                        }
+                    ]
+                ]
+            }
+        ],
+        "finishRewards": {
+            "items": [
+                {
+                    "item": "569668774bdc2da2298b4568",
+                    "item_name": "Euros",
+                    "count": 1800,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "69413241b1ce1e5fbb09ed0a",
+                    "item_name": "CENS ProFlex DX5 tactical earplug",
+                    "count": 2,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "skillLevelReward": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 15000,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "6a763df2161e4b45b1015663 name": "A Familiar Face...",
+                "6a763e19bd8de85aeadb9ae9": "Extract from Lighthouse through the Armored Train while wearing a Kirasa-N or NFM THOR CRV body armor",
+                "EXFIL_Train": "Armored Train"
+            }
+        }
+    },
+    "6a763f35ce9a947b4d0918b6": {
+        "id": "6a763f35ce9a947b4d0918b6",
+        "name": "Scope the Clearing",
+        "trader": "58330581ace78e27b8b10cee",
+        "location_id": "5704e4dad2720bb55b8b4567",
+        "locationName": "Lighthouse",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "6a763df2161e4b45b1015663",
+                "name": "A Familiar Face...",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "6a763f75f576e81b8e6b8f67",
+                "type": "plantItem",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "count": 1,
+                "item": "5b4391a586f7745321235ab2",
+                "item_name": "WI-FI Camera",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "6a763f7f1ededcaf200ca692",
+                "type": "plantItem",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "count": 1,
+                "item": "5b4391a586f7745321235ab2",
+                "item_name": "WI-FI Camera",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            },
+            {
+                "id": "6a763f8ad239ab959b01b406",
+                "type": "plantItem",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "count": 1,
+                "item": "5b4391a586f7745321235ab2",
+                "item_name": "WI-FI Camera",
+                "dogTagLevel": 0,
+                "maxDurability": 100,
+                "minDurability": 0,
+                "foundInRaid": false
+            }
+        ],
+        "finishRewards": {
+            "items": [
+                {
+                    "item": "569668774bdc2da2298b4568",
+                    "item_name": "Euros",
+                    "count": 1800,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "68c2940aecc41cc5490bd40e",
+                    "item_name": "Custom Guns NL545 (GP) 5.45x39 assault rifle",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "68d566b2aa07af2e14059e01",
+                    "item_name": "AK-74 5.45x39 Magpul PMAG 30 GEN M3 30-round magazine (FDE)",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "6570900858b315e8b70a8a98",
+                    "item_name": "5.45x39mm 7N40 ammo pack (120 pcs)",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "skillLevelReward": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 15000,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "6a763f35ce9a947b4d0918b6 name": "Scope the Clearing",
+                "6a763f75f576e81b8e6b8f67": "Plant the first Wi-Fi Camera at the smuggler train platform on Lighthouse",
+                "6a763f7f1ededcaf200ca692": "Plant the second Wi-Fi Camera at the smuggler train platform on Lighthouse",
+                "6a763f8ad239ab959b01b406": "Plant the third Wi-Fi Camera at the Woods transit on Lighthouse"
+            }
+        }
+    },
+    "6a764462e432ba0a190a7fe9": {
+        "id": "6a764462e432ba0a190a7fe9",
+        "name": "Ease the Move",
+        "trader": "5935c25fb3acc3127c3d8cd9",
+        "location_id": "5704e4dad2720bb55b8b4567",
+        "locationName": "Lighthouse",
+        "minPlayerLevel": 0,
+        "taskRequirements": [
+            {
+                "task": "6a763f35ce9a947b4d0918b6",
+                "name": "Scope the Clearing",
+                "status": [
+                    "complete"
+                ]
+            }
+        ],
+        "traderRequirements": [],
+        "objectives": [
+            {
+                "id": "6a7644d7cd5859d2bae67b94",
+                "type": "mark",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "count": 1,
+                "item": "5991b51486f77447b112d44f",
+                "item_id": "5991b51486f77447b112d44f",
+                "item_name": "MS2000 Marker"
+            },
+            {
+                "id": "6a7644e7e4bd2d87892d3cfb",
+                "type": "mark",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "count": 1,
+                "item": "5991b51486f77447b112d44f",
+                "item_id": "5991b51486f77447b112d44f",
+                "item_name": "MS2000 Marker"
+            },
+            {
+                "id": "6a7644f49281c8eb4d773659",
+                "type": "mark",
+                "optional": false,
+                "locationNames": [
+                    "Lighthouse"
+                ],
+                "map_ids": [
+                    "5704e4dad2720bb55b8b4567"
+                ],
+                "count": 1,
+                "item": "5991b51486f77447b112d44f",
+                "item_id": "5991b51486f77447b112d44f",
+                "item_name": "MS2000 Marker"
+            }
+        ],
+        "finishRewards": {
+            "items": [
+                {
+                    "item": "5696686a4bdc2da3298b456a",
+                    "item_name": "Dollars",
+                    "count": 2000,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "65290f395ae2ae97b80fdf2d",
+                    "item_name": "SIG MCX-SPEAR 6.8x51 assault rifle",
+                    "count": 1,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "65293c38fc460e50a509cb25",
+                    "item_name": "AR-10 7.62x51 Lancer L7AWM 20-round magazine",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                },
+                {
+                    "item": "67600a42b32eb5d23e0eb459",
+                    "item_name": "6.8x51mm SIG FMJ ammo pack (20 pcs)",
+                    "count": 3,
+                    "contains": [],
+                    "attributes": []
+                }
+            ],
+            "skillLevelReward": []
+        },
+        "failConditions": [],
+        "restartable": false,
+        "experience": 20000,
+        "tarkovDataId": null,
+        "factionName": "Any",
+        "locale": {
+            "en": {
+                "6a764462e432ba0a190a7fe9 name": "Ease the Move",
+                "6a7644d7cd5859d2bae67b94": "Locate and mark the first Rogue stash at the abandoned island village with an MS2000 Marker on Lighthouse",
+                "6a7644e7e4bd2d87892d3cfb": "Locate and mark the second Rogue stash at the abandoned island village with an MS2000 Marker on Lighthouse",
+                "6a7644f49281c8eb4d773659": "Locate and mark the Rogue stash at the grotto with an MS2000 Marker on Lighthouse"
+            }
+        }
     }
 }
